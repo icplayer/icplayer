@@ -3,6 +3,8 @@ function AddonHierarchical_Table_Of_Contents_create() {
     var presentationController;
     var pageIndex = 0;
 
+    presenter.isVisible = null;
+
     presenter.ERROR_MESSAGES = {
     };
 
@@ -278,11 +280,8 @@ function AddonHierarchical_Table_Of_Contents_create() {
         presenter.treeID = presenter.configuration.ID + (isPreview ? "Preview" : "");
         presenter.$view.find("div").first().attr('id', presenter.treeID);
 
-        if (presenter.hasOwnProperty('isVisible')) {
-            presenter.setVisibility(presenter.isVisible);
-        } else {
-            presenter.setVisibility(presenter.configuration.isVisible || isPreview);
-        }
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+
 
         addHeader();
         if (isPreview) {
