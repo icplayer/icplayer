@@ -387,23 +387,19 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.getPageScaledScore = function(maxScore, score, isChapter, pageID) {
+        var isInPrintableMode = isInPrintableStateMode();
+        var isInPrintableEmptyState = isInPrintableEmptyStateMode();
+
+        if (isInPrintableMode && isInPrintableEmptyState)
+            return 0;
+
         if (maxScore) {
             return score / maxScore;
         }
 
-        var isInPrintableMode = isInPrintableStateMode();
-        var isInShowResultsState = isInPrintableShowResultsStateMode();
         var isPreview = isPreviewConsideringPrintableState(isInPrintableMode);
-
-        if (!isPreview && !isChapter) {
-            var isVisited = presenter.isPageVisited(pageID);
-            if (isInPrintableMode) {
-                return (isVisited && isInShowResultsState) ? 1 : 0;
-            }
-
-            return isVisited ? 1 : 0;
-        }
-
+        if (!isPreview && !isChapter)
+            return presenter.isPageVisited(pageID) ? 1 : 0;
         return 0;
     };
 
