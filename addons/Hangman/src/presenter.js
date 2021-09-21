@@ -419,14 +419,19 @@ function AddonHangman_create() {
         if (currentPhrase.errorCount === presenter.configuration.trialsCount && presenter.isActivity && !currentPhrase.EndOfTrialsWasSent) {
             presenter.sendEventData(presenter.createEndOfTrialsEventData());
             currentPhrase.EndOfTrialsWasSent = true;
-        } else if (currentPhrase.errorCount > presenter.configuration.trialsCount && presenter.isActivity) {
+        } else if (currentPhrase.errorCount > presenter.configuration.trialsCount && presenter.isActivity && !currentPhrase.endOfGame) {
             presenter.sendEndOfGameEvent();
+            currentPhrase.endOfGame = true;
         }
 
         presenter.unbindAttachedHandlers($(this));
     };
 
     presenter.sendEndOfGameEvent = function () {
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
         var eventData = presenter.createBaseEventData();
 
         eventData.value = 'EOG';
@@ -677,6 +682,7 @@ function AddonHangman_create() {
         for (var i = 0; i < phrases.length; i++) {
             phrases[i].selectedLetters = [];
             phrases[i].errorCount = 0;
+            phrases[i].endOfGame = false;
         }
 
         presenter.switchPhrase(1);
@@ -711,6 +717,18 @@ function AddonHangman_create() {
         });
     };
 
+    presenter.upgradeStateForEndOfGame = function (parsedState) {
+        if (parsedState.endOfGame == undefined) {
+            parsedState.endOfGame = false;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function (parsedState) {
+        return presenter.upgradeStateForEndOfGame(parsedState);
+    };
+
     presenter.addMarkedLetter = function (isPreview) {
         presenter.$view.find('.hangman-letter:contains(!)').next().css('display', 'none');
         var exclamationLetters = [];
@@ -742,14 +760,17 @@ function AddonHangman_create() {
 
     presenter.setState = function (stringifiedState) {
         var state = JSON.parse(stringifiedState);
+        var upgradedState = presenter.upgradeState(state);
+
         var phrases = presenter.configuration.phrases;
 
         for (var i = 0; i < phrases.length; i++) {
-            phrases[i].selectedLetters = state.phrases[i].selectedLetters;
-            phrases[i].errorCount = state.phrases[i].errorCount;
+            phrases[i].selectedLetters = upgradedState.phrases[i].selectedLetters;
+            phrases[i].errorCount = upgradedState.phrases[i].errorCount;
+            phrases[i].endOfGame = upgradedState.phrases[i].endOfGame;
         }
 
-        presenter.switchPhrase(state.currentPhrase + 1);
+        presenter.switchPhrase(upgradedState.currentPhrase + 1);
 
         presenter.addMarkedLetter(false)
     };
@@ -820,7 +841,7 @@ function AddonHangman_create() {
     };
 
     presenter.getPhraseForScoring = function () {
-        if (presenter.isErrorCheckingMode) {
+        if (presenter.isErrorCheckingMode || presenter.isShowAnswersActive) {
             return JSON.parse(presenter.workModeState).phrases;
         } else {
             return presenter.configuration.phrases;
@@ -969,7 +990,7 @@ function AddonHangman_create() {
     };
 
     presenter.hideAnswers = function () {
-        if(!presenter.isActivity){
+        if(!presenter.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
         presenter.setState(presenter.workModeState);

@@ -6,8 +6,8 @@
 */
 
 function AddonText_Coloring_create() {
-    var presenter = function () {
-    };
+    var presenter = function () {};
+    presenter.printableState = null;
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -728,6 +728,9 @@ function AddonText_Coloring_create() {
         if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
             upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
         }
+        if(!upgradedModel['Legend title']) {
+            upgradedModel['Legend title'] = 'Legend';
+        }
 
         return upgradedModel;
     };
@@ -742,6 +745,9 @@ function AddonText_Coloring_create() {
 
         var parsedText = presenter.parseText(model.text, mode);
         var validatedText = presenter.validateUsingOnlyDefinedColors(parsedText, validatedColors.value);
+        var modelText = model.text ? model.text.split(' ') : '';
+        var height = model.Height ? model.Height / 2 : 0;
+        var legendTitle = model['Legend title'] ?  model['Legend title'] : 'Legend';
 
         if (validatedText.isError) {
             return validatedText;
@@ -760,7 +766,10 @@ function AddonText_Coloring_create() {
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             mode: mode,
-            countErrors: ModelValidationUtils.validateBoolean(model.countErrors)
+            countErrors: ModelValidationUtils.validateBoolean(model.countErrors),
+            modelText: modelText,
+            height: height,
+            legendTitle: legendTitle
         };
     };
 
@@ -1489,5 +1498,174 @@ function AddonText_Coloring_create() {
         presenter.$wordTokens.removeClass(presenter.defaults.css.markings.wrong);
     };
 
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+
+        presenter.printableState = JSON.parse(state);
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var printableHTML = '';
+        var userAnswer = presenter.getUserAnswer();
+        var didUserAnswer = userAnswer ? userAnswer.some(answer => answer.isSelected) : false;
+        model = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(model);
+        var modelText = presenter.configuration.textTokens.filter(token => ![presenter.TOKENS_TYPES.SPACE, presenter.TOKENS_TYPES.NEW_LINE].includes(token.type));
+        var areAllSelectable = presenter.configuration.mode === 'ALL_SELECTABLE'
+
+        modelText.forEach((token, index) => {
+            switch (true) {
+                case (userAnswer && userAnswer[index].isSelected) && !showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value}</span> `;
+                    break;
+
+                case (userAnswer && userAnswer[index].isSelected) && showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    var answerMark = presenter.isAnswerCorrect(userAnswer[index], token.value) ? '&#10004;' : '&#10006;';
+                    printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value} ${answerMark}</span> `;
+                    break;
+
+                case token.hasOwnProperty('color') && showAnswers && !didUserAnswer:
+                    var color = presenter.getColor(model, token.color);
+                    printableHTML += `<span style="border: 2px dashed ${color}">${token.value}</span> `;
+                    break;
+
+                case token.hasOwnProperty('color') && (!areAllSelectable || showAnswers):
+                    printableHTML += `<span style="border-bottom: 1px solid">${token.value}</span> `;
+                    break;
+
+                default:
+                    printableHTML += `${token.value} `;
+            }
+        });
+
+        return presenter.createHTML(showAnswers || userAnswer, printableHTML, presenter.configuration);
+    }
+
+    presenter.createHTML = function (shouldChangeLineHeight, htmlContent) {
+        var $legend = $('<div></div>');
+        var $wrapper = $('<div></div>');
+        var colors = presenter.configuration.colors;
+        var height = presenter.configuration.height + (2 + colors.length) * 20;
+        var legendTitle = presenter.configuration.legendTitle
+        $wrapper.addClass('printable_addon_Paragraph');
+        $wrapper.css("left", "0px");
+        $wrapper.css("right", "0px");
+        $wrapper.css("height", `${height}px`);
+        $wrapper.css("padding", "10px 10px 10px 0px");
+        var $paragraph = $('<div></div>');
+        $paragraph.css("left", "0px");
+        $paragraph.css("right", "0px");
+        $paragraph.css("height", `${presenter.configuration.height}`);
+        $paragraph.css("border", "1px solid");
+        $paragraph.css("padding", "10px");
+        if (shouldChangeLineHeight) {
+            $paragraph.css("line-height", "1.5");
+        }
+        $paragraph.html(htmlContent);
+        $legend.append(presenter.createLegend(colors,  legendTitle))
+        $wrapper.append($paragraph);
+        $wrapper.append($legend);
+        return $wrapper[0].outerHTML;
+    }
+
+    /* Return colors in grayscale from the model */
+    presenter.getColors = function (model) {
+        var colors = [];
+        model['colors'].forEach(colorObject => {
+           colors.push({name: colorObject.description, value: parseToGrayscale(colorObject.color)});
+        });
+
+        return colors;
+    }
+
+    /* Returns color in hex code from color name */
+    presenter.getColorInHex = function (model, colorName) {
+        var colors =  presenter.getColors(model);
+
+        return colors.find(color => color.name === colorName).value;
+    }
+
+    /* Extracts the word from phrase \\color{color}{word} */
+    presenter.getWord = function (phrase) {
+        var regExp = /(\\color{\w*}{)/;
+        return phrase.replace(regExp, '').replace(/}/, '');
+    }
+
+    /* Extracts the color from phrase and convert into grayscale \\color{color}{word} */
+    presenter.getColor = function (model, color) {
+        return parseToGrayscale(presenter.getColorInHex(model, color));
+    }
+
+    /* Return user answers */
+    presenter.getUserAnswer = function () {
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('tokens')) {
+            return presenter.printableState['tokens'];
+        }
+
+        return null;
+    }
+
+    /* Checks if the user answer is correct */
+    presenter.isAnswerCorrect = function (userAnswer, modelAnswer) {
+        return modelAnswer.includes(`{${userAnswer.selectionColorID}}{${userAnswer.value}}`);
+    }
+
+    presenter.createLegend = function (colors, legendTitle) {
+        var $table = $("<table></table>");
+        var $tbody = $("<tbody></tbody>");
+
+        $tbody.append($(`<caption>${legendTitle}</caption>`));
+        colors.forEach(colorObject => {
+            var $tr = $("<tr></tr>");
+
+            var $td = $("<td><div style='width: 20px; height: 10px'></div></td>");
+            $td.css('background', parseToGrayscale(colorObject.color));
+
+            var $description = $(`<td><div style="padding-left: 10px">${colorObject.description}</div></td>`);
+
+            $tr.append($td);
+            $tr.append($description);
+            $tbody.append($tr);
+        });
+        $table.append($tbody);
+
+        return $table
+    }
+
     return presenter;
+}
+
+function parseToGrayscale(hexColor) {
+    var rgbColor = hexToRGB(hexColor);
+    return rgbToGrayscaleHex(rgbColor);
+}
+
+function hexToRGB(hexColor) {
+    var r = 0, g = 0, b = 0;
+
+    if (hexColor.length === 4) {
+        r = '0x' + hexColor[1] + hexColor[1];
+        g = '0x' + hexColor[2] + hexColor[2];
+        b = '0x' + hexColor[3] + hexColor[3];
+    } else if (hexColor.length === 7) {
+        r = '0x' + hexColor[1] + hexColor[2];
+        g = '0x' + hexColor[3] + hexColor[4];
+        b = '0x' + hexColor[5] + hexColor[6];
+    }
+
+    return [+r, +g, +b];
+}
+
+function rgbToGrayscaleHex(rgbColor) {
+    var grayIntensity = Math.round(0.3 * rgbColor[0] + 0.59 * rgbColor[1] + 0.11 * rgbColor[2]);
+
+    return '#' + decimalToHex(grayIntensity) + decimalToHex(grayIntensity) + decimalToHex(grayIntensity);
+}
+
+function decimalToHex(value) {
+    var hex = value.toString(16);
+    return hex.length === 1 ? `0${hex}` : hex;
 }

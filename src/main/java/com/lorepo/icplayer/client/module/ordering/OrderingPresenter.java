@@ -149,7 +149,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void hideAnswers() {
-		if (!module.isActivity()) { return; }
+		if (!module.isActivity() || !this.isShowAnswersActive) {
+			return;
+		}
 
 		view.removeCorrectAnswersStyles();
 		this.isShowAnswersActive = false;

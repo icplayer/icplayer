@@ -1153,6 +1153,10 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         cleanShowAnswersStyles();
 
         for(var row = 0; row < presenter.configuration.rows; row++) {

@@ -375,6 +375,9 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
+	public void clearVisitedPages() { this.playerController.clearVisitedPages(); };
+
+	@Override
 	public void sendExternalEvent(String eventType, String data) {
 		this.playerController.sendExternalEvent(eventType, data);
 
