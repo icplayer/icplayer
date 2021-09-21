@@ -298,7 +298,7 @@ function AddonLine_Selection_create(){
         }
     };
     presenter.hideAnswers = function () {
-        if (presenter.activity) {
+        if (presenter.activity && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
             presenter.$view.find('.lines_selection').removeClass('show_answers');
             presenter.$view.find('.show_answers_ok').removeClass('show_answers_ok');

@@ -248,6 +248,7 @@ TestCase("[Text_Coloring] Model Validation flow", {
         var buttonsPosition = "left";
         var showSetEraserButtonMode = "False";
         var hideColorsButtons = "False";
+        var showAllAnswersInGradualShowAnswersMode = "False";
         var modelID = "Text_Coloring_1";
         var eraserButtonText = "Argh";
 
@@ -259,12 +260,15 @@ TestCase("[Text_Coloring] Model Validation flow", {
             colors: colorsValue,
             textTokens: parsedText,
             buttonsPosition: buttonsPosition,
+            showAllAnswersInGradualShowAnswersMode: false,
             showSetEraserButtonMode: false,
             hideColorsButtons: false,
             eraserButtonText: eraserButtonText,
             mode: "MARK_PHRASES",
-            countErrors: false
-
+            countErrors: false,
+            modelText: ['Example', 'text'],
+            height: 50,
+            legendTitle: "Legend"
         };
 
         this.stubs.validateColors.returns({
@@ -280,9 +284,12 @@ TestCase("[Text_Coloring] Model Validation flow", {
             ID: modelID,
             buttonsPosition: buttonsPosition,
             hideColorsButtons: hideColorsButtons,
+            showAllAnswersInGradualShowAnswersMode: showAllAnswersInGradualShowAnswersMode,
             showSetEraserModeButton: showSetEraserButtonMode,
             eraserButtonText: eraserButtonText,
-            Mode: "Mark phrases to select"
+            Mode: "Mark phrases to select",
+            text: "Example text",
+            Height: 100
         });
 
 

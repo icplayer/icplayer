@@ -10,9 +10,12 @@
 		<property name="text" displayName="Text" nameLabel="Text_Coloring_property_text" type="text" isDefault="true" isLocalized="true"/>
 		<property name="buttonsPosition" displayName="Buttons position" nameLabel="Text_Coloring_property_buttons_position" type="{left, top, bottom, right}" />
 		<property name="hideColorsButtons" displayName="Hide Color Buttons" nameLabel="Text_Coloring_property_hide_color_buttons" type="boolean" />
+		<property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
 		<property name="showSetEraserModeButton" displayName="Show set eraser mode button" nameLabel="Text_Coloring_property_show_set_eraser_mode_button" type="boolean" />
 		<property name="eraserButtonText" displayName="Eraser button text" nameLabel="Text_Coloring_property_eraser_button_text" type="string" isLocalized="true" />
 		<property name='Mode' nameLabel="Text_Selection_property_mode" type='{All selectable, Mark phrases to select}'/>
 		<property name="countErrors" displayName="Count Errors" nameLabel="Text_Coloring_property_count_errors" type="boolean" />
+		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}"/>
+		<property name="Legend title" nameLabel="legend_title" type="string"/>
 	</model>
 </addon>

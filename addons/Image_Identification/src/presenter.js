@@ -5,8 +5,10 @@ function AddonImage_Identification_create(){
     var eventBus;
     var isWCAGOn = false;
 
+    presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = 0;
+    presenter.GSAcounter = 0;
     presenter.PRINTABLE_STATE_MODE = {
         EMPTY: 0,
         SHOW_ANSWERS: 1,
@@ -345,12 +347,15 @@ function AddonImage_Identification_create(){
     };
 
     presenter.run = function(view, model){
-        eventBus = playerController.getEventBus();
+        presenter.eventBus = playerController.getEventBus();
+        addonID = model.ID;
 
         presenterLogic(view, model, false);
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.reset = function() {
@@ -574,13 +579,30 @@ function AddonImage_Identification_create(){
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
+    presenter.getActivitiesCount = function () {
+        if(presenter.configuration.shouldBeSelected) {
+            return 1;
         }
+        return 0;
+    }
 
-        if (eventName == "HideAnswers") {
+    presenter.onEventReceived = function (eventName, data) {
+        if (eventName === "ShowAnswers") {
+            presenter.showAnswers();
+        } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
+        } else if(eventName === "GradualShowAnswers") {
+            presenter.GSAcounter++;
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            } 
+            if(presenter.GSAcounter === 1) presenter.hideStudentAnswersForGSA();
+            if (data.moduleID === presenter.configuration.addonID) {
+                presenter.showAnswers();
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.hideAnswers();
+            presenter.isGradualShowAnswersActive = false;
         }
     };
 
@@ -593,6 +615,13 @@ function AddonImage_Identification_create(){
         var element = presenter.$view.find('div:first')[0];
 
         $(element).removeClass(style);
+    }
+
+    presenter.hideStudentAnswersForGSA = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.configuration.isErrorCheckMode = true;
+
+        presenter.$view.find('.image-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("image-identification-element was-selected");
     }
 
     presenter.showAnswers = function () {
@@ -615,7 +644,7 @@ function AddonImage_Identification_create(){
     };
 
     presenter.hideAnswers = function () {
-        if(!presenter.configuration.isActivity){
+        if(!presenter.configuration.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
@@ -627,6 +656,7 @@ function AddonImage_Identification_create(){
          $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
+        presenter.GSAcounter = 0;
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {

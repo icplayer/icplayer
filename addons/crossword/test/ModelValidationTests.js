@@ -28,6 +28,9 @@ TestCase("Model validation", {
     },
 
     'test proper model': function() {
+        window.ModelValidationUtils = {
+            validateBoolean: sinon.stub(),
+        };
         var validatedModel = this.presenter.readConfiguration(this.model);
         assertFalse(validatedModel.isError);
     },
@@ -121,5 +124,29 @@ TestCase("Model validation", {
         var validatedModel = this.presenter.readConfiguration(this.model);
         assertTrue(validatedModel.isError);
         assertEquals(this.presenter.ERROR_MESSAGES.EXCLAMATION_MARK_BEFORE_EMPTY_FIELD, validatedModel.errorMessage);
-    }
+    },
+
+    'test prepareCorrectAnswers prepares correct Answers': function () {
+        this.presenter.rowCount = 5;
+        this.presenter.columnCount = 7;
+        this.presenter.wordNumbersHorizontal = true;
+        this.presenter.wordNumbersVertical = true;
+        this.presenter.crossword = [
+            ["E", "N", "G", "L", "I", "S", "H"],
+            [" ", " ", " ", "O", " ", " ", " "],
+            [" ", "N", "E", "V", "E", "R", " "],
+            [" ", "E", " ", "E", " ", " ", " "],
+            [" ", "W", " ", " ", " ", " ", " "],
+        ];
+
+        let expectedPreparedAnswers = [
+            { answer: "ENGLISH", isHorizontal: true, position: { x: 0, y: 0 } },
+            { answer: "LOVE", isHorizontal: false, position: { x: 3, y: 0 } },
+            { answer: "NEVER", isHorizontal: true, position: { x: 1, y: 2 } },
+            { answer: "NEW", isHorizontal: false, position: { x: 1, y: 2 } },
+        ];
+        this.presenter.prepareCorrectAnswers();
+        assertEquals(JSON.stringify(this.presenter.correctAnswers), JSON.stringify(expectedPreparedAnswers));
+    },
+
 });

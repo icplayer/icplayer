@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.page.mockup;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.lorepo.icplayer.client.metadata.IScoreWithMetadataService;
 import org.mockito.Mockito;
 
 import com.lorepo.icplayer.client.IPlayerController;
@@ -281,10 +282,20 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+	@Override
+	public void clearVisitedPages() {
+
+	}
+
 
 	@Override
 	public IAdaptiveLearningService getAdaptiveLearningService() {
 		return this.adaptiveLearningService;
+	}
+
+	@Override
+	public IScoreWithMetadataService getScoreWithMetadataService() {
+		return null;
 	}
 
 

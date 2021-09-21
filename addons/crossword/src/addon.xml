@@ -17,5 +17,6 @@
 		<property name="Marked column index" nameLabel="crossword_property_marked_column_index" type="string" />
 		<property name="Marked row index" nameLabel="crossword_property_marked_row_index" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="crossword_property_block_wrong_answers" type="boolean" />
+		<property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
 	</model>
 </addon>

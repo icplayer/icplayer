@@ -4,8 +4,11 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableParams;
+
+import java.util.List;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -133,6 +136,13 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getCurrentStyles = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getCurrentStyles()(); 
 			}
+
+			player.getScoreWithMetadata = function () {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getScoreWithMetadata()();
+			}
+			player.setScoreWithMetadata = function (state) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(state);
+			};
 		}
 
 		// CreatePlayer
@@ -346,5 +356,18 @@ public class PlayerEntryPoint implements EntryPoint {
 			}
 			
 		});
+	}
+
+	private JavaScriptObject getScoreWithMetadata() {
+		JavaScriptObject jsScores = JavaScriptUtils.createEmptyJsArray();
+		List<ScoreWithMetadata> scores = theApplication.getScoreWithMetadata();
+		for (ScoreWithMetadata score: scores) {
+			JavaScriptUtils.addElementToJSArray(jsScores, score.getJSObject());
+		}
+		return jsScores;
+	}
+
+	private void setScoreWithMetadata(String state) {
+		this.theApplication.setScoreWithMetadata(state);
 	}
 }

@@ -13,9 +13,10 @@ TestCase("[MathText] Check answers tests", {
             attrStub: sinon.stub(),
             removeAttrStub: sinon.stub(),
             removeStub: sinon.stub(),
-            addStub: sinon.stub()
+            addStub: sinon.stub(),
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
         };
-
+        this.stubs.isWirisEnableStub.returns(true);
         this.stubs.getScoreStub.returns(1);
         this.stubs.getMathMLStub.returns('MathML');
         this.stubs.findStub.returns({

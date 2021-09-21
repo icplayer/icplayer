@@ -45,6 +45,10 @@ The Addon supports both click & click and drag & drop operating methods. You may
         <td>Enables to define whether the module is an activity or not.</td>
     </tr>
 <tr>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>If this property is selected the gradual show answer button will show correct answers for entire addon.</td>
+    </tr>
+<tr>
         <td>Is disabled</td>
         <td>Allows to disable the module so that it won't be possible to select any point.</td>
     </tr>

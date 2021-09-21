@@ -984,6 +984,10 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.configuration.isShowAnswersActive) {
+            return;
+        }
+
         presenter.gapsContainer.hideAnswers();
         presenter.isErrorsMode = false;
     };

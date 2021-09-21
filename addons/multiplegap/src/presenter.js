@@ -1434,9 +1434,11 @@ function Addonmultiplegap_create(){
                 presenter.isGradualShowAnswersActive = true;
 
                 presenter.getTemporaryData();
+                setUpResetOnce();
             }
 
             if (presenter.configuration.ID === eventData.moduleID) {
+                presenter.resetOnce();
                 presenter.gradualShowAnswers(parseInt(eventData.item, 10));
             }
         } else if (eventName === 'GradualHideAnswers') {
@@ -1524,6 +1526,10 @@ function Addonmultiplegap_create(){
     }
     
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         presenter.$view.find('.placeholder-show-answers').remove();
         
         if(presenter.tmpState){
@@ -1762,6 +1768,18 @@ function Addonmultiplegap_create(){
     presenter.gradualHideAnswers = function () {
         presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = false;
+    }
+
+    function setUpResetOnce() {
+        presenter.resetOnce = (function() {
+            var didReset = false;
+            return function() {
+                if(!didReset) {
+                    didReset = true;
+                    presenter.reset();
+                }
+            };
+        })();
     }
 
     return presenter;

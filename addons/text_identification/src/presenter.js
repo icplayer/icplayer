@@ -14,6 +14,7 @@ function Addontext_identification_create() {
     presenter.keyboardControllerObject = null;
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.GSAcounter = 0;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -428,8 +429,10 @@ function Addontext_identification_create() {
     presenter.run = function(view, model){
         presenterLogic(view, model, false);
 
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.reset = function() {
@@ -522,33 +525,55 @@ function Addontext_identification_create() {
         }
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.getActivitiesCount = function () {
+        if(presenter.configuration.shouldBeSelected) 
+            return 1;
+        return 0;
+    }
+
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
+        } else if (eventName == "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            presenter.GSAcounter++;
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            }
+            if(presenter.GSAcounter === 1) presenter.hideStudentAnswersForGSA();
+            if (data.moduleID === presenter.configuration.addonID) {
+                presenter.showAnswers();
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.hideAnswers();
+            presenter.isGradualShowAnswersActive = false;
         }
     };
 
-    function applySelectionStyleShowAnswers (style){
+    function applySelectionStyleShowAnswers (style) {
         var element = presenter.$view.find('div:first')[0];
         $(element).addClass(style);
     }
 
-    function applySelectionStyleHideAnswers (style){
+    function applySelectionStyleHideAnswers (style) {
         var element = presenter.$view.find('div:first')[0];
 
         $(element).removeClass(style);
         $(element).removeClass(CSS_CLASSES.EMPTY).addClass(CSS_CLASSES.ELEMENT);
     }
 
+    presenter.hideStudentAnswersForGSA = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.configuration.isErrorCheckMode = true;
+        
+        presenter.$view.find('.text-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("text-identification-element was-selected");
+    }
+
     presenter.showAnswers = function () {
         presenter.isShowAnswersActive = true;
-
         presenter.configuration.isErrorCheckMode = true;
-
+        
         presenter.$view.find('.text-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("text-identification-element was-selected");
         presenter.$view.find('.text-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("text-identification-element was-selected");
 
@@ -560,6 +585,10 @@ function Addontext_identification_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         presenter.configuration.isErrorCheckMode = false;
 
         applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);
@@ -568,6 +597,7 @@ function Addontext_identification_create() {
         $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
+        presenter.GSAcounter = 0;
     };
 
     function TextIdentificationKeyboardController (elements, columnsCount) {
