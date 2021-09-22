@@ -1,3 +1,4 @@
+2021-09-22 Added tests for the printable version of Hierarchical Lesson Report
 2021-09-21 Added functionality for the printable version of Hierarchical Lesson Report
 2021-09-21 Added functionality for the printable version in preview of Hierarchical Lesson Report
 2021-09-21 Added functionality to extract content information for Printable Controller
