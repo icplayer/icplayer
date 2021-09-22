@@ -1,0 +1,28 @@
+.group-chat-button-wrapper {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+}
+
+.group-chat-button-element {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    background: url('resources/gcb-button.png') no-repeat center;
+    cursor: pointer;
+}
+
+.group-chat-button-title,
+.group-chat-button-image {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+}
+
+.group-chat-button-title  {
+	color: #00F;
+	text-decoration: none;
+}
