@@ -49,10 +49,8 @@ function AddonHierarchical_Lesson_Report_create() {
         PRINTABLE_HIER_REPORT_ODD: "printable_hier_report-odd",
         PRINTABLE_HIER_REPORT_EVEN: "printable_hier_report-even",
         PRINTABLE_HIER_REPORT_HEADER: "printable_hier_report-header",
-        PRINTABLE_HIER_REPORT_TITLE_HEADER: "printable_hier_report-header-title",
         PRINTABLE_HIER_REPORT_PROGRESS_HEADER: "printable_hier_report-header-progress",
         PRINTABLE_HIER_REPORT_FOOTER: "printable_hier_report-footer",
-        PRINTABLE_HIER_REPORT_TITLE_FOOTER: "printable_hier_report-footer-title",
         PRINTABLE_HIER_REPORT_PROGRESS: "printable_hier_report-progress",
         PRINTABLE_HIER_REPORT_CHECKS: "printable_hier_report-checks",
         PRINTABLE_HIER_REPORT_MISTAKES: "printable_hier_report-mistakes",
@@ -129,7 +127,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
         var $row = generateHeaderRow(isInPrintableMode);
 
-        addTitleHeaderCell($row, labels.title, isInPrintableMode);
+        addTitleCell($row, labels.title);
         if (configuration.showResults)
             addResultsHeaderCell($row, labels.results, isInPrintableMode);
         if (configuration.showChecks)
@@ -146,92 +144,13 @@ function AddonHierarchical_Lesson_Report_create() {
         $row.prependTo($view);
     }
 
-    function generateHeaderRow(isInPrintableMode) {
-        var $row = $(document.createElement('tr'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_HEADER
-            : CSS_CLASSES.HIER_REPORT_HEADER;
-        $row.addClass(cssClass);
-        return $row;
-    }
-
-    function addTitleHeaderCell($row, title, isInPrintableMode) {
-        var $cell =  $(document.createElement('td'));
-        if (isInPrintableMode)
-            $cell.addClass(CSS_CLASSES.PRINTABLE_HIER_REPORT_TITLE_HEADER);
-        $cell.html(title);
-        $cell.appendTo($row);
-    }
-
-    function addResultsHeaderCell($row, header, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS_HEADER
-            : CSS_CLASSES.HIER_REPORT_PROGRESS;
-        $cell.addClass(cssClass);
-        $cell.html(header);
-        $cell.appendTo($row);
-    }
-
-    function addChecksCell($row, checks, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_CHECKS
-            : CSS_CLASSES.HIER_REPORT_CHECKS;
-        $cell.addClass(cssClass);
-        $cell.html(checks);
-        $cell.appendTo($row);
-    }
-
-    function addMistakesCell($row, mistakes, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_MISTAKES
-            : CSS_CLASSES.HIER_REPORT_MISTAKES;
-        $cell.addClass(cssClass);
-        $cell.html(mistakes);
-        $cell.appendTo($row);
-    }
-
-    function addErrorsCell($row, errors, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_ERRORS
-            : CSS_CLASSES.HIER_REPORT_ERRORS;
-        $cell.addClass(cssClass);
-        $cell.html(errors);
-        $cell.appendTo($row);
-    }
-
-    function addPageScoreCell($row, pageScore, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        var cssClass = isInPrintableMode
-            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
-            : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
-        $cell.addClass(cssClass);
-        $cell.html(pageScore);
-        $cell.appendTo($row);
-    }
-
-    function addMaxScoreAwardCell($row, maxScoreAward, isInPrintableMode) {
-        var $cell = $(document.createElement('td'));
-        if (maxScoreAward !== null) {
-            var cssClass = isInPrintableMode
-                ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_MAX_SCORE
-                : CSS_CLASSES.HIER_REPORT_PAGE_MAX_SCORE;
-            $cell.addClass(cssClass);
-            $cell.html(maxScoreAward);
-        }
-        $cell.appendTo($row);
-    }
-
     function addFooter(configuration, $view) {
         var isInPrintableMode = isInPrintableStateMode();
         var lessonScore = getLessonScore();
 
         var $row = generateFooterRow(isInPrintableMode);
 
-        addTitleFooterCell($row, configuration.labels.total, isInPrintableMode);
+        addTitleCell($row, configuration.labels.total);
         if (configuration.showResults)
             addResultsFooterCell($row, isInPrintableMode);
         if (configuration.showChecks)
@@ -243,25 +162,85 @@ function AddonHierarchical_Lesson_Report_create() {
         if (configuration.showPageScore)
             addPageScoreFooterCell($row, lessonScore, isInPrintableMode);
         if (configuration.showMaxScoreField)
-            addMaxScoreAwardCell($row, null, isInPrintableMode);
+            addMaxScoreAwardCell($row, undefined, isInPrintableMode);
 
         $row.appendTo($view);
     }
 
+    function generateHeaderRow(isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_HEADER
+            : CSS_CLASSES.HIER_REPORT_HEADER;
+        return generateRow(className);
+    }
+
     function generateFooterRow(isInPrintableMode) {
-        var $row = $(document.createElement('tr'));
-        var cssClass = isInPrintableMode
+        const className = isInPrintableMode
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_FOOTER
             : CSS_CLASSES.HIER_REPORT_FOOTER;
-        $row.addClass(cssClass);
+        return generateRow(className);
+    }
+
+    function generateRow(className) {
+        var $row = $(document.createElement('tr'));
+        $row.addClass(className);
         return $row;
     }
 
-    function addTitleFooterCell($row, title, isInPrintableMode) {
-        var $cell =  $(document.createElement('td'));
-        if (isInPrintableMode)
-            $cell.addClass(CSS_CLASSES.PRINTABLE_HIER_REPORT_TITLE_FOOTER);
-        $cell.html(title);
+    function addTitleCell($row, title) {
+        addCell($row, title);
+    }
+
+    function addResultsHeaderCell($row, header, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS_HEADER
+            : CSS_CLASSES.HIER_REPORT_PROGRESS;
+        addCell($row, header, className);
+    }
+
+    function addChecksCell($row, checks, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_CHECKS
+            : CSS_CLASSES.HIER_REPORT_CHECKS;
+        addCell($row, checks, className);
+    }
+
+    function addMistakesCell($row, mistakes, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_MISTAKES
+            : CSS_CLASSES.HIER_REPORT_MISTAKES;
+        addCell($row, mistakes, className);
+    }
+
+    function addErrorsCell($row, errors, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_ERRORS
+            : CSS_CLASSES.HIER_REPORT_ERRORS;
+        addCell($row, errors, className);
+    }
+
+    function addPageScoreCell($row, pageScore, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
+            : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
+        addCell($row, pageScore, className);
+    }
+
+    function addMaxScoreAwardCell($row, maxScoreAward, isInPrintableMode) {
+        const className = maxScoreAward
+            ? (isInPrintableMode
+                ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_MAX_SCORE
+                : CSS_CLASSES.HIER_REPORT_PAGE_MAX_SCORE)
+            : undefined;
+        addCell($row, maxScoreAward, className);
+    }
+
+    function addCell($row, value, className) {
+        var $cell = $(document.createElement('td'));
+        if (className !== undefined)
+            $cell.addClass(className);
+        if (value !== undefined)
+            $cell.html(value);
         $cell.appendTo($row);
     }
 
@@ -302,34 +281,34 @@ function AddonHierarchical_Lesson_Report_create() {
         $(row).appendTo($view.find('table'));
         $(row).addClass(configuration.classes[index % configuration.classes.length]);
 
-        var nodeCssClass = isInPrintableMode
+        var nodeClassName = isInPrintableMode
           ? CSS_CLASSES.PRINTABLE_HIER_REPORT_NODE + '-' + index
           : "treegrid-" + index;
-        $(row).addClass(nodeCssClass);
+        $(row).addClass(nodeClassName);
 
         if (parentIndex != null) {
-            var parentNodeCssClass = isInPrintableMode
+            var parentNodeClassName = isInPrintableMode
               ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PARENT + '-' + parentIndex
               : "treegrid-parent-" + parentIndex
-            $(row).addClass(parentNodeCssClass);
+            $(row).addClass(parentNodeClassName);
         }
 
         var isOdd = index % 2 > 0;
-        var typeCssClass = isChapter
-          ? getRowChapterCSSCLass(isInPrintableMode)
-          : getRowPageCSSClass(isOdd, isInPrintableMode);
-        $(row).addClass(typeCssClass);
+        var typeClassName = isChapter
+          ? getRowChapterClassName(isInPrintableMode)
+          : getRowPageClassName(isOdd, isInPrintableMode);
+        $(row).addClass(typeClassName);
 
         return row;
     }
 
-    function getRowChapterCSSCLass(isInPrintableMode) {
+    function getRowChapterClassName(isInPrintableMode) {
         return isInPrintableMode
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_CHAPTER
             : CSS_CLASSES.HIER_REPORT_CHAPTER;
     }
 
-    function  getRowPageCSSClass(isOdd, isInPrintableMode) {
+    function  getRowPageClassName(isOdd, isInPrintableMode) {
         if (isOdd) {
             return isInPrintableMode
               ? CSS_CLASSES.PRINTABLE_HIER_REPORT_ODD
@@ -344,10 +323,10 @@ function AddonHierarchical_Lesson_Report_create() {
         var progressCell = document.createElement('td');
         $(progressCell).appendTo($(row));
 
-        var progressCellCssClass = isInPrintableState
+        var progressCellClassName = isInPrintableState
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS
             : CSS_CLASSES.HIER_REPORT_PROGRESS;
-        $(progressCell).addClass(progressCellCssClass);
+        $(progressCell).addClass(progressCellClassName);
 
         var percent = Math.floor(score.score / score.count * 100);
         var innerHTML = percent + "%";
@@ -460,23 +439,21 @@ function AddonHierarchical_Lesson_Report_create() {
             var c = configuration;
             var columns = [c.showResults, c.showChecks, c.showMistakes, c.showErrors, c.showPageScore, c.showMaxScoreField].filter(function(a) { return a }).length;
             var $colspan = $("<td colspan='" + columns + "'></td>");
-            var cssClass = isInPrintableMode
+            const className = isInPrintableMode
                 ? CSS_CLASSES.PRINTABLE_HIER_REPORT_SCORE_DISABLED_ROW
                 : CSS_CLASSES.HIER_REPORT_SCORE_DISABLED_ROW;
-            $colspan.addClass(cssClass);
+            $colspan.addClass(className);
             $colspan.appendTo($(row));
         }
     }
 
     function getScoreByPageIdForScoreCell(pageId, isInPrintableMode) {
-        var isPreview = isPreviewConsideringPrintableState(isInPrintableMode);
+        if (isPreviewConsideringPrintableState(isInPrintableMode))
+            return resetScore();
 
-        if (!isPreview) {
-            if (isInPrintableMode)
-                return getPrintablePageScoreById(pageId);
-            return presentationController.getScore().getPageScoreById(pageId);
-        }
-        return resetScore();
+        if (isInPrintableMode)
+            return getPrintablePageScoreById(pageId);
+        return presentationController.getScore().getPageScoreById(pageId);
     }
 
     function getPrintablePageScoreById(pageId) {
@@ -484,11 +461,8 @@ function AddonHierarchical_Lesson_Report_create() {
         if (score === null)
             return resetScore();
 
-        var isPageHaveScore = score.hasOwnProperty(pageId);
-        if (isPageHaveScore) {
+        if (score.hasOwnProperty(pageId))
             return {...score[pageId]}
-        }
-
         return resetScore();
     }
 
@@ -501,14 +475,14 @@ function AddonHierarchical_Lesson_Report_create() {
         var $cell = $(document.createElement('td'));
 
         var isMaxScore = pageScore === score.maxScore && score.maxScore !== 0;
-        var cssClass = isMaxScore
+        const className = isMaxScore
             ? (isInPrintableMode
                 ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_MAX_SCORE
                 : CSS_CLASSES.HIER_REPORT_PAGE_MAX_SCORE)
             : (isInPrintableMode
                 ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_NON_MAX_SCORE
                 : CSS_CLASSES.HIER_REPORT_PAGE_NON_MAX_SCORE);
-        $cell.addClass(cssClass);
+        $cell.addClass(className);
 
         if (!isInPrintableMode) {
             var $element = generateMaxScoreLinks(pageId, isMaxScore);
@@ -519,10 +493,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function generateMaxScoreLinks(pageId, isMaxScore) {
         var $element = $(document.createElement('td'));
-        var cssClass = isMaxScore
+        const className = isMaxScore
             ? CSS_CLASSES.HIER_REPORT_PAGE_MAX_SCORE
             : CSS_CLASSES.HIER_REPORT_PAGE_NON_MAX_SCORE;
-        $element.addClass(cssClass);
+        $element.addClass(className);
 
         var $link = $("<a></a>").attr('href', '#').attr('data-page-id', pageId);
         $link.append($element);
@@ -555,12 +529,12 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     function generateSeparator(isInPrintableState) {
-        var cssClass = isInPrintableState
+        const className = isInPrintableState
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_SEPARATOR
             : CSS_CLASSES.HIER_REPORT_SEPARATOR;
         var $separator = $('<span></span>');
         $separator.html('/');
-        $separator.addClass(cssClass);
+        $separator.addClass(className);
         return $separator;
     }
 
@@ -672,41 +646,40 @@ function AddonHierarchical_Lesson_Report_create() {
         createScoreCells(row, pageId, index, isChapter, configuration, isInPrintableMode);
     }
 
-    function updateRow(row, pageIndex, pageScore) {
+    function updateRow($row, pageIndex, pageScore) {
         var hasChildren = pageScore.count > 0;
 
         var configuration = getConfiguration();
         var isInPrintableMode = isInPrintableStateMode();
 
         if (configuration.showResults)
-            updateResultsCell($(row), pageIndex, pageScore.score, pageScore.count, hasChildren, isInPrintableMode);
+            updateResultsCell($row, pageIndex, pageScore.score, pageScore.count, hasChildren, isInPrintableMode);
         if (configuration.showChecks)
-            updateChecksCell($(row), pageScore.checkCount, hasChildren, isInPrintableMode);
+            updateChecksCell($row, pageScore.checkCount, hasChildren, isInPrintableMode);
         if (configuration.showMistakes)
-            updateMistakesCell($(row), pageScore.mistakeCount, hasChildren, isInPrintableMode);
+            updateMistakesCell($row, pageScore.mistakeCount, hasChildren, isInPrintableMode);
         if (configuration.showErrors)
-            updateErrorsCell($(row), pageScore.errorCount, hasChildren, isInPrintableMode);
+            updateErrorsCell($row, pageScore.errorCount, hasChildren, isInPrintableMode);
         if (configuration.showPageScore)
-            updatePageScoreCell($(row), pageScore, hasChildren, configuration, isInPrintableMode);
+            updatePageScoreCell($row, pageScore, hasChildren, configuration, isInPrintableMode);
     }
 
-    function updateResultsCell($view, pageIndex, score, count, hasChildren, isInPrintableMode) {
+    function updateResultsCell($row, pageIndex, score, count, hasChildren, isInPrintableMode) {
         if (isInPrintableMode)
-            updateResultsPrintableCell($view, pageIndex, score, count, hasChildren);
+            updateResultsPrintableCell($row, pageIndex, score, count, hasChildren);
         else
-            updateResultsRunCell($view, pageIndex, score, count, hasChildren);
+            updateResultsRunCell($row, pageIndex, score, count, hasChildren);
     }
 
-    function updateResultsPrintableCell($view, pageIndex, score, count, hasChildren) {
-        var searchPhrase = `.${CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS}`;
-        var percent = Math.floor((score / count) * 100) || 0;
-        var innerHTML = hasChildren ? percent + '%' : '-';
-        $view.find(searchPhrase).html(innerHTML);
+    function updateResultsPrintableCell($row, pageIndex, score, count, hasChildren) {
+        const className = CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS;
+        const percent = (Math.floor((score / count) * 100) || 0) + '%';
+        updateCell($row, percent, hasChildren, className);
     }
 
-    function updateResultsRunCell($view, pageIndex, score, count, hasChildren) {
+    function updateResultsRunCell($row, pageIndex, score, count, hasChildren) {
         var percent = Math.floor((score / count) * 100) || 0;
-        var progressbar = $view.find("#progressbar-" + pageIndex);
+        var progressbar = $row.find("#progressbar-" + pageIndex);
         if (hasChildren) {
             $(progressbar).progressbar({value: Math.floor((score / count) * 100), max: 100});
             $(progressbar).closest("div").next().html(percent + '%');
@@ -715,38 +688,39 @@ function AddonHierarchical_Lesson_Report_create() {
         }
     }
 
-    function updateChecksCell($view, checks, hasChildren, isInPrintableMode) {
-        var searchPhrase = isInPrintableMode
-            ? `.${CSS_CLASSES.PRINTABLE_HIER_REPORT_CHECKS}`
-            : `.${CSS_CLASSES.HIER_REPORT_CHECKS}`;
-        var innerHTML = hasChildren ? checks : '-';
-        $view.find(searchPhrase).html(innerHTML);
+    function updateChecksCell($row, checks, hasChildren, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_CHECKS
+            : CSS_CLASSES.HIER_REPORT_CHECKS;
+        updateCell($row, checks, hasChildren, className);
     }
 
-    function updateMistakesCell($view, mistakes, hasChildren, isInPrintableMode) {
-        var searchPhrase = isInPrintableMode
-            ? `.${CSS_CLASSES.PRINTABLE_HIER_REPORT_MISTAKES}`
-            : `.${CSS_CLASSES.HIER_REPORT_MISTAKES}`;
-        var innerHTML = hasChildren ? mistakes : '-';
-        $view.find(searchPhrase).html(innerHTML);
+    function updateMistakesCell($row, mistakes, hasChildren, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_MISTAKES
+            : CSS_CLASSES.HIER_REPORT_MISTAKES;
+        updateCell($row, mistakes, hasChildren, className);
     }
 
-    function updateErrorsCell($view, errors, hasChildren, isInPrintableMode) {
-        var searchPhrase = isInPrintableMode
-            ? `.${CSS_CLASSES.PRINTABLE_HIER_REPORT_ERRORS}`
-            : `.${CSS_CLASSES.HIER_REPORT_ERRORS}`;
-        var innerHTML = hasChildren ? errors : '-';
-        $view.find(searchPhrase).html(innerHTML);
+    function updateErrorsCell($row, errors, hasChildren, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_ERRORS
+            : CSS_CLASSES.HIER_REPORT_ERRORS;
+        updateCell($row, errors, hasChildren, className);
     }
 
-    function updatePageScoreCell($view, pageScore, hasChildren, configuration, isInPrintableMode) {
-        var searchPhrase = isInPrintableMode
-            ? `.${CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE}`
-            : `.${CSS_CLASSES.HIER_REPORT_PAGE_SCORE}`;
-        var innerHTML = hasChildren
-          ? presenter.insertPageScoreValuesToChapter(pageScore, configuration, isInPrintableMode)
-          : '-';
-        $view.find(searchPhrase).html(innerHTML);
+    function updatePageScoreCell($row, pageScore, hasChildren, configuration, isInPrintableMode) {
+        const className = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
+            : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
+        const value = presenter.insertPageScoreValuesToChapter(pageScore, configuration, isInPrintableMode);
+        updateCell($row, value, hasChildren, className);
+    }
+
+    function updateCell($row, value, hasChildren, searchClassName) {
+        const searchPhrase = `.${searchClassName}`;
+        const innerHTML = hasChildren ? value : '-';
+        $row.find(searchPhrase).html(innerHTML);
     }
 
     presenter.insertPageScoreValuesToChapter = function(pageScore, configuration, isInPrintableMode) {
