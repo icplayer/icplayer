@@ -93,6 +93,7 @@ public class AddonDescriptorFactory {
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
+		addDescriptor("Group_Chat_Button", "navigation_menu");
 		addDescriptor("Cross_Lesson", "navigation_menu");
 		addDescriptor("Navigation_Bar", "navigation_menu");
 		addDescriptor("Assessments_Navigation_Bar", "navigation_menu");
