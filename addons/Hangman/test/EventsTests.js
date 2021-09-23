@@ -5,6 +5,7 @@ TestCase("[Hangman] Events creation", {
             addonID: 'Hangman1'
         };
         this.presenter.currentPhrase = 0;
+        this.presenter.isShowAnswersActive = false;
     },
 
     'test create base event data': function () {
@@ -141,8 +142,16 @@ TestCase("[Hangman] Events triggering is Activity", {
 
         assertTrue(this.presenter.sendEventData.calledOnce);
         assertEquals({source: 'Hangman1', item: '2', value: 'EOG', score: ''}, this.presenter.sendEventData.getCall(0).args[0])
-
     },
+
+    'test event EndOfGame(EOG) should not be send when show answers mode is active': function () {
+        this.presenter.isShowAnswersActive = true;
+
+        this.presenter.sendEndOfGameEvent();
+
+        assertTrue(this.presenter.sendEventData.notCalled);
+    },
+
     'test event EOT should be sent only once on word' : function () {
         this.presenter.configuration.phrases[1].errorCount = 2;
         this.presenter.onLetterSelectedAction('B', this.presenter.configuration.phrases[1], true);

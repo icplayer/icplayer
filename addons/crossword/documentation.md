@@ -91,6 +91,10 @@ If you would like to make a letter visible from start, simply type an exclamatio
       <td>Marked row index</td>
       <td>If set to a value greater than 0, it indicates the index of a row whose cells should have an additional CSS class "cell_row_marked". The row number is calculated starting from 1,  and 1 means topmost row in the crossword.</td>
     </tr>
+    <tr>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>If this property is selected the gradual show answer button will show correct answers for entire addon.</td>
+    </tr>
 
     <tr>
         <td>Block wrong answers</td>

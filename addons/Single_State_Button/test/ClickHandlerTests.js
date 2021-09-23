@@ -4,7 +4,8 @@ TestCase("[Single State Button] Click handler", {
 
         this.presenter.configuration = {
             isDisabled: false,
-            isErrorMode: false
+            isErrorMode: false,
+            isShowAnswersMode: false
         };
 
         this.presenter.state = {
@@ -45,6 +46,16 @@ TestCase("[Single State Button] Click handler", {
     'test given addon in error checking mode and button enabled in error mode when calling click handler then calls code': function () {
         this.presenter.setShowErrorsMode();
         this.presenter.configuration.enableInErrorMode = true;
+
+        this.presenter.clickHandler(this.event);
+
+        assertTrue(this.presenter.executeUserEventCode.called);
+        assertTrue(this.presenter.triggerButtonClickedEvent.called);
+    },
+
+    'test given addon in show answers mode and button enabled in show answers mode when calling click handler then calls code': function () {
+        this.presenter.setShowAnswersMode();
+        this.presenter.configuration.enableInShowAnswersMode = true;
 
         this.presenter.clickHandler(this.event);
 

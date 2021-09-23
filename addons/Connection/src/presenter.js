@@ -1421,19 +1421,19 @@ function AddonConnection_create() {
                     drawLine(presenter.lineStack.get(i), correctConnection);
                     var fromElementCorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).from[0].id);
                     var toElementCorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).to[0].id);
-                    $(fromElementCorrect).addClass('connectionItem-correct');
-                    $(toElementCorrect).addClass('connectionItem-correct');
+                    $(fromElementCorrect).addClass(CORRECT_ITEM_CLASS);
+                    $(toElementCorrect).addClass(CORRECT_ITEM_CLASS);
                 } else {
                     drawLine(presenter.lineStack.get(i), incorrectConnection);
                     var fromElementIncorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).from[0].id);
                     var toElementIncorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).to[0].id);
-                    $(fromElementIncorrect).addClass('connectionItem-wrong');
-                    $(toElementIncorrect).addClass('connectionItem-wrong');
+                    $(fromElementIncorrect).addClass(WRONG_ITEM_CLASS);
+                    $(toElementIncorrect).addClass(WRONG_ITEM_CLASS);
                 }
             }
             $(presenter.view).find('.connectionItem').each(function () {
-                if ($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')) {
-                    $(this).removeClass('connectionItem-correct');
+                if ($(this).hasClass(CORRECT_ITEM_CLASS) && $(this).hasClass(WRONG_ITEM_CLASS)) {
+                    $(this).removeClass(CORRECT_ITEM_CLASS);
                 }
             });
             presenter.$connectionContainer.find('.selected').removeClass('selected');
@@ -1448,8 +1448,8 @@ function AddonConnection_create() {
             presenter.gatherCorrectConnections();
             presenter.redraw();
             $(presenter.view).find('.connectionItem').each(function () {
-                $(this).removeClass('connectionItem-correct');
-                $(this).removeClass('connectionItem-wrong');
+                $(this).removeClass(CORRECT_ITEM_CLASS);
+                $(this).removeClass(WRONG_ITEM_CLASS);
             });
             isSelectionPossible = true;
         }
@@ -1488,8 +1488,8 @@ function AddonConnection_create() {
             isSelectionPossible = true;
             presenter.$connectionContainer.find('.selected').removeClass('selected');
             $(presenter.view).find('.connectionItem').each(function () {
-                $(this).removeClass('connectionItem-correct');
-                $(this).removeClass('connectionItem-wrong');
+                $(this).removeClass(CORRECT_ITEM_CLASS);
+                $(this).removeClass(WRONG_ITEM_CLASS);
             });
 
             presenter.redraw();
@@ -1935,7 +1935,7 @@ function AddonConnection_create() {
 
     presenter.hideAnswers = deferredCommandQueue.decorate(
         function () {
-            if (presenter.isNotActivity) {
+            if (presenter.isNotActivity || !presenter.isShowAnswersActive) {
                 return;
             }
             presenter.keyboardControllerObject.selectEnabled(true);

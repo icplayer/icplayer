@@ -638,6 +638,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function setPlayerController(playerController) {
             this.playerController = playerController;
             if (this.player && this.recorder) this._loadEventBus();
+
+            var context = playerController.getContextMetadata();
+            this.isMlibro = false;
+            if (context != null && "ismLibro" in context) {
+                this.isMlibro = context["ismLibro"];
+            }
         }
     }, {
         key: "getState",
@@ -875,6 +881,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function _loadMediaElements() {
             this.recorder = new _AudioRecorder.AudioRecorder();
             this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
+            this.player.setIsMlibro(this.isMlibro);
             this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
             if (this.playerController) this._loadEventBus();
@@ -3429,7 +3436,8 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function stopStreaming() {
             // for some reason Edge doesn't send pause event in stopPlaying
             // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-            if (!this.mediaNode.paused && !DevicesUtils.isEdge()) {
+            // same as above but with mLibro on android
+            if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
                 this.stopNextStopEvent = true;
             }
 
@@ -3473,6 +3481,11 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         key: "getCurrentTime",
         value: function getCurrentTime() {
             return this.mediaNode.currentTime;
+        }
+    }, {
+        key: "setIsMlibro",
+        value: function setIsMlibro(isMlibro) {
+            this.isMlibro = isMlibro;
         }
     }, {
         key: "_enableEventsHandling",
@@ -3651,6 +3664,11 @@ var Player = exports.Player = function () {
         key: "setEventBus",
         value: function setEventBus(eventBus, sourceID) {
             throw new Error("setEventBus method is not implemented");
+        }
+    }, {
+        key: "setIsMlibro",
+        value: function setIsMlibro(isMlibro) {
+            throw new Error("setIsMlibro method is not implemented");
         }
     }, {
         key: "reset",

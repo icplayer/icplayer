@@ -6,6 +6,11 @@ TestCase("[IWB Toolbar] State Stack", {
         this.presenter = AddonIWB_Toolbar_create();
         this.stateStack = this.presenter.getStateStack();
         this.base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAQaCAYAAADQXlJ4AAAP/klEQâ€¦AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN8AHhoAAc55+7cAAAAASUVORK5CYII=";
+        this.presenter.config = {
+            'addonID': 'IWB Tooltip',
+            'isValid': true,
+            'enableUndoRedo': true
+        };
 
         this.getStateStub = sinon.stub(this.presenter, 'getState');
         this.setStateStub = sinon.stub(this.presenter, 'setState');

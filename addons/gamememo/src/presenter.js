@@ -1788,7 +1788,7 @@ function Addongamememo_create(){
     };
 
     presenter.hideAnswers = function () {
-        if (!presenter.isActivity) {
+        if (!presenter.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
 

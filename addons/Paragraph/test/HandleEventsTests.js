@@ -93,5 +93,13 @@ TestCase("[Paragraph] handle events related to showing model answer", {
         this.presenter.hideAnswers();
 
         assertFalse(paragraph['0'].classList.contains('disabled'));
+    },
+
+    'test given view when disableParagraph then add disabled class': function () {
+        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
+
+        this.presenter.disableParagraph();
+
+        assertTrue(paragraph.hasClass('disabled'));
     }
 });
