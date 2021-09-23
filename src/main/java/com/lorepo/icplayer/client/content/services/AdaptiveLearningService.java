@@ -173,7 +173,7 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 
 	private void initAllPagesAsNonReportable() {
         List<Page> allPages = this.playerController.getModel().getAllPages();
-        allPages.remove(0);
+        allPages.remove(this.playerController.getCurrentPageIndex());
         for (Page page : allPages) {
             this.setPageNonReportable(page);
         }
