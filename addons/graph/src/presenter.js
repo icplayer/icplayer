@@ -1773,7 +1773,9 @@ function Addongraph_create(){
     };
 
     presenter.hideAnswers = function () {
-        if(presenter.configuration.isNotActivity) return;
+        if(presenter.configuration.isNotActivity || !presenter.isShowAnswersActive) {
+            return;
+        }
 
         presenter.$view.find(".graph_value_container").each(function (index, element) {
             var currentValue = presenter.currentData[index],

@@ -54,6 +54,12 @@ export class MediaRecorder {
         this.playerController = playerController;
         if (this.player && this.recorder)
             this._loadEventBus()
+
+        var context = playerController.getContextMetadata();
+        this.isMlibro = false;
+        if (context != null && "ismLibro" in context) {
+            this.isMlibro = context["ismLibro"];
+        }
     }
 
     getState() {
@@ -274,6 +280,7 @@ export class MediaRecorder {
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
         this.player = new AudioPlayer(this.viewHandlers.$playerView);
+        this.player.setIsMlibro(this.isMlibro);
         this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
         if (this.playerController)

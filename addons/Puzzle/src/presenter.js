@@ -904,6 +904,10 @@ function AddonPuzzle_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         Container.find(".show-answers").removeClass("show-answers");
         $.when(presenter['imageLoaded']).then(function () {
             presenter.prepareBoardFromSavedState(savedBoard);

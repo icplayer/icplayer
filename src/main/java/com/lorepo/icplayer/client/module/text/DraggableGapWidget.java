@@ -158,10 +158,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public void reset() {
 		setText("");
-		removeStyleDependentName("correct");
-		removeStyleDependentName("wrong");
-		removeStyleDependentName("empty");
-		isWorkMode = true;
+		setWorkMode();
 	}
 
 	public native static String getElement(String text) /*-{		
