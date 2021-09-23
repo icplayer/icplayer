@@ -1,6 +1,6 @@
 TestCase("[Group Chat Button] Model validation", {
     setUp: function () {
-        this.presenter = AddonCross_Lesson_create();
+        this.presenter = AddonGroup_Chat_Button_create();
     },
 
     'test given correct model when validating then return correct configuration': function () {
@@ -53,5 +53,16 @@ TestCase("[Group Chat Button] Model validation", {
         assertEquals(presenter.DISPLAY_CONTENT_TYPE.TITLE, validatedModel.displayContent);
         assertEquals("", validatedModel.title);
         assertEquals("", validatedModel.image);
+    },
+
+    'test given model with false Is Visible parameter when validating then set isVisible and isVisibleByDefault to false': function () {
+        var model = {
+            'Is Visible': "False"
+        };
+
+        var validatedModel = this.presenter.validateModel(model);
+
+        assertEquals(false, validatedModel.isVisible);
+        assertEquals(false, validatedModel.isVisibleByDefault);
     },
 });

@@ -58,7 +58,7 @@ function AddonGroup_Chat_Button_create() {
 
         return {
             displayContent: presenter.determineDisplayContent(title, image),
-            title: model.Title,
+            title: title.value,
             image: image.value,
             isVisible: isVisible,
             isVisibleByDefault: isVisible

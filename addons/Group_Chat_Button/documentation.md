@@ -9,10 +9,6 @@ Group Chat Button allows users to open a group chat when the button is clicked.
         <th>Description</th>
     </tr>
     <tr>
-        <td>URI</td>
-        <td>Location of external resource</td>
-    </tr>
-    <tr>
         <td>Title</td>
         <td>Title displayed inside the addon</td>
     </tr>
@@ -41,10 +37,25 @@ Group Chat Button allows users to open a group chat when the button is clicked.
         <td>---</td>
         <td>Hides the addon</td>
     </tr>
+    <tr>
+        <td>requestGroupChat</td>
+        <td>---</td>
+        <td>Opens a group chat</td>
+    </tr>
 </table>
 
-## Events
-Group Chat Button addon sends GroupChat type events to Event Bus when either user selects it.
+## Managing in custom LMS
+In case of managing group chat addon in custom LMS, there is need to connect to player external event bus:
+
+    player.onExternalEvent((eventName: string, data: string) => {
+    });
+
+Group Chat addon calls that method with provided data:
+* eventName: `"groupChat"`
+* data: JSON string which contains:
+    * ???
+
+Optional values may be not defined in JSON string. It depends on addon configuration.
 
 ## CSS classes
 
