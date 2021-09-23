@@ -285,7 +285,6 @@ function AddonMultiAudio_create(){
 
             $button.click(draggableItemButtonClickHandler);
 
-            var scale = getScale();
             $el.draggable({
                 revert: true,
                 helper: "original",
@@ -298,14 +297,14 @@ function AddonMultiAudio_create(){
                     }
                 },
                 drag : function(event, ui) {
-                    ui.position.left = ui.position.left / scale.X;
-                    ui.position.top = ui.position.top / scale.Y;
+                    ui.position.left = ui.position.left / getScale().X;
+                    ui.position.top = ui.position.top / getScale().Y;
                 }
             });
 
             presenter.globalView.find(".wrapper-addon-audio").append($el);
             presenter.draggableItems[itemID] = $el;
-    };
+    }
 
     function getScale() {
         var $content = $("#content");
