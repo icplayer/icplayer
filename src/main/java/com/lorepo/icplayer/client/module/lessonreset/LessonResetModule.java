@@ -21,6 +21,7 @@ public class LessonResetModule extends BasicModuleModel implements IWCAGModuleMo
 private String title = "";
 private boolean resetMistakes = false;
 private boolean resetChecks = false;
+private boolean resetVisitedPages = false;
 private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	
 	public LessonResetModule() {		
@@ -30,6 +31,7 @@ private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<Spe
 		addPropertyResetMistakes();
 		addPropertyResetChecks();
 		addPropertySpeechTexts();
+		addPropertyResetVisitedPages();
 	}
 
 	public String getTitle () {
@@ -113,40 +115,79 @@ private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<Spe
 	
 		IProperty property = new IBooleanProperty() {
 		
-		@Override
-		public void setValue(String newValue) {
-			boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-			
-			if (value!= resetChecks) {
-				resetChecks = value;
-				sendPropertyChangedEvent(this);
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= resetChecks) {
+					resetChecks = value;
+					sendPropertyChangedEvent(this);
+				}
 			}
-		}
-		
-		@Override
-		public String getValue() {
-			return resetChecks ? "True" : "False";
-		}
-		
-		@Override
-		public String getName() {
-			return DictionaryWrapper.get("Lesson_Reset_property_reset_checks");
-		}
 
-		@Override
-		public String getDisplayName() {
-			return DictionaryWrapper.get("Lesson_Reset_property_reset_checks");
-		}
+			@Override
+			public String getValue() {
+				return resetChecks ? "True" : "False";
+			}
 
-		@Override
-		public boolean isDefault() {
-			return false;
-		}
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Lesson_Reset_property_reset_checks");
+			}
 
-	};
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Lesson_Reset_property_reset_checks");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
 	
-	addProperty(property);	
-}
+		addProperty(property);
+	}
+
+	private void addPropertyResetVisitedPages() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= resetVisitedPages) {
+					resetVisitedPages = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return resetVisitedPages ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Lesson_Reset_property_reset_visited_pages");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Lesson_Reset_property_reset_visited_pages");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
 	
 	public boolean getResetMistakes() {
 		return resetMistakes;
@@ -154,6 +195,10 @@ private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<Spe
 	
 	public boolean getResetChecks() {
 		return resetChecks;
+	}
+
+	public boolean getResetVisitedPages() {
+		return resetVisitedPages;
 	}
 	
 	@Override
@@ -169,6 +214,7 @@ private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<Spe
 					title = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "title"));
 					resetMistakes = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetMistakes", false);
 					resetChecks = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetChecks", false);
+					resetVisitedPages = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetVisitedPages", false);
 					this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(childElement, "lesson_was_reset"));
 				}
 			}
@@ -191,6 +237,7 @@ private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<Spe
 		lessonResetElement.setAttribute("title", encodedTitle);
 		XMLUtils.setBooleanAttribute(lessonResetElement, "resetMistakes", resetMistakes);
 		XMLUtils.setBooleanAttribute(lessonResetElement, "resetChecks", resetChecks);
+		XMLUtils.setBooleanAttribute(lessonResetElement, "resetVisitedPages", resetVisitedPages);
 		lessonResetElement.setAttribute("lesson_was_reset", this.speechTextItems.get(0).getText());
 
 		return lessonResetElement;

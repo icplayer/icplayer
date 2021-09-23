@@ -1128,7 +1128,7 @@ function AddonFigureDrawing_create(){
         }
     };
     presenter.hideAnswers = function () {
-        if (presenter.activity) {
+        if (presenter.activity && presenter.isShowAnswersActive) {
             var i, x, y, point1, point2;
             presenter.isShowAnswersActive = false;
             presenter.$view.find('.line').not('.nonremovable').remove();

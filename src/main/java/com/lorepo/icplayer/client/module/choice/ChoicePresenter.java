@@ -115,10 +115,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				@Override
 				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
 					if (!isGradualShowAnswers) {
-						currentScore = getScore();
-						currentMaxScore = getMaxScore();
-						currentErrorCount = getErrorCount();
-						currentState = getState();
+						setCurrentViewState();
 						isGradualShowAnswers = true;
 					}
 
@@ -155,11 +152,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (!module.isActivity()) {
 			return;
 		}
-				
-		this.currentScore = getScore();
-		this.currentMaxScore = getMaxScore();
-		this.currentErrorCount = getErrorCount();
-		this.currentState = getState();
+
+		setCurrentViewState();
+
 		this.isShowAnswersActive = true;
 
 		clearStylesAndSelection(false);
@@ -179,9 +174,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	private void hideAnswers() {
-		if (!module.isActivity()) {
+		if (!module.isActivity() || !this.isShowAnswersActive) {
 			return;
 		}
+
 		clearStylesAndSelection(false);
 		setState(this.currentState);
 		this.isShowAnswersActive = false;
@@ -806,7 +802,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, moduleID, itemID, value, score);
 	}
 
-
 	@Override
 	public List<ScoreWithMetadata> getScoreWithMetadata() {
 		IMetadata metadata = this.module.getMetadata();
@@ -836,5 +831,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		scoreWithMetadata.setAllAnswers(allAnswers);
 		list.add(scoreWithMetadata);
 		return list;
+	}
+
+	private void setCurrentViewState() {
+		this.currentScore = getScore();
+		this.currentErrorCount = getErrorCount();
+		this.currentMaxScore = getMaxScore();
+		this.currentState = getState();
 	}
 }

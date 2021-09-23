@@ -251,6 +251,11 @@ public class PlayerServicesMockup implements IPlayerServices {
   	}
 
 	@Override
+	public void clearVisitedPages() {
+
+	}
+
+	@Override
 	public JavaScriptObject getContextMetadata() {
 		// TODO Auto-generated method stub
 		return null;

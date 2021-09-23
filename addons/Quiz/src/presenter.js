@@ -908,7 +908,7 @@ function AddonQuiz_create() {
     };
 
     presenter.hideAnswers = function AddonQuiz_hideAnswers() {
-        if (!presenter.config.isActivity) {
+        if (!presenter.config.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
         presenter.isShowAnswersActive = false;
