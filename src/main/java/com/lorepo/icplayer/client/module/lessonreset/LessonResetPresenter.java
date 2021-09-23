@@ -36,6 +36,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		public void setShowAnswersMode(boolean b);
 		boolean isDisabled();
 		void execute();
+		void executeAndClearVisitedPages();
 	}
 	
 	private LessonResetModule model;
@@ -97,6 +98,8 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 			hide();
 		} else if(commandName.compareTo("execute") == 0) {
 			execute();
+		} else if(commandName.compareTo("executeandclearvisitedpages") == 0) {
+			executeAndClearVisitedPages();
 		}
 		
 		return value;
@@ -217,6 +220,10 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		presenter.execute = function() {
 			return x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::execute()();
 		}
+
+		presenter.executeAndClearVisitedPages = function() {
+			return x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::executeAndClearVisitedPages()();
+		}
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
@@ -236,6 +243,12 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 	public void execute () {
 		if (view != null) {
 			view.execute();
+		}
+	}
+
+	public void executeAndClearVisitedPages () {
+		if (view != null) {
+			view.executeAndClearVisitedPages();
 		}
 	}
 

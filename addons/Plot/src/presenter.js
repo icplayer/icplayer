@@ -1509,7 +1509,7 @@ function AddonPlot_create(){
     };
 
     presenter.hideAnswers = function() {
-        if(!presenter.isActivity) {
+        if(!presenter.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
         presenter.isShowAnswersActive = false;

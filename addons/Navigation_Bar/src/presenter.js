@@ -185,13 +185,19 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
 
+        reloadVisitedPages();
+        presenter.originalIndex = presenter.playerController.getCurrentPageIndex();
+    };
+
+    function reloadVisitedPages() {
+        presenter.pageTitles = [];
+        presenter.visitedPages = [];
         for(var i = 0; i < presenter.pageCount; i++) {
             var page = presenter.presentation.getPage(i);
             presenter.pageTitles.push(page.getName());
             presenter.visitedPages.push(page.isVisited(true));
         }
-        presenter.originalIndex = presenter.playerController.getCurrentPageIndex();
-    };
+    }
 
     presenter.playButton = function(element){
         var $element = $(element);
@@ -1024,6 +1030,10 @@ function AddonNavigation_Bar_create() {
 
     presenter.reset = function () {
         presenter.isCurrentPageOk();
+        if (presenter.configuration.blockNotVisited) {
+            reloadVisitedPages();
+            presenter.setDisabledPagesStyle();
+        }
     };
 
     presenter.getPercentageScore = function (pageIndex) {

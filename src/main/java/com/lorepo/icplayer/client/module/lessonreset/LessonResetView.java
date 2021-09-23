@@ -61,6 +61,10 @@ public class LessonResetView extends PushButton implements IDisplay, IWCAG, IWCA
 						return;
 					}
 
+					if (module.getResetVisitedPages()) {
+						playerServices.clearVisitedPages();
+					}
+
 					if (isShowAnswersMode) {
 						playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
 						
@@ -75,19 +79,32 @@ public class LessonResetView extends PushButton implements IDisplay, IWCAG, IWCA
 			});		
 		}
 	}
+
+	@Override
+	public void executeAndClearVisitedPages() {
+		execute(true);
+	}
 	
 	@Override
 	public void execute() {
+		execute(false);
+	}
+
+	void execute(boolean forceClearVisitedPages) {
 		if (isDisabled) {
 			return;
 		}
-		
+
+		if (module.getResetVisitedPages() || forceClearVisitedPages) {
+			playerServices.clearVisitedPages();
+		}
+
 		if (isShowAnswersMode) {
 			playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
-			
+
 			isShowAnswersMode = false;
 		}
-		
+
 		playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 		playerServices.getStateService().resetStates();
 		playerServices.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));

@@ -139,13 +139,19 @@ function AddonParagraph_create() {
         return 1;
     }
 
+    presenter.disableParagraph = function () {
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+
+        if(!paragraph.hasClass('disabled')) {
+            paragraph.addClass('disabled');
+        }
+    }
+
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) { return; }
 
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        presenter.disableParagraph();
         var elements = presenter.getParagraphs();
-
-        paragraph.addClass('disabled');
         presenter.isShowAnswersActive = true;
 
         for (var [key, value] of Object.entries(elements)) {
@@ -161,23 +167,24 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
-        if (!presenter.isShowAnswersActive) { return; }
-
         var paragraph = presenter.$view.find(".paragraph-wrapper");
         var elements = presenter.getParagraphs();
 
         paragraph.removeClass('disabled');
         presenter.isShowAnswersActive = false;
 
-        for (var [key, value] of Object.entries(elements)) {
-            if (+key > -1) {
-                value.innerHTML = presenter.cachedAnswer[+key];
+        if (presenter.cachedAnswer.length) {
+            for (var [key, value] of Object.entries(elements)) {
+                if (+key > -1) {
+                    value.innerHTML = presenter.cachedAnswer[+key];
+                }
             }
+            presenter.cachedAnswer = [];
         }
-        presenter.cachedAnswer = [];
     }
 
     presenter.gradualShowAnswers = function (data) {
+        presenter.disableParagraph();
         if (data.moduleID !== presenter.configuration.ID) { return; }
         presenter.showAnswers();
     }

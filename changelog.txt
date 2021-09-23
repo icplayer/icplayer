@@ -1,3 +1,4 @@
+2021-09-15 Added a new property for SingleStateButton that allows clicking in show answers mode
 2021-09-09 Added support for printable state for text selection
 2021-09-09 Added tests for printable state in text selection
 2021-09-09 Added support for printable check answers state in text selection
@@ -12,6 +13,7 @@
 2021-08-16 Add Gradual Show Answer to Point and Lines addon
 2021-08-11 Add GSA mode for Coloring addon
 2021-08-09 Add GSA mode for Memo Game addon
+2021-08-04 Add clear visited pages property to lesson reset
 2021-08-02 Add GSA mode for Text Coloring addon
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz

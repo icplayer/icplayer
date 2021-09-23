@@ -41,6 +41,7 @@ import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
+import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 
 public class JavaScriptPlayerServices {
 	private final IPlayerServices playerServices;
@@ -519,6 +520,10 @@ public class JavaScriptPlayerServices {
 		playerServices.getOpenEndedContentForCurrentPage = function () {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenEndedContentForCurrentPage()();
 		}
+
+		playerServices.clearVisitedPages = function() {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::clearVisitedPages()();
+		};
 
 		return playerServices;
 	}-*/;
@@ -999,4 +1004,9 @@ public class JavaScriptPlayerServices {
 	}
 
 	private JavaScriptObject getOpenEndedContentForCurrentPage() { return this.playerServices.getOpenEndedContentForCurrentPage(); }
+
+	private void clearVisitedPages() {
+	    this.playerServices.clearVisitedPages();
+	    playerServices.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));
+	}
 }

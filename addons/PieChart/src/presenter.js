@@ -675,7 +675,7 @@ function AddonPieChart_create(){
         }
     };
     presenter.hideAnswers = function () {
-        if (presenter.activity) {
+        if (presenter.activity && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
             presenter.$view.find('.chart-show-answers').remove();
             presenter.$view.find('.chart').css("visibility", "visible");
