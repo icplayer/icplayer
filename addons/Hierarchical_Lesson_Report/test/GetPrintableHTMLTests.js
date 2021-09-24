@@ -1032,31 +1032,31 @@ function generateFooterRow() {
 }
 
 function addHeaderTitleCell($row) {
-    addCell($row, "printable_hier_report-header-title", "Custom lesson report label");
+    addCell($row, "Custom lesson report label");
 }
 
 function addFooterTitleCell($row) {
-    addCell($row, "printable_hier_report-footer-title", "Custom total label");
+    addCell($row, "Custom total label");
 }
 
 function addHeaderProgressCell($row) {
-    addCell($row, "printable_hier_report-header-progress", "Custom results label");
+    addCell($row, "Custom results label", "printable_hier_report-header-progress");
 }
 
 function addProgressCell($row, value) {
-    addCell($row, "printable_hier_report-progress", value);
+    addCell($row, value, "printable_hier_report-progress");
 }
 
 function addChecksCell($row, value) {
-    addCell($row, "printable_hier_report-checks", value);
+    addCell($row, value, "printable_hier_report-checks");
 }
 
 function addMistakesCell($row, value) {
-    addCell($row, "printable_hier_report-mistakes", value);
+    addCell($row, value, "printable_hier_report-mistakes");
 }
 
 function addErrorsCell($row, value) {
-    addCell($row, "printable_hier_report-errors", value);
+    addCell($row, value, "printable_hier_report-errors");
 }
 
 function addHeaderPageScoreCell($row) {
@@ -1064,7 +1064,7 @@ function addHeaderPageScoreCell($row) {
 }
 
 function addHeaderPageMaxScoreCell($row) {
-    addCell($row, "printable_hier_report-page-max-score", "Custom max score award label");
+    addCell($row, "Custom max score award label", "printable_hier_report-page-max-score");
 }
 
 function addPageScoreCell($row, score, maxScore) {
@@ -1081,7 +1081,7 @@ function addPageScoreCell($row, score, maxScore) {
 }
 
 function addPageScoreCellWrapper($row, value) {
-    addCell($row, "printable_hier_report-page-score", value);
+    addCell($row, value, "printable_hier_report-page-score");
 }
 
 function addPageMaxScoreCell($row) {
@@ -1090,13 +1090,15 @@ function addPageMaxScoreCell($row) {
 }
 
 function addPageNonMaxScoreCell($row) {
-    addCell($row, "printable_hier_report-page-non-max-score", '');
+    addCell($row, '', "printable_hier_report-page-non-max-score");
 }
 
-function addCell($row, className, value) {
-    let $cell = $("<td></td>");
-    $cell.addClass(className);
-    $cell.html(value);
+function addCell($row, value, className) {
+    var $cell = $(document.createElement('td'));
+    if (className !== undefined)
+        $cell.addClass(className);
+    if (value !== undefined)
+        $cell.html(value);
     $cell.appendTo($row);
 }
 
