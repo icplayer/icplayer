@@ -65,7 +65,8 @@
     text-align: center;
 }
 
-.hier_report-page-non-max-score, .hier_report-page-max-score {
+.hier_report-page-non-max-score,
+.hier_report-page-max-score {
     width: 10%;
     text-align: center;
 }
@@ -94,5 +95,80 @@
 }
 
 .hier_report .text-wrapper {
+	overflow: hidden;
+}
+
+.printable_hier_report {
+    background-color: white;
+    color: gray;
+    overflow: auto;
+}
+
+.printable_hier_report-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.printable_hier_report td{
+    padding: 10px;
+}
+
+.printable_hier_report-header{
+    font-weight: bold;
+    color: black !important;
+    border-bottom: 1px solid #ccc;
+}
+
+.printable_hier_report-footer{
+    font-weight: bold;
+    color: black !important;
+    border-top: 1px solid #ccc;
+}
+
+.printable_hier_report-header-progress {
+    width: 190px;
+    text-align: center;
+}
+
+.printable_hier_report-progress {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-checks {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-mistakes {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-errors {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-page-score {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-page-non-max-score,
+.printable_hier_report-page-max-score {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-indent {
+    float: left;
+	width: 16px;
+    height: 16px;
+    display: inline-block;
+    position: relative;
+}
+
+.printable_hier_report .text-wrapper {
 	overflow: hidden;
 }

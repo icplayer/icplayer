@@ -45,6 +45,7 @@ public class PrintableContentParser {
 	SeededRandom random = new SeededRandom();
 	private HashMap<String, String> loadedState = null;
 	private String rawScore = "";
+	private boolean preview = false;
 	boolean showAnswers = false;
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
@@ -321,6 +322,7 @@ public class PrintableContentParser {
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
+		pagePrintableController.setPreview(this.preview);
 		if (this.rawScore != null && this.rawScore.length() > 0) {
 			pagePrintableController.setScore(this.rawScore);
 		}
@@ -874,5 +876,9 @@ public class PrintableContentParser {
 		$wnd.$(element).html('');
 		if (element && element.parentNode) element.parentNode.removeChild(element);
 	}-*/;
+
+	public void setPreview(boolean preview) {
+	  this.preview = preview;
+	};
 
 }
