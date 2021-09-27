@@ -233,6 +233,17 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		return choiceInfo.getId();
 	}
 
+    @Override
+	public boolean getResetStatus() {
+// 		return choiceInfo.getResetStatus();
+        return false;
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+// 		choiceInfo.setResetStatus(wasReset);
+	}
+
 	@Override
 	public void setFocusGap(boolean focus) {
 		if (focus) {

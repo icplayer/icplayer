@@ -134,6 +134,17 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     }
 
     @Override
+	public boolean getResetStatus() {
+        // 	not implement
+        return false;
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+        // 	not implement
+	}
+
+    @Override
     public void setFocusGap(boolean focus) {
         if (focus) {
             this.select();

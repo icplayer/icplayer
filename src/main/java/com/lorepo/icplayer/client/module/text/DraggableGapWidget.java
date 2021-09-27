@@ -247,6 +247,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 		return gapInfo.getId();
 	}
 
+    @Override
+	public boolean getResetStatus() {
+		return gapInfo.getResetStatus();
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+		gapInfo.setResetStatus(wasReset);
+	}
+
 	@Override
 	public void markGapAsCorrect() {
 		this.gapState = 1;
