@@ -513,7 +513,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
-            child.setResetStatus(true);
 			child.reset();
 			child.removeStyleHideAnswers();
 			child.setDisabled(module.isDisabled());

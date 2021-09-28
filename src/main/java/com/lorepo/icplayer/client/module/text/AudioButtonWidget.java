@@ -134,14 +134,14 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     }
 
     @Override
-	public boolean getResetStatus() {
-        // 	not implement
+    public boolean getResetStatus() {
+	    // TODO not implement
         return false;
 	}
 
 	@Override
 	public void setResetStatus(boolean wasReset) {
-        // 	not implement
+	    // TODO not implement
 	}
 
     @Override

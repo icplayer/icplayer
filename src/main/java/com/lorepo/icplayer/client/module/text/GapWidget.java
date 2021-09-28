@@ -268,6 +268,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public void reset() {
 		setText("");
+		gapInfo.setResetStatus(true);
 		this.setWorkMode();
 	}
 

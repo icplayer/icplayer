@@ -235,13 +235,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
     @Override
 	public boolean getResetStatus() {
-// 		return choiceInfo.getResetStatus();
+        // TODO not implement
         return false;
 	}
 
 	@Override
 	public void setResetStatus(boolean wasReset) {
-// 		choiceInfo.setResetStatus(wasReset);
+	    // TODO not implement
 	}
 
 	@Override

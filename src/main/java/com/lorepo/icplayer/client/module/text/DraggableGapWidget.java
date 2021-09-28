@@ -249,12 +249,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 
     @Override
 	public boolean getResetStatus() {
-		return gapInfo.getResetStatus();
+	    return gapInfo.getResetStatus();
 	}
 
 	@Override
 	public void setResetStatus(boolean wasReset) {
-		gapInfo.setResetStatus(wasReset);
+	    gapInfo.setResetStatus(wasReset);
 	}
 
 	@Override
