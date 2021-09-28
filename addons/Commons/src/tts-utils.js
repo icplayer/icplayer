@@ -11,7 +11,7 @@
             empty: '&&empty&&'
         },
 
-        const GENDER = {
+        GENDER: {
             MASCULINE: 0,
             FEMININE: 1,
             NEUTER: 2,
