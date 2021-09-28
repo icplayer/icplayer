@@ -12,6 +12,15 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     function returnCorrectObject(v) { return { isValid: true, value: v }; }
 
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
     presenter.showErrorMessage = function (message, substitutions) {
         var errorContainer;
         if (typeof(substitutions) == 'undefined') {
