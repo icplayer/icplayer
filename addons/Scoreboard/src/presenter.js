@@ -692,9 +692,9 @@ function AddonScoreboard_create() {
         if (eventName == "PageLoaded" && eventData.source == presenter.configuration.variableStorageLocationName) {
             var store = null;
             if (presenter.configuration.variableStorageLocation == "header") {
-                store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+                store = presenter.playerController.getHeaderModule(presenter.configuration.broadcast);
             } else {
-                store = player.getPlayerServices().getFooterModule(presenter.configuration.broadcast);
+                store = presenter.playerController.getFooterModule(presenter.configuration.broadcast);
             }
 
             if (store == null) {
@@ -712,9 +712,9 @@ function AddonScoreboard_create() {
         if (!presenter.configuration.isOnePageScoreboard) {
             var store = null;
             if (presenter.configuration.variableStorageLocation == "header") {
-                store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+                store = presenter.playerController.getHeaderModule(presenter.configuration.broadcast);
             } else {
-                store = player.getPlayerServices().getFooterModule(presenter.configuration.broadcast);
+                store = presenter.playerController.getFooterModule(presenter.configuration.broadcast);
             }
 
             if (store == null) {
