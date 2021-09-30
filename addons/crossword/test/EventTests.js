@@ -1,4 +1,4 @@
-TestCase("Events test", {
+TestCase("[Crossword] Events test", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
         this.presenter.addonID = 'crossword1';
