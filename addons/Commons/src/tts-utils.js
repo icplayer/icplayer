@@ -138,9 +138,9 @@
             var billions = Math.floor((n % Math.pow(10, 12)) / Math.pow(10, 9));
 
             var nAsText = '';
-            nAsText += _partOfNumberToBigElementOfPolishNumber(billions, ['miliard', 'miliardy', 'miliard\u00f3w'], true) + ' ';
-            nAsText += _partOfNumberToBigElementOfPolishNumber(millions, ['milion', 'miliony', 'milion\u00f3w'], true) + ' ';
-            nAsText += _partOfNumberToBigElementOfPolishNumber(thousands, ['tysi\u0105c', 'tysi\u0105ce', 'tysi\u0119cy'], true) + ' ';
+            nAsText += this._partOfNumberToBigElementOfPolishNumber(billions, ['miliard', 'miliardy', 'miliard\u00f3w'], true) + ' ';
+            nAsText += this._partOfNumberToBigElementOfPolishNumber(millions, ['milion', 'miliony', 'milion\u00f3w'], true) + ' ';
+            nAsText += this._partOfNumberToBigElementOfPolishNumber(thousands, ['tysi\u0105c', 'tysi\u0105ce', 'tysi\u0119cy'], true) + ' ';
             nAsText += textHundreds[hundreds] + ' ';
 
             var numberEndsWithTeens = (tens === 1 && units != 0);
@@ -149,24 +149,24 @@
             else
                 nAsText += textTens[tens] + ' ' + textUnits[units];
 
-            return _removeExtraSpaces(nAsText);
+            return this._removeExtraSpaces(nAsText);
         },
 
         numberToPolishOrdinalNumber: function(n, gender) {
             if (!gender) {
-                gender = GENDER.MASCULINE;
+                gender = this.GENDER.MASCULINE;
             }
             if (n === 0)
-                return _simpleChangePolishWordGender('zerowy', gender);
-            return _getTextNonOrdinalPartOfNumber(n) + ' ' + _getTextOrdinalPartOfNumber(n, gender);
+                return this._simpleChangePolishWordGender('zerowy', gender);
+            return this._getTextNonOrdinalPartOfNumber(n) + ' ' + this._getTextOrdinalPartOfNumber(n, gender);
         },
 
         numberToOrdinalNumber: function(n, language, gender) {
             if (!gender) {
-                gender = GENDER.MASCULINE;
+                gender = this.GENDER.MASCULINE;
             }
             if (['pl', 'pl-pl', 'polish'].includes(language.toLowerCase()))
-                return numberToPolishOrdinalNumber(n, gender);
+                return this.numberToPolishOrdinalNumber(n, gender);
             return n;
         },
 
@@ -307,13 +307,13 @@
         },
 
         _simpleChangePolishWordGender: function(word, gender) {
-            if (word === '' || ![GENDER.MASCULINE, GENDER.FEMININE, GENDER.NEUTER].includes(gender))
+            if (word === '' || ![this.GENDER.MASCULINE, this.GENDER.FEMININE, this.GENDER.NEUTER].includes(gender))
                 return word;
 
             var genderCharacter = 'y';
-            if (gender === GENDER.FEMININE)
+            if (gender === this.GENDER.FEMININE)
                 genderCharacter = 'a';
-            else if (gender === GENDER.NEUTER)
+            else if (gender === this.GENDER.NEUTER)
                 genderCharacter = 'e';
 
             var lastCharacter = word.slice(word.length - 1);
@@ -336,8 +336,8 @@
             if (n === 1)
                 return ' ' + wordsDescribingNumber[0] + ' ';
             else if (numberEndsWith2or3or4)
-                return numberToPolishNumber(n) + ' ' + wordsDescribingNumber[1] + ' ';
-            return numberToPolishNumber(n) + ' ' + wordsDescribingNumber[2] + ' ';
+                return this.numberToPolishNumber(n) + ' ' + wordsDescribingNumber[1] + ' ';
+            return this.numberToPolishNumber(n) + ' ' + wordsDescribingNumber[2] + ' ';
         },
 
         _getOrdinalPartOfNumber: function(n) {
@@ -361,14 +361,14 @@
 
         _getTextNonOrdinalPartOfNumber: function(n) {
             numberLength = n.toString().length;
-            var ordinalPartAsStr = _getOrdinalPartOfNumber(n).toString();
+            var ordinalPartAsStr = this._getOrdinalPartOfNumber(n).toString();
             var ordinalPartLength = ordinalPartAsStr.length;
             var numberWithoutOrdinalPart = Math.floor(n / Math.pow(10, ordinalPartLength)) * Math.pow(10, ordinalPartLength);
 
             var hasNonOrdinalPart = (ordinalPartLength !== numberLength);
             if (!hasNonOrdinalPart)
                 return '';
-            var nAsText = numberToPolishNumber(numberWithoutOrdinalPart);
+            var nAsText = this.numberToPolishNumber(numberWithoutOrdinalPart);
 
             var ordinalPartSize = Math.floor((ordinalPartLength - 1) / 3);
             var nonOrdinalPartWithoutOrdinalPartSize = Math.floor(n / Math.pow(10, (ordinalPartSize + 1) * 3)) * Math.pow(10, (ordinalPartSize + 1) * 3);
@@ -377,14 +377,14 @@
             var nonOrdinalPartContainsOrdinalPartSize = (nonOrdinalPartWithoutOrdinalPartSize !== numberWithoutOrdinalPart);
 
             if (ordinalPartIsABigNumber && nonOrdinalPartContainsOrdinalPartSize)
-                nAsText = _removeLastWord(nAsText);
+                nAsText = this._removeLastWord(nAsText);
 
-            return _removeExtraSpaces(nAsText)
+            return this._removeExtraSpaces(nAsText)
         },
 
         _getTextOrdinalPartOfNumber: function(n, gender) {
             if (!gender) {
-                gender = GENDER.MASCULINE
+                gender = this.GENDER.MASCULINE
             }
             var textUnits = ['', 'pierwszy', 'drugi', 'trzeci', 'czwarty', 'pi\u0105ty', 'sz\u00f3sty', 'si\u00f3dmy', '\u00f3smy', 'dziewi\u0105ty'];
             var textTeens = ['', 'jedenasty', 'dwunasty', 'trzynasty', 'czternasty', 'pi\u0119tnasty', 'szesnasty', 'siedemnasty', 'osiemnasty', 'dziewi\u0119tnasty'];
@@ -397,29 +397,27 @@
             var textBigHundreds = ['', 'stu', 'dwustu', 'trzystu', 'czterystu', 'pi\u0119ciuset', 'sze\u015bciuset', 'siedmuset', 'o\u015bmiuset', 'dziewi\u0119ciuset'];
             var sizes = ['', 'tysi\u0119czny', 'milionowy', 'miliardowy'];
 
-            var combinedArr = [textUnits, textTeens, textTens, textHundreds, sizes];
+            textUnits.forEach(function(element, index, array) {
+                array[index] = this._simpleChangePolishWordGender(element, gender);
+            }.bind(this));
+            textTeens.forEach(function(element, index, array){
+                array[index] = this._simpleChangePolishWordGender(element, gender);
+            }.bind(this));
+            textTens.forEach(function(element, index, array){
+                array[index] = this._simpleChangePolishWordGender(element, gender);
+            }.bind(this));
+            textHundreds.forEach(function(element, index, array){
+                array[index] = this._simpleChangePolishWordGender(element, gender);
+            }.bind(this));
+            sizes.forEach(function(element, index, array){
+                array[index] = this._simpleChangePolishWordGender(element, gender);
+            }.bind(this));
 
-            for (var i = 0; i++; textUnits.length) {
-                textUnits[i] = _simpleChangePolishWordGender(textUnits[i], gender);
-            }
-            for (var i = 0; i++; textTeens.length) {
-                textTeens[i] = _simpleChangePolishWordGender(textTeens[i], gender);
-            }
-            for (var i = 0; i++; textTens.length) {
-                textTens[i] = _simpleChangePolishWordGender(textTens[i], gender);
-            }
-            for (var i = 0; i++; textHundreds.length) {
-                textHundreds[i] = _simpleChangePolishWordGender(textHundreds[i], gender);
-            }
-            for (var i = 0; i++; sizes.length) {
-                sizes[i] = _simpleChangePolishWordGender(sizes[i], gender);
-            }
-
-            if (gender === GENDER.FEMININE) {
+            if (gender === this.GENDER.FEMININE) {
                 textUnits[2] = 'druga';
             }
 
-            var ordinalPart = _getOrdinalPartOfNumber(n);
+            var ordinalPart = this._getOrdinalPartOfNumber(n);
             var ordinalPartAsStr = ordinalPart.toString();
             var ordinalPartLength = ordinalPartAsStr.length;
 
@@ -450,7 +448,7 @@
                 ordinalPartAsText += size;
             }
 
-            return _removeExtraSpaces(ordinalPartAsText);
+            return this._removeExtraSpaces(ordinalPartAsText);
         }
     }
 })(window);
