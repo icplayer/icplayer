@@ -622,7 +622,9 @@ function AddonTable_create() {
             removed: 'removed',
             cell: 'cell',
             row: 'row',
-            column: 'column'
+            column: 'column',
+            rowSpan: 'row span',
+            colSpan: 'column span'
         };
 
         if (!speechTexts) {
@@ -639,7 +641,9 @@ function AddonTable_create() {
             removed:        getSpeechTextProperty(speechTexts['Removed']['Removed'], presenter.speechTexts.removed),
             cell:        getSpeechTextProperty(speechTexts['Cell']['Cell'], presenter.speechTexts.cell),
             row:        getSpeechTextProperty(speechTexts['Row']['Row'], presenter.speechTexts.row),
-            column:        getSpeechTextProperty(speechTexts['Column']['Column'], presenter.speechTexts.column)
+            column:        getSpeechTextProperty(speechTexts['Column']['Column'], presenter.speechTexts.column),
+            rowSpan:        getSpeechTextProperty(speechTexts['RowSpan']['RowSpan'], presenter.speechTexts.rowSpan),
+            colSpan:        getSpeechTextProperty(speechTexts['ColSpan']['ColSpan'], presenter.speechTexts.colSpan)
         };
     };
 
@@ -831,6 +835,21 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
+    presenter.addSpanSpeechTexts = function(model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (model['speechTexts']["RowSpan"] === undefined) {
+            upgradedModel['speechTexts']["RowSpan"] = {RowSpan: "Row span"};
+        }
+
+        if (model['speechTexts']["ColSpan"] === undefined) {
+            upgradedModel['speechTexts']["ColSpan"] = {ColSpan: "Column span"};
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
         upgradedModel = presenter.addRowHeights(upgradedModel);
@@ -839,6 +858,7 @@ function AddonTable_create() {
         upgradedModel = presenter.addUseNumericKeyboard(upgradedModel);
         upgradedModel = presenter.addKeepOriginalOrder(upgradedModel);
         upgradedModel = presenter.addHeaders(upgradedModel);
+        upgradedModel = presenter.addSpanSpeechTexts(upgradedModel);
         return upgradedModel;
     };
 
@@ -1933,8 +1953,59 @@ function AddonTable_create() {
     };
 
     function TableKeyboardController (elements, columnsCount, rowsCount) {
-        KeyboardController.call(this, elements, columnsCount);
+        var newElements = accountForMergedCells(elements, columnsCount, rowsCount);
+        KeyboardController.call(this, newElements, columnsCount);
         this.rowsCount = rowsCount;
+    }
+
+    function accountForMergedCells(elements, columnsCount, rowsCount) {
+        if (columnsCount === undefined || rowsCount === undefined ||
+            elements.length === 0 || elements[0].getAttribute === undefined) return elements;
+        var elementsArray = Array.from(Array(rowsCount), () => new Array(columnsCount));
+        var i = 0;
+        for (var ri = 0; ri < rowsCount; ri++) {
+            for (var ci = 0; ci < columnsCount; ci++) {
+                if (elementsArray[ri][ci] === undefined && i < elements.length) {
+                    var element = elements[i];
+                    i++;
+                    var colNumber = getColspan(element);
+                    var rowNumber = getRowspan(element);
+                    for (var rj = 0; rj < rowNumber; rj++) {
+                        for (var cj = 0; cj < colNumber; cj++) {
+                            var newColIndex = ci + cj;
+                            var newRowIndex = ri + rj;
+                            if (newRowIndex < rowsCount && newColIndex < columnsCount) {
+                                elementsArray[newRowIndex][newColIndex] = element;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var newElements = [];
+        for (var i = 0; i < rowsCount; i++) newElements = newElements.concat(elementsArray[i]);
+        return newElements;
+    }
+
+    function getColspan(element) {
+        return getAttributeNumberValue(element, "colspan", 1);
+    }
+
+    function getRowspan(element) {
+        return getAttributeNumberValue(element, "rowspan", 1);
+    }
+
+    function getAttributeNumberValue(element, attributeName, defaultValue) {
+        if (element.getAttribute(attributeName)!= null && !isNaN(element.getAttribute(attributeName))) {
+            return new Number(element.getAttribute(attributeName));
+        } else {
+            return defaultValue;
+        }
+    }
+
+    TableKeyboardController.prototype.reload = function (elements, columnsCount, rowsCount) {
+        var newElements = accountForMergedCells(elements, columnsCount, rowsCount);
+        KeyboardController.prototype.reload.call(this, newElements, columnsCount);
     }
 
     TableKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
@@ -2020,6 +2091,42 @@ function AddonTable_create() {
         } else {
             presenter.readCurrentNavigationElement();
         }
+    }
+
+    KeyboardController.prototype.switchElement = function (move) {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index >= this.keyboardNavigationElementsLen) {
+            new_position_index = new_position_index - this.keyboardNavigationElementsLen;
+        } else if (new_position_index < 0) {
+            new_position_index = this.keyboardNavigationElementsLen + new_position_index;
+        }
+        if (this.keyboardNavigationCurrentElement === this.keyboardNavigationElements[new_position_index]
+            && this.keyboardNavigationCurrentElementIndex != new_position_index) {
+                this.keyboardNavigationCurrentElementIndex = new_position_index;
+                if (move == this.columnsCount || move == -1 * this.columnsCount) {
+                    if (new_position_index + move >=0 && new_position_index + move < this.keyboardNavigationElementsLen) {
+                        this.switchElement(move);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
+                } else {
+                if (move < 0) {
+                    if (new_position_index % this.columnsCount != 0) {
+                        this.switchElement(-1);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
+                } else {
+                    if (new_position_index % this.columnsCount != this.columnsCount - 1) {
+                        this.switchElement(1);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
+                }
+            }
+        } else {
+            this.markCurrentElement(new_position_index);
+        }
     };
 
     presenter.readCurrentNavigationElement = function() {
@@ -2031,9 +2138,33 @@ function AddonTable_create() {
     presenter.readCurrentCellTitle = function() {
         var row = Math.floor(presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex / presenter.configuration.columnsCount);
         var column = presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex % presenter.configuration.columnsCount;
+        var element = presenter.keyboardControllerObject.keyboardNavigationCurrentElement;
+        var rowSpan = getRowspan(element);
+        var colSpan = getColspan(element);
+
+        if (rowSpan != 1 || colSpan != 1) {
+            var classNames = element.className.split(' ');
+            for (var i = 0; i < classNames.length; i++) {
+                var className = classNames[i];
+                if (className.startsWith('col_')) {
+                    var numberString = className.replace('col_', '').trim();
+                    if (numberString.length > 0 && !isNaN(numberString)) column = new Number(numberString) - 1;
+                }
+                if (className.startsWith('row_')) {
+                    var numberString = className.replace('row_', '').trim();
+                    if (numberString.length > 0 && !isNaN(numberString)) row = new Number(numberString) - 1;
+                }
+            }
+        }
         var alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
         var content = presenter.speechTexts.cell + " " + alphabet[column % alphabet.length] + " " + (row+1);
         var data = [window.TTSUtils.getTextVoiceObject(content)];
+        if (rowSpan > 1) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.rowSpan+" "+rowSpan));
+        }
+        if (colSpan > 1) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.colSpan+" "+colSpan));
+        }
         if (presenter.configuration.isFirstRowHeader) {
             data = data.concat(getCellHeaderUtterances('.row_1.col_'+(column+1), presenter.speechTexts.column));
         }
@@ -2168,6 +2299,7 @@ function AddonTable_create() {
     getTableKeyboardController().prototype.exitWCAGMode = function () {
         presenter.gapNavigation = false;
         presenter.clearCurrentCell();
+        presenter.addonKeyboardNavigationActive = false;
         KeyboardController.prototype.exitWCAGMode.call(this);
     };
 
