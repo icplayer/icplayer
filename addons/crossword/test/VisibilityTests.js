@@ -4,18 +4,18 @@ TestCase('[Crossword] Visibility tests', {
 
         this.model = {
             ID: "crossword1",
-        }
-
-        this.stubs = {
-            initializeLogic: sinon.stub(),
-            setVisibility: sinon.stub(),
         };
 
-        this.presenter.initializeLogic = this.stubs.initializeLogic;
-        this.presenter.setVisibility = this.stubs.setVisibility;
+        sinon.stub(this.presenter, 'initializeLogic');
+        sinon.stub(this.presenter, 'setVisibility');
 
         this.view = document.createElement('div');
         this.presenter.$view = $(this.view);
+    },
+
+    tearDown: function() {
+        this.presenter.initializeLogic.restore();
+        this.presenter.setVisibility.restore();
     },
 
     generateConfiguration: function(isVisible, isError) {
@@ -33,51 +33,51 @@ TestCase('[Crossword] Visibility tests', {
         this.presenter.createPreview(this.view, this.model);
     },
 
-    'test when in preview mode, setVisibility should be called with true': function () {
+    'test given model with visibility set to true when in preview mode then setVisibility should be called with true': function () {
         this.generateConfiguration(true, false);
 
         this.createPreview();
 
-        assertTrue(this.stubs.setVisibility.calledWith(true));
+        assertTrue(this.presenter.setVisibility.calledWith(true));
     },
 
-    'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
+    'test given model with visibility set to false when in preview mode then setVisibility should be called with true': function () {
         this.generateConfiguration(false, false);
 
         this.createPreview();
 
-        assertTrue(this.stubs.setVisibility.calledWith(true));
+        assertTrue(this.presenter.setVisibility.calledWith(true));
     },
 
-    'test when in preview mode and error in configuration, setVisibility should not be called': function () {
+    'test given error in configuration when in preview mode then setVisibility should not be called': function () {
         this.generateConfiguration(undefined, true);
 
         this.createPreview();
 
-        assertFalse(this.stubs.setVisibility.called);
+        assertFalse(this.presenter.setVisibility.called);
     },
 
-    'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
+    'test given model with visibility set to true when not in preview mode then setVisibility should be called with true': function () {
         this.generateConfiguration(true, false);
 
         this.run();
 
-        assertTrue(this.stubs.setVisibility.calledWith(true));
+        assertTrue(this.presenter.setVisibility.calledWith(true));
     },
 
-    'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
+    'test given model with visibility set to false when not in preview mode then setVisibility should be called with false': function () {
         this.generateConfiguration(false, false);
 
         this.run();
 
-        assertTrue(this.stubs.setVisibility.calledWith(false));
+        assertTrue(this.presenter.setVisibility.calledWith(false));
     },
 
-    'test when not in preview mode and error in configuration, setVisibility should not be called': function () {
+    'test given error in configuration when not in preview mode then setVisibility should not be called': function () {
         this.generateConfiguration(undefined, true);
 
         this.run();
 
-        assertFalse(this.stubs.setVisibility.called);
+        assertFalse(this.presenter.setVisibility.called);
     }
 });

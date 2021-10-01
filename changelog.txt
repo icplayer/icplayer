@@ -1,4 +1,4 @@
-2021-09-30 Added tests for getState, setState and visibility
+2021-10-01 Added tests for getState, setState and visibility
 2021-09-27 Added in paragraph destructor stop function called by timeout from setIframeHeight method
 2021-09-24 Fixed a bug causing lessons to not start in edesk
 2021-09-15 Added a new property for SingleStateButton that allows clicking in show answers mode

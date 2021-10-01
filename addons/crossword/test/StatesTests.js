@@ -55,10 +55,10 @@ TestCase("[Crossword] Get state", {
     },
 
     setValueToCell: function(rowId, colId, value) {
-        this.presenter.$view.find('.cell_' + rowId + 'x' + colId + ' input').attr('value', value);
+        this.presenter.$view.find(`.cell_${rowId}x${colId} input`).attr('value', value);
     },
 
-    'test get state when addon is visible': function() {
+    'test given addon is visible when executing get state then isVisible in returned state should be set to true': function() {
         this.presenter.isVisible = true;
 
         const returnedState = this.getParsedState();
@@ -66,7 +66,7 @@ TestCase("[Crossword] Get state", {
         assertTrue(returnedState.isVisible);
     },
 
-    'test get state when addon is not visible': function() {
+    'test given addon is not visible when executing get state then isVisible in returned state should be set to false': function() {
         this.presenter.isVisible = false;
 
         const returnedState = this.getParsedState();
@@ -74,13 +74,13 @@ TestCase("[Crossword] Get state", {
         assertFalse(returnedState.isVisible);
     },
 
-    'test get state when empty cells': function() {
+    'test given not filled cells when executing get state then cells in returned state should have empty sting for every input cell': function() {
         const returnedState = this.getParsedState();
 
         assertEquals(this.expectedEmptyCellsState, returnedState.cells);
     },
 
-    'test get state when table is filled': function() {
+    'test given filled input cells when executing get state then cells in returned state should store provided values': function() {
         this.setValuesToCells();
 
         const returnedState = this.getParsedState();
@@ -88,7 +88,7 @@ TestCase("[Crossword] Get state", {
         assertEquals(this.expectedCellsState, returnedState.cells);
     },
 
-    'test get state execute hideAnswers when show answers is active and continue': function() {
+    'test given model in show answers mode when executing get state then execute method hideAnswers and continue': function() {
         this.presenter.isShowAnswersActive = true;
 
         this.setValuesToCells();
@@ -99,7 +99,7 @@ TestCase("[Crossword] Get state", {
         assertEquals(this.expectedCellsState, returnedState.cells);
     },
 
-    'test get state execute hideAnswers when show answers is not active and continue': function() {
+    'test given model in not show answers mode when executing get state then continue and do not execute method hideAnswers': function() {
         this.presenter.isShowAnswersActive = false;
 
         this.setValuesToCells();
@@ -120,7 +120,6 @@ TestCase("[Crossword] Set state", {
         this.presenter.columnCount = 3;
         this.presenter.wordNumbersHorizontal = true;
         this.presenter.wordNumbersVertical = true;
-        this.presenter.isVisible = true;
         this.presenter.configuration = {
             isVisibleByDefault: false
         };
@@ -141,10 +140,6 @@ TestCase("[Crossword] Set state", {
         }
     },
 
-    getCellValue: function(rowId, colId) {
-        return this.presenter.$view.find('.cell_' + rowId + 'x' + colId + ' input').attr('value');
-    },
-
     setOldState: function(state) {
         return this.presenter.setState("[\"" + state.join("\",\"") + "\"]");
     },
@@ -162,27 +157,31 @@ TestCase("[Crossword] Set state", {
         assertEquals("E", this.getCellValue(3, 1));
     },
 
-    'test isVisible not changed when set state old state': function() {
-        this.presenter.isVisible = false;
+    getCellValue: function(rowId, colId) {
+        return this.presenter.$view.find(`.cell_${rowId}x${colId} input`).attr('value');
+    },
 
-        this.setOldState(this.inputOldState);
-
-        assertFalse(this.presenter.isVisible);
-
-        this.presenter.isVisible = true;
-
+    'test given addon is visible when executing set state with old state then addon visibility will not change': function() {
         this.setOldState(this.inputOldState);
 
         assertTrue(this.presenter.isVisible);
     },
 
-    'test view when set state old state': function() {
+    'test given addon is not visible when executing set state with old state then addon visibility will not change': function() {
+        this.presenter.isVisible = false;
+
+        this.setOldState(this.inputOldState);
+
+        assertFalse(this.presenter.isVisible);
+    },
+
+    'test given addon when executing set state with old state then set cells values according to the received state': function() {
         this.setOldState(this.inputOldState);
 
         this.assertCellsValues();
     },
 
-    'test set state when is Visible is false': function() {
+    'test given addon when executing set state with new state with visibility set to false then set cells values according to the received state and change addon visibility to false': function() {
         const inputState = {
             cells: this.inputOldState,
             isVisible: false,
@@ -195,7 +194,7 @@ TestCase("[Crossword] Set state", {
         assertFalse(this.presenter.isVisible);
     },
 
-    'test set state when is Visible is true': function() {
+    'test given addon when executing set state with new state with visibility set to true then set cells values according to the received state and change addon visibility to true': function() {
         const inputState = {
             cells: this.inputOldState,
             isVisible: true,
