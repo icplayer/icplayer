@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Crossword] Model validation", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
 
