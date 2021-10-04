@@ -741,11 +741,17 @@ export class MediaRecorder {
 
     _loadWebViewMessageListener() {
         window.addEventListener('message', event => {
-            const eventData = JSON.parse(event.data);
-            let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-            let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
-            if (isTypePlatform && isValueMlibro)
-                this._handleWebViewBehaviour();
+            try {
+                const eventData = JSON.parse(event.data);
+                let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
+                let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                if (isTypePlatform && isValueMlibro)
+                    this._handleWebViewBehaviour();
+            } catch(e) {
+                if (e instanceof SyntaxError) {
+                    return;
+                }
+            }
         }, false);
     }
 
