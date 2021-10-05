@@ -1327,7 +1327,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             window.addEventListener('message', function (event) {
                 var eventData = JSON.parse(event.data);
                 var isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-                var isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                var isValueMlibro = eventData.value ? eventData.value.toLowerCase().includes('mlibro') : false;
                 if (isTypePlatform && isValueMlibro) _this4._handleWebViewBehaviour();
             }, false);
         }
