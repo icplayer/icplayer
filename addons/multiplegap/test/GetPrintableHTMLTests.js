@@ -145,5 +145,26 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
 
         //expected
         assertEquals(expectedHtmlValue, actualHtmlValue);
+    },
+
+    'test given multiply words when one of them is correct then mark the rest as incorrect': function () {
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+            '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">' +
+            '<span class="answerSpan correctAnswerSpan">zebra</span><br>' +
+            '<span class="answerSpan incorrectAnswerSpan">zebra</span><br>' +
+            '<span class="answerSpan incorrectAnswerSpan">zebra</span>' +
+            '</div>' +
+            '</div>';
+        var state = `{"placeholders":[{"item":"Source_list1-3","value":"zebra","type":"string"},
+        {"item":"Source_list1-3","value":"zebra","type":"string"},
+        {"item":"Source_list1-3","value":"zebra","type":"string"}],"isVisible":true}`;
+        state = state.replaceAll("\n","").replaceAll(" ","");
+        this.showAnswers = true;
+        this.model.Orientation = "vertical";
+        this.presenter.setPrintableState(state);
+
+        var actualHtmlValue = this.presenter.getPrintableHTML(this.model, this.showAnswers);
+
+        assertEquals(expectedHtmlValue, actualHtmlValue);
     }
 });

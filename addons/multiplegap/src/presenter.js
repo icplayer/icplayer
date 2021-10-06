@@ -1710,12 +1710,6 @@ function Addonmultiplegap_create(){
         presenter.printableState = JSON.parse(state);
     }
 
-    function checkPrintedAnswer (answer1, answer2) {
-        return (answer1.value === answer2.value
-            && answer1.addonID === answer2.addonID
-            && answer1.index === answer2.index );
-    }
-
     presenter.getPrintableHTML = function (model, showAnswers) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -1731,51 +1725,30 @@ function Addonmultiplegap_create(){
         $wrapper.css("padding", "5px");
 
         if (printableController != null) {
-            var correctAnswers = [];
-            var contextDict = {};
+            var correctAnswers = getCorrectAnswers();
             var answerHTML = "";
 
-            for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
-                var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
-                if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])) {
-                    var answerAddonID = splitItemAnswerID[0];
-                    var answerItemIndex = splitItemAnswerID[1] - 1;
-                    if (!(answerAddonID in contextDict)) {
-                        contextDict[answerAddonID] = printableController.getPrintableContext(answerAddonID);
-                    }
-                    if (contextDict[answerAddonID] != null
-                        && contextDict[answerAddonID].items != null
-                        && answerItemIndex >= 0
-                        && answerItemIndex < contextDict[answerAddonID].items.length) {
-                        var answer = {
-                            value : contextDict[answerAddonID].items[answerItemIndex],
-                            addonID : answerAddonID,
-                            index : answerItemIndex
-                        };
-                        correctAnswers.push(answer);
-                    }
-                }
-            }
-
-            if(presenter.printableState != null){
-                var studentAnswers = [];
-                studentAnswers = parseStudentAnswers (presenter.printableState);
+            if (presenter.printableState) {
+                var studentAnswers = parseStudentAnswers(presenter.printableState);
+                var correctAnswerList = correctAnswers.map(answer => answer.value);
                 if (showAnswers) {
-                    for (var i = 0; i < studentAnswers.length; i++){
-                        for (var j = 0; j < correctAnswers.length; j++){
-                            if(checkPrintedAnswer(studentAnswers[i], correctAnswers[j])){
+                    for (var i = 0; i < studentAnswers.length; i++) {
+                        for (var j = 0; j < correctAnswers.length; j++) {
+                            var index = correctAnswerList.indexOf(studentAnswers[i].value)
+                            if (index > -1) {
                                 studentAnswers[i].isCorrect = true;
+                                correctAnswerList.splice(index, 1);
                                 break;
                             }
                         }
-                        answerHTML = prepareCheckedAnswerToPrint (answerHTML, i, ...studentAnswers);
+                        answerHTML = prepareCheckedAnswerToPrint(answerHTML, i, ...studentAnswers);
                     }
                 } else {
-                    answerHTML = prepareBasicPrint (answerHTML, null, ...studentAnswers);
+                    answerHTML = prepareBasicPrint(answerHTML, null, ...studentAnswers);
                 }
             } else {
                 if (showAnswers) {
-                    answerHTML = prepareBasicPrint (answerHTML, $wrapper, ...correctAnswers);
+                    answerHTML = prepareBasicPrint(answerHTML, $wrapper, ...correctAnswers);
                 }
             }
             $wrapper.html(answerHTML);
@@ -1785,6 +1758,36 @@ function Addonmultiplegap_create(){
 
         return $view[0].outerHTML;
     };
+
+    function getCorrectAnswers() {
+        var contextDict = {};
+        var correctAnswers = []
+
+        for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
+            var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
+            if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])) {
+                var answerAddonID = splitItemAnswerID[0];
+                var answerItemIndex = splitItemAnswerID[1] - 1;
+
+                if (!(answerAddonID in contextDict)) {
+                    contextDict[answerAddonID] = printableController.getPrintableContext(answerAddonID);
+                }
+                var hasDictItems = contextDict[answerAddonID] && contextDict[answerAddonID].items;
+                var isIndexCorrect = answerItemIndex >= 0 && answerItemIndex < contextDict[answerAddonID].items.length;
+
+                if (hasDictItems && isIndexCorrect) {
+                    var answer = {
+                        value: contextDict[answerAddonID].items[answerItemIndex],
+                        addonID: answerAddonID,
+                        index: answerItemIndex
+                    };
+                    correctAnswers.push(answer);
+                }
+            }
+        }
+
+        return correctAnswers;
+    }
 
     function getSeparatorBasedOnOrientation() {
         if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
