@@ -13,12 +13,14 @@ import com.lorepo.icplayer.client.model.adaptive.AdaptivePageSteps;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveStructure;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.model.page.Page;
 
 public class AdaptiveLearningService implements IAdaptiveLearningService {
 	private AdaptiveStructure structure;
 	private AdaptivePageSteps pageToSteps;
 	private IPlayerController playerController;
-	private List<Integer> vistiedPageIndexes; // by default first page is added
+	private List<Integer> visitedPageIndexes; // by default first page is added
+	private List<Page> initiallyReportablePages = new ArrayList<Page>();
 	private int currentPageIndex = 0;
 	
 	private enum JSON_KEYS {
@@ -39,8 +41,8 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		this.playerController = playerController;
 		this.structure = new AdaptiveStructure(adaptiveStructure);
 		this.pageToSteps = new AdaptivePageSteps(adaptiveStructure);
-		this.vistiedPageIndexes = new ArrayList<Integer>();
-		this.vistiedPageIndexes.add(0);
+		this.visitedPageIndexes = new ArrayList<Integer>();
+		this.visitedPageIndexes.add(0);
 	}
 
 	@Override
@@ -55,27 +57,31 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 	
 	public boolean isNextPageAvailable() {
-		return this.currentPageIndex < this.vistiedPageIndexes.size() - 1;
+		return this.currentPageIndex < this.visitedPageIndexes.size() - 1;
 	}
 
 	public void addAndMoveToNextPage(String pageID) {
-		this.setPagesFromStepNonReportable(pageID);
+	    if (this.isFirstCall()) {
+	        this.saveAllReportablePages();
+	        this.initAllPagesAsNonReportable();
+	    }
+	    this.setCurrentPageAsReportable(pageID);
 		this.playerController.switchToPageById(pageID);
-		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
+		this.visitedPageIndexes.add(this.playerController.getCurrentPageIndex());
 		this.currentPageIndex++;
 	}
 	
 	public void moveToNextPage() {
-		if (this.currentPageIndex != this.vistiedPageIndexes.size() - 1) {
+		if (this.currentPageIndex != this.visitedPageIndexes.size() - 1) {
 			this.currentPageIndex++;
-			this.playerController.switchToPage(this.vistiedPageIndexes.get(this.currentPageIndex));
+			this.playerController.switchToPage(this.visitedPageIndexes.get(this.currentPageIndex));
 		}
 	}
 	
 	public void moveToPrevPage() {
 		if (this.currentPageIndex != 0) {
 			this.currentPageIndex--;
-			this.playerController.switchToPage(this.vistiedPageIndexes.get(this.currentPageIndex));
+			this.playerController.switchToPage(this.visitedPageIndexes.get(this.currentPageIndex));
 		}
 	}
 
@@ -84,8 +90,8 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		HashMap<String, String> returnJSON = new HashMap<String, String>();
 		List<JSONValueAdapter> pagesIndexes = new ArrayList<JSONValueAdapter>();
 		
-		for (Integer i = 0; i < this.vistiedPageIndexes.size(); i++) {
-			pagesIndexes.add(new JSONValueAdapter(this.vistiedPageIndexes.get(i)));
+		for (Integer i = 0; i < this.visitedPageIndexes.size(); i++) {
+			pagesIndexes.add(new JSONValueAdapter(this.visitedPageIndexes.get(i)));
 		}
 		
 		returnJSON.put(JSON_KEYS.CURRENT_PAGE_INDEX.toString(), Integer.toString(this.currentPageIndex));
@@ -109,20 +115,20 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		}
 		
 		if (data.containsKey(JSON_KEYS.VISITED_PAGE_INDEXES.toString())) {
-			this.vistiedPageIndexes = JSONUtils.decodeIntegerArray(data.get(JSON_KEYS.VISITED_PAGE_INDEXES.toString()));
+			this.visitedPageIndexes = JSONUtils.decodeIntegerArray(data.get(JSON_KEYS.VISITED_PAGE_INDEXES.toString()));
 		}
 	}
 
 	@Override
 	public void resetHistory() {
-		this.vistiedPageIndexes.clear();
-		this.vistiedPageIndexes.add(0);
+		this.visitedPageIndexes.clear();
+		this.visitedPageIndexes.add(0);
 		this.currentPageIndex = 0;
 		
 		Integer currentPage = this.playerController.getCurrentPageIndex();
 
 		if (currentPage > 0) {
-			this.vistiedPageIndexes.add(currentPage);
+			this.visitedPageIndexes.add(currentPage);
 			this.currentPageIndex = 1;
 		}
 	}
@@ -149,18 +155,46 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		return structure.getDifficultyForPage(pageID);
 	}
 
-	private void setPagesFromStepNonReportable(String pageID) {
-		List<String> pagesIDsFromNewPageStep = this.pageToSteps.getOtherStepPages(pageID);
+	private void saveAllReportablePages() {
+	    List<Page> allPages = this.playerController.getModel().getAllPages();
+ 	    for (Page page : allPages) {
+ 	        if (page.isReportable()){
+ 	            this.initiallyReportablePages.add(page);
+ 	        }
+ 	    }
+	}
 
-		for (String stepPageID : pagesIDsFromNewPageStep) {
-			this.setPageNonReportable(this.playerController.getModel().getPageById(stepPageID));
-		}
+	private void setCurrentPageAsReportable(String pageID) {
+	    IPage currentPage = this.playerController.getModel().getPageById(pageID);
+	    if (this.initiallyReportablePages.contains(currentPage)) {
+	        currentPage.setAsReportable();
+	    }
+	}
+
+	private void initAllPagesAsNonReportable() {
+        List<Page> allPages = this.playerController.getModel().getAllPages();
+        allPages.remove(this.playerController.getCurrentPageIndex());
+        for (Page page : allPages) {
+            this.setPageNonReportable(page);
+        }
 	}
 
 	private void setPageNonReportable(IPage page) {
 		if (page != null) {
 			page.setAsNonReportable();
 		}
+	}
+
+	private void setPageReportable(IPage page) {
+		if (page != null) {
+			page.setAsReportable();
+		}
+	}
+
+	//in advanced connector first page is always displayed, the second one is being checked for logic etc.
+	//that's why we check whether we visited first page (notice that visitedPageIndexes increments after this condition check)
+	private boolean isFirstCall() {
+	    return this.visitedPageIndexes.size() == 1;
 	}
 
 	private int getCurrentPageStepIndex() {

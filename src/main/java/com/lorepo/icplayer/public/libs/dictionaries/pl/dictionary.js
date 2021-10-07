@@ -1302,6 +1302,8 @@ var ice_dictionary_pl = {
 	"Table_property_first_column_is_header": "First column is a header",
 	"Table_row_speech_text": "Row",
 	"Table_column_speech_text": "Column",
+	"Table_row_span_speech_text": "Row span",
+	"Table_column_span_speech_text": "Column span",
 	"Table_Of_Contents_info" : "Wyświetla spis treści całej prezentacji z odsyłaczami do odpowiednich stron.",
 	"Table_Of_Contents_name" : "Spis treści",
 	"Table_Of_Contents_property_header": "Nagłówek",

@@ -1303,6 +1303,8 @@ var ice_dictionary_mx = {
 	"Table_property_first_column_is_header": "First column is a header",
 	"Table_row_speech_text": "Row",
 	"Table_column_speech_text": "Column",
+	"Table_row_span_speech_text": "Row span",
+	"Table_column_span_speech_text": "Column span",
 	"Table_property_new_width_calculate": "Fijar el ancho de columnas",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
 	"Table_Of_Contents_info": "Muestra tabla de contenidos de la presentación con los enlaces a las páginas correspondientes.",

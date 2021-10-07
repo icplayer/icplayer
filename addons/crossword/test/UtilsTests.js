@@ -1,4 +1,4 @@
-TestCase("Utils", {
+TestCase("[Crossword] Utils", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
     },

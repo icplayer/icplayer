@@ -1381,10 +1381,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var _this4 = this;
 
             window.addEventListener('message', function (event) {
-                var eventData = JSON.parse(event.data);
-                var isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-                var isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
-                if (isTypePlatform && isValueMlibro) _this4._handleWebViewBehaviour();
+                try {
+                    var eventData = JSON.parse(event.data);
+                    var isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
+                    var isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                    if (isTypePlatform && isValueMlibro) _this4._handleWebViewBehaviour();
+                } catch (e) {
+                    if (e instanceof SyntaxError) {
+                        return;
+                    }
+                }
             }, false);
         }
     }, {

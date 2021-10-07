@@ -819,5 +819,13 @@ function AddonParagraph_Keyboard_create() {
         return $wrapper[0].outerHTML;
     };
 
+    presenter.getText = function AddonParagraph_Keyboard_getText() {
+        return presenter.editor.getContent({format : 'raw'});
+    };
+
+    presenter.getOpenEndedContent = function () {
+        return presenter.getText();
+    };
+
     return presenter;
 }
