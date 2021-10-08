@@ -93,7 +93,7 @@ public class CalculateModuleDimensions {
 		
 		if(property == Property.left){
 			if(widget != null){
-				pos = widget.getElement().getOffsetLeft() - this.pageDimensions.absoluteLeft + modulePos;
+				pos = widget.getElement().getOffsetLeft() + modulePos;
 			}
 			else{
 				pos = modulePos;
@@ -101,7 +101,7 @@ public class CalculateModuleDimensions {
 		}
 		else if(property == Property.right){
 			if(widget != null){
-			    pos = widget.getElement().getOffsetLeft() + widget.getOffsetWidth() - this.pageDimensions.absoluteLeft + modulePos;
+			    pos = widget.getElement().getOffsetLeft() + widget.getOffsetWidth() + modulePos;
 			}
 			else{
 				pos = this.pageDimensions.width + modulePos;
@@ -109,7 +109,7 @@ public class CalculateModuleDimensions {
 		}
 		else if(property == Property.top){
 			if(widget != null){
-				pos = widget.getElement().getOffsetTop() - this.pageDimensions.absoluteTop + modulePos;
+				pos = widget.getElement().getOffsetTop() + modulePos;
 			}
 			else{
 				pos = modulePos;
@@ -117,7 +117,7 @@ public class CalculateModuleDimensions {
 		}
 		else if(property == Property.bottom){
 			if(widget != null){
-				pos = widget.getElement().getOffsetTop() + widget.getOffsetHeight() - this.pageDimensions.absoluteTop + modulePos;
+				pos = widget.getElement().getOffsetTop() + widget.getOffsetHeight() + modulePos;
 			}
 			else{
 				pos = this.pageDimensions.height + modulePos;
