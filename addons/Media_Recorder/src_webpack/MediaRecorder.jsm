@@ -629,7 +629,9 @@ export class MediaRecorder {
 
     _activateButtons() {
         this.recordButton.activate();
-        this.playButton.activate();
+        if (!this.model.disableRecording) {
+            this.playButton.activate();
+        }
         this.defaultRecordingPlayButton.activate();
         if (this.model.extendedMode) {
             for (var i=0; i < this.extendedModeButtonList.length; i++) {
