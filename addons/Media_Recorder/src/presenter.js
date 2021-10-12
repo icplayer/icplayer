@@ -598,7 +598,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this._showBrowserError(view);
             } else if (validatedModel.isValid) this._runAddon(view, validatedModel.value);else this._showError(view, validatedModel);
 
-            this._notifyWebView();
+            this._executeNotification(JSON.stringify({ type: "platform", target: this.model.ID }));
         }
     }, {
         key: "createPreview",
@@ -1320,17 +1320,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             alert(_Errors.Errors["safari_select_recording_button_again"]);
         }
     }, {
-        key: "_notifyWebView",
-        value: function _notifyWebView() {
-            try {
-                window.external.notify(JSON.stringify({ type: "platform", target: this.model.ID }));
-            } catch (e) {
-                // silent message
-                // can't use a conditional expression
-                // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
-            }
-        }
-    }, {
         key: "_loadWebViewMessageListener",
         value: function _loadWebViewMessageListener() {
             var _this4 = this;
@@ -1339,7 +1328,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 try {
                     var eventData = JSON.parse(event.data);
                     var isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-                    var isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                    var isValueMlibro = eventData.value ? eventData.value.toLowerCase().includes('mlibro') : false;
                     if (isTypePlatform && isValueMlibro) _this4._handleWebViewBehaviour();
                 } catch (e) {
                     if (e instanceof SyntaxError) {
@@ -1371,13 +1360,28 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "_executeNotification",
+        value: function _executeNotification(notifyInput) {
+            try {
+                if (mLibroChromium != undefined) {
+                    mLibroChromium.notify(notifyInput);
+                } else {
+                    window.external.notify(notifyInput);
+                }
+            } catch (e) {
+                // silent message
+                // can't use a conditional expression
+                // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+            }
+        }
+    }, {
         key: "_handleMlibroStartRecording",
         value: function _handleMlibroStartRecording() {
             this.mediaState.setRecording();
             this.timer.reset();
             this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
             this.recordingTimeLimiter.startCountdown();
-            window.external.notify(JSON.stringify({ type: "mediaRecord", target: this.model.ID }));
+            this._executeNotification(JSON.stringify({ type: "mediaRecord", target: this.model.ID }));
         }
     }, {
         key: "_handleMlibroStopRecording",
@@ -1385,7 +1389,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaState.setLoading();
             this.timer.stopCountdown();
             this.recordingTimeLimiter.stopCountdown();
-            window.external.notify(JSON.stringify({ type: "mediaStop", target: this.model.ID }));
+            this._executeNotification(JSON.stringify({ type: "mediaStop", target: this.model.ID }));
         }
     }, {
         key: "_setEnableState",
