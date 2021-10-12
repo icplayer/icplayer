@@ -1049,7 +1049,12 @@ function AddonQuiz_create() {
         var voicesArray = [];
 
         const prefix = presenter.speechTexts.Question;
-        const questionInfo = `${state.currentQuestion} ${presenter.speechTexts.OutOf} ${presenter.config.questions.length}`;
+
+        var language = document.documentElement.lang;
+
+        const currentQuestionAsText = window.TTSUtils.numberToOrdinalNumber(state.currentQuestion, language, window.TTSUtils.GENDER.NEUTER);
+        const questionsLengthAsText = window.TTSUtils.numberToOrdinalNumber(presenter.config.questions.length, language, window.TTSUtils.GENDER.FEMININE);
+        const questionInfo = `${currentQuestionAsText} ${presenter.speechTexts.OutOf} ${questionsLengthAsText}`;
         const texts = [prefix, questionInfo, ];
         pushMessagesToTextVoiceObject(voicesArray, texts);
         

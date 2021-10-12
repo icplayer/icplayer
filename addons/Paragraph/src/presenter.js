@@ -15,6 +15,8 @@ function AddonParagraph_create() {
 
     presenter.isEditorLoaded = false;
 
+    presenter.toolbarChangeHeightTimeoutID = null;
+
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
         FRENCH: "fr_FR",
@@ -38,7 +40,7 @@ function AddonParagraph_create() {
     presenter.ERROR_CODES = {
         'W_01': 'Weight must be a positive number between 0 and 100'
     };
-    
+
     function isIOSSafari() {
         var ua = window.navigator.userAgent,
             iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
@@ -230,7 +232,7 @@ function AddonParagraph_create() {
         tinymce.init(presenter.getTinymceInitConfiguration(presenter.getTinyMceSelector())).then(function (editors) {
             presenter.editor = editors[0];
             presenter.onInit();
-            
+
             if (isIOSSafari()) {
                 presenter.findIframeAndSetStyles();
             }
@@ -240,7 +242,7 @@ function AddonParagraph_create() {
             });
             presenter.isEditorLoaded = true;
         });
-        
+
         if(isIOSSafari()) {
             var input = document.createElement("input");
             input.type = "text";
@@ -494,6 +496,9 @@ function AddonParagraph_create() {
                 document.activeElement.blur();
             }
 
+            clearTimeout(presenter.toolbarChangeHeightTimeoutID);
+            presenter.toolbarChangeHeightTimeoutID = null;
+
             presenter.placeholder = null;
             presenter.editor.destroy();
             presenter.jQueryTinyMCEHTML.off();
@@ -733,32 +738,31 @@ function AddonParagraph_create() {
 
         if (!presenter.configuration.isToolbarHidden) {
             //setTimouts for checking if height of the toolbar changed
-            setTimeout(function () {
-                    var lastHeight = presenter.$view.find('.mce-toolbar').height(),
-                        newHeight,
-                        counter = 0,
-                        toolbarHeightChangedTimeout = false,
-                        originalEditorHeight = editorHeight;
+            presenter.toolbarChangeHeightTimeoutID = setTimeout(function () {
+                var lastHeight = presenter.$view.find('.mce-toolbar').height(),
+                    newHeight,
+                    counter = 0,
+                    originalEditorHeight = editorHeight;
 
-                        editorHeight -= presenter.$view.find('.mce-toolbar').height();
-                        $editor.height(editorHeight);
-                    (function checkHeight(){
-                        newHeight = presenter.$view.find('.mce-toolbar').height();
-                        if(lastHeight !== newHeight) {
-                            var height = originalEditorHeight - presenter.$view.find('.mce-toolbar').height();
-                            $editor.height(height);
-                        }
-                        lastHeight = newHeight;
+                editorHeight -= presenter.$view.find('.mce-toolbar').height();
+                $editor.height(editorHeight);
+                (function checkHeight(){
+                    newHeight = presenter.$view.find('.mce-toolbar').height();
+                    if(lastHeight !== newHeight) {
+                        var height = originalEditorHeight - presenter.$view.find('.mce-toolbar').height();
+                        $editor.height(height);
+                    }
+                    lastHeight = newHeight;
 
-                        if(toolbarHeightChangedTimeout) {
-                            clearTimeout(toolbarHeightChangedTimeout);
-                        }
+                    if(presenter.toolbarChangeHeightTimeoutID) {
+                        clearTimeout(presenter.toolbarChangeHeightTimeoutID);
+                    }
 
-                        counter++;
-                        if(counter < 3) {
-                            toolbarHeightChangedTimeout = setTimeout(checkHeight, 500);
-                        }
-                    })();
+                    counter++;
+                    if(counter < 3) {
+                        presenter.toolbarChangeHeightTimeoutID = setTimeout(checkHeight, 500);
+                    }
+                })();
             }, 0);
         } else {
             $editor.height(editorHeight);

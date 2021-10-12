@@ -3,12 +3,23 @@ function AddonHierarchical_Table_Of_Contents_create() {
     var presentationController;
     var pageIndex = 0;
 
+    presenter.isVisible = null;
+
     presenter.ERROR_MESSAGES = {
     };
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     function returnCorrectObject(v) { return { isValid: true, value: v }; }
+
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
 
     presenter.showErrorMessage = function (message, substitutions) {
         var errorContainer;
@@ -40,19 +51,19 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     function addHeader() {
         var headerHTML = "<td> " + presenter.configuration.labels.title + "</td>";
-        $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
+        $("<tr></tr>").prependTo(getJqueryTable()).addClass("hier_report-header").html(headerHTML);
     }
 
     function addFooter() {
         var row = document.createElement('tr');
-        $(row).appendTo($("#" + presenter.treeID).find('table'));
+        $(row).appendTo(getJqueryTable());
         $(row).addClass("hier_report-footer");
     }
 
     function createRow(index, parentIndex, isChapter) {
         var row = document.createElement('tr');
 
-        $(row).appendTo($("#" + presenter.treeID).find('table'));
+        $(row).appendTo(getJqueryTable());
         $(row).addClass("treegrid-" + index);
 
         if (parentIndex != null) {
@@ -206,7 +217,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
     presenter.getState = function () {
         return JSON.stringify({
             'treeState': saveTreeState(),
-            'isVisible': presenter.configuration.isVisible
+            'isVisible': presenter.isVisible,
         });
     };
 
@@ -216,7 +227,6 @@ function AddonHierarchical_Table_Of_Contents_create() {
         restoreTreeState(state.treeState);
 
         presenter.setVisibility(state.isVisible);
-        presenter.configuration.isVisible = state.isVisible;
     };
 
     presenter.validateModel = function (model) {
@@ -236,6 +246,23 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.isVisible = isVisible;
+    };
+
+    presenter.show = function () {
+        if (!presenter.isVisible) {
+            presenter.setVisibility(true);
+        }
+    };
+
+    presenter.hide = function () {
+        if (presenter.isVisible) {
+            presenter.setVisibility(false);
+        }
+    };
+
+    presenter.reset = function () {
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.initialize = function (view, model, isPreview) {
@@ -264,6 +291,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
+
         addHeader();
         if (isPreview) {
             presenter.createPreviewTree();
@@ -280,7 +308,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
             addFooter();
         }
 
-        $("#" + presenter.treeID).find('table').not('.hier_report-header').not('.hier_report-footer').treegrid({
+        getJqueryTable().not('.hier_report-header').not('.hier_report-footer').treegrid({
             'initialState': 'collapsed',
             'expanderTemplate': '<div class="treegrid-expander"></div>'
         });
@@ -322,6 +350,10 @@ function AddonHierarchical_Table_Of_Contents_create() {
                 }
             }
         });
+    }
+
+    function getJqueryTable() {
+        return presenter.$view.find("#" + presenter.treeID).find('table');
     }
 
     return presenter;

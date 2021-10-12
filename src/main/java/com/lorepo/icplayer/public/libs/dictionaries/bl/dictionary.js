@@ -1182,6 +1182,8 @@ var ice_dictionary_bl = {
 	"Table_property_first_row_is_header": "First row is a header",
 	"Table_row_speech_text": "Row",
 	"Table_column_speech_text": "Column",
+	"Table_row_span_speech_text": "Row span",
+	"Table_column_span_speech_text": "Column span",
 	"Table_property_first_column_is_header": "First column is a header",
 	"Table_Of_Contents_info": "Показва съдържанието на презентацията с линкове към съответните страници.",
 	"Table_Of_Contents_name": "Съдържание",
