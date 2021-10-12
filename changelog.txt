@@ -1,3 +1,5 @@
+2021-10-04 Added support for method getOpenEndedContentForCurrentPage for addon Paragraph Keyboard
+2021-10-01 Added tests for getState, setState and visibility
 2021-09-29 Added tests for the printable version of Hierarchical Lesson Report
 2021-09-29 Added functionality for the printable version of Hierarchical Lesson Report
 2021-09-29 Added functionality for the printable version in preview of Hierarchical Lesson Report
