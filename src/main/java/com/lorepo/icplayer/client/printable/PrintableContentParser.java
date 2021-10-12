@@ -18,11 +18,15 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.text.TextPrintable;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
+
 
 public class PrintableContentParser {
 
@@ -41,6 +45,7 @@ public class PrintableContentParser {
 	SeededRandom random = new SeededRandom();
 	private HashMap<String, String> loadedState = null;
 	private String rawScore = "";
+	private boolean preview = false;
 	boolean showAnswers = false;
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
@@ -50,6 +55,7 @@ public class PrintableContentParser {
 	int asyncModuleCounter = 0;
 	int asyncModuleIDCounter = 0;
 	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
+	ArrayList<HashMap<String, String>> contentInformation = new ArrayList<HashMap<String, String>>();
 	
 	private static class SplitResult extends JavaScriptObject {
 		
@@ -316,8 +322,12 @@ public class PrintableContentParser {
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
+		pagePrintableController.setPreview(this.preview);
 		if (this.rawScore != null && this.rawScore.length() > 0) {
 			pagePrintableController.setScore(this.rawScore);
+		}
+		if (!this.contentInformation.isEmpty()) {
+			pagePrintableController.setContentInformation(this.contentInformation);
 		}
 
 		ModuleList modules = page.getModules();
@@ -550,6 +560,9 @@ public class PrintableContentParser {
 				}
 			}
 		}
+
+		createContentInformation(contentModel, pageSubset);
+
 		Page header = contentModel.getDefaultHeader();
 		if (header != null) {
 			setHeader(header);
@@ -562,7 +575,48 @@ public class PrintableContentParser {
 		generatePrintableHTMLForPages(pages);
 	}
 
+	private void createContentInformation (
+			Content contentModel, ArrayList<Integer> pageSubset) {
+		this.contentInformation.clear();
+		IChapter tableOfContents = contentModel.getTableOfContents();
 
+		updateContentInformation(
+				tableOfContents, pageSubset, 0, null);
+	}
+
+	private int updateContentInformation (
+			IChapter chapter, ArrayList<Integer> pageSubset, int index, String parentId) {
+		int size = chapter.size();
+		int pageIndex = index;
+
+		for (int i = 0; i < size; i++) {
+			HashMap<String, String> nodeInformation = new HashMap<String, String>();
+			IContentNode node = chapter.get(i);
+
+			nodeInformation.put("id", node.getId());
+			nodeInformation.put("parentId", parentId);
+			nodeInformation.put("name", node.getName());
+
+			if (node instanceof Page) {
+				pageIndex++;
+				if (pageSubset != null && !pageSubset.contains(pageIndex - 1)) {
+					continue;
+				}
+				nodeInformation.put("isReportable", Boolean.toString(((Page) node).isReportable()));
+				nodeInformation.put("isVisited", Boolean.toString(((Page) node).isVisited()));
+				nodeInformation.put("type", ((Page) node).getClassNamePrefix());
+				this.contentInformation.add(nodeInformation);
+			} else if (node instanceof PageList) {
+				nodeInformation.put("isReportable", Boolean.toString(false));
+				nodeInformation.put("isVisited", null);
+				nodeInformation.put("type", "chapter");
+				this.contentInformation.add(nodeInformation);
+				pageIndex = updateContentInformation(
+						(IChapter) node, pageSubset, pageIndex, node.getId());
+			}
+		}
+		return pageIndex;
+	}
 	
 	public void generatePrintableHTML(Content contentModel) {
 		generatePrintableHTML(contentModel, null);
@@ -822,5 +876,9 @@ public class PrintableContentParser {
 		$wnd.$(element).html('');
 		if (element && element.parentNode) element.parentNode.removeChild(element);
 	}-*/;
+
+	public void setPreview(boolean preview) {
+	  this.preview = preview;
+	};
 
 }

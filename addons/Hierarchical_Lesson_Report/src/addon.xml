@@ -67,6 +67,6 @@
                 <property name="Total" nameLabel="Hierarchical_Lesson_Report_property_total_speech_text" type="string"/>
             </property>
         </property>
-
+        <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
     </model>
 </addon>
