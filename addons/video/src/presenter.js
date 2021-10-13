@@ -300,7 +300,7 @@ function Addonvideo_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
-        if (eventData.value == 'dropdownClicked') {
+        if (eventData.value === 'dropdownClicked' && !presenter.videoObject.playing) {
             presenter.metadadaLoaded = false;
             presenter.videoObject.load();
         }
@@ -949,6 +949,12 @@ function Addonvideo_create() {
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.$videoObject = $(presenter.videoObject);
 
+        Object.defineProperty(presenter.videoObject, 'playing', {
+           get: function () {
+               return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+           }
+        });
+
         presenter.setDimensions();
 
         presenter.checkPlayButtonVisibility();
@@ -1433,6 +1439,12 @@ function Addonvideo_create() {
         }
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
+        Object.defineProperty(presenter.videoObject, 'playing', {
+           get: function () {
+               return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+           }
+        });
+
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         var $video = $(presenter.videoObject);
         var files = presenter.configuration.files;
