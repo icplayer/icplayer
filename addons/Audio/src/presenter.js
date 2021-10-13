@@ -29,7 +29,7 @@ function AddonAudio_create(){
     presenter.mouseData = {};
 
     presenter.onEventReceived = function AddonAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked') {
+        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
             presenter.audio.load();
         }
     };
@@ -462,6 +462,12 @@ function AddonAudio_create(){
         if (!isPreview) {
             audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
         }
+
+        Object.defineProperty(audio, 'playing', {
+            get: function() {
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
 
         presenter.audio = audio;
     }
