@@ -1833,25 +1833,13 @@ var PlayButton = exports.PlayButton = function (_Button) {
             this.state = null;
         }
     }, {
-        key: "activate",
-        value: function activate() {
-            var _this2 = this;
-
-            console.log("ACTIVATE");
-            this.$view.click(function () {
-                return _this2._eventHandler();
-            });
-        }
-    }, {
         key: "_eventHandler",
         value: function _eventHandler() {
-            console.log("event handler play button");
             if (this.state.isLoaded()) this._startPlaying();else if (this.state.isPlaying()) this._stopPlaying();
         }
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            console.log("_start playing");
             this.$view.addClass("selected");
             this.onStartPlayingCallback();
         }
