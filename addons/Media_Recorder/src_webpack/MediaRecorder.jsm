@@ -44,7 +44,7 @@ export class MediaRecorder {
         else
             this._showError(view, validatedModel);
 
-        this._notifyWebView();
+        this._executeNotification(JSON.stringify({type: "platform", target: this.model.ID}));
     }
 
     createPreview(view, model) {
@@ -758,22 +758,12 @@ export class MediaRecorder {
         alert(Errors["safari_select_recording_button_again"]);
     }
 
-    _notifyWebView() {
-        try {
-            window.external.notify(JSON.stringify({type: "platform", target: this.model.ID}));
-        } catch (e) {
-            // silent message
-            // can't use a conditional expression
-            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
-        }
-    }
-
     _loadWebViewMessageListener() {
         window.addEventListener('message', event => {
             try {
                 const eventData = JSON.parse(event.data);
                 let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-                let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                let isValueMlibro = eventData.value ? eventData.value.toLowerCase().includes('mlibro') : false;
                 if (isTypePlatform && isValueMlibro)
                     this._handleWebViewBehaviour();
             } catch(e) {
@@ -803,19 +793,33 @@ export class MediaRecorder {
         }
     }
 
+    _executeNotification(notifyInput) {
+        try {
+            if (mLibroChromium != undefined) {
+                mLibroChromium.notify(notifyInput);
+            } else {
+                window.external.notify(notifyInput);
+            }
+        } catch (e) {
+            // silent message
+            // can't use a conditional expression
+            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+        }
+    }
+
     _handleMlibroStartRecording() {
         this.mediaState.setRecording();
         this.timer.reset();
         this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
         this.recordingTimeLimiter.startCountdown();
-        window.external.notify(JSON.stringify({type: "mediaRecord", target: this.model.ID}));
+        this._executeNotification(JSON.stringify({type: "mediaRecord", target: this.model.ID}));
     }
 
     _handleMlibroStopRecording() {
         this.mediaState.setLoading();
         this.timer.stopCountdown();
         this.recordingTimeLimiter.stopCountdown();
-        window.external.notify(JSON.stringify({type: "mediaStop", target: this.model.ID}));
+        this._executeNotification(JSON.stringify({type: "mediaStop", target: this.model.ID}));
     }
 
     _setEnableState(isEnable) {
