@@ -11,6 +11,7 @@ function Addonmultiplegap_create(){
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
     var isWCAGOn = false;
     var printableController = null;
+    var printableState = null;
 
     var presenter = function(){};
 
@@ -1336,14 +1337,14 @@ function Addonmultiplegap_create(){
         if (!state) {
             return;
         }
-        
+
         var parsedState = JSON.parse(state),
           upgradedState = presenter.upgradeState(parsedState);
-        
+
         for(var i = 0; i < upgradedState.placeholders.length; i++) {
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
         }
-        
+
         if (upgradedState.isVisible) {
             presenter.show();
         } else {
@@ -1466,14 +1467,14 @@ function Addonmultiplegap_create(){
                 });
             }
     }
-    
+
     presenter.getElementText = function (id, element) {
         var module = presenter.playerController.getModule(id);
-        
+
         if (module == null || !module.hasOwnProperty('getItem')) {
             return '';
         }
-        
+
         return module.getItem(element);
     };
 
@@ -1482,10 +1483,10 @@ function Addonmultiplegap_create(){
         presenter.tmpScore = presenter.getScore();
         presenter.tmpErrorCount = presenter.getErrorCount();
     }
-    
+
     presenter.showAnswers = function () {
         if (!presenter.configuration.isActivity) return;
-        
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1524,14 +1525,14 @@ function Addonmultiplegap_create(){
 
         presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
     }
-    
+
     presenter.hideAnswers = function () {
         if (!presenter.isShowAnswersActive) {
             return;
         }
 
         presenter.$view.find('.placeholder-show-answers').remove();
-        
+
         if(presenter.tmpState){
             for(var i = 0; i < presenter.tmpState.length; i++) {
                 presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
@@ -1703,6 +1704,12 @@ function Addonmultiplegap_create(){
         printableController = controller;
     };
 
+    presenter.setPrintableState = function (state){
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -1717,41 +1724,130 @@ function Addonmultiplegap_create(){
         $wrapper.css("border", "1px solid");
         $wrapper.css("padding", "5px");
 
-        if (showAnswers && printableController != null) {
-            var answerArray = [];
-            var contextDict = {};
-
-            for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
-                var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
-                if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])) {
-                    var answerAddonID = splitItemAnswerID[0];
-                    var answerItemIndex = splitItemAnswerID[1] - 1;
-                    if (!(answerAddonID in contextDict)) {
-                        contextDict[answerAddonID] = printableController.getPrintableContext(answerAddonID);
-                    }
-                    if (contextDict[answerAddonID] != null
-                        && contextDict[answerAddonID].items != null
-                        && answerItemIndex >= 0
-                        && answerItemIndex < contextDict[answerAddonID].items.length) {
-                        answerArray.push(contextDict[answerAddonID].items[answerItemIndex]);
-                    }
-                }
-            }
-
+        if (printableController != null) {
+            var correctAnswers = getCorrectAnswers();
             var answerHTML = "";
-            if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-                answerHTML = answerArray.join(", ");
+
+            if (presenter.printableState) {
+                var studentAnswers = parseStudentAnswers(presenter.printableState);
+                var correctAnswerList = correctAnswers.map(answer => answer.value);
+                if (showAnswers) {
+                    for (var i = 0; i < studentAnswers.length; i++) {
+                        for (var j = 0; j < correctAnswers.length; j++) {
+                            var index = correctAnswerList.indexOf(studentAnswers[i].value)
+                            if (index > -1) {
+                                studentAnswers[i].isCorrect = true;
+                                correctAnswerList.splice(index, 1);
+                                break;
+                            }
+                        }
+                        answerHTML = prepareCheckedAnswerToPrint(answerHTML, i, ...studentAnswers);
+                    }
+                } else {
+                    answerHTML = prepareBasicPrint(answerHTML, null, ...studentAnswers);
+                }
             } else {
-                answerHTML = answerArray.join("</br>");
+                if (showAnswers) {
+                    answerHTML = prepareBasicPrint(answerHTML, $wrapper, ...correctAnswers);
+                }
             }
             $wrapper.html(answerHTML);
         }
 
         $view.append($wrapper);
 
-
         return $view[0].outerHTML;
     };
+
+    function getCorrectAnswers() {
+        var contextDict = {};
+        var correctAnswers = []
+
+        for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
+            var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
+            if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])) {
+                var answerAddonID = splitItemAnswerID[0];
+                var answerItemIndex = splitItemAnswerID[1] - 1;
+
+                if (!(answerAddonID in contextDict)) {
+                    contextDict[answerAddonID] = printableController.getPrintableContext(answerAddonID);
+                }
+                var hasDictItems = contextDict[answerAddonID] && contextDict[answerAddonID].items;
+                var isIndexCorrect = answerItemIndex >= 0 && answerItemIndex < contextDict[answerAddonID].items.length;
+
+                if (hasDictItems && isIndexCorrect) {
+                    var answer = {
+                        value: contextDict[answerAddonID].items[answerItemIndex],
+                        addonID: answerAddonID,
+                        index: answerItemIndex
+                    };
+                    correctAnswers.push(answer);
+                }
+            }
+        }
+
+        return correctAnswers;
+    }
+
+    function getSeparatorBasedOnOrientation() {
+        if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
+            return ", ";
+        } else {
+            return "</br>";
+        }
+    }
+
+    function prepareBasicPrint (answerHTML, $wrapper=null ,...answers) {
+        var separator = getSeparatorBasedOnOrientation()
+        for (var i = 0; i < answers.length; i++) {
+            answerHTML = answerHTML + answers[i].value;
+            if (i < answers.length - 1) {
+                answerHTML = answerHTML + separator;
+            }
+        }
+        if ($wrapper !== null) {
+            $wrapper.css("background-color", "#eeeeee");
+        }
+        return answerHTML;
+    }
+
+    function parseStudentAnswers (state) {
+        var studentAnswers = [];
+        for (var i = 0; i < state.placeholders.length; i++){
+            var splitItemAnswerID = state.placeholders[i].item.split("-");
+            if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])){
+                var answerAddonID = splitItemAnswerID[0];
+                var answerItemIndex = splitItemAnswerID[1] - 1;
+                var answer = {
+                    value : state.placeholders[i].value,
+                    addonID : answerAddonID,
+                    index : answerItemIndex,
+                    isCorrect : false
+                };
+                studentAnswers.push(answer);
+            }
+        }
+        return studentAnswers;
+    }
+
+    function prepareCheckedAnswerToPrint (answerHTML, i, ...answers){
+        element = document.createElement("span");
+        element.classList.add("answerSpan");
+        if (answers[i].isCorrect) {
+            element.classList.add("correctAnswerSpan");
+        } else {
+            element.classList.add("incorrectAnswerSpan");
+        }
+        var separator = getSeparatorBasedOnOrientation()
+        element.innerHTML = answers[i].value;
+        answers[i].value = element.outerHTML;
+
+        answerHTML = answerHTML + answers[i].value;
+        if(i < answers.length - 1){
+            answerHTML = answerHTML + separator;
+        }
+        return answerHTML;
+    }
 
     presenter.getActivitiesCount = function () {
         if (presenter.itemCounterMode) {
@@ -1771,7 +1867,7 @@ function Addonmultiplegap_create(){
     }
 
     function setUpResetOnce() {
-        presenter.resetOnce = (function() {
+         presenter.resetOnce = (function() {
             var didReset = false;
             return function() {
                 if(!didReset) {
