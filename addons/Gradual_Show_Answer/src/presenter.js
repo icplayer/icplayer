@@ -174,7 +174,7 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.addHandleOfMouseActions = function () {
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
-            presenter.viewElements.button.addEventListener("touch", presenter.clickHandler);
+            presenter.viewElements.button.addEventListener("touchend", presenter.clickHandler);
         } else {
             presenter.viewElements.button.addEventListener("click", presenter.clickHandler);
         }
@@ -216,7 +216,7 @@ function AddonGradual_Show_Answer_create() {
     presenter.destroy = function AddonGradual_Show_Answer__destroy() {
         presenter.playerController = null;
         presenter.viewElements.button.removeEventListener("click", presenter.clickHandler);
-        presenter.viewElements.button.removeEventListener("touch", presenter.clickHandler);
+        presenter.viewElements.button.removeEventListener("touchend", presenter.clickHandler);
     };
 
     return presenter;
