@@ -295,12 +295,31 @@ function AddonMultiAudio_create(){
                         presenter.stop();
                         presenter.draggableItems[itemID].removeClass('playing');
                     }
+                },
+                drag : function(event, ui) {
+                    ui.position.left = ui.position.left / getScale().X;
+                    ui.position.top = ui.position.top / getScale().Y;
                 }
             });
 
             presenter.globalView.find(".wrapper-addon-audio").append($el);
             presenter.draggableItems[itemID] = $el;
-    };
+    }
+
+    function getScale() {
+        var $content = $("#content");
+        if($content.size() > 0) {
+            var contentElem = $content[0];
+            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X: scaleX, Y: scaleY};
+        } else if (presenter.playerController) {
+            var scale = presenter.playerController.getScaleInformation();
+            return {X: scale.scaleX, Y: scale.scaleY};
+        } else {
+            return {X: 1.0, Y: 1.0};
+        }
+    }
 
     presenter.getTextFromFileID = function(itemID) {
         // This method is used by the multiplegap addon while creating the draggable audio widgets
