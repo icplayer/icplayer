@@ -1439,11 +1439,13 @@ function Addonvideo_create() {
         }
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
-        Object.defineProperty(presenter.videoObject, 'playing', {
-           get: function () {
-               return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
-           }
-        });
+        if (!presenter.videoObject.hasOwnProperty('playing')) {
+            Object.defineProperty(presenter.videoObject, 'playing', {
+               get: function () {
+                   return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+               }
+            });
+        }
 
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         var $video = $(presenter.videoObject);
