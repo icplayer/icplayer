@@ -234,6 +234,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			String placeholder = this.gapInfo.getPlaceHolder().trim();
 			boolean isTextOnlyPlaceholder = this.ignorePlaceholder && text == placeholder;
 			this.isWorkingMode = false;
+			text = text.trim();
 
 			if (text.length() > 0 && !isTextOnlyPlaceholder) {
 				if (gapInfo.isCorrect(text)) {
