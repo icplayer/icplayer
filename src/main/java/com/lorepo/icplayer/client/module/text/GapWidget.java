@@ -269,6 +269,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.text = "";
 		this.gapId = "";
 		this.firstSend = true;
+		removeStyleDependentName("correct-answer");
 	}
 
 	@Override
@@ -385,6 +386,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public void showAnswers() {
 		setText(gapInfo.getFirstCorrectAnswer());
+		addStyleDependentName("correct-answer");
 	}
 
 	public void select() {
