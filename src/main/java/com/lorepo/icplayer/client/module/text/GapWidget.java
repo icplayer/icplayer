@@ -234,6 +234,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			String placeholder = this.gapInfo.getPlaceHolder().trim();
 			boolean isTextOnlyPlaceholder = this.ignorePlaceholder && text == placeholder;
 			this.isWorkingMode = false;
+			text = text.trim();
 
 			if (text.length() > 0 && !isTextOnlyPlaceholder) {
 				if (gapInfo.isCorrect(text)) {
@@ -269,6 +270,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.text = "";
 		this.gapId = "";
 		this.firstSend = true;
+		removeStyleDependentName("correct-answer");
 	}
 
 	@Override
@@ -385,6 +387,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public void showAnswers() {
 		setText(gapInfo.getFirstCorrectAnswer());
+		addStyleDependentName("correct-answer");
 	}
 
 	public void select() {

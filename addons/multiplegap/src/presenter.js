@@ -1527,7 +1527,7 @@ function Addonmultiplegap_create(){
     }
 
     presenter.hideAnswers = function () {
-        if (!presenter.isShowAnswersActive) {
+        if (!presenter.isShowAnswersActive && !presenter.isGradualShowAnswersActive) {
             return;
         }
 

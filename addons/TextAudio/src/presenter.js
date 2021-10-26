@@ -88,7 +88,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.onEventReceived = function AddonTextAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked') {
+        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
             presenter.audio.load();
         }
     };
@@ -905,6 +905,12 @@ function AddonTextAudio_create() {
                 presenter.disable();
             }
         }
+
+        Object.defineProperty(presenter.audio, 'playing', {
+            get: function () {
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
     };
 
     presenter.onAudioPlaying = function AddonTextAudio_onAudioPlaying () {
