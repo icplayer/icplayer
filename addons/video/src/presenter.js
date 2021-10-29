@@ -1260,7 +1260,7 @@ function Addonvideo_create() {
             presenter.sendVideoEndedEvent();
             presenter.showWaterMark();
             presenter.prevTime = -0.001;
-            if (document.exitFullscreen) {
+            if (document.exitFullscreen && document.fullscreenElement) {
                 document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
