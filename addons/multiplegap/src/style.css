@@ -39,3 +39,19 @@
 .multiplegap_container .placeholder_invalid .handler {
     cursor: default;
 }
+
+.printable_addon_multiplegap .correctAnswerSpan::after {
+    content: "\2714";
+    display: inline-block;
+    margin: 3px;
+}
+
+.printable_addon_multiplegap .incorrectAnswerSpan::after {
+    content: "\2716";
+    display: inline-block;
+    margin: 3px;
+}
+
+.printable_addon_multiplegap .answerSpan {
+    display: inline-block;
+}

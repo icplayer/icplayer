@@ -19,6 +19,8 @@ public class ImagePrintable {
 		String rootStyle = "width:"+Integer.toString(model.getWidth())+"px;";
 		rootStyle += "height:"+Integer.toString(model.getHeight())+"px;";
 		rootStyle += "position: relative;";
+		rootStyle += "left: 50%;";
+		rootStyle += "transform: translateX(-50%);";
 		String rootClass = "printable_ic_image";
 		if (model.getDisplayMode() == DisplayMode.keepAspect) {
 			rootClass += " keepAspect";
@@ -27,10 +29,10 @@ public class ImagePrintable {
 		
 		final Image image = new Image();
 		image.setUrl(model.getUrl());
-		if(model.getDisplayMode() == DisplayMode.stretch){
-			image.setPixelSize(model.getWidth(), model.getHeight());
-		}
-		else if(model.getDisplayMode() == DisplayMode.originalSize){
+
+		image.setPixelSize(model.getWidth(), model.getHeight());
+
+		if(model.getDisplayMode() == DisplayMode.originalSize){
 			image.setVisibleRect(0, 0, model.getWidth(), model.getHeight());
 		}
 		result += image.getElement().getString();

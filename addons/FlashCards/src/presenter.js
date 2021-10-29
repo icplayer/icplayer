@@ -110,6 +110,7 @@ function AddonFlashCards_create(){
         //audio
         presenter.isFrontPlaying = false;
         presenter.isBackPlaying = false;
+        presenter.addAudioEventHandlers();
     };
 
     presenter.countFavourites = function () {
@@ -207,6 +208,18 @@ function AddonFlashCards_create(){
             }
         });  
     };
+
+     presenter.addAudioEventHandlers = function () {
+         presenter.audioElementFront.onended = function () {
+             $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+             presenter.isFrontPlaying = false;
+         };
+
+         presenter.audioElementBack.onended = function () {
+             $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+             presenter.isBackPlaying = false;
+         };
+     };
     
     presenter.run = function (view, model) {
 		presenter.init(view, model);

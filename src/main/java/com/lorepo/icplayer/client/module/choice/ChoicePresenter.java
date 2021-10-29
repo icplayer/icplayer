@@ -773,8 +773,33 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 	public void handleGradualShowAnswers(int itemIndex) {
-		clearStylesAndSelection(false);
+		if (module.isMulti()) {
+			this.markCorrectMultiChoices(itemIndex);
+        } else {
+            this.markCorrectSingleChoice(itemIndex);
+        }
+	}
+
+	private void markCorrectMultiChoices(int itemIndex) {
+	    int currentCorrectOption = 0;
+
+	    if (itemIndex == 0) {
+            clearStylesAndSelection(false);
+        }
+
+        for (IOptionDisplay option : view.getOptions()) {
+            if (option.getModel().getValue() > 0 && currentCorrectOption <= itemIndex) {
+            	option.setDown(true);
+                option.setCorrectAnswerStyle();
+                currentCorrectOption++;
+            }
+        }
+	}
+
+	private void markCorrectSingleChoice(int itemIndex) {
 		int currentCorrectOption = 0;
+		clearStylesAndSelection(false);
+		
 		for (IOptionDisplay option : view.getOptions()) {
 			if (option.getModel().isCorrect()) {
 				if (currentCorrectOption == itemIndex) {

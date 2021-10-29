@@ -137,6 +137,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	public void reset() {
 		setSelectedIndex(0);
 		addStyleName("ic_inlineChoice-default");
+		removeStyleDependentName("correct-answer");
 		setWorkMode();
 	}
 
@@ -332,6 +333,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		int index = choiceInfo.getAnswerIndex();
 		if (index != -1) {
 			this.setSelectedIndex(index + 1);
+			addStyleDependentName("correct-answer");
 		}
 	}
 }
