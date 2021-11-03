@@ -478,11 +478,8 @@ function AddoneKeyboard_create(){
     };
 
     presenter.onESCHideKeyboard = function AddoneKeyboard_onESCHideKeyboard(e) {
-        if (e.keyCode === 27) {
-            onEscClick(this);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+        if (e.keyCode === 27 && keyboardIsVisible) {
+            onEscClick();
         }
     };
 
@@ -900,15 +897,11 @@ function AddoneKeyboard_create(){
         };
     }
 
-    function onEscClick(element) {
-        if (escClicked) {
-            $(element).val("");
-        } else {
-            presenter.disable();
-            escClicked = true;
-        }
-        $(lastClickedElement).focus();
-        $(lastClickedElement).click();
+    function onEscClick() {
+        closeButtonCallBack();
+
+        openButtonElement.style.display = 'block';
+        actualizeOpenButtonPosition($(lastClickedElement));
     }
 
     presenter.run = function(view, model){
