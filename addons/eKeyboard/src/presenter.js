@@ -455,7 +455,8 @@ function AddoneKeyboard_create(){
             if ($(this).data('keyboard') !== undefined) {
                 $(this).data('keyboard').destroy();
             }
-            showOpenButton();
+            openButtonElement.style.display = 'block';
+            actualizeOpenButtonPosition($(lastClickedElement));
         } else {
             if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                 // hides native keyboard
