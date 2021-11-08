@@ -824,13 +824,6 @@ function AddoneKeyboard_create(){
         $(closeButtonElement).hide();
     }
 
-    function showOpenButton() {
-        showButtonDecorator(function showOpenButtonToDecorator() {
-            openButtonElement.style.display = 'block';
-            actualizeOpenButtonPosition($(lastClickedElement));
-        });
-    }
-
     function showOpenButtonCallback() {
         hideOpenButton();
 
