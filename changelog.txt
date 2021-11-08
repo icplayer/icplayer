@@ -1,3 +1,4 @@
+2021-11-08 Fixed issue with show answers mode in Table+Math
 2021-10-22 Fixed flashcard audio after finished record not returning to play state
 2021-10-20 Add new characters to French ekeyboard and change it's order
 2021-10-13 Fix dropdownClicked event received behaviour in Audio, TextAudio and Video addon
