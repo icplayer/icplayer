@@ -479,7 +479,8 @@ function AddoneKeyboard_create(){
     };
 
     presenter.onESCHideKeyboard = function AddoneKeyboard_onESCHideKeyboard(e) {
-        if (e.keyCode === 27 && keyboardIsVisible) {
+        var isEKeyboardOpen = $(this).data('keyboard') && $(this).data('keyboard').isOpen;
+        if (e.keyCode === 27 && isEKeyboardOpen) {
             onEscClick();
         }
     };
