@@ -472,7 +472,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap).trim();
-			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue) && !gap.isTextOnlyPlaceholder(enteredValue, module.ignoreDefaultPlaceholderWhenCheck())) {
+			if (isGapCheckable(gap) && !enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
 		}
@@ -584,7 +584,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap);
-			if(gap.isCorrect(enteredValue)){
+			if(isGapCheckable(gap) && gap.isCorrect(enteredValue)) {
 				score += gap.getValue();
 			}
 		}
@@ -712,6 +712,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			@Override
 			public void onGapFocused(String gapId, Element element) {
+                markGapAsAccessed(gapId);
 				gapFocused(gapId, element);
 			}
 
@@ -883,6 +884,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				input.setValue(gap.getPlaceHolder());
 			}
 		}
+	}
+
+	protected void markGapAsAccessed(String gapId) {
+        GapWidget gw = getGapWidgetFromGapId(gapId);
+        if (!gw.hasGapBeenAccessed()) {
+            gw.markGapAsAccessed();
+        }
 	}
 
 	private native String replaceNumbersOnly(String value) /*-{
@@ -1545,4 +1553,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return view.getScoreWithMetadata();
 	}
 
+	private GapWidget getGapWidgetFromGapId(String gapId) {
+        String index = gapId.substring(gapId.lastIndexOf("-") + 1);
+        GapWidget gw = (GapWidget) view.getChild(Integer.parseInt(index) - 1);
+        return gw;
+	}
+
+	private boolean isGapCheckable(GapInfo gap) {
+	    GapWidget gw = getGapWidgetFromGapId(gap.getId());
+        return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	}
 }

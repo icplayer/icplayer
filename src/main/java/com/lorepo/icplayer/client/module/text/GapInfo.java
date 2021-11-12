@@ -103,13 +103,12 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return correct;
 	}
 
-	public boolean isTextOnlyPlaceholder(String text, boolean ignorePlaceholderWhenChecking) {
-	    text = getCleanedText(text);
-	    if (textEqualsPlaceholder(text) && ignorePlaceholderWhenChecking) {
-            return true;
-		}
-		return false;
-	}
+    public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
+        if (ignorePlaceholderWhenChecking && !hasGapBeenAccessed) {
+            return false;
+        }
+        return true;
+    }
 	
 	/**
 	 * @return id

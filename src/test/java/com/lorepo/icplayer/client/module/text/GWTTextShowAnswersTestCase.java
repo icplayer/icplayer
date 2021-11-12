@@ -32,6 +32,9 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 
 	GapWidget gapWidget5 = null;
 	Element gap5Element = null;
+
+	GapWidget gapWidget6 = null;
+	Element gap6Element = null;
 	
 	@Before
 	public void setUp() {
@@ -41,6 +44,7 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		TextView textView3 = new TextView(model, false);
 		TextView textView4 = new TextView(model, false);
 		TextView textView5 = new TextView(model, false);
+		TextView textView6 = new TextView(model, false);
 		
 		List<String> optionsForGap1 = Arrays.asList("---", "correct", "wrong");
 		List<String> optionsForGap2 = Arrays.asList("---", "special chars ' < > & \" ", "wrong");
@@ -60,12 +64,16 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		this.gap5Element = doc.createElement("p");
 		this.gap5Element.setId("gap5");
 		this.gap5Element.setAttribute("placeholder", "T");
+		this.gap6Element = doc.createElement("p");
+		this.gap6Element.setId("gap6");
+		this.gap6Element.setAttribute("placeholder", "Car");
 
 		a1.appendChild(gap1Select);
 		a1.appendChild(gap2Select);
 		a1.appendChild(gap3Select);
 		a1.appendChild(gap4Select);
 		a1.appendChild(gap5Element);
+		a1.appendChild(gap6Element);
 		
 		// id must be same as in select element
 		InlineChoiceInfo gapInfo1 = new InlineChoiceInfo("gap1", "correct", 0);
@@ -75,6 +83,9 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		GapInfo gapInfo5 = new GapInfo("gap5", 1, false, false, 1, false);
 		gapInfo5.setPlaceHolder("T");
 		gapInfo5.addAnswer("Trex");
+		GapInfo gapInfo6 = new GapInfo("gap6", 1, false, false, 1, false);
+		gapInfo6.setPlaceHolder("Car");
+		gapInfo6.addAnswer("Car");
 
 
 		this.gapWidget1 = new InlineChoiceWidget(gapInfo1, null, textView1);
@@ -82,12 +93,14 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		this.gapWidget3 = new InlineChoiceWidget(gapInfo3, null, textView3);
 		this.gapWidget4 = new InlineChoiceWidget(gapInfo4, null, textView4);
 		this.gapWidget5 = new GapWidget(gapInfo5, null);
+		this.gapWidget6 = new GapWidget(gapInfo6, null);
 		
 		textView1.addElement(this.gapWidget1);
 		textView2.addElement(this.gapWidget2);
 		textView3.addElement(this.gapWidget3);
 		textView4.addElement(this.gapWidget4);
 		textView5.addElement(this.gapWidget5);
+		textView6.addElement(this.gapWidget6);
 	}
 	
 	public SelectElement createSelectHTML(String selectElementId, List<String> optionsTexts) {
@@ -172,74 +185,215 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		assertTrue(isWrongClass4);
 	}
 
-
+//Testowanie zachowania gdy placeholder (T) a odpowiedz poprawna to (Trex), a value nie wprowadzone ()
 	@Test
-	public void testTreatPlaceholderAsError() {
+	public void testGivenSomePlaceholderWhenIgnorePlaceholderIsFalseAndGapIsNotAccessedThenWrong() {
 	    String className = "wrong";
 
         this.gapWidget5.setIgnorePlaceholder(false);
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
 	}
 
 	@Test
-	public void testTreatPlaceholderAsEmpty() {
+	public void testGivenSomePlaceholderWhenIgnorePlaceholderIsFalseAndGapIsAccessedThenWrong() {
+	    String className = "wrong";
+
+        this.gapWidget5.setIgnorePlaceholder(false);
+        this.gapWidget5.markGapAsAccessed();
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+	}
+
+	@Test
+	public void testGivenSomePlaceholderWhenIgnorePlaceholderIsTrueAndGapIsNotAccessedThenEmpty() {
 	    String className = "empty";
 
         this.gapWidget5.setIgnorePlaceholder(true);
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
 	}
 
 	@Test
-	public void testWrongFilledGapCauseWrongWhenIgnoringPlaceholderIsFalse() {
+	public void testGivenSomePlaceholderWhenIgnorePlaceholderIsTrueAndGapIsAccessedThenWrong() {
 	    String className = "wrong";
 
-        this.gap5Element.setAttribute("value", "Terrain");
+        this.gapWidget5.setIgnorePlaceholder(true);
+        this.gapWidget5.markGapAsAccessed();
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+	}
+
+//Testowanie zachowania gdy placeholder (Car) a odpowiedz poprawna to (Car), a value nie wprowadzone ()
+	@Test
+	public void testGivenCorrectPlaceholderWhenIgnorePlaceholderIsFalseAndGapIsNotAccessedThenCorrect() {
+	    String className = "correct";
+
+        this.gapWidget6.setIgnorePlaceholder(false);
+		this.gapWidget6.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget6.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget6.hasGapBeenAccessed());
+	}
+
+	@Test
+	public void testGivenCorrectPlaceholderWhenIgnorePlaceholderIsFalseAndGapIsAccessedThenCorrect() {
+	    String className = "correct";
+
+        this.gapWidget6.setIgnorePlaceholder(false);
+        this.gapWidget6.markGapAsAccessed();
+		this.gapWidget6.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget6.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget6.hasGapBeenAccessed());
+	}
+
+	@Test
+	public void testGivenCorrectPlaceholderWhenIgnorePlaceholderIsTrueAndGapIsNotAccessedThenEmpty() {
+	    String className = "empty";
+
+        this.gapWidget6.setIgnorePlaceholder(true);
+		this.gapWidget6.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget6.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget6.hasGapBeenAccessed());
+	}
+
+	@Test
+	public void testGivenCorrectPlaceholderWhenIgnorePlaceholderIsTrueAndGapIsAccessedThenCorrect() {
+	    String className = "correct";
+
+        this.gapWidget6.setIgnorePlaceholder(true);
+        this.gapWidget6.markGapAsAccessed();
+		this.gapWidget6.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget6.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget6.hasGapBeenAccessed());
+	}
+
+//Testowanie zachowania gdy placeholder (T) a odpowiedz poprawna to (Trex), a wprowadzone value (Trex)
+    @Test
+    public void testGivenSomePlaceholderAndCorrectAnswerWhenIgnorePlaceholderIsFalseAndGapIsNotAccessedThenCorrect() {
+        String className = "correct";
+
+        this.gap5Element.setAttribute("value", "Trex");
         this.gapWidget5.setIgnorePlaceholder(false);
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
-	}
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+    }
 
     @Test
-	public void testWrongFilledGapCauseWrongWhenIgnoringPlaceholderIsTrue() {
-	    String className = "wrong";
+    public void testGivenSomePlaceholderAndCorrectAnswerWhenIgnorePlaceholderIsTrueAndGapIsNotAccessedThenCorrect() {
+        String className = "correct";
 
-        this.gap5Element.setAttribute("value", "Terrain");
+        this.gap5Element.setAttribute("value", "Trex");
         this.gapWidget5.setIgnorePlaceholder(true);
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
-	}
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+    }
 
-	@Test
-	public void testCorrectFilledGapCauseCorrectWhenIgnoringPlaceholderIsFalse() {
-	    String className = "correct";
+    @Test
+    public void testGivenSomePlaceholderAndCorrectAnswerWhenIgnorePlaceholderIsFalseAndGapIsAccessedThenCorrect() {
+        String className = "correct";
 
         this.gap5Element.setAttribute("value", "Trex");
         this.gapWidget5.setIgnorePlaceholder(false);
+        this.gapWidget5.markGapAsAccessed();
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
-	}
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+    }
 
-	@Test
-	public void testCorrectFilledGapCauseCorrectWhenIgnoringPlaceholderIsTrue() {
-	    String className = "correct";
+    @Test
+    public void testGivenSomePlaceholderAndCorrectAnswerWhenIgnorePlaceholderIsTrueAndGapIsAccessedThenCorrect() {
+        String className = "correct";
 
         this.gap5Element.setAttribute("value", "Trex");
         this.gapWidget5.setIgnorePlaceholder(true);
+        this.gapWidget5.markGapAsAccessed();
 		this.gapWidget5.setShowErrorsMode(true);
-		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
-		assertTrue(isDefaultClass5);
-	}
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+    }
+
+//Testowanie zachowania gdy placeholder (T) a odpowiedz poprawna to (Trex), a wprowadzone value (Trekking)
+    @Test
+    public void testGivenSomePlaceholderAndWrongAnswerWhenIgnorePlaceholderIsFalseAndGapIsNotAccessedThenWrong() {
+        String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Trekking");
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+    }
+
+    @Test
+    public void testGivenSomePlaceholderAndWrongAnswerWhenIgnorePlaceholderIsTrueAndGapIsNotAccessedThenWrong() {
+        String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Trekking");
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+    }
+
+    @Test
+    public void testGivenSomePlaceholderAndWrongAnswerWhenIgnorePlaceholderIsFalseAndGapIsAccessedThenWrong() {
+        String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Trekking");
+        this.gapWidget5.setIgnorePlaceholder(false);
+        this.gapWidget5.markGapAsAccessed();
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+    }
+
+    @Test
+    public void testGivenSomePlaceholderAndWrongAnswerWhenIgnorePlaceholderIsTrueAndGapIsAccessedThenWrong() {
+        String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Trekking");
+        this.gapWidget5.setIgnorePlaceholder(true);
+        this.gapWidget5.markGapAsAccessed();
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isCorrectClass);
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
+    }
 }
