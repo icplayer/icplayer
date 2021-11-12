@@ -94,7 +94,7 @@ function AddonQuiz_create() {
         };
     };
 
-    function validateQuestions(questions, helpButtons) {
+    function validateQuestions(questions, helpButtons, helpButtonsMode) {
         if (questions.length < 1) {
             throw ConfigurationError('QUESTION_REQUIRED');
         }
@@ -110,7 +110,7 @@ function AddonQuiz_create() {
             ) {
                 throw ConfigurationError('MISSING_WRONG_ANSWER');
             }
-            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint)) {
+            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint) && helpButtonsMode !== '50/50') {
                 throw ConfigurationError('MISSING_HINT');
             }
         }
@@ -196,7 +196,7 @@ function AddonQuiz_create() {
         presenter.setSpeechTexts(model['speechTexts']);
         presenter.config = {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            questions: validateQuestions(model['Questions'], helpButtons),
+            questions: validateQuestions(model['Questions'], helpButtons, model["HelpButtonsMode"]),
             helpButtons: helpButtons,
             nextLabel: model['NextLabel'] || '',
             gameLostMessage: model['GameLostMessage'],
