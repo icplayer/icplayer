@@ -1561,6 +1561,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private boolean isGapCheckable(GapInfo gap) {
 	    GapWidget gw = getGapWidgetFromGapId(gap.getId());
-        return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	    if (gw == null) {
+	        return true;
+	    }
+	    return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
 	}
 }

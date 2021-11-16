@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
+import org.powermock.api.mockito.PowerMockito;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.dom.client.Document;
@@ -498,7 +499,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 	public void givenPlaceholderThatEqualsTextAndIgnoreDefaultIsFalseWhenGetErrorCountThenGetsError() {
 	    GapInfo gi = module.gapInfos.get(0);
 	    gi.setPlaceHolder("An");
-	    //below prop is False by default, but better to implicitly set this to False
+
         Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", false);
 		display.getListener().onValueChanged(id3, "An");
 
@@ -509,6 +510,8 @@ public class GWTTextPresenterTestCase extends GwtTest{
 	public void givenPlaceholderThatEqualsTextAndIgnoreDefaultIsTrueWhenGetErrorCountThenDontGetError() {
 	    GapInfo gi = module.gapInfos.get(0);
 	    gi.setPlaceHolder("An");
+	    GapWidget gw = PowerMockito.mock(GapWidget.class);
+	    display.setGapWidget(gw);
 
         Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", true);
 		display.getListener().onValueChanged(id3, "An");
@@ -520,7 +523,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 	public void givenPlaceholderThatDiffersFromTextAndIgnoreDefaultIsFalseWhenGetErrorCountThenGetsError() {
 	    GapInfo gi = module.gapInfos.get(0);
 	    gi.setPlaceHolder("An");
-	    //below prop is False by default, but better to implicitly set this to False
+
         Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", false);
 		display.getListener().onValueChanged(id3, "Ans");
 
