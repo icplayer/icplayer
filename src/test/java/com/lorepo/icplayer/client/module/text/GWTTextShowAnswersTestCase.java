@@ -307,11 +307,12 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 
         this.gap5Element.setAttribute("value", "Trex");
         this.gapWidget5.setIgnorePlaceholder(true);
+        this.gapWidget5.markGapAsAccessed();
 		this.gapWidget5.setShowErrorsMode(true);
 		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isCorrectClass);
-		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
     }
 
     @Test
@@ -362,11 +363,12 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 
         this.gap5Element.setAttribute("value", "Trekking");
         this.gapWidget5.setIgnorePlaceholder(true);
+        this.gapWidget5.markGapAsAccessed();
 		this.gapWidget5.setShowErrorsMode(true);
 		boolean isCorrectClass = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isCorrectClass);
-		assertFalse(this.gapWidget5.hasGapBeenAccessed());
+		assertTrue(this.gapWidget5.hasGapBeenAccessed());
     }
 
     @Test
