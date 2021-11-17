@@ -26,9 +26,16 @@ import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 
 export class MediaRecorder {
 
+    enableAnalyser = true;
+
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
+
+        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+        if (isSafari) {
+            this.enableAnalyser = false;
+        }
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -336,6 +343,7 @@ export class MediaRecorder {
         if (this.eventBus && this.model.enableIntensityChangeEvents) {
             this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
         }
+        this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
         this._hideSelectedElements();
     }
@@ -426,7 +434,9 @@ export class MediaRecorder {
                 this.timer.stopCountdown();
                 this.recordingTimeLimiter.stopCountdown();
                 this.soundIntensity.stopAnalyzing();
-                this.mediaAnalyserService.closeAnalyzing();
+                if (this.enableAnalyser) {
+                    this.mediaAnalyserService.closeAnalyzing();
+                }
                 this.player.stopStreaming();
                 if (!this.model.disableRecording) {
                     this.recorder.stopRecording()
@@ -458,7 +468,9 @@ export class MediaRecorder {
             this.timer.stopCountdown();
             this.recordingTimeLimiter.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
             this.player.stopStreaming();
             this.recorder.stopRecording();
             this.resourcesProvider.destroy();
@@ -491,9 +503,13 @@ export class MediaRecorder {
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.player.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.player.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.player.startPlaying();
+            }
         };
 
         this.playButton.onStopPlaying = () => {
@@ -504,16 +520,22 @@ export class MediaRecorder {
                 this.player.stopPlaying();
             }
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.defaultRecordingPlayButton.onStartPlaying = () => {
             this.mediaState.setPlayingDefaultRecording();
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
             this.timer.startCountdown();
-            this.defaultRecordingPlayer.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.defaultRecordingPlayer.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.defaultRecordingPlayer.startPlaying();
+            }
         };
 
         this.defaultRecordingPlayButton.onStopPlaying = () => {
@@ -526,7 +548,9 @@ export class MediaRecorder {
             this.defaultRecordingPlayer.stopPlaying();
             this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.player.onStartLoading = () => {
@@ -586,8 +610,10 @@ export class MediaRecorder {
             this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
             this.recordingTimeLimiter.startCountdown();
         }
-        this.mediaAnalyserService.createAnalyserFromStream(stream)
-            .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        if (this.enableAnalyser) {
+            this.mediaAnalyserService.createAnalyserFromStream(stream)
+                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        }
     };
 
     _loadDefaultRecording(model) {
@@ -603,7 +629,9 @@ export class MediaRecorder {
 
     _activateButtons() {
         this.recordButton.activate();
-        this.playButton.activate();
+        if (!this.model.disableRecording) {
+            this.playButton.activate();
+        }
         this.defaultRecordingPlayButton.activate();
         if (this.model.extendedMode) {
             for (var i=0; i < this.extendedModeButtonList.length; i++) {
@@ -648,7 +676,8 @@ export class MediaRecorder {
             MediaState: MediaState,
             Timer: Timer,
             AudioPlayer: AudioPlayer,
-            DownloadButton: DownloadButton
+            DownloadButton: DownloadButton,
+            SoundIntensity: SoundIntensity
         }
     }
 

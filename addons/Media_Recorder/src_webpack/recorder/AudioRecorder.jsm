@@ -16,11 +16,6 @@ export class AudioRecorder extends BaseRecorder {
             recorderType: RecordRTC.StereoAudioRecorder,
         };
 
-        if (isSafari) {
-            options.bufferSize = 4096;
-            options.sampleRate = 44100;
-        }
-
         return options;
     }
 }

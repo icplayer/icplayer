@@ -66,12 +66,12 @@ It's very good practice to set the Image property in a form of the sprite image 
     </tr>
     <tr>
         <td>select</td>
-        <td>---</td>
+        <td><i>optional</i> dontSendEvent: true/false</td>
         <td>Select an element if not selected (not available in the error checking mode)</td>
     </tr>
     <tr>
         <td>deselect</td>
-        <td>---</td>
+        <td><i>optional</i> dontSendEvent: true/false</td>
         <td>Deselect an element if selected (not available in the error checking mode)</td>
     </tr>
     <tr>

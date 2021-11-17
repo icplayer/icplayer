@@ -1,4 +1,7 @@
-2021-11-05 Added audio speed controller to the Text Audio
+2021-11-17 Added audio speed controller to the Text Audio
+2021-11-17 Added disabling of analyser in media recorder on safari due to conflicts with recorder
+2021-11-05 Add dontSendEvent param to select/deselect commands in Addon ImageIdentification
+2021-11-05 Fixed popup absolute position according to absolute parent
 2021-10-22 Fixed flashcard audio after finished record not returning to play state
 2021-10-20 Add new characters to French ekeyboard and change it's order
 2021-10-13 Fix dropdownClicked event received behaviour in Audio, TextAudio and Video addon

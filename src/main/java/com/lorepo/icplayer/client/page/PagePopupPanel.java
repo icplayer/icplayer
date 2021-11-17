@@ -235,8 +235,8 @@ public class PagePopupPanel extends DialogBox {
 			}
 
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
-				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
+				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
 				setPopupPosition(propertyLeft, propertyTop);
 			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
 				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
