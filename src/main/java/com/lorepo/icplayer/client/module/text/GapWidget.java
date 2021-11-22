@@ -240,21 +240,21 @@ public class GapWidget extends TextBox implements TextElementDisplay {
     	setEnabled(false);
     	if (isActivity) {
 			String text = getText().trim();
-            boolean ignoreCheckingIfCorrect = !this.gapInfo.isValueCheckable(this.ignorePlaceholder, this.gapHasBeenAccessed);
+			boolean ignoreCheckingIfCorrect = !this.gapInfo.isValueCheckable(this.ignorePlaceholder, this.gapHasBeenAccessed);
 			this.isWorkingMode = false;
 
-            if (text.length() <= 0 || ignoreCheckingIfCorrect) {
-                addStyleDependentName("empty");
+			if (text.length() <= 0 || ignoreCheckingIfCorrect) {
+				addStyleDependentName("empty");
 				this.gapState = 3;
 				return;
-            }
-            if (gapInfo.isCorrect(text)) {
-                addStyleDependentName("correct");
-                this.gapState = 1;
-            } else {
-                addStyleDependentName("wrong");
-                this.gapState = 2;
-            }
+			}
+			if (gapInfo.isCorrect(text)) {
+				addStyleDependentName("correct");
+				this.gapState = 1;
+			} else {
+				addStyleDependentName("wrong");
+				this.gapState = 2;
+			}
 
 		}
 	}
