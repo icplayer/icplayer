@@ -493,7 +493,7 @@
         <antcall target="test.addons"/>
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project"/>
+    <target name="build" depends="clean, gwtc" description="Build this project"/>
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests"/>
 
@@ -553,7 +553,7 @@
     <macrodef name="test-single-case">
         <sequential>
             <mkdir dir="reports/htmlunit.prod"/>
-            <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
+            <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes" dir=".">
                 <jvmarg line="-Xmx256m"/>
                 <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test"/>
                 <sysproperty key="java.awt.headless" value="true"/>
