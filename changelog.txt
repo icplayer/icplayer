@@ -14,6 +14,7 @@
 2021-09-29 Added functionality for the printable version of Hierarchical Lesson Report
 2021-09-29 Added functionality for the printable version in preview of Hierarchical Lesson Report
 2021-09-29 Added functionality to extract content information for Printable Controller
+2021-09-28 Fix Filled Gap reset method
 2021-09-27 Added in paragraph destructor stop function called by timeout from setIframeHeight method
 2021-09-24 Fixed a bug causing lessons to not start in edesk
 2021-09-15 Added a new property for SingleStateButton that allows clicking in show answers mode
