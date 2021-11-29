@@ -4,6 +4,19 @@ export class SoundIntensity {
         this.$view = $view;
         this.volumeLevels = 6;
         this.interval = null;
+        this.enableAnalyser = true;
+        this.shouldBeVisible = true;
+    }
+
+    setEnableAnalyser(enableAnalyser) {
+        this.enableAnalyser = enableAnalyser;
+        if (this.shouldBeVisible) {
+            if (this.enableAnalyser) {
+                this.show();
+            } else {
+                this.hide();
+            }
+        }
     }
 
     startAnalyzing(analyser) {
@@ -24,11 +37,15 @@ export class SoundIntensity {
     }
 
     show() {
-        this.$view.css('display', '');
+        if (this.enableAnalyser) {
+            this.$view.css('display', '');
+        }
+        this.shouldBeVisible = true;
     }
 
     hide() {
         this.$view.css('display','none');
+        this.shouldBeVisible = false;
     }
 
     setEventBus(eventBus, sourceID) {

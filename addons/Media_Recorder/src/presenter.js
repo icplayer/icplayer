@@ -231,9 +231,23 @@ var SoundIntensity = exports.SoundIntensity = function () {
         this.$view = $view;
         this.volumeLevels = 6;
         this.interval = null;
+        this.enableAnalyser = true;
+        this.shouldBeVisible = true;
     }
 
     _createClass(SoundIntensity, [{
+        key: 'setEnableAnalyser',
+        value: function setEnableAnalyser(enableAnalyser) {
+            this.enableAnalyser = enableAnalyser;
+            if (this.shouldBeVisible) {
+                if (this.enableAnalyser) {
+                    this.show();
+                } else {
+                    this.hide();
+                }
+            }
+        }
+    }, {
         key: 'startAnalyzing',
         value: function startAnalyzing(analyser) {
             var _this = this;
@@ -259,12 +273,16 @@ var SoundIntensity = exports.SoundIntensity = function () {
     }, {
         key: 'show',
         value: function show() {
-            this.$view.css('display', '');
+            if (this.enableAnalyser) {
+                this.$view.css('display', '');
+            }
+            this.shouldBeVisible = true;
         }
     }, {
         key: 'hide',
         value: function hide() {
             this.$view.css('display', 'none');
+            this.shouldBeVisible = false;
         }
     }, {
         key: 'setEventBus',
@@ -586,6 +604,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var MediaRecorder = exports.MediaRecorder = function () {
     function MediaRecorder() {
         _classCallCheck(this, MediaRecorder);
+
+        this.enableAnalyser = true;
     }
 
     _createClass(MediaRecorder, [{
@@ -593,6 +613,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function run(view, model) {
             var upgradedModel = this._upgradeModel(model);
             var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
+
+            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+            if (isSafari) {
+                this.enableAnalyser = false;
+            }
 
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
@@ -913,6 +938,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.eventBus && this.model.enableIntensityChangeEvents) {
                 this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
             }
+            this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
             this._hideSelectedElements();
         }
@@ -1008,7 +1034,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.timer.stopCountdown();
                     _this2.recordingTimeLimiter.stopCountdown();
                     _this2.soundIntensity.stopAnalyzing();
-                    _this2.mediaAnalyserService.closeAnalyzing();
+                    if (_this2.enableAnalyser) {
+                        _this2.mediaAnalyserService.closeAnalyzing();
+                    }
                     _this2.player.stopStreaming();
                     if (!_this2.model.disableRecording) {
                         _this2.recorder.stopRecording().then(function (blob) {
@@ -1038,7 +1066,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.timer.stopCountdown();
                 _this2.recordingTimeLimiter.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
                 _this2.player.stopStreaming();
                 _this2.recorder.stopRecording();
                 _this2.resourcesProvider.destroy();
@@ -1071,11 +1101,15 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.playButton.onStartPlaying = function () {
                 _this2.mediaState.setPlaying();
-                _this2.player.startPlaying().then(function (htmlMediaElement) {
-                    return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                        return _this2.soundIntensity.startAnalyzing(analyser);
+                if (_this2.enableAnalyser) {
+                    _this2.player.startPlaying().then(function (htmlMediaElement) {
+                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
+                            return _this2.soundIntensity.startAnalyzing(analyser);
+                        });
                     });
-                });
+                } else {
+                    _this2.player.startPlaying();
+                }
             };
 
             this.playButton.onStopPlaying = function () {
@@ -1086,18 +1120,24 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.player.stopPlaying();
                 }
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
             };
 
             this.defaultRecordingPlayButton.onStartPlaying = function () {
                 _this2.mediaState.setPlayingDefaultRecording();
                 _this2.timer.setDuration(_this2.defaultRecordingPlayer.duration);
                 _this2.timer.startCountdown();
-                _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
-                    return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                        return _this2.soundIntensity.startAnalyzing(analyser);
+                if (_this2.enableAnalyser) {
+                    _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
+                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
+                            return _this2.soundIntensity.startAnalyzing(analyser);
+                        });
                     });
-                });
+                } else {
+                    _this2.defaultRecordingPlayer.startPlaying();
+                }
             };
 
             this.defaultRecordingPlayButton.onStopPlaying = function () {
@@ -1109,7 +1149,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.defaultRecordingPlayer.stopPlaying();
                 _this2.timer.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
             };
 
             this.player.onStartLoading = function () {
@@ -1181,9 +1223,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
                 this.recordingTimeLimiter.startCountdown();
             }
-            this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
-                return _this3.soundIntensity.startAnalyzing(analyser);
-            });
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
+                    return _this3.soundIntensity.startAnalyzing(analyser);
+                });
+            }
         }
     }, {
         key: "_loadDefaultRecording",
@@ -1201,7 +1245,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "_activateButtons",
         value: function _activateButtons() {
             this.recordButton.activate();
-            this.playButton.activate();
+            if (!this.model.disableRecording) {
+                this.playButton.activate();
+            }
             this.defaultRecordingPlayButton.activate();
             if (this.model.extendedMode) {
                 for (var i = 0; i < this.extendedModeButtonList.length; i++) {
@@ -1244,7 +1290,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 MediaState: _MediaState.MediaState,
                 Timer: _Timer.Timer,
                 AudioPlayer: _AudioPlayer.AudioPlayer,
-                DownloadButton: _DownloadButton.DownloadButton
+                DownloadButton: _DownloadButton.DownloadButton,
+                SoundIntensity: _SoundIntensity.SoundIntensity
             };
         }
     }, {
@@ -3066,11 +3113,6 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
                 disableLogs: true,
                 recorderType: RecordRTC.StereoAudioRecorder
             };
-
-            if (isSafari) {
-                options.bufferSize = 4096;
-                options.sampleRate = 44100;
-            }
 
             return options;
         }

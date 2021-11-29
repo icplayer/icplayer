@@ -1978,6 +1978,7 @@ var ice_dictionary_en = {
 	"Quiz_speech_text_wrong": "Wrong",
 	"Quiz_speech_text_inactive": "Inactive",
 	"Quiz_speech_text_out_of": "Out of",
+	"Quiz_property_HelpButtonsMode": "Help Buttons Mode",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",

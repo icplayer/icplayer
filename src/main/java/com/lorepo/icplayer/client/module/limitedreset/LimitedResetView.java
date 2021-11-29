@@ -39,7 +39,8 @@ public class LimitedResetView extends PushButton implements IDisplay {
 		
 		if (playerServices != null) {
 			setVisible(module.isVisible());
-			
+			final LimitedResetView context = this;
+
 			addClickHandler(new ClickHandler() {
 				
 				@Override
@@ -69,12 +70,23 @@ public class LimitedResetView extends PushButton implements IDisplay {
 						
 						presenter.reset(module.getResetOnlyWrongAnswers());
 					}
-					
-					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "resetClicked", "");
-					playerServices.getEventBusService().getEventBus().fireEvent(valueEvent);
+
+					sendResetClickedEvent(module.getId(), context);
 				}
 			});		
 		}
+	}
+
+	private static native void sendResetClickedEvent(String moduleID, LimitedResetView x) /*-{
+	    setTimeout(function(){
+            // Timeout with 0 ms is for putting this message at the end of queue - issue performance on firefox
+            x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetView::sendResetClickedEvent(Ljava/lang/String;)(moduleID);
+        }, 0);
+	}-*/;
+
+	private void sendResetClickedEvent(String moduleID) {
+	    ValueChangedEvent valueEvent = new ValueChangedEvent(moduleID, "", "resetClicked", "");
+	    playerServices.getEventBusService().getEventBus().fireEvent(valueEvent);
 	}
 
 	@Override
