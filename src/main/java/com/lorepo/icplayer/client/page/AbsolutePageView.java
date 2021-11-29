@@ -3,8 +3,10 @@ package com.lorepo.icplayer.client.page;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
@@ -73,13 +75,23 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
-			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-		    this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			Boolean isAddonGap = insertIntoAddonGap(module.getId(), moduleView.getElement(), this.getElement());
+		    if (!isAddonGap) {
+				this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			}
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
 	}
+
+	private native boolean insertIntoAddonGap(String moduleID, Element view, Element page) /*-{
+		var $addonGap = $wnd.$(page).find('#addonGap-' + moduleID);
+		if ($addonGap.length == 0) return false;
+		view.classList.add("inner_addon");
+		$addonGap.replaceWith(view);
+		return true;
+	}-*/;
 
 	@Override
 	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {

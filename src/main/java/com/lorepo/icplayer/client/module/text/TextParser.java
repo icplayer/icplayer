@@ -113,6 +113,7 @@ public class TextParser {
 				}
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
+				parserResult.parsedText = parseAddonGap(parserResult.parsedText);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -176,6 +177,7 @@ public class TextParser {
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
+		result.parsedText = parseAddonGap(result.parsedText);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -985,6 +987,34 @@ public class TextParser {
 		audioElement.setHTMLAttribute("src", filePath);
 
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
+	}
+
+	private String parseAddonGap(String srcText) {
+		final String patternString = "\\\\addon\\{(.+?)\\}";
+		RegExp regexp = RegExp.compile(patternString);
+		MatchResult matchResult;
+
+		String input = srcText;
+		String output = "";
+
+		while ((matchResult = regexp.exec(input)) != null) {
+			if (matchResult.getGroupCount() > 0) {
+				String group = matchResult.getGroup(0);
+				String addonID = matchResult.getGroup(1);
+				int lastIndex = matchResult.getIndex();
+				int groupLength = group.length();
+
+				output += input.substring(0, lastIndex);
+				input = input.substring(lastIndex + groupLength);
+				output += "<div id='addonGap-"+addonID+"'> </div>";
+			} else {
+				break;
+			}
+
+		}
+		output += input;
+
+		return output;
 	}
 
 	public String parseAltText(String srcText) {
