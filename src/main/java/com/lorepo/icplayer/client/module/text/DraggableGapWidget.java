@@ -159,6 +159,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	public void reset() {
 		setText("");
 		setWorkMode();
+		removeStyleDependentName("correct-answer");
 	}
 
 	public native static String getElement(String text) /*-{		
@@ -363,6 +364,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	public void showAnswers() {
 		String answer = gapInfo.getFirstCorrectAnswer();
 		this.setText(answer);
+		addStyleDependentName("correct-answer");
 	}
 
 	public void select() {

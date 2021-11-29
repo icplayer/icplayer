@@ -5,8 +5,10 @@ TestCase("[Connection] Connection printable html validation", {
         this.answersDiv = {};
 
         this.presenter = AddonConnection_create();
+        this.renderMathJax = sinon.stub(this.presenter, 'renderMathJax');
         this.showAnswers = false;
         this.presenter.printableState = undefined;
+        this.presenter.printableParserCallback = () => true;
         this.presenter.model = {
             'Left column': [
                 {
@@ -298,10 +300,9 @@ TestCase("[Connection] Connection printable html validation", {
 
         var $root = $("<div></div>");
         $root.addClass('printable_addon_Connection');
-        $root.css("height", "156px");
-        if (this.connectionNumber > 0) {
-            $root.css("visibility", "visible");
-        }
+        $root.attr('style', '');
+        $root.attr('id', '');
+        $root.css('height', '156px');
         $root.html(
             '<table class="connectionContainer">' +
                 '<tr>' + answersLeftColumn +

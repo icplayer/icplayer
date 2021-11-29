@@ -26,9 +26,16 @@ import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 
 export class MediaRecorder {
 
+    enableAnalyser = true;
+
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
+
+        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+        if (isSafari) {
+            this.enableAnalyser = false;
+        }
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -37,7 +44,7 @@ export class MediaRecorder {
         else
             this._showError(view, validatedModel);
 
-        this._notifyWebView();
+        this._executeNotification(JSON.stringify({type: "platform", target: this.model.ID}));
     }
 
     createPreview(view, model) {
@@ -336,6 +343,7 @@ export class MediaRecorder {
         if (this.eventBus && this.model.enableIntensityChangeEvents) {
             this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
         }
+        this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
         this._hideSelectedElements();
     }
@@ -426,7 +434,9 @@ export class MediaRecorder {
                 this.timer.stopCountdown();
                 this.recordingTimeLimiter.stopCountdown();
                 this.soundIntensity.stopAnalyzing();
-                this.mediaAnalyserService.closeAnalyzing();
+                if (this.enableAnalyser) {
+                    this.mediaAnalyserService.closeAnalyzing();
+                }
                 this.player.stopStreaming();
                 if (!this.model.disableRecording) {
                     this.recorder.stopRecording()
@@ -458,7 +468,9 @@ export class MediaRecorder {
             this.timer.stopCountdown();
             this.recordingTimeLimiter.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
             this.player.stopStreaming();
             this.recorder.stopRecording();
             this.resourcesProvider.destroy();
@@ -491,9 +503,13 @@ export class MediaRecorder {
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.player.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.player.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.player.startPlaying();
+            }
         };
 
         this.playButton.onStopPlaying = () => {
@@ -504,16 +520,22 @@ export class MediaRecorder {
                 this.player.stopPlaying();
             }
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.defaultRecordingPlayButton.onStartPlaying = () => {
             this.mediaState.setPlayingDefaultRecording();
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
             this.timer.startCountdown();
-            this.defaultRecordingPlayer.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.defaultRecordingPlayer.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.defaultRecordingPlayer.startPlaying();
+            }
         };
 
         this.defaultRecordingPlayButton.onStopPlaying = () => {
@@ -526,7 +548,9 @@ export class MediaRecorder {
             this.defaultRecordingPlayer.stopPlaying();
             this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.player.onStartLoading = () => {
@@ -586,8 +610,10 @@ export class MediaRecorder {
             this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
             this.recordingTimeLimiter.startCountdown();
         }
-        this.mediaAnalyserService.createAnalyserFromStream(stream)
-            .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        if (this.enableAnalyser) {
+            this.mediaAnalyserService.createAnalyserFromStream(stream)
+                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        }
     };
 
     _loadDefaultRecording(model) {
@@ -603,7 +629,9 @@ export class MediaRecorder {
 
     _activateButtons() {
         this.recordButton.activate();
-        this.playButton.activate();
+        if (!this.model.disableRecording) {
+            this.playButton.activate();
+        }
         this.defaultRecordingPlayButton.activate();
         if (this.model.extendedMode) {
             for (var i=0; i < this.extendedModeButtonList.length; i++) {
@@ -648,7 +676,8 @@ export class MediaRecorder {
             MediaState: MediaState,
             Timer: Timer,
             AudioPlayer: AudioPlayer,
-            DownloadButton: DownloadButton
+            DownloadButton: DownloadButton,
+            SoundIntensity: SoundIntensity
         }
     }
 
@@ -729,23 +758,19 @@ export class MediaRecorder {
         alert(Errors["safari_select_recording_button_again"]);
     }
 
-    _notifyWebView() {
-        try {
-            window.external.notify(JSON.stringify({type: "platform", target: this.model.ID}));
-        } catch (e) {
-            // silent message
-            // can't use a conditional expression
-            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
-        }
-    }
-
     _loadWebViewMessageListener() {
         window.addEventListener('message', event => {
-            const eventData = JSON.parse(event.data);
-            let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
-            let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
-            if (isTypePlatform && isValueMlibro)
-                this._handleWebViewBehaviour();
+            try {
+                const eventData = JSON.parse(event.data);
+                let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
+                let isValueMlibro = eventData.value ? eventData.value.toLowerCase().includes('mlibro') : false;
+                if (isTypePlatform && isValueMlibro)
+                    this._handleWebViewBehaviour();
+            } catch(e) {
+                if (e instanceof SyntaxError) {
+                    return;
+                }
+            }
         }, false);
     }
 
@@ -768,19 +793,33 @@ export class MediaRecorder {
         }
     }
 
+    _executeNotification(notifyInput) {
+        try {
+            if (mLibroChromium != undefined) {
+                mLibroChromium.notify(notifyInput);
+            } else {
+                window.external.notify(notifyInput);
+            }
+        } catch (e) {
+            // silent message
+            // can't use a conditional expression
+            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+        }
+    }
+
     _handleMlibroStartRecording() {
         this.mediaState.setRecording();
         this.timer.reset();
         this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
         this.recordingTimeLimiter.startCountdown();
-        window.external.notify(JSON.stringify({type: "mediaRecord", target: this.model.ID}));
+        this._executeNotification(JSON.stringify({type: "mediaRecord", target: this.model.ID}));
     }
 
     _handleMlibroStopRecording() {
         this.mediaState.setLoading();
         this.timer.stopCountdown();
         this.recordingTimeLimiter.stopCountdown();
-        window.external.notify(JSON.stringify({type: "mediaStop", target: this.model.ID}));
+        this._executeNotification(JSON.stringify({type: "mediaStop", target: this.model.ID}));
     }
 
     _setEnableState(isEnable) {

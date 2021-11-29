@@ -94,7 +94,7 @@ function AddonQuiz_create() {
         };
     };
 
-    function validateQuestions(questions, helpButtons) {
+    function validateQuestions(questions, helpButtons, helpButtonsMode) {
         if (questions.length < 1) {
             throw ConfigurationError('QUESTION_REQUIRED');
         }
@@ -110,7 +110,7 @@ function AddonQuiz_create() {
             ) {
                 throw ConfigurationError('MISSING_WRONG_ANSWER');
             }
-            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint)) {
+            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint) && helpButtonsMode !== '50/50') {
                 throw ConfigurationError('MISSING_HINT');
             }
         }
@@ -196,7 +196,7 @@ function AddonQuiz_create() {
         presenter.setSpeechTexts(model['speechTexts']);
         presenter.config = {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            questions: validateQuestions(model['Questions'], helpButtons),
+            questions: validateQuestions(model['Questions'], helpButtons, model["HelpButtonsMode"]),
             helpButtons: helpButtons,
             nextLabel: model['NextLabel'] || '',
             gameLostMessage: model['GameLostMessage'],
@@ -211,6 +211,7 @@ function AddonQuiz_create() {
             testMode: ModelValidationUtils.validateBoolean(model['TestMode']),
             showSummary: ModelValidationUtils.validateBoolean(model['ShowSummary']),
             langTag: model["langAttribute"],
+            helpButtonsMode: model["HelpButtonsMode"]
         }
     };
 
@@ -559,28 +560,9 @@ function AddonQuiz_create() {
         $q.append($buttons);
         presenter.hintWrapper = $(`<div class="${CSS_CLASSES.QUESTION_HINT_WRAPPER}"></div>`);
         $q.append(presenter.hintWrapper);
-        if (presenter.config.helpButtons) {
-            var $fiftyFifty = $(`<div class="${CSS_CLASSES.FIFTY_FIFTY}"></div>`);
-            var $hintButton = $(`<div class="${CSS_CLASSES.HINT_BUTTON}"></div>`);
-            $fiftyFifty.clickAction = fiftyFiftyAction;
-            $hintButton.clickAction = hintAction;
-            $buttons.append($fiftyFifty);
-            $buttons.append($hintButton);
-            presenter.activeElements.push($fiftyFifty);
-            presenter.activeElements.push($hintButton);
-            $q.addClass('with-hint');
-            if (state.fiftyFiftyUsed) {
-                $fiftyFifty.addClass('used');
-            }
-            if (state.hintUsed) {
-                $hintButton.addClass('used');
-                if (state.hintUsed == state.currentQuestion) {
-                    showHint();
-                }
-            }
-        } else {
-            $q.addClass('without-hint');
-        }
+
+        presenter.displayHint($q, $buttons);
+
         presenter.activeElements.push($nextButton);
         presenter.nextButton = $nextButton;
         if (!presenter.config.nextAfterSelect) {
@@ -598,7 +580,42 @@ function AddonQuiz_create() {
         if (presenter.keyboardControllerObject) {
             presenter.reloadKeyboardController();
         }
-    };
+    }
+
+    presenter.displayHint = function ($q, $buttons) {
+        if (presenter.config.helpButtons) {
+            var $fiftyFifty = $(`<div class="${CSS_CLASSES.FIFTY_FIFTY}"></div>`);
+            var $hintButton = $(`<div class="${CSS_CLASSES.HINT_BUTTON}"></div>`);
+            $fiftyFifty.clickAction = fiftyFiftyAction;
+            $hintButton.clickAction = hintAction;
+
+            if (presenter.config.helpButtonsMode === 'Hint') {
+                $buttons.append($hintButton);
+                presenter.activeElements.push($hintButton);
+            } else if (presenter.config.helpButtonsMode === '50/50') {
+                $buttons.append($fiftyFifty);
+                presenter.activeElements.push($fiftyFifty);
+            } else {
+                $buttons.append($fiftyFifty);
+                $buttons.append($hintButton);
+                presenter.activeElements.push($fiftyFifty);
+                presenter.activeElements.push($hintButton);
+            }
+
+            $q.addClass('with-hint');
+            if (state.fiftyFiftyUsed) {
+                $fiftyFifty.addClass('used');
+            }
+            if (state.hintUsed) {
+                $hintButton.addClass('used');
+                if (state.hintUsed == state.currentQuestion) {
+                    showHint();
+                }
+            }
+        } else {
+            $q.addClass('without-hint');
+        }
+    }
 
     function haveWon() {
         var q = getCurrentQuestion();
@@ -838,6 +855,7 @@ function AddonQuiz_create() {
         var upgradedModel = presenter.upgradeAcceptWrongAnswers(model);
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addSpeechTexts(upgradedModel);
+        upgradedModel = presenter.addHelpButtonsMode(upgradedModel);
 
         return upgradedModel;
     };
@@ -866,6 +884,17 @@ function AddonQuiz_create() {
         return upgradedModel;
     };
 
+    presenter.addHelpButtonsMode = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('HelpButtonsMode')) {
+            upgradedModel['HelpButtonsMode'] =  'Both';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.addSpeechTexts = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
@@ -888,6 +917,7 @@ function AddonQuiz_create() {
         }
         return upgradedModel;
    };
+
 
     presenter.onEventReceived = function AddonQuiz_onEventReceived(eventName) {
         if (eventName == "ShowAnswers") {
@@ -1049,7 +1079,12 @@ function AddonQuiz_create() {
         var voicesArray = [];
 
         const prefix = presenter.speechTexts.Question;
-        const questionInfo = `${state.currentQuestion} ${presenter.speechTexts.OutOf} ${presenter.config.questions.length}`;
+
+        var language = document.documentElement.lang;
+
+        const currentQuestionAsText = window.TTSUtils.numberToOrdinalNumber(state.currentQuestion, language, window.TTSUtils.GENDER.NEUTER);
+        const questionsLengthAsText = window.TTSUtils.numberToOrdinalNumber(presenter.config.questions.length, language, window.TTSUtils.GENDER.FEMININE);
+        const questionInfo = `${currentQuestionAsText} ${presenter.speechTexts.OutOf} ${questionsLengthAsText}`;
         const texts = [prefix, questionInfo, ];
         pushMessagesToTextVoiceObject(voicesArray, texts);
         

@@ -18,8 +18,8 @@ function AddoneKeyboard_create(){
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
-            'default': ['\u00e0 \u00e2 \u00e7 \u00e8 \u00e9 \u00ea \u00ee \u00ef \u00f4 \u00f9 \u0153 \u00fb \u00e6 \u00eb {shift}'], \
-            'shift': ['\u00c0 \u00c2 \u00c7 \u00c8 \u00c9 \u00ca \u00cb \u00ce \u00cf \u00d4 \u00d9 \u00db \u00c6 \u0152 {shift}'] \
+            'default': ['\u00e0 \u00e2 \u00e7 \u00e8 \u00e9 \u00ea \u00eb \u00ee \u00ef \u00f4 \u00f9 \u00fb \u00e6 \u0153 \u00ab \u00bb {shift}'], \
+            'shift':   ['\u00c0 \u00c2 \u00c7 \u00c8 \u00c9 \u00ca \u00cb \u00ce \u00cf \u00d4 \u00d9 \u00db \u00c6 \u0152 \u00ab \u00bb {shift}'] \
         }",
         'german (special characters)' : "{ \
             'default': ['\u00e4 \u00f6 \u00fc \u00df {shift}'], \
@@ -455,7 +455,8 @@ function AddoneKeyboard_create(){
             if ($(this).data('keyboard') !== undefined) {
                 $(this).data('keyboard').destroy();
             }
-            showOpenButton();
+            openButtonElement.style.display = 'block';
+            actualizeOpenButtonPosition($(lastClickedElement));
         } else {
             if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                 // hides native keyboard
@@ -478,11 +479,9 @@ function AddoneKeyboard_create(){
     };
 
     presenter.onESCHideKeyboard = function AddoneKeyboard_onESCHideKeyboard(e) {
-        if (e.keyCode === 27) {
-            onEscClick(this);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+        var isEKeyboardOpen = $(this).data('keyboard') && $(this).data('keyboard').isOpen;
+        if (e.keyCode === 27 && isEKeyboardOpen) {
+            onEscClick();
         }
     };
 
@@ -826,13 +825,6 @@ function AddoneKeyboard_create(){
         $(closeButtonElement).hide();
     }
 
-    function showOpenButton() {
-        showButtonDecorator(function showOpenButtonToDecorator() {
-            openButtonElement.style.display = 'block';
-            actualizeOpenButtonPosition($(lastClickedElement));
-        });
-    }
-
     function showOpenButtonCallback() {
         hideOpenButton();
 
@@ -900,15 +892,11 @@ function AddoneKeyboard_create(){
         };
     }
 
-    function onEscClick(element) {
-        if (escClicked) {
-            $(element).val("");
-        } else {
-            presenter.disable();
-            escClicked = true;
-        }
-        $(lastClickedElement).focus();
-        $(lastClickedElement).click();
+    function onEscClick() {
+        closeButtonCallBack();
+
+        openButtonElement.style.display = 'block';
+        actualizeOpenButtonPosition($(lastClickedElement));
     }
 
     presenter.run = function(view, model){

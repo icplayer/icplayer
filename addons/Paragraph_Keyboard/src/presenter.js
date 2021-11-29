@@ -757,7 +757,10 @@ function AddonParagraph_Keyboard_create() {
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
             'lock': presenter.lock,
-            'unlock': presenter.unlock
+            'unlock': presenter.unlock,
+            'getText': presenter.getText,
+            'setText': presenter.setText,
+            'isAttempted': presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -800,6 +803,19 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
+    presenter.getText = function AddonParagraph_Keyboard_getText() {
+        return presenter.editor.getContent({format : 'raw'});
+    };
+
+    presenter.setText = function AddonParagraph_Keyboard_setText(text) {
+        presenter.editor.setContent(text);
+    }
+
+    presenter.isAttempted = function AddonParagraph_Keyboard_isAttempted() {
+        var content = presenter.getText().replace(/<[^>]*>/g,''); //remove HTML tags
+        return !!content;
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.parseModel(model);
@@ -817,6 +833,10 @@ function AddonParagraph_Keyboard_create() {
         $paragraph.css("border", "1px solid");
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
+    };
+
+    presenter.getOpenEndedContent = function () {
+        return presenter.getText();
     };
 
     return presenter;

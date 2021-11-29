@@ -30,7 +30,8 @@ TestCase("[Connection] Answers manipulation tests", {
        this.presenter.isNotActivity = false;
    },
 
-    'test hideAnswers functions calls': function () {
+    'test given active addon and showing answers when hideAnswers was called then hide answers and redraw the view': function () {
+       this.presenter.isShowAnswersActive = true;
        var expected = {
            redrawCalled: true,
            selectEnabledArg: true,
@@ -44,7 +45,7 @@ TestCase("[Connection] Answers manipulation tests", {
         assertEquals(expected.isShowAnswersActive, this.presenter.isShowAnswersActive);
     },
 
-    'test showAnswers functions calls': function () {
+    'test given active addon when showAnswers was called then show answers and redraw the view': function () {
        var expected = {
            redrawShowAnswersCalled: true,
            selectEnabledArg: false,

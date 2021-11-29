@@ -776,10 +776,10 @@ function AddonLine_Number_create() {
                 var imageWrapper = firstClick.element.parent().find('.rangeImage');
                 var shouldInclude = !imageWrapper.hasClass('include');
                 var index = presenter.configuration.drawnRangesData.ranges.indexOf(presenter.configuration.mouseData.clickedRanges[0]);
-
-                if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.START ) {
+                var isInf = firstValue.toString().toLowerCase().includes('infinity');
+                if ( presenter.configuration.mouseData.clicks[0].position === presenter.CLICKED_POSITION.START && !isInf) {
                     presenter.configuration.drawnRangesData.ranges[index].start.include = shouldInclude;
-                } else if ( presenter.configuration.mouseData.clicks[0].position == presenter.CLICKED_POSITION.END ) {
+                } else if ( presenter.configuration.mouseData.clicks[0].position === presenter.CLICKED_POSITION.END && !isInf) {
                     presenter.configuration.drawnRangesData.ranges[index].end.include = shouldInclude;
                 }
 
@@ -787,7 +787,7 @@ function AddonLine_Number_create() {
                     toggleIncludeImage( imageWrapper, shouldInclude );
                 }
 
-                if ( presenter.configuration.drawnRangesData.ranges[index].values.length == 1 ) {
+                if ( presenter.configuration.drawnRangesData.ranges[index].values.length === 1 ) {
                     presenter.removeRange( presenter.configuration.drawnRangesData.ranges[index], true );
                     imageWrapper.remove();
                 }

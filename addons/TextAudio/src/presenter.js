@@ -29,6 +29,7 @@ function AddonTextAudio_create() {
     presenter.slidesMade = false;
     presenter.keyboardControllerObject = null;
     presenter.isWCAGOn = false;
+    presenter.playbackRate = 1.0;
 
     var controls = {
         CUSTOM: "Custom",
@@ -88,7 +89,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.onEventReceived = function AddonTextAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked') {
+        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
             presenter.audio.load();
         }
     };
@@ -209,6 +210,7 @@ function AddonTextAudio_create() {
     	var upgradedModel = presenter.upgradeControls(model);
     	upgradedModel = presenter.upgradeIsDisabled(upgradedModel);
         upgradedModel = presenter.upgradeClickAction(upgradedModel);
+        upgradedModel = presenter.upgradeEnablePlaybackSpeedControls(upgradedModel);
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -246,6 +248,18 @@ function AddonTextAudio_create() {
         	} else {
         		upgradedModel['controls'] = "None";
         	}
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeEnablePlaybackSpeedControls = function AddonTextAudio_upgradeEnablePlaybackSpeedControls (model) {
+        var upgradedModel = {};
+
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel.hasOwnProperty('enablePlaybackSpeedControls')) {
+            upgradedModel['enablePlaybackSpeedControls'] = 'False';
         }
 
         return upgradedModel;
@@ -833,6 +847,14 @@ function AddonTextAudio_create() {
                 append(presenter.$volumeLayer);
         }
 
+        if (presenter.configuration.enablePlaybackSpeedControls) {
+            presenter.$playbackRateControls = $('<div>').
+                addClass('textaudio-playback-rate').
+                append(createPlaybackOptions());
+            displayPlaybackOptions();
+            presenter.$customPlayer.append(presenter.$playbackRateControls);
+        }
+
         presenter.$playerTime = $('<div>').
             addClass('textaudio-player-time').
             text('00:00 / --:--');
@@ -841,6 +863,51 @@ function AddonTextAudio_create() {
 
         presenter.$audioWrapper.append(presenter.$customPlayer);
     };
+
+    function createPlaybackOptions() {
+        var $select = $('<select>');
+        var playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
+        
+        playingSpeedOptions.forEach(playingOption => {
+            var $option = $('<option>');
+            $option.text(playingOption);
+            $option.attr('value', playingOption);
+            if (playingOption === 1.0) {
+                $option.attr('selected', 'selected');
+            }
+            $select.append($option);
+        });
+
+        $select.on('change', function () {
+            presenter.setPlaybackRate($select.val());
+        });
+        
+        return $select;
+    }
+
+    function displayPlaybackOptions() {
+        var playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
+        if (presenter.$playbackRateControls) {
+            var $selected = presenter.$playbackRateControls.find('select');
+            if ($selected.val() === presenter.playbackRate) {
+                if (playingSpeedOptions.indexOf(presenter.playbackRate) !== -1) {
+                    $selected.find('.custom-option').remove();
+                }
+                return;
+            }
+            $selected.find('.custom-option').remove();
+            if (playingSpeedOptions.indexOf(presenter.playbackRate) !== -1) {
+                $selected.val(presenter.playbackRate);
+            } else {
+                var $customOption = $('<option>');
+                $customOption.text(presenter.playbackRate);
+                $customOption.attr('value', presenter.playbackRate);
+                $customOption.addClass('custom-option');
+                $selected.append($customOption);
+                $selected.val(presenter.playbackRate);
+            }
+        }
+    }
 
     presenter.volumeLayerOnClick = isModuleEnabledDecorator(true)(function AddonTextAudio_volumeLayerOnClick (e) {
         presenter.audio.volume = e.offsetX / $(this).width();
@@ -905,6 +972,12 @@ function AddonTextAudio_create() {
                 presenter.disable();
             }
         }
+
+        Object.defineProperty(presenter.audio, 'playing', {
+            get: function () {
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
     };
 
     presenter.onAudioPlaying = function AddonTextAudio_onAudioPlaying () {
@@ -1494,7 +1567,8 @@ function AddonTextAudio_create() {
             showSlides: model.showSlides,
             isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"]),
             speechTexts: model.speechTexts,
-            langAttribute: model.langAttribute
+            langAttribute: model.langAttribute,
+            enablePlaybackSpeedControls: ModelValidationUtils.validateBoolean(model.enablePlaybackSpeedControls)
         };
     };
 
@@ -1506,7 +1580,8 @@ function AddonTextAudio_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'enable': presenter.enable,
-            'disable': presenter.disable
+            'disable': presenter.disable,
+            'setPlaybackRate': presenter.setPlaybackRate
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1525,6 +1600,13 @@ function AddonTextAudio_create() {
             presenter.audio.currentTime = 0;
         }
     };
+
+    presenter.setPlaybackRate = function (value) {
+        var parsedValue = parseFloat(value);
+        presenter.playbackRate = parsedValue;
+        presenter.audio.playbackRate = parsedValue;
+        displayPlaybackOptions();
+    }
 
     presenter.play = isModuleEnabledDecorator(true)(function addonTextAudio_play () {
         presenter.startTimeMeasurement();

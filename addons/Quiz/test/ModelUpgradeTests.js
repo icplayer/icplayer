@@ -146,3 +146,40 @@ TestCase("[Quiz] Model upgrades - add speechTexts", {
         this.validateSpeechTextValue(upgradedModel, 'OutOf', 'OutOf_');
     }
 });
+
+TestCase("[Quiz] Model upgrades - add helpButtonsMode", {
+    setUp: function () {
+        this.presenter = AddonQuiz_create();
+        var question = {
+            Question: 'What?',
+            CorrectAnswer: 'OK',
+            WrongAnswer1: 'WrongAnswer',
+            WrongAnswer2: 'WrongAnswer',
+            WrongAnswer3: 'WrongAnswer',
+            Hint: 'Hint',
+        }
+        this.model = {
+            'Is Visible': 'True',
+            'ShowHelpButtons': 'False',
+            'Questions': [question],
+            'isActivity': "True",
+        };
+        this.helpButtonsMode = 'HelpButtonsMode';
+    },
+
+    'test given undefined helpButtonsMode when upgradeModel was called then create property and set to "Both"': function () {
+        var upgradedModel = this.presenter.addHelpButtonsMode(this.model);
+
+        assertNotUndefined(upgradedModel[this.helpButtonsMode]);
+        assertEquals("Both", upgradedModel[this.helpButtonsMode]);
+    },
+
+    'test given mode "Hint" in helpButtonsMode property when upgradeModel was called then leave "Hint"': function () {
+        this.model[this.helpButtonsMode] = "Hint";
+
+        var upgradedModel = this.presenter.addHelpButtonsMode(this.model);
+
+        assertNotUndefined(upgradedModel[this.helpButtonsMode]);
+        assertEquals("Hint", upgradedModel[this.helpButtonsMode]);
+    }
+});
