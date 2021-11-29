@@ -276,6 +276,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.text = "";
 		this.gapId = "";
 		this.firstSend = true;
+		this.gapHasBeenAccessed = false;
 		removeStyleDependentName("correct-answer");
 	}
 

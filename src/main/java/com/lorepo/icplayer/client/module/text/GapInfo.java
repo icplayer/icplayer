@@ -104,9 +104,14 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	}
 
     public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
+        if (getPlaceHolder().trim().isEmpty()) {
+            return true;
+        }
+
         if (ignorePlaceholderWhenChecking && !hasGapBeenAccessed) {
             return false;
         }
+
         return true;
     }
 	
@@ -169,11 +174,6 @@ public class GapInfo implements IGapCommonUtilsProvider {
         text = cleanStringAccordingToSettings(text);
 		return AlternativeTextService.getVisibleText(text);
     }
-
-	private boolean textEqualsPlaceholder(String text) {
-	    String placeholder = cleanStringAccordingToSettings(getPlaceHolder());
-	    return placeholder.length() > 0 && text.equals(placeholder);
-	}
 
 	private String cleanStringAccordingToSettings(String text) {
 	    if (!isCaseSensitive) {

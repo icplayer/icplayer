@@ -37,7 +37,52 @@ public class GapInfoTestCase {
     }
 
     @Test
+    public void givenNoPlaceholderAndIgnorePlaceholderFalseAndGapNotAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
+        boolean ignorePlaceholder = false;
+        boolean hasGapBeenAccessed = false;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenNoPlaceholderAndIgnorePlaceholderTrueAndGapNotAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
+        boolean ignorePlaceholder = true;
+        boolean hasGapBeenAccessed = false;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenNoPlaceholderAndIgnorePlaceholderFalseAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
+        boolean ignorePlaceholder = false;
+        boolean hasGapBeenAccessed = true;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenNoPlaceholderAndIgnorePlaceholderTrueAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
+        boolean ignorePlaceholder = true;
+        boolean hasGapBeenAccessed = true;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
     public void givenIgnorePlaceholderFalseAndGapNotAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
         boolean ignorePlaceholder = false;
         boolean hasGapBeenAccessed = false;
 
@@ -48,6 +93,7 @@ public class GapInfoTestCase {
 
     @Test
     public void givenIgnorePlaceholderFalseAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
         boolean ignorePlaceholder = false;
         boolean hasGapBeenAccessed = true;
 
@@ -58,6 +104,7 @@ public class GapInfoTestCase {
 
     @Test
     public void givenIgnorePlaceholderTrueAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
         boolean ignorePlaceholder = true;
         boolean hasGapBeenAccessed = true;
 
@@ -68,6 +115,7 @@ public class GapInfoTestCase {
 
     @Test
     public void givenIgnorePlaceholderTrueAndGapNotAccessedWhenIsValueCheckableThenFalse() {
+        this.gapInfo.setPlaceHolder("Anything");
         boolean ignorePlaceholder = true;
         boolean hasGapBeenAccessed = false;
 

@@ -382,6 +382,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
     		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 		}
 
+        HashMap<String, String> hasBeenAccessed = new HashMap<String, String>();
+		for (int i=0; i < view.getChildrenCount(); i++) {
+		    if (view.getChild(i) instanceof GapWidget) {
+                GapWidget gw = (GapWidget) view.getChild(i);
+                if (gw.hasGapBeenAccessed()) {
+                    hasBeenAccessed.put(gw.getId(), "true");
+                }
+		    }
+		}
+		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
+
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -454,6 +465,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.show(false);
 		} else {
 			view.hide();
+		}
+
+        HashMap<String, String> hasBeenAccessed = null;
+		if (state.containsKey("hasBeenAccessed")) {
+		    hasBeenAccessed = JSONUtils.decodeHashMap(state.get("hasBeenAccessed"));
+			if(hasBeenAccessed != null){
+			    for (String key: hasBeenAccessed.keySet()) {
+			        String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+			        GapWidget gw = getGapWidgetFromGapId(newKey);
+			        gw.markGapAsAccessed();
+			    }
+			}
 		}
 	}
 
@@ -1554,8 +1577,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private GapWidget getGapWidgetFromGapId(String gapId) {
-        String index = gapId.substring(gapId.lastIndexOf("-") + 1);
-        GapWidget gw = (GapWidget) view.getChild(Integer.parseInt(index) - 1);
+	    GapWidget gw = null;
+	    for (int i=0; i < view.getChildrenCount(); i++) {
+            if (gapId.equalsIgnoreCase(view.getChild(i).getId())) {
+	            gw = (GapWidget) view.getChild(i);
+	            break;
+	        }
+	    }
+
         return gw;
 	}
 

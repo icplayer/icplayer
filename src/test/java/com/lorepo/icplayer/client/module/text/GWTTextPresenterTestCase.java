@@ -510,8 +510,15 @@ public class GWTTextPresenterTestCase extends GwtTest{
 	public void givenPlaceholderThatEqualsTextAndIgnoreDefaultIsTrueWhenGetErrorCountThenDontGetError() {
 	    GapInfo gi = module.gapInfos.get(0);
 	    gi.setPlaceHolder("An");
+
 	    GapWidget gw = PowerMockito.mock(GapWidget.class);
-	    display.setGapWidget(gw);
+	    Mockito.when(gw.getId()).thenReturn(gi.getId());
+
+	    TextViewMockup mockedView = Mockito.mock(TextViewMockup.class);
+		Mockito.when(mockedView.getChildrenCount()).thenReturn(1);
+		Mockito.when(mockedView.getChild(0)).thenReturn(gw);
+		mockedView.setGapWidget(gw);
+		presenter.addView(mockedView);
 
         Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", true);
 		display.getListener().onValueChanged(id3, "An");
