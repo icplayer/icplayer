@@ -1,8 +1,11 @@
+2021-11-19 Improve of Addon Coloring performance while reset on firefox
 2021-11-17 Added audio speed controller to the Text Audio
 2021-11-17 Added disabling of analyser in media recorder on safari due to conflicts with recorder
 2021-11-16 Fixed behaviour of text gap when flag ignorePlaceholder is set and placeholder equals actual answer
 2021-11-05 Add dontSendEvent param to select/deselect commands in Addon ImageIdentification
 2021-11-05 Fixed popup absolute position according to absolute parent
+2021-11-04 Separation of the help buttons in the Quiz addon
+2021-11-03 Fixed reopening eKeyboard after closing on the ESC button clicked
 2021-10-22 Fixed flashcard audio after finished record not returning to play state
 2021-10-20 Add new characters to French ekeyboard and change it's order
 2021-10-13 Fix dropdownClicked event received behaviour in Audio, TextAudio and Video addon
@@ -12,6 +15,7 @@
 2021-09-29 Added functionality for the printable version of Hierarchical Lesson Report
 2021-09-29 Added functionality for the printable version in preview of Hierarchical Lesson Report
 2021-09-29 Added functionality to extract content information for Printable Controller
+2021-09-28 Fix Filled Gap reset method
 2021-09-27 Added in paragraph destructor stop function called by timeout from setIframeHeight method
 2021-09-24 Fixed a bug causing lessons to not start in edesk
 2021-09-15 Added a new property for SingleStateButton that allows clicking in show answers mode
