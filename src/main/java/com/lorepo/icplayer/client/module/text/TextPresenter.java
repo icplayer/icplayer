@@ -1579,7 +1579,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private GapWidget getGapWidgetFromGapId(String gapId) {
 	    GapWidget gw = null;
 	    for (int i=0; i < view.getChildrenCount(); i++) {
-            if (gapId.equalsIgnoreCase(view.getChild(i).getId())) {
+	        TextElementDisplay child = view.getChild(i);
+            if (gapId.equalsIgnoreCase(child.getId()) && child instanceof GapWidget ) {
 	            gw = (GapWidget) view.getChild(i);
 	            break;
 	        }

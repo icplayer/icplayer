@@ -319,6 +319,9 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 
 	@Override
 	public boolean isAttempted() {
+	    if (this.ignorePlaceholder && this.gapInfo.getPlaceHolder().length() > 0) {
+	        return this.gapHasBeenAccessed;
+	    }
 		return (getText().trim().length() > 0);
 	}
 
