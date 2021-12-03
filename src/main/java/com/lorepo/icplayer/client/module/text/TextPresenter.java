@@ -970,7 +970,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
 
-		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (!module.ignoreDefaultPlaceholderWhenCheck() && enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
 	}
