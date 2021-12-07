@@ -19,6 +19,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	private String placeHolder = "";
 	private String langTag = null;
 	private boolean isNumericOnly = false;
+	private boolean wasReset = false;
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
@@ -116,6 +117,14 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	 */
 	public String getId() {
 		return id;
+	}
+
+	public boolean getResetStatus() {
+		return wasReset;
+	}
+
+	public void setResetStatus(boolean wasReset) {
+		this.wasReset = wasReset;
 	}
 
 	public int getValue() {
