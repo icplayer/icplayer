@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
+import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
@@ -1006,7 +1007,7 @@ public class TextParser {
 
 				output += input.substring(0, lastIndex);
 				input = input.substring(lastIndex + groupLength);
-				output += "<div id='addonGap-"+addonID+"'> </div>";
+				output += NestedAddonUtils.getPlaceholder(addonID).getString();
 			} else {
 				break;
 			}

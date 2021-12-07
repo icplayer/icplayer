@@ -1236,3 +1236,13 @@ hr, table, fieldset {
     object-fit: contain;
 }
 
+.ic_addon_gap {
+    border: 1px rgba(27,144,253,1) solid;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.inner_addon {
+    position: relative;
+}
+
