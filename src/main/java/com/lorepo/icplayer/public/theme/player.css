@@ -348,6 +348,7 @@ hr, table, fieldset {
 
 .ui-draggable {
 	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .ic_draggableGapEmpty-wrong{
