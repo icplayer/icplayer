@@ -17,26 +17,33 @@ public class NestedAddonUtils {
     public static Element getPlaceholder(String addonId) {
         HTML html = new HTML("<input></input>");
         Element el = html.getElement().getFirstChildElement();
-        el.setAttribute("data-addon-value", getDefinition(addonId));
-        el.addClassName(CLASS_NAME);
-        el.setId(ID_PREFIX + addonId);
-        el.setAttribute("placeholder", addonId);
-        el.setAttribute("size", Integer.toString(addonId.length() + 1));
+        updatePlaceholder(addonId, el);
+        return el;
+    }
+
+    public static Element getPlaceholderInEditorMode(String addonId) {
+        HTML html = new HTML("<input></input>");
+        Element el = html.getElement().getFirstChildElement();
+        updatePlaceholderInEditorMode(addonId, el);
         return el;
     }
 
     public static void updatePlaceholder(String addonId, Element el) {
-        el.setAttribute("data-addon-value", getDefinition(addonId));
+        el.addClassName(CLASS_NAME);
         el.setId(ID_PREFIX + addonId);
         el.setAttribute("placeholder", addonId);
         el.setAttribute("size", Integer.toString(addonId.length() + 1));
     }
 
-    public static boolean insertIntoAddonGap(String moduleID, Element view, Element page) {
-        return insertIntoAddonGap(moduleID, view, page, ID_PREFIX, ID_EDITOR_PREFIX);
+    public static void updatePlaceholderInEditorMode(String addonId, Element el) {
+        updatePlaceholder(addonId, el);
+        el.setAttribute("data-addon-value", getDefinition(addonId));
     }
 
-    private static native boolean insertIntoAddonGap(String moduleID, Element view, Element page, String idPrefix, String idEditorPrefix) /*-{
+
+    public static native boolean insertIntoAddonGap(String moduleID, Element view, Element page) /*-{
+		var idPrefix = @com.lorepo.icplayer.client.module.NestedAddonUtils::ID_PREFIX;
+		var idEditorPrefix = @com.lorepo.icplayer.client.module.NestedAddonUtils::ID_EDITOR_PREFIX;
 		var $addonGap = $wnd.$(page).find('#' + idPrefix + moduleID);
 		if ($addonGap.length == 0) $addonGap = $wnd.$(page).find('#'+idEditorPrefix + moduleID);
 		if ($addonGap.length == 0) return false;

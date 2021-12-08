@@ -913,6 +913,7 @@ function AddonConnection_create() {
                             return false;
                         }
                         ui.helper.css("visibility", "hidden");
+                        ui.helper.find(".inner_addon").css("display","none");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
 

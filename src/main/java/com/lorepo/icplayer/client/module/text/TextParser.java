@@ -114,7 +114,7 @@ public class TextParser {
 				}
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
-				parserResult.parsedText = parseAddonGap(parserResult.parsedText);
+				parserResult.parsedText = parseAddonGap(parserResult.parsedText, false);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -178,7 +178,7 @@ public class TextParser {
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
-		result.parsedText = parseAddonGap(result.parsedText);
+		result.parsedText = parseAddonGap(result.parsedText, true);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -990,7 +990,7 @@ public class TextParser {
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
 
-	private String parseAddonGap(String srcText) {
+	private String parseAddonGap(String srcText, boolean isEditorMode) {
 		final String patternString = "\\\\addon\\{(.+?)\\}";
 		RegExp regexp = RegExp.compile(patternString);
 		MatchResult matchResult;
@@ -1007,7 +1007,11 @@ public class TextParser {
 
 				output += input.substring(0, lastIndex);
 				input = input.substring(lastIndex + groupLength);
-				output += NestedAddonUtils.getPlaceholder(addonID).getString();
+				if (isEditorMode) {
+					output += NestedAddonUtils.getPlaceholderInEditorMode(addonID).getString();
+				} else {
+					output += NestedAddonUtils.getPlaceholder(addonID).getString();
+				}
 			} else {
 				break;
 			}
