@@ -2151,5 +2151,8 @@ var ice_dictionary_mx = {
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
 		"Scoreboard_property_color": "Team colour",
-		"Scoreboard_maximum_teams_count": "Maximum number of teams"
+		"Scoreboard_maximum_teams_count": "Maximum number of teams",
+    "NestedAddon_addon_id": "Addon id",
+    "NestedAddon_insert_addon": "Insert nested addon",
+    "NestedAddon_add_addon": "Add addon"
 };
