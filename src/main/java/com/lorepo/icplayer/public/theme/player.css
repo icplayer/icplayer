@@ -1244,5 +1244,6 @@ hr, table, fieldset {
 
 .inner_addon {
     position: relative;
+    visibility: inherit!important;
 }
 
