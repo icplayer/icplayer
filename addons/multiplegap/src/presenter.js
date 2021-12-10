@@ -1862,6 +1862,7 @@ function Addonmultiplegap_create(){
     }
 
     presenter.gradualHideAnswers = function () {
+        presenter.reset();
         presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = false;
     }
