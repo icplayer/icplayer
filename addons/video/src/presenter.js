@@ -129,6 +129,7 @@ function Addonvideo_create() {
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
+        upgradedModel = presenter.upgradeVideoSpeedController(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -175,6 +176,17 @@ function Addonvideo_create() {
 
         return upgradedModel;
     };
+
+    presenter.upgradeVideoSpeedController = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('enableVideoSpeedController')) {
+            upgradedModel['enableVideoSpeedController'] = 'False';
+        }
+
+        return upgradedModel;
+    }
 
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
@@ -426,6 +438,8 @@ function Addonvideo_create() {
     };
 
     presenter.destroy = function () {
+        var view = document.getElementsByClassName('ic_page');
+
         if (presenter.controlBar !== null) {
             presenter.controlBar.destroy();
         }
@@ -456,6 +470,9 @@ function Addonvideo_create() {
         presenter.view = null;
         presenter.viewObject = null;
         presenter.videoObject = null;
+
+        $(view).off('click');
+        $(window).off('click');
     };
 
     presenter.resizeVideoToWindow = function () {
@@ -855,7 +872,8 @@ function Addonvideo_create() {
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
-            offlineMessage: model["offlineMessage"]
+            offlineMessage: model["offlineMessage"],
+            enableVideoSpeedController: ModelValidationUtils.validateBoolean(model["enableVideoSpeedController"])
         }
     };
 
@@ -923,6 +941,12 @@ function Addonvideo_create() {
 
         presenter.controlBar.addBurgerMenu(BURGER_MENU, elementsForBurger);
     };
+
+    presenter.addVideoSpeedController = function () {
+        if (presenter.configuration.enableVideoSpeedController) {
+            presenter.controlBar.addVideoSpeedController(presenter.setPlaybackRate);
+        }
+    }
 
     presenter.run = function (view, model) {
         var upgradedModel = presenter.upgradeModel(model);
@@ -1010,7 +1034,30 @@ function Addonvideo_create() {
                 presenter.destroy();
             }
         });
+
+        presenter.addClickListener();
     };
+
+    presenter.addClickListener = function () {
+        var view = document.getElementsByClassName('ic_page');
+        $(view[0]).on('click', function (event) {
+            if (presenter.controlBar.isSelectorOpen && !event.target.localName.includes('select')) {
+                presenter.controlBar.isSelectorOpen = false;
+                presenter.controlBar.hideControls();
+            }
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        $(window).on('click', function (event) {
+            if (presenter.controlBar.isSelectorOpen) {
+                presenter.controlBar.isSelectorOpen = false;
+                presenter.controlBar.hideControls();
+            }
+            event.preventDefault();
+            event.stopPropagation();
+        });
+    }
 
     presenter.fullscreenChangedEventReceived = function () {
         if (!isVideoInFullscreen() && presenter.configuration.isFullScreen) {
@@ -1224,6 +1271,7 @@ function Addonvideo_create() {
         presenter.loadSubtitles();
         presenter.loadAudioDescription();
         presenter.setBurgerMenu();
+        presenter.addVideoSpeedController();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
@@ -1981,6 +2029,10 @@ function Addonvideo_create() {
             presenter.showSubtitles();
         }
     };
+
+    presenter.setPlaybackRate = function (playbackRate) {
+        presenter.videoObject.playbackRate = parseFloat(playbackRate);
+    }
 
     presenter.getVideo = function () {
         return presenter.videoContainer.find('video:first');

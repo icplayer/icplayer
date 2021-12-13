@@ -1,3 +1,4 @@
+2021-12-13 Added video speed controller to the Video
 2021-11-19 Improve of Addon Coloring performance while reset on firefox
 2021-11-17 Added audio speed controller to the Text Audio
 2021-11-17 Added disabling of analyser in media recorder on safari due to conflicts with recorder
