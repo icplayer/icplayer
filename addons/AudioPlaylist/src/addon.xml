@@ -8,5 +8,6 @@
 			<property name="Ogg" nameLabel="AudioPlaylist_property_ogg" type="audio" />
 		</property>
 		<property name="Stop playing" nameLabel="AudioPlaylist_property_stop_playing" type="boolean" />
+		<property name="Enable audio speed controller" displayName="Enable audio speed controller" nameLabel="Enable_playback_speed_controls" type="boolean" />
 	</model>
 </addon>

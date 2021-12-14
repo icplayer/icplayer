@@ -1,3 +1,4 @@
+2021-12-14 Added audio speed controller to Audio Playlist
 2021-12-14 Prevent from adding the dragging class to checked element in Multiple Gap
 2021-12-14 Skipping image in keyboard navigation
 2021-12-09 Added nested addons
