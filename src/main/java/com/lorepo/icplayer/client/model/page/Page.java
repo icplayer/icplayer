@@ -175,6 +175,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			return x.@com.lorepo.icplayer.client.model.page.Page::getPageWeight()();
 		}
 
+		page.getModulesMaxScore = function() {
+		    return x.@com.lorepo.icplayer.client.model.page.Page::getModulesMaxScore()();
+		}
+
 		return page;
 	}-*/;
 

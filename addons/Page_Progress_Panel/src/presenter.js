@@ -81,10 +81,7 @@ function AddonPage_Progress_Panel_create(){
         removeHidden(presenter.configuration.showCorrectAnswers, presenter.$correctAnswers);
 		if (!isPreview) {
 		    presenter.updateVisibility();
-			var currentPageIndex = presenter.playerController.getCurrentPageIndex();
-			var pageId = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
-			var score = presenter.playerController.getScore().getPageScoreById(pageId);
-			presenter.lastScores.sumOfMaxScore = score.maxScore;
+			presenter.lastScores.sumOfMaxScore = getPageMaxScore();
 			presenter.displayScores(presenter.lastScores);
 			presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
 				if (event.target === this) {
@@ -103,8 +100,7 @@ function AddonPage_Progress_Panel_create(){
     };
 
 	presenter.showAnswers = function() {
-		var currentPageIndex = presenter.playerController.getCurrentPageIndex();
-		var pageId = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
+		var pageId = getCurrentPage().getId();
 		var score = presenter.playerController.getScore().getPageScoreById(pageId);
 		presenter.lastScores.sumOfMistakes = score.mistakeCount;
 		presenter.lastScores.sumOfChecks = score.checkCount;
@@ -127,9 +123,17 @@ function AddonPage_Progress_Panel_create(){
         runLogic(view, model, false);
     };
 
+    function getCurrentPage() {
+        let currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        return presenter.playerController.getPresentation().getPage(currentPageIndex);
+    };
+
+    function getPageMaxScore() {
+        return getCurrentPage().getModulesMaxScore();
+    };
+
     function getPageScore(){
-        var currentPageIndex = presenter.playerController.getCurrentPageIndex();
-		var page = presenter.playerController.getPresentation().getPage(currentPageIndex);
+		var page = getCurrentPage();
         var pageId = page.getId();
         var score = presenter.playerController.getScore().getPageScoreById(pageId);
 
@@ -242,8 +246,7 @@ function AddonPage_Progress_Panel_create(){
     };
 
     presenter.reset = function(){
-		var currentPageIndex = presenter.playerController.getCurrentPageIndex();
-        var pageId = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
+        var pageId = getCurrentPage().getId();
         var score = presenter.playerController.getScore().getPageScoreById(pageId);
 		presenter.lastScores = {
 			progress: 0,
