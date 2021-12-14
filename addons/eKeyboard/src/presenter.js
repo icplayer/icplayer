@@ -455,7 +455,8 @@ function AddoneKeyboard_create(){
             if ($(this).data('keyboard') !== undefined) {
                 $(this).data('keyboard').destroy();
             }
-            showOpenButton();
+            openButtonElement.style.display = 'block';
+            actualizeOpenButtonPosition($(lastClickedElement));
         } else {
             if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                 // hides native keyboard
@@ -478,11 +479,9 @@ function AddoneKeyboard_create(){
     };
 
     presenter.onESCHideKeyboard = function AddoneKeyboard_onESCHideKeyboard(e) {
-        if (e.keyCode === 27) {
-            onEscClick(this);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+        var isEKeyboardOpen = $(this).data('keyboard') && $(this).data('keyboard').isOpen;
+        if (e.keyCode === 27 && isEKeyboardOpen) {
+            onEscClick();
         }
     };
 
@@ -826,13 +825,6 @@ function AddoneKeyboard_create(){
         $(closeButtonElement).hide();
     }
 
-    function showOpenButton() {
-        showButtonDecorator(function showOpenButtonToDecorator() {
-            openButtonElement.style.display = 'block';
-            actualizeOpenButtonPosition($(lastClickedElement));
-        });
-    }
-
     function showOpenButtonCallback() {
         hideOpenButton();
 
@@ -900,15 +892,11 @@ function AddoneKeyboard_create(){
         };
     }
 
-    function onEscClick(element) {
-        if (escClicked) {
-            $(element).val("");
-        } else {
-            presenter.disable();
-            escClicked = true;
-        }
-        $(lastClickedElement).focus();
-        $(lastClickedElement).click();
+    function onEscClick() {
+        closeButtonCallBack();
+
+        openButtonElement.style.display = 'block';
+        actualizeOpenButtonPosition($(lastClickedElement));
     }
 
     presenter.run = function(view, model){

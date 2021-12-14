@@ -13,6 +13,7 @@
         </property>
         <property name="TestMode" nameLabel="Quiz_property_TestMode" type="boolean"/>
         <property name="ShowHelpButtons" nameLabel="Quiz_property_ShowHelpButtons" type="boolean"/>
+        <property name="HelpButtonsMode" nameLabel="Quiz_property_HelpButtonsMode" type="{Both, Hint, 50/50}"/>
         <property name="NextAfterSelect" nameLabel="Quiz_property_NextAfterSelect" type="boolean"/>
         <property name="NextLabel" nameLabel="Quiz_property_NextLabel" type="string" isLocalized="true"/>
         <property name="GameLostMessage" nameLabel="Quiz_property_GameLostMessage" type="html" isLocalized="true"/>

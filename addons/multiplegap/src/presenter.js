@@ -916,10 +916,10 @@ function Addonmultiplegap_create(){
         placeholder.draggable({
             revert : false,
             helper: function() {
-                placeholder.addClass('dragging');
                 if (!presenter.isDragPossible()) {
                     return $('<div></div>');
                 }
+                placeholder.addClass('dragging');
                 
                 presenter.itemDragged(placeholder);
                 return getDraggedSrc(placeholder).clone().show();
@@ -1138,7 +1138,7 @@ function Addonmultiplegap_create(){
             'value': '',
             'score': ''
         };
-        
+
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
     
