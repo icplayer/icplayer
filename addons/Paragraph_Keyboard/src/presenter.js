@@ -408,6 +408,17 @@ function AddonParagraph_Keyboard_create() {
         });
     };
 
+    presenter.sendOnBlurEvent = function () {
+        var eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'blur',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
     // On the mCourser, each addon is called twice on the first page.
     // Removing the addon before loading the library causes a problem with second loading.
     // You must separate each method of destroy, or improve the mechanism of loading lessons.
@@ -694,6 +705,10 @@ function AddonParagraph_Keyboard_create() {
         } else {
             presenter.ownerDocument = false;
         }
+
+        presenter.editor.on('blur', function () {
+                presenter.sendOnBlurEvent();
+        });
     };
 
     function checkForChanges(){
@@ -711,6 +726,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
+        presenter.eventBus = presenter.playerController.getEventBus();
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
