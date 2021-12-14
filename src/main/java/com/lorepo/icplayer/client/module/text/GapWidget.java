@@ -208,10 +208,13 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean shouldSendEvent() {
 		String value = getText();
 		String gapID = gapInfo.getId();
-		if (value != this.text || gapID != this.gapId || this.firstSend) {
+		boolean wasReset = gapInfo.getResetStatus();
+
+		if (value != this.text || gapID != this.gapId || this.firstSend || wasReset) {
 			this.text = value;
 			this.gapId = gapID;
 			this.firstSend = false;
+			gapInfo.setResetStatus(false);
 			return true;
 		}
 		
@@ -266,10 +269,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public void reset() {
 		setText("");
+		gapInfo.setResetStatus(true);
 		this.setWorkMode();
-		this.text = "";
-		this.gapId = "";
-		this.firstSend = true;
 		removeStyleDependentName("correct-answer");
 	}
 
@@ -362,6 +363,16 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public String getId() {
 		return gapInfo.getId();
+	}
+
+	@Override
+	public boolean getResetStatus() {
+		return gapInfo.getResetStatus();
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+		gapInfo.setResetStatus(wasReset);
 	}
 
 	@Override

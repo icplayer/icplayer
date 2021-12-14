@@ -1978,6 +1978,7 @@ var ice_dictionary_en = {
 	"Quiz_speech_text_wrong": "Wrong",
 	"Quiz_speech_text_inactive": "Inactive",
 	"Quiz_speech_text_out_of": "Out of",
+	"Quiz_property_HelpButtonsMode": "Help Buttons Mode",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",
 	"sort_by": "Sort by:",
@@ -2172,5 +2173,8 @@ var ice_dictionary_en = {
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
 		"Scoreboard_property_color": "Team colour",
-		"Scoreboard_maximum_teams_count": "Maximum number of teams"
+		"Scoreboard_maximum_teams_count": "Maximum number of teams",
+    "NestedAddon_addon_id": "Addon id",
+    "NestedAddon_insert_addon": "Insert nested addon",
+    "NestedAddon_add_addon": "Add addon"
 };
