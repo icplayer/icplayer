@@ -53,6 +53,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElement(String element);
 		String getDroppedElement();
 		String getId();
+		boolean getResetStatus();
+		void setResetStatus(boolean wasReset);
 		void setFocusGap(boolean focus);
 		String getGapType();
 		void select();

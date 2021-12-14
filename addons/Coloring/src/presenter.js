@@ -71,12 +71,16 @@ function AddonColoring_create(){
     function setColorsThatCanBeFilled() {
         var configuration = presenter.configuration;
         configuration.colorsThatCanBeFilled = [];
-        $.each(configuration.areas, function() {
-            var color = presenter.getColorAtPoint(this.x, this.y);
+        const wholeCanvas = presenter.ctx.getImageData(0, 0, presenter.canvasWidth, presenter.canvasHeight).data;
+        const areas = configuration.areas;
+
+        for (var i = areas.length; i--;) {
+            let area = areas[i];
+            let color = getColorAtPointFromCanvas(area.x, area.y, wholeCanvas);
             if (!presenter.isAlreadyInColorsThatCanBeFilled(color)) {
                 configuration.colorsThatCanBeFilled.push(color);
             }
-        });
+        }
     }
 
     presenter.setPlayerController = function(controller) {
@@ -479,6 +483,22 @@ function AddonColoring_create(){
         }
         return color;
     };
+
+    function getColorAtPointFromCanvas (x, y, canvas) {
+        // canvas is flat - 1 dimensional
+        // data is flatened by going through whole X axis before incrementing Y axis - e.g. (x:1,y:0),(x:2,y:0) etc.
+        // so to jump to desired position of pixel (Y:area.y, X:area.x) we need to multiply by width - that gives us desired row
+        // and then add X position (area.x) - that gives us desired column
+        // multiply by 4 is because wholeCanvas doesnt store px but R,G,B,A values, so each px takes 4 places in Canvas array
+        let index = (y * presenter.canvasWidth + x ) * 4;
+        let color = [
+          canvas[index],     //R
+          canvas[index + 1], //G
+          canvas[index + 2], //B
+          canvas[index + 3]  //A
+        ];
+        return color;
+    }
 
     function fixTouch (touch) {
         var winPageX = window.pageXOffset,

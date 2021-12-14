@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.dimensions.PageDimensionsForCalculations;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
+import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -73,9 +74,13 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
-			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-		    this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			Boolean isAddonGap = NestedAddonUtils.insertIntoAddonGap(module.getId(), moduleView.getElement(), this.getElement());
+			if (isAddonGap) {
+				adopt(moduleView);
+			} else {
+		    	this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			}
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
@@ -92,7 +97,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 					.compute(this.widgets);
 			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-			groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			Boolean isAddonGap = NestedAddonUtils.insertIntoAddonGap(module.getId(), moduleView.getElement(), this.getElement());
+			if (isAddonGap) {
+				adopt(moduleView);
+			} else {
+				groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			}
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}

@@ -447,4 +447,20 @@ public class GWTTextParserTestCase extends GwtTest{
 		}
 		return true;
 	}
+
+	@Test
+	public void testNestedAddon() {
+
+		TextParser parser = new TextParser();
+		String srcText ="\\addon{test123}";
+		String expected = "<input class=\"ic_addon_gap\" id=\"addonGap-test123\" placeholder=\"test123\" size=\"8\"></input>";
+
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+
+		System.out.println(parsed.parsedText);
+
+		assertEquals(expected, parsed.parsedText);
+
+	}
 }

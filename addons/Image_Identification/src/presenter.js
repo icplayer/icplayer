@@ -493,15 +493,19 @@ function AddonImage_Identification_create(){
         playerController = controller;
     };
 
-    presenter.select = function () {
+    presenter.select = function (dontSendEvent) {
         presenter.configuration.isSelected = true;
-        presenter.triggerSelectionEvent(true, presenter.configuration.shouldBeSelected);
+        if (!dontSendEvent) {
+            presenter.triggerSelectionEvent(true, presenter.configuration.shouldBeSelected);
+        }
         applySelectionStyle(true, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    presenter.deselect = function () {
+    presenter.deselect = function (dontSendEvent) {
         presenter.configuration.isSelected = false;
-        presenter.triggerSelectionEvent(false, presenter.configuration.shouldBeSelected);
+        if (!dontSendEvent) {
+            presenter.triggerSelectionEvent(false, presenter.configuration.shouldBeSelected);
+        }
         applySelectionStyle(false, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
