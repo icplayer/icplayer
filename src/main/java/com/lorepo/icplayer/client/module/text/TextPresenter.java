@@ -477,6 +477,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			        String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
 			        GapWidget gw = getGapWidgetFromGapId(newKey);
 			        gw.markGapAsAccessed();
+                    restoreGapVisitedState(newKey);
 			    }
 			}
 		}
@@ -909,6 +910,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				input.setValue(gap.getPlaceHolder());
 			}
 		}
+		values.put(gapId, input.getValue());
 	}
 
 	protected void markGapAsAccessed(String gapId) {
@@ -973,6 +975,23 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (!module.ignoreDefaultPlaceholderWhenCheck() && enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
+	}
+
+	private void restoreGapVisitedState(String gapId) {
+	   InputElement input = DOM.getElementById(gapId).cast();
+	   String enteredValue = input.getValue();
+       GapInfo gap = getGapInfoById(gapId);
+       String placeholder = gap.getPlaceHolder();
+
+       if (!enteredValue.equals(placeholder)) {
+           return;
+       }
+
+	   if (module.ignoreDefaultPlaceholderWhenCheck()) {
+		   input.setValue(placeholder);
+       } else {
+           input.setValue("");
+       }
 	}
 
 	private GapInfo getGapInfoById(String gapId) {
