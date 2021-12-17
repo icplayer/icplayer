@@ -1862,8 +1862,13 @@ function Addonmultiplegap_create(){
     }
 
     presenter.gradualHideAnswers = function () {
+        presenter.removePlaceholders();
         presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = false;
+    }
+
+    presenter.removePlaceholders = function () {
+        presenter.$view.find('.placeholder').remove();
     }
 
     function setUpResetOnce() {
