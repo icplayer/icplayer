@@ -8,6 +8,7 @@
 function AddonText_Coloring_create() {
     var presenter = function () {};
     presenter.printableState = null;
+    presenter.initialVisibility = null;
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -480,6 +481,7 @@ function AddonText_Coloring_create() {
     presenter.runLogic = function (view, model, isPreview) {
         model = presenter.upgradeModel(model);
         presenter.configuration = $.extend({}, presenter.configuration, presenter.validateModel(model));
+        presenter.initialVisibility = presenter.configuration.isVisible;
         presenter.view = view;
         presenter.$view = $(view);
         if (presenter.configuration.isError) {
@@ -1238,6 +1240,7 @@ function AddonText_Coloring_create() {
     presenter.reset = function () {
         presenter.stateMachine.reset();
         presenter.stateMachine.notifyEdit();
+        presenter.setVisibility(presenter.initialVisibility);
     };
 
     presenter.setWorkMode = function () {
@@ -1437,10 +1440,7 @@ function AddonText_Coloring_create() {
 
         presenter.configuration.filteredTokens = parsedState.tokens;
         presenter.configuration.isVisible = parsedState.isVisible;
-
-        if (!presenter.configuration.isVisible) {
-            presenter.hide();
-        }
+        presenter.setVisibility(presenter.configuration.isVisible);
         presenter.colorAllMarkedTokens();
 
         if (parsedState.activeColorID !== undefined) {
@@ -1449,6 +1449,14 @@ function AddonText_Coloring_create() {
             } else {
                 presenter.setColor(parsedState.activeColorID);
             }
+        }
+    };
+
+    presenter.setVisibility = function (isVisible) {
+        if (isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
         }
     };
 
