@@ -97,6 +97,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		List<ScoreWithMetadata> getScoreWithMetadata();
 	}
 
+	public interface NavigationTextElement {
+		void setElementFocus(boolean focus);
+		void deselect();
+		String getId();
+		String getElementType();
+	}
+
 	private final TextModel module;
 	private final IPlayerServices playerServices;
 	private IDisplay view;
@@ -1477,9 +1484,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public boolean isSelectable (boolean isTextToSpeechOn) {
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
+		final boolean hasLinks = module.getLinkInfos().iterator().hasNext();
 		final boolean isEnabled = !this.module.isDisabled();
 		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
+		return (isTextToSpeechOn || isWithGaps || hasLinks) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override
@@ -1503,7 +1511,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public boolean isEnterable() {
-		return WCAGUtils.hasGaps(this.module);
+		return WCAGUtils.hasGaps(this.module) || WCAGUtils.hasLinks(this.module);
 	}
 
 	@Override

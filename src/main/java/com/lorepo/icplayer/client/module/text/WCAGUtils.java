@@ -16,6 +16,8 @@ public class WCAGUtils {
 	final static String DROP_DOWN_GAP_START = "{{";
 	final static String DROP_DOWN_GAP_END = "}}";
 	public final static String BREAK_TEXT = "&&break&&";
+	final static String LINK_START = "start-link";
+	final static String LINK_END = "end-link";
 	
 	private static int getMinPositiveNumber (int n1, int n2, int n3) {
 		boolean overwritten = false;
@@ -108,9 +110,18 @@ public class WCAGUtils {
 	}
 	
 	public static String getCleanText (String text) {
+		text = updateLinks(text);
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
+	}
+
+	private static String updateLinks(String text) {
+		if (!text.contains("href")) { 
+			return text;
+		}
+
+		return text.replaceAll("<a[^>]*?href=\"(.*?)\"*?>(.*?)</a>", LINK_START + " $1" + " $2 " + LINK_END);
 	}
 
 	private static int getGapEndIndex(String text, int gapIndex) {
@@ -214,15 +225,17 @@ public class WCAGUtils {
 		String text = getCleanText(model.getOriginalText());
 		ArrayList<String> result = new ArrayList<String>();
 
-		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0) {
+		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0 || text.indexOf(LINK_START) >= 0) {
 			final int gapIndex = text.indexOf(GAP_START);
 			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
 			final int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
-			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex);
+			final int linkIndex = text.indexOf(LINK_START);
+			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex, linkIndex);
 			
 			final boolean isClosestGap = lowestIndex == gapIndex;
 			final boolean isClosestFilledGap = lowestIndex == filledGapIndex;
 			final boolean isClosestDropdown = lowestIndex == dropdownIndex;
+			final boolean isClosestLink = lowestIndex == linkIndex;
 			
 			if (isClosestGap) {
 				result.add("gap");
@@ -244,14 +257,24 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, lowestIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
+
+			if (isClosestLink) {
+				result.add("link");
+				
+				final int endGapIndex = text.indexOf(LINK_END, lowestIndex) + LINK_END.length();
+				text = text.substring(endGapIndex);
+			}
 		}
 		
 		return result;
 	}
-	
+
 	public static boolean hasGaps (TextModel model) {
 		String text = getCleanText(model.getOriginalText());
 		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
 	}
 
+	public static boolean hasLinks(TextModel model) {
+		return model.getOriginalText().contains("href");
+	}
 }
