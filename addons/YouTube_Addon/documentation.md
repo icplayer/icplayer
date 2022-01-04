@@ -24,6 +24,18 @@ The YouTube addon allows you to add a YouTube video to a presentation. It can be
         <td>Offline message</td>
         <td>This message will be displayed instead of a video when the Internet connection is offline.</td>
     </tr>
+    <tr>
+        <td>Disable fullscreen</td>
+        <td>If checked displaying video in fullscreen is disabled.</td>
+    </tr>
+    <tr>
+        <td>Time start</td>
+        <td>Value in seconds, equal or greater than 0 that determines time of video start. If video should start from the beginning then leave empty or set to 0.</td>
+    </tr>
+    <tr>
+        <td>Autoplay</td>
+        <td>If checked video will start automatically. Note: the sound is muted.</td>
+    </tr>
 </table>
 
 
@@ -85,6 +97,10 @@ YouTube addon doesn't expose any CSS classes because its internal structure shou
     <tr>
         <td>URL seems to be incorrect. It must contain a video ID!</td>
         <td>It's a common mistake to set a video URL without a video ID. If this is the case, then this error message will be shown</td>
+    </tr>
+    <tr>
+        <td>Incorrect video time start - value must be number equal or greater than 0</td>
+        <td>This error is shown when value is less than 0 or contains characters/string instead of valid number equal or greater than 0.</td>
     </tr>
 </table>
 

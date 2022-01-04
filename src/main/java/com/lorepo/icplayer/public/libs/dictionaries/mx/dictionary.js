@@ -1384,6 +1384,8 @@ var ice_dictionary_mx = {
 	"YouTube_Addon_property_url": "URL",
 	"YouTube_Addon_property_offline_message": "Mensaje para modo offline",
     "YouTube_Addon_property_disable_fullscreen" : "Inhabilitar pantalla completa",
+	"YouTube_Addon_property_time_start": "Time start",
+	"YouTube_Addon_property_autoplay": "Autoplay",
 	"error_counter_info": "Muestra el número de errores cometidos en la página actual de la presentación.",
 	"check_counter_info": "Muestra el número de veces que el botón de Comprobación de respuestas ha sido utilizado en la página actual.",
 	"lesson_report_info": " Permite insertar un reporte de la lección, incluyendo los resultados porcentuales de cada página de la presentación, el resultado porcentual total, así como el número de comprobaciones y errores. Es posible modificar el aspecto de cada parte del reporte de manera individual.",
