@@ -65,7 +65,7 @@
             return;
         }
         if (!timeStart.isValid) {
-            showErrorMessage(viewContainer, "Incorrect video time start - value must be number equal or greater than 0");
+            showErrorMessage(viewContainer, "Incorrect video time start - value must be number greater than 0");
             return;
         }
 

@@ -30,7 +30,7 @@ The YouTube addon allows you to add a YouTube video to a presentation. It can be
     </tr>
     <tr>
         <td>Time start</td>
-        <td>Value in seconds, equal or greater than 0 that determines time of video start. If video should start from the beginning then leave empty or set to 0.</td>
+        <td>Value in seconds, greater than 0 that determines time of video start. If video should start from the beginning then leave field empty.</td>
     </tr>
     <tr>
         <td>Autoplay</td>
@@ -99,8 +99,8 @@ YouTube addon doesn't expose any CSS classes because its internal structure shou
         <td>It's a common mistake to set a video URL without a video ID. If this is the case, then this error message will be shown</td>
     </tr>
     <tr>
-        <td>Incorrect video time start - value must be number equal or greater than 0</td>
-        <td>This error is shown when value is less than 0 or contains characters/string instead of valid number equal or greater than 0.</td>
+        <td>Incorrect video time start - value must be number greater than 0</td>
+        <td>This error is shown when value is equal or less than 0 or contains characters/string instead of valid number greater than 0.</td>
     </tr>
 </table>
 
