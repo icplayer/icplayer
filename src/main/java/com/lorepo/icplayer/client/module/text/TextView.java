@@ -93,6 +93,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void addElement(TextElementDisplay el) {
 		textElements.add(el);
+		navigationTextElements.add((NavigationTextElement) el);
 	}
 
 	@Override
@@ -720,7 +721,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void readTextContent () {
-		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.textElements, this.module.getLangAttribute());
+		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.navigationTextElements, this.module.getLangAttribute());
 		this.speak(result);
 	}
 	
@@ -817,6 +818,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
 		
 		if (element.getElementType() == "link") {
+			content.add(TextToSpeechVoice.create(getLinkTitle(element)));
 			return content;
 		}
 
@@ -841,6 +843,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		return content;
+	}
+
+	private String getLinkTitle(NavigationTextElement element) {
+		LinkWidget linkWidget = (LinkWidget) element;
+		String href = linkWidget.getHref();
+		String text = this.module.getOriginalText();
+		int hrefIndex = text.indexOf(href);
+		text = text.substring(hrefIndex);
+		int endTagLink = text.indexOf("</a>");
+
+		return text.substring((href.length() + 2), endTagLink).trim();
 	}
 
 	private TextToSpeechVoice getCorrectnessFeedback(int gapState) {

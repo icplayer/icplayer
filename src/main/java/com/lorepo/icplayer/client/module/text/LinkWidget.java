@@ -43,7 +43,16 @@ public class LinkWidget extends Anchor implements NavigationTextElement{
 		return "link";
 	}
 
+	@Override
+	public String getLangTag() {
+		return null;
+	}
+
 	protected LinkInfo getLinkInfo() {
 		return linkInfo;
+	}
+
+	public String getHref() {
+		return linkInfo.getHref();
 	}
 }
