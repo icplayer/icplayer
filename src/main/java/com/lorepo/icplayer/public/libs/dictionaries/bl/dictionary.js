@@ -1378,6 +1378,8 @@ var ice_dictionary_bl = {
 	"YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Съобщение при неуспешна интернет връзка",
     "YouTube_Addon_property_disable_fullscreen" : "Излез от цял екран",
+	"YouTube_Addon_property_time_start": "Time start",
+	"YouTube_Addon_property_autoplay": "Autoplay",
 	"error_counter_info": "Показва броя грешки, направени на конкретна страница от презентацията.",
 	"check_counter_info": "Показва колко пъти е бил натиснат бутона за проверка на конкретна страница.",
 	"lesson_report_info": "Позволява вмъкването на доклад за урока, в който са включени резултати в проценти за всяка страница на презентацията, общ резултат в проценти и брой проверки и грешки. Възможна е промяната на стила на всяка част от доклада поотделно.",
