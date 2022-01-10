@@ -22,7 +22,6 @@ import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
 import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
 import {AudioPlayer} from "./player/AudioPlayer.jsm";
 import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButton.jsm";
-import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 
 export class MediaRecorder {
 
@@ -131,7 +130,6 @@ export class MediaRecorder {
         this.mediaAnalyserService.destroy();
         this.addonState.destroy();
         this.mediaState.destroy();
-        this.safariRecorderState.destroy();
         this.activationState.destroy();
 
         this.viewHandlers = null;
@@ -251,7 +249,6 @@ export class MediaRecorder {
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
         this.addonState = new AddonState();
-        this.safariRecorderState = new SafariRecorderState();
     }
 
     _loadViewHandlers(view) {
@@ -409,17 +406,13 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
-            if (this.safariRecorderState.isAvailableResources()) {
-                const stream = this.resourcesProvider.getStream();
-                this._handleRecording(stream);
-            } else if (this.platform === 'mlibro') {
+            if (this.platform === 'mlibro') {
                 this._handleMlibroStartRecording();
             } else {
                 this.resourcesProvider.getMediaResources().then(stream => {
                     const isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-                    if (isSafari && this.safariRecorderState.isUnavailableResources()) {
-                        this._handleSafariRecordingInitialization();
-                        return;
+                    if (isSafari) {
+                        this.mediaState.setBlockedSafari();
                     }
                     this._handleRecording(stream);
                 });
@@ -448,7 +441,6 @@ export class MediaRecorder {
                         });
                 }
                 this.resourcesProvider.destroy();
-                this.safariRecorderState.setUnavailableResources();
             }
             if (this.model.extendedMode) {
                 if (this.model.disableRecording) {
@@ -751,12 +743,6 @@ export class MediaRecorder {
         return false;
     }
 
-    _handleSafariRecordingInitialization() {
-        this.mediaState.setBlockedSafari();
-        this.safariRecorderState.setAvailableResources();
-        this.recordButton.setUnclickView();
-        alert(Errors["safari_select_recording_button_again"]);
-    }
 
     _loadWebViewMessageListener() {
         window.addEventListener('message', event => {
