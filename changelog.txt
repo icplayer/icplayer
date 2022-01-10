@@ -1,5 +1,6 @@
 2022-01-10 Fixed issue with module ids including non-letter/number signs
 2022-01-04 Added new properties to youtube addon - time video starts and autoplay checkbox
+2021-12-27 Fix visibility of TextColoring on reset and restoring by state
 2021-12-15 Added event on blur in Paragraph Keyboard addon
 2021-12-14 Added audio speed controller to Audio Playlist
 2021-12-14 Prevent from adding the dragging class to checked element in Multiple Gap
