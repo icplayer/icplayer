@@ -18,6 +18,7 @@ public class TextViewMockup implements IDisplay {
 	private HashMap<String, String> values = new HashMap<String, String>();
 	private int refreshMathCallCount = 0;
 	private int refreshGapMathCallCount = 0;
+	private GapWidget gapWidget;
 
 	public TextViewMockup(TextModel module) {
 		// TODO Auto-generated constructor stub
@@ -92,8 +93,8 @@ public class TextViewMockup implements IDisplay {
 
 	@Override
 	public TextElementDisplay getChild(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		//its mocked just for testing purpose; index doesnt matter; to set gapWidget use setGapWidget method
+		return gapWidget;
 	}
 
 	@Override
@@ -217,4 +218,7 @@ public class TextViewMockup implements IDisplay {
 		return null;
 	}
 
+    public void setGapWidget(GapWidget gw) {
+        gapWidget = gw;
+    }
 }
