@@ -235,6 +235,10 @@ public class JavaScriptPlayerServices {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageById(Ljava/lang/String;)(id);
 			}
 
+			commands.setAllPagesAsVisited = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAllPagesAsVisited()();
+			}
+
 			return commands;
 		};
 
@@ -1008,5 +1012,10 @@ public class JavaScriptPlayerServices {
 	private void clearVisitedPages() {
 	    this.playerServices.clearVisitedPages();
 	    playerServices.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));
+	}
+
+	private void setAllPagesAsVisited() {
+		this.playerServices.getCommands().setAllPagesAsVisited();
+		playerServices.getEventBusService().sendEvent("visitedPagesUpdate", JavaScriptObject.createObject());
 	}
 }

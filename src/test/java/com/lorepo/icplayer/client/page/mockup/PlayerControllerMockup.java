@@ -321,4 +321,9 @@ public class PlayerControllerMockup implements IPlayerController {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setAllPagesAsVisited() {
+
+	}
 }
