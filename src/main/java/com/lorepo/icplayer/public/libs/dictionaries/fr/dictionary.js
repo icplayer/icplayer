@@ -1385,6 +1385,8 @@ var ice_dictionary_fr = {
     "YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Message hors ligne",
     "YouTube_Addon_property_disable_fullscreen" : "Disable fullscreen",
+    "YouTube_Addon_property_time_start": "Time start",
+    "YouTube_Addon_property_autoplay": "Autoplay",
     "error_counter_info": "Indique le nombre d'erreurs faites dans la page affichée.",
     "check_counter_info": "Indique le nombre de fois où l'on a cliqué sur le bouton Vérifier de la page affichée.",
     "lesson_report_info": "Permet d'insérer un rapport de leçon préprogrammé, avec les résultats en pourcentage pour chaque page de la présentation, le résultat total, et le nombre de fois où l'on a cliqué sur le bouton Vérifier et le nombre d'erreurs commises lors de la réalisation de l'activité. Il est possible de modifier l'apparence de chaque élément du rapport individuellement.",
@@ -2152,5 +2154,8 @@ var ice_dictionary_fr = {
 	"Scoreboard_default_teams_list": "Initial list of teams",
 	"Scoreboard_property_name": "Team name",
 	"Scoreboard_property_color": "Team colour",
-	"Scoreboard_maximum_teams_count": "Maximum number of teams"
+	"Scoreboard_maximum_teams_count": "Maximum number of teams",
+    "NestedAddon_addon_id": "Addon id",
+    "NestedAddon_insert_addon": "Insert nested addon",
+    "NestedAddon_add_addon": "Add addon"
 };

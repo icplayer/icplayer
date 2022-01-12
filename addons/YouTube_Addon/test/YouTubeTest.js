@@ -179,5 +179,86 @@ TestCase("YouTube Test", {
         assertBoolean(methodResult.isError);
         assertEquals(ERROR_MESSAGE, methodResult.errorMessage);
         assertEquals('-1', methodResult.videoID);
+    },
+
+    'test time start empty returns valid time with value 0': function () {
+        var expected = {
+            isValid: true,
+            value: 0
+        };
+
+        var result = this.presenter.decodeTimeStart("");
+
+        assertEquals(expected.isValid, result.isValid);
+        assertEquals(expected.value, result.value);
+    },
+
+    'test time start whitespace string returns valid time with value 0': function () {
+        var expected = {
+            isValid: true,
+            value: 0
+        };
+
+        var result = this.presenter.decodeTimeStart("                     ");
+
+        assertEquals(expected.isValid, result.isValid);
+        assertEquals(expected.value, result.value);
+    },
+
+    'test time start string text value returns isValid false': function () {
+        var expected = {
+            isValid: false
+        };
+
+        var result = this.presenter.decodeTimeStart("someexample");
+
+        assertEquals(expected.isValid, result.isValid);
+    },
+
+    'test time start proper value with whitespace returns valid with correct time': function () {
+        var value = 60;
+        var expected = {
+            isValid: true,
+            value: value
+        };
+
+        var result = this.presenter.decodeTimeStart(`   ${value}         `);
+
+        assertEquals(expected.isValid, result.isValid);
+        assertEquals(expected.value, result.value);
+    },
+
+    'test time start proper value returns valid with correct value': function () {
+        var expected = {
+            isValid: true,
+            value: "60"
+        };
+
+        var result = this.presenter.decodeTimeStart(expected.value);
+
+        assertEquals(expected.isValid, result.isValid);
+        assertEquals(expected.value, result.value);
+    },
+
+    'test getUrlParams when autoplay is off and timestart is 0': function () {
+        var autoplay = false;
+        var timestart = 0;
+
+        var expected = "?enablejsapi=1&start=0&autoplay=0&mute=0";
+
+        var result = this.presenter.getUrlParams(autoplay, timestart);
+
+        assertEquals(expected, result);
+    },
+
+    'test getUrlParams when autoplay is on and timestart is 300': function () {
+        var autoplay = true;
+        var timestart = 300;
+
+        var expected = "?enablejsapi=1&start=300&autoplay=1&mute=1";
+
+        var result = this.presenter.getUrlParams(autoplay, timestart);
+
+        assertEquals(expected, result);
     }
 });

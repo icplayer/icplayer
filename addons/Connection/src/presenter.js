@@ -319,6 +319,23 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
+    presenter.parseAddonGaps = function (model) {
+        //This method is only needed in preview, in normal mode text parser will handle addon gaps
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var el = model["Left column"][i];
+            el.content = parseAddonGapsInContent(el.content);
+        }
+        for (var i = 0; i < model["Right column"].length; i++) {
+            var el = model["Right column"][i];
+            el.content = parseAddonGapsInContent(el.content);
+        }
+        return model;
+    };
+
+    function parseAddonGapsInContent (text) {
+        return text.replace(/\\addon{([^\s-]*?)}/g, '<div id="addonGap-$1">$1</div>');
+    }
+
     presenter.removeNonVisibleInnerHTML = function () {
         presenter.removeNonVisibleInnerHTMLForRoot($(presenter.view));
 
@@ -395,6 +412,7 @@ function AddonConnection_create() {
 
     presenter.createPreview = function (view, model) {
         presenter.view = view;
+        model = presenter.parseAddonGaps(model);
         presenter.model = model;
         presenter.initialize(presenter.view, presenter.model, true);
     };
@@ -895,6 +913,7 @@ function AddonConnection_create() {
                             return false;
                         }
                         ui.helper.css("visibility", "hidden");
+                        ui.helper.find(".inner_addon").css("display","none");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
 

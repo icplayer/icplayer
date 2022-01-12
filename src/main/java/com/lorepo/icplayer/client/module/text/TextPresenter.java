@@ -384,6 +384,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
     		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 		}
 
+        HashMap<String, String> hasBeenAccessed = new HashMap<String, String>();
+		for (int i=0; i < view.getChildrenCount(); i++) {
+		    if (view.getChild(i) instanceof GapWidget) {
+                GapWidget gw = (GapWidget) view.getChild(i);
+                if (gw.hasGapBeenAccessed()) {
+                    hasBeenAccessed.put(gw.getId(), "true");
+                }
+		    }
+		}
+		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
+
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -457,6 +468,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} else {
 			view.hide();
 		}
+
+        HashMap<String, String> hasBeenAccessed = null;
+		if (state.containsKey("hasBeenAccessed")) {
+		    hasBeenAccessed = JSONUtils.decodeHashMap(state.get("hasBeenAccessed"));
+			if(hasBeenAccessed != null){
+			    for (String key: hasBeenAccessed.keySet()) {
+			        String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+			        GapWidget gw = getGapWidgetFromGapId(newKey);
+			        gw.markGapAsAccessed();
+                    restoreGapVisitedState(newKey);
+			    }
+			}
+		}
 	}
 
 	@Override
@@ -474,7 +498,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap).trim();
-			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue) && !gap.isTextOnlyPlaceholder(enteredValue, module.ignoreDefaultPlaceholderWhenCheck())) {
+			if (isGapCheckable(gap) && !enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
 		}
@@ -586,7 +610,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap);
-			if(gap.isCorrect(enteredValue)){
+			if(isGapCheckable(gap) && gap.isCorrect(enteredValue)) {
 				score += gap.getValue();
 			}
 		}
@@ -714,6 +738,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			@Override
 			public void onGapFocused(String gapId, Element element) {
+                markGapAsAccessed(gapId);
 				gapFocused(gapId, element);
 			}
 
@@ -885,6 +910,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				input.setValue(gap.getPlaceHolder());
 			}
 		}
+		values.put(gapId, input.getValue());
+	}
+
+	protected void markGapAsAccessed(String gapId) {
+        GapWidget gw = getGapWidgetFromGapId(gapId);
+        if (!gw.hasGapBeenAccessed()) {
+            gw.markGapAsAccessed();
+        }
 	}
 
 	private native String replaceNumbersOnly(String value) /*-{
@@ -939,9 +972,26 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
 
-		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (!module.ignoreDefaultPlaceholderWhenCheck() && enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
+	}
+
+	private void restoreGapVisitedState(String gapId) {
+	   InputElement input = DOM.getElementById(gapId).cast();
+	   String enteredValue = input.getValue();
+       GapInfo gap = getGapInfoById(gapId);
+       String placeholder = gap.getPlaceHolder();
+
+       if (!enteredValue.equals(placeholder)) {
+           return;
+       }
+
+	   if (module.ignoreDefaultPlaceholderWhenCheck()) {
+		   input.setValue(placeholder);
+       } else {
+           input.setValue("");
+       }
 	}
 
 	private GapInfo getGapInfoById(String gapId) {
@@ -1547,4 +1597,24 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return view.getScoreWithMetadata();
 	}
 
+	private GapWidget getGapWidgetFromGapId(String gapId) {
+	    GapWidget gw = null;
+	    for (int i=0; i < view.getChildrenCount(); i++) {
+	        TextElementDisplay child = view.getChild(i);
+            if (gapId.equalsIgnoreCase(child.getId()) && child instanceof GapWidget ) {
+	            gw = (GapWidget) view.getChild(i);
+	            break;
+	        }
+	    }
+
+        return gw;
+	}
+
+	private boolean isGapCheckable(GapInfo gap) {
+	    GapWidget gw = getGapWidgetFromGapId(gap.getId());
+	    if (gw == null) {
+	        return true;
+	    }
+	    return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	}
 }

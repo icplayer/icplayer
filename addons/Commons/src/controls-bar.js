@@ -110,7 +110,7 @@
     @return {null}
     */
     CustomControlsBar.prototype.volumeBarClicked = function (e) {
-        var actualPosition = (e.clientX - cumulativeOffset(this.elements.volumeBarWrapper.element).left);
+        var actualPosition = e.offsetX;
         var percent = (actualPosition * 100) / this.elements.volumeBackground.element.offsetWidth;
         for (var i = 0; i < this.volumeChangedCallbacks.length; i++) {
             this.volumeChangedCallbacks[i](percent);

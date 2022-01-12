@@ -36,7 +36,8 @@ function AddonAudioPlaylist_create() {
         volumeWrapperExpanded: 'addon-audio-playlist-volume-wrapper--expanded',
         volumeBar: 'addon-audio-playlist-volume-bar',
         volumeBarHidden: 'addon-audio-playlist-volume-bar--hidden',
-        volumeBarFill: 'addon-audio-playlist-volume-bar-fill'
+        volumeBarFill: 'addon-audio-playlist-volume-bar-fill',
+        audioSpeedController: 'audio-speed-controller'
     };
 
     var eventNames = {
@@ -46,6 +47,7 @@ function AddonAudioPlaylist_create() {
         next: "next"
     };
 
+    presenter.playbackRate = 1.0;
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.wrapper = null;
@@ -62,7 +64,8 @@ function AddonAudioPlaylist_create() {
         items: null,
         volumeWrapper: null,
         volumeBar: null,
-        volumeBarFill: null
+        volumeBarFill: null,
+        audioSpeedController: null
     };
 
     presenter.dragData = {
@@ -97,8 +100,10 @@ function AddonAudioPlaylist_create() {
     };
 
     presenter.initialize = function AddonAudioPlaylist_initialize(view, model, isPreview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
         presenter.view = view;
-        var validatedModel = presenter.validateModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
         this.assignViewItems(view);
 
         if (!validatedModel.isValid) {
@@ -122,6 +127,23 @@ function AddonAudioPlaylist_create() {
         updateBallPosition();
         presenter.selectItem(this.state.currentItemIndex);
     };
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradePlaybackSpeedControls(model);
+
+        return upgradedModel;
+    }
+
+    presenter.upgradePlaybackSpeedControls = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('Enable audio speed controller')) {
+            upgradedModel['Enable audio speed controller'] = 'False';
+        }
+
+        return upgradedModel;
+    }
 
     presenter.getViewItemsWithClickAndTouchHandlers = function AddonAudioPlaylist_getViewItemsWithClickAndTouchHandlers() {
         return [
@@ -248,7 +270,9 @@ function AddonAudioPlaylist_create() {
                     ModelValidators.utils.FieldRename("Ogg", "ogg", ModelValidators.String("ogg", {default: ""}))
                 ])
             ),
-            ModelValidators.utils.FieldRename("Stop playing", "stopPlaying", ModelValidators.Boolean("stopPlaying"))
+            ModelValidators.utils.FieldRename("Stop playing", "stopPlaying", ModelValidators.Boolean("stopPlaying")),
+            ModelValidators.utils.FieldRename("Enable audio speed controller", "enableAudioSpeedController",
+                ModelValidators.Boolean("enableAudioSpeedController", {default: false}))
         ]);
     };
 
@@ -261,7 +285,8 @@ function AddonAudioPlaylist_create() {
             'stop': presenter.stop,
             'jumpTo': presenter.changeItem,
             'previous': presenter.prev,
-            'next': presenter.next
+            'next': presenter.next,
+            'setPlaybackRate': presenter.setPlaybackRate
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -279,6 +304,7 @@ function AddonAudioPlaylist_create() {
             presenter.viewItems.playPauseButton.classList.add(classList.pauseButton);
             presenter.items[presenter.state.currentItemIndex].button.classList.add(classList.itemPlay);
             presenter.state.isPlaying = true;
+            presenter.audio.playbackRate = presenter.playbackRate;
         }
     };
 
@@ -305,6 +331,15 @@ function AddonAudioPlaylist_create() {
         }
     };
 
+    presenter.setPlaybackRate = function (value) {
+        if (!presenter.audio) return;
+        if (isNaN(value)) return;
+        var parsedValue = parseFloat(value);
+        presenter.playbackRate = parsedValue;
+        presenter.audio.playbackRate = parsedValue;
+        displayPlaybackRate();
+    };
+
     presenter.assignViewItems = function (view) {
         presenter.wrapper = view.getElementsByClassName(classList.addonWrapper)[0];
         presenter.viewItems = {
@@ -321,9 +356,54 @@ function AddonAudioPlaylist_create() {
             items: view.getElementsByClassName(classList.items)[0],
             volumeWrapper: view.getElementsByClassName(classList.volumeWrapper)[0],
             volumeBar: view.getElementsByClassName(classList.volumeBar)[0],
-            volumeBarFill: view.getElementsByClassName(classList.volumeBarFill)[0]
+            volumeBarFill: view.getElementsByClassName(classList.volumeBarFill)[0],
+            audioSpeedController: view.getElementsByClassName(classList.audioSpeedController)[0]
         };
     };
+
+    function createPlaybackRateSelectElement() {
+        var $select = $('<select>');
+        var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+        for (var i = 0; i < playbackRateList.length; i++) {
+            var $option = $('<option>');
+            $option.text(playbackRateList[i]);
+            $option.attr('value', playbackRateList[i]);
+            if (playbackRateList[i] === 1.0) {
+                $option.attr('selected', 'selected');
+            }
+            $select.append($option);
+        }
+
+        $select.on('change', function(){
+            presenter.setPlaybackRate($select.val());
+        })
+
+        $(presenter.viewItems.audioSpeedController).append($select);
+    }
+
+    function displayPlaybackRate () {
+        $(presenter.viewItems.audioSpeedController).css('display', 'block');
+
+        var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+        var $select = $(presenter.viewItems.audioSpeedController).find('select');
+        if ($select.val() === presenter.playbackRate) {
+            if (playbackRateList.indexOf(presenter.playbackRate) !== -1) {
+                $select.find('.custom-option').remove();
+            }
+            return;
+        }
+        $select.find('.custom-option').remove();
+        if (playbackRateList.indexOf(presenter.playbackRate) !== -1) {
+            $select.val(presenter.playbackRate);
+        } else {
+            var $customOption = $('<option>');
+            $customOption.text(presenter.playbackRate);
+            $customOption.attr('value', presenter.playbackRate);
+            $customOption.addClass('custom-option');
+            $select.append($customOption);
+            $select.val(presenter.playbackRate);
+        }
+    }
 
     presenter.showValidationError = function AddonAudioPlaylist_showValidationError(errorModel) {
         presenter.viewItems.mainController.style.visibility = "hidden";
@@ -339,6 +419,11 @@ function AddonAudioPlaylist_create() {
         presenter.items.forEach(function (item) {
             presenter.viewItems.items.appendChild(item.row);
         });
+
+        if (presenter.configuration.enableAudioSpeedController) {
+            createPlaybackRateSelectElement();
+            displayPlaybackRate();
+        }
     };
 
     presenter.selectItem = function AddonAudioPlaylist_selectItem(index) {

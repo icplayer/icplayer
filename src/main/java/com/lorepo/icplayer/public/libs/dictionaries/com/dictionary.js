@@ -1385,6 +1385,8 @@ var ice_dictionary_en = {
 	"YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Offline message",
     "YouTube_Addon_property_disable_fullscreen" : "Disable fullscreen",
+	"YouTube_Addon_property_time_start": "Time start",
+	"YouTube_Addon_property_autoplay": "Autoplay",
 	"error_counter_info": "Displays the number of mistakes made on a current presentation page.",
 	"check_counter_info": "Displays the number of times the Check button has been used on a current page.",
 	"lesson_report_info": "Enables to insert a ready-made lesson report, including percentage results for each individual page in a presentation, a total percentage result, and a number of checks and errors. It is possible to modify the look of each part of the report individually.",
@@ -2174,5 +2176,8 @@ var ice_dictionary_en = {
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
 		"Scoreboard_property_color": "Team colour",
-		"Scoreboard_maximum_teams_count": "Maximum number of teams"
+		"Scoreboard_maximum_teams_count": "Maximum number of teams",
+    "NestedAddon_addon_id": "Addon id",
+    "NestedAddon_insert_addon": "Insert nested addon",
+    "NestedAddon_add_addon": "Add addon"
 };

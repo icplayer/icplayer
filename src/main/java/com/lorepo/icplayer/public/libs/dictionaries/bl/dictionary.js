@@ -1379,6 +1379,8 @@ var ice_dictionary_bl = {
 	"YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Съобщение при неуспешна интернет връзка",
     "YouTube_Addon_property_disable_fullscreen" : "Излез от цял екран",
+	"YouTube_Addon_property_time_start": "Time start",
+	"YouTube_Addon_property_autoplay": "Autoplay",
 	"error_counter_info": "Показва броя грешки, направени на конкретна страница от презентацията.",
 	"check_counter_info": "Показва колко пъти е бил натиснат бутона за проверка на конкретна страница.",
 	"lesson_report_info": "Позволява вмъкването на доклад за урока, в който са включени резултати в проценти за всяка страница на презентацията, общ резултат в проценти и брой проверки и грешки. Възможна е промяната на стила на всяка част от доклада поотделно.",
@@ -2171,5 +2173,8 @@ var ice_dictionary_bl = {
 	"Scoreboard_default_teams_list": "Initial list of teams",
 	"Scoreboard_property_name": "Team name",
 	"Scoreboard_property_color": "Team colour",
-	"Scoreboard_maximum_teams_count": "Maximum number of teams"
+	"Scoreboard_maximum_teams_count": "Maximum number of teams",
+	"NestedAddon_addon_id": "Addon id",
+	"NestedAddon_insert_addon": "Insert nested addon",
+	"NestedAddon_add_addon": "Add addon"
 };
