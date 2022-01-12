@@ -1358,6 +1358,7 @@ var ice_dictionary_fr = {
 	"video_property_description_enabled": "Audio description enabled",
 	"video_property_description_disabled": "Audio description disabled",
 	"video_property_offline_message": "Offline message",
+    "enable_video_speed_controller": "Enable video speed controller",
     "WritingCalculations_info": "Permet de créer des activités de maths qui incluent des opérations : multiplication, division, addition et soustraction.",
     "WritingCalculations_name": "Ecrire des calculs",
     "WritingCalculations_property_value": "Valeur",

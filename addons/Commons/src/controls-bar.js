@@ -218,6 +218,9 @@
                 if (this.actualTime > this.configuration.mouseDontMoveClocks) {
                     this.hideControls();
                 }
+                if (this.actualTime > this.configuration.mouseDontMoveOnPlaybackRate) {
+                    this.isSelectorOpen = false;
+                }
                 this.actualTime++;
             }
         }
@@ -400,10 +403,11 @@
 
         $(select).on('change', function() {
             callback($(select).val());
+            self.hideControls();
         });
 
-        $(select).on('click', function() {
-            self.isSelectorOpen = true;
+        $(select).on('mousedown', function() {
+            self.isSelectorOpen = !self.isSelectorOpen;
         });
 
         return select;
@@ -850,6 +854,7 @@
 
     function getBasicConfiguration () {
         return {
+            mouseDontMoveOnPlaybackRate: 10,
             mouseDontMoveClocks: 30,
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 0,
