@@ -53,6 +53,8 @@
         presenter.isVisibleByDefault = presenter.isVisible;
         presenter.disableFullscreen = ModelValidationUtils.validateBoolean(model['Disable Fullscreen']);
 
+        var isAutoplay = ModelValidationUtils.validateBoolean(model['Autoplay']);
+        var timeStart = presenter.decodeTimeStart(model['Time start'] || "");
         var viewContainer = $(view);
         var decodedVideoID = presenter.decodeVideoID(model.URL, model.ID);
 
@@ -60,49 +62,56 @@
 
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
+            return;
+        }
+        if (!timeStart.isValid) {
+            showErrorMessage(viewContainer, "Incorrect video time start - value must be number greater than 0");
+            return;
+        }
+
+        if (isPreview) {
+            createVideoThumbnailAsync(decodedVideoID.videoID, viewContainer, width, height);
         } else {
-            if (isPreview) {
-                createVideoThumbnailAsync(decodedVideoID.videoID, viewContainer, width, height);
+            presenter.setVisibility(presenter.isVisible);
+            var src = '${protocol}://www.youtube.com/embed/${video_id}';
+            src = src.replace("${video_id}", decodedVideoID.videoID);
+
+            //Protocol (HTTP or HTTPS)
+            var myProtocol = window.location.protocol;
+            myProtocol = myProtocol.replace(":","");
+            var httsStr = model.HTTPS;
+            var protocol = httsStr === 'True' ? 'https' : 'http';
+
+            if (myProtocol == 'https' || protocol == 'http') {
+                src = src.replace("${protocol}", myProtocol);
             } else {
-                presenter.setVisibility(presenter.isVisible);
-                var src = '${protocol}://www.youtube.com/embed/${video_id}';
-                src = src.replace("${video_id}", decodedVideoID.videoID);
+                src = src.replace("${protocol}", protocol);
+            }
 
-                //Protocol (HTTP or HTTPS)
-                var myProtocol = window.location.protocol;
-                myProtocol = myProtocol.replace(":","");
-                var httsStr = model.HTTPS;
-                var protocol = httsStr === 'True' ? 'https' : 'http';
+            var url = src + presenter.getUrlParams(isAutoplay, timeStart.value);
 
-                if (myProtocol == 'https' || protocol == 'http') {
-                    src = src.replace("${protocol}", myProtocol);
-                } else {
-                    src = src.replace("${protocol}", protocol);
-                }
+            var iframe = document.createElement('iframe');
+            $(iframe).attr('id', 'ytIframe');
+            $(iframe).attr('frameborder', '0');
+            $(iframe).attr('src', url);
+            $(iframe).attr('width', parseInt(width, 10) + 'px');
+            $(iframe).attr('height', parseInt(height, 10) + 'px');
 
-                var iframe = document.createElement('iframe');
-                $(iframe).attr('id', 'ytIframe');
-                $(iframe).attr('frameborder', '0');
-                $(iframe).attr('src', src + "?enablejsapi=1");
-                $(iframe).attr('width', parseInt(width, 10) + 'px');
-                $(iframe).attr('height', parseInt(height, 10) + 'px');
+            if(!presenter.disableFullscreen){
+                $(iframe).attr("allowfullscreen","allowfullscreen");
+            }
 
-                if(!presenter.disableFullscreen){
-                    $(iframe).attr("allowfullscreen","allowfullscreen");
-                }
-
-                if(doesConnectionExist()){
-                    viewContainer.html(iframe);
+            if(doesConnectionExist()){
+                viewContainer.html(iframe);
+            }else{
+                var offlineDiv = document.createElement('div');
+                $(offlineDiv).addClass('offline-message');
+                if(model['Offline message']){
+                    $(offlineDiv).text(model['Offline message']);
+                    viewContainer.html(offlineDiv);
                 }else{
-                    var offlineDiv = document.createElement('div');
-                    $(offlineDiv).addClass('offline-message');
-                    if(model['Offline message']){
-                        $(offlineDiv).text(model['Offline message']);
-                        viewContainer.html(offlineDiv);
-                    }else{
-                        $(offlineDiv).text('No connection to the Internet');
-                        viewContainer.html(offlineDiv);
-                    }
+                    $(offlineDiv).text('No connection to the Internet');
+                    viewContainer.html(offlineDiv);
                 }
             }
         }
@@ -183,6 +192,22 @@
         methodResult.videoID = videoID;
  
         return methodResult;
+    };
+
+    presenter.decodeTimeStart = function (timeStart) {
+        if (ModelValidationUtils.isStringEmpty(timeStart.trim())) {
+            return {
+                isValid: true,
+                value: 0
+            };
+        }
+
+        return ModelValidationUtils.validatePositiveInteger(timeStart);
+    };
+
+    presenter.getUrlParams = function (isAutoplay, timeStart) {
+        var autoplay = isAutoplay ? 1 : 0;
+        return `?enablejsapi=1&start=${timeStart}&autoplay=${autoplay}&mute=${autoplay}`;
     };
 
      presenter.setVisibility = function (isVisible) {

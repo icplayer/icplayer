@@ -1383,6 +1383,8 @@ var ice_dictionary_pl = {
 	"YouTube_Addon_property_url": "URL",
     "YouTube_Addon_property_offline_message" : "Komunikat o braku połączenia z Internetem",
     "YouTube_Addon_property_disable_fullscreen" : "Wyłącz tryb pełnoekranowy",
+	"YouTube_Addon_property_time_start": "Time start",
+	"YouTube_Addon_property_autoplay": "Autoplay",
 	"error_counter_info" : "Wyświetla liczbę błędów popełnionych na bieżącej stronie prezentacji.",
 	"check_counter_info" : "Wyświetla liczbę wskazującą ile razy wybrano przycisk Sprawdź na bieżącej stronie prezentacji.",
 	"lesson_report_info" : "Pozwala na dodanie do prezentacji gotowego raportu lekcji z uwzględnieniem wyników procentowych dla poszczególnych stron, wyniku całkowitego, liczby błędów i sprawdzeń. Możliwe jest indywidualne dostosowanie wyglądu dla każdej części raportu.",
