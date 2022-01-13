@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 
 public class WCAGUtils {
@@ -238,12 +239,17 @@ public class WCAGUtils {
 				text = text.substring(endBreakIndex);
 			}
 			if (isClosestLink) {
-				gapNumber++;
+				JavaScriptUtils.log("isClosestLink");
 				text = text.trim();
 				int endLinkTagIndex = text.indexOf(LINK_END);
-				String linkName = text.substring(LINK_START.length(), endLinkTagIndex);
-
-				result.add(TextToSpeechVoice.create("Link " + linkName.trim(), lang));
+				String linkName = text.substring(linkIndex + LINK_START.length(), endLinkTagIndex);
+				
+				if (linkIndex > 1) {
+					result.add(TextToSpeechVoice.create(text.substring(0, linkIndex - 1), lang));                           // text before gap
+				}
+				result.add(TextToSpeechVoice.create("Link" + " " + gapNumber++));
+				
+				result.add(TextToSpeechVoice.create(linkName.trim(), lang));
 				final int endGapIndex =  text.indexOf(LINK_END, linkIndex) + LINK_END.length();
 				text = text.substring(endGapIndex);
 			}

@@ -25,6 +25,7 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElemen
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 import java.util.*;
 
@@ -532,7 +533,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					moduleHasFocus = true;
 				}
 			}
-
+			JavaScriptUtils.log("readTextContent");
 			this.readTextContent();
 		}
 	}
@@ -555,7 +556,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		if (clicks < 0) {
 			clicks = 0;
 		}
-		
+
+		JavaScriptUtils.log("Clicks " + clicks);
 		NavigationTextElement activeElement = navigationTextElements.get(clicks);
 		this.activatedNavigationElement = activeElement;
 		activeElement.setElementFocus(true);
