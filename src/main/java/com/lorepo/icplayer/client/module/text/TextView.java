@@ -286,7 +286,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<NavigationTextElement> textElements) {
+	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<NavigationTextElement> navigationTextElements) {
 		for (int i=startingIndex; i<navigationTextElements.size(); i++) {
 			NavigationTextElement textElement = navigationTextElements.get(i);
 			String teGapType = textElement.getElementType() == "draggable" ? "gap" : textElement.getElementType();
@@ -533,7 +533,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					moduleHasFocus = true;
 				}
 			}
-			JavaScriptUtils.log("readTextContent");
 			this.readTextContent();
 		}
 	}
@@ -557,7 +556,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			clicks = 0;
 		}
 
-		JavaScriptUtils.log("Clicks " + clicks);
 		NavigationTextElement activeElement = navigationTextElements.get(clicks);
 		this.activatedNavigationElement = activeElement;
 		activeElement.setElementFocus(true);
@@ -804,7 +802,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private String getTypeAndIndexNavigationElement(NavigationTextElement element, int index) {
 		String type;
 		if (element.getElementType() != null && element.getElementType() == "link") {
-			type = "Link";
+			return "Link";
 		}
 		else {
 			TextElementDisplay gap = (TextElementDisplay) element;
