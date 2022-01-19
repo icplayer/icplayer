@@ -38,18 +38,16 @@ export class BlobService {
         return new Blob(byteArrays, {type: contentType});
     }
 
-    static getMp3FromArrayBuffer(wavArrayBuffer) {
-        var wav = lamejs.WavHeader.readHeader(new DataView(wavArrayBuffer));
-        var sampleLen = wav.dataLen / 2;
-        var left = new Int16Array(wavArrayBuffer, wav.dataOffset, sampleLen);
-        var right = new Int16Array(wavArrayBuffer, wav.dataOffset, sampleLen);
+    static getMp3BlobFromDecodedData(decodedData) {       
+        let left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
+        let right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
 
-        return this._encode(wav.channels, wav.sampleRate, sampleLen, left, right);
+        return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);       
     }
 
     static _encode(channels, sampleRate, sampleLen, left, right) {
         var buffer = [];
-        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate * 2, 128);
+        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
 
         var maxSamples = 1152;
         for (var i = 0; i < sampleLen; i += maxSamples) {
@@ -66,7 +64,23 @@ export class BlobService {
             buffer.push(new Int8Array(d));
         }
 
-        var blob = new Blob(buffer, {type: 'audio/mp3'});
+        var blob = new Blob(buffer, {type: 'audio/mpeg-3'});
         return blob;
+    }
+    
+    //lamejs require int16 array
+    //see more at - https://github.com/zhuker/lamejs/issues/10#issuecomment-141718262
+    static _convertFloat32ToInt16Array(data) {
+        var len = data.length, i = 0;
+        var dataAsInt16Array = new Int16Array(len);
+
+        while(i < len) {
+            dataAsInt16Array[i] = convert(data[i++]);
+        }
+        function convert(n) {
+            var v = n < 0 ? n * 32768 : n * 32767;       // convert in range [-32768, 32767]
+            return Math.max(-32768, Math.min(32768, v)); // clamp
+        }
+        return dataAsInt16Array;
     }
 }
