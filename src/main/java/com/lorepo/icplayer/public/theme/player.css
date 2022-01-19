@@ -348,6 +348,7 @@ hr, table, fieldset {
 
 .ui-draggable {
 	-ms-touch-action: none;
+	touch-action: none;
 }
 
 .ic_draggableGapEmpty-wrong{
@@ -541,6 +542,7 @@ hr, table, fieldset {
 	border-radius: 5px;
 	background-color:white;
 	box-sizing: border-box;
+	touch-action: none;
 }
 
 .ic_ordering-item.full-width img {

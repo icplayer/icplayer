@@ -28,6 +28,8 @@
         this.progressBarChangedCallbacks = [];
         this.volumeChangedCallbacks = [];
         this.ownTimerCallbacks = [];
+        this.playbackRate = 1.0;
+        this.isSelectorOpen = false;
 
         this.addPlayCallback(this.showPauseButton.bind(this));
         this.addPauseCallback(this.showPlayButton.bind(this));
@@ -108,7 +110,7 @@
     @return {null}
     */
     CustomControlsBar.prototype.volumeBarClicked = function (e) {
-        var actualPosition = (e.clientX - cumulativeOffset(this.elements.volumeBarWrapper.element).left);
+        var actualPosition = e.offsetX;
         var percent = (actualPosition * 100) / this.elements.volumeBackground.element.offsetWidth;
         for (var i = 0; i < this.volumeChangedCallbacks.length; i++) {
             this.volumeChangedCallbacks[i](percent);
@@ -216,6 +218,9 @@
                 if (this.actualTime > this.configuration.mouseDontMoveClocks) {
                     this.hideControls();
                 }
+                if (this.actualTime > this.configuration.mouseDontMoveOnPlaybackRate) {
+                    this.isSelectorOpen = false;
+                }
                 this.actualTime++;
             }
         }
@@ -291,8 +296,10 @@
     @return {null}
     */
     CustomControlsBar.prototype.hideControls = function () {
-        this.elements.mainDiv.element.style.display = 'none';
-        this.mainDivIsHidden = true;
+        if (!this.isSelectorOpen) {
+            this.elements.mainDiv.element.style.display = 'none';
+            this.mainDivIsHidden = true;
+        }
     };
 
     /**
@@ -334,7 +341,9 @@
         }
 
         function hideContainer (container) {
-            container.element.style.display = 'none';
+            if (!this.isSelectorOpen) {
+                container.element.style.display = 'none';
+            }
         }
 
         var burgerMenuElement = document.createElement('div');
@@ -366,6 +375,43 @@
         addNewCallback(this.elements[name], showContainer.bind(this, container), 'mouseenter');
         addNewCallback(this.elements[name], hideContainer.bind(this, container), 'mouseleave');
     };
+
+    CustomControlsBar.prototype.addVideoSpeedController = function (callback) {
+        var playbackRateControls = document.createElement('div');
+        playbackRateControls.classList.add('video-playback-rate');
+
+        playbackRateControls.appendChild(createPlaybackOptions(this, callback));
+
+        this.elements.videoSpeedController.element.appendChild(playbackRateControls);
+        this.elements['VideoSpeedController'] = buildTreeNode(playbackRateControls);
+    }
+
+    function createPlaybackOptions(self, callback) {
+        var select = document.createElement('select');
+
+        var playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
+
+        playingSpeedOptions.forEach(function (playingOption) {
+            var option = document.createElement('option')
+            option.text = playingOption.toString();
+            option.value = playingOption.toString();
+            if (playingOption === 1.0) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        }, this);
+
+        $(select).on('change', function() {
+            callback($(select).val());
+            self.hideControls();
+        });
+
+        $(select).on('mousedown', function() {
+            self.isSelectorOpen = !self.isSelectorOpen;
+        });
+
+        return select;
+    }
 
     /**
      * Call one function before second.
@@ -667,6 +713,7 @@
             fullscreen,
             closeFullscreen,
             timer,
+            videoSpeedController,
             burgersContainer;
 
         mainDiv = document.createElement('div');
@@ -736,6 +783,10 @@
         timer.className = 'CustomControlsBar-wrapper-controls-timer';
         controlsWrapper.appendChild(timer);
 
+        videoSpeedController = document.createElement('div');
+        videoSpeedController.className = 'CustomControlsBar-wrapper-controls-videoSpeedController';
+        controlsWrapper.appendChild(videoSpeedController);
+
         return {
             mainDiv: buildTreeNode(mainDiv),
             playButton: buildTreeNode(playButton),
@@ -752,8 +803,8 @@
             grayProgressBar: buildTreeNode(grayProgressBar),
             closeFullscreen: buildTreeNode(closeFullscreen),
             volumeBackgroundSelected: buildTreeNode(volumeBackgroundSelected),
-            burgersContainer: buildTreeNode(burgersContainer)
-
+            burgersContainer: buildTreeNode(burgersContainer),
+            videoSpeedController: buildTreeNode(videoSpeedController)
         }
     }
 
@@ -803,6 +854,7 @@
 
     function getBasicConfiguration () {
         return {
+            mouseDontMoveOnPlaybackRate: 10,
             mouseDontMoveClocks: 30,
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 0,
