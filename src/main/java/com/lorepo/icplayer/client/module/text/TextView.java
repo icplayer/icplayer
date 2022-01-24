@@ -8,7 +8,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -25,7 +24,6 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElemen
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 import java.util.*;
 
@@ -834,7 +832,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				);
 			}
 		} else if (gap instanceof AltTextGap) {
-			JavaScriptUtils.log(gap.getTextValue());
 			content.addAll(
 					((AltTextGap) gap).getReadableText()
 			);
