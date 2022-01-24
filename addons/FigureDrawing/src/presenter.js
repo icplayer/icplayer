@@ -982,7 +982,7 @@ function AddonFigureDrawing_create(){
         for (let i = 0; i < presenter.coloredAreas.length; i++) {
             let color = getClickedAreaColor(presenter.coloredAreas[i][0], presenter.coloredAreas[i][1]);
             if (color[0] != presenter.coloredAreas[i][2] || color[1] != presenter.coloredAreas[i][3] || color[2] != presenter.coloredAreas[i][4] || color[3] != presenter.coloredAreas[i][5]) {
-                figuresToRemove.push(k);
+                figuresToRemove.push(i);
             }
         }
 
