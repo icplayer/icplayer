@@ -1,3 +1,4 @@
+2022-01-26 Fixed remaining ErrorsMode in Single State Button
 2021-12-20 Change audio format from wav to mp3 in MediaRecorder addon
 2022-01-10 Fixed issue with module ids including non-letter/number signs
 2022-01-04 Added new properties to youtube addon - time video starts and autoplay checkbox
