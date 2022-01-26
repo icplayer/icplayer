@@ -178,6 +178,7 @@ var RecordButton = exports.RecordButton = function (_Button) {
     }, {
         key: "_eventHandler",
         value: function _eventHandler() {
+            console.log("record button event handler");
             if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording() || this.state.isBlockedSafari()) this._startRecording();else if (this.state.isRecording()) this._stopRecording();
         }
     }, {
@@ -597,8 +598,6 @@ var _AudioPlayer = __webpack_require__(42);
 
 var _DefaultRecordingPlayButton = __webpack_require__(45);
 
-var _SafariRecorderState = __webpack_require__(46);
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MediaRecorder = exports.MediaRecorder = function () {
@@ -606,6 +605,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         _classCallCheck(this, MediaRecorder);
 
         this.enableAnalyser = true;
+        this.isMlibro = false;
     }
 
     _createClass(MediaRecorder, [{
@@ -710,7 +710,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaAnalyserService.destroy();
             this.addonState.destroy();
             this.mediaState.destroy();
-            this.safariRecorderState.destroy();
             this.activationState.destroy();
 
             this.viewHandlers = null;
@@ -841,7 +840,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaState = new _MediaState.MediaState();
             this.activationState = new _ActivationState.ActivationState();
             this.addonState = new _AddonState.AddonState();
-            this.safariRecorderState = new _SafariRecorderState.SafariRecorderState();
         }
     }, {
         key: "_loadViewHandlers",
@@ -880,9 +878,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "_loadMediaElements",
         value: function _loadMediaElements() {
             this.recorder = new _AudioRecorder.AudioRecorder();
-            this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
+            this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.player.setIsMlibro(this.isMlibro);
-            this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
+            this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
             if (this.playerController) this._loadEventBus();
         }
@@ -1011,17 +1009,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.recordButton.onStartRecording = function () {
                 _this2.mediaState.setBlocked();
-                if (_this2.safariRecorderState.isAvailableResources()) {
-                    var stream = _this2.resourcesProvider.getStream();
-                    _this2._handleRecording(stream);
-                } else if (_this2.platform === 'mlibro') {
+                if (_this2.platform === 'mlibro') {
                     _this2._handleMlibroStartRecording();
                 } else {
                     _this2.resourcesProvider.getMediaResources().then(function (stream) {
                         var isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-                        if (isSafari && _this2.safariRecorderState.isUnavailableResources()) {
-                            _this2._handleSafariRecordingInitialization();
-                            return;
+                        if (isSafari) {
+                            _this2.mediaState.setBlockedSafari();
                         }
                         _this2._handleRecording(stream);
                     });
@@ -1047,7 +1041,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                         });
                     }
                     _this2.resourcesProvider.destroy();
-                    _this2.safariRecorderState.setUnavailableResources();
                 }
                 if (_this2.model.extendedMode) {
                     if (_this2.model.disableRecording) {
@@ -1357,14 +1350,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (window.DevicesUtils.isInternetExplorer()) return true;
 
             return false;
-        }
-    }, {
-        key: "_handleSafariRecordingInitialization",
-        value: function _handleSafariRecordingInitialization() {
-            this.mediaState.setBlockedSafari();
-            this.safariRecorderState.setAvailableResources();
-            this.recordButton.setUnclickView();
-            alert(_Errors.Errors["safari_select_recording_button_again"]);
         }
     }, {
         key: "_loadWebViewMessageListener",
@@ -3302,10 +3287,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
     _inherits(AudioPlayer, _BasePlayer);
 
-    function AudioPlayer($view) {
+    function AudioPlayer($view, isMlibro) {
         _classCallCheck(this, AudioPlayer);
 
-        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view));
+        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view, isMlibro));
 
         _this.mediaNode.style.display = "hidden";
         return _this;
@@ -3343,13 +3328,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var BasePlayer = exports.BasePlayer = function (_Player) {
     _inherits(BasePlayer, _Player);
 
-    function BasePlayer($view) {
+    function BasePlayer($view, isMlibro) {
         _classCallCheck(this, BasePlayer);
 
         var _this = _possibleConstructorReturn(this, (BasePlayer.__proto__ || Object.getPrototypeOf(BasePlayer)).call(this));
 
         if (_this.constructor === BasePlayer) throw new Error("Cannot create an instance of BasePlayer abstract class");
-
+        _this.isMlibro = isMlibro;
         _this.$view = $view;
         _this.hasRecording = false;
         _this.duration = null;
@@ -3513,7 +3498,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 return _this7._onPausedCallback();
             };
 
-            if (this._isMobileSafari()) this.mediaNode.onloadedmetadata = function () {
+            if (this._isMobileSafari() || this._isIosMlibro()) this.mediaNode.onloadedmetadata = function () {
                 self.onEndLoadingCallback();
             };else this.mediaNode.oncanplay = function () {
                 return _this7.onEndLoadingCallback();
@@ -3558,6 +3543,11 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         key: "_isMobileSafari",
         value: function _isMobileSafari() {
             return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
+        }
+    }, {
+        key: "_isIosMlibro",
+        value: function _isIosMlibro() {
+            return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
         }
     }, {
         key: "_isNotOnlineResources",
@@ -3802,61 +3792,6 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 
     return DefaultRecordingPlayButton;
 }(_Button2.Button);
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var SafariRecorderState = exports.SafariRecorderState = function () {
-    function SafariRecorderState() {
-        _classCallCheck(this, SafariRecorderState);
-
-        this.values = {
-            UNAVAILABLE_RESOURCES: 0,
-            AVAILABLE_RESOURCES: 1
-        };
-
-        this._value = this.values.UNAVAILABLE_RESOURCES;
-    }
-
-    _createClass(SafariRecorderState, [{
-        key: "isUnavailableResources",
-        value: function isUnavailableResources() {
-            return this._value === this.values.UNAVAILABLE_RESOURCES;
-        }
-    }, {
-        key: "isAvailableResources",
-        value: function isAvailableResources() {
-            return this._value === this.values.AVAILABLE_RESOURCES;
-        }
-    }, {
-        key: "setUnavailableResources",
-        value: function setUnavailableResources() {
-            this._value = this.values.UNAVAILABLE_RESOURCES;
-        }
-    }, {
-        key: "setAvailableResources",
-        value: function setAvailableResources() {
-            this._value = this.values.AVAILABLE_RESOURCES;
-        }
-    }, {
-        key: "destroy",
-        value: function destroy() {
-            this._value = null;
-            this.values = null;
-        }
-    }]);
-
-    return SafariRecorderState;
-}();
 
 /***/ })
 /******/ ]);
