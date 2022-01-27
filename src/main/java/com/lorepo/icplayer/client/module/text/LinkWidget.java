@@ -6,6 +6,7 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElemen
 
 public class LinkWidget extends Anchor implements NavigationTextElement{
 	protected final LinkInfo linkInfo;
+	private int state = 8;
 	
 	public LinkWidget(LinkInfo info){
 		super(DOM.getElementById(info.getId()));
@@ -46,6 +47,11 @@ public class LinkWidget extends Anchor implements NavigationTextElement{
 	@Override
 	public String getLangTag() {
 		return null;
+	}
+
+	@Override
+	public int getGapState() {
+		return this.state;
 	}
 
 	protected LinkInfo getLinkInfo() {

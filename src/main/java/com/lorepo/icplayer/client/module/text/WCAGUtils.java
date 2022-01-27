@@ -242,12 +242,13 @@ public class WCAGUtils {
 				gapNumber++;
 				int endLinkTagIndex = text.indexOf(LINK_END);
 				String linkName = text.substring(linkIndex + LINK_START.length(), endLinkTagIndex);
+				String textModel = model.getSpeechTextItem(TextModel.LINK_INDEX);
 				
 				if (linkIndex > 1) {
 					result.add(TextToSpeechVoice.create(text.substring(0, linkIndex - 1), lang));                           // text before gap
 				}
 				
-				result.add(TextToSpeechVoice.create("Link" + " " + linkName.trim(), lang));
+				result.add(TextToSpeechVoice.create(textModel + " " + linkName.trim(), lang));
 				final int endGapIndex =  text.indexOf(LINK_END, linkIndex) + LINK_END.length();
 				text = text.substring(endGapIndex);
 			}

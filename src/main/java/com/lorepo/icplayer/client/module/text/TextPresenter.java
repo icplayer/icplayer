@@ -103,6 +103,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getId();
 		String getElementType();
 		String getLangTag();
+		int getGapState();
 	}
 
 	private final TextModel module;

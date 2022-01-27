@@ -800,7 +800,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private String getTypeAndIndexNavigationElement(NavigationTextElement element, int index) {
 		String type;
 		if (element.getElementType() != null && element.getElementType() == "link") {
-			return "Link";
+			return this.module.getSpeechTextItem(TextModel.LINK_INDEX);
 		}
 		else {
 			TextElementDisplay gap = (TextElementDisplay) element;

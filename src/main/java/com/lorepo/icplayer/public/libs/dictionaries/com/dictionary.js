@@ -384,6 +384,7 @@ var ice_dictionary_en = {
 	"choice_item_percentage_result": "Percentage result",
 	"choice_item_number_of_checks": "Number of checks",
 	"choice_item_number_of_errors": "Number of errors and mistakes",
+	"choice_item_link": "Link",
 	"choice_speech_texts": "Speech texts",
 	"error_counter_module" : "Error Counter",
 	"mistakes_property" : "Show mistakes",
