@@ -2,10 +2,12 @@
 2022-01-10 Fixed issue with module ids including non-letter/number signs
 2022-01-04 Added new properties to youtube addon - time video starts and autoplay checkbox
 2021-12-27 Fix visibility of TextColoring on reset and restoring by state
+2021-12-20 Change audio format from wav to mp3 in MediaRecorder addon
 2021-12-15 Added event on blur in Paragraph Keyboard addon
 2021-12-14 Added audio speed controller to Audio Playlist
 2021-12-14 Prevent from adding the dragging class to checked element in Multiple Gap
 2021-12-14 Skipping image in keyboard navigation
+2021-12-13 Added video speed controller to the Video
 2021-12-09 Added nested addons
 2021-11-19 Improve of Addon Coloring performance while reset on firefox
 2021-11-17 Added audio speed controller to the Text Audio

@@ -51,6 +51,10 @@ The Video addon can be configured with more than one video file. Its API lets yo
         <td>Hide subtitles</td>
         <td>If this option is selected, subtitles will be hidden on start</td>
     </tr>
+    <tr>
+        <td>Enable video speed controller</td>
+        <td>If this option is selected, the video speed controller will be display on the video controller bar</td>
+    </tr>
 </tbody>
 </table>
 

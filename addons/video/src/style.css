@@ -213,3 +213,28 @@
 .CustomControlsBar-wrapper-controls-burgersContainer-time_labels-element:hover {
     background-color: #f1f1f1;
 }
+
+.CustomControlsBar-wrapper-controls-videoSpeedController .video-playback-rate{
+    float: left;
+    margin-top: 10px;
+    height: 30px;
+    width: 60px;
+    line-height: 16px;
+    padding-right: 10px;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+.CustomControlsBar-wrapper-controls-videoSpeedController .video-playback-rate select {
+    width: 100%;
+    font-size: 14px;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: grey;
+    border: 0;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+.CustomControlsBar-wrapper-controls-videoSpeedController .video-playback-rate select option{
+    cursor: pointer;
+}
