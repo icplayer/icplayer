@@ -763,7 +763,7 @@ function AddonEditableWindow_create() {
 
     presenter.setPositionRelative = function () {
         var $view = presenter.jQueryElementsCache.$container;
-        var top = parseInt(presenter.configuration.model.top) + 110;
+        var top = parseInt(presenter.configuration.model.top) + presenter.configuration.heightOffset;
         var left = presenter.configuration.model.left;
 
         $view.css({
