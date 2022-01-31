@@ -32,6 +32,7 @@ public interface IPlayerController {
 	void switchToPageById(String pageId);
 	void switchToPrevPage();
 	void switchToNextPage();
+	void setAllPagesAsVisited();
 	long getTimeElapsed();
 	PlayerView getView();
 	void closePopup();
