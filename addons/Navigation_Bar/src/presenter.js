@@ -184,6 +184,7 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
+        presenter.eventBus.addEventListener('visitedPagesUpdate', this);
 
         reloadVisitedPages();
         presenter.originalIndex = presenter.playerController.getCurrentPageIndex();
@@ -1123,6 +1124,10 @@ function AddonNavigation_Bar_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+
+        if (eventName == "visitedPagesUpdate") {
+            presenter.visitedPagesUpdate();
+        }
     };
 
     presenter.showAnswers = function () {
@@ -1132,6 +1137,17 @@ function AddonNavigation_Bar_create() {
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
     };
+
+    presenter.visitedPagesUpdate = function () {
+    if (presenter.configuration.blockNotVisited) {
+            reloadVisitedPages();
+            presenter.$wrapper.find('.disabled').removeClass('disabled');
+            if (presenter.currentIndex !== presenter.pageCount - 1) {
+                presenter.$wrapper.find('.navigationbar-element-next-inactive').removeClass('navigationbar-element-next-inactive');
+            }
+            presenter.setDisabledPagesStyle();
+        }
+    }
 
     presenter.getState = function(){
         return JSON.stringify(presenter.state);
