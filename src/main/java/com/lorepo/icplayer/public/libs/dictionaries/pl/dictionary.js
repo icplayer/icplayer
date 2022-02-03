@@ -2156,5 +2156,18 @@ var ice_dictionary_pl = {
 		"Scoreboard_maximum_teams_count": "Maximum number of teams",
     "NestedAddon_addon_id": "Addon id",
     "NestedAddon_insert_addon": "Insert nested addon",
-    "NestedAddon_add_addon": "Add addon"
+    "NestedAddon_add_addon": "Add addon",
+    "Automatic_Feedback_info": "Automatic Feedback info TODO",
+    "Automatic_Feedback_name": "Automatic Feedback",
+    "Automatic_Feedback_property_activity_module_id": "Activity module ID",
+    "Automatic_Feedback_property_activity_type": "Activity type",
+    "Automatic_Feedback_property_correct_feedback": "Correct feedback",
+    "Automatic_Feedback_property_incorrect_feedback": "Incorrect feedback",
+    "Automatic_Feedback_property_empty_feedback": "Empty feedback",
+    "Automatic_Feedback_property_partial_feedback": "Partially correct feedback",
+    "Automatic_Feedback_property_activity_item": "Activity item",
+    "Automatic_Feedback_property_feedback": "Feedback",
+    "Automatic_Feedback_property_display_mode": "Display mode",
+    "Automatic_Feedback_property_display_feedback_buttons": "Display feedback buttons",
+    "Automatic_Feedback_property_react_to": "React to"
 };

@@ -1,0 +1,28 @@
+.external-link-button-wrapper {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+}
+
+.external-link-button-element {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    background: url('resources/elb-button.png') no-repeat center;
+    cursor: pointer;
+}
+
+.external-link-button-title,
+.external-link-button-image {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+}
+
+.external-link-button-title  {
+	color: #00F;
+	text-decoration: none;
+}
