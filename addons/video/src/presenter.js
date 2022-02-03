@@ -282,7 +282,6 @@ function Addonvideo_create() {
         });
 
         $(presenter.videoObject).on("canplay", function onCanPlay() {
-            presenter.videoObject.currentTime = currentTime;
             $(presenter.videoObject).off("canplay");
         });
     }
@@ -511,7 +510,6 @@ function Addonvideo_create() {
     });
 
     presenter.fullScreen = function () {
-        currentTime = presenter.videoObject.currentTime;
         var requestMethod = requestFullscreen(presenter.videoContainer);
         presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
         presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
@@ -533,7 +531,6 @@ function Addonvideo_create() {
     };
 
     presenter.closeFullscreen = function () {
-        currentTime = presenter.videoObject.currentTime;
         if (presenter.stylesBeforeFullscreen.changedStyles === true) {
             presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
             presenter.stylesBeforeFullscreen.changedStyles = false;

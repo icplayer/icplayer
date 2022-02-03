@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
@@ -237,5 +238,11 @@ public class PlayerCommands implements IPlayerCommands {
 	@Override
 	public String getPageStamp() {
 		return controller.getPageStamp();
+	}
+
+	@Override
+	public void setAllPagesAsVisited() {
+		controller.setAllPagesAsVisited();
+		pageController.getPlayerServices().getEventBusService().sendEvent("visitedPagesUpdate", JavaScriptObject.createObject());
 	}
 }

@@ -1,8 +1,11 @@
 2022-01-26 Fixed Media Recorder not recording/playing on mLibro on iOS devices 
+2022-01-24 Fixed video addon progress bar issues on mobiles - fullscreen changed first click and offset between click and actual
 2021-12-20 Change audio format from wav to mp3 in MediaRecorder addon
+2022-01-12 Added setAllPagesAsVisited command
 2022-01-10 Fixed issue with module ids including non-letter/number signs
 2022-01-04 Added new properties to youtube addon - time video starts and autoplay checkbox
 2021-12-27 Fix visibility of TextColoring on reset and restoring by state
+2021-12-20 Change audio format from wav to mp3 in MediaRecorder addon
 2021-12-15 Added event on blur in Paragraph Keyboard addon
 2021-12-14 Added audio speed controller to Audio Playlist
 2021-12-14 Prevent from adding the dragging class to checked element in Multiple Gap

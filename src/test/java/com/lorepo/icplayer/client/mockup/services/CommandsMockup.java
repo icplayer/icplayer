@@ -234,4 +234,7 @@ public class CommandsMockup implements IPlayerCommands {
 		
 	}
 
+	@Override
+	public void setAllPagesAsVisited() {}
+
 }

@@ -39,6 +39,7 @@ import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
@@ -825,5 +826,16 @@ public class PlayerController implements IPlayerController {
 	public String getExternalVariable(String key) {
 		IPlayerServices services = this.pageController1.getPlayerServices();
 		return services.getExternalVariable(key);
+	}
+
+	@Override
+	public void setAllPagesAsVisited() {
+		int pageCount = this.getModel().getPageCount();
+		for (int i = 0; i < pageCount; i++) {
+			IPage page = this.getModel().getPage(i);
+			visitedPages.add(page);
+			PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
+			scoreService.setPageScore(page, newPageScore);
+		}
 	}
 }

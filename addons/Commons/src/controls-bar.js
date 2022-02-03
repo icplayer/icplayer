@@ -92,7 +92,7 @@
     @return {null}
     */
     CustomControlsBar.prototype.progressBarClicked = function (e) {
-        var actualPosition = (e.clientX - cumulativeOffset(this.elements.grayProgressBar.element).left);
+        var actualPosition = e.offsetX;
         var percent = (actualPosition * 100) / this.elements.grayProgressBar.element.offsetWidth;
         for (var i = 0; i < this.progressBarChangedCallbacks.length; i++) {
             this.progressBarChangedCallbacks[i](percent);
