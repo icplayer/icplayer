@@ -2,8 +2,8 @@ import {BasePlayer} from "./BasePlayer.jsm";
 
 export class AudioPlayer extends BasePlayer {
 
-    constructor($view) {
-        super($view);
+    constructor($view, isMlibro) {
+        super($view, isMlibro);
         this.mediaNode.style.display = "hidden";
     }
 
