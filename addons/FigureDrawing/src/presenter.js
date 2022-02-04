@@ -642,8 +642,6 @@ function AddonFigureDrawing_create(){
     };
 
     presenter.run = function(view, model){
-        console.log('Run - view', view)
-        console.log('Run - model', model)
         var row, column, x, y;
         var timeClick = true, abandon = false;
         presenter.initiate(view, model);
@@ -992,7 +990,7 @@ function AddonFigureDrawing_create(){
     presenter.updateColoredAreas = function (figuresToRemove) {
         if (figuresToRemove.length === presenter.coloredAreas.length) {
             presenter.coloredAreas = [];
-        } else if (figuresToRemove.length) {
+        } else {
             for (let i = 0; i < figuresToRemove.length; i++) {
                 presenter.coloredAreas.splice(figuresToRemove[i], 1);
             }
