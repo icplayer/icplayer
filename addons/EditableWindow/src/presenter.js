@@ -104,6 +104,12 @@ function AddonEditableWindow_create() {
 
         $headerText.text(title);
         $header.addClass(headerStyle);
+        if (presenter.configuration.model.isTextEditorContent) {
+            presenter.handleTextContent();
+            presenter.configuration.hasVideo = false;
+            presenter.configuration.hasAudio = false;
+            presenter.configuration.hasHtml = false;
+        }
 
         if (presenter.configuration.hasVideo) {
             presenter.handleVideoContent();
@@ -121,7 +127,7 @@ function AddonEditableWindow_create() {
 
         if (presenter.configuration.hasHtml) {
             presenter.handleHtmlContent();
-        } else {
+        } else if (!presenter.configuration.model.isTextEditorContent) {
             $view.find(".content-iframe").remove();
             $view.find("textarea").remove();
         }
@@ -156,7 +162,7 @@ function AddonEditableWindow_create() {
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
                 presenter.updateButtonMenuPosition();
-                if (hasHtml) {
+                if (hasHtml || presenter.configuration.model.isTextEditorContent) {
                     var heightOffset = presenter.configuration.heightOffset;
                     var widthOffset = presenter.configuration.widthOffset;
                     var newHeight = ui.size.height - heightOffset;
@@ -372,6 +378,28 @@ function AddonEditableWindow_create() {
         presenter.configuration.heightOffset += 35;
     };
 
+    presenter.handleTextContent = function () {
+        var height = presenter.configuration.model.height - presenter.configuration.heightOffset;
+        var width = presenter.configuration.model.width - presenter.configuration.widthOffset;
+        var textareaId = presenter.configuration.textareaId;
+        var $view = $(presenter.configuration.view);
+        $view.css("z-index", "1");
+
+        var textarea = $view.find("textarea");
+        textarea.attr("id", textareaId);
+
+        presenter.createTinyMceAsync(textareaId, height, width);
+
+        presenter.fillActiveTinyMce(presenter.configuration.model.textEditor, function (content) {
+            tinymce.get(textareaId).getBody().innerHTML = content;
+
+            presenter.configuration.iframeContent = content;
+            $view.find(".addon-editable-reset-button").click(function () {
+                    presenter.reset();
+            });
+        });
+    };
+
     presenter.handleHtmlContent = function () {
         var height = presenter.configuration.model.height;
         var width = presenter.configuration.model.width;
@@ -396,8 +424,27 @@ function AddonEditableWindow_create() {
         var widthOffset = presenter.configuration.widthOffset;
         var heightOffset = presenter.configuration.heightOffset;
 
+        presenter.createTinyMceAsync(textareaId, height - heightOffset, width - widthOffset);
+
+        var timeout = setTimeout(function () {
+            presenter.fetchIframeContent(function (content) {
+                var isInitialized = presenter.configuration.state.isInitialized;
+                if (!isInitialized) {
+                    presenter.configuration.contentLoadingLock = true;
+                    presenter.fillActiveTinyMce(content, presenter.fillTinyMce);
+                    presenter.configuration.state.isInitialized = true;
+                    presenter.configuration.state.content = content;
+                    presenter.configuration.contentLoadingLock = false;
+                }
+                presenter.removeIframe();
+            });
+        }, 3000);
+        presenter.configuration.timeouts.push(timeout);
+    };
+
+    presenter.createTinyMceAsync = function (areaId, height, width) {
         tinymce.init({
-            selector: "#" + textareaId,
+            selector: "#" + areaId,
             plugins: "textcolor link",
             toolbar: "backcolor",
             language: "fr_FR_pure",
@@ -411,8 +458,8 @@ function AddonEditableWindow_create() {
             custom_colors: false,
             statusbar: false,
             menubar: false,
-            height: height - heightOffset,
-            width: width - widthOffset,
+            height: height,
+            width: width,
             setup: function (editor) {
                 if (!presenter.configuration.model.editingEnabled) {
                     editor.on('keydown keypress keyup', function (e) {
@@ -425,22 +472,7 @@ function AddonEditableWindow_create() {
             presenter.configuration.editor = editors[0];
             presenter.configuration.isTinyMceLoaded = true;
         });
-
-        var timeout = setTimeout(function () {
-            presenter.fetchIframeContent(function (content) {
-                var isInitialized = presenter.configuration.state.isInitialized;
-                if (!isInitialized) {
-                    presenter.configuration.contentLoadingLock = true;
-                    presenter.fillActiveTinyMce(content);
-                    presenter.configuration.state.isInitialized = true;
-                    presenter.configuration.state.content = content;
-                    presenter.configuration.contentLoadingLock = false;
-                }
-                presenter.removeIframe();
-            });
-        }, 3000);
-        presenter.configuration.timeouts.push(timeout);
-    };
+    }
 
     presenter.createPreview = function (view, model) {
         presenter.configuration.view = view;
@@ -472,7 +504,7 @@ function AddonEditableWindow_create() {
         var content = presenter.configuration.state.content;
 
         if (isInitialized) {
-            presenter.fillActiveTinyMce(content);
+            presenter.fillActiveTinyMce(content, presenter.fillTinyMce);
         }
         presenter.configuration.contentLoadingLock = false;
     };
@@ -490,7 +522,8 @@ function AddonEditableWindow_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addDisableResizeHeight(model);
-        return presenter.addOfflineMessage(upgradedModel);
+        upgradedModel = presenter.addOfflineMessage(upgradedModel);
+        return presenter.addIsTextEditorContent(upgradedModel);
     };
 
     presenter.addDisableResizeHeight = function (model) {
@@ -515,12 +548,27 @@ function AddonEditableWindow_create() {
         return upgradedModel;
     };
 
+    presenter.addIsTextEditorContent = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['isTextEditorContent']) {
+            upgradedModel['isTextEditorContent'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validModel = function (model) {
         var indexFile = model['index'];
         var audioFile = model['audio'];
         var videoFile = model['video'];
+        var text = model['textEditor'];
 
-        if (indexFile === "" && audioFile === "" && videoFile === "") {
+        var isTextEditorContent = ModelValidationUtils.validateBoolean(model['isTextEditorContent']);
+        var textEmpty = !isTextEditorContent || text === "";
+
+        if (textEmpty && indexFile === "" && audioFile === "" && videoFile === "") {
             return presenter.generateValidationError("Content cannot be undefined.");
         }
 
@@ -551,7 +599,9 @@ function AddonEditableWindow_create() {
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
             editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
             disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"]),
-            offlineMessage: model["offlineMessage"]
+            offlineMessage: model["offlineMessage"],
+            textEditor: model['textEditor'],
+            isTextEditorContent: isTextEditorContent,
         }
     };
 
@@ -590,18 +640,18 @@ function AddonEditableWindow_create() {
         }
     };
 
-    presenter.fillActiveTinyMce = function (content) {
+    presenter.fillActiveTinyMce = function (content, fillCallback) {
         var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
 
         if (isTinyMceLoaded) {
             var timeout = setTimeout(function () {
-                presenter.fillTinyMce(content);
+                fillCallback.apply(null, [content]);
             }, 1000);
 
             presenter.configuration.timeouts.push(timeout);
         } else {
             var timeout = setTimeout(function () {
-                presenter.fillActiveTinyMce(content);
+                presenter.fillActiveTinyMce(content, fillCallback);
             }, 1000);
 
             presenter.configuration.timeouts.push(timeout);
@@ -711,6 +761,21 @@ function AddonEditableWindow_create() {
         presenter.updateButtonMenuPosition();
     };
 
+    presenter.setPositionRelative = function () {
+        var $view = presenter.jQueryElementsCache.$container;
+        var top = parseInt(presenter.configuration.model.top) + presenter.configuration.heightOffset;
+        var left = presenter.configuration.model.left;
+
+        $view.css({
+            top: top + 'px',
+            left: left + 'px',
+            right: "",
+            bottom: ""
+        });
+
+        presenter.updateButtonMenuPosition();
+    };
+
     presenter.getAvailableWidth = function () {
         return $(window).width();
     };
@@ -737,7 +802,7 @@ function AddonEditableWindow_create() {
 
     presenter.openPopup = function () {
         presenter.show();
-        presenter.centerPosition();
+        presenter.setPositionRelative();
     };
 
     presenter.hide = function () {
