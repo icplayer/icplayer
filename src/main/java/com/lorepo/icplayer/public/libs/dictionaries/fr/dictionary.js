@@ -2099,6 +2099,8 @@ var ice_dictionary_fr = {
     "EditableWindow_property_video_title": "Title",
     "EditableWindow_property_header_style": "Header style",
 	"EditableWindow_property_offline_message": "Offline message",
+	"EditableWindow_property_text_editor": "Text",
+	"EditableWindow_property_is_text_editor_content": "Text editor content",
     "EditableWindow_property_editing_enabled" : "Editing enabled",
     "skiplink": "Skip link",
     "skiplink_module": "SkipLink",

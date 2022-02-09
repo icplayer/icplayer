@@ -44,7 +44,7 @@ public class NestedAddonUtils {
     public static native boolean insertIntoAddonGap(String moduleID, Element view, Element page) /*-{
 		var idPrefix = @com.lorepo.icplayer.client.module.NestedAddonUtils::ID_PREFIX;
 		var idEditorPrefix = @com.lorepo.icplayer.client.module.NestedAddonUtils::ID_EDITOR_PREFIX;
-		var escapedModuleID = moduleID.replace(/[ .*+?^${}()|[\]\\]/g, '\\$&');
+		var escapedModuleID = moduleID.replace(/[ !"#$%&'()*+,.:;<=>?@[^`{|}~\/\]]/g, '\\$&'); //regex to escape jQuery selectors - https://api.jquery.com/category/selectors/
 		var $addonGap = $wnd.$(page).find('#' + idPrefix + escapedModuleID);
 		if ($addonGap.length == 0) $addonGap = $wnd.$(page).find('#'+idEditorPrefix + escapedModuleID);
 		if ($addonGap.length == 0) return false;
