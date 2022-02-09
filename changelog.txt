@@ -1,4 +1,3 @@
-2022-02-09 Added second hand to Clock Addon
 2022-01-24 Fixed video addon progress bar issues on mobiles - fullscreen changed first click and offset between click and actual
 2022-01-12 Added setAllPagesAsVisited command
 2022-01-10 Fixed issue with module ids including non-letter/number signs
