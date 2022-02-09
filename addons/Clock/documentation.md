@@ -16,8 +16,7 @@ This addon allows users to create activities related to clock and time.
     </tr>
     <tr>
         <td>InitialTime</td>
-        <td>Enables to set the initial time for the addon. The time should be entered in a 00:00 or 0:00 format.
-        If Show Second Hand is active this property requires format 00:00:00.</td>
+        <td>Enables to set the initial time for the addon. The time should be entered in a 00:00 or 0:00 format.</td>
     </tr>
     <tr>
         <td>Step (minutes)</td>
@@ -28,21 +27,13 @@ This addon allows users to create activities related to clock and time.
         <td>Enables to show the clock labels.</td>
     </tr>
     <tr>
-        <td>ShowSecondHand</td>
-        <td>Enables third hand for seconds.</td>
-    </tr>
-    <tr>
-        <td>Step (seconds)</td>
-        <td>Analogous to Step-minutes but defined for seconds.</td>
-    </tr>
-    <tr>
         <td>ActiveHand</td>
         <td>This property allows choosing the active clock hand.
 </td>
     </tr>
     <tr>
         <td>SynchronizeHands</td>
-        <td>This property enables to choose how the hands should be synchronized.</td>
+        <td>This property enables to choose how the big hand and the hour hand should be synchronized.</td>
     </tr>
 <tr>
         <td>Images</td>
