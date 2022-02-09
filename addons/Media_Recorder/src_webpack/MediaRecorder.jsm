@@ -26,6 +26,7 @@ import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButt
 export class MediaRecorder {
 
     enableAnalyser = true;
+    isMlibro = false;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
@@ -283,9 +284,9 @@ export class MediaRecorder {
 
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
-        this.player = new AudioPlayer(this.viewHandlers.$playerView);
+        this.player = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.player.setIsMlibro(this.isMlibro);
-        this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView);
+        this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
         if (this.playerController)
             this._loadEventBus();
