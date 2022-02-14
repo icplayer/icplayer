@@ -269,10 +269,7 @@ function AddonClock_create() {
     };
 
     presenter.checkIfValidNumber = function (num) {
-        return (
-            parseInt(num, 10) === Math.round(num * 100) / 100
-                && parseInt(num, 10) > -2 && !(isNaN(num))
-        )
+        return parseInt(num, 10) === Math.round(num * 100) / 100 && parseInt(num, 10) > -1 && !(isNaN(num));
     }
 
     presenter.countTimeFromMinuteAngle = function(angleValue) {
@@ -758,10 +755,7 @@ function AddonClock_create() {
     };
 
      presenter.validateIfValueMultipleOfStep = function (value, step) {
-            if (value % step == 0) {
-                return true;
-            }
-            return false;
+         return value % step === 0;
      };
 
     presenter.validateTime = function(time) {
