@@ -159,3 +159,62 @@ TestCase("[Assessments Navigation Bar] runLogic flow for upgrade model", {
         assertTrue(this.presenter.validateModel.calledWith(upgradedModel));
     }
 });
+
+TestCase("[Assessments_Navigation_Bar] Upgrade speech texts", {
+    setUp: function () {
+      this.presenter = AddonAssessments_Navigation_Bar_create();
+
+      this.expectedEmpty = {
+                PreviousPage: {PreviousPage: ""},
+                Title: {Title: ""},
+                GoToPage: {GoToPage: ""},
+                NextPage: {NextPage: ""},
+        };
+    },
+
+    "test given empty model when upgrading model then sets empty object to speech text": function () {
+        var upgradedModel = this.presenter.upgradeModel({});
+
+        assertNotUndefined(upgradedModel.speechTexts);
+        assertEquals(upgradedModel.speechTexts, this.expectedEmpty);
+    },
+
+    "test given valid input model when upgrading model then sets correct object to speech text": function () {
+        var inputModel =
+            { speechTexts:
+                {
+                    PreviousPage: {PreviousPage: "Go to previous page"},
+                    Title: {Title: "Page title"},
+                    GoToPage: {GoToPage: "Go to page"},
+                    NextPage: {NextPage: "Go to next page"},
+                }
+            };
+
+        var upgradedModel = this.presenter.upgradeModel(inputModel);
+
+        assertNotUndefined(upgradedModel.speechTexts);
+        assertNotEquals(upgradedModel.speechTexts, this.expectedEmpty);
+        assertEquals(upgradedModel.speechTexts, inputModel.speechTexts);
+    },
+});
+
+TestCase("[Assessments_Navigation_Bar] Upgrade lang tag", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+   },
+
+    "test given empty model when upgrading model then sets empty string to lang attribute": function () {
+        var upgradedModel = this.presenter.upgradeModel({});
+
+        assertNotUndefined(upgradedModel.langAttribute);
+        assertEquals(upgradedModel.langAttribute, "");
+    },
+
+    "test given model with LangTag PL when upgrading model then sets PL string to lang attribute": function () {
+        var langTag = "PL-pl";
+        var upgradedModel = this.presenter.upgradeModel({langAttribute: langTag});
+
+        assertNotUndefined(upgradedModel.langAttribute);
+        assertEquals(upgradedModel.langAttribute, langTag);
+    },
+});

@@ -6,5 +6,20 @@
         <property name='userButtonsNumber' type='string' displayName='Number of buttons' nameLabel="Assessments_Navigation_Bar_property_number_of_buttons"/>
         <property name='userButtonsWidth' type='string' displayName='Width of buttons' nameLabel="Assessments_Navigation_Bar_property_width_of_buttons"/>
         <property name='defaultOrder' type='boolean' displayName='Default order' nameLabel="Assessments_Navigation_Bar_property_default_order"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Assessments_Navigation_Bar_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Assessments_Navigation_Bar_property_speech_texts" type="staticlist">
+            <property name="PreviousPage" nameLabel="Assessments_Navigation_Bar_speech_text_previous_page" type="staticrow">
+                <property name="PreviousPage" nameLabel="Assessments_Navigation_Bar_speech_text_previous_page" type="string"/>
+            </property>
+            <property name="Title" nameLabel="Assessments_Navigation_Bar_speech_text_title" type="staticrow">
+                <property name="Title" nameLabel="Assessments_Navigation_Bar_speech_text_title" type="string"/>
+            </property>
+            <property name="GoToPage" nameLabel="Assessments_Navigation_Bar_speech_text_go_to_page" type="staticrow">
+                <property name="GoToPage" nameLabel="Assessments_Navigation_Bar_speech_text_go_to_page" type="string"/>
+            </property>
+            <property name="NextPage" nameLabel="Assessments_Navigation_Bar_speech_text_next_page" type="staticrow">
+                <property name="NextPage" nameLabel="Assessments_Navigation_Bar_speech_text_next_page" type="string"/>
+            </property>
+        </property>
     </model>
 </addon>
