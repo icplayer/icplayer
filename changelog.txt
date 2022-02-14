@@ -1,4 +1,5 @@
 2022-02-14 Add TTS to Assessment Navigation Bar
+2022-02-11 Fixed remaining ErrorsMode in Single State Button
 2022-02-02 Fixed Addon containing special chars in its ID
 2022-01-28 HTMLEditor public with new feature - editable text field
 2022-01-26 Fixed Media Recorder not recording/playing on mLibro on iOS devices 
