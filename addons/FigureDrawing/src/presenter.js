@@ -937,7 +937,6 @@ function AddonFigureDrawing_create(){
         }
 
         validateLines(presenter.StartingLines,true,false);
-        presenter.isStarted = false;
         presenter.$view.find('.selected').removeClass('selected');
         presenter.selected.isSelected = false;
         presenter.disabled = presenter.initDisabled;
@@ -950,8 +949,10 @@ function AddonFigureDrawing_create(){
         presenter.currentColor = presenter.defaultColor;
 
         if (resetOnlyWrong) {
+            presenter.isStarted = true;
             presenter.setColorMode();
         } else {
+            presenter.isStarted = false;
             presenter.setDrawMode();
         }
     };
