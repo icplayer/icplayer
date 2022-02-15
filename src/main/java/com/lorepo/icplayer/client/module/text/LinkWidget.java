@@ -46,7 +46,7 @@ public class LinkWidget extends Anchor implements NavigationTextElement{
 
 	@Override
 	public String getLangTag() {
-		return null;
+		return linkInfo.getLang();
 	}
 
 	@Override

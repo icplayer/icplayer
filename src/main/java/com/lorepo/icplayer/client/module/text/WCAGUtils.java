@@ -165,6 +165,7 @@ public class WCAGUtils {
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<NavigationTextElement> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
 		int gapNumber = 1;
+		int elementNumber = 1; 		//added to distinct gaps from links
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		while (text.indexOf(GAP_START) >= 0 
 				|| text.indexOf(FILLED_GAP_START) >= 0 
@@ -185,7 +186,7 @@ public class WCAGUtils {
 			final boolean isClosestBreak = lowestIndex == breakIndex;
 			final boolean isClosestLink = lowestIndex == linkIndex;
 			
-			final NavigationTextElement element = !isClosestBreak ? getElement(textElements, gapNumber - 1) : null;
+			final NavigationTextElement element = !isClosestBreak ? getElement(textElements, elementNumber - 1) : null;
 			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
 
 			final String elementContent = element != null ? getElementTextElementContent(element) : "";
@@ -199,6 +200,7 @@ public class WCAGUtils {
 			}
 
 			if (isClosestGap) {
+				elementNumber++;
 				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, gapIndex), lang));                           // text before gap
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
@@ -209,6 +211,7 @@ public class WCAGUtils {
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestFilledGap) {
+				elementNumber++;
 				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
@@ -219,6 +222,7 @@ public class WCAGUtils {
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestDropdown) {
+				elementNumber++;
 				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
@@ -239,7 +243,7 @@ public class WCAGUtils {
 			}
 			if (isClosestLink) {
 				text = text.trim();
-				gapNumber++;
+				elementNumber++;
 				int endLinkTagIndex = text.indexOf(LINK_END);
 				String linkName = text.substring(linkIndex + LINK_START.length(), endLinkTagIndex);
 				String textModel = model.getSpeechTextItem(TextModel.LINK_INDEX);
@@ -248,7 +252,7 @@ public class WCAGUtils {
 					result.add(TextToSpeechVoice.create(text.substring(0, linkIndex - 1), lang));                           // text before gap
 				}
 				
-				result.add(TextToSpeechVoice.create(textModel + " " + linkName.trim(), lang));
+				result.add(TextToSpeechVoice.create(textModel + " " + linkName.trim()));
 				final int endGapIndex =  text.indexOf(LINK_END, linkIndex) + LINK_END.length();
 				text = text.substring(endGapIndex);
 			}

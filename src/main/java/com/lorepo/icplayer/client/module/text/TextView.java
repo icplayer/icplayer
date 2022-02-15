@@ -814,14 +814,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	private List<TextToSpeechVoice> getContent(NavigationTextElement element) {
 		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
+		String langTag = getGapOrModuleLangTag(element);
 		
 		if (element.getElementType() == "link") {
-			content.add(TextToSpeechVoice.create(getLinkTitle(element)));
+			content.add(TextToSpeechVoice.create(getLinkTitle(element), langTag));
 			return content;
 		}
 
 		TextElementDisplay gap = (TextElementDisplay) element;
-		String langTag = getGapOrModuleLangTag(gap);
 		String type = gap.getGapType();
 		String textValue = gap.getWCAGTextValue();
 
@@ -865,7 +865,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return null;
 	}
 
-	private String getGapOrModuleLangTag(TextElementDisplay gap) {
+	private String getGapOrModuleLangTag(NavigationTextElement gap) {
 		String gapLangTag = gap.getLangTag();
 		if (gapLangTag != null) {
 			return gapLangTag;
