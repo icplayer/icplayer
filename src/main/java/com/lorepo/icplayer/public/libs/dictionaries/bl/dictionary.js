@@ -1785,6 +1785,8 @@ var ice_dictionary_bl = {
 	"Assessments_Navigation_Bar_speech_text_title": "Title",
 	"Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
 	"Assessments_Navigation_Bar_speech_text_next_page": "Go to next page",
+	"Assessments_Navigation_Bar_speech_text_show_previous_pages": "Show previous pages",
+	"Assessments_Navigation_Bar_speech_text_show_next_pages": "Show next pages",
     "Line_Selection_name" : "Маркиране на линии",
     "Line_Selection_info" : "Позволява добавянето на линии, които могат да се маркират, към презентацията",
     "Line_Selection_property_is_activity" : "Задача с оценка",

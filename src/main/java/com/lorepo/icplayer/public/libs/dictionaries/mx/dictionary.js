@@ -1783,6 +1783,8 @@ var ice_dictionary_mx = {
 	"Assessments_Navigation_Bar_speech_text_title": "Title",
 	"Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
 	"Assessments_Navigation_Bar_speech_text_next_page": "Go to next page",
+	"Assessments_Navigation_Bar_speech_text_show_previous_pages": "Show previous pages",
+	"Assessments_Navigation_Bar_speech_text_show_next_pages": "Show next pages",
 	"Line_Selection_name": "Selección de líneas",
 	"Line_Selection_info": "Permite agregar una actividad de seleccionar las líneas rectas.",
 	"Line_Selection_property_is_activity": "Es actividad",

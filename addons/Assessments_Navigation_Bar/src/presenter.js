@@ -4,6 +4,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.isWCAGOn = false;
     presenter.SECTION_NAME_HEIGHT = 20;
+    presenter.isFirstEnter = true;
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -21,8 +22,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.DEFAULT_TTS_PHRASES = {
         PreviousPage: "Go to previous page",
+        ShowPreviousPages: "Show previous pages",
         Title: "Title",
         GoToPage: "Go to page",
+        ShowNextPages: "Show next pages",
         NextPage: "Go to next page",
     };
 
@@ -33,6 +36,8 @@ function AddonAssessments_Navigation_Bar_create(){
         SECTION_NAME: "section_name",
         NEXT: "next",
         BUTTON: "button",
+        TURN_BACK: "turn_back",
+        TURN_FORWARD: "turn_forward",
     };
 
     presenter.attemptedButtons = [];
@@ -702,7 +707,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addLeftHellip = function () {
         if (this.shouldAddLeftHellip()) {
-            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), "turn_back");
+            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), presenter.CSS_CLASSES.TURN_BACK);
             return 1;
         }
 
@@ -711,7 +716,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addRightHellip = function () {
         if (this.shouldAddRightHellip()) {
-            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), "turn_forward");
+            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), presenter.CSS_CLASSES.TURN_FORWARD);
             return 1
         }
 
@@ -781,8 +786,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.removeHellips = function () {
-        presenter.$wrapper.find(".turn_forward").remove();
-        presenter.$wrapper.find(".turn_back").remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).remove();
         delete this.rightHellip;
     };
 
@@ -1007,8 +1012,10 @@ function AddonAssessments_Navigation_Bar_create(){
         if (!model['speechTexts']) {
             upgradedModel['speechTexts'] = {
                 PreviousPage: {PreviousPage: ""},
+                ShowPreviousPages: {ShowPreviousPages: ""},
                 Title: {Title: ""},
                 GoToPage: {GoToPage: ""},
+                ShowNextPages: {ShowNextPages: ""},
                 NextPage: {NextPage: ""},
             }
         }
@@ -1019,8 +1026,10 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
             PreviousPage: presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
             Title: presenter.DEFAULT_TTS_PHRASES.Title,
             GoToPage: presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
             NextPage: presenter.DEFAULT_TTS_PHRASES.NextPage,
         };
 
@@ -1032,12 +1041,18 @@ function AddonAssessments_Navigation_Bar_create(){
             PreviousPage: presenter.getSpeechTextProperty(
                 speechTexts.PreviousPage.PreviousPage,
                 presenter.speechTexts.PreviousPage),
+            ShowPreviousPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowPreviousPages.ShowPreviousPages,
+                presenter.speechTexts.ShowPreviousPages),
             Title: presenter.getSpeechTextProperty(
                 speechTexts.Title.Title,
                 presenter.speechTexts.Title),
             GoToPage: presenter.getSpeechTextProperty(
                 speechTexts.GoToPage.GoToPage,
                 presenter.speechTexts.GoToPage),
+            ShowNextPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowNextPages.ShowNextPages,
+                presenter.speechTexts.ShowNextPages),
             NextPage: presenter.getSpeechTextProperty(
                 speechTexts.NextPage.NextPage,
                 presenter.speechTexts.NextPage)
@@ -1630,7 +1645,19 @@ function AddonAssessments_Navigation_Bar_create(){
     AssesmentsNavigationKeyboardController.prototype.constructor = AssesmentsNavigationKeyboardController;
 
     AssesmentsNavigationKeyboardController.prototype.selectAction = function () {
-        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        $element[0].click();
+        if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK) || $element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            AssesmentsNavigationKeyboardController.prototype.setNewElements.call(this);
+        };
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.setNewElements = function () {
+          if (presenter.isTTS()) {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+          } else {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+          }
     };
 
     AssesmentsNavigationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
@@ -1643,14 +1670,16 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     AssesmentsNavigationKeyboardController.prototype.enter = function (event) {
-        if (presenter.isTTS()) {
+        if (presenter.isTTS() && presenter.isFirstEnter) {
             KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.isFirstEnter = false;
         }
         KeyboardController.prototype.enter.call(this, event);
         this.readCurrentElement();
     };
 
     AssesmentsNavigationKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.isFirstEnter = true;
         KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
         KeyboardController.prototype.exitWCAGMode.call(this);
     };
@@ -1676,10 +1705,14 @@ function AddonAssessments_Navigation_Bar_create(){
         var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
         if ($element.hasClass(presenter.CSS_CLASSES.PREVIOUS)) {
             presenter.speak(presenter.speechTexts.PreviousPage);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK)) {
+            presenter.speak(presenter.speechTexts.ShowPreviousPages);
         } else if ($element.hasClass(presenter.CSS_CLASSES.SECTION_NAME)) {
             presenter.speak(getSpeechForSectionName($element));
-        } else if ($element.hasClass(presenter.CSS_CLASSES.BUTTON)){
+        } else if ($element.hasClass(presenter.CSS_CLASSES.BUTTON)) {
             presenter.speak(getSpeechForGoToPage($element));
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            presenter.speak(presenter.speechTexts.ShowNextPages);
         } else if ($element.hasClass(presenter.CSS_CLASSES.NEXT)) {
             presenter.speak(presenter.speechTexts.NextPage);
         }

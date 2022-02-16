@@ -166,8 +166,10 @@ TestCase("[Assessments_Navigation_Bar] Upgrade speech texts", {
 
       this.expectedEmpty = {
                 PreviousPage: {PreviousPage: ""},
+                ShowPreviousPages: {ShowPreviousPages: ""},
                 Title: {Title: ""},
                 GoToPage: {GoToPage: ""},
+                ShowNextPages: {ShowNextPages: ""},
                 NextPage: {NextPage: ""},
         };
     },
@@ -184,8 +186,10 @@ TestCase("[Assessments_Navigation_Bar] Upgrade speech texts", {
             { speechTexts:
                 {
                     PreviousPage: {PreviousPage: "Go to previous page"},
+                    ShowPreviousPages: {ShowPreviousPages: "Show previous pages"},
                     Title: {Title: "Page title"},
                     GoToPage: {GoToPage: "Go to page"},
+                    ShowNextPages: {ShowNextPages: "Show next pages"},
                     NextPage: {NextPage: "Go to next page"},
                 }
             };

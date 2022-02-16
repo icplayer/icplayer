@@ -1791,6 +1791,8 @@ var ice_dictionary_en = {
 	"Assessments_Navigation_Bar_speech_text_title": "Title",
 	"Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
 	"Assessments_Navigation_Bar_speech_text_next_page": "Go to next page",
+	"Assessments_Navigation_Bar_speech_text_show_previous_pages": "Show previous pages",
+	"Assessments_Navigation_Bar_speech_text_show_next_pages": "Show next pages",
     "Line_Selection_name" : "Line Selection",
     "Line_Selection_info" : "Allows to add selectable lines to the presentation",
     "Line_Selection_property_is_activity" : "Is Activity",

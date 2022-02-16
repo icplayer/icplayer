@@ -1783,6 +1783,8 @@ var ice_dictionary_fr = {
     "Assessments_Navigation_Bar_speech_text_title": "Title",
     "Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
     "Assessments_Navigation_Bar_speech_text_next_page": "Go to next page",
+    "Assessments_Navigation_Bar_speech_text_show_previous_pages": "Show previous pages",
+    "Assessments_Navigation_Bar_speech_text_show_next_pages": "Show next pages",
     "Line_Selection_name" : "Sélection de ligne",
     "Line_Selection_info" : "Permet d'ajouyer des lignes sélectionnables dans la présentation",
     "Line_Selection_property_is_activity" : "Est un exercice",

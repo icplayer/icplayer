@@ -43,8 +43,10 @@ TestCase("[Assessments_Navigation_Bar] Text to speech test - speech texts", {
        var speechText = {};
        var expectedResult = {
             PreviousPage: this.presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: this.presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
             Title: this.presenter.DEFAULT_TTS_PHRASES.Title,
             GoToPage: this.presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: this.presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
             NextPage: this.presenter.DEFAULT_TTS_PHRASES.NextPage,
         };
 
@@ -58,8 +60,10 @@ TestCase("[Assessments_Navigation_Bar] Text to speech test - speech texts", {
        var speechText = null;
        var expectedResult = {
             PreviousPage: this.presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: this.presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
             Title: this.presenter.DEFAULT_TTS_PHRASES.Title,
             GoToPage: this.presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: this.presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
             NextPage: this.presenter.DEFAULT_TTS_PHRASES.NextPage,
         };
 
@@ -73,8 +77,10 @@ TestCase("[Assessments_Navigation_Bar] Text to speech test - speech texts", {
        var speechText = undefined;
        var expectedResult = {
             PreviousPage: this.presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: this.presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
             Title: this.presenter.DEFAULT_TTS_PHRASES.Title,
             GoToPage: this.presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: this.presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
             NextPage: this.presenter.DEFAULT_TTS_PHRASES.NextPage,
         };
 
@@ -87,8 +93,10 @@ TestCase("[Assessments_Navigation_Bar] Text to speech test - speech texts", {
     "test given valid speechTexts when setSpeechText then presenter.speechText is equals to input": function () {
        var speechText = {
             PreviousPage: {PreviousPage: "Poprzednia strona"},
+            ShowPreviousPages: {ShowPreviousPages: "Show previous pages"},
             Title: {Title: "Tytul"},
             GoToPage: {GoToPage: "Idz do strony"},
+            ShowNextPages: {ShowNextPages: "Show next pages"},
             NextPage: {NextPage: "Nastepna strona"},
         };
 
