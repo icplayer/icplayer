@@ -55,6 +55,9 @@ function AddonClock_create() {
             case 'getCurrentMinute'.toLowerCase():
                 presenter.getCurrentMinute();
                 break;
+            case 'getCurrentSeconds'.toLowerCase():
+                presenter.getCurrentSeconds();
+                break;
             case 'show'.toLowerCase():
                 presenter.show();
                 break;
@@ -185,41 +188,53 @@ function AddonClock_create() {
                 + (2 * presenter.center) + '"/>';
         }
 
-        if (presenter.ActiveHand == 'HourHand' || presenter.ActiveHand == 'Hour') {
-            fig += '<rect id="m-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 5) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (4 * presenter.center / 5 + vector) + '" />';
-            fig += '<rect id="h-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 2) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (presenter.center / 2 + vector) + '" />';
-        } else {
-            fig += '<rect id="h-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 2) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (presenter.center / 2 + vector) + '" />';
-            fig += '<rect id="m-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 5) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (4 * presenter.center / 5 + vector) + '" />';
-        }
-
         if (presenter.showSecondHand) {
-            fig += '<rect id="s-hand" x="' + (presenter.center - vector / 4)
-                + '" y="' + (presenter.center / 5) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (vector / 2) + '" height="'
-                + (4 * presenter.center / 5 + vector) + '" />';
+            if (presenter.isMinuteHandActive()){
+                fig += presenter.getSecondHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+                fig += presenter.getMinuteHandElement(vector);
+            } else {
+                fig += presenter.getMinuteHandElement(vector);
+                fig += presenter.getSecondHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+            }
+        } else {
+            if (presenter.ActiveHand == 'HourHand' || presenter.ActiveHand == 'Hour') {
+                fig += presenter.getMinuteHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+            } else {
+                fig += presenter.getHourHandElement(vector);
+                fig += presenter.getMinuteHandElement(vector);
+            }
         }
 
         fig += '</svg>';
 
         return fig;
+    };
+
+    presenter.getHourHandElement = function (vector) {
+        return '<rect id="h-hand" x="' + (presenter.center - vector)
+                + '" y="' + (presenter.center / 2) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (2 * vector) + '" height="'
+                + (presenter.center / 2 + vector) + '" />';
+    };
+
+    presenter.getMinuteHandElement = function (vector) {
+        return '<rect id="m-hand" x="' + (presenter.center - vector)
+                + '" y="' + (presenter.center / 5) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (2 * vector) + '" height="'
+                + (4 * presenter.center / 5 + vector) + '" />';
+    };
+
+    presenter.getSecondHandElement = function (vector) {
+        return '<rect id="s-hand" x="' + (presenter.center - vector / 4)
+                + '" y="' + (presenter.center / 5) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (vector / 2) + '" height="'
+                + (4 * presenter.center / 5 + vector) + '" />';
     };
 
     presenter.getNewTime = function(myTime) {
@@ -1274,6 +1289,14 @@ function AddonClock_create() {
             + presenter.currentMinuteValue : presenter.currentMinuteValue;
     };
 
+    presenter.getCurrentSeconds = function() {
+        if(presenter.showAnswersMode === true){
+            presenter.hideAnswers();
+
+        }
+        return presenter.showSecondHand ? presenter.getValueWithLeadingZero(presenter.currentSecondValue) : null;
+    };
+
     presenter.disable = function() {
         if (presenter.showAnswersMode && !presenter.isGradualShowAnswersActive) {
             presenter.hideAnswers();
@@ -1641,12 +1664,7 @@ function AddonClock_create() {
         return {
             source : presenter.modelID,
             item : "" + "1",
-            value : ''
-                + presenter.currentHourValue
-                + ":"
-                + (presenter.currentMinuteValue < 10 ? "0"
-                + presenter.currentMinuteValue
-                : presenter.currentMinuteValue),
+            value : presenter.getCurrentTime(),
             score : '' + checkScore
         };
     };
