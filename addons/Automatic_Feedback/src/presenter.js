@@ -25,12 +25,14 @@ function AddonAutomatic_Feedback_create() {
     var FEEDBACK_CLASSES = {
         CORRECT: "correct_feedback",
         INCORRECT: "incorrect_feedback",
-        PARTIAL: "partial",
-        EMPTY: "empty"
+        PARTIAL: "partial_feedback",
+        EMPTY: "empty_feedback"
     }
 
+    var POPUP_FEEDBACK_CLASS = "automatic_feedback_popup";
+
     var ActivityTypeDict = null;
-    function initializeActivityTypeDict() {
+    presenter.initializeActivityTypeDict = function() {
         activityTypeDict = {
             "Default": DefaultActivity,
         };
@@ -45,10 +47,10 @@ function AddonAutomatic_Feedback_create() {
     };
 
     presenter.initialize = function (view, model, isPreview) {
-        initializeActivityTypeDict();
         presenter.view = view;
-        presenter.configuration = validateModel(model);
-        console.log(presenter.configuration);
+        presenter.$view = $(view);
+        presenter.initializeActivityTypeDict();
+        presenter.configuration = presenter.validateModel(model);
 
         if (!presenter.configuration.isValid) {
             view.innerHTML = ERROR_MESSAGES[presenter.configuration.errorCode];
@@ -56,12 +58,27 @@ function AddonAutomatic_Feedback_create() {
         }
 
         presenter.$content = $(view).find('.automatic_feedback_wrapper');
+        presenter.tooltipElements = [];
         presenter.activityHandler = new activityTypeDict[presenter.configuration.activityType](this);
+
+        if (presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+            presenter.$content.addClass(POPUP_FEEDBACK_CLASS);
+            presenter.$content.dialog({
+                modal: true,
+                autoOpen: false,
+                draggable: false,
+                minHeight: 'auto',
+                resizable: false,
+                width: presenter.configuration.width
+            });
+        } else if (presenter.configuration.displayMode == DISPLAY_MODES.TOOLTIPS) {
+            presenter.activityHandler.createTooltips();
+        }
 
         presenter.isLoaded = true;
     }
 
-    function validateModel(model) {
+    presenter.validateModel = function(model) {
 
         if (model["ActivityModuleID"].trim().length === 0) {
             return {isValid: false, errorCode: "AM01"};
@@ -168,7 +185,6 @@ function AddonAutomatic_Feedback_create() {
     }
 
     presenter.setShowErrorsMode = function () {
-        console.log("show answers mode");
         if (presenter.configuration.reactTo == REACT_TO.CHECK) {
             presenter.activityHandler.onShowErrorsMode();
         }
@@ -194,7 +210,6 @@ function AddonAutomatic_Feedback_create() {
     }
 
     presenter.onEventReceived = function (eventName, data) {
-        console.log("onEventReceived");
         if (!presenter.isLoaded) return;
         if (eventName == "ValueChanged") presenter.onValueChanged(data);
     }
@@ -202,8 +217,6 @@ function AddonAutomatic_Feedback_create() {
     presenter.onValueChanged = function(data) {
         if (presenter.configuration.reactTo == REACT_TO.VALUE_CHANGED) {
             if (data.source == presenter.configuration.activityModuleID) {
-                console.log("value changed in my addon");
-                console.log(data);
                 if (data.value.length === 0 || data.value == '---') {
                     presenter.activityHandler.onEmptyAnswer(data.item);
                 } else if (data.score == 0) {
@@ -218,21 +231,108 @@ function AddonAutomatic_Feedback_create() {
     }
 
     presenter.showBlockFeedback = function(feedback, _class) {
-        presenter.clearBlockFeedbackClasses();
+        presenter.clearFeedbackClasses(presenter.$content);
         presenter.$content.addClass(_class);
         presenter.$content.html(feedback);
+        if (presenter.configuration.displayFeedbackButtons) {
+            presenter.wrapElementInButton(presenter.$content);
+        }
     }
 
-    presenter.clearBlockFeedback = function(clear) {
-        presenter.clearBlockFeedbackClasses();
+    presenter.clearBlockFeedback = function() {
+        presenter.clearFeedbackClasses(presenter.$content);
         presenter.$content.html("");
+        if (presenter.configuration.displayFeedbackButtons) {
+            presenter.$content.parent().find('.automatic_feedback_button').remove();
+        }
     }
 
-    presenter.clearBlockFeedbackClasses = function() {
-        presenter.$content.removeClass(FEEDBACK_CLASSES.CORRECT);
-        presenter.$content.removeClass(FEEDBACK_CLASSES.INCORRECT);
-        presenter.$content.removeClass(FEEDBACK_CLASSES.PARTIAL);
-        presenter.$content.removeClass(FEEDBACK_CLASSES.EMPTY);
+    presenter.clearFeedbackClasses = function($element) {
+        $element.removeClass(FEEDBACK_CLASSES.CORRECT);
+        $element.removeClass(FEEDBACK_CLASSES.INCORRECT);
+        $element.removeClass(FEEDBACK_CLASSES.PARTIAL);
+        $element.removeClass(FEEDBACK_CLASSES.EMPTY);
+    }
+
+    presenter.showPopupFeedback = function(feedback, _class) {
+        $('.' + POPUP_FEEDBACK_CLASS).dialog("close");
+        presenter.clearFeedbackClasses(presenter.$content.parent());
+        presenter.$content.parent().addClass(_class);
+        presenter.$content.html(feedback);
+        presenter.$content.dialog('open');
+        presenter.scaleDialog(presenter.$content);
+    }
+
+    presenter.scaleDialog = function ($dialog) {
+        var scaleInfo = presenter.playerController.getScaleInformation();
+        if(scaleInfo.scaleY !== 1.0) {
+            var $icpage = presenter.findICPage();
+            if ($icpage != null) {
+                var presentationPosition = $icpage.offset();
+                var presentationWidth = $icpage.outerWidth();
+                var dialogWidth = presenter.$content.outerWidth();
+                var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) * scaleInfo.scaleY / 2, 10);
+                var leftPosition = presentationPosition.left + presentationHorizontalOffset;
+                $dialog.parent().css('transform', scaleInfo.transform);
+                $dialog.parent().css('transform-origin', scaleInfo.transformOrigin);
+                $dialog.parent().css('left',leftPosition+'px')
+            }
+        }
+    }
+
+    presenter.findICPage = function () {
+        var $icpage = $(presenter.$view.parent('.ic_page:first')[0]);
+        if ($icpage.offset() == null){
+            $icpage = $(presenter.$view.parent('.ic_popup_page:first')[0]);
+        }
+        if ($icpage.offset() == null){
+            $icpage = $(presenter.$view.parent('.ic_header:first')[0]);
+        }
+        if ($icpage.offset() == null){
+            $icpage = $(presenter.$view.parent('.ic_footer:first')[0]);
+        }
+        return $icpage;
+    };
+
+    presenter.wrapElementInButton = function($element, isTooltip) {
+        var $parent = $element.parent();
+        $parent.find('.automatic_feedback_button').remove();
+        var $button = $('<button></button>');
+        $button.addClass('automatic_feedback_button');
+        $element.after($button);
+        if (isTooltip) {
+            $parent.find('.ui-dialog-titlebar').css('display', 'none');
+            if (!$parent.attr('data-original-width')) {
+                $parent.attr('data-original-width', $parent.css('width'));
+            }
+            originalWidth = $element.parent().css('width');
+            $parent.css('width', 'auto');
+        }
+        $element.css('display','none');
+        $button.click(function(){
+            $element.css('display','');
+            if (isTooltip) {
+                $parent.find('.ui-dialog-titlebar').css('display', '');
+                $parent.css('width', $parent.attr('data-original-width'));
+            }
+            $button.remove();
+        });
+    }
+
+    presenter.isScoreCorrect = function(score, maxScore, errorCount) {
+        return score == maxScore && errorCount == 0;
+    }
+
+    presenter.isScoreIncorrect = function(score, maxScore, errorCount) {
+        return errorCount > 0;
+    }
+
+    presenter.isScoreEmpty = function(score, maxScore, errorCount) {
+        return score == 0 && maxScore > 0 && errorCount == 0;
+    }
+
+    presenter.isScorePartial = function(score, maxScore, errorCount) {
+        return score != 0 && score < maxScore && errorCount == 0;
     }
 
     class AbstractActivity {
@@ -265,27 +365,27 @@ function AddonAutomatic_Feedback_create() {
             throw "clearFeedback must be implemented";
         }
 
+        createTooltips() {
+            throw "createTooltips must be implemented";
+        }
+
     }
 
     class DefaultActivity extends AbstractActivity {
 
         onCorrectAnswer(itemID) {
-            console.log("onCorrectAnswer");
             this.onShowErrorsMode();
         }
 
         onIncorrectAnswer(itemID) {
-            console.log("onIncorrectAnswer");
             this.onShowErrorsMode();
         }
 
         onEmptyAnswer(itemID) {
-            console.log("onEmptyAnswer");
             this.onShowErrorsMode();
         }
 
         onPartialAnswer(itemID) {
-            console.log("onPartialAnswer");
             this.onShowErrorsMode();
         }
 
@@ -299,18 +399,17 @@ function AddonAutomatic_Feedback_create() {
             var score = module.getScore();
             var maxScore = module.getMaxScore();
             var errorCount = module.getErrorCount();
-            console.log(score,maxScore,errorCount);
 
             var feedbackObject = this.presenter.configuration.defaultFeedback;
             var feedback = "";
             var _class = "";
-            if (errorCount > 0) {
+            if (this.presenter.isScoreIncorrect(score, maxScore, errorCount)) {
                 feedback = feedbackObject.incorrect;
                 _class = FEEDBACK_CLASSES.INCORRECT;
-            } else if (score == maxScore) {
+            } else if (this.presenter.isScoreCorrect(score, maxScore, errorCount)) {
                 feedback = feedbackObject.correct;
                 _class = FEEDBACK_CLASSES.CORRECT;
-            } else if (score == 0) {
+            } else if (this.presenter.isScoreEmpty(score, maxScore, errorCount)) {
                 feedback = feedbackObject.empty;
                 _class = FEEDBACK_CLASSES.EMPTY;
             } else {
@@ -320,13 +419,57 @@ function AddonAutomatic_Feedback_create() {
             this.displayFeedback(feedback, _class);
         }
 
-        displayFeedback(feedback) {
-            this.presenter.showBlockFeedback(feedback);
+        displayFeedback(feedback, _class) {
+            if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+                this.presenter.showBlockFeedback(feedback, _class);
+            } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                this.presenter.showPopupFeedback(feedback, _class);
+            } else {
+                if (this.$tooltip == null) {this.createTooltips();};
+                if (this.$tooltip != null) this.showTooltipFeedback(feedback, _class);
+            }
         }
 
         clearFeedback() {
-            this.presenter.clearBlockFeedback();
+            if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+                this.presenter.clearBlockFeedback();
+            } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                this.presenter.$content.dialog('close');
+            } else {
+                this.$tooltip.dialog('close');
+            }
         }
+
+        createTooltips() {
+            var activityModuleView = $('#'+this.presenter.configuration.activityModuleID)[0];
+            if (activityModuleView == null) return;
+            this.$tooltip = this.presenter.$content.dialog({
+                modal: false,
+                autoOpen: false,
+                draggable: false,
+                minHeight: 'auto',
+                resizable: false,
+                position: {
+                    my: "left center",
+                    at: "right center",
+                    of: activityModuleView
+                }
+            });
+            this.$tooltip.addClass('automatic_feedback_tooltip_body');
+            this.$tooltip.parent().find('.ui-dialog-titlebar').addClass('automatic_feedback_tooltip_title');
+        }
+
+        showTooltipFeedback = function(feedback, _class) {
+            this.presenter.clearFeedbackClasses(this.$tooltip.parent());
+            this.$tooltip.parent().addClass(_class);
+            this.$tooltip.html(feedback);
+            this.$tooltip.dialog('open');
+            this.presenter.scaleDialog(this.$tooltip);
+            if (this.presenter.configuration.displayFeedbackButtons) {
+                this.presenter.wrapElementInButton(this.$tooltip, true);
+            }
+        }
+
     }
 
     return presenter;
