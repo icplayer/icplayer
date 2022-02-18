@@ -5,7 +5,6 @@ function AddonFigureDrawing_create(){
     presenter.isStarted = false;
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
-    presenter.reachedBoundaries = null;
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -927,7 +926,11 @@ function AddonFigureDrawing_create(){
             presenter.removeIncorrectLines();
 
             if (presenter.coloring) {
+                var copyOfColoredAreas = JSON.parse(JSON.stringify(presenter.coloredAreas));
+                presenter.coloredAreas = [];
+                presenter.redrawCanvas(false);
                 presenter.fillFiguresWithAnswerColor();
+                presenter.coloredAreas = copyOfColoredAreas;
                 var areasToRemove = presenter.getAreasToRemove();
                 presenter.updateColoredAreas(areasToRemove);
             }
@@ -984,9 +987,7 @@ function AddonFigureDrawing_create(){
         var figuresToRemove = [];
         for (let i = 0; i < presenter.coloredAreas.length; i++) {
             let color = getClickedAreaColor(presenter.coloredAreas[i][0], presenter.coloredAreas[i][1]);
-            let hasDifferentColor = color[0] != presenter.coloredAreas[i][2] || color[1] != presenter.coloredAreas[i][3] || color[2] != presenter.coloredAreas[i][4] || color[3] != presenter.coloredAreas[i][5];
-            let hasReachedBoundaries = presenter.hasReachedBoundaries([presenter.coloredAreas[i][0], presenter.coloredAreas[i][1]])
-            if (hasDifferentColor || hasReachedBoundaries) {
+            if (color[0] != presenter.coloredAreas[i][2] || color[1] != presenter.coloredAreas[i][3] || color[2] != presenter.coloredAreas[i][4] || color[3] != presenter.coloredAreas[i][5]) {
                 figuresToRemove.push(i);
             }
         }
@@ -996,13 +997,6 @@ function AddonFigureDrawing_create(){
         });
 
         return figuresToRemove;
-    }
-
-    presenter.hasReachedBoundaries = function (coloredMark) {
-        if (!presenter.reachedBoundaries) {
-            return false;
-        }
-        return JSON.stringify(presenter.reachedBoundaries) === JSON.stringify(coloredMark);
     }
 
     presenter.updateColoredAreas = function (figuresToRemove) {
@@ -1268,9 +1262,6 @@ function AddonFigureDrawing_create(){
                     }
                 }
                 pixelPos += presenter.canvasWidth * 4;
-            }
-            if (reachLeft && reachRight) {
-                presenter.reachedBoundaries = startingPixel;
             }
         }
         presenter.ctx.putImageData(imgData, 0, 0);
