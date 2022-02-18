@@ -36,6 +36,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
 	private int clicks = -1;
+	private int gapCounter = -1;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
@@ -537,6 +538,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	
 	private void move (boolean goNext) {
 		int size = navigationTextElements.size();
+		boolean hasAchieveMaximum = false;
 		
 		if (size == 0) {
 			return;
@@ -544,10 +546,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		
 		this.removeNavigationElementSelections();
 		
-		clicks += goNext ? 1 : -1;
+		clicks += goNext ? 1 : -1; 
 		
 		if (clicks >= size) {
 			clicks = size-1;
+			hasAchieveMaximum = true;
 		}
 		
 		if (clicks < 0) {
@@ -555,11 +558,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		NavigationTextElement activeElement = navigationTextElements.get(clicks);
+		if (!(activeElement instanceof LinkWidget) && !hasAchieveMaximum) {
+			gapCounter++; 
+		}
+		
 		this.activatedNavigationElement = activeElement;
 		activeElement.setElementFocus(true);
 		moduleHasFocus = true;
 		
-		this.readNavigationText(activeElement, clicks);
+		this.readNavigationText(activeElement, gapCounter);
 	}
 
 	@Override
@@ -573,6 +580,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		this.removeNavigationElementSelections();
 		moduleHasFocus = false;
 		clicks = -1;
+		gapCounter = -1;
 		activeGap = null;
 	}
 
