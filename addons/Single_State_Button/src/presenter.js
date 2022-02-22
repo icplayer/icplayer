@@ -327,6 +327,7 @@ function AddonSingle_State_Button_create() {
 
         if (eventName === "HideAnswers") {
             presenter.configuration.isShowAnswersMode = false;
+            presenter.setWorkMode();
         }
     };
 

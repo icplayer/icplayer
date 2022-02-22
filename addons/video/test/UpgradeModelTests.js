@@ -88,7 +88,8 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
             AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
         },
-        "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it."
+        "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it.",
+        "enableVideoSpeedController":"False"
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);
@@ -119,4 +120,19 @@ UpgradeModelTests.prototype.testGivenModelWithOfflineMessageWhenUpgradeIsCalledT
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
     assertEquals(expected, upgradedModel['offlineMessage']);
+};
+
+UpgradeModelTests.prototype.testAddPropertyEnableVideoSpeedController = function () {
+    var result = this.presenter.upgradeModel(this.model);
+
+    assertTrue(result.hasOwnProperty('enableVideoSpeedController'));
+    assertEquals(result['enableVideoSpeedController'], 'False');
+};
+
+UpgradeModelTests.prototype.testDoNotChangePropertyEnableVideoSpeedController = function () {
+    this.model['enableVideoSpeedController'] = 'True';
+
+    var result = this.presenter.upgradeModel(this.model);
+
+    assertEquals(result['enableVideoSpeedController'], 'True');
 };
