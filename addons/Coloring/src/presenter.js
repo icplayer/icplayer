@@ -912,8 +912,18 @@ function AddonColoring_create(){
         presenter.ctx.drawImage(presenter.image[0], 0, 0);
     };
 
-    presenter.reset = function(){
-        presenter.clearCanvas();
+    presenter.reset = function(resetOnlyWrong){
+        if (resetOnlyWrong) {
+            $.each(presenter.configuration.areas, function () {
+                var area = this;
+                if (!isCorrect(area)) {
+                    presenter.clearArea(area.x, area.y, true)
+                }
+            });
+        } else {
+            presenter.clearCanvas();
+        }
+
         presenter.$view.find('.icon-container').remove();
         presenter.isColored = false;
         presenter.isShowAnswersActive = false;
@@ -1456,3 +1466,7 @@ function AddonColoring_create(){
 
     return presenter;
 }
+
+AddonColoring_create.__supported_player_options__ = {
+    resetInterfaceVersion: 2
+};
