@@ -802,7 +802,7 @@ function AddonEditableWindow_create() {
 
     presenter.openPopup = function () {
         presenter.show();
-        presenter.setPositionRelative();
+        presenter.centerPosition();
     };
 
     presenter.hide = function () {
