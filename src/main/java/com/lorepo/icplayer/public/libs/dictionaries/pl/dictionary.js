@@ -621,6 +621,8 @@ var ice_dictionary_pl = {
 	"TextAudio_property_is_disabled": "Is disabled",
 	"TextAudio_property_lang_attribute": "Lang attribute",
 	"TextAudio_property_speech_texts": "Speech texts",
+	"TextAudio_property_fileSRT": "File SRT",
+	"TextAudio_property_crop_time": "Crop time",
 	"TextAudio_play": "Play",
 	"TextAudio_pause": "Pause",
 	"TextAudio_stop": "Stop",

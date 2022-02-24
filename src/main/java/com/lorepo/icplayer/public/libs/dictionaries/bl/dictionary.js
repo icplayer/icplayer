@@ -620,6 +620,8 @@ var ice_dictionary_bl = {
     "TextAudio_property_position_and_dimentions": "Разположение и размери",
 	"TextAudio_property_lang_attribute": "Lang attribute",
 	"TextAudio_property_speech_texts": "Speech texts",
+	"TextAudio_property_fileSRT": "File SRT",
+	"TextAudio_property_crop_time": "Crop time",
 	"TextAudio_play": "Play",
 	"TextAudio_pause": "Pause",
 	"TextAudio_stop": "Stop",
