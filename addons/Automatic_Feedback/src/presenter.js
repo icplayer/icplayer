@@ -23,13 +23,15 @@ function AddonAutomatic_Feedback_create() {
     }
 
     var FEEDBACK_CLASSES = {
-        CORRECT: "correct_feedback",
-        INCORRECT: "incorrect_feedback",
-        PARTIAL: "partial_feedback",
-        EMPTY: "empty_feedback"
+        CORRECT: "correct-feedback",
+        INCORRECT: "incorrect-feedback",
+        PARTIAL: "partial-feedback",
+        EMPTY: "empty-feedback"
     }
 
-    var POPUP_FEEDBACK_CLASS = "automatic_feedback_popup";
+    var POPUP_FEEDBACK_CLASS = "automatic-feedback-popup";
+    var AUTOMATIC_FEEDBACK_DIALOG_CLASS = "automatic-feedback-dialog";
+    var REMAIN_OPEN_CLASS = "remain-open";
 
     var ActivityTypeDict = null;
     presenter.initializeActivityTypeDict = function() {
@@ -62,8 +64,10 @@ function AddonAutomatic_Feedback_create() {
         presenter.activityHandler = new activityTypeDict[presenter.configuration.activityType](this);
 
         if (presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-            presenter.$content.addClass(POPUP_FEEDBACK_CLASS);
-            presenter.$content.dialog({
+            presenter.$popup = $('<div></div>');
+            presenter.$content.append(presenter.$popup);
+            presenter.$popup.addClass(POPUP_FEEDBACK_CLASS);
+            presenter.$popup.dialog({
                 modal: true,
                 autoOpen: false,
                 draggable: false,
@@ -71,6 +75,9 @@ function AddonAutomatic_Feedback_create() {
                 resizable: false,
                 width: presenter.configuration.width
             });
+            if (presenter.configuration.displayFeedbackButtons) {
+                presenter.activityHandler.createTooltips();
+            }
         } else if (presenter.configuration.displayMode == DISPLAY_MODES.TOOLTIPS) {
             presenter.activityHandler.createTooltips();
         }
@@ -187,13 +194,13 @@ function AddonAutomatic_Feedback_create() {
     presenter.setShowErrorsMode = function () {
         if (presenter.configuration.reactTo == REACT_TO.CHECK) {
             presenter.activityHandler.onShowErrorsMode();
+        } else {
+            presenter.activityHandler.clearFeedback();
         }
     }
 
     presenter.setWorkMode = function () {
-        if (presenter.configuration.reactTo == REACT_TO.CHECK) {
-            presenter.activityHandler.clearFeedback();
-        }
+        presenter.activityHandler.clearFeedback();
     }
 
     presenter.reset = function () {
@@ -235,7 +242,7 @@ function AddonAutomatic_Feedback_create() {
         presenter.$content.addClass(_class);
         presenter.$content.html(feedback);
         if (presenter.configuration.displayFeedbackButtons) {
-            presenter.wrapElementInButton(presenter.$content);
+            presenter.wrapElementInButton(presenter.$content, false);
         }
     }
 
@@ -256,11 +263,12 @@ function AddonAutomatic_Feedback_create() {
 
     presenter.showPopupFeedback = function(feedback, _class) {
         $('.' + POPUP_FEEDBACK_CLASS).dialog("close");
-        presenter.clearFeedbackClasses(presenter.$content.parent());
-        presenter.$content.parent().addClass(_class);
-        presenter.$content.html(feedback);
-        presenter.$content.dialog('open');
-        presenter.scaleDialog(presenter.$content);
+        presenter.clearFeedbackClasses(presenter.$popup.parent());
+        presenter.$popup.parent().addClass(_class);
+        presenter.$popup.parent().addClass(AUTOMATIC_FEEDBACK_DIALOG_CLASS);
+        presenter.$popup.html(feedback);
+        presenter.$popup.dialog('open');
+        presenter.scaleDialog(presenter.$popup);
     }
 
     presenter.scaleDialog = function ($dialog) {
@@ -270,7 +278,7 @@ function AddonAutomatic_Feedback_create() {
             if ($icpage != null) {
                 var presentationPosition = $icpage.offset();
                 var presentationWidth = $icpage.outerWidth();
-                var dialogWidth = presenter.$content.outerWidth();
+                var dialogWidth = $dialog.outerWidth();
                 var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) * scaleInfo.scaleY / 2, 10);
                 var leftPosition = presentationPosition.left + presentationHorizontalOffset;
                 $dialog.parent().css('transform', scaleInfo.transform);
@@ -294,12 +302,28 @@ function AddonAutomatic_Feedback_create() {
         return $icpage;
     };
 
+    function getFeedbackClassFromElement($element) {
+        if ($element.hasClass(FEEDBACK_CLASSES.CORRECT)) {
+            return FEEDBACK_CLASSES.CORRECT;
+        } else if ($element.hasClass(FEEDBACK_CLASSES.INCORRECT)) {
+            return FEEDBACK_CLASSES.INCORRECT;
+        } else if ($element.hasClass(FEEDBACK_CLASSES.EMPTY)) {
+            return FEEDBACK_CLASSES.EMPTY;
+        } else if ($element.hasClass(FEEDBACK_CLASSES.PARTIAL)) {
+            return FEEDBACK_CLASSES.PARTIAL;
+        } else {
+            return '';
+        }
+    }
+
     presenter.wrapElementInButton = function($element, isTooltip) {
         var $parent = $element.parent();
         $parent.find('.automatic_feedback_button').remove();
         var $button = $('<button></button>');
         $button.addClass('automatic_feedback_button');
-        $element.after($button);
+        var _class = getFeedbackClassFromElement($parent);
+        $button.addClass(_class);
+        $parent.append($button);
         if (isTooltip) {
             $parent.find('.ui-dialog-titlebar').css('display', 'none');
             if (!$parent.attr('data-original-width')) {
@@ -309,14 +333,20 @@ function AddonAutomatic_Feedback_create() {
             $parent.css('width', 'auto');
         }
         $element.css('display','none');
-        $button.click(function(){
-            $element.css('display','');
-            if (isTooltip) {
-                $parent.find('.ui-dialog-titlebar').css('display', '');
-                $parent.css('width', $parent.attr('data-original-width'));
-            }
-            $button.remove();
-        });
+        if (!presenter.configuration.displayFeedbackButtons) {
+            $button.click(function(){
+                $element.css('display','');
+                if (isTooltip) {
+                    $parent.find('.ui-dialog-titlebar').css('display', '');
+                    $parent.css('width', $parent.attr('data-original-width'));
+                }
+                $button.remove();
+            });
+        } else {
+            $button.click(function(){
+                presenter.showPopupFeedback($element.html(), _class);
+            });
+        }
     }
 
     presenter.isScoreCorrect = function(score, maxScore, errorCount) {
@@ -423,7 +453,12 @@ function AddonAutomatic_Feedback_create() {
             if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
                 this.presenter.showBlockFeedback(feedback, _class);
             } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-                this.presenter.showPopupFeedback(feedback, _class);
+                if (this.presenter.configuration.displayFeedbackButtons) {
+                    if (this.$tooltip == null) {this.createTooltips();};
+                    if (this.$tooltip != null) this.showTooltipFeedback(feedback, _class);
+                } else {
+                    this.presenter.showPopupFeedback(feedback, _class);
+                }
             } else {
                 if (this.$tooltip == null) {this.createTooltips();};
                 if (this.$tooltip != null) this.showTooltipFeedback(feedback, _class);
@@ -434,16 +469,26 @@ function AddonAutomatic_Feedback_create() {
             if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
                 this.presenter.clearBlockFeedback();
             } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-                this.presenter.$content.dialog('close');
+                this.presenter.$popup.removeClass(REMAIN_OPEN_CLASS);
+                this.presenter.$popup.dialog('close');
+                if (this.presenter.configuration.displayFeedbackButtons) {
+                    this.$tooltip.removeClass(REMAIN_OPEN_CLASS);
+                    this.$tooltip.dialog('close');
+                }
             } else {
-                this.$tooltip.dialog('close');
+                if (this.$tooltip) {
+                    this.$tooltip.removeClass(REMAIN_OPEN_CLASS);
+                    this.$tooltip.dialog('close');
+                }
             }
         }
 
         createTooltips() {
             var activityModuleView = $('#'+this.presenter.configuration.activityModuleID)[0];
             if (activityModuleView == null) return;
-            this.$tooltip = this.presenter.$content.dialog({
+            var $tooltipElement = $('<div></div>');
+            this.presenter.$content.append($tooltipElement);
+            this.$tooltip = $tooltipElement.dialog({
                 modal: false,
                 autoOpen: false,
                 draggable: false,
@@ -455,6 +500,14 @@ function AddonAutomatic_Feedback_create() {
                     of: activityModuleView
                 }
             });
+            var self = this;
+            this.$tooltip.on('dialogbeforeclose', function(event, ui){
+                if (self.$tooltip.hasClass('remain-open')) {
+                    self.presenter.wrapElementInButton(self.$tooltip, true);
+                    return false;
+                }
+                return true;
+                });
             this.$tooltip.addClass('automatic_feedback_tooltip_body');
             this.$tooltip.parent().find('.ui-dialog-titlebar').addClass('automatic_feedback_tooltip_title');
         }
@@ -462,10 +515,12 @@ function AddonAutomatic_Feedback_create() {
         showTooltipFeedback = function(feedback, _class) {
             this.presenter.clearFeedbackClasses(this.$tooltip.parent());
             this.$tooltip.parent().addClass(_class);
+            this.$tooltip.parent().addClass(AUTOMATIC_FEEDBACK_DIALOG_CLASS);
             this.$tooltip.html(feedback);
             this.$tooltip.dialog('open');
             this.presenter.scaleDialog(this.$tooltip);
             if (this.presenter.configuration.displayFeedbackButtons) {
+                this.$tooltip.addClass(REMAIN_OPEN_CLASS);
                 this.presenter.wrapElementInButton(this.$tooltip, true);
             }
         }
