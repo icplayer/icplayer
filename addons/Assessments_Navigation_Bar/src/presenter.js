@@ -1665,7 +1665,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     AssesmentsNavigationKeyboardController.prototype.switchElement = function (move) {
-        KeyboardController.prototype.switchElement.call(this, move);
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
+            KeyboardController.prototype.markCurrentElement.call(this, new_position_index);
+        }
         this.readCurrentElement();
     };
 
@@ -1689,12 +1692,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.getElementsForTTS = function () {
-        return this.$view.find(".element:visible, .section_name:visible");
+        return this.$view.find(".element:visible, .section_name:visible").filter(":not(.inactive)");
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        var elements = this.$view.find(".element:visible");
-        return elements;
+        return this.$view.find(".element:visible").filter(":not(.inactive)");
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
