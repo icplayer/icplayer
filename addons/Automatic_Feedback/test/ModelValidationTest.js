@@ -41,7 +41,7 @@ TestCase("Model validation", {
         assertEquals({}, validatedModel.itemFeedbacks);
     },
 
-    'test given model with only default feedavks when validation was called then return configuration with default feedbacks set': function () {
+    'test given model with only default feedbacks when validation was called then return configuration with default feedbacks set': function () {
             this.model.CorrectFeedback = [
                 {ActivityItem: '', Feedback: 'correctdef'}
             ];

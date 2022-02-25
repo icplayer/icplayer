@@ -105,6 +105,7 @@ function AddonAutomatic_Feedback_create() {
 
 
         var feedbacks = generateFeedbacks(model);
+        if (!feedbacks.isValid) return {isValid: false, errorCode: feedbacks.errorCode};
 
         return {
             ID: model.ID,
@@ -316,15 +317,9 @@ function AddonAutomatic_Feedback_create() {
         }
     }
 
-    presenter.wrapElementInButton = function($element, isTooltip) {
+    presenter.wrapElementInButton = function($element, isDialog) {
         var $parent = $element.parent();
-        $parent.find('.automatic_feedback_button').remove();
-        var $button = $('<button></button>');
-        $button.addClass('automatic_feedback_button');
-        var _class = getFeedbackClassFromElement($parent);
-        $button.addClass(_class);
-        $parent.append($button);
-        if (isTooltip) {
+        if (isDialog) {
             $parent.find('.ui-dialog-titlebar').css('display', 'none');
             if (!$parent.attr('data-original-width')) {
                 $parent.attr('data-original-width', $parent.css('width'));
@@ -333,19 +328,27 @@ function AddonAutomatic_Feedback_create() {
             $parent.css('width', 'auto');
         }
         $element.css('display','none');
-        if (!presenter.configuration.displayFeedbackButtons) {
-            $button.click(function(){
-                $element.css('display','');
-                if (isTooltip) {
-                    $parent.find('.ui-dialog-titlebar').css('display', '');
-                    $parent.css('width', $parent.attr('data-original-width'));
-                }
-                $button.remove();
-            });
-        } else {
-            $button.click(function(){
-                presenter.showPopupFeedback($element.html(), _class);
-            });
+
+        if($parent.find('.automatic_feedback_button').length == 0) {
+            var $button = $('<button></button>');
+            $button.addClass('automatic_feedback_button');
+            var _class = getFeedbackClassFromElement($parent);
+            $button.addClass(_class);
+            $parent.append($button);
+            if (presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                $button.click(function(){
+                    presenter.showPopupFeedback($element.html(), _class);
+                });
+            } else {
+                $button.click(function(){
+                    $element.css('display','');
+                    if (isDialog) {
+                        $parent.find('.ui-dialog-titlebar').css('display', '');
+                        $parent.css('width', $parent.attr('data-original-width'));
+                    }
+                    $button.remove();
+                });
+            }
         }
     }
 
