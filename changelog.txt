@@ -1,4 +1,10 @@
+2022-02-22 Added removing only incorrect answers in Coloring and Figure Drawing
+2022-02-11 Fixed remaining ErrorsMode in Single State Button
+2022-02-02 Fixed Addon containing special chars in its ID
+2022-01-28 HTMLEditor public with new feature - editable text field
+2022-01-26 Fixed Media Recorder not recording/playing on mLibro on iOS devices 
 2022-01-24 Fixed video addon progress bar issues on mobiles - fullscreen changed first click and offset between click and actual
+2021-12-20 Change audio format from wav to mp3 in MediaRecorder addon
 2022-01-12 Added setAllPagesAsVisited command
 2022-01-10 Fixed issue with module ids including non-letter/number signs
 2022-01-04 Added new properties to youtube addon - time video starts and autoplay checkbox

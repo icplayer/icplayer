@@ -2097,6 +2097,8 @@ var ice_dictionary_pl = {
 	"EditableWindow_property_header_style": "Header style",
 	"EditableWindow_property_editing_enabled" : "Editing enabled",
 	"EditableWindow_property_offline_message": "Offline message",
+	"EditableWindow_property_text_editor": "Text",
+	"EditableWindow_property_is_text_editor_content": "Text editor content",
     "skiplink": "Skip link",
     "skiplink_module": "SkipLink",
     "SkipLink": "SkipLink",

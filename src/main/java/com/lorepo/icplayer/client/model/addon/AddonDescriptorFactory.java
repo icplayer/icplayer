@@ -133,6 +133,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Heading", "media_menu");
 		addDescriptor("Media_Recorder", "media_menu");
 		addDescriptor("FlashCards", "media_menu");
+		addDescriptor("EditableWindow", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
@@ -164,9 +165,6 @@ public class AddonDescriptorFactory {
 		addDescriptor("LearnPen", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
-
-		// NOT VISIBLE
-        addDescriptor("EditableWindow", "not_visible");
     }
 
 	private void addDescriptor(String id, String category) {
