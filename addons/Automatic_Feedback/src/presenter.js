@@ -196,12 +196,18 @@ function AddonAutomatic_Feedback_create() {
         if (presenter.configuration.reactTo == REACT_TO.CHECK) {
             presenter.activityHandler.onShowErrorsMode();
         } else {
-            presenter.activityHandler.clearFeedback();
+            if (!presenter.configuration.displayMode === DISPLAY_MODES.BLOCK || presenter.configuration.displayFeedbackButtons) {
+                presenter.activityHandler.clearFeedback();
+            }
         }
     }
 
     presenter.setWorkMode = function () {
-        presenter.activityHandler.clearFeedback();
+        if (!presenter.configuration.displayMode === DISPLAY_MODES.BLOCK
+            || presenter.configuration.displayFeedbackButtons
+            || !presenter.configuration.reactTo == REACT_TO.VALUE_CHANGED) {
+            presenter.activityHandler.clearFeedback();
+        }
     }
 
     presenter.reset = function () {
@@ -329,7 +335,9 @@ function AddonAutomatic_Feedback_create() {
         }
         $element.css('display','none');
 
-        if($parent.find('.automatic_feedback_button').length == 0) {
+        var $buttons = $parent.find('.automatic_feedback_button');
+
+        if($buttons.length == 0) {
             var $button = $('<button></button>');
             $button.addClass('automatic_feedback_button');
             var _class = getFeedbackClassFromElement($parent);
@@ -349,6 +357,11 @@ function AddonAutomatic_Feedback_create() {
                     $button.remove();
                 });
             }
+        } else {
+            var $button = $buttons.first();
+            presenter.clearFeedbackClasses($button);
+            var _class = getFeedbackClassFromElement($parent);
+            $button.addClass(_class);
         }
     }
 
