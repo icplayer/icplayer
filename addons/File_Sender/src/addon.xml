@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Single_State_Button' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Title" nameLabel="Single_State_Button_property_title" type="string" isLocalized="true" />
+		<property name="Image" nameLabel="Single_State_Button_property_image" type="image" />
+		<property name="onClick" nameLabel="Single_State_Button_property_on_click" type="event" isDefault="true"/>
+		<property name="Disable" nameLabel="Single_State_Button_property_disable" type="boolean" />
+		<property name="Enable in error mode" nameLabel="Single_State_Button_property_enable_in_error_mode" type="boolean" />
+		<property name="Enable in show answers mode" nameLabel="Single_State_Button_property_enable_in_show_answers_mode" type="boolean" />
+	</model>
+</addon>

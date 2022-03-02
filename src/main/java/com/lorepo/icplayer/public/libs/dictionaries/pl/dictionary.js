@@ -2158,5 +2158,7 @@ var ice_dictionary_pl = {
 		"Scoreboard_maximum_teams_count": "Maximum number of teams",
     "NestedAddon_addon_id": "Addon id",
     "NestedAddon_insert_addon": "Insert nested addon",
-    "NestedAddon_add_addon": "Add addon"
+    "NestedAddon_add_addon": "Add addon",
+    "File_Sender_info": "File sender allows you to send files as messages to the student's teacher using the apropriate LMS service",
+    "File_Sender_name": "File sender"
 };
