@@ -15,6 +15,10 @@ function AddonCross_Lesson_create(){
         course: "course"
     };
 
+    presenter.DEFAULT_TTS_PHRASES = {
+        goToLesson: "Go to lesson"
+    };
+
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
     };
@@ -34,8 +38,9 @@ function AddonCross_Lesson_create(){
 
         presenter.createView(view);
         presenter.connectHandlers();
-
-    }
+        presenter.setSpeechTexts(upgradedModel["speechTexts"]);
+        presenter.buildKeyboardController();
+    };
 
     presenter.validateModel = function (model) {
         var validatedType = presenter.validateType(model['Type']);
@@ -60,7 +65,8 @@ function AddonCross_Lesson_create(){
             type: validatedType.value,
             page: model['Page'],
             image: model['Image'],
-            openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab)
+            openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab),
+            langTag: model['langAttribute']
         }
     };
 
@@ -210,9 +216,138 @@ function AddonCross_Lesson_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function AddonCross_Lesson_upgradeSpeechTexts (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                GoToLesson: {GoToLesson: ""}
+            };
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function AddonCross_Lesson_upgradeModel (model) {
         var upgradedModel = presenter.upgradeOpenLessonInCurrentTab(model);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            GoToLesson: presenter.DEFAULT_TTS_PHRASES.goToLesson
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            GoToLesson: presenter.getSpeechTextProperty(
+                speechTexts.GoToLesson.GoToLesson,
+                presenter.speechTexts.GoToLesson)
+        };
+    };
+
+    presenter.getSpeechTextProperty = function (rawValue, defaultValue) {
+        if (rawValue === undefined || rawValue === null) {
+            return defaultValue;
+        }
+
+        var value = rawValue.trim();
+        if (value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    };
+
+    function CrossLessonKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    CrossLessonKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    CrossLessonKeyboardController.prototype.constructor = CrossLessonKeyboardController;
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new CrossLessonKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return this.$view.find(".cross-lesson-wrapper");
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
+    };
+
+    CrossLessonKeyboardController.prototype.selectAction = function () {
+        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+    };
+
+    CrossLessonKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    CrossLessonKeyboardController.prototype.mark = function (element) {
+        return;
+    };
+
+    CrossLessonKeyboardController.prototype.unmark = function (element) {
+        return;
+    };
+
+    CrossLessonKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        this.readCurrentElement();
+    };
+
+    CrossLessonKeyboardController.prototype.readCurrentElement = function () {
+        var text = this.getTarget(this.keyboardNavigationCurrentElement, false)[0].innerText;
+        if (text) {
+            text = [TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag)];
+        } else {
+            text = presenter.speechTexts.GoToLesson;
+        }
+        presenter.speak(text);
+    };
+
+    CrossLessonKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    presenter.speak = function Assessments_Navigation_Bar_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Assessments_Navigation_Bar_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
     };
 
     return presenter;
