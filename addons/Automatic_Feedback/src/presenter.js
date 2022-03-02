@@ -196,16 +196,16 @@ function AddonAutomatic_Feedback_create() {
         if (presenter.configuration.reactTo == REACT_TO.CHECK) {
             presenter.activityHandler.onShowErrorsMode();
         } else {
-            if (!presenter.configuration.displayMode === DISPLAY_MODES.BLOCK || presenter.configuration.displayFeedbackButtons) {
+            if (presenter.configuration.displayMode !== DISPLAY_MODES.BLOCK || presenter.configuration.displayFeedbackButtons) {
                 presenter.activityHandler.clearFeedback();
             }
         }
     }
 
     presenter.setWorkMode = function () {
-        if (!presenter.configuration.displayMode === DISPLAY_MODES.BLOCK
+        if (presenter.configuration.displayMode !== DISPLAY_MODES.BLOCK
             || presenter.configuration.displayFeedbackButtons
-            || !presenter.configuration.reactTo == REACT_TO.VALUE_CHANGED) {
+            || presenter.configuration.reactTo !== REACT_TO.VALUE_CHANGED) {
             presenter.activityHandler.clearFeedback();
         }
     }
