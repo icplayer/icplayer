@@ -2179,7 +2179,7 @@ var ice_dictionary_bl = {
 	"NestedAddon_addon_id": "Addon id",
 	"NestedAddon_insert_addon": "Insert nested addon",
 	"NestedAddon_add_addon": "Add addon",
-	"Automatic_Feedback_info": "Automatic Feedback info TODO",
+	"Automatic_Feedback_info": "Displays feedback messages in various formats (such as as a tooltip or a popup) in response to changes in the addon it is coupled with.",
     "Automatic_Feedback_name": "Automatic Feedback",
     "Automatic_Feedback_property_activity_module_id": "Activity module ID",
     "Automatic_Feedback_property_activity_type": "Activity type",

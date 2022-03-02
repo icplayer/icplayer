@@ -1,6 +1,5 @@
 ## Description
-External Link Button allows users to open a new window/tab with external resources when the button is clicked.
-
+Automatic Feedback displays feedback messages in various formats (such as as a tooltip or a popup) in response to changes in the addon it is coupled with.
 ## Properties
 
 <table border='1'>
@@ -9,37 +8,40 @@ External Link Button allows users to open a new window/tab with external resourc
         <th>Description</th>
     </tr>
     <tr>
-        <td>URI</td>
-        <td>Location of external resource</td>
+        <td>ActivityModuleID</td>
+        <td>ID of the addon to Automatic Feedback is to work with</td>
     </tr>
     <tr>
-        <td>Title</td>
-        <td>Title displayed inside the addon</td>
+        <td>Activity Type</td>
+        <td>Either the type of the addon specified in the ActivityModuleID (such as Text, Choice, etc.), or Default if the addon type is not supported</td>
     </tr>
     <tr>
-        <td>Image</td>
-        <td>Image displayed inside the addon.
-<p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p></td>
-    </tr>
-</table>
-
-## Supported commands
-
-<table border='1'>
-    <tr>
-        <th>Command name</th>
-        <th>Params</th>
-        <th>Description</th>
+        <td>Correct Feedback</td>
+        <td>Variable length list of elements containing two fields. ActivityItem specifies an element of the addon (for instance, a gap in a Text module). It can be a number, a list of numbers separated by commas, or a range separated with a hyphen. Feedback specified what message should be displayed when the answer in the specified element is correct.</td>
     </tr>
     <tr>
-        <td>show</td>
-        <td>---</td>
-        <td>Shows the addon</td>
+        <td>Incorrect Feedback</td>
+        <td>Variable length list of elements containing two fields. ActivityItem specifies an element of the addon, as per the Correct Feedback property. Feedback specified what message should be displayed when the answer in the specified element is incorrect.</td>
     </tr>
     <tr>
-        <td>hide</td>
-        <td>---</td>
-        <td>Hides the addon</td>
+        <td>Empty Feedback</td>
+        <td>Variable length list of elements containing two fields. ActivityItem specifies an element of the addon, as per the Correct Feedback property. Feedback specified what message should be displayed when there is no answer in the specified element.</td>
+    </tr>
+    <tr>
+        <td>Partial Feedback</td>
+        <td>Variable length list of elements containing two fields. ActivityItem specifies an element of the addon, as per the Correct Feedback property. Feedback specified what message should be displayed when the answer in the specified element is incomplete, but not incorrect.</td>
+    </tr>
+    <tr>
+        <td>Display</td>
+        <td>Specifies how the feedback message is to be displayed: within the Automatic feedback addons body ("block"), as a tooltip next to the element ("tooltip"), or as a popup ("popup")</td>
+    </tr>
+    <tr>
+        <td>Display Feedback Buttons</td>
+        <td>When set to true, the addon will initially display only a small button, and only when it has been pressed the full feedback message will be shown.</td>
+    </tr>
+    <tr>
+        <td>ReactTo</td>
+        <td>Specifies in response to what event should the feedback message be displayed</td>
     </tr>
 </table>
 
@@ -51,24 +53,21 @@ External Link Button allows users to open a new window/tab with external resourc
         <th>Description</th>
     </tr>
     <tr>
-        <td>external-link-button-wrapper</td>
-        <td>DIV surrounding the button element. The button element is a child of this element</td>
+        <td>correct-feedback</td>
+        <td>DIV surrounding the feedback message or the button, when the answer is correct</td>
     </tr>
     <tr>
-        <td>external-link-button-element</td>
-        <td>The element's base class</td>
+        <td>incorrect-feedback</td>
+        <td>DIV surrounding the feedback message or the button, when the answer is incorrect</td>
     </tr>
     <tr>
-        <td>external-link-button-image</td>
-        <td>Class for the image (IMG) element</td>
+        <td>empty-feedback</td>
+        <td>DIV surrounding the feedback message or the button, when there is no answer</td>
     </tr>
     <tr>
-        <td>external-link-button-title</td>
-        <td>Class for the text (SPAN) element</td>
+        <td>partial-feedback</td>
+        <td>DIV surrounding the feedback message or the button, when the answer is incomplete, but not incorrect</td>
     </tr>
 </table>
 
 > **Note:** The link is an ordinary &lt;a href=""&gt; element and the &lt;a&gt; tag is located between external-link-button-wrapper and external-link-button-element layers.
-
-## Demo presentation
-[Demo presentation](/embed/12561011 "Demo presentation") contains examples of how to use the External Link Button addon.     
