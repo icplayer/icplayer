@@ -31,6 +31,7 @@ function AddonAutomatic_Feedback_create() {
 
     var POPUP_FEEDBACK_CLASS = "automatic-feedback-popup";
     var AUTOMATIC_FEEDBACK_DIALOG_CLASS = "automatic-feedback-dialog";
+    var AUTOMATIC_FEEDBACK_BUTTON_CLASS = "automatic_feedback_button";
     var REMAIN_OPEN_CLASS = "remain-open";
 
     var ActivityTypeDict = null;
@@ -59,27 +60,36 @@ function AddonAutomatic_Feedback_create() {
             return;
         }
 
-        presenter.$content = $(view).find('.automatic_feedback_wrapper');
-        presenter.tooltipElements = [];
-        presenter.activityHandler = new activityTypeDict[presenter.configuration.activityType](this);
+        if (!isPreview) {
+            presenter.$content = $(view).find('.automatic_feedback_wrapper');
+            presenter.tooltipElements = [];
+            presenter.activityHandler = new activityTypeDict[presenter.configuration.activityType](this);
 
-        if (presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-            presenter.$popup = $('<div></div>');
-            presenter.$content.append(presenter.$popup);
-            presenter.$popup.addClass(POPUP_FEEDBACK_CLASS);
-            presenter.$popup.dialog({
-                modal: true,
-                autoOpen: false,
-                draggable: false,
-                minHeight: 'auto',
-                resizable: false,
-                width: presenter.configuration.width
-            });
-            if (presenter.configuration.displayFeedbackButtons) {
+            if (presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                presenter.$popup = $('<div></div>');
+                presenter.$content.append(presenter.$popup);
+                presenter.$popup.addClass(POPUP_FEEDBACK_CLASS);
+                presenter.$popup.dialog({
+                    modal: true,
+                    autoOpen: false,
+                    draggable: false,
+                    minHeight: 'auto',
+                    resizable: false,
+                    width: presenter.configuration.width
+                });
+
+                if (presenter.configuration.displayFeedbackButtons) {
+                    presenter.activityHandler.createTooltips();
+                } else {
+                    presenter.$popup.on('dialogclose', function(event, ui){
+                        presenter.activityHandler.popupClosedCallback();
+                    });
+                }
+            } else if (presenter.configuration.displayMode == DISPLAY_MODES.TOOLTIPS) {
                 presenter.activityHandler.createTooltips();
             }
-        } else if (presenter.configuration.displayMode == DISPLAY_MODES.TOOLTIPS) {
-            presenter.activityHandler.createTooltips();
+
+            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
         }
 
         presenter.isLoaded = true;
@@ -257,7 +267,17 @@ function AddonAutomatic_Feedback_create() {
         presenter.clearFeedbackClasses(presenter.$content);
         presenter.$content.html("");
         if (presenter.configuration.displayFeedbackButtons) {
-            presenter.$content.parent().find('.automatic_feedback_button').remove();
+            presenter.$content.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).remove();
+        }
+    }
+
+    presenter.isBlockFeedbackWrapped = function() {
+        return presenter.$content.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).length > 0;
+    }
+
+    presenter.unwrapBlockFeedback = function() {
+        if (presenter.configuration.displayFeedbackButtons) {
+            presenter.$content.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
         }
     }
 
@@ -274,7 +294,18 @@ function AddonAutomatic_Feedback_create() {
         presenter.$popup.parent().addClass(_class);
         presenter.$popup.parent().addClass(AUTOMATIC_FEEDBACK_DIALOG_CLASS);
         presenter.$popup.html(feedback);
+
+        var currentScrollTop = presenter.playerController.iframeScroll();
         presenter.$popup.dialog('open');
+        if (!presenter.playerController.isPlayerInCrossDomain()) {
+            $(top.window).scrollTop(currentScrollTop);
+        }
+
+        var dialogHeight = presenter.$popup.outerHeight();
+        var windowHeight = $(top.window).height();
+        var topPosition = parseInt(( windowHeight - dialogHeight) / 3, 10) + currentScrollTop;
+        presenter.$popup.parent().css('top',topPosition+'px');
+
         presenter.scaleDialog(presenter.$popup);
     }
 
@@ -288,9 +319,10 @@ function AddonAutomatic_Feedback_create() {
                 var dialogWidth = $dialog.outerWidth();
                 var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) * scaleInfo.scaleY / 2, 10);
                 var leftPosition = presentationPosition.left + presentationHorizontalOffset;
+
                 $dialog.parent().css('transform', scaleInfo.transform);
                 $dialog.parent().css('transform-origin', scaleInfo.transformOrigin);
-                $dialog.parent().css('left',leftPosition+'px')
+                $dialog.parent().css('left',leftPosition+'px');
             }
         }
     }
@@ -335,11 +367,11 @@ function AddonAutomatic_Feedback_create() {
         }
         $element.css('display','none');
 
-        var $buttons = $parent.find('.automatic_feedback_button');
+        var $buttons = $parent.find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS);
 
         if($buttons.length == 0) {
             var $button = $('<button></button>');
-            $button.addClass('automatic_feedback_button');
+            $button.addClass(AUTOMATIC_FEEDBACK_BUTTON_CLASS);
             var _class = getFeedbackClassFromElement($parent);
             $button.addClass(_class);
             $parent.append($button);
@@ -415,9 +447,29 @@ function AddonAutomatic_Feedback_create() {
             throw "createTooltips must be implemented";
         }
 
+        getState() {
+            throw "getState must be implemented";
+        }
+
+        setState(state) {
+            throw "setState must be implemented";
+        }
+
+        popupClosedCallback() {
+            throw "popupClosedCallback must be implemented";
+        }
+
+        onDestroy() {
+            throw "onDestroy must be implemented";
+        }
+
     }
 
     class DefaultActivity extends AbstractActivity {
+
+        isActivated = false;
+        lastFeedback = "";
+        lastClass = "";
 
         onCorrectAnswer(itemID) {
             this.onShowErrorsMode();
@@ -462,6 +514,9 @@ function AddonAutomatic_Feedback_create() {
                 feedback = feedbackObject.partial;
                 _class = FEEDBACK_CLASSES.PARTIAL;
             }
+            this.isActivated = true;
+            this.lastFeedback = feedback;
+            this.lastClass = _class;
             this.displayFeedback(feedback, _class);
         }
 
@@ -482,20 +537,26 @@ function AddonAutomatic_Feedback_create() {
         }
 
         clearFeedback() {
+            this.isActivated = false;
             if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
                 this.presenter.clearBlockFeedback();
             } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
                 this.presenter.$popup.removeClass(REMAIN_OPEN_CLASS);
                 this.presenter.$popup.dialog('close');
                 if (this.presenter.configuration.displayFeedbackButtons) {
-                    this.$tooltip.removeClass(REMAIN_OPEN_CLASS);
-                    this.$tooltip.dialog('close');
+                    this.clearTooltips();
                 }
             } else {
                 if (this.$tooltip) {
-                    this.$tooltip.removeClass(REMAIN_OPEN_CLASS);
-                    this.$tooltip.dialog('close');
+                    this.clearTooltips();
                 }
+            }
+        }
+
+        clearTooltips() {
+            if (this.$tooltip) {
+                this.$tooltip.removeClass(REMAIN_OPEN_CLASS);
+                this.$tooltip.dialog('close');
             }
         }
 
@@ -524,6 +585,11 @@ function AddonAutomatic_Feedback_create() {
                 }
                 return true;
                 });
+            if (!this.presenter.configuration.displayFeedbackButtons) {
+                this.$tooltip.on('dialogclose', function(event, ui){
+                    this.isActivated = false;
+                });
+            }
             this.$tooltip.addClass('automatic_feedback_tooltip_body');
             this.$tooltip.parent().find('.ui-dialog-titlebar').addClass('automatic_feedback_tooltip_title');
         }
@@ -541,6 +607,76 @@ function AddonAutomatic_Feedback_create() {
             }
         }
 
+        getState = function () {
+            var state = {
+                isActivated: this.isActivated,
+                lastFeedback: this.lastFeedback,
+                lastClass: this.lastClass,
+                isWrapped: this.isWrapped()
+            };
+            return JSON.stringify(state);
+        }
+
+        isWrapped = function () {
+            if (!this.presenter.configuration.displayFeedbackButtons) return false;
+            if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+                return this.presenter.isBlockFeedbackWrapped();
+            } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                return !this.presenter.$popup.dialog('isOpen');
+            } else {
+                if (this.$tooltip) {
+                    return this.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).length > 0;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+
+        setState = function (state) {
+            var parsed = JSON.parse(state);
+            this.isActivated = parsed.isActivated;
+            this.lastFeedback = parsed.lastFeedback;
+            this.lastClass = parsed.lastClass;
+            if (parsed.isActivated) {
+                this.displayFeedback(parsed.lastFeedback, parsed.lastClass);
+            } else {
+                this.clearFeedback();
+            }
+            if (this.presenter.configuration.displayFeedbackButtons && !parsed.isWrapped) {
+                if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+                    this.presenter.unwrapBlockFeedback();
+                } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                    return !this.presenter.$popup.dialog('open');
+                } else {
+                    if (this.$tooltip) {
+                        this.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
+                    }
+                }
+            }
+        }
+
+        popupClosedCallback = function () {
+             this.isActivated = false;
+        }
+
+        onDestroy() {
+            this.clearTooltips();
+        }
+    }
+
+    presenter.getState = function() {
+        var state = presenter.activityHandler.getState();
+        return state;
+    }
+
+    presenter.setState = function(state) {
+        presenter.reset();
+        presenter.activityHandler.setState(state);
+    }
+
+    presenter.destroy = function AddonAutomatic_Feedback_destroy() {
+        presenter.activityHandler.onDestroy();
     }
 
     return presenter;
