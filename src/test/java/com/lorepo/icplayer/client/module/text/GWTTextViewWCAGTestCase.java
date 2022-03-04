@@ -79,7 +79,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.addElement(this.gapWidget);
 		
 		this.textView.setWCAGStatus(true);
-		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
 		
 		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.tab(eventMock);

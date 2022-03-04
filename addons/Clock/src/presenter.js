@@ -12,6 +12,7 @@ function AddonClock_create() {
     presenter.currentMinute = 0;
     presenter.lastMinuteValue = 0;
     presenter.Step = 1;
+    presenter.StepSeconds = 1;
     presenter.showClockLabels = false;
     presenter.isActivity = false;
     presenter.isErrorCheckingMode = false;
@@ -19,6 +20,7 @@ function AddonClock_create() {
     presenter.showAnswersMode = false;
     presenter.shouldSendEventTime = null;
     presenter.isGradualShowAnswersActive = false;
+    presenter.showSecondHand = false;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'], isTextColored = presenter.model['Color text'] === 'True', $textContainer = presenter.$view
@@ -52,6 +54,9 @@ function AddonClock_create() {
                 break;
             case 'getCurrentMinute'.toLowerCase():
                 presenter.getCurrentMinute();
+                break;
+            case 'getCurrentSeconds'.toLowerCase():
+                presenter.getCurrentSeconds();
                 break;
             case 'show'.toLowerCase():
                 presenter.show();
@@ -183,33 +188,53 @@ function AddonClock_create() {
                 + (2 * presenter.center) + '"/>';
         }
 
-        if (presenter.ActiveHand == 'HourHand') {
-            fig += '<rect id="m-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 5) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (4 * presenter.center / 5 + vector) + '" />';
-            fig += '<rect id="h-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 2) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (presenter.center / 2 + vector) + '" />';
+        if (presenter.showSecondHand) {
+            if (presenter.isMinuteHandActive()){
+                fig += presenter.getSecondHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+                fig += presenter.getMinuteHandElement(vector);
+            } else {
+                fig += presenter.getMinuteHandElement(vector);
+                fig += presenter.getSecondHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+            }
         } else {
-            fig += '<rect id="h-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 2) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (presenter.center / 2 + vector) + '" />';
-            fig += '<rect id="m-hand" x="' + (presenter.center - vector)
-                + '" y="' + (presenter.center / 5) + '" ry="'
-                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
-                + (2 * vector) + '" height="'
-                + (4 * presenter.center / 5 + vector) + '" />';
+            if (presenter.ActiveHand == 'HourHand' || presenter.ActiveHand == 'Hour') {
+                fig += presenter.getMinuteHandElement(vector);
+                fig += presenter.getHourHandElement(vector);
+            } else {
+                fig += presenter.getHourHandElement(vector);
+                fig += presenter.getMinuteHandElement(vector);
+            }
         }
 
         fig += '</svg>';
 
         return fig;
+    };
+
+    presenter.getHourHandElement = function (vector) {
+        return '<rect id="h-hand" x="' + (presenter.center - vector)
+                + '" y="' + (presenter.center / 2) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (2 * vector) + '" height="'
+                + (presenter.center / 2 + vector) + '" />';
+    };
+
+    presenter.getMinuteHandElement = function (vector) {
+        return '<rect id="m-hand" x="' + (presenter.center - vector)
+                + '" y="' + (presenter.center / 5) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (2 * vector) + '" height="'
+                + (4 * presenter.center / 5 + vector) + '" />';
+    };
+
+    presenter.getSecondHandElement = function (vector) {
+        return '<rect id="s-hand" x="' + (presenter.center - vector / 4)
+                + '" y="' + (presenter.center / 5) + '" ry="'
+                + (2 * vector) + '" rx="' + (2 * vector) + '" width="'
+                + (vector / 2) + '" height="'
+                + (4 * presenter.center / 5 + vector) + '" />';
     };
 
     presenter.getNewTime = function(myTime) {
@@ -221,6 +246,24 @@ function AddonClock_create() {
         return newTime;
     };
 
+    presenter.getTimeWithSeconds = function(time) {
+        return time.split(":");
+    }
+
+    presenter.validateTimeCorrectnessWithSeconds = function (time) {
+        let timeSplited = time.split(":");
+
+        if (timeSplited.length !== 3) {
+            return false;
+        }
+
+        return (
+            presenter.checkIfValidNumber(timeSplited[0])
+            && presenter.checkIfValidNumber(timeSplited[1])
+            && presenter.checkIfValidNumber(timeSplited[2])
+        );
+    }
+
     presenter.checkTime = function(time) {
         var hour, minute;
 
@@ -229,10 +272,7 @@ function AddonClock_create() {
             hour = time.slice(0, position);
             minute = time.slice(position + 1, time.length);
 
-            if (parseInt(hour, 10) == Math.round(hour * 100) / 100
-                && parseInt(hour, 10) > -2 && !(isNaN(hour))
-                && parseInt(minute, 10) == Math.round(minute * 100) / 100
-                && parseInt(minute, 10) > -1 && !(isNaN(minute))) {
+            if (presenter.checkIfValidNumber(hour) && presenter.checkIfValidNumber(minute)) {
                 return true;
             } else {
                 return false;
@@ -243,6 +283,10 @@ function AddonClock_create() {
 
     };
 
+    presenter.checkIfValidNumber = function (num) {
+        return parseInt(num, 10) === Math.round(num * 100) / 100 && parseInt(num, 10) > -1 && !(isNaN(num));
+    }
+
     presenter.countTimeFromMinuteAngle = function(angleValue) {
         value = angleValue / 6;
         return value;
@@ -251,6 +295,11 @@ function AddonClock_create() {
     presenter.setClockTime = function(time) {
         if(presenter.showAnswersMode === true){
             presenter.hideAnswers();
+        }
+
+        if (presenter.showSecondHand) {
+            presenter.setClockTimeWithSeconds(time);
+            return;
         }
 
         if (!presenter.checkTime(time)) {
@@ -275,123 +324,205 @@ function AddonClock_create() {
 
     };
 
-    presenter.setTimeNotSynhronized = function() {
-
-        var handToMove = 0;
-        var valueMinute = presenter.currentMinuteValue, valueHour = presenter.currentHourValue;
-        var value = 0;
-
-        if (presenter.currentHand == 'h-hand') {
-            if (presenter.currentHourValue == 11
-                && presenter.currentHandValue < 30) {
-                presenter.currentHourValue = 12;
-            }
-            if (presenter.currentHourValue == 12
-                && presenter.currentHandValue > 330) {
-                presenter.currentHourValue = 11;
-            }
-            if (presenter.currentHourValue == 0
-                && presenter.currentHandValue > 330) {
-                presenter.currentHourValue = 23;
-            }
-            if (presenter.currentHourValue == 23
-                && presenter.currentHandValue < 30) {
-                presenter.currentHourValue = 0;
-            }
-            if (presenter.currentHourValue >= 12) {
-                presenter.currentHourValue = 12 + Math
-                    .floor(presenter.currentHandValue / 30);
-            } else {
-                presenter.currentHourValue = Math
-                    .floor(presenter.currentHandValue / 30);
-            }
-
-            presenter.setClockTime(presenter.currentHourValue + ":"
-                + presenter.currentMinuteValue);
-
-        } else {
-
-            valueMinute = Math.round(presenter.currentHandValue / 6);
-
-            if (valueMinute == 60) {
-                valueMinute = 0;
-            }
-            presenter.setClockTime(presenter.currentHourValue + ":"
-                + valueMinute);
+    presenter.setClockTimeWithSeconds = function (time) {
+        if (!presenter.validateTimeCorrectnessWithSeconds(time)) {
+            console.error("Time to set with seconds is not valid");
+            return;
         }
+
+        const newTime = presenter.getTimeWithSeconds(time);
+        presenter.currentHourValue = parseInt(newTime[0], 10) % presenter.TimeStandard;
+        presenter.currentMinuteValue = parseInt(newTime[1], 10);
+        presenter.currentSecondValue = parseInt(newTime[2], 10);
+
+        if (presenter.TimeStandard == 12 && presenter.currentHourValue == 0) {
+            presenter.currentHourValue = 12;
+        }
+
+        const h = 30 * (presenter.currentHourValue % 12 + presenter.currentMinuteValue / 60 + presenter.currentSecondValue / 3600);
+        const m = 6 * (presenter.currentMinuteValue + presenter.currentSecondValue / 60);
+        const s = 6 * (presenter.currentSecondValue);
+
+        presenter.currentHourAngle = h;
+        presenter.currentMinuteAngle = m;
+        presenter.currentSecondAngle = s;
+
+        presenter.setAttr('h-hand', h);
+        presenter.setAttr('m-hand', m);
+        presenter.setAttr('s-hand', s);
+    }
+
+    presenter.setTimeNotSynhronized = function() {
+        let h = presenter.currentHourValue;
+        let m = presenter.currentMinuteValue;
+        let s = presenter.currentSecondValue;
+
+        if (presenter.currentHand === 'h-hand') {
+            presenter.setNewCurrentHourValue();
+            h = presenter.currentHourValue;
+        } else if (presenter.currentHand === 'm-hand') {
+            m = Math.round(presenter.currentHandValue / 6);
+            if (m === 60) {
+                m = 0;
+            }
+        } else if (presenter.currentHand === 's-hand') {
+            s = Math.round(presenter.currentHandValue / 6);
+            if (s === 60) {
+                s = 0;
+            }
+        }
+
+        const timeToSet = presenter.showSecondHand ? `${h}:${m}:${s}` : `${h}:${m}`;
+        presenter.setClockTime(timeToSet);
 
     };
 
     presenter.setTimeSynhronizedMinWithHour = function() {
 
-        var handToMove = 0;
-        var valueMinute = presenter.currentMinuteValue, valueHour = presenter.currentHourValue;
+        let h = presenter.currentHourValue;
+        let m = presenter.currentMinuteValue;
+        let s = presenter.currentSecondValue;
         var valueMinutePrevious = presenter.currentMinuteValue;
-        var valueHourPrevious = presenter.currentHourValue;
-        var value = 0;
 
-        if (presenter.currentHand == 'h-hand') {
-            if (presenter.currentHourValue == 11
-                && presenter.currentHandValue < 30) {
-                presenter.currentHourValue = 12;
-            }
-            if (presenter.currentHourValue == 12
-                && presenter.currentHandValue > 330) {
-                presenter.currentHourValue = 11;
-            }
-            if (presenter.currentHourValue == 0
-                && presenter.currentHandValue > 330) {
-                presenter.currentHourValue = 23;
-            }
-            if (presenter.currentHourValue == 23
-                && presenter.currentHandValue < 30) {
-                presenter.currentHourValue = 0;
-            }
-            if (presenter.currentHourValue >= 12) {
-                presenter.currentHourValue = 12 + Math
-                    .floor(presenter.currentHandValue / 30);
-            } else {
-                presenter.currentHourValue = Math
-                    .floor(presenter.currentHandValue / 30);
+        if (presenter.currentHand === 'h-hand') {
+            presenter.setNewCurrentHourValue();
+            h = presenter.currentHourValue;
+
+        } else if (presenter.currentHand === 'm-hand') {
+            m = Math.round(presenter.currentHandValue / 6);
+            if (m === 60) {
+                m = 0;
             }
 
-        } else {
+            presenter.hourValueOnFullPeriod(m, valueMinutePrevious);
+            h = presenter.currentHourValue;
+            valueMinutePrevious = m;
 
-            valueMinute = Math.round(presenter.currentHandValue / 6);
-
-            if (valueMinute == 60) {
-                valueMinute = 0;
+        } else if (presenter.currentHand === 's-hand') {
+            s = Math.round(presenter.currentHandValue / 6);
+            if (s === 60) {
+                s = 0;
             }
-
-            if (valueMinute < 15 && valueMinutePrevious > 45) {
-                if (presenter.currentHourValue == 23) {
-                    presenter.currentHourValue = 0;
-                } else {
-                    presenter.currentHourValue++;
-                }
-            }
-            if (valueMinute > 45 && valueMinutePrevious < 15) {
-                if (presenter.currentHourValue == 0) {
-                    presenter.currentHourValue = 23;
-                } else {
-                    presenter.currentHourValue--;
-                }
-            }
-            valueMinutePrevious = valueMinute;
-
         }
-        presenter.setClockTime(presenter.currentHourValue + ":" + valueMinute);
+
+        const timeToSet = presenter.showSecondHand ? `${h}:${m}:${s}` : `${h}:${m}`;
+        presenter.setClockTime(timeToSet);
 
     };
 
     presenter.setTimeSynhronizedBoth = function() {
 
-        var handToMove = 0;
-        var valueMinutePrevious = presenter.currentMinuteValue, valueHour = presenter.currentHourAngle;
-        var value = 0;
+        let h = presenter.currentHourValue;
+        let m = presenter.currentMinuteValue;
+        let s = presenter.currentSecondValue;
+        var valueMinutePrevious = presenter.currentMinuteValue;
 
-        if (presenter.currentHand == 'h-hand') {
-            if (presenter.currentHourValue == 11
+        if (presenter.currentHand === 'h-hand') {
+            presenter.setNewCurrentHourValue();
+            h = presenter.currentHourValue;
+
+            m = Math.round(2 * (presenter.currentHandValue % 30));
+            m = presenter.countNewHandValue(m, presenter.Step);
+
+        } else if (presenter.currentHand === 'm-hand') {
+            m = Math.round(presenter.currentHandValue / 6);
+            if (m === 60) {
+                m = 0;
+            }
+
+            presenter.hourValueOnFullPeriod(m, valueMinutePrevious);
+            h = presenter.currentHourValue;
+            valueMinutePrevious = m;
+
+        } else if (presenter.currentHand === 's-hand') {
+            s = Math.round(presenter.currentHandValue / 6);
+            if (s === 60) {
+                s = 0;
+            }
+        }
+
+        const timeToSet = presenter.showSecondHand ? `${h}:${m}:${s}` : `${h}:${m}`;
+        presenter.setClockTime(timeToSet);
+    };
+
+    presenter.setTimeSynhronizedAll = function() {
+
+        let h = presenter.currentHourValue;
+        let m = presenter.currentMinuteValue;
+        let s = presenter.currentSecondValue;
+        let valueMinutePrevious = presenter.currentMinuteValue;
+        let valueSecondPrevious = presenter.currentSecondValue;
+
+        if (presenter.currentHand === 'h-hand') {
+            presenter.setNewCurrentHourValue();
+            h = presenter.currentHourValue;
+
+            m = Math.round(2 * (presenter.currentHandValue % 30));
+            m = presenter.countNewHandValue(m, presenter.Step);
+
+        } else if (presenter.currentHand === 'm-hand') {
+            m = Math.round(presenter.currentHandValue / 6);
+            if (m === 60) {
+                m = 0;
+            }
+
+            presenter.hourValueOnFullPeriod(m, valueMinutePrevious);
+            h = presenter.currentHourValue;
+            valueMinutePrevious = m;
+
+        } else if (presenter.currentHand === 's-hand') {
+            s = Math.round(presenter.currentHandValue / 6);
+            if (s === 60) {
+                s = 0;
+            }
+            presenter.minuteValueOnFullPeriod(s, valueSecondPrevious);
+            m = presenter.currentMinuteValue;
+            presenter.hourValueOnFullPeriod(m, valueMinutePrevious);
+            h = presenter.currentHourValue;
+        }
+
+        const timeToSet = presenter.showSecondHand ? `${h}:${m}:${s}` : `${h}:${m}`;
+        presenter.setClockTime(timeToSet);
+    };
+
+    presenter.minuteValueOnFullPeriod = function (value, prevValue) {
+        if (value < 15 && prevValue > 45) {
+            if (presenter.currentMinuteValue == 59) {
+                presenter.currentMinuteValue = 0;
+            } else {
+                presenter.currentMinuteValue++;
+            }
+        }
+        if (value > 45 && prevValue < 15) {
+            if (presenter.currentMinuteValue == 0) {
+                presenter.currentMinuteValue = 59;
+            } else {
+                presenter.currentMinuteValue--;
+            }
+        }
+    };
+
+    presenter.hourValueOnFullPeriod = function (value, prevValue) {
+        if (value < 15 && prevValue > 45) {
+            if (presenter.currentHourValue == 23) {
+                presenter.currentHourValue = 0;
+            } else {
+                presenter.currentHourValue++;
+            }
+        }
+        if (value > 45 && prevValue < 15) {
+            if (presenter.currentHourValue == 0) {
+                presenter.currentHourValue = 23;
+            } else {
+                presenter.currentHourValue--;
+            }
+        }
+    };
+
+
+
+    presenter.setNewCurrentHourValue = function () {
+        if (presenter.currentHourValue == 11
                 && presenter.currentHandValue < 30) {
                 presenter.currentHourValue = 12;
             }
@@ -414,55 +545,6 @@ function AddonClock_create() {
                 presenter.currentHourValue = Math
                     .floor(presenter.currentHandValue / 30);
             }
-
-            valueMinute = Math.round(2 * (presenter.currentHandValue % 30));
-
-            var value = valueMinute * 6;
-
-            if (parseInt(value / 6) % presenter.Step >= parseInt(
-                presenter.Step / 2, 10)) {
-                var getMinute = Math
-                    .floor(parseInt(value / 6) / presenter.Step)
-                    * presenter.Step;
-
-                valueMinute = (getMinute + presenter.Step);
-
-            } else {
-                var getMinute = Math
-                    .floor(parseInt(value / 6) / presenter.Step)
-                    * presenter.Step;
-
-                valueMinute = getMinute;
-            }
-
-        } else {
-
-            var valueMinute = Math.round(presenter.currentHandValue / 6);
-
-            if (valueMinute == 60) {
-                valueMinute = 0;
-            }
-
-            if (valueMinute < 15 && valueMinutePrevious > 45) {
-                if (presenter.currentHourValue == 23) {
-                    presenter.currentHourValue = 0;
-                } else {
-                    presenter.currentHourValue++;
-                }
-            }
-            if (valueMinute > 45 && valueMinutePrevious < 15) {
-                if (presenter.currentHourValue == 0) {
-                    presenter.currentHourValue = 23;
-                } else {
-                    presenter.currentHourValue--;
-                }
-            }
-            valueMinutePrevious = valueMinute;
-
-        }
-
-        presenter.setClockTime(presenter.currentHourValue + ":" + valueMinute);
-
     };
 
     presenter.moveCurrentHand = function(element) {
@@ -477,6 +559,9 @@ function AddonClock_create() {
     };
 
     presenter.validate = function(view, model) {
+        presenter.showSecondHand = ModelValidationUtils.validateBoolean(model["ShowSecondHand"]);
+        presenter.ActiveHand = model.ActiveHand;
+
         presenter.$view = $(view);
         presenter.model = model;
         if (model.TimeStandard == '12H') {
@@ -486,92 +571,217 @@ function AddonClock_create() {
         }
         $counter = $(view).find('.clock-counter');
 
+        if (!presenter.validateStep(model.TimeStep, $counter, "minute")){
+            return false;
+        }
+
+        if (presenter.showSecondHand) {
+            return presenter.validateModelWithSeconds(view, model, $counter);
+        } else {
+            return presenter.validateStandardModel(view, model, $counter);
+        }
+    };
+
+    presenter.validateStep = function (rawStep, counterView, stepName) {
+        const step = parseInt(rawStep, 10);
+
+        if (rawStep.length == 0) {
+            $counter.text(`Fill step-${stepName} value.`);
+            return false;
+        }
+
+        if (step != Math.round(rawStep * 100) / 100 || isNaN(rawStep)) {
+            $counter.text(`Incorrect step-${stepName} value.`);
+            return false;
+        }
+
+        if (60 % step != 0) {
+            $counter.text(`Step-${stepName} should be a divisor of 60.`);
+            return false;
+        }
+
+        return true;
+    }
+
+    presenter.validateModelWithSeconds = function(view, model, $counter) {
+        if(!presenter.validateTimeCorrectnessWithSeconds(model.InitialTime)) {
+            $counter.text('Put correct InitialTime (hour:minute:second).');
+            return false;
+        }
+
+        if (!presenter.validateStep(model.SecondTimeStep, $counter, "second")) {
+            return false;
+        }
+
+        let time = presenter.getTimeWithSeconds(model.InitialTime);
+        let hour = parseInt(time[0], 10);
+        let min = parseInt(time[1], 10);
+        let sec = parseInt(time[2], 10);
+        let timeStandard = parseInt(presenter.TimeStandard, 10);
+        const timeStepMinutes = parseInt(model.TimeStep, 10);
+        const timeStepSeconds = parseInt(model.SecondTimeStep, 10);
+
+        if (!presenter.validateRangeTime(hour, min, timeStandard)) {
+            $counter.text(`Put correct InitialTime (hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`);
+            return false;
+        }
+
+        if (!presenter.validateHourExceedTimeStandard(hour, timeStandard)) {
+            $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`);
+            return false;
+        }
+
+        if (sec < 0 || sec >= 60) {
+            $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`);
+            return false;
+        }
+
+        if (!presenter.validateIfValueMultipleOfStep(sec, timeStepSeconds)) {
+            $counter.text('Value of seconds in InitialTime should be a multiple value of step-second.');
+            return false;
+        }
+
+        if (!presenter.validateIfValueMultipleOfStep(min, timeStepMinutes)) {
+            $counter.text('Value of minutes in InitialTime should be a multiple value of step-minute.');
+            return false;
+        }
+
+        if (model.isActivity == "True") {
+            if (!(presenter.validateTimeCorrectnessWithSeconds(model.CorrectAnswer))) {
+                $counter.text('Put CorrectAnswer (hour:minute:second) or uncheck isActivity.');
+                return false;
+            }
+
+            time = presenter.getTimeWithSeconds(model.CorrectAnswer);
+            hour = parseInt(time[0], 10);
+            min = parseInt(time[1], 10);
+            sec = parseInt(time[2], 10);
+
+            if (!presenter.validateRangeTime(hour, min, timeStandard)) {
+                $counter.text(`Put correct InitialTime (hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`)
+                return false;
+            }
+
+            if (!presenter.validateHourExceedTimeStandard(hour, timeStandard)) {
+                $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`)
+                return false;
+            }
+
+            if (sec < 0 || sec >= 60) {
+                $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1}, seconds and minutes in range <0 to 60)).`)
+                return false
+            }
+
+            if (!presenter.validateIfValueMultipleOfStep(sec, timeStepSeconds)) {
+                $counter.text('Value of seconds in CorrectAnswer should be a multiple value of step-seconds.');
+                return false;
+            }
+
+            if (!presenter.validateIfValueMultipleOfStep(min, timeStepMinutes)) {
+                $counter.text('Value of minutes in CorrectAnswer should be a multiple value of step-minutes.');
+                return false;
+            }
+        }
+
+        presenter.Step = timeStepMinutes;
+        presenter.StepSeconds = timeStepSeconds;
+        presenter.continousEvents = ModelValidationUtils.validateBoolean(model['Continuous events']);
+
+        return true;
+    }
+
+    presenter.validateStandardModel = function(view, model, $counter) {
         if (!presenter.checkTime(model.InitialTime)) {
             $counter.text('Put correct InitialTime (hour:minute).');
             return false;
-        } else {
-            var getTime = presenter.getNewTime(model.InitialTime);
-            var min = parseInt(getTime[1], 10);
-            var hour = parseInt(getTime[0], 10);
-            if (min > 59 || hour > parseInt(presenter.TimeStandard, 10)) {
-                $counter.text('Put correct InitialTime (hour < '
-                    + (parseInt(presenter.TimeStandard, 10) + 1)
-                    + ' and minute < 60).');
-                return false;
-            }
-            if (parseInt(presenter.TimeStandard, 10) == 12 && hour == 0) {
-                $counter.text('Put correct InitialTime (0 < hour < '
-                    + (parseInt(presenter.TimeStandard, 10) + 1)
-                    + ' and minute < 60).');
-                return false;
-            }
-        }
-        if (model.TimeStep.length == 0) {
-            $counter.text('Fill step value.');
-            return false;
-        } else {
-            if (parseInt(model.TimeStep, 10) != Math
-                .round(model.TimeStep * 100) / 100
-                || isNaN(model.TimeStep)) {
-                $counter.text('Incorrect step value.');
-                return false;
-            } else {
-                if (60 % parseInt(model.TimeStep, 10) != 0) {
-                    $counter.text('Step should be a divisor of 60.');
-                    return false;
-                } else {
-                    var getTime = presenter.getNewTime(model.InitialTime);
-                    var minutes = parseInt(getTime[1], 10);
-                    var step = parseInt(model.TimeStep, 10);
-                    if (minutes % step == 0) {
-                        presenter.Step = parseInt(model.TimeStep, 10);
-                    } else {
-                        $counter
-                            .text('Value of minutes in InitialTime should be a multiple value of step.');
-                        return false;
-                    }
-                }
-            }
         }
 
-        if (!(presenter.checkTime(model.CorrectAnswer))
-            && model.isActivity == "True") {
-            $counter
-                .text('Put CorrectAnswer (hour:minute) or uncheck isActivity.');
+        let getTime = presenter.getNewTime(model.InitialTime);
+        let min = parseInt(getTime[1], 10);
+        let hour = parseInt(getTime[0], 10);
+        let timeStandard = parseInt(presenter.TimeStandard, 10);
+        const timeStep = parseInt(model.TimeStep, 10);
+
+        if (!presenter.validateRangeTime(hour, min, timeStandard)) {
+            $counter.text(`Put correct InitialTime (hour < ${timeStandard + 1} and minute < 60.`)
             return false;
-        } else {
-            if (model.isActivity == "True") {
-                var getTime = presenter.getNewTime(model.CorrectAnswer);
-                var hours = parseInt(getTime[0], 10);
-                var minutes = parseInt(getTime[1], 10);
-                var step = parseInt(model.TimeStep, 10);
-                if (hours > parseInt(presenter.TimeStandard, 10)
-                    || minutes > 59) {
-                    $counter.text('Put correct InitialTime (hour < '
-                        + (parseInt(presenter.TimeStandard, 10) + 1)
-                        + ' and minute < 60).');
-                    return false;
-                }
-                if (parseInt(presenter.TimeStandard, 10) == 12 && hours == 0) {
-                    $counter.text('Put correct InitialTime (0 < hour < '
-                        + (parseInt(presenter.TimeStandard, 10) + 1)
-                        + ' and minute < 60).');
-                    return false;
-                }
-                if (minutes % step != 0) {
-                    $counter
-                        .text('Value of minutes in CorrectAnswer should be a multiple value of step.');
-                    return false;
-                }
-            }
         }
 
+        if (!presenter.validateHourExceedTimeStandard(hour, timeStandard)) {
+            $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1} and minute < 60).`)
+            return false;
+        }
+
+        if (!presenter.validateIfValueMultipleOfStep(min, timeStep)) {
+            $counter.text('Value of minutes in InitialTime should be a multiple value of step.');
+            return false;
+        }
+
+        if (presenter.isSecondHandActive()) {
+            $counter.text('Active hand cannot be H+S, M+S, Second or All because Show Second Hand option is off.');
+            return false;
+        }
+
+        if (model.isActivity == "True") {
+            if (!(presenter.checkTime(model.CorrectAnswer))) {
+                $counter.text('Put CorrectAnswer (hour:minute) or uncheck isActivity.');
+                return false;
+            }
+
+            getTime = presenter.getNewTime(model.CorrectAnswer);
+            min = parseInt(getTime[1], 10);
+            hour = parseInt(getTime[0], 10);
+
+            if (!presenter.validateRangeTime(hour, min, timeStandard)) {
+                $counter.text(`Put correct InitialTime (hour < ${timeStandard + 1} and minute < 60.`)
+                return false;
+            }
+
+            if (!presenter.validateHourExceedTimeStandard(hour, timeStandard)) {
+                $counter.text(`Put correct InitialTime (0 < hour < ${timeStandard + 1} and minute < 60).`)
+                return false;
+            }
+
+            if (!presenter.validateIfValueMultipleOfStep(min, timeStep)) {
+                $counter.text('Value of minutes in CorrectAnswer should be a multiple value of step.');
+                return false;
+            }
+
+        }
+
+        presenter.Step = timeStep;
         presenter.continousEvents = ModelValidationUtils.validateBoolean(model['Continuous events']);
 
         return true;
     };
 
+    presenter.validateRangeTime = function (hour, min, timeStandard) {
+            if (min > 59 || hour > timeStandard) {
+                return false;
+            }
+            return true;
+    };
+
+     presenter.validateHourExceedTimeStandard = function (hour, timeStandard) {
+            if (timeStandard == 12 && hour == 0) {
+                return false;
+            }
+            return true;
+    };
+
+     presenter.validateIfValueMultipleOfStep = function (value, step) {
+         return value % step === 0;
+     };
+
     presenter.validateTime = function(time) {
+        if (presenter.showSecondHand) {
+            const myTime = presenter.getTimeWithSeconds(time);
+            let h = myTime[0];
+            let m = presenter.getValueWithLeadingZero(parseInt(myTime[1], 10));
+            let s = presenter.getValueWithLeadingZero(parseInt(myTime[2], 10));
+            return `${h}:${m}:${s}`
+        }
+
         var hour, minute, newTime;
 
         var position = time.indexOf(':');
@@ -676,7 +886,7 @@ function AddonClock_create() {
                     .mousedown(
                     function(e) {
                         e.stopImmediatePropagation();
-                        if ((presenter.ActiveHand != 'MinuteHand')
+                        if (presenter.isHourHandActive()
                             && !presenter.isDisable
                             && !presenter.isErrorCheckingMode) {
                             e.stopPropagation();
@@ -689,20 +899,8 @@ function AddonClock_create() {
                     function(e) {
                         e.stopImmediatePropagation();
                         if (presenter.isHandInMove) {
-                            presenter
-                                .changeHandPosition(e, 'mouse');
-                            if (presenter.isSynhronized == 'Min with Hour') {
-                                presenter
-                                    .setTimeSynhronizedMinWithHour();
-                            } else {
-                                if (presenter.isSynhronized == 'Both') {
-                                    presenter
-                                        .setTimeSynhronizedBoth();
-                                } else {
-                                    presenter
-                                        .setTimeNotSynhronized();
-                                }
-                            }
+                            presenter.changeHandPosition(e, 'mouse');
+                            presenter.setTimeBasedOnSyncOption();
                             e.stopPropagation();
                             if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
                                 presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
@@ -738,12 +936,12 @@ function AddonClock_create() {
                     .mousedown(
                     function(e) {
                         e.stopImmediatePropagation();
-                        if ((presenter.ActiveHand != 'HourHand')
+                        if ( presenter.isMinuteHandActive()
                             && !presenter.isDisable
                             && !presenter.isErrorCheckingMode) {
-                            e.stopPropagation();
-                            presenter.moveCurrentHand(this);
-                            presenter.isHandInMove = true;
+                                e.stopPropagation();
+                                presenter.moveCurrentHand(this);
+                                presenter.isHandInMove = true;
                         }
                         return false;
                     })
@@ -751,26 +949,64 @@ function AddonClock_create() {
                     function(e) {
                         e.stopImmediatePropagation();
                         if (presenter.isHandInMove) {
-                            presenter
-                                .changeHandPosition(e, 'mouse');
-                            if (presenter.isSynhronized == 'Min with Hour') {
-                                presenter
-                                    .setTimeSynhronizedMinWithHour();
-                            } else {
-                                if (presenter.isSynhronized == 'Both') {
-                                    presenter
-                                        .setTimeSynhronizedBoth();
-                                } else {
-                                    presenter
-                                        .setTimeNotSynhronized();
-                                }
-                            }
+                            presenter.changeHandPosition(e, 'mouse');
+                            presenter.setTimeBasedOnSyncOption();
                             e.stopPropagation();
 
-                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
-                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
-                            }
-                            presenter.shouldSendEventTime = presenter.getCurrentTime();
+                        if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        }
+                        presenter.shouldSendEventTime = presenter.getCurrentTime();
+                        }
+
+                    }).mouseleave(function() {
+                    });
+            });
+
+            jQuery(function($) {
+                $(view)
+                    .find('#s-hand')
+                    .click(function(e) {
+                        e.stopImmediatePropagation();
+                        presenter.currentHand = 0;
+                        e.stopPropagation();
+                        presenter.isHandInMove = false;
+
+                    })
+                    .mouseup(
+                    function(e) {
+                        presenter.currentHand = 0;
+                        e.stopPropagation();
+                        if (presenter.isHandInMove && !presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                            presenter.isHandInMove = false;
+                        }
+                        return false;
+                    })
+                    .mousedown(
+                    function(e) {
+                        e.stopImmediatePropagation();
+                        if ( presenter.isSecondHandActive()
+                            && !presenter.isDisable
+                            && !presenter.isErrorCheckingMode) {
+                                e.stopPropagation();
+                                presenter.moveCurrentHand(this);
+                                presenter.isHandInMove = true;
+                        }
+                        return false;
+                    })
+                    .mousemove(
+                    function(e) {
+                        e.stopImmediatePropagation();
+                        if (presenter.isHandInMove) {
+                            presenter.changeHandPosition(e, 'mouse');
+                            presenter.setTimeBasedOnSyncOption();
+                            e.stopPropagation();
+
+                        if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        }
+                        presenter.shouldSendEventTime = presenter.getCurrentTime();
                         }
 
                     }).mouseleave(function() {
@@ -798,15 +1034,7 @@ function AddonClock_create() {
 
                         if (presenter.isHandInMove) {
                             presenter.changeHandPosition(e, 'mouse');
-                            if (presenter.isSynhronized == 'Min with Hour') {
-                                presenter.setTimeSynhronizedMinWithHour();
-                            } else {
-                                if (presenter.isSynhronized == 'Both') {
-                                    presenter.setTimeSynhronizedBoth();
-                                } else {
-                                    presenter.setTimeNotSynhronized();
-                                }
-                            }
+                            presenter.setTimeBasedOnSyncOption();
                             e.stopPropagation();
                         }
 
@@ -836,7 +1064,7 @@ function AddonClock_create() {
                     .on(
                     'touchstart',
                     function(e) {
-                        if ((presenter.ActiveHand != 'HourHand')
+                        if (presenter.isMinuteHandActive()
                             && !presenter.isDisable
                             && !presenter.isErrorCheckingMode) {
                             e.stopPropagation();
@@ -864,20 +1092,8 @@ function AddonClock_create() {
                         e.stopPropagation();
                         e.stopImmediatePropagation();
                         if (presenter.isHandInMove) {
-                            presenter
-                                .changeHandPosition(e, 'touch');
-                            if (presenter.isSynhronized == 'Min with Hour') {
-                                presenter
-                                    .setTimeSynhronizedMinWithHour();
-                            } else {
-                                if (presenter.isSynhronized == 'Both') {
-                                    presenter
-                                        .setTimeSynhronizedBoth();
-                                } else {
-                                    presenter
-                                        .setTimeNotSynhronized();
-                                }
-                            }
+                            presenter.changeHandPosition(e, 'touch');
+                            presenter.setTimeBasedOnSyncOption();
 
                             if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
                                 presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
@@ -893,7 +1109,7 @@ function AddonClock_create() {
                     .on(
                     'touchstart',
                     function(e) {
-                        if ((presenter.ActiveHand != 'MinuteHand')
+                        if (presenter.isHourHandActive()
                             && !presenter.isDisable
                             && !presenter.isErrorCheckingMode) {
                             e.stopPropagation();
@@ -922,20 +1138,53 @@ function AddonClock_create() {
                         e.stopPropagation();
                         e.stopImmediatePropagation();
                         if (presenter.isHandInMove) {
-                            presenter
-                                .changeHandPosition(e, 'touch');
-                            if (presenter.isSynhronized == 'Min with Hour') {
-                                presenter
-                                    .setTimeSynhronizedMinWithHour();
-                            } else {
-                                if (presenter.isSynhronized == 'Both') {
-                                    presenter
-                                        .setTimeSynhronizedBoth();
-                                } else {
-                                    presenter
-                                        .setTimeNotSynhronized();
-                                }
+                            presenter.changeHandPosition(e, 'touch');
+                            presenter.setTimeBasedOnSyncOption();
+
+                            if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
+                                presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
                             }
+                            presenter.shouldSendEventTime = presenter.getCurrentTime();
+                        }
+                    });
+            });
+
+            jQuery(function($) {
+                $(view)
+                    .find('#s-hand')
+                    .on(
+                    'touchstart',
+                    function(e) {
+                        if (presenter.isSecondHandActive()
+                            && !presenter.isDisable
+                            && !presenter.isErrorCheckingMode) {
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                            presenter.moveCurrentHand(this);
+                            presenter.isHandInMove = true;
+                        }
+                    })
+                    .on(
+                    'touchend',
+                    function(e) {
+                        presenter.currentHand = 0;
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        presenter.isHandInMove = false;
+                        if(!presenter.continousEvents) {
+                            presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
+                        }
+                    })
+                    .on(
+                    'touchmove',
+                    function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        if (presenter.isHandInMove) {
+                            presenter.changeHandPosition(e, 'touch');
+                            presenter.setTimeBasedOnSyncOption();
 
                             if (presenter.shouldSendEventTime != presenter.getCurrentTime() && presenter.continousEvents) {
                                 presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
@@ -948,6 +1197,42 @@ function AddonClock_create() {
         }
 
     };
+
+    presenter.setTimeBasedOnSyncOption = function() {
+        if (presenter.isSynhronized === 'Min with Hour') {
+            presenter.setTimeSynhronizedMinWithHour();
+        } else if (presenter.isSynhronized === 'Both') {
+            presenter.setTimeSynhronizedBoth();
+        } else if (presenter.isSynhronized === 'All') {
+            presenter.setTimeSynhronizedAll();
+        } else {
+            presenter.setTimeNotSynhronized();
+        }
+    };
+
+    presenter.isHourHandActive = function() {
+        const activeOptions = ["Hour", "H+M", "H+S", "All"];
+        activeOptions.push("Both"); //for backward compatibility
+        activeOptions.push("HourHand"); //for backward compatibility
+        activeOptions.push(""); //for backward compatibility
+
+        return activeOptions.includes(presenter.ActiveHand);
+    };
+
+    presenter.isMinuteHandActive = function() {
+        const activeOptions = ["Minute", "H+M", "M+S", "All"];
+        activeOptions.push("Both"); //for backward compatibility
+        activeOptions.push("MinuteHand"); //for backward compatibility
+        activeOptions.push(""); //for backward compatibility
+
+        return activeOptions.includes(presenter.ActiveHand);
+    };
+
+    presenter.isSecondHandActive = function() {
+        const activeOptions = ["Second", "H+S", "M+S", "All"];
+
+        return activeOptions.includes(presenter.ActiveHand);
+    }
 
     presenter.createPreview = function(view, model) {
         presenter.$view = $(view);
@@ -975,12 +1260,16 @@ function AddonClock_create() {
                 }
             }
         }
-        var currentTime = presenter.currentHourValue
-            + ":"
-            + (presenter.currentMinuteValue < 10 ? "0"
-            + presenter.currentMinuteValue
-            : presenter.currentMinuteValue);
+        let currentTime = `${presenter.currentHourValue}:${presenter.getValueWithLeadingZero(presenter.currentMinuteValue)}`;
+        if (presenter.showSecondHand) {
+            currentTime = currentTime + ":" + presenter.getValueWithLeadingZero(presenter.currentSecondValue);
+        }
+
         return currentTime;
+    };
+
+    presenter.getValueWithLeadingZero = function(value) {
+        return value < 10 ? "0" + value : value;
     };
 
     presenter.getCurrentHour = function() {
@@ -998,6 +1287,14 @@ function AddonClock_create() {
         }
         return presenter.currentMinuteValue < 10 ? "0"
             + presenter.currentMinuteValue : presenter.currentMinuteValue;
+    };
+
+    presenter.getCurrentSeconds = function() {
+        if(presenter.showAnswersMode === true){
+            presenter.hideAnswers();
+
+        }
+        return presenter.showSecondHand ? presenter.getValueWithLeadingZero(presenter.currentSecondValue) : null;
     };
 
     presenter.disable = function() {
@@ -1160,35 +1457,34 @@ function AddonClock_create() {
                 }
             }
 
-            if (presenter.currentHand == "m-hand") {
-                if (parseInt(value / 6) % presenter.Step >= parseInt(
-                    presenter.Step / 2, 10)) {
-                    var getMinute = Math.floor(parseInt(value / 6)
-                        / presenter.Step)
-                        * presenter.Step;
-
-                    value = (getMinute + presenter.Step) * 6;
-                    presenter.setAttr(presenter.currentHand, value);
-                    presenter.currentHandValue = value;
-                } else {
-                    var getMinute = Math.floor(parseInt(value / 6)
-                        / presenter.Step)
-                        * presenter.Step;
-
-                    value = getMinute * 6;
-                    presenter.setAttr(presenter.currentHand, value);
-                    presenter.currentHandValue = value;
-                }
-            } else {
-
-                presenter.setAttr(presenter.currentHand, value);
-                presenter.currentHandValue = value;
+            if (presenter.currentHand === "m-hand") {
+                value = presenter.countNewHandValue(value, presenter.Step);
             }
+
+            if (presenter.currentHand === "s-hand") {
+                value = presenter.countNewHandValue(value, presenter.StepSeconds);
+            }
+
+            presenter.setAttr(presenter.currentHand, value);
+            presenter.currentHandValue = value;
+
         } else{
             presenter.triggerFrameChangeEvent(presenter.getCurrentTime() == presenter.CorrectAnswer ? 1	: 0);
 
         }
 
+    };
+
+    presenter.countNewHandValue = function(value, step) {
+        const roundedValue = Math.floor(parseInt(value / 6) / step) * step;
+
+        if (parseInt(value / 6) % step >= parseInt(step / 2, 10)) {
+            value = (roundedValue + step) * 6;
+        } else {
+            value = roundedValue * 6;
+        }
+
+        return value;
     };
 
     presenter.countAngle = function(coordinateX, coordinateY) {
@@ -1368,12 +1664,7 @@ function AddonClock_create() {
         return {
             source : presenter.modelID,
             item : "" + "1",
-            value : ''
-                + presenter.currentHourValue
-                + ":"
-                + (presenter.currentMinuteValue < 10 ? "0"
-                + presenter.currentMinuteValue
-                : presenter.currentMinuteValue),
+            value : presenter.getCurrentTime(),
             score : '' + checkScore
         };
     };
@@ -1420,6 +1711,10 @@ function AddonClock_create() {
     }
 
     presenter.setShowAnswerTime = function(time) {
+        if (presenter.showSecondHand) {
+            presenter.setClockTimeWithSeconds(time);
+            return;
+        }
 
         var newTime = presenter.getNewTime(time);
 

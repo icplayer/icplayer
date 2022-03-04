@@ -8,7 +8,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -21,6 +20,7 @@ import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
@@ -32,9 +32,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<NavigationTextElement> navigationTextElements = new ArrayList<NavigationTextElement>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
 	private int clicks = -1;
+	private int gapCounter = -1;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
@@ -44,6 +46,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
+	private NavigationTextElement activatedNavigationElement = null;
 	
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
@@ -90,6 +93,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void addElement(TextElementDisplay el) {
 		textElements.add(el);
+		navigationTextElements.add((NavigationTextElement) el);
 	}
 
 	@Override
@@ -107,6 +111,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			gap.setDisabled(module.isDisabled());
 			
 			textElements.add(gap);
+			navigationTextElements.add(gap);
 		}
 	}
 	
@@ -129,6 +134,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
+			navigationTextElements.add(gap);
 		}
 	}
 
@@ -152,6 +158,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
+				navigationTextElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -206,6 +213,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 
 						textElements.add(gap);
+						navigationTextElements.add(gap);
 						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
@@ -234,6 +242,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						event.preventDefault();
 					}
 				});
+
+				navigationTextElements.add(widget);
 			}
 		}
 	}
@@ -275,10 +285,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
-		for (int i=startingIndex; i<textElements.size(); i++) {
-			TextElementDisplay textElement = textElements.get(i);
-			String teGapType = textElement.getGapType() == "draggable" ? "gap" : textElement.getGapType();
+	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<NavigationTextElement> navigationTextElements) {
+		for (int i=startingIndex; i<navigationTextElements.size(); i++) {
+			NavigationTextElement textElement = navigationTextElements.get(i);
+			String teGapType = textElement.getElementType() == "draggable" ? "gap" : textElement.getElementType();
 			if (teGapType == gapType) {
 				return i;
 			}
@@ -290,7 +300,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public void sortGapsOrder () {
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
-		final int textElementsSize = textElements.size();
+		final int textElementsSize = navigationTextElements.size();
 		
 		if (gapsOrderSize == 0 && textElementsSize != gapsOrderSize) {
 			return;
@@ -298,14 +308,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		
 		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
 			final String gapType = gapsOrder.get(i);
-			final String currentGapType = textElements.get(i).getGapType();
+			final String currentGapType = navigationTextElements.get(i).getElementType();
 			
 			if (gapType != currentGapType) {
-				int correctElementId = getIndexOfNextGapType(i, gapType, textElements);
+				int correctElementId = getIndexOfNextGapType(i, gapType, navigationTextElements);
 				
 				if (correctElementId != -1) {
-					textElements.add(i, textElements.get(correctElementId));
-					textElements.remove(correctElementId+1);
+					navigationTextElements.add(i, navigationTextElements.get(correctElementId));
+					navigationTextElements.remove(correctElementId+1);
 				}
 			}
 		}
@@ -457,6 +467,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			element.deselect();
 		}
 	}
+
+	private void removeNavigationElementSelections () {
+		for (NavigationTextElement element: this.navigationTextElements) {
+			element.deselect();
+		}
+	}
 	
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
@@ -502,7 +518,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	
 	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
-			this.removeAllSelections();
+			this.removeNavigationElementSelections();
 			clicks = -1;
 			activeGap = null;
 		} else {
@@ -516,35 +532,41 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					moduleHasFocus = true;
 				}
 			}
-
 			this.readTextContent();
 		}
 	}
 	
 	private void move (boolean goNext) {
-		int size = getTextElementsSize();
+		int size = navigationTextElements.size();
+		boolean hasAchieveMaximum = false;
 		
 		if (size == 0) {
 			return;
 		}
 		
-		this.removeAllSelections();
+		this.removeNavigationElementSelections();
 		
-		clicks += goNext ? 1 : -1;
+		clicks += goNext ? 1 : -1; 
 		
 		if (clicks >= size) {
 			clicks = size-1;
+			hasAchieveMaximum = true;
 		}
 		
 		if (clicks < 0) {
 			clicks = 0;
 		}
+
+		NavigationTextElement activeElement = navigationTextElements.get(clicks);
+		if (!(activeElement instanceof LinkWidget) && !hasAchieveMaximum) {
+			gapCounter++; 
+		}
 		
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
+		this.activatedNavigationElement = activeElement;
+		activeElement.setElementFocus(true);
 		moduleHasFocus = true;
 		
-		this.readGap(activeGap, clicks);
+		this.readNavigationText(activeElement, gapCounter);
 	}
 
 	@Override
@@ -555,9 +577,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void escape(KeyDownEvent event) {
 	    event.preventDefault();
-		this.removeAllSelections();
+		this.removeNavigationElementSelections();
 		moduleHasFocus = false;
 		clicks = -1;
+		gapCounter = -1;
 		activeGap = null;
 	}
 
@@ -596,6 +619,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void space(KeyDownEvent event) {
+		boolean isActivatedLinkWidget = activatedNavigationElement != null && activatedNavigationElement.getElementType() == "link";
+
+		if(WCAGUtils.hasLinks(this.module) && isActivatedLinkWidget) {
+			LinkWidget linkWidget = (LinkWidget) activatedNavigationElement;
+			LinkInfo linkInfo = linkWidget.getLinkInfo();
+
+			if (listener != null) {
+				listener.onLinkClicked(linkInfo.getType(), linkInfo.getHref(), linkInfo.getTarget());
+			}
+
+			return;
+		}
+
 		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
 			event.preventDefault(); 
 		}
@@ -691,7 +727,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void readTextContent () {
-		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.textElements, this.module.getLangAttribute());
+		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.navigationTextElements, this.module.getLangAttribute());
 		this.speak(result);
 	}
 	
@@ -743,32 +779,57 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		gap.setSizeAttribute(longestAnswer);
 	}
 
-	private void readGap(TextElementDisplay gap, int index) {
-		List<TextToSpeechVoice> textVoices = prepareGapSpeechTexts(gap, index);
+	private void readNavigationText(NavigationTextElement element, int index) {
+		List<TextToSpeechVoice> textVoices = prepareNavigationElementSpeech(element, index);
 		this.speak(textVoices);
 	}
 
-	private List<TextToSpeechVoice> prepareGapSpeechTexts(TextElementDisplay gap, int index) {
+	private List<TextToSpeechVoice> prepareNavigationElementSpeech(NavigationTextElement element, int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 
 		textVoices.add(
-				TextToSpeechVoice.create(getGapTypeAndIndexText(gap, index))
+				TextToSpeechVoice.create(getTypeAndIndexNavigationElement(element, index))
 		);
 		textVoices.addAll(
-				getContent(gap)
+				getContent(element)
 		);
 
-		TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
-		if (isShowErrorsMode && showErrorFeedback != null) {
-			textVoices.add(showErrorFeedback);
+		if (element.getElementType() != "link") {
+			TextElementDisplay gap = (TextElementDisplay) element;
+			TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
+			if (isShowErrorsMode && showErrorFeedback != null) {
+				textVoices.add(showErrorFeedback);
+			}
 		}
 
 		return textVoices;
 	}
 
-	private List<TextToSpeechVoice> getContent(TextElementDisplay gap) {
+	private String getTypeAndIndexNavigationElement(NavigationTextElement element, int index) {
+		String type;
+		if (element.getElementType() != null && element.getElementType() == "link") {
+			return this.module.getSpeechTextItem(TextModel.LINK_INDEX);
+		}
+		else {
+			TextElementDisplay gap = (TextElementDisplay) element;
+			type = gap.getGapType().equals("dropdown") ?
+			this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) :
+			this.module.getSpeechTextItem(TextModel.GAP_INDEX);
+		}
+
+		return type + " " + Integer.toString(index + 1);
+	}
+
+	private List<TextToSpeechVoice> getContent(NavigationTextElement element) {
 		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
-		String langTag = getGapOrModuleLangTag(gap);
+		String langTag = getGapOrModuleLangTag(element);
+		
+		if (element.getElementType() == "link") {
+			content.add(TextToSpeechVoice.create(getLinkTitle(element), langTag));
+			return content;
+		}
+
+		TextElementDisplay gap = (TextElementDisplay) element;
 		String type = gap.getGapType();
 		String textValue = gap.getWCAGTextValue();
 
@@ -779,7 +840,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				);
 			}
 		} else if (gap instanceof AltTextGap) {
-			JavaScriptUtils.log(gap.getTextValue());
 			content.addAll(
 					((AltTextGap) gap).getReadableText()
 			);
@@ -788,6 +848,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		return content;
+	}
+
+	private String getLinkTitle(NavigationTextElement element) {
+		LinkWidget linkWidget = (LinkWidget) element;
+		String href = linkWidget.getHref();
+		String text = this.module.getOriginalText();
+		int hrefIndex = text.indexOf(href);
+		text = text.substring(hrefIndex);
+		int endTagLink = text.indexOf("</a>");
+
+		return text.substring((href.length() + 2), endTagLink).trim();
 	}
 
 	private TextToSpeechVoice getCorrectnessFeedback(int gapState) {
@@ -802,7 +873,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return null;
 	}
 
-	private String getGapOrModuleLangTag(TextElementDisplay gap) {
+	private String getGapOrModuleLangTag(NavigationTextElement gap) {
 		String gapLangTag = gap.getLangTag();
 		if (gapLangTag != null) {
 			return gapLangTag;

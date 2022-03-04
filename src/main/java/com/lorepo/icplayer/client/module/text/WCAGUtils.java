@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 
@@ -16,8 +17,10 @@ public class WCAGUtils {
 	final static String DROP_DOWN_GAP_START = "{{";
 	final static String DROP_DOWN_GAP_END = "}}";
 	public final static String BREAK_TEXT = "&&break&&";
+	final static String LINK_START = "start-link";
+	final static String LINK_END = "end-link";
 	
-	private static int getMinPositiveNumber (int n1, int n2, int n3) {
+	private static int getMinPositiveNumber (int n1, int n2, int n3, int n4, int n5) {
 		boolean overwritten = false;
 		int i = -1;
 		if(n1 >= 0) {
@@ -32,6 +35,16 @@ public class WCAGUtils {
 
 		if(n3 >= 0 && (!overwritten || n3 < i)) {
 			i = n3;
+			overwritten = true;
+		}
+
+		if(n4 >= 0 && (!overwritten || n4 < i)) {
+			i = n4;
+			overwritten = true;
+		}
+
+		if(n5 >= 0 && (!overwritten || n5 < i)) {
+			i = n5;
 			overwritten = true;
 		}
 
@@ -64,7 +77,7 @@ public class WCAGUtils {
 		return i;
 	}
 	
-	private static TextElementDisplay getElement (ArrayList<TextElementDisplay> textElements, int index) {
+	private static NavigationTextElement getElement (ArrayList<NavigationTextElement> textElements, int index) {
 		if (index >= 0 && index < textElements.size()) {
 			return textElements.get(index);
 		}
@@ -72,8 +85,12 @@ public class WCAGUtils {
 		return null;
 	}
 	
-	private static String getElementTextElementContent (TextElementDisplay element) {
-		return element != null ? element.getWCAGTextValue() : "";
+	private static String getElementTextElementContent (NavigationTextElement element) {
+		if (element.getElementType() == "link") {
+			return "";
+		}
+		TextElementDisplay _element = (TextElementDisplay) element;
+		return _element != null ? _element.getWCAGTextValue() : "";
 	}
 	
 	// TODO change to ENUM
@@ -108,9 +125,18 @@ public class WCAGUtils {
 	}
 	
 	public static String getCleanText (String text) {
+		text = updateLinks(text);
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
+	}
+
+	private static String updateLinks(String text) {
+		if (!text.contains("href")) { 
+			return text;
+		}
+
+		return text.replaceAll("<a[^>]*?href=\"(.*?)\"*?>(.*?)</a>", LINK_START + " $2 " + LINK_END);
 	}
 
 	private static int getGapEndIndex(String text, int gapIndex) {
@@ -136,57 +162,68 @@ public class WCAGUtils {
 		return index;
 	}
 
-	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
+	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<NavigationTextElement> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
 		int gapNumber = 1;
+		int elementNumber = 1; 		//added to distinct gaps from links
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		while (text.indexOf(GAP_START) >= 0 
 				|| text.indexOf(FILLED_GAP_START) >= 0 
 				|| text.indexOf(DROP_DOWN_GAP_START) >= 0 
-				|| text.indexOf(BREAK_TEXT) >= 0) {
+				|| text.indexOf(BREAK_TEXT) >= 0
+				|| text.indexOf(LINK_START) >= 0) {
 			
 			final int gapIndex = text.indexOf(GAP_START);
 			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
 			final int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
 			final int breakIndex = text.indexOf(BREAK_TEXT);
+			final int linkIndex = text.indexOf(LINK_START);
 			
-			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex,breakIndex);
+			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex, breakIndex, linkIndex);
 			final boolean isClosestGap = lowestIndex == gapIndex;
 			final boolean isClosestFilledGap = lowestIndex == filledGapIndex;
 			final boolean isClosestDropdown = lowestIndex == dropdownIndex;
 			final boolean isClosestBreak = lowestIndex == breakIndex;
+			final boolean isClosestLink = lowestIndex == linkIndex;
 			
-			final TextElementDisplay element = !isClosestBreak ? getElement(textElements, gapNumber - 1) : null;
+			final NavigationTextElement element = !isClosestBreak ? getElement(textElements, elementNumber - 1) : null;
 			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
 
 			final String elementContent = element != null ? getElementTextElementContent(element) : "";
 			final List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
 
 			if (element instanceof AltTextGap) {
-				content.addAll(((AltTextGap) element).getReadableText());
+				TextElementDisplay textElement = (TextElementDisplay) element;
+				content.addAll(((AltTextGap) textElement).getReadableText());
 			} else {
 				content.add(TextToSpeechVoice.create(elementContent, langTag));
 			}
 
 			if (isClosestGap) {
+				elementNumber++;
+				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, gapIndex), lang));                           // text before gap
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
 				result.addAll(content);                                        // gap content
-				result.add(getElementStatus(element, model));
+				result.add(getElementStatus(textElement, model));
 
 				final int endGapIndex = getGapEndIndex(text, gapIndex) + GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestFilledGap) {
+				elementNumber++;
+				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
 				result.addAll(content);
-				result.add(getElementStatus(element, model));
+				result.add(getElementStatus(textElement, model));
 
 				final int endGapIndex = WCAGUtils.getGapEndIndex(text, filledGapIndex) + FILLED_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestDropdown) {
+				elementNumber++;
+				TextElementDisplay textElement = (TextElementDisplay) element;
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
 				if ( !elementContent.equals("-") && !elementContent.equals("---")) {
@@ -194,7 +231,7 @@ public class WCAGUtils {
 				} else {
 					result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 				}
-				result.add(getElementStatus(element, model));
+				result.add(getElementStatus(textElement, model));
 				
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
@@ -204,7 +241,23 @@ public class WCAGUtils {
 				final int endBreakIndex = breakIndex + BREAK_TEXT.length();
 				text = text.substring(endBreakIndex);
 			}
+			if (isClosestLink) {
+				text = text.trim();
+				elementNumber++;
+				int endLinkTagIndex = text.indexOf(LINK_END);
+				String linkName = text.substring(linkIndex + LINK_START.length(), endLinkTagIndex);
+				String textModel = model.getSpeechTextItem(TextModel.LINK_INDEX);
+				
+				if (linkIndex > 1) {
+					result.add(TextToSpeechVoice.create(text.substring(0, linkIndex - 1), lang));                           // text before gap
+				}
+				
+				result.add(TextToSpeechVoice.create(textModel + " " + linkName.trim()));
+				final int endGapIndex =  text.indexOf(LINK_END, linkIndex) + LINK_END.length();
+				text = text.substring(endGapIndex);
+			}
 			text = TextParser.removeGapOptions(text);
+			text = text.replace(".", "");
 		}
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
 		return result;
@@ -214,15 +267,17 @@ public class WCAGUtils {
 		String text = getCleanText(model.getOriginalText());
 		ArrayList<String> result = new ArrayList<String>();
 
-		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0) {
+		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0 || text.indexOf(LINK_START) >= 0) {
 			final int gapIndex = text.indexOf(GAP_START);
 			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
 			final int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
-			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex);
+			final int linkIndex = text.indexOf(LINK_START);
+			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex, linkIndex);
 			
 			final boolean isClosestGap = lowestIndex == gapIndex;
 			final boolean isClosestFilledGap = lowestIndex == filledGapIndex;
 			final boolean isClosestDropdown = lowestIndex == dropdownIndex;
+			final boolean isClosestLink = lowestIndex == linkIndex;
 			
 			if (isClosestGap) {
 				result.add("gap");
@@ -244,14 +299,24 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, lowestIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
+
+			if (isClosestLink) {
+				result.add("link");
+				
+				final int endGapIndex = text.indexOf(LINK_END, lowestIndex) + LINK_END.length();
+				text = text.substring(endGapIndex);
+			}
 		}
 		
 		return result;
 	}
-	
+
 	public static boolean hasGaps (TextModel model) {
 		String text = getCleanText(model.getOriginalText());
 		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
 	}
 
+	public static boolean hasLinks(TextModel model) {
+		return model.getOriginalText().contains("href");
+	}
 }
