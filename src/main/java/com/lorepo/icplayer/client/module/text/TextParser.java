@@ -832,6 +832,7 @@ public class TextParser {
 			replaceText = this.getReplaceText(id, linkText, expression, type);
 			
 			LinkInfo pli = new LinkInfo(id, type, pageName, "");
+			pli.setLang(this.langTag);
 			parserResult.linkInfos.add(pli);
 		}
 
@@ -892,6 +893,7 @@ public class TextParser {
 		String target = (openLinksinNewTab) ? "_blank" : "_self";
 		
 		LinkInfo pli = new LinkInfo(id, LinkType.EXTERNAL, href, target);
+		pli.setLang(this.langTag);
 		parserResult.linkInfos.add(pli);
 		replaceText = "<a id='" + id +  "' target='" + target + "' href='" + href + "'";
 		

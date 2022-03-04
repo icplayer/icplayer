@@ -16,10 +16,11 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.page.PageController;
 
 
-public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
+public class InlineChoiceWidget extends ListBox implements TextElementDisplay, NavigationTextElement {
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
 	private String value = "";
@@ -255,6 +256,23 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		if( !getView().isWCAGon() ){
 			setFocus(focus);
 		}
+	}
+
+	@Override
+	public void setElementFocus(boolean focus) {
+		if (focus) {
+			this.select();
+		} else {
+			this.deselect();
+		}
+		if( !getView().isWCAGon() ){
+			setFocus(focus);
+		}
+	}
+
+	@Override
+	public String getElementType() {
+		return "dropdown";
 	}
 
 	@Override

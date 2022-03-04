@@ -384,6 +384,7 @@ var ice_dictionary_bl = {
 	"choice_item_percentage_result": "Резултат в проценти",
 	"choice_item_number_of_checks": "Брой проверки",
 	"choice_item_number_of_errors": "Брой грешки",
+	"choice_item_link": "Link",
 	"choice_speech_texts": "Текстове за изговаряне",
 	"error_counter_module" : "Брояч на грешки",
 	"mistakes_property" : "Покажи грешки",

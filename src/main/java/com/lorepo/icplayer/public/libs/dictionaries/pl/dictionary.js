@@ -385,6 +385,7 @@ var ice_dictionary_pl = {
 	"choice_item_percentage_result": "Wynik procentowy",
 	"choice_item_number_of_checks": "Liczba sprawdzeń",
 	"choice_item_number_of_errors": "Liczba błędów i pomyłek",
+	"choice_item_link": "Link",
 	"error_counter_module" : "Licznik błędów",
 	"mistakes_property" : "Pokaż pomyłki",
 	"errors_property" : "Pokaż błędy",

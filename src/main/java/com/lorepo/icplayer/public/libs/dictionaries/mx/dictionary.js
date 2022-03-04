@@ -385,6 +385,7 @@ var ice_dictionary_mx = {
 	"choice_item_percentage_result": "Percentage result",
 	"choice_item_number_of_checks": "Number of checks",
 	"choice_item_number_of_errors": "Number of errors and mistakes",
+	"choice_item_link": "Link",
 	"error_counter_module": "Contador de errores en página",
 	"mistakes_property": "Mostrar intentos",
 	"errors_property": "Mostrar errores",
