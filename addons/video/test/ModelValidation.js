@@ -87,7 +87,8 @@ TestCase("[Video] Model validation", {
                 ],
                 Audiodescription: "5|100|100|red|pl|test2"
             }],
-            height: 22
+            height: 22,
+            enableVideoSpeedController: false
         };
 
         var expectedSpeechTexts = {

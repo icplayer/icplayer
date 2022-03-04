@@ -2,11 +2,11 @@ import {Player} from "./Player.jsm";
 
 export class BasePlayer extends Player {
 
-    constructor($view) {
+    constructor($view, isMlibro) {
         super();
         if (this.constructor === BasePlayer)
             throw new Error("Cannot create an instance of BasePlayer abstract class");
-
+        this.isMlibro = isMlibro;
         this.$view = $view;
         this.hasRecording = false;
         this.duration = null;
@@ -137,7 +137,7 @@ export class BasePlayer extends Player {
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobileSafari())
+        if (this._isMobileSafari() || this._isIosMlibro())
             this.mediaNode.onloadedmetadata = function () {
                 self.onEndLoadingCallback();
             };
@@ -176,6 +176,10 @@ export class BasePlayer extends Player {
 
     _isMobileSafari() {
         return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
+    }
+
+    _isIosMlibro() {
+        return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     _isNotOnlineResources(source) {

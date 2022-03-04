@@ -433,14 +433,7 @@ function AddonFigureDrawing_create(){
             drawLineOnCanvas(x1,y1,x2,y2);
         }
         if (showAnswers) {
-            for(i = 0; i < presenter.answersColors.length; i++) {
-                tmpPoint = [presenter.answersColors[i].x,presenter.answersColors[i].y];
-                tmpColor = presenter.answersColors[i].color.split(' ');
-                tmpColor2 = getClickedAreaColor(tmpPoint[0],tmpPoint[1]);
-                if (tmpColor2[0] != tmpColor[0] || tmpColor2[1] != tmpColor[1] || tmpColor2[2] != tmpColor2[2] || tmpColor2[3] != tmpColor[3]) {
-                    floodFill(tmpPoint,tmpColor);
-                }
-            }
+            presenter.fillFiguresWithAnswerColor();
         } else {
             for(i = 0; i < presenter.coloredAreas.length; i++) {
                 tmpPoint = [presenter.coloredAreas[i][0],presenter.coloredAreas[i][1]];
@@ -921,18 +914,32 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.canvas').remove();
         }
     }
-    presenter.reset = function() {
+    presenter.reset = function(resetOnlyWrong) {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        presenter.coloredAreas = [];
-        presenter.drawingMode = true;
         presenter.setWorkMode();
         if (presenter.coloring && presenter.startingColors != '') {
-            for (i = 0; i < presenter.startingColors.length; i++)
+            for (let i = 0; i < presenter.startingColors.length; i++)
                 presenter.coloredAreas[i] = presenter.startingColors[i];
         }
-        presenter.$view.find('.line').remove();
+
+        if (resetOnlyWrong) {
+            presenter.removeIncorrectLines();
+
+            if (presenter.coloring) {
+                var copyOfColoredAreas = JSON.parse(JSON.stringify(presenter.coloredAreas));
+                presenter.coloredAreas = [];
+                presenter.redrawCanvas(false);
+                presenter.fillFiguresWithAnswerColor();
+                presenter.coloredAreas = copyOfColoredAreas;
+                var areasToRemove = presenter.getAreasToRemove();
+                presenter.updateColoredAreas(areasToRemove);
+            }
+        } else {
+            presenter.$view.find('.line').remove();
+            presenter.coloredAreas = [];
+        }
+
         validateLines(presenter.StartingLines,true,false);
-        presenter.isStarted = false;
         presenter.$view.find('.selected').removeClass('selected');
         presenter.selected.isSelected = false;
         presenter.disabled = presenter.initDisabled;
@@ -943,8 +950,65 @@ function AddonFigureDrawing_create(){
         if (presenter.coloring) presenter.redrawCanvas(false);
         presenter.isEraser = false;
         presenter.currentColor = presenter.defaultColor;
-        presenter.setDrawMode();
+
+        if (resetOnlyWrong) {
+            presenter.isStarted = true;
+            if (presenter.blockColoring && presenter.allLinesDrawn()) {
+                presenter.setColorMode();
+            } else {
+                presenter.setDrawMode();
+            }
+        } else {
+            presenter.isStarted = false;
+            presenter.setDrawMode();
+        }
     };
+
+    presenter.removeIncorrectLines = function () {
+        var lines = presenter.$view.find('.line').not('.nonremovable');
+        for (let i = 0; i < lines.length; i++) {
+            if ($.inArray(lines[i].id, presenter.AnswerLines) === -1)
+                presenter.$view.find('#' + lines[i].id).remove();
+        }
+    }
+
+    presenter.fillFiguresWithAnswerColor = function () {
+        for (let i = 0; i < presenter.answersColors.length; i++) {
+            let tmpPoint = [presenter.answersColors[i].x, presenter.answersColors[i].y];
+            let tmpColor = presenter.answersColors[i].color.split(' ');
+            let tmpColor2 = getClickedAreaColor(tmpPoint[0], tmpPoint[1]);
+            if (tmpColor2[0] != tmpColor[0] || tmpColor2[1] != tmpColor[1] || tmpColor2[2] != tmpColor2[2] || tmpColor2[3] != tmpColor[3]) {
+                floodFill(tmpPoint, tmpColor);
+            }
+        }
+    }
+
+    presenter.getAreasToRemove = function () {
+        var figuresToRemove = [];
+        for (let i = 0; i < presenter.coloredAreas.length; i++) {
+            let color = getClickedAreaColor(presenter.coloredAreas[i][0], presenter.coloredAreas[i][1]);
+            if (color[0] != presenter.coloredAreas[i][2] || color[1] != presenter.coloredAreas[i][3] || color[2] != presenter.coloredAreas[i][4] || color[3] != presenter.coloredAreas[i][5]) {
+                figuresToRemove.push(i);
+            }
+        }
+
+        figuresToRemove.sort(function (x, y) {
+            return y - x;
+        });
+
+        return figuresToRemove;
+    }
+
+    presenter.updateColoredAreas = function (figuresToRemove) {
+        if (figuresToRemove.length === presenter.coloredAreas.length) {
+            presenter.coloredAreas = [];
+        } else {
+            for (let i = 0; i < figuresToRemove.length; i++) {
+                presenter.coloredAreas.splice(figuresToRemove[i], 1);
+            }
+        }
+    }
+
     presenter.getErrorCount = function(){
         var errorCounter = 0, i, lineCounter, color;
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
@@ -1244,3 +1308,7 @@ function AddonFigureDrawing_create(){
     };
     return presenter;
 }
+
+AddonFigureDrawing_create.__supported_player_options__ = {
+    resetInterfaceVersion: 2
+};

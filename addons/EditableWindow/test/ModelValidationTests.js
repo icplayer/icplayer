@@ -12,7 +12,9 @@ TestCase("[EditableWindow] Model validation", {
             index: "/file/666666666",
             audio: "",
             video: "",
-            fileList: []
+            fileList: [],
+            textEditor: "",
+            isTextEditorContent: "False",
         };
     },
 
@@ -46,5 +48,35 @@ TestCase("[EditableWindow] Model validation", {
         var result = this.presenter.validModel(this.model);
 
         assertFalse(result.isValid)
+    },
+
+    'test model is not valid when text is filled but isTextEditorContent is not checked': function () {
+        this.model.index = "";
+        this.model.textEditor = "some example text";
+        this.model.isTextEditorContent = "False";
+
+        let result = this.presenter.validModel(this.model);
+
+        assertFalse(result.isValid);
+    },
+
+    'test model is not valid when text is empty and isTextEditorContent is checked': function () {
+        this.model.index = "";
+        this.model.textEditor = "";
+        this.model.isTextEditorContent = "True";
+
+        let result = this.presenter.validModel(this.model);
+
+        assertFalse(result.isValid);
+    },
+
+    'test model is valid when text is filled and isTextEditorContent is checked': function () {
+        this.model.index = "";
+        this.model.textEditor = "some example text";
+        this.model.isTextEditorContent = "True";
+
+        let result = this.presenter.validModel(this.model);
+
+        assertTrue(result.isValid);
     },
 });
