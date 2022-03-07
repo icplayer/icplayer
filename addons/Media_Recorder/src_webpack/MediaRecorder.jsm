@@ -22,11 +22,15 @@ import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
 import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
 import {AudioPlayer} from "./player/AudioPlayer.jsm";
 import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButton.jsm";
+import {MediaRecorderKeyboardController} from "./keyboard_navigation/MediaRecorderKeyboardController.jsm";
+import {CSS_CLASSES} from "./view/CssClasses.jsm";
 
 export class MediaRecorder {
 
     enableAnalyser = true;
     isMlibro = false;
+    isWCAGOn = false;
+    keyboardControllerObject = null;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
@@ -45,6 +49,8 @@ export class MediaRecorder {
             this._showError(view, validatedModel);
 
         this._executeNotification(JSON.stringify({type: "platform", target: this.model.ID}));
+        this._buildKeyboardController();
+        this.keyboardControllerObject.setSpeechTexts(upgradedModel['speechTexts']);
     }
 
     createPreview(view, model) {
@@ -132,6 +138,7 @@ export class MediaRecorder {
         this.addonState.destroy();
         this.mediaState.destroy();
         this.activationState.destroy();
+        this.keyboardControllerObject.destroy();
 
         this.viewHandlers = null;
         this.defaultRecordingPlayButton = null;
@@ -157,6 +164,7 @@ export class MediaRecorder {
         this.extendedModeButtonList = null;
 
         this.playerController = null;
+        this.keyboardControllerObject = null;
         this.view = null;
         this.model = null;
     }
@@ -826,6 +834,8 @@ export class MediaRecorder {
         upgradedModel = this._upgradeResetDialog(upgradedModel);
         upgradedModel = this._upgradeDisableRecording(upgradedModel);
         upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
+        upgradedModel = this._upgradeLangTag(upgradedModel);
+        upgradedModel = this._upgradeSpeechTexts(upgradedModel);
         return upgradedModel;
     };
 
@@ -898,4 +908,63 @@ export class MediaRecorder {
 
         return upgradedModel;
     };
+
+    _upgradeLangTag(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    _upgradeSpeechTexts(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["DefaultRecordPlayButton"]) {
+            upgradedModel["speechTexts"]["DefaultRecordPlayButton"] = {DefaultRecordPlayButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["DefaultRecordStopButton"]) {
+            upgradedModel["speechTexts"]["DefaultRecordStopButton"] = {DefaultRecordStopButton: ""};
+        }
+
+        return upgradedModel;
+    };
+
+    setWCAGStatus(isWCAGOn) {
+        this.isWCAGOn = isWCAGOn;
+    };
+
+    _buildKeyboardController() {
+        this.keyboardControllerObject = new MediaRecorderKeyboardController(
+            this._getElementsForKeyboardNavigation(), 1, this._speak.bind(this), this._speakWithCallback.bind(this));
+    };
+
+    _getElementsForKeyboardNavigation() {
+        return $(this.view).find(`
+            .${CSS_CLASSES.DEFAULT_RECORD_PLAY_BUTTON},
+            .${CSS_CLASSES.RECORD_BUTTON},
+            .${CSS_CLASSES.PLAY_BUTTON}
+        `);
+    };
+
+    _speak(data) {
+        let tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+        if (tts && this.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    _speakWithCallback(data, callbackFunction) {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+        if (tts && this.isWCAGOn) {
+            tts.speakWithCallback(data, callbackFunction);
+        }
+    }
 }

@@ -29,5 +29,14 @@
             </property>
 
         </property>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Media_Recorder_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Media_Recorder_property_speech_texts" type="staticlist">
+            <property name="DefaultRecordPlayButton" nameLabel="Media_Recorder_speech_text_default_record_play_button" type="staticrow">
+                <property name="DefaultRecordPlayButton" nameLabel="Media_Recorder_speech_text_default_record_play_button" type="string"/>
+            </property>
+            <property name="DefaultRecordStopButton" nameLabel="Media_Recorder_speech_text_default_record_stop_button" type="staticrow">
+                <property name="DefaultRecordStopButton" nameLabel="Media_Recorder_speech_text_default_record_stop_button" type="string"/>
+            </property>
+        </property>
     </model>
 </addon>
