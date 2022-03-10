@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
@@ -388,4 +389,14 @@ public class ModuleModelMockup implements IModuleModel {
 	public IMetadata getMetadata() {
 		return null;
 	}
+
+	@Override
+    public List<String> getNameProperties() {
+        return null;
+    }
+
+    @Override
+	public List<IProperty> getProperties() {
+        return null;
+    }
 }

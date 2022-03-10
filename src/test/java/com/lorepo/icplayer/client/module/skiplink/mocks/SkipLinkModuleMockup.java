@@ -344,4 +344,14 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
     public LayoutDefinition getCurrentLayoutDefinition() {
         return null;
     }
+
+    @Override
+    public List<String> getNameProperties() {
+        return null;
+    }
+
+    @Override
+	public List<IProperty> getProperties() {
+        return null;
+    }
 }

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -38,6 +39,27 @@ public class AddonParamProvider implements IPropertyProvider{
 	@Override
 	public IProperty getProperty(int index) {
 		return addonParams.get(index).getAsProperty();
+	}
+
+	@Override
+	public List<String> getNameProperties() {
+		List<String> names = new ArrayList<String>();
+		for(IAddonParam property : this.addonParams) {
+			names.add(property.getName());
+		}
+
+		return names;
+	}
+
+	@Override
+	public List<IProperty> getProperties() {
+		List<IProperty> propierties = new ArrayList<IProperty>();
+		
+		for(IAddonParam property : this.addonParams) {
+			propierties.add(property.getAsProperty());
+		}
+
+		return propierties;
 	}
 
 	public void load(Element rootElement, String baseUrl) {

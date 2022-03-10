@@ -2183,5 +2183,11 @@ var ice_dictionary_bl = {
 	"Scoreboard_maximum_teams_count": "Maximum number of teams",
 	"NestedAddon_addon_id": "Addon id",
 	"NestedAddon_insert_addon": "Insert nested addon",
-	"NestedAddon_add_addon": "Add addon"
+	"NestedAddon_add_addon": "Add addon",
+	"Start_creating_table": "Start creating the TTS table",
+	"Finish_creating_table": "Finish creating the TTS table",
+	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
+	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
+	"Finish_updating_lesson_addons": "Finish updating the text speech",
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
 };
