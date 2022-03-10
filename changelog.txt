@@ -1,3 +1,4 @@
+2022-02-23 Added TTS to Table of Contents
 2022-02-22 Added removing only incorrect answers in Coloring and Figure Drawing
 2022-02-11 Fixed remaining ErrorsMode in Single State Button
 2022-02-02 Fixed Addon containing special chars in its ID
