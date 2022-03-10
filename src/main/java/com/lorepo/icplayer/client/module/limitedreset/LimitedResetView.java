@@ -1,10 +1,13 @@
 package com.lorepo.icplayer.client.module.limitedreset;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -19,6 +22,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	private IPlayerServices playerServices;
 	private boolean isDisabled = false;
 	private boolean isShowAnswersMode = false;
+	private Set<String> activeLimitedShowAnswersModules = new HashSet<String>();
 	private String originalDisplay = "";
 	
 	public LimitedResetView(LimitedResetModule module, IPlayerServices services) {
@@ -58,7 +62,11 @@ public class LimitedResetView extends PushButton implements IDisplay {
 						
 						isShowAnswersMode = false;
 					}
-					
+
+					if (activeLimitedShowAnswersModules.size() != 0) {
+					    sendLimitedHideAnswerEvent();
+					}
+
 					playerServices.getCommands().resetPageScore();
 
 					for (String moduleID : module.getModules()) {
@@ -89,6 +97,15 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	    playerServices.getEventBusService().getEventBus().fireEvent(valueEvent);
 	}
 
+	private void sendLimitedHideAnswerEvent() {
+	    HashMap<String, String> eventData = new HashMap<String, String>() {{
+            put("item", JSONUtils.toJSONString(activeLimitedShowAnswersModules));
+            put("source", module.getId());
+        }};
+        playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("LimitedHideAnswers", eventData), this);
+        activeLimitedShowAnswersModules.clear();
+	}
+
 	@Override
 	public void show() {
 		setVisible(true);
@@ -117,6 +134,10 @@ public class LimitedResetView extends PushButton implements IDisplay {
 
 	public void setShowAnswersMode(boolean isShowAnswersMode) {
 		this.isShowAnswersMode = isShowAnswersMode;
+	}
+
+	public void setLimitedShowAnswersMode(Set<String> activeShowAnswersModules) {
+	    this.activeLimitedShowAnswersModules = activeShowAnswersModules;
 	}
 
 	@Override

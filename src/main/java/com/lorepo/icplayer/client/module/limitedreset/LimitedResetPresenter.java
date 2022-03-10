@@ -2,12 +2,15 @@ package com.lorepo.icplayer.client.module.limitedreset;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -30,6 +33,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		void setDisabled(boolean isDisabled);
 		boolean isDisabled();
 		public void setShowAnswersMode(boolean b);
+		public void setLimitedShowAnswersMode(Set<String> m);
 	}
 	
 	private LimitedResetModule model;
@@ -37,7 +41,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 	private IPlayerServices playerServices;
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
-	
+    private Set<String> activeShowAnswersModules = new HashSet<String>();
 	public LimitedResetPresenter(LimitedResetModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
@@ -220,6 +224,17 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		return null;
 	}
 
+    private void handleLimitedShowAnswersEvent(HashMap<String, String> data) {
+        Set<String> activeLimitedShowModules = JSONUtils.decodeSet(data.get("item"));
+        for (String moduleID : activeLimitedShowModules) {
+            if (model.getModules().contains(moduleID)) {
+                activeShowAnswersModules.add(data.get("source"));
+                break;
+            }
+        }
+        view.setLimitedShowAnswersMode(activeShowAnswersModules);
+    };
+
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		if (eventName.equals("ShowAnswers")) {
@@ -227,6 +242,11 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 			view.setDisabled(false);
 		} else if (eventName.equals("HideAnswers")) {
 			view.setShowAnswersMode(false);
+		} else if (eventName.equals("LimitedShowAnswers")) {
+            handleLimitedShowAnswersEvent(data);
+		} else if (eventName.equals("LimitedHideAnswers")) {
+            activeShowAnswersModules.remove(data.get("source"));
+			view.setLimitedShowAnswersMode(activeShowAnswersModules);
 		}
 	}
 }

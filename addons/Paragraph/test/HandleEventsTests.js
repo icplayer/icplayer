@@ -95,11 +95,19 @@ TestCase("[Paragraph] handle events related to showing model answer", {
         assertFalse(paragraph['0'].classList.contains('disabled'));
     },
 
-    'test given view when disableParagraph then add disabled class': function () {
+    'test given view when disableEdit then add disabled class': function () {
         var paragraph = this.presenter.$view.find(".paragraph-wrapper");
 
-        this.presenter.disableParagraph();
+        this.presenter.disableEdit();
 
         assertTrue(paragraph.hasClass('disabled'));
+    },
+
+    'test given view when enableEdit then remove disabled class': function () {
+        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
+
+        this.presenter.enableEdit();
+
+        assertFalse(paragraph.hasClass('disabled'));
     }
 });
