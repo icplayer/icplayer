@@ -153,20 +153,17 @@ TestCase("[Table Of Contents] Keyboard controller tests - default display type",
         assertEquals(expectedVoiceObjectsAmount, result.length);
 
         const expectedPrefix1 = "Pagination";
-        const prefix1 = result[expectedVoiceObjectId]["text"];
-        assertEquals(expectedPrefix1, prefix1);
+        assertEquals(expectedPrefix1, result[expectedVoiceObjectId]["text"]);
 
         if (isSelected) {
             expectedVoiceObjectId++;
             const expectedPrefix2 = "Selected";
-            const prefix2 = result[expectedVoiceObjectId]["text"];
-            assertEquals(expectedPrefix2, prefix2);
+            assertEquals(expectedPrefix2, result[expectedVoiceObjectId]["text"]);
         }
 
         expectedVoiceObjectId++;
         const expectedGoToPageFragment = `${currentPageId} out of ${pagesAmount}`
-        const title = result[expectedVoiceObjectId]["text"];
-        assertEquals(expectedGoToPageFragment, title);
+        assertEquals(expectedGoToPageFragment, result[expectedVoiceObjectId]["text"]);
     },
 
     activateKeyboardNavigation: function() {
@@ -1187,25 +1184,23 @@ TestCase("[Table Of Contents] Keyboard controller tests - comboList display type
     validateTTSForComboList: function (optionId, result) {
         assertEquals(2, result.length);
 
-        var expectedPageName = "";
+        var expectedPageName = `${this.presenter.speechTexts.GoToPage} `;
         switch (optionId) {
             case 1:
-                expectedPageName = this.page1Name;
+                expectedPageName += this.page1Name;
                 break;
             case 2:
-                expectedPageName = this.page2Name;
+                expectedPageName += this.page2Name;
                 break;
             case 3:
-                expectedPageName = this.page3Name;
+                expectedPageName += this.page3Name;
                 break;
         }
 
         const expectedPrefix = this.presenter.speechTexts.PagesList;
-        const prefix = result[0]["text"];
-        assertEquals(expectedPrefix, prefix);
+        assertEquals(expectedPrefix, result[0]["text"]);
 
-        const pageName = result[1]["text"];
-        assertEquals(expectedPageName, pageName);
+        assertEquals(expectedPageName, result[1]["text"]);
     },
 
     generateToCViewList: function () {
@@ -1856,9 +1851,7 @@ function validateTTSForTitle(elementTitle, result) {
     assertEquals(2, result.length);
 
     const expectedPrefix = "Title";
-    const prefix = result[0]["text"];
-    assertEquals(expectedPrefix, prefix);
+    assertEquals(expectedPrefix, result[0]["text"]);
 
-    const title = result[1]["text"];
-    assertEquals(elementTitle, title);
+    assertEquals(elementTitle, result[1]["text"]);
 }

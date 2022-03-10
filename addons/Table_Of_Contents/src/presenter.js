@@ -985,7 +985,8 @@ function AddonTable_Of_Contents_create(){
         pushMessageToTextVoiceObject(textVoiceObject, prefix);
 
         const pageName = $element.val();
-        pushMessageToTextVoiceObject(textVoiceObject, pageName, true);
+        const gotToPageText = `${presenter.speechTexts.GoToPage} ${pageName}`;
+        pushMessageToTextVoiceObject(textVoiceObject, gotToPageText);
 
         return textVoiceObject;
     }
