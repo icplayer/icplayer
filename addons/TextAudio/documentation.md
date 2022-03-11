@@ -37,7 +37,9 @@ It's also important that audio files have <strong>constant bitrate</strong> beca
     </tr>
     <tr>
         <td>Slides</td>
-        <td>In this property you define slides with the audio narration. Each slide has property Text – which is the content of the slide and property Times, in which you define durations of each slide.
+        <td>In this property you define slides with the audio narration.
+        <br />Text and times can be provided from SRT type file. <b>If file is provided - text and times fields are ignored.</b> Using srt file also enables to provide the Crop time field that simply crop the times within this file. <b>Important: crop times works only for SRT file!</b> Ignoring the srt file property, user can always provide narration by hand - described as below.
+        <br />Each slide has property Text – which is the content of the slide and property Times, in which you define durations of each slide.
 		<br />
 		The content of the slide can be divided into fragments that will be highlighted in different periods of time. The seperator is double pipe "||". The number of pieces of text should be the same as the number of time periods in the Times property.
 		<br />
@@ -51,6 +53,9 @@ It's also important that audio files have <strong>constant bitrate</strong> beca
 			00:02-00:03.5<br />
 			00:03.5-00:05</li>
                         <li><strong>Position and dimensions:</strong><br />10;10;150;200</li>
+            <li><b>File SRT</b> - properly formatted SRT file for audio narration</li>
+            <li><b>Crop times</b> - value that crop("cut") the times in File Srt</li>
+                Proper format: 00:00:00,000 where HH:MM:SS,MS
 		</ul>
 		</td>
     </tr>

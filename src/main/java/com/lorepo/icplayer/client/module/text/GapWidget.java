@@ -23,9 +23,11 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 
 
-public class GapWidget extends TextBox implements TextElementDisplay {
+
+public class GapWidget extends TextBox implements TextElementDisplay, NavigationTextElement {
 	private boolean isDisabled = false;
 	private String gapId = "";
 	private String text = "";
@@ -409,6 +411,21 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public void showAnswers() {
 		setText(gapInfo.getFirstCorrectAnswer());
 		addStyleDependentName("correct-answer");
+	}
+
+	@Override
+	public void setElementFocus(boolean focus) {
+		if (focus) {
+			this.select();
+		} else {
+			this.deselect();
+		}
+		setFocus(focus);
+	}
+
+	@Override
+	public String getElementType() {
+		return "gap";
 	}
 
 	public void select() {

@@ -5,8 +5,10 @@
 		<property name="InitialTime" nameLabel="Clock_property_initial_time" type="string"/>
 		<property name="TimeStep" nameLabel="Clock_property_time_step" type="string" displayName="Step (minutes)"/>
 		<property name="ShowClockLabels" nameLabel="Clock_property_show_clock_labels" type="boolean"/>
-		<property name="ActiveHand" nameLabel="Clock_property_active_hand" type="{Both,HourHand,MinuteHand}"/>
-		<property name="SynchronizeHands" nameLabel="Clock_property_synchronize_hands" type="{None, Min with Hour, Both}"/>
+		<property name="ShowSecondHand" nameLabel="Clock_property_show_second_hand" type="boolean"/>
+		<property name="SecondTimeStep" nameLabel="Clock_property_second_time_step" type="string" displayName="Step (seconds)"/>
+		<property name="ActiveHand" nameLabel="Clock_property_active_hand" type="{Hour, Minute, Second, H+M, H+S, M+S, All}"/>
+		<property name="SynchronizeHands" nameLabel="Clock_property_synchronize_hands" type="{None, Min with Hour, Both, All}"/>
 		<property name="Images" nameLabel="Clock_property_images" type="list">
 			<property name="Background" nameLabel="Clock_property_background" type="image"/>
 		</property>

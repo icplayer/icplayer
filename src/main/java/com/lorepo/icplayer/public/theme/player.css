@@ -1088,7 +1088,7 @@ hr, table, fieldset {
 }
 
 .keyboard_navigation_active_element {
-    outline: dashed 2px #00ff44;
+    outline: dashed 2px #00ff44 !important;
 }
 
 /**

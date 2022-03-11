@@ -17,7 +17,7 @@
     border: 3px solid #06d401;
 }
 
-#h-hand,#m-hand {
+#h-hand,#m-hand, #s-hand {
     stroke: #A52A2A;
     stroke-opacity: 0.0;
 }
@@ -27,6 +27,10 @@
 }
 
 #m-hand {
+    stroke-width: 50px;
+}
+
+#s-hand {
     stroke-width: 50px;
 }
 
