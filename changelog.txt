@@ -2,6 +2,7 @@
 2022-03-04 Added TTS and Keyboard Navigation support for links in the Text
 2022-03-01 Added second hand to Clock Addon
 2022-02-22 Added removing only incorrect answers in Coloring and Figure Drawing
+2022-02-14 Add TTS to Assessment Navigation Bar
 2022-02-11 Fixed remaining ErrorsMode in Single State Button
 2022-02-02 Fixed Addon containing special chars in its ID
 2022-01-28 HTMLEditor public with new feature - editable text field
