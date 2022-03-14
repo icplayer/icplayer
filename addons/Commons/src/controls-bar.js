@@ -386,6 +386,16 @@
         this.elements['VideoSpeedController'] = buildTreeNode(playbackRateControls);
     }
 
+    /**
+     * Reset playback speed of video to 1
+     * @method resetPlaybackSpeed
+     */
+    CustomControlsBar.prototype.resetPlaybackRateSelectValue = function () {
+        $(this.elements.videoSpeedController.element)
+            .find('select')
+            .val(1.0);
+    }
+
     function createPlaybackOptions(self, callback) {
         var select = document.createElement('select');
 
