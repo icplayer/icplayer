@@ -33,6 +33,7 @@ function AddonTable_Of_Contents_create(){
     };
 
     presenter.CSS_CLASSES = {
+        TABLE_OF_CONTENTS: "table-of-contents",
         PAGINATION: "table-of-contents-pagination",
         LIST: "table-of-contents-list",
         TITLE: "table-of-contents-title",
@@ -41,6 +42,8 @@ function AddonTable_Of_Contents_create(){
         ICONS_LIST: "iconsList",
         IMAGE_CONTAINER: "imageContainer",
         IMAGE_ELEMENT: "imageElement",
+        LIST_ELEMENT: "listElement",
+        CURRENT_PAGE: "current-page",
     };
 
     presenter.ATTRIBUTES = {
@@ -52,7 +55,7 @@ function AddonTable_Of_Contents_create(){
     function getCorrectObject(v) { return { isValid: true, value: v }; }
 
     function setElementsDimensions(addonWidth, addonHeight) {
-        var wrapper = presenter.$view.find('.table-of-contents:first')[0];
+        var wrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}:first`)[0];
         var wrapperDimensions = DOMOperationsUtils.getOuterDimensions(wrapper);
         var wrapperDistances = DOMOperationsUtils.calculateOuterDistances(wrapperDimensions);
         $(wrapper).css({
@@ -105,7 +108,7 @@ function AddonTable_Of_Contents_create(){
                 currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
             
             if (currentPageIndex == page.index) {
-                $link.addClass('current-page');
+                $link.addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
         }
         
@@ -113,7 +116,7 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateListElements (isPreview) {
-        var $list = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.LIST} ol`);
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             $list.append(generateElement(presenter.pages[i].name, presenter.pages[i], isPreview));
@@ -144,7 +147,7 @@ function AddonTable_Of_Contents_create(){
 
     function generateComboList (isPreview) {
         var selectionList = $('<select class="comboList"></select>');
-        presenter.$view.find('.table-of-contents').append(selectionList);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(selectionList);
         var comboList = presenter.$view.find(`.${presenter.CSS_CLASSES.COMBO_LIST}`);
         $(comboList).css("width", "100%");
 
@@ -156,11 +159,13 @@ function AddonTable_Of_Contents_create(){
     function generateIconListElement (page, isPreview) {
         var anchorElement = $('<a></a>');
         $(anchorElement).addClass(presenter.CSS_CLASSES.IMAGE_CONTAINER);
-        var imgElement = document.createElement('img'),
-            listElement = $('<div class="listElement"></div>');
 
+        var imgElement = document.createElement('img');
         $(imgElement).addClass(presenter.CSS_CLASSES.IMAGE_ELEMENT);
         imgElement.src = page.preview;
+
+        var listElement = $('<div></div>');
+        $(listElement).addClass(presenter.CSS_CLASSES.LIST_ELEMENT);
         $(listElement).text(page.name);
         $(anchorElement).append(imgElement).append(listElement);
 
@@ -172,7 +177,7 @@ function AddonTable_Of_Contents_create(){
             $(anchorElement).attr(presenter.ATTRIBUTES.DATA_PAGE_NUMBER, page.numberOfIndex + 1);
 
             if (currentPageIndex == page.index) {
-                $(anchorElement).addClass('current-page');
+                $(anchorElement).addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
 
             $(anchorElement).click(function (event) {
@@ -205,7 +210,7 @@ function AddonTable_Of_Contents_create(){
             $(anchorElement).attr(presenter.ATTRIBUTES.DATA_PAGE_NUMBER, page.numberOfIndex + 1);
 
             if (currentPageIndex == page.index) {
-                $(anchorElement).addClass('current-page');
+                $(anchorElement).addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
 
             $(anchorElement).click(function (event) {
@@ -224,7 +229,7 @@ function AddonTable_Of_Contents_create(){
     function generateIcons (isPreview) {
         var iconsList = $('<div></div>');
         iconsList.addClass(presenter.CSS_CLASSES.ICONS_LIST);
-        presenter.$view.find('.table-of-contents').append(iconsList);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(iconsList);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             iconsList.append(generateIconElement(presenter.pages[i], isPreview));
@@ -234,7 +239,7 @@ function AddonTable_Of_Contents_create(){
     function generateIconsAndList (isPreview) {
         var iconsList = $('<div></div>');
         iconsList.addClass(presenter.CSS_CLASSES.ICONS_LIST);
-        presenter.$view.find('.table-of-contents').append(iconsList);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(iconsList);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             iconsList.append(generateIconListElement(presenter.pages[i], isPreview));
@@ -250,7 +255,7 @@ function AddonTable_Of_Contents_create(){
     };
 
     function displayPage(page) {
-        var $list = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.LIST} ol`),
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`),
             pages = presenter.pagination.pages[page], i,
             startIndex = presenter.pageStartIndex(page),
             $pageList = presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`);
@@ -274,8 +279,8 @@ function AddonTable_Of_Contents_create(){
     }
 
     function paginateList(spareHeight, isPreview) {
-        var $list = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.LIST} ol`);
-        var $pagination = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.PAGINATION}`);
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
+        var $pagination = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.PAGINATION}`);
 
         if (!isSpaceSufficient($list, spareHeight)) return false;
 
@@ -350,7 +355,7 @@ function AddonTable_Of_Contents_create(){
     }
 
     function handlePaginationMouseActions() {
-        var lists = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.LIST}`),
+        var lists = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST}`),
         $pagination = presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`);
 
         $pagination.click(function (event) {
@@ -395,7 +400,7 @@ function AddonTable_Of_Contents_create(){
             var listHeight = generateListElements(isPreview),
                 spareHeight = elementsHeights.wrapper - elementsHeights.title;
 
-            var $list = presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.LIST} ol`);
+            var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
             if (!isSpaceSufficient($list, spareHeight)) {
                 reportInsufficientSpace();
             }
@@ -419,7 +424,7 @@ function AddonTable_Of_Contents_create(){
 
         if (!isPreview) handleMouseClickActions();
         if (!ModelValidationUtils.isStringEmpty(upgradedModel['Header'])) {
-        	presenter.$view.find(`.table-of-contents .${presenter.CSS_CLASSES.TITLE}`).text(upgradedModel['Header'])
+        	presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.TITLE}`).text(upgradedModel['Header'])
         }
 
          presenter.buildKeyboardController();
@@ -872,7 +877,7 @@ function AddonTable_Of_Contents_create(){
         } else {
             this.selectAction();
             if (isParentOfElementPaginationList($currentElement)) {
-                presenter.speak(presenter.speechTexts.Selected)
+                presenter.speak(presenter.speechTexts.Selected);
             }
         }
     };

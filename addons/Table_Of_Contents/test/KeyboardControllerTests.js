@@ -102,7 +102,8 @@ TestCase("[Table Of Contents] Keyboard controller tests - default display type",
         $listItem.css({'display': 'list-item',});
 
         this.$displayedCurrentPageHyperLink = $(`<a></a>`);
-        this.$displayedCurrentPageHyperLink.addClass("current-page");
+        this.$displayedCurrentPageHyperLink.addClass(
+            this.presenter.CSS_CLASSES.CURRENT_PAGE);
         this.$displayedCurrentPageHyperLink.attr('href', '#');
         this.$displayedCurrentPageHyperLink.text(this.page2Name);
         this.$displayedCurrentPageHyperLink.appendTo($listItem);
@@ -483,7 +484,8 @@ TestCase("[Table Of Contents] Keyboard controller tests - list display type", {
         $listItem.css({'display': 'list-item',});
 
         this.$displayedCurrentPageHyperLink = $(`<a></a>`);
-        this.$displayedCurrentPageHyperLink.addClass("current-page");
+        this.$displayedCurrentPageHyperLink.addClass(
+            this.presenter.CSS_CLASSES.CURRENT_PAGE);
         this.$displayedCurrentPageHyperLink.attr('href', '#');
         this.$displayedCurrentPageHyperLink.text(this.page2Name);
         this.$displayedCurrentPageHyperLink.appendTo($listItem);
