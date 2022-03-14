@@ -55,6 +55,8 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 	//state
 	private PresenterEntry savedEntry = null;
+
+	private static final int KEY_SPACE_BAR = 32;
 	
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
@@ -367,7 +369,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == 32 && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
+				if (event.getNativeKeyCode() == KEY_SPACE_BAR && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
 					event.preventDefault();
 				}
 
@@ -500,7 +502,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					wcagWidget.tab(event);
 				}
 				break;
-			case 32:
+			case KEY_SPACE_BAR:
 				wcagWidget.space(event);
 				break;
 			default:
