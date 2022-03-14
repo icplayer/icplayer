@@ -112,7 +112,6 @@ TestCase("[Paragraph] WCAG - TTS Test", {
     },
 
     'test given mce-btn with aria-label and defined speechText when readCurrentElement then speak is invoked with speech text': function () {
-        // this.presenter.keyboardControllerObject.keyboardNavigationCurrentElement = this.presenter.$view.find(".mce-edit-area");
         this.presenter.keyboardControllerObject.keyboardNavigationCurrentElement = this.presenter.$view.find(".bold");
         var readElementSpy = sinon.spy(this.presenter.keyboardControllerObject, "readCurrentElement");
 
