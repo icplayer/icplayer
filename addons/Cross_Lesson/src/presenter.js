@@ -257,23 +257,10 @@ function AddonCross_Lesson_create(){
         }
 
         presenter.speechTexts = {
-            GoToLesson: presenter.getSpeechTextProperty(
+            GoToLesson: TTSUtils.getSpeechTextProperty(
                 speechTexts.GoToLesson.GoToLesson,
                 presenter.speechTexts.GoToLesson)
         };
-    };
-
-    presenter.getSpeechTextProperty = function (rawValue, defaultValue) {
-        if (rawValue === undefined || rawValue === null) {
-            return defaultValue;
-        }
-
-        var value = rawValue.trim();
-        if (value === '') {
-            return defaultValue;
-        }
-
-        return value;
     };
 
     function CrossLessonKeyboardController (elements, columnsCount) {
