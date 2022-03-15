@@ -98,10 +98,10 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	}
 
 	private void sendLimitedHideAnswerEvent() {
-	    HashMap<String, String> eventData = new HashMap<String, String>() {{
-	        put("item", JSONUtils.toJSONString(activeLimitedShowAnswersModules));
-            put("source", module.getId());
-        }};
+		HashMap<String, String> eventData = new HashMap<String, String>() {{
+			put("item", JSONUtils.toJSONString(activeLimitedShowAnswersModules));
+			put("source", module.getId());
+		}};
         playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("LimitedHideAnswers", eventData), this);
         activeLimitedShowAnswersModules.clear();
 	}
