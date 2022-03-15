@@ -243,9 +243,9 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		} else if (eventName.equals("HideAnswers")) {
 			view.setShowAnswersMode(false);
 		} else if (eventName.equals("LimitedShowAnswers")) {
-            handleLimitedShowAnswersEvent(data);
+			handleLimitedShowAnswersEvent(data);
 		} else if (eventName.equals("LimitedHideAnswers")) {
-            activeShowAnswersModules.remove(data.get("source"));
+			activeShowAnswersModules.remove(data.get("source"));
 			view.setLimitedShowAnswersMode(activeShowAnswersModules);
 		}
 	}

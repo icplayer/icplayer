@@ -105,6 +105,7 @@ TestCase("[Paragraph] handle events related to showing model answer", {
 
     'test given view when enableEdit then remove disabled class': function () {
         var paragraph = this.presenter.$view.find(".paragraph-wrapper");
+        paragraph['0'].classList.add('disabled');
 
         this.presenter.enableEdit();
 

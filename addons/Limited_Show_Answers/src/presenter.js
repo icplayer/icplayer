@@ -67,7 +67,6 @@ function AddonLimited_Show_Answers_create() {
         }
 
         presenter.sendEventToWorksWithModules(eventName);
-
     };
 
     presenter.sendEventToWorksWithModules = function (eventName) {
