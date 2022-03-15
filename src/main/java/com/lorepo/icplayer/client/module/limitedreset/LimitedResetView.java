@@ -102,8 +102,8 @@ public class LimitedResetView extends PushButton implements IDisplay {
 			put("item", JSONUtils.toJSONString(activeLimitedShowAnswersModules));
 			put("source", module.getId());
 		}};
-        playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("LimitedHideAnswers", eventData), this);
-        activeLimitedShowAnswersModules.clear();
+		playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("LimitedHideAnswers", eventData), this);
+		activeLimitedShowAnswersModules.clear();
 	}
 
 	@Override
