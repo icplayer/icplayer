@@ -1,3 +1,4 @@
+2022-03-14 Added TTS to Table of Contents
 2022-03-04 Added SrtParser to commons. Added audio narration loading from SRT File to AddonAudio addon
 2022-03-04 Added TTS and Keyboard Navigation support for links in the Text
 2022-03-01 Added second hand to Clock Addon
