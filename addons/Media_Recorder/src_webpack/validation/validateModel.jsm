@@ -35,6 +35,10 @@ export function validateModel(model) {
             'resetDialogText': [ModelValidators.String('resetDialogLabel', {default: 'Are you sure you want to reset the recording?'})],
             'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', {default: 'Yes'})],
             'resetDialogDeny': [ModelValidators.String('resetDialogLabel', {default: 'No'})]
+        }),
+        ModelValidators.String("langAttribute", {
+            trim: true,
+            default: ""
         })
     ]);
 }

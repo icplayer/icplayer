@@ -1,3 +1,5 @@
+import {CSS_CLASSES} from "./CssClasses.jsm";
+
 export class AddonViewService {
 
     constructor($wrapperView) {
@@ -9,11 +11,11 @@ export class AddonViewService {
     }
 
     activate() {
-        this.$view.removeClass("disabled");
+        this.$view.removeClass(CSS_CLASSES.DISABLED);
     }
 
     deactivate() {
-        this.$view.addClass("disabled");
+        this.$view.addClass(CSS_CLASSES.DISABLED);
     }
 
     destroy() {

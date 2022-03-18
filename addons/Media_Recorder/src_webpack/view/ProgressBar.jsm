@@ -1,9 +1,11 @@
+import {CSS_CLASSES} from "./CssClasses.jsm";
+
 export class ProgressBar {
 
     constructor($view) {
         this.$view = $view;
         this.progress = 0.0;
-        this.$slider = $view.find('.media-recorder-progress-bar-slider');
+        this.$slider = $view.find("." + CSS_CLASSES.PROGRESS_BAR_SLIDER);
         this.maxWidth = $view[0].offsetWidth - this.$slider[0].offsetWidth;
         var self = this;
         this.$slider.draggable({

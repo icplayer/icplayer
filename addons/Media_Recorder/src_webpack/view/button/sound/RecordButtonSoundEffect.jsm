@@ -9,10 +9,13 @@ export class RecordButtonSoundEffect extends RecordButton {
     }
 
     _startRecording() {
-        if (this.startRecordingSoundEffect.isValid())
+        if (this.startRecordingSoundEffect.isValid()) {
             this._recordWithSoundEffect();
-        else
+        } else if (this._isKeyboardControllerNavigationActive()) {
+            this._recordWithTTS();
+        } else {
             super._startRecording();
+        }
     }
 
     _recordWithSoundEffect() {
@@ -22,6 +25,10 @@ export class RecordButtonSoundEffect extends RecordButton {
         };
         super._startRecording();
         this._playStartRecordingSoundEffect();
+
+        if (this._isKeyboardControllerNavigationActive()) {
+            this._keyboardController.onStartRecordingWhenSoundEffect();
+        }
     }
 
     _playStartRecordingSoundEffect() {
@@ -31,11 +38,19 @@ export class RecordButtonSoundEffect extends RecordButton {
             this.startRecordingSoundEffect.playSound()
     }
 
+    _recordWithTTS() {
+        const callbackFunction = super._startRecording.bind(this);
+        this._keyboardController.onStartRecording(callbackFunction);
+    }
+
     _stopRecording() {
-        if (this.stopRecordingSoundEffect.isValid())
+        if (this.stopRecordingSoundEffect.isValid()) {
             this._onStopRecordingWithSoundEffect();
-        else
+        } else if (this._isKeyboardControllerNavigationActive()) {
+            this._onStopRecordingWithTTS();
+        } else {
             super._stopRecording();
+        }
     }
 
     _onStopRecordingWithSoundEffect() {
@@ -47,5 +62,18 @@ export class RecordButtonSoundEffect extends RecordButton {
             this.activate()
         };
         this.stopRecordingSoundEffect.playSound();
+
+        if (this._isKeyboardControllerNavigationActive()) {
+            this._keyboardController.onStopRecordingWhenSoundEffect();
+        }
+    }
+
+    _onStopRecordingWithTTS() {
+        super._stopRecording();
+        this._keyboardController.onStopRecording();
+    }
+
+    _isKeyboardControllerNavigationActive () {
+        return this._keyboardController.keyboardNavigationActive === true;
     }
 }

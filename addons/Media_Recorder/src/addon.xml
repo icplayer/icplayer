@@ -15,27 +15,44 @@
         <property name="disableRecording" nameLabel="Media_Recorder_property_is_disable_recording" type="boolean" />
         <property name="enableIntensityChangeEvents" nameLabel="Media_Recorder_property_is_enable_intensity_events" type="boolean" />
         <property name="resetDialogLabels" nameLabel="Media_Recorder_property_reset_dialog_labels" type="staticlist">
-
             <property name="resetDialogText" nameLabel="Media_Recorder_property_reset_dialog_text" type="staticrow">
                 <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
             </property>
-
             <property name="resetDialogConfirm" nameLabel="Media_Recorder_property_reset_dialog_confirm" type="staticrow">
                 <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
             </property>
-
             <property name="resetDialogDeny" nameLabel="Media_Recorder_property_reset_dialog_deny" type="staticrow">
                 <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
             </property>
-
         </property>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Media_Recorder_property_lang_attribute" type="string" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Media_Recorder_property_speech_texts" type="staticlist">
-            <property name="DefaultRecordPlayButton" nameLabel="Media_Recorder_speech_text_default_record_play_button" type="staticrow">
-                <property name="DefaultRecordPlayButton" nameLabel="Media_Recorder_speech_text_default_record_play_button" type="string"/>
+            <property name="DefaultRecordingPlayButton" nameLabel="Media_Recorder_speech_text_default_recording_play_button" type="staticrow">
+                <property name="DefaultRecordingPlayButton" nameLabel="Media_Recorder_speech_text_default_recording_play_button" type="string"/>
             </property>
-            <property name="DefaultRecordStopButton" nameLabel="Media_Recorder_speech_text_default_record_stop_button" type="staticrow">
-                <property name="DefaultRecordStopButton" nameLabel="Media_Recorder_speech_text_default_record_stop_button" type="string"/>
+            <property name="RecordingButton" nameLabel="Media_Recorder_speech_text_recording_button" type="staticrow">
+                <property name="RecordingButton" nameLabel="Media_Recorder_speech_text_recording_button" type="string"/>
+            </property>
+            <property name="PlayButton" nameLabel="Media_Recorder_speech_text_play_button" type="staticrow">
+                <property name="PlayButton" nameLabel="Media_Recorder_speech_text_play_button" type="string"/>
+            </property>
+            <property name="ResetButton" nameLabel="Media_Recorder_speech_text_reset_button" type="staticrow">
+                <property name="ResetButton" nameLabel="Media_Recorder_speech_text_reset_button" type="string"/>
+            </property>
+            <property name="DownloadButton" nameLabel="Media_Recorder_speech_text_download_button" type="staticrow">
+                <property name="DownloadButton" nameLabel="Media_Recorder_speech_text_download_button" type="string"/>
+            </property>
+            <property name="ResetDialog" nameLabel="Media_Recorder_speech_text_reset_dialog" type="staticrow">
+                <property name="ResetDialog" nameLabel="Media_Recorder_speech_text_reset_dialog" type="string"/>
+            </property>
+            <property name="StartRecording" nameLabel="Media_Recorder_speech_text_start_recording" type="staticrow">
+                <property name="StartRecording" nameLabel="Media_Recorder_speech_text_start_recording" type="string"/>
+            </property>
+            <property name="StopRecording" nameLabel="Media_Recorder_speech_text_stop_recording" type="staticrow">
+                <property name="StopRecording" nameLabel="Media_Recorder_speech_text_stop_recording" type="string"/>
+            </property>
+            <property name="Disabled" nameLabel="Media_Recorder_speech_text_disabled" type="staticrow">
+                <property name="Disabled" nameLabel="Media_Recorder_speech_text_disabled" type="string"/>
             </property>
         </property>
     </model>

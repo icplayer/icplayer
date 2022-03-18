@@ -1,4 +1,5 @@
 import {Button} from "./Button.jsm";
+import {CSS_CLASSES} from "../CssClasses.jsm";
 
 export class PlayButton extends Button {
 
@@ -20,12 +21,12 @@ export class PlayButton extends Button {
     }
 
     _startPlaying() {
-        this.$view.addClass("selected");
+        this.$view.addClass(CSS_CLASSES.SELECTED);
         this.onStartPlayingCallback();
     }
 
     _stopPlaying() {
-        this.$view.removeClass("selected");
+        this.$view.removeClass(CSS_CLASSES.SELECTED);
         this.onStopPlayingCallback();
     }
 

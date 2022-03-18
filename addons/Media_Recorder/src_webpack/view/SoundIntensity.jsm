@@ -1,3 +1,5 @@
+import {CSS_CLASSES} from "./CssClasses.jsm";
+
 export class SoundIntensity {
 
     constructor($view) {
@@ -108,7 +110,7 @@ export class SoundIntensity {
         for (let currentLevel = 1; currentLevel <= intensity; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
             let $level = this.$view.find(levelId);
-            $level.addClass("selected");
+            $level.addClass(CSS_CLASSES.SELECTED);
         }
     }
 
@@ -116,7 +118,7 @@ export class SoundIntensity {
         for (let currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
             let $level = this.$view.find(levelId);
-            $level.removeClass("selected");
+            $level.removeClass(CSS_CLASSES.SELECTED);
         }
     }
 }
