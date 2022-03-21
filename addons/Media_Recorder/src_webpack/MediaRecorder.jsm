@@ -502,7 +502,7 @@ export class MediaRecorder {
             this.resetDialog.onDeny = () => {
                 this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
                 if (this.keyboardControllerObject.keyboardNavigationActive) {
-                    this.keyboardControllerObject.markRecordingButton();
+                    this.keyboardControllerObject.markResetButton();
                     this.keyboardControllerObject.readCurrentElement();
                 }
             }

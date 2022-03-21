@@ -1651,7 +1651,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.resetDialog.onDeny = function () {
                     _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
                     if (_this2.keyboardControllerObject.keyboardNavigationActive) {
-                        _this2.keyboardControllerObject.markRecordingButton();
+                        _this2.keyboardControllerObject.markResetButton();
                         _this2.keyboardControllerObject.readCurrentElement();
                     }
                 };
