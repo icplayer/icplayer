@@ -62,6 +62,9 @@ TestCase("[Media Recorder] Keyboard controller test - default mode", {
 
         let $wrapper = $(`<div></div>`);
         $wrapper.addClass(this.CSS_CLASSES.WRAPPER);
+        if (this.model.isDisabled) {
+            $wrapper.addClass(this.CSS_CLASSES.DISABLED);
+        }
         $wrapper.appendTo($mainView);
 
         let $playerWrapper = $(`<div></div>`);
@@ -90,22 +93,19 @@ TestCase("[Media Recorder] Keyboard controller test - default mode", {
 
         this.$defaultRecordingPlayButton = generateDefaultRecordingPlayButton(
             this.CSS_CLASSES,
-            this.model.isShowedDefaultRecordingButton,
-            this.model.isDisabled
+            this.model.isShowedDefaultRecordingButton
         );
         $interfaceWrapper.append(this.$defaultRecordingPlayButton);
 
         this.$recordingButton = generateRecordingButton(
             this.CSS_CLASSES,
-            true,
-            this.model.isDisabled
+            true
         );
         $interfaceWrapper.append(this.$recordingButton);
 
         this.$playButton = generatePlayButton(
             this.CSS_CLASSES,
-            !this.model.disableRecording,
-            this.model.isDisabled,
+            !this.model.disableRecording
         );
         $interfaceWrapper.append(this.$playButton);
 
@@ -123,15 +123,13 @@ TestCase("[Media Recorder] Keyboard controller test - default mode", {
 
         this.$resetButton = generateResetButton(
             this.CSS_CLASSES,
-            false,
-            this.model.isDisabled
+            false
         );
         $interfaceWrapper.append(this.$resetButton);
 
         this.$downloadButton = generateDownloadButton(
             this.CSS_CLASSES,
-            false,
-            this.model.isDisabled
+            false
         );
         $interfaceWrapper.append(this.$downloadButton);
 
@@ -907,6 +905,9 @@ TestCase("[Media Recorder] Keyboard controller test - extended mode", {
 
         let $wrapper = $(`<div></div>`);
         $wrapper.addClass(this.CSS_CLASSES.WRAPPER);
+        if (this.model.isDisabled) {
+            $wrapper.addClass(this.CSS_CLASSES.DISABLED);
+        }
         $wrapper.appendTo($mainView);
 
         let $playerWrapper = $(`<div></div>`);
@@ -935,22 +936,19 @@ TestCase("[Media Recorder] Keyboard controller test - extended mode", {
 
         this.$defaultRecordingPlayButton = generateDefaultRecordingPlayButton(
             this.CSS_CLASSES,
-            false,
-            this.model.isDisabled
+            false
         );
         $interfaceWrapper.append(this.$defaultRecordingPlayButton);
 
         this.$recordingButton = generateRecordingButton(
             this.CSS_CLASSES,
-            !this.isAfterRecording,
-            this.model.isDisabled
+            !this.isAfterRecording
         );
         $interfaceWrapper.append(this.$recordingButton);
 
         this.$playButton = generatePlayButton(
             this.CSS_CLASSES,
-            this.isAfterRecording,
-            this.model.isDisabled,
+            this.isAfterRecording
         );
         $interfaceWrapper.append(this.$playButton);
 
@@ -968,15 +966,13 @@ TestCase("[Media Recorder] Keyboard controller test - extended mode", {
 
         this.$resetButton = generateResetButton(
             this.CSS_CLASSES,
-            this.isAfterRecording,
-            this.model.isDisabled
+            this.isAfterRecording
         );
         $interfaceWrapper.append(this.$resetButton);
 
         this.$downloadButton = generateDownloadButton(
             this.CSS_CLASSES,
-            this.isAfterRecording,
-            this.model.isDisabled
+            this.isAfterRecording
         );
         $interfaceWrapper.append(this.$downloadButton);
 
@@ -1830,6 +1826,9 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         let $wrapper = $(`<div></div>`);
         $wrapper.addClass(this.CSS_CLASSES.WRAPPER);
+        if (this.model.isDisabled) {
+            $wrapper.addClass(this.CSS_CLASSES.DISABLED);
+        }
         $wrapper.appendTo($mainView);
 
         let $playerWrapper = $(`<div></div>`);
@@ -1861,22 +1860,19 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         this.$defaultRecordingPlayButton = generateDefaultRecordingPlayButton(
             this.CSS_CLASSES,
-            false,
-            this.model.isDisabled
+            false
         );
         $interfaceWrapper.append(this.$defaultRecordingPlayButton);
 
         this.$recordingButton = generateRecordingButton(
             this.CSS_CLASSES,
-            false,
-            this.model.isDisabled
+            false
         );
         $interfaceWrapper.append(this.$recordingButton);
 
         this.$playButton = generatePlayButton(
             this.CSS_CLASSES,
-            true,
-            this.model.isDisabled,
+            true
         );
         $interfaceWrapper.append(this.$playButton);
 
@@ -1894,15 +1890,13 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         this.$resetButton = generateResetButton(
             this.CSS_CLASSES,
-            true,
-            this.model.isDisabled
+            true
         );
         $interfaceWrapper.append(this.$resetButton);
 
         this.$downloadButton = generateDownloadButton(
             this.CSS_CLASSES,
-            true,
-            this.model.isDisabled
+            true
         );
         $interfaceWrapper.append(this.$downloadButton);
 
@@ -1946,29 +1940,89 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
         return this.tts.speak.args[0][0];
     },
 
+    validateTTSForDisabledResetDialog: function() {
+        assertTrue(this.tts.speak.calledOnce);
+        validateTTSForResetDialog(
+            this.keyboardControllerObject,
+            this.model.resetDialogLabels.resetDialogText.resetDialogLabel,
+            this.model.resetDialogLabels.resetDialogConfirm.resetDialogLabel,
+            this.model.resetDialogLabels.resetDialogDeny.resetDialogLabel,
+            this.getFirstReadText(),
+            true
+        );
+    },
+
     validateTTSForResetDialog: function() {
         assertTrue(this.tts.speak.calledOnce);
         validateTTSForResetDialog(
+            this.keyboardControllerObject,
+            this.model.resetDialogLabels.resetDialogText.resetDialogLabel,
+            this.model.resetDialogLabels.resetDialogConfirm.resetDialogLabel,
+            this.model.resetDialogLabels.resetDialogDeny.resetDialogLabel,
+            this.getFirstReadText()
+        );
+    },
+
+    validateTTSForDisabledDialogText: function() {
+        assertTrue(this.tts.speak.calledOnce);
+        validateTTSForDialogText(
+            this.keyboardControllerObject,
+            this.model.resetDialogLabels.resetDialogText.resetDialogLabel,
+            this.getFirstReadText(),
+            true
+        );
+    },
+
+    validateTTSForDialogText: function() {
+        assertTrue(this.tts.speak.calledOnce);
+        validateTTSForDialogText(
             this.keyboardControllerObject,
             this.model.resetDialogLabels.resetDialogText.resetDialogLabel,
             this.getFirstReadText()
         );
     },
 
+    validateTTSForDisabledConfirmButton: function() {
+        assertTrue(this.tts.speak.calledOnce);
+        validateTTSForConfirmButton(
+            this.keyboardControllerObject,
+            this.model.resetDialogLabels.resetDialogConfirm.resetDialogLabel,
+            this.getFirstReadText(),
+            true
+        );
+    },
+
     validateTTSForConfirmButton: function() {
         assertTrue(this.tts.speak.calledOnce);
         validateTTSForConfirmButton(
+            this.keyboardControllerObject,
             this.model.resetDialogLabels.resetDialogConfirm.resetDialogLabel,
             this.getFirstReadText()
+        );
+    },
+
+    validateTTSForDisabledDenyButton: function() {
+        assertTrue(this.tts.speak.calledOnce);
+        validateTTSForDenyButton(
+            this.keyboardControllerObject,
+            this.model.resetDialogLabels.resetDialogDeny.resetDialogLabel,
+            this.getFirstReadText(),
+            true
         );
     },
 
     validateTTSForDenyButton: function() {
         assertTrue(this.tts.speak.calledOnce);
         validateTTSForDenyButton(
+            this.keyboardControllerObject,
             this.model.resetDialogLabels.resetDialogDeny.resetDialogLabel,
             this.getFirstReadText()
         );
+    },
+
+    validateSpaceTTSOfDisabledElement: function () {
+        assertTrue(this.tts.speak.calledOnce);
+        validateSpaceTTSOfDisabledElement(this.keyboardControllerObject, this.getFirstReadText());
     },
 
     markDialogText: function() {
@@ -2086,6 +2140,32 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
         this.validateTTSForResetDialog();
     },
 
+    'test given view when entering for the first time by keyboard navigation and addon is disabled should mark dialogText' : function() {
+        this.stubs.isInactive.returns(true);
+
+        activateEnterEvent(this.presenter);
+
+        this.validateOnlyDialogTextHasKeyboardNavigationActiveClass();
+    },
+
+    'test given view when entering for the first time by navigation with TTS and addon is disabled should mark dialogText' : function() {
+        this.stubs.isInactive.returns(true);
+        this.presenter.setWCAGStatus(true);
+
+        activateEnterEvent(this.presenter);
+
+        this.validateOnlyDialogTextHasKeyboardNavigationActiveClass();
+    },
+
+    'test given view when entering by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.stubs.isInactive.returns(true);
+        this.presenter.setWCAGStatus(true);
+
+        activateEnterEvent(this.presenter);
+
+        this.validateTTSForDisabledResetDialog();
+    },
+
     // Dialog text tests
 
     'test given view when entering on dialogText by keyboard navigation should mark dialogText' : function() {
@@ -2130,7 +2210,7 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         activateTabEvent(this.presenter);
 
-        this.validateTTSForResetDialog();
+        this.validateTTSForDialogText();
     },
 
     'test given view when activate enter on dialogText by TTS should call tts.read with proper text' : function() {
@@ -2139,7 +2219,47 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         activateEnterEvent(this.presenter);
 
-        this.validateTTSForResetDialog();
+        this.validateTTSForDialogText();
+    },
+
+    'test given view when entering on dialogText by navigation with TTS and addon is disabled should mark dialogText' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDenyButton();
+
+        activateTabEvent(this.presenter);
+
+        this.validateOnlyDialogTextHasKeyboardNavigationActiveClass();
+    },
+
+    'test given view when entering on dialogText by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDenyButton();
+
+        activateTabEvent(this.presenter);
+
+        this.validateTTSForDisabledDialogText();
+    },
+
+    'test given view when activate enter on dialogText by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDialogText();
+
+        activateEnterEvent(this.presenter);
+
+        this.validateTTSForDisabledDialogText();
+    },
+
+    'test given view when activate space on dialogText by navigation with TTS and addon is disabled should not call tts.read' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDialogText();
+
+        activateSpaceEvent(this.presenter);
+
+        assertFalse(this.tts.speak.called);
     },
 
     // Confirm button tests
@@ -2198,6 +2318,46 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
         this.validateTTSForConfirmButton();
     },
 
+    'test given view when entering on confirmButton by navigation with TTS and addon is disabled should mark confirmButton' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDialogText();
+
+        activateTabEvent(this.presenter);
+
+        this.validateOnlyConfirmButtonHasKeyboardNavigationActiveClass();
+    },
+
+    'test given view when entering on confirmButton by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDialogText();
+
+        activateTabEvent(this.presenter);
+
+        this.validateTTSForDisabledConfirmButton();
+    },
+
+    'test given view when activate enter on confirmButton by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markConfirmButton();
+
+        activateEnterEvent(this.presenter);
+
+        this.validateTTSForDisabledConfirmButton();
+    },
+
+    'test given view when activate space on confirmButton by navigation with TTS and addon is disabled should call tts.read selected' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markConfirmButton();
+
+        activateSpaceEvent(this.presenter);
+
+        this.validateSpaceTTSOfDisabledElement();
+    },
+
     // Deny button tests
 
     'test given view when entering on denyButton by keyboard navigation should mark denyButton' : function() {
@@ -2253,6 +2413,46 @@ TestCase("[Media Recorder] Keyboard controller test - reset dialog of extended m
 
         this.validateTTSForDenyButton();
     },
+
+    'test given view when entering on denyButton by navigation with TTS and addon is disabled should mark denyButton' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markConfirmButton();
+
+        activateTabEvent(this.presenter);
+
+        this.validateOnlyDenyButtonHasKeyboardNavigationActiveClass();
+    },
+
+    'test given view when entering on denyButton by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markConfirmButton();
+
+        activateTabEvent(this.presenter);
+
+        this.validateTTSForDisabledDenyButton();
+    },
+
+    'test given view when activate enter on denyButton by navigation with TTS and addon is disabled should call tts.read with proper text' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDenyButton();
+
+        activateEnterEvent(this.presenter);
+
+        this.validateTTSForDisabledDenyButton();
+    },
+
+    'test given view when activate space on denyButton by navigation with TTS and addon is disabled should call tts.read selected' : function() {
+        this.activateTTSWithoutReading();
+        this.stubs.isInactive.returns(true);
+        this.markDenyButton();
+
+        activateSpaceEvent(this.presenter);
+
+        this.validateSpaceTTSOfDisabledElement();
+    },
 });
 
 function getCSSClasses() {
@@ -2299,7 +2499,7 @@ function setSpeechTexts(keyboardControllerObject) {
     });
 }
 
-function generateDefaultRecordingPlayButton(CSS_CLASSES, isVisible = true, isDisabled = false) {
+function generateDefaultRecordingPlayButton(CSS_CLASSES, isVisible = true) {
     let $button = $(`<div></div>`);
     $button.addClass(CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON);
 
@@ -2307,14 +2507,10 @@ function generateDefaultRecordingPlayButton(CSS_CLASSES, isVisible = true, isDis
         $button.css('display', 'none');
     }
 
-    if (isDisabled) {
-        $button.addClass(CSS_CLASSES.DISABLED);
-    }
-
     return $button;
 }
 
-function generateRecordingButton(CSS_CLASSES, isVisible = true, isDisabled = false) {
+function generateRecordingButton(CSS_CLASSES, isVisible = true) {
     let $button = $(`<div></div>`);
     $button.addClass(CSS_CLASSES.RECORDING_BUTTON);
 
@@ -2322,23 +2518,15 @@ function generateRecordingButton(CSS_CLASSES, isVisible = true, isDisabled = fal
         $button.css('display', 'none');
     }
 
-    if (isDisabled) {
-        $button.addClass(CSS_CLASSES.DISABLED);
-    }
-
     return $button;
 }
 
-function generatePlayButton(CSS_CLASSES, isVisible = true, isDisabled = false) {
+function generatePlayButton(CSS_CLASSES, isVisible = true) {
     let $button = $(`<div></div>`);
     $button.addClass(CSS_CLASSES.PLAY_BUTTON);
 
     if (!isVisible) {
         $button.css('display', 'none');
-    }
-
-    if (isDisabled) {
-        $button.addClass(CSS_CLASSES.DISABLED);
     }
 
     return $button;
@@ -2424,7 +2612,7 @@ function generateProgressBar(CSS_CLASSES, isVisible = false) {
     return $progressBar;
 }
 
-function generateResetButton(CSS_CLASSES, isVisible = false, isDisabled = false) {
+function generateResetButton(CSS_CLASSES, isVisible = false) {
     let $button = $(`<div></div>`);
     $button.addClass(CSS_CLASSES.RESET_BUTTON);
 
@@ -2434,14 +2622,10 @@ function generateResetButton(CSS_CLASSES, isVisible = false, isDisabled = false)
         $button.css('display', 'none');
     }
 
-    if (isDisabled) {
-        $button.addClass(CSS_CLASSES.DISABLED);
-    }
-
     return $button;
 }
 
-function generateDownloadButton(CSS_CLASSES, isVisible = false, isDisabled = false) {
+function generateDownloadButton(CSS_CLASSES, isVisible = false) {
     let $button = $(`<div></div>`);
     $button.addClass(CSS_CLASSES.DOWNLOAD_BUTTON);
 
@@ -2449,10 +2633,6 @@ function generateDownloadButton(CSS_CLASSES, isVisible = false, isDisabled = fal
         $button.css('display', 'block');
     } else {
         $button.css('display', 'none');
-    }
-
-    if (isDisabled) {
-        $button.addClass(CSS_CLASSES.DISABLED);
     }
 
     return $button;
@@ -2556,18 +2736,48 @@ function validateDefaultElementTTS(keyboardControllerObject, result, speechText,
     }
 }
 
-function validateTTSForResetDialog(keyboardControllerObject, expectedDialog, result) {
+function validateTTSForResetDialog(
+        keyboardControllerObject,
+        expectedDialogTextTTS,
+        expectedDialogConfirmTTS,
+        expectedDialogDenyTTS,
+        result,
+        isDisabled = false) {
+    assertEquals(expectedDialogTextTTS, result[0]["text"]);
+    assertEquals(expectedDialogConfirmTTS, result[1]["text"]);
+    assertEquals(expectedDialogDenyTTS, result[2]["text"]);
+
+    if (isDisabled) {
+        const expectedDisabledText = keyboardControllerObject.speechTexts.Disabled;
+        assertEquals(expectedDisabledText, result[3]["text"]);
+    }
+}
+
+function validateTTSForDialogText(keyboardControllerObject, expectedDialog, result, isDisabled = false) {
     const expectedPrefix = keyboardControllerObject.speechTexts.ResetDialog;
     assertEquals(expectedPrefix, result[0]["text"]);
     assertEquals(expectedDialog, result[1]["text"]);
+
+    if (isDisabled) {
+        const expectedDisabledText = keyboardControllerObject.speechTexts.Disabled;
+        assertEquals(expectedDisabledText, result[2]["text"]);
+    }
 }
 
-function validateTTSForConfirmButton(expectedButtonText, result) {
+function validateTTSForConfirmButton(keyboardControllerObject, expectedButtonText, result, isDisabled = false) {
     assertEquals(expectedButtonText, result[0]["text"]);
+    if (isDisabled) {
+        const expectedDisabledText = keyboardControllerObject.speechTexts.Disabled;
+        assertEquals(expectedDisabledText, result[1]["text"]);
+    }
 }
 
-function validateTTSForDenyButton(expectedButtonText, result) {
+function validateTTSForDenyButton(keyboardControllerObject, expectedButtonText, result, isDisabled = false) {
     assertEquals(expectedButtonText, result[0]["text"]);
+    if (isDisabled) {
+        const expectedDisabledText = keyboardControllerObject.speechTexts.Disabled;
+        assertEquals(expectedDisabledText, result[1]["text"]);
+    }
 }
 
 function validateSpaceTTSOfDisabledElement(keyboardControllerObject, result) {

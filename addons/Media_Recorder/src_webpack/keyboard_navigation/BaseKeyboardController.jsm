@@ -212,12 +212,11 @@ export class BaseKeyboardController extends KeyboardController {
     };
 
     select(event) {
-        if (this._isAddonDisabled()) {
+        if (this._isAddonDisabled()
+            && !this._getCurrentElement().hasClass(CSS_CLASSES.DIALOG_TEXT)) {
             let textVoiceObject = [];
 
-            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
-                textVoiceObject, this.speechTexts.Disabled
-            );
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
 
             this._speak(textVoiceObject);
         }
@@ -267,9 +266,7 @@ export class BaseKeyboardController extends KeyboardController {
         );
 
         if (this._isAddonDisabled()) {
-            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
-                textVoiceObject, this.speechTexts.Disabled
-            );
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
         }
 
         this._speak(textVoiceObject);
@@ -283,9 +280,7 @@ export class BaseKeyboardController extends KeyboardController {
         );
 
         if (this._isAddonDisabled()) {
-            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
-                textVoiceObject, this.speechTexts.Disabled
-            );
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
         }
 
         this._speak(textVoiceObject);
@@ -327,6 +322,12 @@ export class BaseKeyboardController extends KeyboardController {
         );
 
         this._speak(textVoiceObject);
+    };
+
+    _pushDisabledMessageToTextVoiceObject(textVoiceObject) {
+        this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
+            textVoiceObject, this.speechTexts.Disabled
+        );
     };
 
     _pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {

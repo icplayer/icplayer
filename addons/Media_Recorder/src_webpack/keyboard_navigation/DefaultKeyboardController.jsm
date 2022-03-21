@@ -35,9 +35,7 @@ export class DefaultKeyboardController extends BaseKeyboardController {
         );
 
         if (this._activationState.isInactive()) {
-            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
-                textVoiceObject, this.speechTexts.Disabled
-            );
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
         }
 
         this._speak(textVoiceObject);

@@ -483,7 +483,7 @@ export class MediaRecorder {
                 this.resetDialog.open();
                 this.keyboardControllerObject.setElements(this._getElementsForResetDialogKeyboardNavigation());
                 if (this.keyboardControllerObject.keyboardNavigationActive) {
-                    this.keyboardControllerObject.readCurrentElement();
+                    this.keyboardControllerObject.markDialogTextAndReadResetDialogTTS();
                 }
             }
             this.resetDialog.onConfirm = () => {

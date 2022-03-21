@@ -25,10 +25,23 @@ export class ExtendedKeyboardController extends BaseKeyboardController {
         this.markCurrentElement(3);
     };
 
-    speakStopRecordingTTS() {
-        super.speakStopRecordingTTS();
-        this.nextElement();
+    _performFirstEnterEvent() {
+        this.keyboardNavigationActive = true;
+        let $element = this.getTarget(this.keyboardNavigationElements[0], false);
+
+        if (this._isKeyboardNavigationBlocked()) {
+            this._markActiveElement();
+        } else if ($element.hasClass(CSS_CLASSES.DIALOG_TEXT)) {
+            this.markDialogTextAndReadResetDialogTTS();
+        } else {
+            this._markAndReadFirstDisplayedElement();
+        }
     };
+
+    markDialogTextAndReadResetDialogTTS() {
+        this.markCurrentElement(0);
+        this._speakResetDialogTTS();
+    }
 
     readElement(element) {
         let $element = this.getTarget(element, false);
@@ -42,7 +55,7 @@ export class ExtendedKeyboardController extends BaseKeyboardController {
         } else if ($element.hasClass(CSS_CLASSES.DOWNLOAD_BUTTON)) {
             this._speakDownloadButtonTTS($element);
         } else if ($element.hasClass(CSS_CLASSES.DIALOG_TEXT)) {
-            this._speakResetDialogTTS($element);
+            this._speakDialogTextTTS($element);
         } else if ($element.hasClass(CSS_CLASSES.CONFIRM_BUTTON)) {
             this._speakConfirmButtonTTS($element);
         } else if ($element.hasClass(CSS_CLASSES.DENY_BUTTON)) {
@@ -82,38 +95,76 @@ export class ExtendedKeyboardController extends BaseKeyboardController {
         this._speak(textVoiceObject);
     };
 
-    _speakResetDialogTTS($element) {
+    _speakResetDialogTTS() {
+        let textVoiceObject = [];
+
+        this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+        this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+        this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+        if (this._isAddonDisabled()) {
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+        }
+
+        this._speak(textVoiceObject);
+    };
+
+    _speakDialogTextTTS($element) {
         let textVoiceObject = [];
 
         this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
             textVoiceObject, this.speechTexts.ResetDialog
         );
 
+        this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+
+        if (this._isAddonDisabled()) {
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+        }
+
+        this._speak(textVoiceObject);
+    };
+
+    _pushResetDialogTextMessageToTextVoiceObject(textVoiceObject) {
         this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(
             textVoiceObject, this._resetDialogLabels.resetDialogText.resetDialogLabel
         );
-
-        this._speak(textVoiceObject);
     };
 
     _speakConfirmButtonTTS($element) {
         let textVoiceObject = [];
 
+        this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+
+        if (this._isAddonDisabled()) {
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+        }
+
+        this._speak(textVoiceObject);
+    };
+
+    _pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject) {
         this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(
             textVoiceObject, this._resetDialogLabels.resetDialogConfirm.resetDialogLabel
         );
-
-        this._speak(textVoiceObject);
     };
 
     _speakDenyButtonTTS($element) {
         let textVoiceObject = [];
 
+        this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+        if (this._isAddonDisabled()) {
+            this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+        }
+
+        this._speak(textVoiceObject);
+    };
+
+    _pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject) {
         this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(
             textVoiceObject, this._resetDialogLabels.resetDialogDeny.resetDialogLabel
         );
-
-        this._speak(textVoiceObject);
     };
 
     onStopRecording() {

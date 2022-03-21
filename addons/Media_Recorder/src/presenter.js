@@ -793,10 +793,10 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
     }, {
         key: "select",
         value: function select(event) {
-            if (this._isAddonDisabled()) {
+            if (this._isAddonDisabled() && !this._getCurrentElement().hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
                 var textVoiceObject = [];
 
-                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
 
                 this._speak(textVoiceObject);
             }
@@ -847,7 +847,7 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.RecordingButton);
 
             if (this._isAddonDisabled()) {
-                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
             }
 
             this._speak(textVoiceObject);
@@ -860,7 +860,7 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.PlayButton);
 
             if (this._isAddonDisabled()) {
-                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
             }
 
             this._speak(textVoiceObject);
@@ -904,6 +904,11 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StopRecording);
 
             this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushDisabledMessageToTextVoiceObject",
+        value: function _pushDisabledMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
         }
     }, {
         key: "_pushMessageToTextVoiceObjectWithLanguageFromLesson",
@@ -1632,7 +1637,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.resetDialog.open();
                     _this2.keyboardControllerObject.setElements(_this2._getElementsForResetDialogKeyboardNavigation());
                     if (_this2.keyboardControllerObject.keyboardNavigationActive) {
-                        _this2.keyboardControllerObject.readCurrentElement();
+                        _this2.keyboardControllerObject.markDialogTextAndReadResetDialogTTS();
                     }
                 };
                 this.resetDialog.onConfirm = function () {
@@ -4572,7 +4577,7 @@ var DefaultKeyboardController = exports.DefaultKeyboardController = function (_B
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.DefaultRecordingPlayButton);
 
             if (this._activationState.isInactive()) {
-                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
             }
 
             this._speak(textVoiceObject);
@@ -4639,10 +4644,24 @@ var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (
             this.markCurrentElement(3);
         }
     }, {
-        key: "speakStopRecordingTTS",
-        value: function speakStopRecordingTTS() {
-            _get(ExtendedKeyboardController.prototype.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController.prototype), "speakStopRecordingTTS", this).call(this);
-            this.nextElement();
+        key: "_performFirstEnterEvent",
+        value: function _performFirstEnterEvent() {
+            this.keyboardNavigationActive = true;
+            var $element = this.getTarget(this.keyboardNavigationElements[0], false);
+
+            if (this._isKeyboardNavigationBlocked()) {
+                this._markActiveElement();
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                this.markDialogTextAndReadResetDialogTTS();
+            } else {
+                this._markAndReadFirstDisplayedElement();
+            }
+        }
+    }, {
+        key: "markDialogTextAndReadResetDialogTTS",
+        value: function markDialogTextAndReadResetDialogTTS() {
+            this.markCurrentElement(0);
+            this._speakResetDialogTTS();
         }
     }, {
         key: "readElement",
@@ -4658,7 +4677,7 @@ var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (
             } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON)) {
                 this._speakDownloadButtonTTS($element);
             } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
-                this._speakResetDialogTTS($element);
+                this._speakDialogTextTTS($element);
             } else if ($element.hasClass(_CssClasses.CSS_CLASSES.CONFIRM_BUTTON)) {
                 this._speakConfirmButtonTTS($element);
             } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DENY_BUTTON)) {
@@ -4693,32 +4712,74 @@ var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (
         }
     }, {
         key: "_speakResetDialogTTS",
-        value: function _speakResetDialogTTS($element) {
+        value: function _speakResetDialogTTS() {
+            var textVoiceObject = [];
+
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakDialogTextTTS",
+        value: function _speakDialogTextTTS($element) {
             var textVoiceObject = [];
 
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.ResetDialog);
 
-            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogText.resetDialogLabel);
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
 
             this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogTextMessageToTextVoiceObject",
+        value: function _pushResetDialogTextMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogText.resetDialogLabel);
         }
     }, {
         key: "_speakConfirmButtonTTS",
         value: function _speakConfirmButtonTTS($element) {
             var textVoiceObject = [];
 
-            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogConfirm.resetDialogLabel);
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
 
             this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogConfirmMessageToTextVoiceObject",
+        value: function _pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogConfirm.resetDialogLabel);
         }
     }, {
         key: "_speakDenyButtonTTS",
         value: function _speakDenyButtonTTS($element) {
             var textVoiceObject = [];
 
-            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogDeny.resetDialogLabel);
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
 
             this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogDenyMessageToTextVoiceObject",
+        value: function _pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogDeny.resetDialogLabel);
         }
     }, {
         key: "onStopRecording",
