@@ -55,6 +55,27 @@ function AddonEditableWindow_create() {
         $view: undefined
     };
 
+    presenter.isKeyboardNavDeactivationBlocked = false;
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        openFullscreen: "Open fullscreen",
+        closeFullscreen: "Close fullscreen",
+        closeWindow: "Close window",
+        textTool: "Text highlighting tool",
+        highlightSelect: "Highlight selected text",
+        pickAColor: "Pick a color for highlighting",
+        yellow: "Yellow",
+        blue: "Blue",
+        red: "Red",
+        green: "Green",
+        white: "White",
+        noColor: "No color",
+        reset: "Reset",
+        image: "Image",
+        audio: "Audio",
+        video: "Video",
+    };
+
     presenter.initJQueryCache = function($view) {
         presenter.jQueryElementsCache.$fullscreenButton = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
         presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
@@ -184,6 +205,9 @@ function AddonEditableWindow_create() {
         });
 
         presenter.addHandlers($view);
+        presenter.buildKeyboardController();
+        presenter.setUpKeyboardNavigationStyling();
+        presenter.setSpeechTexts(presenter.configuration.model.speechTexts);
     };
 
     presenter.updateScaleInfo = function AddonEditableWindow_getScaleInfo() {
@@ -361,6 +385,11 @@ function AddonEditableWindow_create() {
             var audioSource = presenter.configuration.model.videoFile;
             var $videoElement = $view.find("video");
             $videoElement.attr("src", audioSource);
+            Object.defineProperty($videoElement[0], 'isPlaying', {
+                get: function() {
+                    return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+                }
+            });
         } else {
             presenter.configuration.hasVideo = false;
             var $wrapper = $view.find('.offline-video-message');
@@ -375,6 +404,11 @@ function AddonEditableWindow_create() {
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
+        Object.defineProperty($audioElement[0], 'isPlaying', {
+            get: function() {
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
         presenter.configuration.heightOffset += 35;
     };
 
@@ -523,7 +557,9 @@ function AddonEditableWindow_create() {
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addDisableResizeHeight(model);
         upgradedModel = presenter.addOfflineMessage(upgradedModel);
-        return presenter.addIsTextEditorContent(upgradedModel);
+        upgradedModel = presenter.addIsTextEditorContent(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.addDisableResizeHeight = function (model) {
@@ -554,6 +590,45 @@ function AddonEditableWindow_create() {
 
         if (!model['isTextEditorContent']) {
             upgradedModel['isTextEditorContent'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['langAttribute']) {
+            upgradedModel['langAttribute'] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['speechTexts']) {
+             upgradedModel['speechTexts'] = {
+                openFullscreen: {openFullscreen: ""},
+                closeFullscreen: {closeFullscreen: ""},
+                closeWindow: {closeWindow: ""},
+                textTool: {textTool: ""},
+                highlightSelect: {highlightSelect: ""},
+                pickAColor: {pickAColor: ""},
+                yellow: {yellow: ""},
+                blue: {blue: ""},
+                red: {red: ""},
+                green: {green: ""},
+                white: {white: ""},
+                noColor: {noColor: ""},
+                reset: {reset: ""},
+                image: {image: ""},
+                audio: {audio: ""},
+                video: {video: ""}
+             };
         }
 
         return upgradedModel;
@@ -602,7 +677,85 @@ function AddonEditableWindow_create() {
             offlineMessage: model["offlineMessage"],
             textEditor: model['textEditor'],
             isTextEditorContent: isTextEditorContent,
+            speechTexts: model['speechTexts'],
+            langAttribute: model['langAttribute']
         }
+    };
+
+    presenter.setSpeechTexts = function EditableWindow_setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            openFullscreen: presenter.DEFAULT_TTS_PHRASES.openFullscreen,
+            closeFullscreen: presenter.DEFAULT_TTS_PHRASES.closeFullscreen,
+            closeWindow: presenter.DEFAULT_TTS_PHRASES.closeWindow,
+            textTool: presenter.DEFAULT_TTS_PHRASES.textTool,
+            highlightSelect: presenter.DEFAULT_TTS_PHRASES.highlightSelect,
+            pickAColor: presenter.DEFAULT_TTS_PHRASES.pickAColor,
+            yellow: presenter.DEFAULT_TTS_PHRASES.yellow,
+            blue: presenter.DEFAULT_TTS_PHRASES.blue,
+            red: presenter.DEFAULT_TTS_PHRASES.red,
+            green: presenter.DEFAULT_TTS_PHRASES.green,
+            white: presenter.DEFAULT_TTS_PHRASES.white,
+            noColor: presenter.DEFAULT_TTS_PHRASES.noColor,
+            reset: presenter.DEFAULT_TTS_PHRASES.reset,
+            image: presenter.DEFAULT_TTS_PHRASES.image,
+            audio: presenter.DEFAULT_TTS_PHRASES.audio,
+            video: presenter.DEFAULT_TTS_PHRASES.video
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            openFullscreen: TTSUtils.getSpeechTextProperty(
+                speechTexts.openFullscreen.openFullscreen,
+                presenter.speechTexts.openFullscreen),
+            closeFullscreen: TTSUtils.getSpeechTextProperty(
+                speechTexts.closeFullscreen.closeFullscreen,
+                presenter.speechTexts.closeFullscreen),
+            closeWindow: TTSUtils.getSpeechTextProperty(
+                speechTexts.closeWindow.closeWindow,
+                presenter.speechTexts.closeWindow),
+            textTool: TTSUtils.getSpeechTextProperty(
+                speechTexts.textTool.textTool,
+                presenter.speechTexts.textTool),
+            highlightSelect: TTSUtils.getSpeechTextProperty(
+                speechTexts.highlightSelect.highlightSelect,
+                presenter.speechTexts.highlightSelect),
+            pickAColor: TTSUtils.getSpeechTextProperty(
+                speechTexts.pickAColor.pickAColor,
+                presenter.speechTexts.pickAColor),
+            yellow: TTSUtils.getSpeechTextProperty(
+                speechTexts.yellow.yellow,
+                presenter.speechTexts.yellow),
+            blue: TTSUtils.getSpeechTextProperty(
+                speechTexts.blue.blue,
+                presenter.speechTexts.blue),
+            red: TTSUtils.getSpeechTextProperty(
+                speechTexts.red.red,
+                presenter.speechTexts.red),
+            green: TTSUtils.getSpeechTextProperty(
+                speechTexts.green.green,
+                presenter.speechTexts.green),
+            white: TTSUtils.getSpeechTextProperty(
+                speechTexts.white.white,
+                presenter.speechTexts.white),
+            noColor: TTSUtils.getSpeechTextProperty(
+                speechTexts.noColor.noColor,
+                presenter.speechTexts.noColor),
+            reset: TTSUtils.getSpeechTextProperty(
+                speechTexts.reset.reset,
+                presenter.speechTexts.reset),
+            image: TTSUtils.getSpeechTextProperty(
+                speechTexts.image.image,
+                presenter.speechTexts.image),
+            audio: TTSUtils.getSpeechTextProperty(
+                speechTexts.audio.audio,
+                presenter.speechTexts.audio),
+            video: TTSUtils.getSpeechTextProperty(
+                speechTexts.video.video,
+                presenter.speechTexts.video)
+        };
     };
 
     presenter.generateValidationError = function (message) {
@@ -806,10 +959,21 @@ function AddonEditableWindow_create() {
     };
 
     presenter.hide = function () {
+        presenter.disableWCAGIfTTSOrKeyboardNav();
         presenter.configuration.isVisible = false;
         $(presenter.configuration.view).hide();
         presenter.stopAudio();
         presenter.stopVideo();
+    };
+
+    presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
+        const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
+        if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
+            player.getPlayerServices().getKeyboardController().switchWCAGMode(); //its either selected or active hence it will work as exit WCAG
+            const realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+            $(realElement[0]).removeClass("selected_module_fake");
+            $(realElement[0]).removeClass("active_module_fake");
+        }
     };
 
     presenter.isVisible = function () {
@@ -873,6 +1037,31 @@ function AddonEditableWindow_create() {
             audioElement.pause();
             audioElement.currentTime = 0;
         }
+    };
+
+    presenter.pauseOrPlayElement = function EditableWindow_pauseOrPlayElement(element) {
+        if(!element.hasOwnProperty('isPlaying')) {
+            console.error("EditableWindow_pauseOrPlayElement - element does not have isPlaying property!");
+            return;
+        }
+
+        if(element.isPlaying) {
+            element.pause();
+        } else {
+            element.play();
+        }
+    };
+
+    presenter.pauseOrPlayAudio = function EditableWindow_pauseOrPlayAudio() {
+        var $view = $(presenter.configuration.view);
+        var audio = $view.find("audio")[0];
+        presenter.pauseOrPlayElement(audio);
+    };
+
+    presenter.pauseOrPlayVideo = function EditableWindow_pauseOrPlayVideo() {
+        var $view = $(presenter.configuration.view);
+        var video = $view.find("video")[0];
+        presenter.pauseOrPlayElement(video);
     };
 
     presenter.stopVideo = function () {
@@ -974,6 +1163,226 @@ function AddonEditableWindow_create() {
         closeFullScreenButton: new presenter.CssClass("addon-editable-close-full-screen-button"),
         wrapper: new presenter.CssClass("addon-editable-window-wrapper"),
         buttonMenu: new presenter.CssClass("addon-editable-buttons-menu")
+    };
+
+    function EditableWindowKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    };
+
+    EditableWindowKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    EditableWindowKeyboardController.prototype.constructor = EditableWindowKeyboardController;
+
+    presenter.buildKeyboardController = function EditableWindow_buildKeyboardController () {
+        presenter.keyboardControllerObject = new EditableWindowKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.setUpKeyboardNavigationStyling = function EditableWindow_setUpKeyboardNavigationStyling () {
+        var element = $(presenter.configuration.view).find(".addon_EditableWindow");
+        var $element = $(element.context);
+        var newStyles = $element.attr("style") + " outline: none !important; box-shadow: none !important";
+        $element.attr('style', newStyles);
+
+        document.addEventListener('keydown', keydownCallback);
+
+        function keydownCallback(e) {
+            var element = $(presenter.configuration.view).find(".addon_EditableWindow");
+            var $element = $(element.context);
+            if ($element.hasClass("ic_selected_module")) {
+                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+                $(realElement[0]).addClass("selected_module_fake");
+            } else {
+                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+                $(realElement[0]).removeClass("selected_module_fake");
+            }
+
+            if($element.hasClass("ic_active_module")) {
+                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+                $(realElement[0]).addClass("active_module_fake");
+            } else {
+                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+                $(realElement[0]).removeClass("active_module_fake");
+            }
+        };
+    };
+
+    presenter.getElementsForKeyboardNavigation = function EditableWindow_getElementsForKeyboardNavigation() {
+        let fullscreenElement = $(presenter.configuration.view).find(".addon-editable-full-screen-button");
+        let elements = $(presenter.configuration.view).find(".addon-editable-close-button, .mce-btn, .mce-edit-area, .addon-editable-reset-button, .video-wrapper, audio");
+        return $.merge(fullscreenElement, elements);
+    };
+
+    presenter.keyboardController = function EditableWindow_keyboardController (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    EditableWindowKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    EditableWindowKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        this.readCurrentElement();
+    };
+
+    EditableWindowKeyboardController.prototype.enter = function EditableWindow_enter (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        if(this.keyboardNavigationCurrentElementIndex === 0) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        }
+        this.readCurrentElement();
+    };
+
+    EditableWindowKeyboardController.prototype.select = function EditableWindow_select (event) {
+        let element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        if ($(element).hasClass("mce-btn") && presenter.configuration.model.editingEnabled) {
+            presenter.isKeyboardNavDeactivationBlocked = true;
+            KeyboardController.prototype.setElements.call(this, presenter.getMceBtnElements());
+            document.activeElement.blur();
+            this.readCurrentElement();
+        } else if(presenter.isColorHighlightElement()) {
+            element[0].click();
+            document.activeElement.blur();
+        } else if(presenter.isColorPickElement()) {
+            element[0].click();
+            KeyboardController.prototype.setElements.call(this, presenter.getColorPaletteElements());
+            this.readCurrentElement();
+        } else if(presenter.isInsideColorPick()) {
+            element[0].childNodes[0].click();
+            document.activeElement.blur();
+            KeyboardController.prototype.setElements.call(this, presenter.getMceBtnElements());
+            KeyboardController.prototype.markCurrentElement.call(this, 1);
+            this.readCurrentElement();
+        } else if(element.hasClass("mce-edit-area") && presenter.configuration.model.editingEnabled) {
+            presenter.configuration.editor.execCommand('mceCodeEditor');
+        } else if(element.hasClass("addon-editable-close-button")) {
+            element.click();
+        } else if(element[0].nodeName === "AUDIO") {
+            presenter.pauseOrPlayAudio();
+        } else if(element.hasClass("video-wrapper")) {
+            presenter.pauseOrPlayVideo();
+        } else {
+            element.click();
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.escape = function (event) {
+        if (presenter.isInsideColorPick()) {
+            KeyboardController.prototype.setElements.call(this, presenter.getMceBtnElements());
+            KeyboardController.prototype.markCurrentElement.call(this, 1);
+            this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+            this.readCurrentElement();
+        } else if (presenter.isInsideMceBtn()) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+            KeyboardController.prototype.markCurrentElement.call(this, 2);
+            this.readCurrentElement();
+        } else {
+            presenter.isKeyboardNavDeactivationBlocked = false;
+            KeyboardController.prototype.escape.call(this, event);
+        }
+    };
+
+    presenter.getMceBtnElements = function EditableWindow_getMceBtnElements() {
+        return $(presenter.configuration.view).find(".mce-btn")[0].childNodes;
+    };
+
+    presenter.getColorPaletteElements = function EditableWindow_getColorPaletteElements() {
+        return document.getElementsByClassName("mce-grid-cell");
+    };
+
+    presenter.isInsideMceBtn = function EditableWindow_isInsideMceBtn() {
+        return presenter.keyboardControllerObject.keyboardNavigationElements.length === 2;
+    };
+
+    presenter.isColorHighlightElement = function EditableWindow_isColorHighlightElement() {
+        return presenter.isInsideMceBtn() &&
+            presenter.keyboardControllerObject.keyboardNavigationCurrentElement === presenter.keyboardControllerObject.keyboardNavigationElements[0];
+    };
+
+    presenter.isColorPickElement = function EditableWindow_isColorPickElement() {
+          return presenter.isInsideMceBtn() &&
+            presenter.keyboardControllerObject.keyboardNavigationCurrentElement === presenter.keyboardControllerObject.keyboardNavigationElements[1];
+    };
+
+    presenter.isInsideColorPick = function EditableWindow_isInsideColorPick() {
+        return presenter.keyboardControllerObject.keyboardNavigationElements.length === 6 &&
+            $(presenter.keyboardControllerObject.getTarget(presenter.keyboardControllerObject.keyboardNavigationCurrentElement, true)).hasClass("mce-grid-cell");
+    };
+
+    presenter.isDeactivationBlocked = function EditableWindow_isDeactivationBlocked() {
+        return presenter.isKeyboardNavDeactivationBlocked;
+    };
+    
+    EditableWindowKeyboardController.prototype.readCurrentElement = function () {
+        let text = "";
+        let element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+
+        if (element.hasClass("addon-editable-open-full-screen-button")) {
+            text = presenter.speechTexts.openFullscreen;
+        } else if(element.hasClass("addon-editable-close-full-screen-button")) {
+            text = presenter.speechTexts.closeFullscreen;
+        } else if(element.hasClass("addon-editable-close-button")) {
+            text = presenter.speechTexts.closeWindow;
+        } else if(element.hasClass("mce-btn")) {
+            text = presenter.speechTexts.textTool;
+        } else if(presenter.isColorHighlightElement()) {
+            text = presenter.speechTexts.highlightSelect;
+        } else if(presenter.isColorPickElement()) {
+            text = presenter.speechTexts.pickAColor;
+        } else if(presenter.isInsideColorPick()) {
+            let key = presenter.getTTSKeyBasedOnColor(element);
+            text = presenter.speechTexts[key];
+        } else if(element.hasClass("mce-edit-area")) {
+            const contentToRead = presenter.getContentToRead();
+            text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.model.langAttribute)];
+        } else if(element.hasClass("addon-editable-reset-button")) {
+            text = presenter.speechTexts.reset;
+        } else if(element[0].nodeName === "AUDIO") {
+            text = presenter.speechTexts.audio;
+        } else if(element.hasClass("video-wrapper")) {
+            text = presenter.speechTexts.video;
+        }
+
+        presenter.speak(text);
+    };
+
+    //images are temporarily replaced with it's alt text wrapped in paragraph in purpose to getContent with text- this allows to avoid manual parsing HTML
+    //after all, originalContent is being restored to editor
+    presenter.getContentToRead = function EditableWindow_getContentToRead () {
+        const originalContent = presenter.configuration.editor.getContent();
+        let img = "Image: " //here translation from TTS
+
+        let contentWithoutImages = presenter.configuration.editor.getContent().replace(/<img .*?alt="(.*?)".*?>/gm, `<p>${img} $1</p>`);
+        presenter.configuration.editor.setContent(contentWithoutImages);
+        let contentToRead = presenter.configuration.editor.getContent({format : 'text'});
+        presenter.configuration.editor.setContent(originalContent);
+
+        return contentToRead;
+    };
+
+    presenter.getTTSKeyBasedOnColor = function EditableWindow_getTTSKeyBasedOnColor (element) {
+        if (this.keyboardControllerObject.keyboardNavigationElementsLen -1 === this.keyboardControllerObject.keyboardNavigationCurrentElementIndex) {
+            return "noColor";
+        }
+        return $(element[0].childNodes[0]).attr("title").toLowerCase();
+    };
+
+    presenter.speak = function EditableWindow_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.configuration.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function EditableWindow_setWCAGStatus(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function EditableWindow_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
     };
 
     return presenter;

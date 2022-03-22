@@ -440,6 +440,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
 			}
 
+			keyboardController.switchWCAGMode = function () {
+			    return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::switchWCAGMode()();
+			}
+
 			return keyboardController;
 		}
 		
@@ -920,6 +924,13 @@ public class JavaScriptPlayerServices {
 	public void moveActiveModule(boolean reverseDirection){
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
+		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+
+    // Primarily supposed to exit mode, but if mode is off then this method will simply enter KeyboardNav/TTS
+	public void switchWCAGMode() {
+	    NativeEvent event = Document.get().createKeyDownEvent(false, false, true, false, 13);
+	    // Send a Shift(first true param) + Enter(keycode=13) keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 
