@@ -10,10 +10,10 @@
 		<property name='Type' nameLabel="Cross_Lesson_property_type" type='{lesson, ebook, course}' />
 		<property name="OpenLessonInCurrentTab" nameLabel="Cross_Lesson_property_open_in_current_tab" type="boolean"/>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Cross_Lesson_property_lang_attribute" type="string"/>
-		<property name="speechTexts" displayName="Speech texts" nameLabel="Cross_Lesson_property_speech_texts" type="staticlist">
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Cross_Lesson_property_speech_texts" type="staticlist">
             <property name="GoToLesson" nameLabel="Cross_Lesson_property_go_to_lesson" type="staticrow">
                 <property name="GoToLesson" nameLabel="Cross_Lesson_property_go_to_lesson" type="string"/>
             </property>
-		</property>
+        </property>
 	</model>
 </addon>
