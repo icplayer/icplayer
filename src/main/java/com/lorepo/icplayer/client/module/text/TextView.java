@@ -535,10 +535,20 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			this.readTextContent();
 		}
 	}
-	
+
+	private void focusOnNextGap() {
+        gapCounter++;
+        activeGap = textElements.get(gapCounter);
+	}
+
+	private void focusOnPrevGap() {
+	    gapCounter--;
+        activeGap = textElements.get(gapCounter);
+	}
+
 	private void move (boolean goNext) {
 		int size = navigationTextElements.size();
-		boolean hasAchieveMaximum = false;
+		boolean hasAchievedMaximum = false;
 		
 		if (size == 0) {
 			return;
@@ -550,7 +560,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		
 		if (clicks >= size) {
 			clicks = size-1;
-			hasAchieveMaximum = true;
+			hasAchievedMaximum = true;
 		}
 		
 		if (clicks < 0) {
@@ -558,8 +568,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		NavigationTextElement activeElement = navigationTextElements.get(clicks);
-		if (!(activeElement instanceof LinkWidget) && !hasAchieveMaximum) {
-			gapCounter++; 
+		if (!(activeElement instanceof LinkWidget)) {
+            if (goNext && !hasAchievedMaximum) {
+                focusOnNextGap();
+            } else if (!goNext && gapCounter > 0) {
+                focusOnPrevGap();
+            }
 		}
 		
 		this.activatedNavigationElement = activeElement;
