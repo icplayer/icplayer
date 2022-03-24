@@ -15,8 +15,10 @@ function AddonCross_Lesson_create(){
         course: "course"
     };
 
+    presenter.keyboardControllerObject = null;
+
     presenter.DEFAULT_TTS_PHRASES = {
-        goToLesson: "Go to lesson"
+        GO_TO_LESSON: "Go to lesson"
     };
 
     presenter.createPreview = function(view, model) {
@@ -40,7 +42,7 @@ function AddonCross_Lesson_create(){
         presenter.connectHandlers();
         presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.buildKeyboardController();
-    };
+    }
 
     presenter.validateModel = function (model) {
         var validatedType = presenter.validateType(model['Type']);
@@ -229,12 +231,14 @@ function AddonCross_Lesson_create(){
 
     presenter.upgradeSpeechTexts = function AddonCross_Lesson_upgradeSpeechTexts (model) {
         var upgradedModel = {};
-        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+        jQuery.extend(true, upgradedModel, model);
 
-        if (!model['speechTexts']) {
-            upgradedModel['speechTexts'] = {
-                GoToLesson: {GoToLesson: ""}
-            };
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["GoToLesson"]) {
+            upgradedModel["speechTexts"]["GoToLesson"]
+              = {GoToLesson: ""};
         }
 
         return upgradedModel;
@@ -249,7 +253,7 @@ function AddonCross_Lesson_create(){
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
-            GoToLesson: presenter.DEFAULT_TTS_PHRASES.goToLesson
+            GoToLesson: presenter.DEFAULT_TTS_PHRASES.GO_TO_LESSON
         };
 
         if (!speechTexts || $.isEmptyObject(speechTexts)) {
