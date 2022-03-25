@@ -873,6 +873,7 @@ function AddonParagraph_create() {
             presenter.setText(presenter.configuration.placeholderText);
         } else {
             presenter.editor.setContent('');
+            presenter.setStyles();
         }
         presenter.placeholder.addPlaceholder();
         if (presenter.isLocked) {
