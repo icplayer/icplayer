@@ -5,5 +5,29 @@
 		<property name="Header" nameLabel="Table_Of_Contents_property_header" type="string" isLocalized="true" />
         <property name="DontShowPages" displayName="Don't show pages" nameLabel="Table_Of_Contents_property_dont_show_pages" type="string" />
         <property name="displayType" displayName="Display Type" nameLabel="Table_Of_Contents_property_display_type" type="{default, list, comboList, icons, icons+list}" />
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Table_Of_Contents_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Table_Of_Contents_property_speech_texts" type="staticlist">
+            <property name="Title" nameLabel="Table_Of_Contents_speech_text_title" type="staticrow">
+                <property name="Title" nameLabel="Table_Of_Contents_speech_text_title" type="string"/>
+            </property>
+            <property name="GoToPage" nameLabel="Table_Of_Contents_speech_text_go_to_page" type="staticrow">
+                <property name="GoToPage" nameLabel="Table_Of_Contents_speech_text_go_to_page" type="string"/>
+            </property>
+            <property name="GoToPageNumber" nameLabel="Table_Of_Contents_speech_text_go_to_page_number" type="staticrow">
+                <property name="GoToPageNumber" nameLabel="Table_Of_Contents_speech_text_go_to_page_number" type="string"/>
+            </property>
+            <property name="PagesList" nameLabel="Table_Of_Contents_speech_text_pages_list" type="staticrow">
+                <property name="PagesList" nameLabel="Table_Of_Contents_speech_text_pages_list" type="string"/>
+            </property>
+            <property name="Pagination" nameLabel="Table_Of_Contents_speech_text_pagination" type="staticrow">
+                <property name="Pagination" nameLabel="Table_Of_Contents_speech_text_pagination" type="string"/>
+            </property>
+            <property name="OutOf" nameLabel="Table_Of_Contents_speech_text_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="Table_Of_Contents_speech_text_out_of" type="string"/>
+            </property>
+            <property name="Selected" nameLabel="Table_Of_Contents_speech_text_selected" type="staticrow">
+                <property name="Selected" nameLabel="Table_Of_Contents_speech_text_selected" type="string"/>
+            </property>
+        </property>
 	</model>
 </addon>

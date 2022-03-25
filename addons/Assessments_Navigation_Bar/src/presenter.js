@@ -2,7 +2,9 @@ function AddonAssessments_Navigation_Bar_create(){
 
     var presenter = function(){};
 
+    presenter.isWCAGOn = false;
     presenter.SECTION_NAME_HEIGHT = 20;
+    presenter.isFirstEnter = true;
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -18,8 +20,24 @@ function AddonAssessments_Navigation_Bar_create(){
         S_10: "Buttons width property have to be an integer"
     };
 
+    presenter.DEFAULT_TTS_PHRASES = {
+        PreviousPage: "Go to previous page",
+        ShowPreviousPages: "Show previous pages",
+        Title: "Title",
+        GoToPage: "Go to page",
+        ShowNextPages: "Show next pages",
+        NextPage: "Go to next page",
+    };
+
     presenter.CSS_CLASSES = {
-        ALL_ATTEMPTED: "all-attempted"
+        ALL_ATTEMPTED: "all-attempted",
+        PREVIOUS: "previous",
+        BUTTON_TEXT: "button_text",
+        SECTION_NAME: "section_name",
+        NEXT: "next",
+        BUTTON: "button",
+        TURN_BACK: "turn_back",
+        TURN_FORWARD: "turn_forward",
     };
 
     presenter.attemptedButtons = [];
@@ -273,7 +291,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         this.$view_text = $('<div></div>');
         this.$view_text.text(this.description);
-        this.$view_text.addClass("button_text");
+        this.$view_text.addClass(presenter.CSS_CLASSES.BUTTON_TEXT);
 
         $view.append(this.$view_text);
 
@@ -297,7 +315,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationButtonLeft = function () {
         presenter.Button.call(this, "<");
         this.$view.removeClass("button");
-        this.$view.addClass("previous");
+        this.$view.addClass(presenter.CSS_CLASSES.PREVIOUS);
         this.setCommand(function () {
             presenter.navigationManager.goLeft();
         });
@@ -308,7 +326,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationButtonRight = function () {
         presenter.Button.call(this, ">");
-        this.$view.addClass("next");
+        this.$view.addClass(presenter.CSS_CLASSES.NEXT);
         this.$view.removeClass("button");
         this.setCommand(function () {
             presenter.navigationManager.goRight();
@@ -689,7 +707,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addLeftHellip = function () {
         if (this.shouldAddLeftHellip()) {
-            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), "turn_back");
+            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), presenter.CSS_CLASSES.TURN_BACK);
             return 1;
         }
 
@@ -698,7 +716,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addRightHellip = function () {
         if (this.shouldAddRightHellip()) {
-            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), "turn_forward");
+            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), presenter.CSS_CLASSES.TURN_FORWARD);
             return 1
         }
 
@@ -768,8 +786,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.removeHellips = function () {
-        presenter.$wrapper.find(".turn_forward").remove();
-        presenter.$wrapper.find(".turn_back").remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).remove();
         delete this.rightHellip;
     };
 
@@ -902,7 +920,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         var $sectionName = $('<div></div>');
         $sectionName.text(sectionName);
-        $sectionName.addClass("section_name");
+        $sectionName.addClass(presenter.CSS_CLASSES.SECTION_NAME);
 
         var $sectionButtons = $('<div></div>');
         $sectionButtons.addClass("buttons");
@@ -945,7 +963,9 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeNumberAndWidthOfButtons(model);
-        return presenter.upgradeDefaultOrder(upgradedModel);
+        upgradedModel = presenter.upgradeDefaultOrder(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeNumberAndWidthOfButtons = function (model) {
@@ -974,6 +994,84 @@ function AddonAssessments_Navigation_Bar_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                PreviousPage: {PreviousPage: ""},
+                ShowPreviousPages: {ShowPreviousPages: ""},
+                Title: {Title: ""},
+                GoToPage: {GoToPage: ""},
+                ShowNextPages: {ShowNextPages: ""},
+                NextPage: {NextPage: ""},
+            }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            PreviousPage: presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
+            Title: presenter.DEFAULT_TTS_PHRASES.Title,
+            GoToPage: presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
+            NextPage: presenter.DEFAULT_TTS_PHRASES.NextPage,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            PreviousPage: presenter.getSpeechTextProperty(
+                speechTexts.PreviousPage.PreviousPage,
+                presenter.speechTexts.PreviousPage),
+            ShowPreviousPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowPreviousPages.ShowPreviousPages,
+                presenter.speechTexts.ShowPreviousPages),
+            Title: presenter.getSpeechTextProperty(
+                speechTexts.Title.Title,
+                presenter.speechTexts.Title),
+            GoToPage: presenter.getSpeechTextProperty(
+                speechTexts.GoToPage.GoToPage,
+                presenter.speechTexts.GoToPage),
+            ShowNextPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowNextPages.ShowNextPages,
+                presenter.speechTexts.ShowNextPages),
+            NextPage: presenter.getSpeechTextProperty(
+                speechTexts.NextPage.NextPage,
+                presenter.speechTexts.NextPage)
+        };
+    };
+
+    presenter.getSpeechTextProperty = function (rawValue, defaultValue) {
+        if (rawValue === undefined || rawValue === null) {
+            return defaultValue;
+        }
+
+        var value = rawValue.trim();
+        if (value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    };
+
     presenter.runLogic = function (view, model) {
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
@@ -987,6 +1085,7 @@ function AddonAssessments_Navigation_Bar_create(){
             return;
         }
 
+        presenter.setSpeechTexts(model['speechTexts']);
         presenter.configuration = validatedModel;
         DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$wrapper);
 
@@ -1054,7 +1153,7 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.calculateObjectsSizes =   function() {
-        var $element = presenter.$wrapper.find(".previous");
+        var $element = presenter.$wrapper.find("." + presenter.CSS_CLASSES.PREVIOUS);
 
         var elementDimensions = DOMOperationsUtils.getOuterDimensions($element);
         var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
@@ -1546,24 +1645,111 @@ function AddonAssessments_Navigation_Bar_create(){
     AssesmentsNavigationKeyboardController.prototype.constructor = AssesmentsNavigationKeyboardController;
 
     AssesmentsNavigationKeyboardController.prototype.selectAction = function () {
-        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        $element[0].click();
+        if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK) || $element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            AssesmentsNavigationKeyboardController.prototype.setNewElements.call(this);
+        };
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.setNewElements = function () {
+          if (presenter.isTTS()) {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+          } else {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+          }
     };
 
     AssesmentsNavigationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
         return $(element);
     };
 
+    AssesmentsNavigationKeyboardController.prototype.switchElement = function (move) {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
+            KeyboardController.prototype.markCurrentElement.call(this, new_position_index);
+        }
+        this.readCurrentElement();
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.enter = function (event) {
+        if (presenter.isTTS() && presenter.isFirstEnter) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.isFirstEnter = false;
+        }
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.isFirstEnter = true;
+        KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.exitWCAGMode.call(this);
+    };
+
     presenter.buildKeyboardController = function () {
         presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
 
+    presenter.getElementsForTTS = function () {
+        return this.$view.find(".element:visible, .section_name:visible").filter(":not(.inactive)");
+    };
+
     presenter.getElementsForKeyboardNavigation = function () {
-        var elements = this.$view.find(".element:visible");
-        return elements;
+        return this.$view.find(".element:visible").filter(":not(.inactive)");
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
         presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.readCurrentElement = function () {
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        if ($element.hasClass(presenter.CSS_CLASSES.PREVIOUS)) {
+            presenter.speak(presenter.speechTexts.PreviousPage);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK)) {
+            presenter.speak(presenter.speechTexts.ShowPreviousPages);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.SECTION_NAME)) {
+            presenter.speak(getSpeechForSectionName($element));
+        } else if ($element.hasClass(presenter.CSS_CLASSES.BUTTON)) {
+            presenter.speak(getSpeechForGoToPage($element));
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            presenter.speak(presenter.speechTexts.ShowNextPages);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.NEXT)) {
+            presenter.speak(presenter.speechTexts.NextPage);
+        }
+    };
+
+    getSpeechForSectionName = function (element) {
+        return `${presenter.speechTexts.Title} ${element[0].innerText}`;
+    };
+
+    getSpeechForGoToPage = function (element) {
+        let pageName = element.find("." + presenter.CSS_CLASSES.BUTTON_TEXT).val();
+        return `${presenter.speechTexts.GoToPage} ${element[0].innerText}`;
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Assessments_Navigation_Bar_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function Assessments_Navigation_Bar_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.isTTS = function () {
+        return presenter.getTextToSpeechOrNull(presenter.playerController) && presenter.isWCAGOn;
     };
 
     return presenter;

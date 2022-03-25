@@ -40,7 +40,10 @@ export class BlobService {
 
     static getMp3BlobFromDecodedData(decodedData) {       
         let left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
-        let right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
+        let right = left;
+        if (decodedData.numberOfChannels === 2) {
+            right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
+        }
 
         return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);       
     }
