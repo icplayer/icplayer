@@ -53,13 +53,13 @@ public class AddonParamProvider implements IPropertyProvider{
 
 	@Override
 	public List<IProperty> getProperties() {
-		List<IProperty> propierties = new ArrayList<IProperty>();
+		List<IProperty> properties = new ArrayList<IProperty>();
 		
 		for(IAddonParam property : this.addonParams) {
-			propierties.add(property.getAsProperty());
+			properties.add(property.getAsProperty());
 		}
 
-		return propierties;
+		return properties;
 	}
 
 	public void load(Element rootElement, String baseUrl) {

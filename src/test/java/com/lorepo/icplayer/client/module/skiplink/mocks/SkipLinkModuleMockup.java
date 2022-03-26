@@ -351,7 +351,7 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
     }
 
     @Override
-	public List<IProperty> getProperties() {
+    public List<IProperty> getProperties() {
         return null;
     }
 }

@@ -391,12 +391,12 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
-    public List<String> getNameProperties() {
-        return null;
-    }
+	public List<String> getNameProperties() {
+		return null;
+	}
 
-    @Override
+	@Override
 	public List<IProperty> getProperties() {
-        return null;
-    }
+		return null;
+	}
 }
