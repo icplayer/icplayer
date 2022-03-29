@@ -2161,5 +2161,9 @@ var ice_dictionary_fr = {
     "NestedAddon_insert_addon": "Insert nested addon",
     "NestedAddon_add_addon": "Add addon",
     "File_Sender_info": "File sender allows you to send files as messages to the student's teacher using the apropriate LMS service",
-    "File_Sender_name": "File sender"
+    "File_Sender_name": "File sender",
+    "File_Sender_property_source_id": "Source ID",
+    "File_Sender_property_source_type": "Source type",
+    "File_Sender_property_button_text": "Button text",
+    "File_Sender_property_dialog_title": "Dialog title"
 };
