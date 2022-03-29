@@ -55,6 +55,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void hideItem(String id);
 		public void showItem(String id);
 		void connectDOMNodeRemovedEvent(String id);
+		public void rerenderMath();
 	}
 
 	private final int stateVersion = 1;
@@ -590,6 +591,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			deselectCurrentItem(true);
 			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
 			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
+			view.rerenderMath();
 		}
 	}
 

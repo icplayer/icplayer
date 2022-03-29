@@ -147,4 +147,8 @@ public class SourceListViewMockup implements IDisplay {
 		
 	}
 
+	public void rerenderMath() {
+		// TODO Auto-generated method stub
+	}
+
 }
