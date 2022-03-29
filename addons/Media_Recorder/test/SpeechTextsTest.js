@@ -23,7 +23,7 @@ TestCase("[Media Recorder] Text to speech test - speech texts", {
         };
     },
 
-    "test given empty speechTexts object when setSpeechText then presenter.speechText is default": function () {
+    "test given empty speechTexts when setSpeechText then speechTexts is default": function () {
         var speechText = {};
         var expectedResult = this.generateExpectedDefaultPresenterSpeechTexts();
 
@@ -33,7 +33,7 @@ TestCase("[Media Recorder] Text to speech test - speech texts", {
         assertEquals(expectedResult, this.keyboardControllerObject.speechTexts);
     },
 
-    "test given null speechTexts when setSpeechText then presenter.speechText is default": function () {
+    "test given null speechTexts when setSpeechText then speechTexts is default": function () {
         var speechText = null;
         var expectedResult = this.generateExpectedDefaultPresenterSpeechTexts();
 
@@ -43,7 +43,7 @@ TestCase("[Media Recorder] Text to speech test - speech texts", {
         assertEquals(expectedResult, this.keyboardControllerObject.speechTexts);
     },
 
-    "test given undefined speechTexts when setSpeechText then presenter.speechText is default": function () {
+    "test given undefined speechTexts when setSpeechText then speechTexts is default": function () {
         var speechText = undefined;
         var expectedResult = this.generateExpectedDefaultPresenterSpeechTexts();
 
@@ -53,7 +53,7 @@ TestCase("[Media Recorder] Text to speech test - speech texts", {
         assertEquals(expectedResult, this.keyboardControllerObject.speechTexts);
     },
 
-    "test given valid speechTexts when setSpeechText then presenter.speechText is equals to input": function () {
+    "test given valid speechTexts when setSpeechText then speechTexts is equals to input": function () {
        var speechText = {
            DefaultRecordingPlayButton: {DefaultRecordingPlayButton: "Przycisk odtwarzania domyślnego nagrania"},
            RecordingButton: {RecordingButton: "Przycisk nagrywania"},

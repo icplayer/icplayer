@@ -3,8 +3,8 @@ import {CSS_CLASSES} from "../view/CssClasses.jsm";
 
 export class ExtendedKeyboardController extends BaseKeyboardController {
 
-    constructor(elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback) {
-        super(elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback);
+    constructor(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
+        super(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
         this._resetDialogLabels = model.resetDialogLabels;
         this._disableRecording = model.disableRecording;
     };

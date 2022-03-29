@@ -16,7 +16,7 @@ export class BaseKeyboardController extends KeyboardController {
         DISABLED: "Disabled",
     };
 
-    constructor(elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback) {
+    constructor(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
         super(elements, columnsCount);
 
         if (this.constructor === BaseKeyboardController)
@@ -26,7 +26,7 @@ export class BaseKeyboardController extends KeyboardController {
         this._mediaState = mediaState;
         this._activationState = activationState;
         this._speak = speak;
-        this._speakWithCallback = speakWithCallback;
+        this._speakAndExecuteCallback = speakAndExecuteCallback;
     };
 
     setSpeechTexts(speechTexts) {
@@ -302,7 +302,7 @@ export class BaseKeyboardController extends KeyboardController {
             textVoiceObject, this.speechTexts.StartRecording
         );
 
-        this._speakWithCallback(textVoiceObject, callbackFunction);
+        this._speakAndExecuteCallback(textVoiceObject, callbackFunction);
     };
 
     onStopRecording() {

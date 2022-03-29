@@ -149,14 +149,14 @@ TestCase("[Media Recorder] Upgrade model - speech texts", {
         };
     },
 
-    "test given empty model when upgrading model then sets empty object to speech text": function () {
+    "test given empty model when upgrading model then sets empty object to speech texts": function () {
         var upgradedModel = this.presenter._internalUpgradeModel({});
 
         assertNotUndefined(upgradedModel.speechTexts);
         assertEquals(upgradedModel.speechTexts, this.expectedEmpty);
     },
 
-    "test given valid input model when upgrading model then sets correct object to speech text": function () {
+    "test given valid input model when upgrading model then sets correct object to speech texts": function () {
         var inputModel = {
             speechTexts: {
                 DefaultRecordingPlayButton: {DefaultRecordingPlayButton: "Default recording play button"},
@@ -178,7 +178,7 @@ TestCase("[Media Recorder] Upgrade model - speech texts", {
         assertEquals(upgradedModel.speechTexts, inputModel.speechTexts);
     },
 
-    "test given not fully completed model by speech texts when upgrading model then sets correct object to speech text": function () {
+    "test given not fully completed model by speech texts when upgrading model then sets correct object to speech texts": function () {
         var inputModel = {
             speechTexts: {
                 DefaultRecordingPlayButton: {DefaultRecordingPlayButton: "Default recording play button"},

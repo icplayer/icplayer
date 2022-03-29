@@ -582,7 +582,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var BaseKeyboardController = exports.BaseKeyboardController = function (_KeyboardController) {
     _inherits(BaseKeyboardController, _KeyboardController);
 
-    function BaseKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback) {
+    function BaseKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
         _classCallCheck(this, BaseKeyboardController);
 
         var _this = _possibleConstructorReturn(this, (BaseKeyboardController.__proto__ || Object.getPrototypeOf(BaseKeyboardController)).call(this, elements, columnsCount));
@@ -607,7 +607,7 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
         _this._mediaState = mediaState;
         _this._activationState = activationState;
         _this._speak = speak;
-        _this._speakWithCallback = speakWithCallback;
+        _this._speakAndExecuteCallback = speakAndExecuteCallback;
         return _this;
     }
 
@@ -883,7 +883,7 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
 
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StartRecording);
 
-            this._speakWithCallback(textVoiceObject, callbackFunction);
+            this._speakAndExecuteCallback(textVoiceObject, callbackFunction);
         }
     }, {
         key: "onStopRecording",
@@ -2168,12 +2168,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var mediaState = this.mediaState;
             var activationState = this.activationState;
             var speak = this._speak.bind(this);
-            var speakWithCallback = this._speakWithCallback.bind(this);
+            var speakAndExecuteCallback = this._speakAndExecuteCallback.bind(this);
 
             if (this.model.extendedMode) {
-                this.keyboardControllerObject = new _ExtendedKeyboardController.ExtendedKeyboardController(this._getElementsForExtendedKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakWithCallback);
+                this.keyboardControllerObject = new _ExtendedKeyboardController.ExtendedKeyboardController(this._getElementsForExtendedKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
             } else {
-                this.keyboardControllerObject = new _DefaultKeyboardController.DefaultKeyboardController(this._getElementsForDefaultKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakWithCallback);
+                this.keyboardControllerObject = new _DefaultKeyboardController.DefaultKeyboardController(this._getElementsForDefaultKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
             }
         }
     }, {
@@ -2205,11 +2205,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
-        key: "_speakWithCallback",
-        value: function _speakWithCallback(data, callbackFunction) {
+        key: "_speakAndExecuteCallback",
+        value: function _speakAndExecuteCallback(data, callbackFunction) {
             var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
             if (tts && this.isWCAGOn) {
                 tts.speakWithCallback(data, callbackFunction);
+            } else {
+                callbackFunction();
             }
         }
     }]);
@@ -4613,10 +4615,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (_BaseKeyboardControll) {
     _inherits(ExtendedKeyboardController, _BaseKeyboardControll);
 
-    function ExtendedKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback) {
+    function ExtendedKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
         _classCallCheck(this, ExtendedKeyboardController);
 
-        var _this = _possibleConstructorReturn(this, (ExtendedKeyboardController.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController)).call(this, elements, columnsCount, model, mediaState, activationState, speak, speakWithCallback));
+        var _this = _possibleConstructorReturn(this, (ExtendedKeyboardController.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController)).call(this, elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback));
 
         _this._resetDialogLabels = model.resetDialogLabels;
         _this._disableRecording = model.disableRecording;

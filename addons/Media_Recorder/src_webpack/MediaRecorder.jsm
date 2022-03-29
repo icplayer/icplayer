@@ -994,19 +994,19 @@ export class MediaRecorder {
         const mediaState = this.mediaState;
         const activationState = this.activationState;
         const speak = this._speak.bind(this);
-        const speakWithCallback = this._speakWithCallback.bind(this);
+        const speakAndExecuteCallback = this._speakAndExecuteCallback.bind(this);
 
         if (this.model.extendedMode) {
             this.keyboardControllerObject = new ExtendedKeyboardController(
                 this._getElementsForExtendedKeyboardNavigation(),
                 columnsCount, model, mediaState, activationState,
-                speak, speakWithCallback,
+                speak, speakAndExecuteCallback,
             );
         } else {
             this.keyboardControllerObject = new DefaultKeyboardController(
                 this._getElementsForDefaultKeyboardNavigation(),
                 columnsCount, model, mediaState, activationState,
-                speak, speakWithCallback,
+                speak, speakAndExecuteCallback,
             );
         }
     };
@@ -1047,10 +1047,12 @@ export class MediaRecorder {
         }
     };
 
-    _speakWithCallback(data, callbackFunction) {
+    _speakAndExecuteCallback(data, callbackFunction) {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
         if (tts && this.isWCAGOn) {
             tts.speakWithCallback(data, callbackFunction);
+        } else {
+            callbackFunction();
         }
     };
 }
