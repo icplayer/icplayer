@@ -970,7 +970,7 @@ function AddonEditableWindow_create() {
         const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
         if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
             player.getPlayerServices().getKeyboardController().switchWCAGMode(); //its either selected or active hence it will work as exit WCAG
-            const realElement = document.getElementsByClassName("addon-editable-window-wrapper");
+            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
             $(realElement[0]).removeClass("selected_module_fake");
             $(realElement[0]).removeClass("active_module_fake");
         }
@@ -1179,27 +1179,26 @@ function AddonEditableWindow_create() {
     presenter.setUpKeyboardNavigationStyling = function EditableWindow_setUpKeyboardNavigationStyling () {
         var element = $(presenter.configuration.view).find(".addon_EditableWindow");
         var $element = $(element.context);
-        var newStyles = $element.attr("style") + " outline: none !important; box-shadow: none !important";
+        var oldStyles = $element.attr("style") || "";
+        var newStyles = oldStyles + " outline: none !important; box-shadow: none !important";
         $element.attr('style', newStyles);
 
         document.addEventListener('keydown', keydownCallback);
 
         function keydownCallback(e) {
-            var element = $(presenter.configuration.view).find(".addon_EditableWindow");
-            var $element = $(element.context);
+            const element = $(presenter.configuration.view).find(".addon_EditableWindow");
+            const $element = $(element.context);
+            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
+
             if ($element.hasClass("ic_selected_module")) {
-                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
                 $(realElement[0]).addClass("selected_module_fake");
             } else {
-                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
                 $(realElement[0]).removeClass("selected_module_fake");
             }
 
             if($element.hasClass("ic_active_module")) {
-                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
                 $(realElement[0]).addClass("active_module_fake");
             } else {
-                var realElement = document.getElementsByClassName("addon-editable-window-wrapper");
                 $(realElement[0]).removeClass("active_module_fake");
             }
         };
@@ -1243,6 +1242,7 @@ function AddonEditableWindow_create() {
             element[0].click();
             document.activeElement.blur();
         } else if(presenter.isColorPickElement()) {
+            presenter.closeAllColorPickPanels();
             element[0].click();
             KeyboardController.prototype.setElements.call(this, presenter.getColorPaletteElements());
             this.readCurrentElement();
@@ -1286,7 +1286,14 @@ function AddonEditableWindow_create() {
     };
 
     presenter.getColorPaletteElements = function EditableWindow_getColorPaletteElements() {
-        return document.getElementsByClassName("mce-grid-cell");
+        return $(".mce-floatpanel:visible").find(".mce-grid-cell");
+    };
+
+    presenter.closeAllColorPickPanels = function EditableWindow_closeAllColorPickPanels() {
+        $(".mce-colorbutton.mce-active").each(function () {
+            const element = $(this);
+            element[0].childNodes[1].click();
+        });
     };
 
     presenter.isInsideMceBtn = function EditableWindow_isInsideMceBtn() {
@@ -1349,7 +1356,7 @@ function AddonEditableWindow_create() {
     //after all, originalContent is being restored to editor
     presenter.getContentToRead = function EditableWindow_getContentToRead () {
         const originalContent = presenter.configuration.editor.getContent();
-        let img = "Image: " //here translation from TTS
+        const img = presenter.speechTexts.image;
 
         let contentWithoutImages = presenter.configuration.editor.getContent().replace(/<img .*?alt="(.*?)".*?>/gm, `<p>${img} $1</p>`);
         presenter.configuration.editor.setContent(contentWithoutImages);
