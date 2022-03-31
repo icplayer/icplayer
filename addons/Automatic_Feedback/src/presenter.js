@@ -560,8 +560,17 @@ function AddonAutomatic_Feedback_create() {
             }
         }
 
+        getActivityModuleView() {
+            var $icpanel = this.presenter.$view.closest('.ic_page_panel');
+            if ($icpanel.length > 0) {
+                return $icpanel.find('#'+this.presenter.configuration.activityModuleID)[0];
+            } else {
+                return $('#'+this.presenter.configuration.activityModuleID)[0];
+            }
+        }
+
         createTooltips() {
-            var activityModuleView = $('#'+this.presenter.configuration.activityModuleID)[0];
+            var activityModuleView = this.getActivityModuleView();
             if (activityModuleView == null) return;
             var $tooltipElement = $('<div></div>');
             this.presenter.$content.append($tooltipElement);
@@ -634,26 +643,30 @@ function AddonAutomatic_Feedback_create() {
 
 
         setState = function (state) {
-            var parsed = JSON.parse(state);
-            this.isActivated = parsed.isActivated;
-            this.lastFeedback = parsed.lastFeedback;
-            this.lastClass = parsed.lastClass;
-            if (parsed.isActivated) {
-                this.displayFeedback(parsed.lastFeedback, parsed.lastClass);
-            } else {
-                this.clearFeedback();
-            }
-            if (this.presenter.configuration.displayFeedbackButtons && !parsed.isWrapped) {
-                if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
-                    this.presenter.unwrapBlockFeedback();
-                } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-                    return !this.presenter.$popup.dialog('open');
+            var self = this;
+            setTimeout(function() {
+                // without timeout there are issues with positioning of feedback buttons
+                var parsed = JSON.parse(state);
+                self.isActivated = parsed.isActivated;
+                self.lastFeedback = parsed.lastFeedback;
+                self.lastClass = parsed.lastClass;
+                if (parsed.isActivated) {
+                    self.displayFeedback(parsed.lastFeedback, parsed.lastClass);
                 } else {
-                    if (this.$tooltip) {
-                        this.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
+                    self.clearFeedback();
+                }
+                if (self.presenter.configuration.displayFeedbackButtons && !parsed.isWrapped) {
+                    if (self.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+                        self.presenter.unwrapBlockFeedback();
+                    } else if (self.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+                        return !self.presenter.$popup.dialog('open');
+                    } else {
+                        if (self.$tooltip) {
+                            self.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
+                        }
                     }
                 }
-            }
+            }, 0);
         }
 
         popupClosedCallback = function () {
