@@ -1,4 +1,5 @@
-2022-03-24 Added keyboard navigation and tts to CrossLesson module
+2022-04-01 Added keyboard navigation and tts to CrossLesson module
+2022-03-29 Added keyboard navigation and TTS to Media Recorder
 2022-03-14 Fixed video speed controls adding whenever reset was called
 2022-03-14 Added TTS to Table of Contents
 2022-03-04 Added SrtParser to commons. Added audio narration loading from SRT File to AddonAudio addon
