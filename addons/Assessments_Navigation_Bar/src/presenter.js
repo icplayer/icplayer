@@ -38,6 +38,8 @@ function AddonAssessments_Navigation_Bar_create(){
         BUTTON: "button",
         TURN_BACK: "turn_back",
         TURN_FORWARD: "turn_forward",
+        CURRENT_PAGE: "current_page",
+        BOOKMARK: "bookmark",
     };
 
     presenter.attemptedButtons = [];
@@ -271,15 +273,15 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.Button.prototype.setAsCurrent = function () {
         this.isActualButton = true;
-        this.$view.addClass("current_page");
+        this.$view.addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
     };
 
     presenter.Button.prototype.addBookmark = function () {
-        this.$view.addClass("bookmark");
+        this.$view.addClass(presenter.CSS_CLASSES.BOOKMARK);
     };
 
     presenter.Button.prototype.removeBookmark = function () {
-        this.$view.removeClass("bookmark");
+        this.$view.removeClass(presenter.CSS_CLASSES.BOOKMARK);
     };
 
     presenter.Button.prototype.createView = function () {
@@ -605,9 +607,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.bookmarkCurrentButton = function () {
-        this.buttons.filter(function (element) {
+        var currentButton = this.buttons.filter(function (element) {
             return element.isActualButton;
-        })[0].addBookmark();
+        })[0];
+        if (currentButton !== undefined) currentButton.addBookmark();
     };
 
     presenter.NavigationManager.prototype.removeBookmarksFromButtons = function () {
@@ -621,9 +624,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.removeBookmarkFromCurrentButton = function () {
-        this.buttons.filter(function (element) {
+        var currentButton = this.buttons.filter(function (element) {
             return element.isActualButton;
-        })[0].removeBookmark();
+        })[0];
+        if (currentButton !== undefined) currentButton.removeBookmark();
     };
 
     presenter.NavigationManager.prototype.markButtonsWithAttempted = function (attemptedPages) {
@@ -1523,7 +1527,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
             var keyboardElements = presenter.keyboardControllerObject.keyboardNavigationElements;
             for (var i = 0; i < keyboardElements.length; i++) {
-                if ($(keyboardElements[i]).hasClass('current_page')) {
+                if ($(keyboardElements[i]).hasClass(presenter.CSS_CLASSES.CURRENT_PAGE)) {
                     presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = i;
                 }
             }
