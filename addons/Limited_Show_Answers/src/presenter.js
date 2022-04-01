@@ -60,16 +60,26 @@ function AddonLimited_Show_Answers_create() {
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
 
+        if (eventName === "LimitedShowAnswers") {
+            presenter.eventBus.sendEvent('LimitedShowAnswers', eventData);
+        } else if (eventName === "LimitedHideAnswers") {
+            presenter.eventBus.sendEvent('LimitedHideAnswers', eventData);
+        }
+
+        presenter.sendEventToWorksWithModules(eventName);
+    };
+
+    presenter.sendEventToWorksWithModules = function (eventName) {
         presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
             var module = player.getPlayerServices().getModule(moduleId);
             if (module && module.onEventReceived) {
                 try {
                     module.onEventReceived(presenter.EVENTS_MAP[eventName]);
                 }catch (e) {
+                    console.error(e);
                 }
             }
         });
-
     };
 
     presenter.createPreview = function (view, model) {
@@ -222,7 +232,12 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "LimitedHideAnswers") {
+        if (eventName === "LimitedHideAnswers") {
+            if (JSON.parse(eventData?.item.includes(presenter.configuration.addonID))) {
+                presenter.sendEventToWorksWithModules(eventName);
+                presenter.reset();
+            }
+
             for (var i in eventData) {
                 if (eventData.hasOwnProperty(i)) {
                     var eventModule = eventData[i];

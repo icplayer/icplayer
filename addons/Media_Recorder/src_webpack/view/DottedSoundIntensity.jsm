@@ -1,4 +1,5 @@
 import {SoundIntensity} from "./SoundIntensity.jsm";
+import {CSS_CLASSES} from "./CssClasses.jsm";
 
 export class DottedSoundIntensity extends SoundIntensity {
 
@@ -10,11 +11,11 @@ export class DottedSoundIntensity extends SoundIntensity {
         var heightDiff = heightPercent * (this.$view[0].offsetHeight-6);
         var tallDotNewHeight = Math.round(6 + heightDiff);
         var shortDotNewHeight = Math.round(6 + heightDiff/2);
-        this.$view.find('.tall-dot').css('height', tallDotNewHeight + 'px');
-        this.$view.find('.short-dot').css('height', shortDotNewHeight + 'px');
+        this.$view.find("." + CSS_CLASSES.TALL_DOT).css('height', tallDotNewHeight + 'px');
+        this.$view.find("." + CSS_CLASSES.SHORT_DOT).css('height', shortDotNewHeight + 'px');
     }
 
     _clearIntensity() {
-        this.$view.find('.sound-intensity-dot').css('height', '');
+        this.$view.find("." + CSS_CLASSES.SOUND_INTENSITY_DOT).css('height', '');
     }
 }
