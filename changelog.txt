@@ -1,3 +1,5 @@
+2022-04-01 Changed Text-selection logic on clicks outside selectable elements
+2022-04-01 Fixed Text-selection clicking between available selections with multiSelect selects both of them
 2022-04-01 Fixed incorrect width of Connections middle column when images are present
 2022-04-01 Fixed Paragraph not resetting properly during Limited Show Answers on Limited Reset
 2022-04-01 Added keyboard navigation and tts to CrossLesson module
