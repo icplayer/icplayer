@@ -1,3 +1,5 @@
+import {CSS_CLASSES} from "./CssClasses.jsm";
+
 export class ResetDialog {
 
     constructor($view, resetDialogLabels) {
@@ -21,16 +23,16 @@ export class ResetDialog {
     }
 
     _createView() {
-        this.$view.find('.dialog-text').text(this.labels.text);
-        this.$view.find('.confirm-button').text(this.labels.confirm);
-        this.$view.find('.deny-button').text(this.labels.deny);
+        this.$view.find("." + CSS_CLASSES.DIALOG_TEXT).text(this.labels.text);
+        this.$view.find("." + CSS_CLASSES.CONFIRM_BUTTON).text(this.labels.confirm);
+        this.$view.find("." + CSS_CLASSES.DENY_BUTTON).text(this.labels.deny);
         this.$view.draggable({});
         var self = this;
-        this.$view.find('.confirm-button').click(function(){
+        this.$view.find("." + CSS_CLASSES.CONFIRM_BUTTON).click(function(){
             self.close();
             if (self.onConfirmCallback) self.onConfirmCallback();
         });
-        this.$view.find('.deny-button').click(function(){
+        this.$view.find("." + CSS_CLASSES.DENY_BUTTON).click(function(){
             self.close();
             if (self.onDenyCallback) self.onDenyCallback();
         });
