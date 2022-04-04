@@ -41,7 +41,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 	private IPlayerServices playerServices;
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
-    private Set<String> activeShowAnswersModules = new HashSet<String>();
+	private Set<String> activeShowAnswersModules = new HashSet<String>();
 	public LimitedResetPresenter(LimitedResetModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;

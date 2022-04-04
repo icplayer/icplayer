@@ -10,7 +10,9 @@ TestCase("[Cross Lesson] Model validation", {
             CourseID: "1234567",
             LessonID: "testLesson",
             Page: "xQNFEDISERT",
-            Type: "lesson"
+            Type: "lesson",
+            OpenLessonInCurrentTab: "True",
+            langAttribute: "PL-pl"
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -22,6 +24,8 @@ TestCase("[Cross Lesson] Model validation", {
         assertEquals("testLesson", validatedModel.lessonID);
         assertEquals("xQNFEDISERT", validatedModel.page);
         assertEquals("lesson", validatedModel.type)
+        assertEquals(true, validatedModel.openLessonInCurrentTab)
+        assertEquals("PL-pl", validatedModel.langTag)
     },
 
     'test given model without lesson ID when validating then return correct error code': function () {

@@ -77,6 +77,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.activate();
     };
 
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.mediaRecorder.setWCAGStatus(isWCAGOn);
+    };
+
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
     };
@@ -87,6 +91,10 @@ function AddonMedia_Recorder_create() {
 
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.mediaRecorder.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.executeCommand = function executeCommand(name, params) {
