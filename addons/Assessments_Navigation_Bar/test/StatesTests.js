@@ -3,9 +3,9 @@ TestCase("[Assessments_Navigation_Bar] Set state", {
         this.presenter = AddonAssessments_Navigation_Bar_create();
 
         this.expectedPages = [
-            {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionCssClass: "section_0"},
-            {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionCssClass: "section_1"},
-            {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionCssClass: "section_2"}
+            {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionClassName: "section_0"},
+            {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionClassName: "section_1"},
+            {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionClassName: "section_2"}
         ];
 
         this.presenter.sections = {
@@ -26,9 +26,9 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
 
         this.pages = {
             pages: [
-                {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionCssClass: "section_0"},
-                {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionCssClass: "section_1"},
-                {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionCssClass: "section_2"}
+                {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionClassName: "section_0"},
+                {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionClassName: "section_1"},
+                {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionClassName: "section_2"}
             ]
         };
 
@@ -130,7 +130,7 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
                 page: 1,
                 description: "test description",
                 sectionName: "test section name",
-                sectionCssClass: "test section ccs classname",
+                sectionClassName: "test section ccs classname",
                 isBookmarkOn: true
             }],
             attemptedPages: [1, 2, 3]
@@ -141,7 +141,7 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
                 page: 1,
                 description: "test description",
                 sectionName: "test section name",
-                sectionCssClass: "test section ccs classname",
+                sectionClassName: "test section ccs classname",
                 isBookmarkOn: true
             }],
             attemptedPages: [1, 2, 3]
