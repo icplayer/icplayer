@@ -166,124 +166,108 @@ function AddonText_Selection_create() {
         }
     };
 
-    presenter.startSelection = function (et) {
-        first = parseInt($(et).attr('number'), 10);
-        if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
-        if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'), 10);
-        if (isNaN(first)) {
-            $(et).nextAll('div').each(function () {
-                first = parseInt($(this).children('span.selectable').attr('number'), 10);
-                if (!isNaN(first)) {
-                    beforeActive = true;
-                    return false;
-                }
-            });
+    presenter.getSpanByNumber = function (number) {
+        return presenter.$view.find('.text_selection').find(`span[number='${number}']`);
+    };
+
+    presenter.handleSingleSelection = function () {
+        if (presenter.configuration.selection_type === 'SINGLESELECT') {
+            presenter.handleSingleSelectionSingleSelect();
+        } else if (presenter.configuration.selection_type === 'MULTISELECT') {
+            presenter.handleSingleSelectionMultiSelect();
         }
-        if ($(et).hasClass('text_selection') && isNaN(first)) {
-            beforeActive = true;
-            first = parseInt(presenter.$view.find('.text_selection').find('span.selectable').first().attr('number'), 10);
+
+        const $span = presenter.getSpanByNumber(first);
+        if ($span.hasClass('selectable')) {
+            presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), true);
         }
     };
 
-    presenter.endSelection = function (et) {
-        var last = parseInt($(et).attr('number'), 10),
-            tmp = 0,
-            i,
-            $span = null,
-            element = null;
+    presenter.handleSingleSelectionSingleSelect = function() {
+        const selected = presenter.$view.find('.text_selection').find('.selected');
+        const $span = presenter.getSpanByNumber(first);
 
-        if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
-        if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'), 10);
-        if (isNaN(last)) {
-            $(et).nextAll('div').each(function () {
-                last = parseInt($(this).children('span.selectable').attr('number'), 10);
-                if (!isNaN(last)) {
-                    return false;
-                }
-            });
-        }
-        if ($(et).hasClass('text_selection')) {
-            last = first;
-        }
-        var selected = presenter.$view.find('.text_selection').find('.selected');
-
-        if (first !== last) {
-            if (first > last) {
-                tmp = first;
-                first = last;
-                last = tmp;
+        if (selected.length === 0) {
+            if ($span.hasClass('selectable')) {
+                $span.addClass('selected');
             }
-
-            if (presenter.configuration.selection_type === 'SINGLESELECT') {
-
-                if (selected.length === 0) {
-                    for (i = first; i < last + 1; i++) {
-                        element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                        if (element.hasClass('selectable')) {
-                            element.toggleClass('selected');
-                            break;
-                        }
-                    }
-                } else if (selected.length === 1) {
-                    for (i = first; i < last + 1; i++) {
-                        element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                        if (element.hasClass('selectable')) {
-                            $(selected).removeClass('selected');
-                            element.addClass('selected');
-                            break;
-                        }
-                    }
-                } else {
-                    $(selected).removeClass('selected');
-                }
-            } else if (presenter.configuration.selection_type === 'MULTISELECT') {
-
-                for (i = first; i < last + 1; i++) {
-                    element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                    if (element.hasClass('selectable')) {
-                        element.toggleClass('selected');
-                    }
-                }
-
-            }
-
-            for (i = first; i < last + 1; i++) {
-                element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                if (element.hasClass('selectable')) {
-                    presenter.sendEvent(element.attr('number'), element.hasClass('selected'), isCorrect(element), i === last);
-                }
-            }
-
-        } else if (first === last && !beforeActive) {
-            $span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
-
-            if (presenter.configuration.selection_type === 'SINGLESELECT') {
-
-                if (selected.length == 0) {
-                    if ($span.hasClass('selectable')) {
-                        $span.addClass('selected');
-                    }
-                } else if (selected.length == 1) {
-                    if (parseInt(selected.attr('number'), 10) === parseInt(first, 10)) {
-                        selected.removeClass('selected');
-                    } else {
-                        if ($span.hasClass('selectable')) {
-                            selected.removeClass('selected');
-                            $span.toggleClass('selected');
-                        }
-                    }
-                }
-
-            } else if (presenter.configuration.selection_type === 'MULTISELECT') {
-
+        } else if (selected.length === 1) {
+            if (parseInt(selected.attr('number'), 10) === parseInt(first, 10)) {
+                selected.removeClass('selected');
+            } else {
                 if ($span.hasClass('selectable')) {
+                    selected.removeClass('selected');
                     $span.toggleClass('selected');
                 }
             }
+        }
+    };
 
+    presenter.handleSingleSelectionMultiSelect = function() {
+        const $span = presenter.getSpanByNumber(first);
+
+        if ($span.hasClass('selectable')) {
+            $span.toggleClass('selected');
+        }
+    };
+
+    presenter.handleMultipleSelection = function (last) {
+        const isSelectedRightToLeft = first > last;
+        if (isSelectedRightToLeft) [first, last] = [last, first];
+
+        if (presenter.configuration.selection_type === 'SINGLESELECT') {
+            presenter.handleMultipleSelectionSingleSelect(last, isSelectedRightToLeft);
+        } else if (presenter.configuration.selection_type === 'MULTISELECT') {
+            presenter.handleMultipleSelectionMultiSelect(last);
+        }
+
+        for (let i = first; i < last + 1; i++) {
+            const $span = presenter.getSpanByNumber(i);
             if ($span.hasClass('selectable')) {
-                presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), true);
+                presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), i === last);
             }
+        }
+    };
+
+    presenter.handleMultipleSelectionSingleSelect = function (last, isSelectedRightToLeft) {
+        const selected = presenter.$view.find('.text_selection').find('.selected');
+        const $span = isSelectedRightToLeft ? this.getSpanByNumber(first) : this.getSpanByNumber(last);
+        if ($span.hasClass('selectable')) {
+            if (selected.length === 1) $(selected).removeClass('selected');
+            $span.toggleClass('selected');
+        }
+    };
+
+    presenter.handleMultipleSelectionMultiSelect = function (last) {
+        for (let i = first; i < last + 1; i++) {
+            const $span = presenter.getSpanByNumber(i);
+            if ($span.hasClass('selectable')) {
+                $span.toggleClass('selected');
+            }
+        }
+    };
+
+    presenter.startSelection = function (et) {
+        first = parseInt($(et).attr('number'), 10);
+    };
+
+    presenter.endSelection = function (et) {
+        if (isNaN(first)) {
+            first = 0;
+            return false;
+        }
+
+        let last = parseInt($(et).attr('number'), 10);
+        const isMultipleSelected = first !== last;
+
+        if ($(et).hasClass('text_selection')) {
+            last = first;
+        }
+
+        if (isMultipleSelected) {
+            presenter.handleMultipleSelection(last);
+        } else if (!beforeActive) {
+            presenter.handleSingleSelection();
         }
 
         first = 0;
@@ -1005,7 +989,7 @@ function AddonText_Selection_create() {
                     spansMarkedWrong.push(spanIndex);
                 } else {
                     previewHTML += match[4];
-                    runHTML += match[4];
+                    runHTML += wrapText(match[4], [], spanIndex);
                 }
                 spanIndex++;
             } else { // spaces
