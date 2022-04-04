@@ -233,7 +233,7 @@ function AddonLimited_Show_Answers_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName === "LimitedHideAnswers") {
-            if (JSON.parse(eventData?.item.includes(presenter.configuration.addonID))) {
+            if (eventData?.item?.includes(presenter.configuration.addonID)) {
                 presenter.sendEventToWorksWithModules(eventName);
                 presenter.reset();
             }
@@ -242,6 +242,7 @@ function AddonLimited_Show_Answers_create() {
                 if (eventData.hasOwnProperty(i)) {
                     var eventModule = eventData[i];
                     if (presenter.configuration.worksWithModulesList.includes(eventModule))
+                        presenter.sendEventToWorksWithModules(eventName);
                         presenter.reset();
                 }
             }
