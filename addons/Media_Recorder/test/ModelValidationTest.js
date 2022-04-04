@@ -24,7 +24,8 @@ TestCase("[Media Recorder] Model validation", {
                 resetDialogText: {resetDialogLabel: ""},
                 resetDialogConfirm: {resetDialogLabel: ""},
                 resetDialogDeny: {resetDialogLabel: ""}
-            }
+            },
+            langAttribute: "pl"
         };
 
         this.DefaultValues = {
