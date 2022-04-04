@@ -56,6 +56,8 @@ function AddonTextAudio_create() {
         'M03': 'Incorrectly defined period of time',
         'M04': 'Entry ends before start',
         'M05': 'Duplicated text for second',
+        'M06': 'Error while downloading SRT file',
+        'M07': 'Invalid crop time value',
         'SAF01': 'Property Vocabulary audio files cannot be empty',
         'SAF02': 'Number of Vocabulary audio files and time items must be the same',
         'SAF03': 'All values in property Vocabulary audio files has to be filled',
@@ -635,7 +637,7 @@ function AddonTextAudio_create() {
                 blockHighlight = true;
             }
 
-            if (slide_data.slide_id != presenter.current_slide_data.slide_id) {
+            if (slide_data.slide_id != presenter.current_slide_data.slide_id && slide_data.slide_id !== -2) {
                 presenter.makeSlide(textWrapper, slide_data.slide_id);
                 presenter.actualizeKeyboardControllerElements();
             }
@@ -670,12 +672,16 @@ function AddonTextAudio_create() {
             selection_id: isCurrentTimeInRange ? frames_array[currentTime].selection_id : 0
         };
 
+        if (isCurrentTimeInRange) {
+            slide_data.slide_id = frames_array[currentTime].slide_id === -1 ? -2 : slide_data.slide_id;
+        }
+
         if (!presenter.hasBeenStarted) {
             slide_data.selection_id = -1;
         }
 
         var difference = slide_data.selection_id - presenter.previousSelectionId;
-        if (difference > 1 && !presenter.playedByClick) {
+        if (difference > 1 && !presenter.playedByClick && presenter.previousSelectionId != -1) {
             slide_data.selection_id -= difference - 1;
         }
 
@@ -1311,13 +1317,20 @@ function AddonTextAudio_create() {
         return ((minutes * 60 + seconds) * presenter.fps) + decyseconds;
     };
 
-    presenter.timeEntry = function AddonTextAudio_timeEntry (slide_time) {
+    presenter.timeEntry = function AddonTextAudio_timeEntry (slide_time, fromSrtFile) {
         var entry = slide_time.split('-');
         if (entry.length != 2) {
             return {
                 errorCode: 'M03',
                 errorData: slide_time
             }
+        }
+
+        if (fromSrtFile) {
+            return {
+                start: Math.round(SrtParser.timeColonSeparatedToMs(entry[0]) / 100),
+                end: Math.round(SrtParser.timeColonSeparatedToMs(entry[1]) / 100)
+            };
         }
 
         return {
@@ -1369,6 +1382,61 @@ function AddonTextAudio_create() {
         return resultHTML;
     };
 
+    presenter.handleSlides = function AddonTextAudio_handleSlides (slides) {
+        const newSlides = [];
+
+        for (var i=0; i<slides.length; i++) {
+            let slide = $.extend({}, slides[i]);
+            if (!slide.fileSRT) {
+                slide.fromFile = false;
+                newSlides.push(slide);
+                continue;
+            }
+
+            let response = presenter.downloadSRTSync(slide.fileSRT);
+            if (response.error) {
+                console.error("Error while downloading SRT file. Response code is: " + response.responseCode);
+                return {
+                    isValid: false,
+                    errorCode: 'M06'
+                };
+            }
+
+            let parsed = SrtParser.parse(response.text, true);
+            let cropTime = SrtParser.timeColonSeparatedToMs(slide.cropTime);
+            if (cropTime === 0 && slide.cropTime.trim()) {
+                return {
+                    isValid: false,
+                    errorCode: 'M07'
+                };
+            }
+            if (cropTime !== 0) {
+                parsed = SrtParser.cropTimes(parsed, cropTime);
+            }
+            let formattedData = presenter.formatData(parsed);
+            slide.Text = formattedData.text;
+            slide.Times = formattedData.time;
+            slide.fromFile = true;
+            newSlides.push(slide);
+        }
+
+        return presenter.validateSlides(newSlides);
+    };
+
+    presenter.formatData = function AddonTextAudio_formatData (data) {
+        let text = "";
+        let time = "";
+
+        data.forEach((d) => {
+           text += d.text + "||<br>";
+           time += `${SrtParser.msToTimeColonSeparated(d.startTime)}-${SrtParser.msToTimeColonSeparated(d.endTime)}\n`
+        });
+
+        text = text.replace(/\|\|<br>$/gm, "");
+        time = time.replace(/\n$/gm, "");
+        return {text, time};
+    };
+
     presenter.validateSlides = function AddonTextAudio_validateSlides (slides) {
         var validationResult = {
             isValid: false,
@@ -1402,7 +1470,7 @@ function AddonTextAudio_create() {
 
             for (var j=0; j<slide_times.length; j++) {
                 var entry = slide_times[j];
-                slide_times[j] = presenter.timeEntry(entry);
+                slide_times[j] = presenter.timeEntry(entry, slide.fromFile);
                 if (slide_times[j].errorCode) {
                     validationResult.errorCode = slide_times[j].errorCode;
                     validationResult.errorData = entry;
@@ -1416,7 +1484,7 @@ function AddonTextAudio_create() {
                     validationResult.errorCode = 'M04';
                     return validationResult;
                 }
-                if (frames.length > entry_start) {
+                if (frames.length > Math.round(entry_start)) {
                     validationResult.errorData = entry_start;
                     validationResult.errorCode = 'M05';
                     return validationResult;
@@ -1504,6 +1572,27 @@ function AddonTextAudio_create() {
         return returnObj;
     };
 
+    presenter.downloadSRTSync = function AddonTextAudio_downloadSRTSync (src) {
+        const res = {
+            error: false,
+            responseCode: 200,
+            text: ""
+        };
+
+        const req = new XMLHttpRequest();
+        req.open("GET", src, false);
+        req.send();
+
+        if (req.status === 200) {
+            res.text = req.responseText;
+        } else {
+            res.error = true;
+            res.responseCode = req.status;
+        }
+
+        return res;
+    };
+
     presenter.validateModel = function addonTextAudio_validateModel (model) {
         if (model.clickAction === '') {
             model.clickAction = presenter.ALLOWED_CLICK_BEHAVIOUR.play_from_the_moment;
@@ -1519,7 +1608,7 @@ function AddonTextAudio_create() {
         }
 
         presenter.totalNumberOfParts = 0;
-        var validatedSlides = presenter.validateSlides(model.Slides);
+        var validatedSlides = presenter.handleSlides(model.Slides);
         var validatedVocabularyIntervals = presenter.validateVocabularyIntervals(model.vocabulary_intervals);
         if (validatedSlides.errorCode) {
             return presenter.getErrorObject(validatedSlides.errorCode);

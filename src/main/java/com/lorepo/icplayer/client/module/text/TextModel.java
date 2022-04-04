@@ -33,6 +33,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	public static final int EMPTY_INDEX = 5;
 	public static final int INSERT_INDEX = 6;
 	public static final int REMOVED_INDEX = 7;
+	public static final int LINK_INDEX = 8;
 	
 	public String parsedText;
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
@@ -173,6 +174,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				this.speechTextItems.get(TextModel.EMPTY_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
 				this.speechTextItems.get(TextModel.INSERT_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "insert"));
 				this.speechTextItems.get(TextModel.REMOVED_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "removed"));
+				this.speechTextItems.get(TextModel.LINK_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "link"));
 
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
@@ -265,6 +267,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		text.setAttribute("empty", this.speechTextItems.get(TextModel.EMPTY_INDEX).getText());
 		text.setAttribute("insert", this.speechTextItems.get(TextModel.INSERT_INDEX).getText());
 		text.setAttribute("removed", this.speechTextItems.get(TextModel.REMOVED_INDEX).getText());
+		text.setAttribute("link", this.speechTextItems.get(TextModel.LINK_INDEX).getText());
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 
 		textModule.appendChild(text);
@@ -964,6 +967,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				speechTextItems.add(new SpeechTextsStaticListItem("empty"));
 				speechTextItems.add(new SpeechTextsStaticListItem("insert","text"));
 				speechTextItems.add(new SpeechTextsStaticListItem("removed","text"));
+				speechTextItems.add(new SpeechTextsStaticListItem("link"));
 			}
 
 			@Override
@@ -1213,6 +1217,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 			
 			if (index == TextModel.REMOVED_INDEX) {
 				return "removed";
+			}
+
+			if (index == TextModel.LINK_INDEX) {
+				return "link";
 			}
 			
 			return "";

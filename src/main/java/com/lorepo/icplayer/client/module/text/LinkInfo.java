@@ -18,6 +18,7 @@ public class LinkInfo {
 	private LinkType type;
 	private String target;
 	private String updatedHref;
+	private String lang;
 	
 	
 	/**
@@ -33,6 +34,7 @@ public class LinkInfo {
 		this.href = href;
 		this.target = target;
 		this.updatedHref = "";
+		this.lang = "";
 	}
 
 
@@ -70,6 +72,14 @@ public class LinkInfo {
 		else{
 			updatedHref = newBaseUrl + href;
 		}
+	}
+
+	public void setLang(String lang) {
+		this.lang = lang;
+	}
+
+	public String getLang() {
+		return this.lang;
 	}
 
 }
