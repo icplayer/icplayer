@@ -232,17 +232,17 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.isEventSourceLocal = function (eventData) {
-        return eventData.source === presenter.configuration.addonID
+        return eventData.source === presenter.configuration.addonID;
     }
 
     presenter.eventItemsContainAllWorksWithModules = function (eventDataItems) {
-        const moduleList = presenter.configuration.worksWithModulesList
+        const moduleList = presenter.configuration.worksWithModulesList;
         for (let i in moduleList) {
             if (!JSON.parse(eventDataItems).includes(moduleList[i])) {
                 return false;
             }
         }
-        return true
+        return true;
     }
 
     presenter.handleLimitedHideAnswers = function (eventName, eventData) {
