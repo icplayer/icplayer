@@ -211,7 +211,7 @@ function AddonTable_create() {
             presenter.mathJaxProcessEnded.then(function() {
                 MathJax.CallBack.Queue().Push(function () {
                     if(!isPreview){
-                        MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+                        presenter.renderMathJax();
                         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
                         var checkSelector = setInterval(function () {
                             if ($(presenter.$view).find('input').length > 0) {
@@ -1636,6 +1636,7 @@ function AddonTable_create() {
         this.notify();
 
         presenter.renderMathJax();
+        presenter.rerenderMathJax();
     };
 
     presenter.DraggableDroppableGap.prototype.makeGapEmpty = function () {
@@ -1949,6 +1950,12 @@ function AddonTable_create() {
     presenter.renderMathJax = function () {
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+        });
+    };
+
+    presenter.rerenderMathJax = function () {
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Rerender(presenter.$view.find(".table-addon-wrapper")[0]);
         });
     };
 
