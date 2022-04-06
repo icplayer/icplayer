@@ -3,9 +3,9 @@ TestCase("[Assessments_Navigation_Bar] Set state", {
         this.presenter = AddonAssessments_Navigation_Bar_create();
 
         this.expectedPages = [
-            {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionClassName: "section_0"},
-            {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionClassName: "section_1"},
-            {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionClassName: "section_2"}
+            {page: 1, description: "page1", sectionName: "section1", isBookmarkOn: false, sectionCssClass: "section_0", buttonCssClassNames: ["AClass", "BClass"]},
+            {page: 4, description: "page2", sectionName: "section3", isBookmarkOn: true, sectionCssClass: "section_1", buttonCssClassNames: ["CClass"]},
+            {page: 5, description: "page3", sectionName: "section4", isBookmarkOn: false, sectionCssClass: "section_2", buttonCssClassNames: ["DClass"]}
         ];
 
         this.presenter.sections = {
@@ -26,16 +26,16 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
 
         this.pages = {
             pages: [
-                {description: "page1", page: 1, isBookmarkOn: false, sectionName: "section1", sectionClassName: "section_0"},
-                {description: "page2", page: 4, isBookmarkOn: true, sectionName: "section3", sectionClassName: "section_1"},
-                {description: "page3", page: 5, isBookmarkOn: false, sectionName: "section4", sectionClassName: "section_2"}
+                {page: 1, description: "page1", sectionName: "section1", isBookmarkOn: false, sectionCssClass: "section_0", buttonCssClassNames: ["AClass", "BClass"]},
+                {page: 4, description: "page2", sectionName: "section3", isBookmarkOn: true, sectionCssClass: "section_1", buttonCssClassNames: ["CClass"]},
+                {page: 5, description: "page3", sectionName: "section4", isBookmarkOn: false, sectionCssClass: "section_2", buttonCssClassNames: ["DClass"]}
             ]
         };
 
         this.expectedPages = [
-            new this.presenter.Page(1, "page1", "section1", "section_0"),
-            new this.presenter.Page(4, "page2", "section3", "section_1"),
-            new this.presenter.Page(5, "page3", "section4", "section_2")
+            new this.presenter.Page(1, "page1", "section1", "section_0", ["AClass", "BClass"]),
+            new this.presenter.Page(4, "page2", "section3", "section_1", ["CClass"]),
+            new this.presenter.Page(5, "page3", "section4", "section_2", ["DClass"])
         ];
 
         this.expectedPages[1].isBookmarkOn = true;
@@ -100,12 +100,14 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
         this.presenter = AddonAssessments_Navigation_Bar_create();
 
         this.spies = {
-            upgradeAttemptedPages: sinon.spy(this.presenter, 'upgradeAttemptedPages')
+            upgradeAttemptedPages: sinon.spy(this.presenter, 'upgradeAttemptedPages'),
+            upgradePagesButtonCssClassNames: sinon.spy(this.presenter, 'upgradePagesButtonCssClassNames')
         };
     },
 
     tearDown: function () {
         this.presenter.upgradeAttemptedPages.restore();
+        this.presenter.upgradePagesButtonCssClassNames.restore();
     },
 
     'test should call upgrade attempted pages': function () {
@@ -114,7 +116,13 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
         assertTrue(this.spies.upgradeAttemptedPages.calledOnce);
     },
 
-    'test should properly upgrade incomplete state': function () {
+    'test should call upgrade pages button css class names': function () {
+        this.presenter.upgradeState({});
+
+        assertTrue(this.spies.upgradePagesButtonCssClassNames.calledOnce);
+    },
+
+    'test should properly upgrade state without attempted pages': function () {
         var expectedState = {
             attemptedPages: []
         };
@@ -124,13 +132,42 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
         assertEquals(expectedState, upgradedState);
     },
 
-    'test shouldnt upgrade complete state': function () {
+    'test should properly upgrade state without page button css class names': function () {
+        var inputState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionClassName: "test section ccs classname",
+                isBookmarkOn: true
+            }],
+            attemptedPages: []
+        }
+        var expectedState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionClassName: "test section ccs classname",
+                buttonCssClassNames: [],
+                isBookmarkOn: true
+            }],
+            attemptedPages: []
+        };
+
+        var upgradedState = this.presenter.upgradeState(inputState);
+
+        assertEquals(expectedState, upgradedState);
+    },
+
+    'test should not upgrade complete state': function () {
         var completedState = {
             pages: [{
                 page: 1,
                 description: "test description",
                 sectionName: "test section name",
                 sectionClassName: "test section ccs classname",
+                buttonCssClassNames: ["AClass", "BClass"],
                 isBookmarkOn: true
             }],
             attemptedPages: [1, 2, 3]
@@ -142,6 +179,7 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
                 description: "test description",
                 sectionName: "test section name",
                 sectionClassName: "test section ccs classname",
+                buttonCssClassNames: ["AClass", "BClass"],
                 isBookmarkOn: true
             }],
             attemptedPages: [1, 2, 3]
@@ -174,6 +212,58 @@ TestCase("[Assessments_Navigation_Bar] UpgradeAttemptedPages", {
         };
 
         var upgradedState = this.presenter.upgradeAttemptedPages(expectedState);
+
+        assertEquals(expectedState, upgradedState);
+    }
+});
+
+TestCase("[Assessments_Navigation_Bar] UpgradePagesButtonCssClassNames", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+    },
+
+    'test should upgrade missing button css class names with empty array': function () {
+        var inputState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionClassName: "test section ccs classname",
+                isBookmarkOn: true
+            }],
+            attemptedPages: [1, 2, 3, 4, 5]
+        };
+        var expectedState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionClassName: "test section ccs classname",
+                buttonCssClassNames: [],
+                isBookmarkOn: true
+            }],
+            attemptedPages: [1, 2, 3, 4, 5]
+        };
+
+        var upgradedState = this.presenter.upgradePagesButtonCssClassNames(inputState);
+
+        assertEquals(expectedState, upgradedState);
+    },
+
+    'test should not upgrade attempted pages if they exists in state': function () {
+        var expectedState = {
+            pages: [{
+                page: 1,
+                description: "test description",
+                sectionName: "test section name",
+                sectionClassName: "test section ccs classname",
+                buttonCssClassNames: ["AClass", "BClass"],
+                isBookmarkOn: true
+            }],
+            attemptedPages: [1, 2, 3, 4, 5]
+        };
+
+        var upgradedState = this.presenter.upgradePagesButtonCssClassNames(expectedState);
 
         assertEquals(expectedState, upgradedState);
     }

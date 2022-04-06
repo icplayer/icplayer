@@ -215,9 +215,9 @@ function AddonAssessments_Navigation_Bar_create(){
         return a;
     }
 
-    presenter.Button = function (viewDescription, customCssClassesNames) {
+    presenter.Button = function (viewDescription, customCssClassNames) {
         this.description = viewDescription;
-        this.customCssClassesNames = customCssClassesNames;
+        this.customCssClassNames = customCssClassNames;
         this.$view = this.createView();
         this.$view_text;
         this.actualCommand;
@@ -302,9 +302,9 @@ function AddonAssessments_Navigation_Bar_create(){
         $view.addClass(presenter.CSS_CLASSES.BUTTON);
         $view.addClass(presenter.CSS_CLASSES.ELEMENT);
 
-        if (this.customCssClassesNames && this.customCssClassesNames.length !== 0) {
-            this.customCssClassesNames.map((cssClass) => {
-                $view.addClass(cssClass);
+        if (this.customCssClassNames && this.customCssClassNames.length !== 0) {
+            this.customCssClassNames.map((cssClassName) => {
+                $view.addClass(cssClassName);
             })
         }
 
@@ -359,13 +359,13 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.HellipButton.prototype = Object.create(presenter.Button.prototype);
     presenter.HellipButton.constructor = presenter.HellipButton;
 
-    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassesNames) {
+    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames) {
         this.description = view_description;
         this.page = page;
         this.isBookmarkOn = false;
         this.sectionName = sectionName;
         this.sectionCssClass = sectionCssClass;
-        this.buttonCssClassesNames = buttonCssClassesNames;
+        this.buttonCssClassNames = buttonCssClassNames;
     };
 
     presenter.Page.prototype.setBookmarkOn = function (bookmark) {
@@ -391,10 +391,10 @@ function AddonAssessments_Navigation_Bar_create(){
         return presenter.currentPageIndex === this.page;
     };
 
-    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassesNames) {
+    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames) {
         this.name = sectionName;
         this.cssClassName = sectionCssClassName;
-        this.buttonsCssClassesNames = buttonsCssClassesNames;
+        this.buttonsCssClassNames = buttonsCssClassNames;
         this.pages = this.createPages(pages, pagesDescriptions);
     };
 
@@ -416,7 +416,7 @@ function AddonAssessments_Navigation_Bar_create(){
             if (page == -1) return null;
             return new presenter.Page(
                 page, pagesDescriptions[index], this.name,
-                this.cssClassName, this.buttonsCssClassesNames
+                this.cssClassName, this.buttonsCssClassNames
             );
         }, this).filter(function(page) {
             return page != null;
@@ -583,7 +583,7 @@ function AddonAssessments_Navigation_Bar_create(){
                 return new presenter.Section(
                     section.pages, section.sectionName,
                     section.pagesDescriptions, sectionCssClass,
-                    section.sectionButtonsCssClassesNames
+                    section.sectionButtonsCssClassNames
                 );
         });
     };
@@ -906,7 +906,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.getPageButton = function (page) {
-        var button = new presenter.Button(page.description, page.buttonCssClassesNames);
+        var button = new presenter.Button(page.description, page.buttonCssClassNames);
         button.setCommand(page.getChangeToPageCommand());
         button.setNavigateToPage(page.page);
 
@@ -1134,8 +1134,6 @@ function AddonAssessments_Navigation_Bar_create(){
         removeMockupDOM();
 
         presenter.sections = new presenter.Sections(presenter.configuration.sections);
-        console.log("presenter.configuration.sections", presenter.configuration.sections);
-        console.log("presenter.sections", presenter.sections);
         presenter.navigationManager = new presenter.NavigationManager();
 
         presenter.navigationManager.setSections();
@@ -1371,23 +1369,32 @@ function AddonAssessments_Navigation_Bar_create(){
         };
     }
 
-    function parseSectionButtonsCssClassesNames(cssClasses, sectionIndex) {
+    presenter.parseSectionButtonsCssClassNames = function (cssClasses, sectionIndex) {
         if (ModelValidationUtils.isStringEmpty(cssClasses)) {
             return getErrorObject("S_11", {section: sectionIndex});
         }
 
         var parsedCssClasses = cssClasses.split(",").map(getTrimmedStringElement);
+        var cssClassesWithoutDuplication = removeDuplicatedCssClassNames(parsedCssClasses);
 
-        for (var i = 0; i < parsedCssClasses.length; i++) {
-            if (!isValidClassName(parsedCssClasses[i])) {
+        for (var i = 0; i < cssClassesWithoutDuplication.length; i++) {
+            if (ModelValidationUtils.isStringEmpty(cssClassesWithoutDuplication[i])) {
+                return getErrorObject("S_11", {section: sectionIndex});
+            }
+
+            if (!isValidClassName(cssClassesWithoutDuplication[i])) {
                 return getErrorObject("S_12", {section: sectionIndex});
             }
         }
 
         return {
             isValid: true,
-            cssClasses: parsedCssClasses
+            cssClasses: cssClassesWithoutDuplication
         };
+    }
+
+    function removeDuplicatedCssClassNames(cssClassNames) {
+        return [...new Set(cssClassNames)];
     }
 
     function isValidClassName(className) {
@@ -1403,7 +1410,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var len = section.length;
         var sectionName = "";
         var descriptions = [];
-        var sectionButtonsCssClassesNames = {cssClasses: []};
+        var sectionButtonsCssClassNames = {cssClasses: []};
 
         var pages = presenter.parsePagesFromRange(section[0], (sectionIndex + 1));
 
@@ -1427,9 +1434,9 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         if (len > 3) {
-            sectionButtonsCssClassesNames = parseSectionButtonsCssClassesNames(section[3], (sectionIndex + 1));
-            if (!sectionButtonsCssClassesNames.isValid) {
-                return sectionButtonsCssClassesNames;
+            sectionButtonsCssClassNames = presenter.parseSectionButtonsCssClassNames(section[3], (sectionIndex + 1));
+            if (!sectionButtonsCssClassNames.isValid) {
+                return sectionButtonsCssClassNames;
             }
         }
 
@@ -1437,8 +1444,8 @@ function AddonAssessments_Navigation_Bar_create(){
             isValid: true,
             pages: pages.pages,
             sectionName: sectionName,
-            sectionButtonsCssClassesNames: sectionButtonsCssClassesNames.cssClasses,
             pagesDescriptions: descriptions.descriptions,
+            sectionButtonsCssClassNames: sectionButtonsCssClassNames.cssClasses,
         }
     }
 
@@ -1520,8 +1527,8 @@ function AddonAssessments_Navigation_Bar_create(){
                 description: page.description,
                 sectionName: page.sectionName,
                 sectionCssClass: page.sectionCssClass,
-                isBookmarkOn: page.isBookmarkOn,
-                buttonCssClassesNames: page.buttonCssClassesNames
+                buttonCssClassNames: page.buttonCssClassNames,
+                isBookmarkOn: page.isBookmarkOn
             };
         });
 
@@ -1537,7 +1544,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var restoredPages = pages.map(function (page) {
             var restoredPage = new presenter.Page(
                 page.page, page.description, page.sectionName,
-                page.sectionCssClass, page.buttonCssClassesNames
+                page.sectionCssClass, page.buttonCssClassNames
             );
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
@@ -1595,7 +1602,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.upgradeState = function (state) {
         var upgradedState = presenter.upgradeAttemptedPages(state);
-        return presenter.upgradePagesButtonCssClassName(upgradedState);
+        return presenter.upgradePagesButtonCssClassNames(upgradedState);
     };
 
     presenter.upgradeAttemptedPages = function (state) {
@@ -1609,15 +1616,17 @@ function AddonAssessments_Navigation_Bar_create(){
         return upgradedState;
     };
 
-    presenter.upgradePagesButtonCssClassName = function (state) {
+    presenter.upgradePagesButtonCssClassNames = function (state) {
         var upgradedState = {};
-        jQuery.extend(true, upgradedState, state); // \Deep copy of model object
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
 
-        upgradedState.pages.map(function (page) {
-            if(page.buttonCssClassesNames === undefined) {
-                page["buttonCssClassesNames"] = [];
-            }
-        });
+        if (upgradedState.pages) {
+            upgradedState.pages.map(function (page) {
+                if(page.buttonCssClassNames === undefined) {
+                    page["buttonCssClassNames"] = [];
+                }
+            });
+        }
 
         return upgradedState;
     };
