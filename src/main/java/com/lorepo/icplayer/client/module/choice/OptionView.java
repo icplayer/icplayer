@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.choice;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -24,8 +26,11 @@ import com.lorepo.icplayer.client.module.text.LinkWidget;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
+
+    public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	private ChoiceOption choiceOption;
 	private ParserResult parserResult;
@@ -45,6 +50,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		
 		TextParser parser = new TextParser();
 		parserResult = parser.parse(choiceOption.getText());
+		audioInfos = parserResult.audioInfos;
 		this.setHTML(parserResult.parsedText);
 
 		if(isMulti){
@@ -302,4 +308,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		return choiceOption.getParentId() + "_ic_option_" + choiceOption.getID();
 	}
 
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
+	}
 }
