@@ -33,3 +33,14 @@
     display: block;
     text-align: center;
 }
+
+.file-sender-sent-file-reset {
+    color: red;
+    float: right;
+    cursor: default;
+}
+
+.file-sender-sent-file-label {
+    margin-bottom: 1em;
+    cursor: default;
+}

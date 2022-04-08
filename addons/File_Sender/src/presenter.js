@@ -3,11 +3,15 @@ function AddonFile_Sender_create() {
 
     presenter.teachers = [];
     presenter.fileEndpointUrl = "";
+    presenter.fileDownloadEndpointUrl = "";
     presenter.views = [];
     presenter.dialog = null;
     presenter.pageIndex = -1;
     presenter.$ICPage = null;
     presenter.contextLoaded = false;
+
+    presenter.sentFileName = "";
+    presenter.sentFileUrl = "";
 
     var currentScrollTop = 0;
 
@@ -33,6 +37,7 @@ function AddonFile_Sender_create() {
     function presenterLogic(view, model, isPreview) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
+        presenter.isPreview = isPreview;
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -54,6 +59,19 @@ function AddonFile_Sender_create() {
         }
 
         presenter.loadGlobalSendFileState();
+        presenter.hideSentFile();
+
+        if ((!isPreview) && (!presenter.contextLoaded)) {
+            presenter.hide();
+        }
+    }
+
+    presenter.show = function () {
+        presenter.$view.css("display", "");
+    }
+
+    presenter.hide = function () {
+        presenter.$view.css("display", "none");
     }
 
     presenter.validateModel = function (model) {
@@ -91,22 +109,37 @@ function AddonFile_Sender_create() {
             if ("fileEndpointUrl" in context) {
                 presenter.fileEndpointUrl = context["fileEndpointUrl"];
             }
-            if (presenter.fileEndpointUrl != null && presenter.teachers.length > 0) {
+            if ("fileDownloadEndpointUrl" in context) {
+                presenter.fileDownloadEndpointUrl = context["fileDownloadEndpointUrl"];
+            }
+            if (presenter.fileEndpointUrl.length > 0
+                && presenter.fileDownloadEndpointUrl.length > 0
+                && presenter.teachers.length > 0) {
                 presenter.contextLoaded = true;
+                if (presenter.$view) {
+                    presenter.show();
+                }
             }
         } else {
             if (iterationsLeft > 0) {
                 window.setTimeout(function(){presenter.loadContext(iterationsLeft-1)}, 500);
             }
         }
+    };
+
+    presenter.getState = function() {
+            var state = {
+                sentFileName: presenter.sentFileName,
+                sentFileUrl: presenter.sentFileUrl
+            };
+            return JSON.stringify(state);
     }
 
-    presenter.updateFileEndpointUrl = function() {
-        var context = presenter.playerController.getContextMetadata();
-        if (context != null) {
-            if ("fileEndpointUrl" in context) {
-                presenter.fileEndpointUrl = context["fileEndpointUrl"];
-            }
+    presenter.setState = function(state) {
+        var parsedState = JSON.parse(state);
+        presenter.setSentFile(parsedState.sentFileName, parsedState.sentFileUrl);
+        if (parsedState.sentFileName.length > 0 && parsedState.sentFileUrl.length > 0) {
+            presenter.showSentFile();
         }
     }
 
@@ -136,6 +169,17 @@ function AddonFile_Sender_create() {
         presenter.views.formInput = presenter.$view.find('.file-sender-input-file');
         presenter.views.formLabel = presenter.$view.find('.file-sender-input-label');
         presenter.views.sendFileButton = presenter.$view.find('.file-sender-send-file-button');
+        presenter.views.fileSentWrapper = presenter.$view.find('.file-sender-sent-file');
+        presenter.views.fileSentLabel = presenter.$view.find('.file-sender-sent-file-label');
+        presenter.views.fileSentReset = presenter.$view.find('.file-sender-sent-file-reset');
+    }
+
+    presenter.getSentFileName = function() {
+        return presenter.sentFileName;
+    }
+
+    presenter.getSentFileUrl = function() {
+        return presenter.sentFileUrl;
     }
 
     presenter.attachHandlers = function() {
@@ -155,6 +199,17 @@ function AddonFile_Sender_create() {
             presenter.updateGlobalSendFileState();
         });
         presenter.views.sendFileButton.click(presenter.onSendFileClick);
+        presenter.views.fileSentLabel.click(function() {
+            var element = document.createElement("a");
+            element.setAttribute("id", "dl");
+            element.setAttribute("download", presenter.getSentFileName());
+            element.setAttribute("href", presenter.getSentFileUrl());
+            element.click();
+        });
+        presenter.views.fileSentReset.click(function() {
+            presenter.resetSentFile();
+            presenter.hideSentFile();
+        });
     }
 
     presenter.updateFileLabel = function() {
@@ -216,6 +271,38 @@ function AddonFile_Sender_create() {
             if (presenter.getParagraphModule() != null) {
                 presenter.showTargetDialog();
             }
+        }
+    }
+
+    presenter.setSentFile = function(fileName, fileUrl) {
+        presenter.sentFileName = fileName;
+        presenter.sentFileUrl = fileUrl;
+        presenter.views.fileSentLabel.html(fileName);
+    }
+
+    presenter.resetSentFile = function() {
+        presenter.sentFileName = "";
+        presenter.sentFileUrl = "";
+        presenter.views.fileSentLabel.html("");
+    }
+
+    presenter.reset = function() {
+        presenter.resetSentFile();
+    }
+
+    presenter.showSentFile = function() {
+        presenter.views.fileSentWrapper.css("display", "");
+        presenter.views.sendFileButton.css("display", "none");
+        if (presenter.configuration.sourceType === SOURCE_TYPES.FILE) {
+            presenter.views.form.css("display", "none");
+        }
+    }
+
+    presenter.hideSentFile = function() {
+        presenter.views.fileSentWrapper.css("display", "none");
+        presenter.views.sendFileButton.css("display", "block");
+        if (presenter.configuration.sourceType === SOURCE_TYPES.FILE) {
+            presenter.views.form.css("display", "");
         }
     }
 
@@ -283,16 +370,25 @@ function AddonFile_Sender_create() {
                 }
                 var formData = new FormData();
                 formData.append('file', file, file.name);
-                presenter.updateFileEndpointUrl();
                 fetch(presenter.fileEndpointUrl, {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Authorization': 'JWT ' + json.token,
-                    },
-                    body: formData
+                    }
                 }).then(result => result.json()).then(
+                    success => fetch(success["upload_url"], {
+                       method: 'POST',
+                       headers: {
+                           'Authorization': 'JWT ' + json.token
+                       },
+                       body: formData
+                    })
+               ).then(result => result.json()).then(
                     success => {
                         presenter.fireSendFileEvent(success.uploaded_file_id, targetID);
+                        var fileUrl = presenter.fileDownloadEndpointUrl + success.uploaded_file_id;
+                        presenter.setSentFile(file.name, fileUrl);
+                        presenter.showSentFile();
                     }
                 ).catch((err) => {
                         console.log(err);
