@@ -1214,7 +1214,7 @@ function AddonEditableWindow_create() {
         presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
-    EditableWindowKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+    EditableWindowKeyboardController.prototype.getTarget = function (element) {
         return $(element);
     };
 
@@ -1232,7 +1232,7 @@ function AddonEditableWindow_create() {
     };
 
     EditableWindowKeyboardController.prototype.select = function EditableWindow_select (event) {
-        let element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        const element = this.getTarget(this.keyboardNavigationCurrentElement);
         if ($(element).hasClass("mce-btn") && presenter.configuration.model.editingEnabled) {
             presenter.isKeyboardNavDeactivationBlocked = true;
             KeyboardController.prototype.setElements.call(this, presenter.getMceBtnElements());
@@ -1269,7 +1269,7 @@ function AddonEditableWindow_create() {
         if (presenter.isInsideColorPick()) {
             KeyboardController.prototype.setElements.call(this, presenter.getMceBtnElements());
             KeyboardController.prototype.markCurrentElement.call(this, 1);
-            this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+            this.getTarget(this.keyboardNavigationCurrentElement)[0].click();
             this.readCurrentElement();
         } else if (presenter.isInsideMceBtn()) {
             KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
@@ -1312,7 +1312,7 @@ function AddonEditableWindow_create() {
 
     presenter.isInsideColorPick = function EditableWindow_isInsideColorPick() {
         return presenter.keyboardControllerObject.keyboardNavigationElements.length === 6 &&
-            $(presenter.keyboardControllerObject.getTarget(presenter.keyboardControllerObject.keyboardNavigationCurrentElement, true)).hasClass("mce-grid-cell");
+            $(presenter.keyboardControllerObject.getTarget(presenter.keyboardControllerObject.keyboardNavigationCurrentElement)).hasClass("mce-grid-cell");
     };
 
     presenter.isDeactivationBlocked = function EditableWindow_isDeactivationBlocked() {
@@ -1321,7 +1321,7 @@ function AddonEditableWindow_create() {
     
     EditableWindowKeyboardController.prototype.readCurrentElement = function () {
         let text = "";
-        let element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        const element = this.getTarget(this.keyboardNavigationCurrentElement);
 
         if (element.hasClass("addon-editable-open-full-screen-button")) {
             text = presenter.speechTexts.openFullscreen;
@@ -1336,7 +1336,7 @@ function AddonEditableWindow_create() {
         } else if(presenter.isColorPickElement()) {
             text = presenter.speechTexts.pickAColor;
         } else if(presenter.isInsideColorPick()) {
-            let key = presenter.getTTSKeyBasedOnColor(element);
+            const key = presenter.getTTSKeyBasedOnColor(element);
             text = presenter.speechTexts[key];
         } else if(element.hasClass("mce-edit-area")) {
             const contentToRead = presenter.getContentToRead();
