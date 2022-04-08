@@ -436,12 +436,15 @@ public class JavaScriptPlayerServices {
 			var keyboardController = function() {
 			};
 
-			keyboardController.moveActiveModule = function(reverseDirection) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
+            keyboardController.switchWCAGMode = function () {
+                //add event listener to DOMLoaded because problem with GWT Document.get() in firefox (DOM not loaded)
+                document.addEventListener("DOMContentLoaded", function() {
+			        x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::switchWCAGMode()();
+                });
 			}
 
-			keyboardController.switchWCAGMode = function () {
-			    return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::switchWCAGMode()();
+			keyboardController.moveActiveModule = function(reverseDirection) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
 			}
 
 			return keyboardController;
