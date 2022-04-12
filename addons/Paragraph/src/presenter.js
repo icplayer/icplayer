@@ -821,6 +821,7 @@ function AddonParagraph_create() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
+                if (presenter.isShowAnswersActive) presenter.hideAnswers();
                 tinymceState = presenter.editor.getContent({format : 'raw'});
             }catch(err) {
                 return  presenter.state;
