@@ -1,3 +1,4 @@
+2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
 2022-04-06 Fixed problem with SourceList module
 2022-04-04 Fixed Limited Hide Answers not un-clicking on Limited Check
