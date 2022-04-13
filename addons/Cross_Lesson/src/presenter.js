@@ -2,6 +2,9 @@ function AddonCross_Lesson_create(){
     var presenter = function() {};
 
     var crossLessonEventType = "crossLesson";
+    var crossLessonUserAccessEventType = "crossLessonUserAccess";
+
+    var crossLessonEventReceivedType = "crossLessonHasUserAccess:";
 
     var errorCodes = {
         "V_01": "Lesson ID is missing",
@@ -42,7 +45,8 @@ function AddonCross_Lesson_create(){
         presenter.connectHandlers();
         presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.buildKeyboardController();
-    }
+        presenter.handleUserAccess();
+    };
 
     presenter.validateModel = function (model) {
         var validatedType = presenter.validateType(model['Type']);
@@ -68,7 +72,8 @@ function AddonCross_Lesson_create(){
             page: model['Page'],
             image: model['Image'],
             openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab),
-            langTag: model['langAttribute']
+            langTag: model['langAttribute'],
+            checkForAccess: ModelValidationUtils.validateBoolean(model.CheckForAccess)
         }
     };
 
@@ -153,26 +158,63 @@ function AddonCross_Lesson_create(){
         presenter.requestCrossLesson();
     };
 
-    presenter.requestCrossLesson = function () {
-        if (presenter.playerController) {
-            var data = {
-                type: presenter.configuration.type,
-                openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
-            };
-            if (presenter.configuration.lessonID) {
-                data.lessonID = presenter.configuration.lessonID;
+    presenter.onExternalMessage = function AddonCross_Lesson_onExternalMessage (event) {
+        const data = event.data;
+        if (data.indexOf(crossLessonEventReceivedType) !== -1) {
+            const value = data.slice(crossLessonEventReceivedType.length);
+            console.log(value);
+            const userHasAccess = ModelValidationUtils.validateBoolean(value);
+            console.log(userHasAccess);
+            if (!userHasAccess) {
+                presenter.hide();
             }
-            if (presenter.configuration.page) {
-                data.page = presenter.configuration.page;
-            }
-            if (presenter.configuration.courseID) {
-                data.courseID = presenter.configuration.courseID;
-            }
-            var jsonData = JSON.stringify(data);
-            presenter.playerController.sendExternalEvent(crossLessonEventType, jsonData);
-        } else {
-            console.error("Cannot make a request: no player controller");
         }
+    };
+
+    presenter.requestCrossLesson = function () {
+       const data = presenter.getExternalEventData();
+       if (!data) {
+           return
+       }
+
+       presenter.playerController.sendExternalEvent(crossLessonEventType, data);
+    };
+
+    presenter.handleUserAccess = function AddonCross_Lesson_handleUserAccess () {
+        if (!presenter.configuration.CheckForAccess) {
+            return;
+        }
+
+        const data = presenter.getExternalEventData();
+        if (!data) {
+           return
+        }
+
+        window.addEventListener("message", presenter.onExternalMessage);
+        presenter.playerController.sendExternalEvent(crossLessonUserAccessEventType, data);
+    };
+
+    presenter.getExternalEventData = function AddonCross_Lesson_getExternalEventData () {
+        if (!presenter.playerController) {
+            console.error("Cannot make a request: no player controller");
+            return;
+        }
+
+        var data = {
+            type: presenter.configuration.type,
+            openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
+        };
+        if (presenter.configuration.lessonID) {
+            data.lessonID = presenter.configuration.lessonID;
+        }
+        if (presenter.configuration.page) {
+            data.page = presenter.configuration.page;
+        }
+        if (presenter.configuration.courseID) {
+            data.courseID = presenter.configuration.courseID;
+        }
+
+        return JSON.stringify(data);
     };
 
     presenter.setPlayerController = function(controller) {
@@ -244,10 +286,22 @@ function AddonCross_Lesson_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeCheckForAccess = function AddonCross_Lesson_upgradeCheckForAccess (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (upgradedModel['CheckForAccess'] === undefined) {
+            upgradedModel['CheckForAccess'] =  "False";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function AddonCross_Lesson_upgradeModel (model) {
         var upgradedModel = presenter.upgradeOpenLessonInCurrentTab(model);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeCheckForAccess(upgradedModel);
         return upgradedModel;
     };
 

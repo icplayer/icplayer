@@ -15,5 +15,6 @@
                 <property name="GoToLesson" nameLabel="Cross_Lesson_property_go_to_lesson" type="string"/>
             </property>
         </property>
+		<property name="CheckForAccess" displayName="Check for access" nameLabel="Cross_Lesson_property_check_for_access" type="boolean"/>
 	</model>
 </addon>
