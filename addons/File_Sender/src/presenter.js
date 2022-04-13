@@ -136,6 +136,7 @@ function AddonFile_Sender_create() {
     }
 
     presenter.setState = function(state) {
+        if (state == null || state.length == 0) return;
         var parsedState = JSON.parse(state);
         presenter.setSentFile(parsedState.sentFileName, parsedState.sentFileUrl);
         if (parsedState.sentFileName.length > 0 && parsedState.sentFileUrl.length > 0) {
