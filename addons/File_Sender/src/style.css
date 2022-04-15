@@ -2,8 +2,8 @@
     border: solid;
     overflow: hidden;
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: 100%;
 }
 
 .file-sender-input-file {
@@ -43,4 +43,5 @@
 .file-sender-sent-file-label {
     margin-bottom: 1em;
     cursor: default;
+    overflow-y: clip;
 }

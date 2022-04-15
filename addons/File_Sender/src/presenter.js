@@ -12,6 +12,8 @@ function AddonFile_Sender_create() {
 
     presenter.sentFileName = "";
     presenter.sentFileUrl = "";
+    presenter.sentFileId = -1;
+    presenter.isMessageSent = false;
 
     var currentScrollTop = 0;
 
@@ -47,6 +49,9 @@ function AddonFile_Sender_create() {
         presenter.loadViewHandlers();
         presenter.attachHandlers();
 
+        presenter.views.fileSentLabel.css('max-height', model['Height']+'px');
+        presenter.views.form.css('height', model['Height']+'px');
+
         presenter.views.sendFileButton.html(presenter.configuration.buttonText);
         if (presenter.configuration.sourceType !== SOURCE_TYPES.FILE) {
             presenter.views.form.css('display', 'none');
@@ -58,8 +63,8 @@ function AddonFile_Sender_create() {
             presenter.views.sendFileButton.css('height', model['Width']+'px');
         }
 
-        presenter.loadGlobalSendFileState();
         presenter.hideSentFile();
+        presenter.showSendButton();
 
         if ((!isPreview) && (!presenter.contextLoaded)) {
             presenter.hide();
@@ -130,7 +135,8 @@ function AddonFile_Sender_create() {
     presenter.getState = function() {
             var state = {
                 sentFileName: presenter.sentFileName,
-                sentFileUrl: presenter.sentFileUrl
+                sentFileId: presenter.sentFileId,
+                isMessageSent: presenter.isMessageSent
             };
             return JSON.stringify(state);
     }
@@ -138,9 +144,15 @@ function AddonFile_Sender_create() {
     presenter.setState = function(state) {
         if (state == null || state.length == 0) return;
         var parsedState = JSON.parse(state);
-        presenter.setSentFile(parsedState.sentFileName, parsedState.sentFileUrl);
-        if (parsedState.sentFileName.length > 0 && parsedState.sentFileUrl.length > 0) {
+        presenter.setSentFile(parsedState.sentFileName, parsedState.sentFileId);
+        presenter.isMessageSent = parsedState.isMessageSent;
+        if (parsedState.sentFileName.length > 0 && parsedState.sentFileId != -1) {
             presenter.showSentFile();
+            if (parsedState.isMessageSent) {
+                presenter.hideSendButton();
+            } else {
+                presenter.showSendButton();
+            }
         }
     }
 
@@ -159,6 +171,7 @@ function AddonFile_Sender_create() {
             };
             var jsonData = JSON.stringify(data);
             presenter.playerController.sendExternalEvent(sendFileEventType, jsonData);
+            presenter.isMessageSent = true;
         } else {
             console.error("Cannot make a request: no player controller");
         }
@@ -183,11 +196,21 @@ function AddonFile_Sender_create() {
         return presenter.sentFileUrl;
     }
 
+    presenter.isSupportedFileType = function(file) {
+        var fileTypes = [".doc",".docx",".pdf",".odt",".jpg",".gif",".png",".html",".mp3",".wav"];
+        var fileName = file.name.toLowerCase();
+        for (var i = 0; i < fileTypes.length; i++) {
+            if (fileName.endsWith(fileTypes[i])) return true;
+        }
+        return false;
+    }
+
     presenter.attachHandlers = function() {
         presenter.views.formInput.click(function(e){
             e.preventDefault();
             var tmpForm = $('<form>');
             var tmpInput = $('<input type="file">');
+            tmpInput.attr("accept", ".doc,.docx,.pdf,.odt,.jpg,.gif,.png,.html,.mp3,.wav");
             tmpForm.append(tmpInput);
             tmpInput.change(function(){
                 presenter.views.formInput[0].files = tmpInput[0].files;
@@ -196,8 +219,10 @@ function AddonFile_Sender_create() {
             tmpInput.click();
         });
         presenter.views.formInput.change(function(e){
-            presenter.updateFileLabel();
-            presenter.updateGlobalSendFileState();
+            var files = presenter.views.formInput[0].files;
+            if(files.length > 0 && presenter.isSupportedFileType(files[0])) {
+                presenter.sendFile();
+            }
         });
         presenter.views.sendFileButton.click(presenter.onSendFileClick);
         presenter.views.fileSentLabel.click(function() {
@@ -210,6 +235,7 @@ function AddonFile_Sender_create() {
         presenter.views.fileSentReset.click(function() {
             presenter.resetSentFile();
             presenter.hideSentFile();
+            presenter.showSendButton();
         });
     }
 
@@ -218,30 +244,6 @@ function AddonFile_Sender_create() {
             presenter.views.formLabel.html("");
         }
         presenter.views.formLabel.html(presenter.views.formInput[0].files[0].name);
-    }
-
-    presenter.loadGlobalSendFileState = function() {
-        if (window.globalSendFileState === undefined ||
-        window.globalSendFileState[presenter.pageIndex] === undefined ||
-        window.globalSendFileState[presenter.pageIndex][presenter.configuration.ID] == null) return;
-
-        presenter.views.formInput[0].files = window.globalSendFileState[presenter.pageIndex][presenter.configuration.ID];
-        presenter.updateFileLabel();
-    }
-
-    presenter.updateGlobalSendFileState = function() {
-        if (window.globalSendFileState === undefined) {
-            window.globalSendFileState = {};
-        };
-        if (window.globalSendFileState[presenter.pageIndex] === undefined) {
-            window.globalSendFileState[presenter.pageIndex] = {};
-        }
-        var files = presenter.views.formInput[0].files;
-        if (files.length > 0) {
-            window.globalSendFileState[presenter.pageIndex][presenter.configuration.ID] = files;
-        } else {
-            window.globalSendFileState[presenter.pageIndex][presenter.configuration.ID] = null;
-        }
     }
 
     presenter.createPreview = function(view, model) {
@@ -260,7 +262,7 @@ function AddonFile_Sender_create() {
         if (!presenter.contextLoaded) return;
 
         if (presenter.configuration.sourceType == SOURCE_TYPES.FILE) {
-            if (presenter.views.formInput[0].files.length > 0) {
+            if (presenter.sentFileId != -1) {
                 presenter.showTargetDialog();
             }
         } else if (presenter.configuration.sourceType == SOURCE_TYPES.MEDIA_RECORDER) {
@@ -275,8 +277,10 @@ function AddonFile_Sender_create() {
         }
     }
 
-    presenter.setSentFile = function(fileName, fileUrl) {
+    presenter.setSentFile = function(fileName, fileId) {
         presenter.sentFileName = fileName;
+        presenter.sentFileId = fileId;
+        var fileUrl = presenter.fileDownloadEndpointUrl + fileId;
         presenter.sentFileUrl = fileUrl;
         presenter.views.fileSentLabel.html(fileName);
     }
@@ -284,7 +288,9 @@ function AddonFile_Sender_create() {
     presenter.resetSentFile = function() {
         presenter.sentFileName = "";
         presenter.sentFileUrl = "";
+        presenter.sentFileId = -1;
         presenter.views.fileSentLabel.html("");
+        presenter.isMessageSent = false;
     }
 
     presenter.reset = function() {
@@ -293,7 +299,6 @@ function AddonFile_Sender_create() {
 
     presenter.showSentFile = function() {
         presenter.views.fileSentWrapper.css("display", "");
-        presenter.views.sendFileButton.css("display", "none");
         if (presenter.configuration.sourceType === SOURCE_TYPES.FILE) {
             presenter.views.form.css("display", "none");
         }
@@ -301,10 +306,17 @@ function AddonFile_Sender_create() {
 
     presenter.hideSentFile = function() {
         presenter.views.fileSentWrapper.css("display", "none");
-        presenter.views.sendFileButton.css("display", "block");
         if (presenter.configuration.sourceType === SOURCE_TYPES.FILE) {
             presenter.views.form.css("display", "");
         }
+    }
+
+    presenter.hideSendButton = function() {
+        presenter.views.sendFileButton.css("display", "none");
+    }
+
+    presenter.showSendButton = function() {
+        presenter.views.sendFileButton.css("display", "block");
     }
 
     presenter.fetchSessionJWTToken = function() {
@@ -347,6 +359,32 @@ function AddonFile_Sender_create() {
         }
     }
 
+    presenter.showErrorDialog = function(message) {
+        //if (presenter.teachers.length == 0) return;
+        var wrapper = $('<div></div>');
+        wrapper.addClass('file-sender-error-dialog-content');
+        wrapper.html(message);
+
+        currentScrollTop = presenter.playerController.iframeScroll();
+        presenter.findICPage();
+
+        var dialog = wrapper.dialog({
+                    modal: true,
+                    autoOpen: false,
+                    title: "Warning",
+                    open: presenter.openDialogEventHandler,
+                    close: presenter.closeDialogEventHandler
+                    });
+        dialog.dialog('open');
+        var dialogParent = dialog.closest('.ui-dialog');
+        dialogParent.addClass('file-sender-error-dialog');
+        dialogParent.find('.ui-dialog-titlebar').addClass('file-sender-error-dialog-titlebar');
+
+        if (!presenter.playerController.isPlayerInCrossDomain()) {
+            $(top.window).scrollTop(currentScrollTop);
+        }
+    }
+
     presenter.getTeacherName = function(teacher) {
         if (teacher.first_name.length === 0 && teacher.last_name.length === 0) {
             return teacher.username;
@@ -357,9 +395,19 @@ function AddonFile_Sender_create() {
 
     presenter.onTeacherSelect = function(event) {
         presenter.dialog.dialog('close');
-        presenter.sendFile($(this).attr('data-targetId'));
+        var targetId = $(this).attr('data-targetId');
+        if (targetId == null) return;
+        if (presenter.configuration.sourceType == SOURCE_TYPES.FILE) {
+            if (presenter.sentFileId != -1) {
+                presenter.fireSendFileEvent(presenter.sentFileId, targetId);
+                presenter.hideSendButton();
+            }
+        } else {
+            presenter.sendFile(targetId);
+        }
     }
 
+    //targetID is optional,
     presenter.sendFile = function(targetID) {
         presenter.fetchSessionJWTToken().then(result => result.json()).then(json => {
             presenter.getFile().then(file => {
@@ -386,13 +434,19 @@ function AddonFile_Sender_create() {
                     })
                ).then(result => result.json()).then(
                     success => {
-                        presenter.fireSendFileEvent(success.uploaded_file_id, targetID);
-                        var fileUrl = presenter.fileDownloadEndpointUrl + success.uploaded_file_id;
-                        presenter.setSentFile(file.name, fileUrl);
+                        if (success.uploaded_file_id === undefined) {
+                            throw success;
+                        }
+                        presenter.setSentFile(file.name, success.uploaded_file_id);
                         presenter.showSentFile();
+                        if (targetID !== undefined) {
+                            presenter.fireSendFileEvent(success.uploaded_file_id, targetID);
+                            presenter.hideSendButton();
+                        }
                     }
                 ).catch((err) => {
                         console.log(err);
+                        presenter.showErrorDialog("Error occurred while uploading");
                     }
                 );
             });
