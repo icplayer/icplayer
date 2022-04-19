@@ -56,6 +56,12 @@ function AddonEditableWindow_create() {
     };
 
     presenter.isKeyboardNavDeactivationBlocked = false;
+    presenter.isEditAreaInScrollableMode = false;
+
+    presenter.keys = {
+        ARROW_UP: 38,
+        ARROW_DOWN: 40
+    };
 
     presenter.DEFAULT_TTS_PHRASES = {
         openFullscreen: "Open fullscreen",
@@ -969,11 +975,25 @@ function AddonEditableWindow_create() {
     presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
         const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
         if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
-            player.getPlayerServices().getKeyboardController().switchWCAGMode(); //its either selected or active hence it will work as exit WCAG
+            presenter.dispatchShiftEnterKeydownEvent();
             const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
             $(realElement[0]).removeClass("selected_module_fake");
             $(realElement[0]).removeClass("active_module_fake");
         }
+    };
+
+    //used for disabling Keyboard Navigation manually
+    presenter.dispatchShiftEnterKeydownEvent = function EditableWindow_dispatchShiftEnterKeydownEvent () {
+        const event = new KeyboardEvent('keydown', {
+            code: 'Enter',
+            key: 'Enter',
+            charCode: 13,
+            keyCode: 13,
+            bubbles: true,
+            shiftKey: true
+        });
+        //document.body is used instead of document, because in KeyboardNavigationController listeners are set to RootPanel, which is document.body
+        document.body.dispatchEvent(event);
     };
 
     presenter.isVisible = function () {
@@ -1254,6 +1274,8 @@ function AddonEditableWindow_create() {
             this.readCurrentElement();
         } else if(element.hasClass("mce-edit-area") && presenter.configuration.model.editingEnabled) {
             presenter.configuration.editor.execCommand('mceCodeEditor');
+        } else if(element.hasClass("mce-edit-area") && !presenter.configuration.model.editingEnabled) {
+            presenter.handleEditAreaScrolling(element);
         } else if(element.hasClass("addon-editable-close-button")) {
             element.click();
         } else if(element[0].nodeName === "AUDIO") {
@@ -1275,6 +1297,8 @@ function AddonEditableWindow_create() {
             KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
             KeyboardController.prototype.markCurrentElement.call(this, 2);
             this.readCurrentElement();
+        } else if (presenter.isEditAreaInScrollableMode) {
+            presenter.escapeEditAreaScrollableMode();
         } else {
             presenter.isKeyboardNavDeactivationBlocked = false;
             KeyboardController.prototype.escape.call(this, event);
@@ -1317,6 +1341,40 @@ function AddonEditableWindow_create() {
 
     presenter.isDeactivationBlocked = function EditableWindow_isDeactivationBlocked() {
         return presenter.isKeyboardNavDeactivationBlocked;
+    };
+
+    presenter.handleEditAreaScrolling = function EditableWindow_handleEditAreaScrolling (element) {
+        const editorIframe = element[0].childNodes[0];
+        const content = (editorIframe.contentDocument || editorIframe.contentWindow.document).documentElement;
+        if (!isContentScrollable(content)) {
+            return;
+        };
+
+        presenter.isKeyboardNavDeactivationBlocked = true;
+        presenter.isEditAreaInScrollableMode = true;
+        presenter.keyboardControllerObject.setElements($(presenter.configuration.view).find(".mce-edit-area"));
+        presenter.overrideKeyUpAndDownHandlers(content);
+    };
+
+    function isContentScrollable(content) {
+        return content.scrollHeight > content.clientHeight;
+    };
+
+    presenter.overrideKeyUpAndDownHandlers = function EditableWindow_overrideKeyUpAndDownHandlers(content) {
+        this.keyboardControllerObject.mapping[presenter.keys.ARROW_UP] = function () {content.scrollTop -= 10; };
+        this.keyboardControllerObject.mapping[presenter.keys.ARROW_DOWN] = function () {content.scrollTop += 10; };
+    };
+
+    presenter.restoreDefualtKeyUpAndDownHandlers = function EditableWindow_restoreDefualtKeyUpAndDownHandlers () {
+        this.keyboardControllerObject.mapping[presenter.keys.ARROW_UP] = this.keyboardControllerObject.previousRow;
+        this.keyboardControllerObject.mapping[presenter.keys.ARROW_DOWN] = this.keyboardControllerObject.nextRow;
+    };
+
+    presenter.escapeEditAreaScrollableMode = function EditableWindow_escapeEditAreaScrollableMode () {
+        this.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+        this.keyboardControllerObject.markCurrentElement(3);
+        presenter.isEditAreaInScrollableMode = false;
+        presenter.restoreDefualtKeyUpAndDownHandlers();
     };
     
     EditableWindowKeyboardController.prototype.readCurrentElement = function () {

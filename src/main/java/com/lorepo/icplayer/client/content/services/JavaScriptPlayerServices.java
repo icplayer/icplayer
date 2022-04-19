@@ -436,13 +436,6 @@ public class JavaScriptPlayerServices {
 			var keyboardController = function() {
 			};
 
-            keyboardController.switchWCAGMode = function () {
-                //add event listener to DOMLoaded because problem with GWT Document.get() in firefox (DOM not loaded)
-                document.addEventListener("DOMContentLoaded", function() {
-			        x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::switchWCAGMode()();
-                });
-			}
-
 			keyboardController.moveActiveModule = function(reverseDirection) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
 			}
@@ -927,13 +920,6 @@ public class JavaScriptPlayerServices {
 	public void moveActiveModule(boolean reverseDirection){
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
-		DomEvent.fireNativeEvent(event,  RootPanel.get());
-	}
-
-    // Primarily supposed to exit mode, but if mode is off then this method will simply enter KeyboardNav/TTS
-	public void switchWCAGMode() {
-	    NativeEvent event = Document.get().createKeyDownEvent(false, false, true, false, 13);
-	    // Send a Shift(first true param) + Enter(keycode=13) keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 
