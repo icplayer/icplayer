@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
@@ -16,8 +17,12 @@ import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.lorepo.icplayer.client.module.text.AudioWidget;
+import com.lorepo.icplayer.client.module.text.AudioButtonWidget;
 
 public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter {
+
 	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
 		void setWorkStatus(boolean b);
@@ -36,6 +41,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		void show();
 		void hide();
 		public Element getElement();
+		public void connectAudios();
+		public int getWidgetCount();
+		public Widget getWidget(int index);
 	}
 
 	private final OrderingModule module;
@@ -135,6 +143,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void showAnswers() {
+	    resetAudio();
 		if (!module.isActivity()) { return; }
 
 		if (this.isShowErrorsActive)
@@ -250,6 +259,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		if (view != null) {
 			view.setShowErrorsMode();
 		}
+		resetAudio();
 	}
 
 	@Override
@@ -282,6 +292,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		if (view != null) {
 			view.reset();
 		}
+		resetAudio();
 	}
 
 	@Override
@@ -309,7 +320,36 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 				public void onItemMoved(int sourceIndex, int destIndex) {
 					onValueChanged(sourceIndex, destIndex);
 				}
+
+				@Override
+                public void onAudioButtonClicked(AudioInfo audioInfo) {
+                    AudioWidget audio = audioInfo.getAudio();
+                    AudioButtonWidget button = audioInfo.getButton();
+
+                    if (audio.isPaused()) {
+                        // in future if audio can be paused and replayed from stopped moment
+                        // reset would need to omit audio which was currently pressed
+                        resetAudio();
+
+                        audio.play();
+                        button.setStopPlayingStyleClass();
+                    } else {
+                        audio.reset();
+                        button.setStartPlayingStyleClass();
+                    }
+                }
+
+                @Override
+                public void onAudioEnded(AudioInfo audioInfo) {
+                    AudioWidget audio = audioInfo.getAudio();
+                    AudioButtonWidget button = audioInfo.getButton();
+
+                    audio.reset();
+                    button.setStartPlayingStyleClass();
+                }
+
 			});
+			this.view.connectAudios();
 		}
 	}
 
@@ -580,5 +620,30 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		this.tmpErrorCount = getErrorCount();
 		this.currentState = getState();
 		this.currentState_view = view.getState();
+	}
+
+	private void resetAudio() {
+	    for(int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
+	        Widget widget = this.view.getWidget(itemWidgetIndex);
+	        if (widget instanceof ItemWidget) {
+	            ItemWidget itemWidget = (ItemWidget) widget;
+                resetAudioInItem(itemWidget);
+            }
+	    }
+	}
+
+	private void resetAudioInItem(ItemWidget itemWidget) {
+	    List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
+        for (int i = 0; i < audioInfos.size(); i++) {
+            AudioInfo audioInfo = audioInfos.get(i);
+            AudioButtonWidget button = audioInfo.getButton();
+            AudioWidget audio = audioInfo.getAudio();
+            boolean isElementExists = button != null && audio != null;
+
+            if (isElementExists && !audio.isPaused()) {
+                audio.reset();
+                button.setStartPlayingStyleClass();
+            }
+        }
 	}
 }

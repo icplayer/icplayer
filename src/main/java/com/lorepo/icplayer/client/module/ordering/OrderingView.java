@@ -6,6 +6,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.user.client.ui.*;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
@@ -18,6 +19,9 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.lorepo.icplayer.client.module.text.AudioWidget;
+import com.lorepo.icplayer.client.module.text.AudioButtonWidget;
 import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
@@ -26,6 +30,7 @@ import com.lorepo.icplayer.client.utils.MathJaxElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -293,19 +298,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			}
 		});
 
-		widget.addTouchEndHandler(new TouchEndHandler() {
-
-			@Override
-			public void onTouchEnd(TouchEndEvent event) {
-				if (isDragging) {
-					return;
-				}
-				isTouched = true;
-				onWidgetClicked(widget);
-			}
-		});
-
-
 		widget.addMouseUpHandler(new MouseUpHandler() {
 
 			@Override
@@ -321,6 +313,17 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		});
 
+		widget.addTouchEndHandler(new TouchEndHandler() {
+
+			@Override
+			public void onTouchEnd(TouchEndEvent event) {
+				if (isDragging) {
+					return;
+				}
+				isTouched = true;
+				onWidgetClicked(widget);
+			}
+		});
 	}
 
 	private void onWidgetClicked(Widget widget) {
@@ -1055,6 +1058,92 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
+    @Override
+	public void connectAudios() {
+	    for (int i = 0; i < innerCellPanel.getWidgetCount(); i++) {
+	        Widget widget = innerCellPanel.getWidget(i);
+	        if (widget instanceof ItemWidget) {
+	            ItemWidget itemWidget = (ItemWidget) widget;
+	            this.connectSingleAudio(itemWidget.getAudioInfos().iterator());
+	        }
+		}
+	}
 
+	private void connectSingleAudio(Iterator<AudioInfo> iterator) {
+	    while (iterator.hasNext()) {
+	        final AudioInfo info = iterator.next();
+			String id = info.getId();
 
+			com.google.gwt.user.client.Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
+			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
+
+			AudioElement audioElement = Document.get().getElementById(AudioWidget.AUDIO_ID_PREFIX + id).cast();
+			AudioWidget audio = new AudioWidget(audioElement);
+
+			info.setAudio(audio);
+			info.setButton(button);
+
+			connectAudioEventsHandlers(info, audio);
+			connectAudioButtonEventsHandlers(info, button);
+        }
+	}
+
+	private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
+	    button.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (listener != null) {
+                    if (isTouched || isMouseUp || isDragging) {
+                        return;
+                    }
+                    listener.onAudioButtonClicked(info);
+                }
+            }
+        });
+
+        button.addMouseUpHandler(new MouseUpHandler() {
+            @Override
+            public void onMouseUp(MouseUpEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (listener != null) {
+                    if (isTouched || isDragging) {
+                        return;
+                    }
+                    isMouseUp = true;
+
+                    listener.onAudioButtonClicked(info);
+                }
+            }
+        });
+
+        button.addTouchEndHandler(new TouchEndHandler() {
+            @Override
+            public void onTouchEnd(TouchEndEvent event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (listener != null) {
+                    if (isDragging) {
+                        return;
+                    }
+                    isTouched = true;
+
+                    listener.onAudioButtonClicked(info);
+                }
+            }
+        });
+	}
+
+	private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
+	    audio.addEndedHandler(new EndedHandler() {
+            @Override
+            public void onEnded(EndedEvent event) {
+                if (listener != null) {
+                    listener.onAudioEnded(info);
+                }
+            }
+        });
+	}
 }

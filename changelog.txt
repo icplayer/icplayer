@@ -1,3 +1,4 @@
+2022-04-20 Added Audio support to Ordering Addon
 2022-04-07 Added Audio support to Choice Addon
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
 2022-04-06 Fixed problem with SourceList module
