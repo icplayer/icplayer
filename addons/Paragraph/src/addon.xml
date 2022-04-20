@@ -16,7 +16,10 @@
 		<property name="Weight" nameLabel="Paragraph_property_weight" type="string" />
 		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
 		<property name="speechTexts" displayName="Speech texts" nameLabel="Paragraph_property_speech_texts" type="staticlist">
-            <property name="Bold" nameLabel="Paragraph_property_bold" type="staticrow">
+            <property name="Selected" nameLabel="Paragraph_property_selected" type="staticrow">
+                <property name="Selected" nameLabel="Paragraph_property_selected" type="string"/>
+            </property>
+			<property name="Bold" nameLabel="Paragraph_property_bold" type="staticrow">
                 <property name="Bold" nameLabel="Paragraph_property_bold" type="string"/>
             </property>
 			<property name="Italic" nameLabel="Paragraph_property_italic" type="staticrow">

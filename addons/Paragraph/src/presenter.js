@@ -52,6 +52,7 @@ function AddonParagraph_create() {
     };
 
     presenter.DEFAULT_TTS_PHRASES = {
+        selected: "selected",
         bold: "bold",
         italic: "italic",
         underline: "underline",
@@ -59,6 +60,10 @@ function AddonParagraph_create() {
         alignCenter: "align center",
         alignRight: "align right",
         justify: "justify"
+    };
+
+    presenter.keys = {
+        ESCAPE: 27
     };
 
     function isIOSSafari() {
@@ -515,7 +520,12 @@ function AddonParagraph_create() {
             Justify: {Justify: ""}
         };
 
-        return presenter.upgradeAttribute(model, "speechTexts", defaultValue);
+        const upgradedModel = presenter.upgradeAttribute(model, "speechTexts", defaultValue);
+        if (!upgradedModel.hasOwnProperty("Selected")) {
+            upgradedModel.Selected = {Selected: ""};
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
@@ -531,6 +541,7 @@ function AddonParagraph_create() {
 
     presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
         presenter.speechTexts = {
+            selected: presenter.DEFAULT_TTS_PHRASES.selected,
             bold: presenter.DEFAULT_TTS_PHRASES.bold,
             italic: presenter.DEFAULT_TTS_PHRASES.italic,
             underline: presenter.DEFAULT_TTS_PHRASES.underline,
@@ -545,6 +556,9 @@ function AddonParagraph_create() {
         }
 
         presenter.speechTexts = {
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
             bold : TTSUtils.getSpeechTextProperty(
                 speechTexts.Bold.Bold,
                 presenter.speechTexts.bold),
@@ -886,6 +900,32 @@ function AddonParagraph_create() {
         if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
             presenter.setText(presenter.configuration.placeholderText);
         }
+
+        presenter.addEventListenerOnKeyEscapeToEditorMCE();
+    };
+
+    presenter.addEventListenerOnKeyEscapeToEditorMCE = function EditableWindow_addEventListenerOnKeyEscapeToEditorMCE (){
+        const mceIframe = presenter.$view.find('.mce-edit-area')[0].childNodes[0];
+        const content = (mceIframe.contentDocument || mceIframe.contentWindow.document).documentElement;
+        const escapeKeyCallback = function (e) {
+            if (e.keyCode === presenter.keys.ESCAPE && presenter.keyboardControllerObject.keyboardNavigationActive) {
+                presenter.dispatchEscapeKeydownEvent();
+                document.activeElement.blur();
+            }
+        };
+
+        content.addEventListener("keydown", escapeKeyCallback);
+    };
+
+    presenter.dispatchEscapeKeydownEvent = function EditableWindow_dispatchEscapeKeydownEvent () {
+        const event = new KeyboardEvent('keydown', {
+            code: 'Escape',
+            key: 'Escape',
+            charCode: presenter.keys.ESCAPE,
+            keyCode: presenter.keys.ESCAPE,
+            bubbles: true
+        });
+        document.body.dispatchEvent(event);
     };
 
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
@@ -1058,15 +1098,20 @@ function AddonParagraph_create() {
     };
 
     presenter.keyboardController = function Paragraph_keyboardController (keycode, isShiftKeyDown, event) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     ParagraphKeyboardController.prototype.selectAction = function () {
-        if (!this.getTarget(this.keyboardNavigationCurrentElement, true).hasClass("mce-edit-area")) {
-            this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
-            document.activeElement.blur();
-        } else {
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
+        const el = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        if (el.hasClass("mce-edit-area")) {
             presenter.editor.execCommand('mceCodeEditor');
+        } else {
+            el[0].click();
+            document.activeElement.blur();
         }
         this.mark(this.keyboardNavigationCurrentElement);
     };
@@ -1113,6 +1158,7 @@ function AddonParagraph_create() {
             } else {
                 text = ariaLabel;
             }
+            text = element.hasClass("mce-active") ? `${text} ${presenter.speechTexts.selected}` : text;
         } else if (element.hasClass("mce-edit-area")) {
             let contentToRead = presenter.editor.getContent({format : 'text'});
             text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.langTag)];
