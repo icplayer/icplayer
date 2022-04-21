@@ -64,7 +64,12 @@ function AddonFile_Sender_create() {
         }
 
         presenter.hideSentFile();
-        presenter.showSendButton();
+
+        if (presenter.configuration.disableSendButton) {
+            presenter.hideSendButton();
+        } else {
+            presenter.showSendButton();
+        }
 
         if ((!isPreview) && (!presenter.contextLoaded)) {
             presenter.hide();
@@ -93,7 +98,8 @@ function AddonFile_Sender_create() {
             sourceId: model.SourceId,
             sourceType: sourceType,
             buttonText: model.ButtonText,
-            dialogTitle: model.DialogTitle
+            dialogTitle: model.DialogTitle,
+            disableSendButton: ModelValidationUtils.validateBoolean(model['disableSendButton'])
         }
     }
 
@@ -316,7 +322,9 @@ function AddonFile_Sender_create() {
     }
 
     presenter.showSendButton = function() {
-        presenter.views.sendFileButton.css("display", "block");
+        if (!presenter.configuration.disableSendButton) {
+            presenter.views.sendFileButton.css("display", "block");
+        }
     }
 
     presenter.fetchSessionJWTToken = function() {

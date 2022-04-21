@@ -2201,6 +2201,7 @@ var ice_dictionary_pl = {
     "File_Sender_property_source_type": "Source type",
     "File_Sender_property_button_text": "Button text",
     "File_Sender_property_dialog_title": "Dialog title",
+    "File_Sender_property_disable_send_button": "Disable Send Button",
     "Automatic_Feedback_info": "Displays feedback messages in various formats (such as as a tooltip or a popup) in response to changes in the addon it is coupled with.",
     "Automatic_Feedback_name": "Automatic Feedback",
     "Automatic_Feedback_property_activity_module_id": "Activity module ID",

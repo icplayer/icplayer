@@ -9,7 +9,8 @@ TestCase("Model validation", {
             ButtonText: "Wyślij",
             DialogTitle: "Wybierz nauczyciela",
             SourceId: "Paragraph1",
-            SourceType: "Paragraph"
+            SourceType: "Paragraph",
+            disableSendButton: "false"
 
         };
 
@@ -21,6 +22,7 @@ TestCase("Model validation", {
         assertEquals(model.DialogTitle, validatedModel.dialogTitle);
         assertEquals(model.SourceType, validatedModel.sourceType);
         assertEquals(model.SourceID, validatedModel.sourceID);
+        assertFalse(validatedModel.disableSendButton);
     },
 
     'test given model without sourceID and non-file source type when validateModel is called then return invalid model': function () {
@@ -29,7 +31,8 @@ TestCase("Model validation", {
             ButtonText: "Wyślij",
             DialogTitle: "Wybierz nauczyciela",
             SourceId: "",
-            SourceType: "Paragraph"
+            SourceType: "Paragraph",
+            disableSendButton: "false"
 
         };
 
@@ -45,7 +48,8 @@ TestCase("Model validation", {
             ButtonText: "Wyślij",
             DialogTitle: "Wybierz nauczyciela",
             SourceId: "",
-            SourceType: "File"
+            SourceType: "File",
+            disableSendButton: "false"
 
         };
 
@@ -57,5 +61,6 @@ TestCase("Model validation", {
         assertEquals(model.DialogTitle, validatedModel.dialogTitle);
         assertEquals(model.SourceType, validatedModel.sourceType);
         assertEquals(model.SourceID, validatedModel.sourceID);
+        assertFalse(validatedModel.disableSendButton);
     }
 });
