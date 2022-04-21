@@ -670,17 +670,26 @@ export class MediaRecorder {
     }
 
     _stopActions() {
-        if (this.mediaState.isRecording())
+        if (this.mediaState.isRecording()) {
             if (this.model.isResetRemovesRecording) {
                 this.recordButton.reset();
                 this.resetRecording();
-            }
-            else
+            } else {
                 this.recordButton.forceClick();
-        if (this.mediaState.isPlaying())
+            }
+        }
+        if (this.mediaState.isPlaying()) {
             this.playButton.forceClick();
-        if (this.mediaState.isPlayingDefaultRecording())
+        }
+        if (this.mediaState.isPlayingDefaultRecording()) {
             this.defaultRecordingPlayButton.forceClick();
+        }
+        if (this.model.isResetRemovesRecording) {
+            this.resetRecording();
+        }
+        if (this.mediaState.isLoaded()) {
+            this.timer.setTime(0);
+        }
     }
 
     _internalElements() {
