@@ -323,6 +323,7 @@ public class PlayerController implements IPlayerController {
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+	    pageController.setPage((Page) page);
 		pageController.getGradualShowAnswersService().hideAll();
 		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
@@ -363,6 +364,7 @@ public class PlayerController implements IPlayerController {
 
 			@Override
 			public void onError(String error) {
+			    pageController.closePage();
 				playerView.hideWaitDialog();
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
