@@ -1,4 +1,8 @@
 2022-04-19 Fixed too many Media Recorders blocking audio in Chrome
+2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
+2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
+2022-04-06 Fixed problem with SourceList module
+2022-04-04 Fixed Limited Hide Answers not un-clicking on Limited Check
 2022-04-01 Fixed visible lines after hide and show\hide answers in Points and Lines addon
 2022-04-01 Fixed commands to bookmark and unbookmark pages not visible in Assessments_Navigation_Bar addon
 2022-04-01 Fixed Text with draggable gaps not able to fill gaps other than first with keyboard navigation.

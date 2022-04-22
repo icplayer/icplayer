@@ -85,6 +85,14 @@ TestCase("[Assessments_Navigation_Bar] Sections validation", {
         assertEquals(["1", "2", "3", "4"], validationResult.sections[0].pagesDescriptions);
     },
 
+    'test section css class names can be not defined': function () {
+        assertTrue(this.presenter.validateSections("1-4;desc; 1, 2, 3, 4").isValid);
+    },
+
+    'test section css class names cannot be empty': function () {
+        assertFalse(this.presenter.validateSections("1-4;; 1, 2, 3, 4;").isValid);
+    },
+
     'test sections should be parsed to proper object': function () {
         var expectedResult = {
             isValid: true,
@@ -92,15 +100,16 @@ TestCase("[Assessments_Navigation_Bar] Sections validation", {
                 {
                     pages: [0, 1, 2, 3],
                     sectionName: "latweZadania",
-                    pagesDescriptions: ["1", "2", "3", "4"]
+                    pagesDescriptions: ["1", "2", "3", "4"],
+                    sectionButtonsCssClassNames: ["AClass", "BClass"]
                 }
             ]
         };
 
-        var validationResult = this.presenter.validateSections("1-4; latweZadania; 1, 2, 3, 4");
+        var validationResult = this.presenter.validateSections("1-4; latweZadania; 1, 2, 3, 4; AClass, BClass");
 
         assertEquals(expectedResult, validationResult);
-    }
+    },
 });
 
 TestCase("[Assessments_Navigation_Bar] Parse pages from range", {
@@ -276,6 +285,97 @@ TestCase("[Assessments Navigation Bar] Parse buttons number", {
     }
 });
 
+TestCase("[Assessments Navigation Bar] Parse section buttons css class names", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.sectionIndex = 5;
+    },
+
+    'test given empty string when parsing should raise error': function () {
+        const inputValue = "";
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_11");
+        assertEquals(this.sectionIndex, result.errorData.section);
+    },
+
+    'test given undefined when parsing should raise error': function () {
+        const inputValue = undefined;
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_11");
+        assertEquals(this.sectionIndex, result.errorData.section);
+    },
+
+    'test given invalid css class name when parsing should raise error': function () {
+        const invalidClassNames = [".AClass", "A Class", "@Class"];
+
+        for (var i = 0; i < invalidClassNames.length; i++) {
+            var result = this.presenter.parseSectionButtonsCssClassNames(
+                invalidClassNames[i], this.sectionIndex
+            );
+
+            assertFalse(result.isValid);
+            assertEquals(result.errorCode, "S_12");
+            assertEquals(this.sectionIndex, result.errorData.section);
+        }
+    },
+
+    'test given valid css class name when parsing should success': function () {
+        const validClasses = ["AClass", "A-Class", "A_Class", "Class1"];
+
+        for (var i = 0; i < validClasses.length; i++) {
+            var result = this.presenter.parseSectionButtonsCssClassNames(validClasses[i], this.sectionIndex);
+
+            assertTrue(result.isValid);
+            assertEquals(result.cssClasses, [validClasses[i]]);
+        }
+    },
+
+    'test given valid css class names separated by comma when parsing should success': function () {
+        const inputValue = "AClass,BClass,CClass";
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertTrue(result.isValid);
+        assertEquals(result.cssClasses, ["AClass", "BClass", "CClass"]);
+    },
+
+    'test given valid css class names separated by comma and space when parsing should success': function () {
+        const inputValue = " AClass, BClass, CClass";
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertTrue(result.isValid);
+        assertEquals(result.cssClasses, ["AClass", "BClass", "CClass"]);
+    },
+
+    'test given duplicated css class names when parsing should success and remove duplications': function () {
+        const inputValue = "AClass, AClass, CClass";
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertTrue(result.isValid);
+        assertEquals(result.cssClasses, ["AClass", "CClass"]);
+    },
+
+    'test given invalid string with css class separated by comma when parsing should raise error': function () {
+        const inputValue = ",AClass,BClass,CClass";
+
+        var result = this.presenter.parseSectionButtonsCssClassNames(inputValue, this.sectionIndex);
+
+        assertFalse(result.isValid);
+        assertEquals(result.errorCode, "S_11");
+        assertEquals(this.sectionIndex, result.errorData.section);
+    },
+});
+
+
 TestCase("[Assessments Navigation Bar] validateModel", {
 
     setUp: function () {
@@ -352,7 +452,7 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
     setUp: function () {
         this.presenter = AddonAssessments_Navigation_Bar_create();
         this.validModel = {
-            Sections: "1-4; latweZadania; 1, 2, 3, 4",
+            Sections: "1-4; latweZadania; 1, 2, 3, 4; AClass, BClass",
             userButtonsNumber: "3",
             userButtonsWidth: "40",
             ID: "addonID",
@@ -366,7 +466,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
                 {
                     pages: [0, 1, 2, 3],
                     sectionName: "latweZadania",
-                    pagesDescriptions: ["1", "2", "3", "4"]
+                    pagesDescriptions: ["1", "2", "3", "4"],
+                    sectionButtonsCssClassNames: ["AClass", "BClass"]
                 }
             ],
             addClassAreAllAttempted: true,
