@@ -124,8 +124,7 @@ function AddonFile_Sender_create() {
                 presenter.fileDownloadEndpointUrl = context["fileDownloadEndpointUrl"];
             }
             if (presenter.fileEndpointUrl.length > 0
-                && presenter.fileDownloadEndpointUrl.length > 0
-                && presenter.teachers.length > 0) {
+                && presenter.fileDownloadEndpointUrl.length > 0) {
                 presenter.contextLoaded = true;
                 if (presenter.$view) {
                     presenter.show();
