@@ -238,9 +238,7 @@ function AddonFile_Sender_create() {
             element.click();
         });
         presenter.views.fileSentReset.click(function() {
-            presenter.resetSentFile();
-            presenter.hideSentFile();
-            presenter.showSendButton();
+            presenter.reset();
         });
     }
 
@@ -300,6 +298,8 @@ function AddonFile_Sender_create() {
 
     presenter.reset = function() {
         presenter.resetSentFile();
+        presenter.hideSentFile();
+        presenter.showSendButton();
     }
 
     presenter.showSentFile = function() {
