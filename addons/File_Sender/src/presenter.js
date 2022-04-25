@@ -33,6 +33,8 @@ function AddonFile_Sender_create() {
         V01: 'Source ID cannot be empty unless source type is set to File'
     };
 
+    var inactiveClass = "file-sender-inactive";
+
     var sendFileEventType = "sendFile";
 
 
@@ -72,7 +74,7 @@ function AddonFile_Sender_create() {
         }
 
         if ((!isPreview) && (!presenter.contextLoaded)) {
-            presenter.hide();
+            presenter.$view.addClass(inactiveClass);
         }
     }
 
@@ -127,7 +129,7 @@ function AddonFile_Sender_create() {
                 && presenter.fileDownloadEndpointUrl.length > 0) {
                 presenter.contextLoaded = true;
                 if (presenter.$view) {
-                    presenter.show();
+                    presenter.$view.removeClass(inactiveClass);
                 }
             }
         } else {
@@ -162,7 +164,7 @@ function AddonFile_Sender_create() {
     }
 
     presenter.fireSendFileEvent = function(fileID, targetID) {
-        if (presenter.playerController) {
+        if (presenter.playerController && !presenter.configuration.disableSendButton) {
             var fileType = LessonSendFileType.FILE; //FILE
             if (presenter.configuration.sourceType == SOURCE_TYPES.PARAGRAPH) {
                 fileType = LessonSendFileType.TEXT;
@@ -212,6 +214,7 @@ function AddonFile_Sender_create() {
 
     presenter.attachHandlers = function() {
         presenter.views.formInput.click(function(e){
+            if (!presenter.contextLoaded) return;
             e.preventDefault();
             var tmpForm = $('<form>');
             var tmpInput = $('<input type="file">');
@@ -224,9 +227,13 @@ function AddonFile_Sender_create() {
             tmpInput.click();
         });
         presenter.views.formInput.change(function(e){
-            var files = presenter.views.formInput[0].files;
-            if(files.length > 0 && presenter.isSupportedFileType(files[0])) {
-                presenter.sendFile();
+            if (presenter.contextLoaded) {
+                var files = presenter.views.formInput[0].files;
+                if(files.length > 0 && presenter.isSupportedFileType(files[0])) {
+                    presenter.sendFile();
+                }
+            } else {
+                presenter.views.formInput[0].value = null;
             }
         });
         presenter.views.sendFileButton.click(presenter.onSendFileClick);
@@ -416,6 +423,8 @@ function AddonFile_Sender_create() {
 
     //targetID is optional,
     presenter.sendFile = function(targetID) {
+        if (!presenter.contextLoaded) return;
+
         presenter.fetchSessionJWTToken().then(result => result.json()).then(json => {
             presenter.getFile().then(file => {
                 if (file == null) {
@@ -461,10 +470,12 @@ function AddonFile_Sender_create() {
     }
 
     presenter.executeCommand = function(name, params) {
-        if (!presenter.configuration.isValid) return;
+        if (!presenter.configuration.isValid || !presenter.contextLoaded) return;
 
         var commands = {
-            'showTeacherList': presenter.showTeacherList
+            'showTeacherList': presenter.showTeacherList,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         Commands.dispatch(commands, name, params, presenter);
