@@ -231,20 +231,46 @@ function AddonLimited_Show_Answers_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName === "LimitedHideAnswers") {
-            if (JSON.parse(eventData?.item.includes(presenter.configuration.addonID))) {
-                presenter.sendEventToWorksWithModules(eventName);
+    presenter.isEventSourceLocal = function (eventData) {
+        return eventData.source === presenter.configuration.addonID;
+    }
+
+    presenter.eventItemsContainAllWorksWithModules = function (eventDataItems) {
+        const moduleList = presenter.configuration.worksWithModulesList;
+        for (let i in moduleList) {
+            if (!JSON.parse(eventDataItems).includes(moduleList[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    presenter.handleLimitedHideAnswers = function (eventName, eventData) {
+        if (presenter.isEventSourceLocal(eventData)) return;
+
+        if (eventData.item) {
+            if (eventData.item.includes(presenter.configuration.addonID)) {
+                presenter.sendEvent(eventName);
+                presenter.reset();
+            } else if (presenter.eventItemsContainAllWorksWithModules(eventData.item)) {
                 presenter.reset();
             }
+        }
 
-            for (var i in eventData) {
-                if (eventData.hasOwnProperty(i)) {
-                    var eventModule = eventData[i];
-                    if (presenter.configuration.worksWithModulesList.includes(eventModule))
-                        presenter.reset();
+        for (let i in eventData) {
+            if (eventData.hasOwnProperty(i)) {
+                const eventModule = eventData[i];
+                if (presenter.configuration.worksWithModulesList.includes(eventModule)) {
+                    presenter.sendEvent(eventName);
+                    presenter.reset();
                 }
             }
+        }
+    }
+
+    presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName === "LimitedHideAnswers") {
+            presenter.handleLimitedHideAnswers(eventName, eventData);
         }
         if (eventName == "HideAnswers") {
             presenter.reset();

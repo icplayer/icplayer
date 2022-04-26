@@ -162,15 +162,15 @@ TestCase("[Assessments Navigation Bar] runLogic flow for upgrade model", {
 
 TestCase("[Assessments_Navigation_Bar] Upgrade speech texts", {
     setUp: function () {
-      this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.presenter = AddonAssessments_Navigation_Bar_create();
 
-      this.expectedEmpty = {
-                PreviousPage: {PreviousPage: ""},
-                ShowPreviousPages: {ShowPreviousPages: ""},
-                Title: {Title: ""},
-                GoToPage: {GoToPage: ""},
-                ShowNextPages: {ShowNextPages: ""},
-                NextPage: {NextPage: ""},
+        this.expectedEmpty = {
+            PreviousPage: {PreviousPage: ""},
+            ShowPreviousPages: {ShowPreviousPages: ""},
+            Title: {Title: ""},
+            GoToPage: {GoToPage: ""},
+            ShowNextPages: {ShowNextPages: ""},
+            NextPage: {NextPage: ""},
         };
     },
 

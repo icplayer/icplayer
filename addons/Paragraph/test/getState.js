@@ -7,7 +7,7 @@ TestCase("[Paragraph] getState method", {
                 return;
             }
         };
-
+        this.presenter.hideAnswers = sinon.spy();
         this.stubs = {
             getContent: sinon.stub(this.presenter.editor, 'getContent')
         };
@@ -24,6 +24,13 @@ TestCase("[Paragraph] getState method", {
         var state = JSON.parse(this.presenter.getState());
 
         assertEquals("Content", state.tinymceState);
+    },
+
+    'test getState given editor exists when show answers active then hide answers': function () {
+        this.presenter.isShowAnswersActive = true;
+        this.presenter.getState();
+
+        sinon.assert.calledOnce(this.presenter.hideAnswers);
     },
 
     'test getState for incomplete editor': function () {
