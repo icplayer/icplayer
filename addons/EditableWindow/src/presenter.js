@@ -975,20 +975,32 @@ function AddonEditableWindow_create() {
     presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
         const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
         if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
-            presenter.dispatchShiftEnterKeydownEvent();
+            presenter.dispatchEscapeKeydownEvent();
+            presenter.dispatchShiftTabKeydownEvent();
             const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
             $(realElement[0]).removeClass("selected_module_fake");
             $(realElement[0]).removeClass("active_module_fake");
         }
     };
 
-    //used for disabling Keyboard Navigation manually
-    presenter.dispatchShiftEnterKeydownEvent = function EditableWindow_dispatchShiftEnterKeydownEvent () {
+    presenter.dispatchEscapeKeydownEvent = function EidtableWindow_dispatchEscapeKeydownEvent () {
         const event = new KeyboardEvent('keydown', {
-            code: 'Enter',
-            key: 'Enter',
-            charCode: 13,
-            keyCode: 13,
+            code: 'Esc',
+            key: 'Esc',
+            charCode: 27,
+            keyCode: 27,
+            bubbles: true
+        });
+        //document.body is used instead of document, because in KeyboardNavigationController listeners are set to RootPanel, which is document.body
+        document.body.dispatchEvent(event);
+    };
+
+    presenter.dispatchShiftTabKeydownEvent = function EditableWindow_dispatchShiftTabKeydownEvent () {
+        const event = new KeyboardEvent('keydown', {
+            code: 'Tab',
+            key: 'Tab',
+            charCode: 9,
+            keyCode: 9,
             bubbles: true,
             shiftKey: true
         });
