@@ -1257,6 +1257,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if (presenter.stateMachine._actualState === StatefullAddonObject._internal.STATE.CORRECT
+            || presenter.stateMachine._actualState === StatefullAddonObject._internal.STATE.WRONG) {
+            return;
+        }
+
         presenter.stateMachine.check();
     };
 

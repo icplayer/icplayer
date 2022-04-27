@@ -1,3 +1,4 @@
+2022-04-27 Fixed problem with unchecking in limited check and check combinations
 2022-04-26 Added File Sender addon
 2022-04-19 Fixed too many Media Recorders blocking audio in Chrome
 2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
