@@ -1,3 +1,4 @@
+2022-04-27 Added partial support for MacOS accent menu in Crossword
 2022-04-19 Fixed too many Media Recorders blocking audio in Chrome
 2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active

@@ -219,6 +219,32 @@ function Addoncrossword_create(){
         return false;
     };
 
+    presenter.isMacOSAccentMenuDetected = function (event) {
+        // https://stackoverflow.com/questions/20690499/concrete-javascript-regular-expression-for-accented-characters-diacritics
+        const isValueAccentedCharacter = /^[\u00C0-\u017F]$/.test(event.target.value);
+        const isKeyNumeric = /^[0-9]+$/.test(event.key);
+        const isValueDifferentFromKey = event.target.value[0]?.toUpperCase() !== event.key.toUpperCase();
+
+        return window.navigator.platform.indexOf("Mac") === 0
+            && isValueAccentedCharacter
+            && isValueDifferentFromKey
+            && isKeyNumeric;
+    }
+
+    presenter.getElementByTabIndex = function (tabIndex) {
+        return presenter.$view.find(`[tabindex=${tabIndex}]`);
+    }
+
+    presenter.handleMacOSAccentMenu = function (event) {
+        const previous_tab_index = event.target.tabIndex - 1;
+
+        if (previous_tab_index >= presenter.tabIndexBase) {
+            const cellInput = presenter.getElementByTabIndex(previous_tab_index);
+            cellInput.val(event.target.value);
+            $(event.target).val(originalFieldValue);
+        }
+    }
+
     presenter.onCellInputKeyUp = function(event) {
         var target = event.target;
         var $target = $(target);
@@ -226,6 +252,11 @@ function Addoncrossword_create(){
 
         if (validateSpecialKey(event)) {
             return
+        }
+
+        if (presenter.isMacOSAccentMenuDetected(event)) {
+            presenter.handleMacOSAccentMenu(event);
+            return;
         }
 
         if ($target.val().length > 1 && originalFieldValue.length > 0) {
@@ -249,7 +280,7 @@ function Addoncrossword_create(){
                 }
             }
             if (next_tab_index < presenter.maxTabIndex) {
-                presenter.$view.find('[tabindex=' + next_tab_index + ']').focus();
+                presenter.getElementByTabIndex(next_tab_index).focus();
             } else {
                 $target.blur();
             }
@@ -262,7 +293,7 @@ function Addoncrossword_create(){
             if (!$target.val()) {
                 var previous_tab_index = event.target.tabIndex - 1;
                 if (previous_tab_index >= presenter.tabIndexBase) {
-                    var previous_element = presenter.$view.find('[tabindex=' + previous_tab_index + ']');
+                    var previous_element = presenter.getElementByTabIndex(previous_tab_index);
                     previous_element.focus();
                     previous_element.val('');
                     return;
