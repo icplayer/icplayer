@@ -77,6 +77,14 @@ export class MediaRecorder {
         }
     }
 
+    isEmpty() {
+        return this.addonState.isEmpty();
+    }
+
+    getMP3File() {
+        return this.addonState.getMP3File();
+    }
+
     getState() {
         return JSON.stringify(this.addonState);
     }
