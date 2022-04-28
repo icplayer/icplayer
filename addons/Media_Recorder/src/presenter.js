@@ -1842,15 +1842,19 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "_stopRecordButton",
+        value: function _stopRecordButton() {
+            if (this.model.isResetRemovesRecording) {
+                this.recordButton.reset();
+            } else {
+                this.recordButton.forceClick();
+            }
+        }
+    }, {
         key: "_stopActions",
         value: function _stopActions() {
             if (this.mediaState.isRecording()) {
-                if (this.model.isResetRemovesRecording) {
-                    this.recordButton.reset();
-                    this.resetRecording();
-                } else {
-                    this.recordButton.forceClick();
-                }
+                this._stopRecordButton();
             }
             if (this.mediaState.isPlaying()) {
                 this.playButton.forceClick();
