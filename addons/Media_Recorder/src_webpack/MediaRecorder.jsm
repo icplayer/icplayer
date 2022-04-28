@@ -669,14 +669,17 @@ export class MediaRecorder {
         }
     }
 
+    _stopRecordButton() {
+        if (this.model.isResetRemovesRecording) {
+            this.recordButton.reset();
+        } else {
+            this.recordButton.forceClick();
+        }
+    }
+
     _stopActions() {
         if (this.mediaState.isRecording()) {
-            if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
-                this.resetRecording();
-            } else {
-                this.recordButton.forceClick();
-            }
+            this._stopRecordButton();
         }
         if (this.mediaState.isPlaying()) {
             this.playButton.forceClick();

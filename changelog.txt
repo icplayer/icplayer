@@ -1,4 +1,4 @@
-2022-04-21 Fixed Media Recorder not removing recording on reset with "Reset Removes Recording" and reset not reseting current time
+2022-04-21 Fixed Media Recorder removing recordings and resetting time on reset property
 2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
 2022-04-06 Fixed problem with SourceList module
