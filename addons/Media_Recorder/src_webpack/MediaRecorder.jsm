@@ -336,7 +336,9 @@ export class MediaRecorder {
         if (this.model.extendedMode) {
             this.downloadButton = new DownloadButton({
                 $view: this.viewHandlers.$downloadButtonView,
-                addonState: this.addonState
+                addonState: this.addonState,
+                playerController: this.playerController,
+                isMlibro: this.isMlibro
             });
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
             this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);

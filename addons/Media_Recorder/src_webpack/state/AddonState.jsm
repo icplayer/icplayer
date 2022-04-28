@@ -46,6 +46,18 @@ export class AddonState {
         });
     }
 
+    //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
+    //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
+    _fixArrayBuffer() {
+        return new Promise((resolve) => {
+            let fr = new FileReader();
+            fr.onload = () => {
+              resolve(fr.result);
+            };
+            fr.readAsArrayBuffer(this);
+          });
+    }
+
     setVisibility(isVisible) {
         this.visibility = isVisible ? true : false;
     }
