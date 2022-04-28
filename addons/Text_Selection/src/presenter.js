@@ -249,7 +249,7 @@ function AddonText_Selection_create() {
 
     presenter.getNumberAttribute = function (et) {
         const elementNumber = parseInt($(et).attr('number'), 10);
-        const parentNumber = parseInt($(et).parent().attr('number'), 10);
+        const parentNumber = parseInt($(et).closest('span.selectable').attr('number'), 10);
 
         return isNaN(elementNumber) ? parentNumber : elementNumber;
     }
