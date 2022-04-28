@@ -248,6 +248,7 @@ function AddonParagraph_create() {
                 presenter.sendOnBlurEvent();
             });
             presenter.isEditorLoaded = true;
+            presenter.setStyles(true);
         });
 
         if(isIOSSafari()) {
@@ -703,7 +704,7 @@ function AddonParagraph_create() {
         presenter.setStyles();
     };
 
-    presenter.setStyles = function AddonParagraph_setStyles() {
+    presenter.setStyles = function AddonParagraph_setStyles(forceSetStyles) {
         if (presenter.editor == null) {
             return;
         }
@@ -712,7 +713,7 @@ function AddonParagraph_create() {
             hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
             hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
-        if (presenter.editor.dom.$("placeholder").length > 0) {
+        if (presenter.editor.dom.$("placeholder").length > 0 && !forceSetStyles) {
             return;
         }
 
