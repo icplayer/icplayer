@@ -2740,21 +2740,21 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
     }, {
         key: "downloadRecordingMLibro",
         value: function downloadRecordingMLibro() {
-            var self = this;
+            var _this2 = this;
 
             this.addonState.getMP3File().then(function (file) {
-                self.mlibroDownloadUrl = window.URL.createObjectURL(file);
+                _this2.mlibroDownloadUrl = window.URL.createObjectURL(file);
                 var data = {
-                    url: self.mlibroDownloadUrl
+                    url: _this2.mlibroDownloadUrl
                 };
                 var jsonData = JSON.stringify(data);
-                self.playerController.sendExternalEvent("FileDownload", jsonData);
+                _this2.playerController.sendExternalEvent("FileDownload", jsonData);
             });
         }
     }, {
         key: "downloadRecording",
         value: function downloadRecording() {
-            var _this2 = this;
+            var _this3 = this;
 
             var element = document.createElement("a");
             element.setAttribute("id", "dl");
@@ -2762,8 +2762,8 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
             element.setAttribute("href", "#");
 
             this.addonState.getRecordingBlob().then(function (blob) {
-                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this2._fixArrayBuffer;
-                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this2._fixArrayBuffer;
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this3._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this3._fixArrayBuffer;
 
                 return blob.arrayBuffer();
             }).then(function (arrayBuffer) {
@@ -2791,14 +2791,14 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
     }, {
         key: "_fixArrayBuffer",
         value: function _fixArrayBuffer() {
-            var _this3 = this;
+            var _this4 = this;
 
             return new Promise(function (resolve) {
                 var fr = new FileReader();
                 fr.onload = function () {
                     resolve(fr.result);
                 };
-                fr.readAsArrayBuffer(_this3);
+                fr.readAsArrayBuffer(_this4);
             });
         }
     }]);

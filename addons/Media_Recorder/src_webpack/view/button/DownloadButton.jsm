@@ -23,15 +23,13 @@ export class DownloadButton extends Button {
     }
 
     downloadRecordingMLibro() {
-        var self = this;
-
         this.addonState.getMP3File().then(file => {
-            self.mlibroDownloadUrl = window.URL.createObjectURL(file);
+            this.mlibroDownloadUrl = window.URL.createObjectURL(file);
             var data = {
-                url: self.mlibroDownloadUrl
+                url: this.mlibroDownloadUrl
             };
             var jsonData = JSON.stringify(data);
-            self.playerController.sendExternalEvent("FileDownload", jsonData);
+            this.playerController.sendExternalEvent("FileDownload", jsonData);
         })
     }
 
