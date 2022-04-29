@@ -3,15 +3,34 @@ import {BlobService} from "../../state/service/BlobService.jsm";
 
 export class DownloadButton extends Button {
 
-    constructor({$view, addonState}) {
+    constructor({$view, addonState, playerController, isMlibro}) {
         super($view);
         this.addonState = addonState;
+        this.playerController = playerController;
+        this.mlibroDownloadUrl = null;
+        this.isMlibro = isMlibro;
+        this.isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
     }
 
     _eventHandler() {
         if (this.addonState.recording) {
-            this.downloadRecording();
+            if (this.isSafari && this.isMlibro) {
+                this.downloadRecordingMLibro();
+            } else {
+                this.downloadRecording();
+            }
         }
+    }
+
+    downloadRecordingMLibro() {
+        this.addonState.getMP3File().then(file => {
+            this.mlibroDownloadUrl = window.URL.createObjectURL(file);
+            var data = {
+                url: this.mlibroDownloadUrl
+            };
+            var jsonData = JSON.stringify(data);
+            this.playerController.sendExternalEvent("FileDownload", jsonData);
+        })
     }
 
     downloadRecording() {
@@ -45,7 +64,7 @@ export class DownloadButton extends Button {
                 }
                 element.onclick = handleDownloadRecording;
                 element.click();
-            });            
+            });
         
     }
 

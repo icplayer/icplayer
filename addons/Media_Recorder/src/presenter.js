@@ -1497,7 +1497,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.model.extendedMode) {
                 this.downloadButton = new _DownloadButton.DownloadButton({
                     $view: this.viewHandlers.$downloadButtonView,
-                    addonState: this.addonState
+                    addonState: this.addonState,
+                    playerController: this.playerController,
+                    isMlibro: this.isMlibro
                 });
                 this.resetButton = new _ResetButton.ResetButton(this.viewHandlers.$resetButtonView);
                 this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
@@ -2708,13 +2710,19 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
 
     function DownloadButton(_ref) {
         var $view = _ref.$view,
-            addonState = _ref.addonState;
+            addonState = _ref.addonState,
+            playerController = _ref.playerController,
+            isMlibro = _ref.isMlibro;
 
         _classCallCheck(this, DownloadButton);
 
         var _this = _possibleConstructorReturn(this, (DownloadButton.__proto__ || Object.getPrototypeOf(DownloadButton)).call(this, $view));
 
         _this.addonState = addonState;
+        _this.playerController = playerController;
+        _this.mlibroDownloadUrl = null;
+        _this.isMlibro = isMlibro;
+        _this.isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
         return _this;
     }
 
@@ -2722,13 +2730,31 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
         key: "_eventHandler",
         value: function _eventHandler() {
             if (this.addonState.recording) {
-                this.downloadRecording();
+                if (this.isSafari && this.isMlibro) {
+                    this.downloadRecordingMLibro();
+                } else {
+                    this.downloadRecording();
+                }
             }
+        }
+    }, {
+        key: "downloadRecordingMLibro",
+        value: function downloadRecordingMLibro() {
+            var _this2 = this;
+
+            this.addonState.getMP3File().then(function (file) {
+                _this2.mlibroDownloadUrl = window.URL.createObjectURL(file);
+                var data = {
+                    url: _this2.mlibroDownloadUrl
+                };
+                var jsonData = JSON.stringify(data);
+                _this2.playerController.sendExternalEvent("FileDownload", jsonData);
+            });
         }
     }, {
         key: "downloadRecording",
         value: function downloadRecording() {
-            var _this2 = this;
+            var _this3 = this;
 
             var element = document.createElement("a");
             element.setAttribute("id", "dl");
@@ -2736,8 +2762,8 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
             element.setAttribute("href", "#");
 
             this.addonState.getRecordingBlob().then(function (blob) {
-                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this2._fixArrayBuffer;
-                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this2._fixArrayBuffer;
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this3._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this3._fixArrayBuffer;
 
                 return blob.arrayBuffer();
             }).then(function (arrayBuffer) {
@@ -2765,14 +2791,14 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
     }, {
         key: "_fixArrayBuffer",
         value: function _fixArrayBuffer() {
-            var _this3 = this;
+            var _this4 = this;
 
             return new Promise(function (resolve) {
                 var fr = new FileReader();
                 fr.onload = function () {
                     resolve(fr.result);
                 };
-                fr.readAsArrayBuffer(_this3);
+                fr.readAsArrayBuffer(_this4);
             });
         }
     }]);
@@ -3093,6 +3119,23 @@ var AddonState = exports.AddonState = function () {
             }).then(function (decodedData) {
                 var mp3Blob = _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
                 return new File([mp3Blob], "recording.mp3");
+            });
+        }
+
+        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
+        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
+
+    }, {
+        key: "_fixArrayBuffer",
+        value: function _fixArrayBuffer() {
+            var _this4 = this;
+
+            return new Promise(function (resolve) {
+                var fr = new FileReader();
+                fr.onload = function () {
+                    resolve(fr.result);
+                };
+                fr.readAsArrayBuffer(_this4);
             });
         }
     }, {
