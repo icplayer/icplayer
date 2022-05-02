@@ -1,5 +1,7 @@
 function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
+    var eventBus;
+
     presenter.editor = null;
     presenter.window = null;
     presenter.isVisibleValue = null;
@@ -9,6 +11,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.jQueryTinyMCEHTML = null;
     presenter.$tinyMCEToolbar = null;
     presenter.$TinyMCEBody = null;
+    presenter.cachedAnswer = [];
+    presenter.isShowAnswersActive = false;
     presenter.eKeyboardButtons = [];
     var checkHeightCounter = 0;
 
@@ -72,6 +76,98 @@ function AddonParagraph_Keyboard_create() {
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
+
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
+        eventBus.addEventListener('GradualShowAnswers', this);
+        eventBus.addEventListener('GradualHideAnswers', this);
+    };
+
+    presenter.onEventReceived = function (eventName, eventData) {
+        switch (eventName) {
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+
+            case "HideAnswers":
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.enableEdit = function () {
+        const paragraphKeyboard = presenter.$view.find(".paragraph-keyboard-wrapper");
+
+        if(paragraphKeyboard.hasClass('disabled')) {
+            paragraphKeyboard.removeClass('disabled');
+        }
+    }
+
+    presenter.disableEdit = function () {
+        const paragraphKeyboard = presenter.$view.find(".paragraph-keyboard-wrapper");
+
+        if(!paragraphKeyboard.hasClass('disabled')) {
+            paragraphKeyboard.addClass('disabled');
+        }
+    }
+
+    presenter.showAnswers = function () {
+        if (presenter.isShowAnswersActive) return;
+
+        const elements = presenter.getParagraphs();
+
+        presenter.disableEdit();
+        presenter.isShowAnswersActive = true;
+
+        for (let [key, value] of Object.entries(elements)) {
+            if (+key > -1) {
+                presenter.cachedAnswer.push(value.innerHTML);
+                if (+key === 0) {
+                    value.innerHTML = presenter.configuration.modelAnswer;
+                } else {
+                    value.innerHTML = '';
+                }
+            }
+        }
+    }
+
+    presenter.hideAnswers = function () {
+        const elements = presenter.getParagraphs();
+
+        presenter.enableEdit();
+        presenter.isShowAnswersActive = false;
+
+        if (presenter.cachedAnswer.length) {
+            for (let [key, value] of Object.entries(elements)) {
+                if (+key > -1) {
+                    value.innerHTML = presenter.cachedAnswer[+key];
+                }
+            }
+            presenter.cachedAnswer = [];
+        }
+    }
+
+    presenter.gradualShowAnswers = function (data) {
+        presenter.disableEdit();
+        if (data.moduleID !== presenter.configuration.ID) return;
+        presenter.showAnswers();
+    }
+
+    presenter.getParagraphs = function () {
+        const paragraph = presenter.$view.find(".paragraph-wrapper"),
+            iframe = paragraph.find("iframe"),
+            body = $(iframe).contents().find("#tinymce");
+
+        return body.find("p");
+    }
 
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
@@ -207,7 +303,8 @@ function AddonParagraph_Keyboard_create() {
             keyboardLayout = model['keyboardLayout'],
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
-            weight = model['Weight'];
+            weight = model['Weight'],
+            modelAnswer = model['Show Answers'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -271,7 +368,8 @@ function AddonParagraph_Keyboard_create() {
             error: false,
             manualGrading: manualGrading,
             title: title,
-            weight: weight
+            weight: weight,
+            modelAnswer: modelAnswer
         };
     };
 
@@ -295,6 +393,7 @@ function AddonParagraph_Keyboard_create() {
         var upgradedModel = presenter.upgradeTitle(model);
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
             upgradedModel = presenter.upgradeWeight(upgradedModel);
+            upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         return upgradedModel;
     };
 
@@ -309,6 +408,11 @@ function AddonParagraph_Keyboard_create() {
     presenter.upgradeWeight = function (model) {
         return presenter.upgradeAttribute(model, "Weight", "");
     };
+
+    presenter.upgradeModelAnswer = function (model) {
+        return presenter.upgradeAttribute(model, "Show Answers", "");
+    };
+
 
     /**
      * Initialize the addon.
@@ -733,6 +837,7 @@ function AddonParagraph_Keyboard_create() {
         var tinymceState = '';
 
         if (presenter.editor != null && presenter.editor.hasOwnProperty("id")) {
+            if (presenter.isShowAnswersActive) presenter.hideAnswers();
             tinymceState = presenter.editor.getContent({format : 'raw'});
         } else {
             tinymceState = presenter.cacheTinymceState;
@@ -784,6 +889,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.reset = function AddonParagraph_Keyboard_reset() {
         presenter.editor.setContent('');
+        presenter.setStyles();
         presenter.setVisibility(presenter.configuration.isVisible);
         if (presenter.isLocked) {
             presenter.unlock();
@@ -834,7 +940,8 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
-        var configuration = presenter.parseModel(model);
+        const configuration = presenter.parseModel(model);
+        const modelAnswer = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -847,6 +954,16 @@ function AddonParagraph_Keyboard_create() {
         $paragraph.css("right", "0px");
         $paragraph.css("height", "100%");
         $paragraph.css("border", "1px solid");
+
+        let innerText = "";
+        if (showAnswers) {
+            innerText = modelAnswer;
+        }
+        if (presenter.printableState) {
+            innerText = presenter.printableState;
+        }
+        $paragraph.html(innerText);
+
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
     };
