@@ -129,7 +129,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertEquals('<div class="text_selection"><span class="correct selectable">affection</span>full</div>', result.renderedPreview);
 
-        var expectedRun = '<div class="text_selection"><span class="selectable" number="0">affection</span>full</div>'.split('').sort().join('');
+        var expectedRun = '<div class="text_selection"><span class="selectable" number="0">affection</span><span number=\"1\">full</span></div>'.split('').sort().join('');
         assertEquals(expectedRun, result.renderedRun.split('').sort().join(''));
     },
 
@@ -248,7 +248,7 @@ TestCase("[Text Selection] Support Functions", {
 
         assertTrue(result.isValid);
         assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">some</span> text \\(\\sqrt{x^{10}}\\)</div>', result.renderedPreview);
-        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span>text<span left=\"1\" right=\"2\"> </span>\\(\\sqrt{x^{10}}\\)</div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
+        assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span><span number=\"1\">text</span><span left=\"1\" right=\"2\"> </span><span number=\"2\">\\(\\sqrt{x^{10}}\\)</span></div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
     },
 
     'test allselectable works with amp': function () {

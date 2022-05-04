@@ -566,7 +566,10 @@ function AddonConnection_create() {
     presenter.drawInitialValues = function () {
         this.lineStack.setSendEvents(false);
 
-        presenter.initialValues.forEach(presenter.drawInitialValue);
+        if (!presenter.lineStack.length()) {
+            presenter.initialValues.forEach(presenter.drawInitialValue);
+        }
+
         presenter.redraw();
 
         this.lineStack.setSendEvents(true);
@@ -648,16 +651,22 @@ function AddonConnection_create() {
         // isNotActivty may not exist
         presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity'] || 'False');
 
+        const $connectionContainer = $(".connectionContainer");
+
         if (isPreview) {
-            presenter.initializeView(view, model);
+            waitForLoad($connectionContainer, () => {
+                presenter.initializeView(view, model);
+                presenter.drawConfiguredConnections();
+            })
             presenter.removeNonVisibleInnerHTML();
-            presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
-                presenter.initializeView(view, model);
+                waitForLoad($connectionContainer, () => {
+                    presenter.initializeView(view, model);
+                    presenter.drawInitialValues();
+                    presenter.addDisabledElementsFromInitialValues();
+                })
                 presenter.registerListeners(presenter.view);
-                presenter.drawInitialValues();
-                presenter.addDisabledElementsFromInitialValues();
 
                 presenter.mathJaxLoaders.runLoader = true;
                 deferredCommandQueue.resolve();

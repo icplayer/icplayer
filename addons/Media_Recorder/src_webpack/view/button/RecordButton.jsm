@@ -1,6 +1,9 @@
 import {Button} from "./Button.jsm";
+import {CSS_CLASSES} from "../CssClasses.jsm";
 
 export class RecordButton extends Button {
+
+    _keyboardController = null;
 
     constructor({$view, state}) {
         super($view);
@@ -9,16 +12,17 @@ export class RecordButton extends Button {
 
     destroy() {
         super.destroy();
+        this._keyboardController = null;
         this.state = null;
     }
 
     reset() {
-        this.$view.removeClass("selected");
+        this.$view.removeClass(CSS_CLASSES.SELECTED);
         this.onResetCallback();
     }
 
     setUnclickView() {
-        this.$view.removeClass("selected");
+        this.$view.removeClass(CSS_CLASSES.SELECTED);
     }
 
     _eventHandler() {
@@ -29,12 +33,12 @@ export class RecordButton extends Button {
     }
 
     _startRecording() {
-        this.$view.addClass("selected");
+        this.$view.addClass(CSS_CLASSES.SELECTED);
         this.onStartRecordingCallback();
     }
 
     _stopRecording() {
-        this.$view.removeClass("selected");
+        this.$view.removeClass(CSS_CLASSES.SELECTED);
         this.onStopRecordingCallback();
     }
 
@@ -48,5 +52,9 @@ export class RecordButton extends Button {
 
     set onReset(callback) {
         this.onResetCallback = callback;
+    }
+
+    setKeyboardController(keyboardController) {
+        this._keyboardController = keyboardController;
     }
 }

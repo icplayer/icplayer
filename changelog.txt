@@ -1,4 +1,19 @@
-2022-04-19 Added Speech Text Dictionary to the Editor
+2022-05-04 Added Speech Text Dictionary to the Editor
+2022-04-26 Added File Sender addon
+2022-04-19 Fixed too many Media Recorders blocking audio in Chrome
+2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
+2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
+2022-04-06 Fixed problem with SourceList module
+2022-04-04 Fixed Limited Hide Answers not un-clicking on Limited Check
+2022-04-01 Fixed visible lines after hide and show\hide answers in Points and Lines addon
+2022-04-01 Fixed commands to bookmark and unbookmark pages not visible in Assessments_Navigation_Bar addon
+2022-04-01 Fixed Text with draggable gaps not able to fill gaps other than first with keyboard navigation.
+2022-04-01 Changed Text-selection logic on clicks outside selectable elements
+2022-04-01 Fixed Text-selection clicking between available selections with multiSelect selects both of them
+2022-04-01 Fixed incorrect width of Connections middle column when images are present
+2022-04-01 Fixed Paragraph not resetting properly during Limited Show Answers on Limited Reset
+2022-04-01 Added keyboard navigation and tts to CrossLesson module
+2022-03-29 Added keyboard navigation and TTS to Media Recorder
 2022-03-14 Fixed video speed controls adding whenever reset was called
 2022-03-14 Added TTS to Table of Contents
 2022-03-04 Added SrtParser to commons. Added audio narration loading from SRT File to AddonAudio addon
