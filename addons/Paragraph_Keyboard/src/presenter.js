@@ -103,6 +103,10 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
+
     presenter.enableEdit = function () {
         const paragraphKeyboard = presenter.$view.find(".paragraph-keyboard-wrapper");
 
