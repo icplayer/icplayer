@@ -838,9 +838,9 @@ public class PlayerController implements IPlayerController {
 		for (int i = 0; i < pageCount; i++) {
 			IPage page = this.getModel().getPage(i);
 			if (!visitedPages.contains(page)) {
-                visitedPages.add(page);
-                PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
-                scoreService.setPageScore(page, newPageScore);
+                		visitedPages.add(page);
+				PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
+				scoreService.setPageScore(page, newPageScore);
 			}
 		}
 	}
