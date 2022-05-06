@@ -18,5 +18,6 @@
 		<property name="Marked row index" nameLabel="crossword_property_marked_row_index" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="crossword_property_block_wrong_answers" type="boolean" />
 		<property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
+        <property name="autoNavigation" displayName="Auto navigation" nameLabel="crossword_property_auto_navigation" type="{Extended, Simple, Off}"/>
 	</model>
 </addon>
