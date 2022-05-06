@@ -1,0 +1,19 @@
+.ui-dialog > .ui-dialog-titlebar.automatic_feedback_tooltip_title {
+    width: 1em;
+    padding-top: 0.2em;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    padding-bottom: 0.2em;
+    position: absolute;
+    right: 0.3em;
+    z-index: 999;
+}
+
+.ui-dialog > .ui-dialog-content.automatic_feedback_tooltip_body {
+    padding-right: 2.5em;
+}
+
+.automatic_feedback_button {
+    width: 1.5em;
+    height: 1.5em;
+}
