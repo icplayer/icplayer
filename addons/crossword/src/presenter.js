@@ -258,11 +258,11 @@ function Addoncrossword_create(){
         currentCellInput.value = currentCellInput.value.toUpperCase();
 
         if ($currentCellInput.val() && enableMoveToNextField) {
-            handleMoveToNextField(currentCellInput);
+            handleAutoNavigationMove(currentCellInput);
         }
     };
 
-    function handleMoveToNextField(currentCellInput) {
+    function handleAutoNavigationMove(currentCellInput) {
         enableMoveToNextField = false;
 
         if (presenter.blockWrongAnswers) {
@@ -271,9 +271,11 @@ function Addoncrossword_create(){
             if (!isCorrectValue) return;
         }
 
-        presenter.analyzeDirectionOfMove(currentCellInput);
-        presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
-        presenter.moveInCurrentDirection(currentCellInput);
+        if (!presenter.isAutoNavigationInOffMode()) {
+            presenter.analyzeDirectionOfMove(currentCellInput);
+            presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
+            presenter.moveInCurrentDirection(currentCellInput);
+        }
     }
 
     presenter.validateIsCorrectValueInCellInput = function (currentCellInput) {
@@ -549,9 +551,7 @@ function Addoncrossword_create(){
         }
 
         $target.css('color', 'rgba(0,0,0,0.0)');
-        if (!presenter.isAutoNavigationInOffMode()) {
-            enableMoveToNextField = true;
-        }
+        enableMoveToNextField = true;
     };
 
     presenter.onCellInputFocus = function(event) {
