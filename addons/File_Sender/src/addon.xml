@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='File_Sender' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="SourceId" nameLabel="File_Sender_property_source_id" type="string" isLocalized="true" />
+		<property name="SourceType" nameLabel="File_Sender_property_source_type" type="{File, Paragraph, Media Recorder}" isLocalized="true" />
+		<property name="ButtonText" nameLabel="File_Sender_property_button_text" type="string" isLocalized="true" />
+		<property name="DialogTitle" nameLabel="File_Sender_property_dialog_title" type="string" isLocalized="true" />
+		<property name="disableSendButton" type="boolean" nameLabel="File_Sender_property_disable_send_button" />
+	</model>
+</addon>

@@ -1,4 +1,8 @@
-2022-04-25 Fixed not working properly TTS in Text Selection addon when langAttribute not defined
+2022-05-06 Fixed not working properly TTS in Text Selection addon when langAttribute not defined
+2022-05-06 Fixed Text-selection not working properly with text formatting
+2022-05-06 Added Audio support to Choice Addon
+2022-04-26 Added File Sender addon
+2022-04-19 Fixed too many Media Recorders blocking audio in Chrome
 2022-04-12 Added ability to define CSS classes for Assessments navigation bar addon sections
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
 2022-04-06 Fixed problem with SourceList module

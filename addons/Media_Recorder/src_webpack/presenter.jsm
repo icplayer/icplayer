@@ -23,6 +23,14 @@ function AddonMedia_Recorder_create() {
         handleDestroyEvent(view);
     };
 
+    presenter.isEmpty = function isEmpty() {
+        return presenter.mediaRecorder.isEmpty();
+    };
+
+    presenter.getMP3File = function getMP3File() {
+        return presenter.mediaRecorder.getMP3File();
+    }
+
     presenter.getState = function getState() {
         return presenter.mediaRecorder.getState();
     };
