@@ -23,6 +23,7 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
 
     'test default configuration': function () {
         var expected = {
+            mouseDontMoveOnPlaybackRate:10,
             mouseDontMoveClocks: 30,
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 0,
@@ -40,6 +41,7 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
         var divElement = document.createElement("div");
 
         var expected = {
+            mouseDontMoveOnPlaybackRate:10,
             mouseDontMoveClocks: 40,
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 7,
