@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<textModule id="text" left='5' top='10' width='80.0' height='40.0' class="myText">
+	<text isCaseSensitive="true">
+        &lt;p&gt;Without gaps.&lt;/p&gt;
+        &lt;p&gt;A dropdown gap: {{1:option 1|option 2|option 3}}.&lt;/p&gt;
+        &lt;p&gt;An editable or a draggable gap: \gap{answer}.&lt;/p&gt;
+        &lt;p&gt;A gap with 2 correct options: \gap{blue|navy}.&lt;/p&gt;
+        &lt;p&gt;This is a filled gap: \filledGap{initial text|answer}&lt;/p&gt;
+        &lt;p&gt;\audio{/file/serve/5552679749156864}&lt;/p&gt;
+        &lt;p&gt; \audio{/file/serve/5552679749156864}&lt;/p&gt;
+        &lt;p&gt;Text and audio: \audio{/file/serve/5552679749156864}. AAAA&lt;/p&gt;
+	</text>
+</textModule>

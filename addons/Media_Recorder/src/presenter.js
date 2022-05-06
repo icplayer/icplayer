@@ -60,11 +60,46 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var CSS_CLASSES = exports.CSS_CLASSES = {
+    PLAYER_WRAPPER: "media-recorder-player-wrapper",
+    PLAYER_LOADER: "media-recorder-player-loader",
+    AUDIO_LOADER: "audio-loader",
+    WRAPPER: "media-recorder-wrapper",
+    WRAPPER_BROWSER_NOT_SUPPORTED: "media-recorder-wrapper-browser-not-supported",
+    DEFAULT_RECORDING_PLAY_BUTTON: "media-recorder-default-recording-play-button",
+    RECORDING_BUTTON: "media-recorder-recording-button",
+    PLAY_BUTTON: "media-recorder-play-button",
+    RESET_BUTTON: "media-recorder-reset-button",
+    DOWNLOAD_BUTTON: "media-recorder-download-button",
+    PROGRESS_BAR: "media-recorder-progress-bar",
+    PROGRESS_BAR_SLIDER: "media-recorder-progress-bar-slider",
+    TIMER: "media-recorder-timer",
+    SOUND_INTENSITY: "media-recorder-sound-intensity",
+    DOTTED_SOUND_INTENSITY: "media-recorder-dotted-sound-intensity",
+    TALL_DOT: "tall-dot",
+    SHORT_DOT: "short-dot",
+    SOUND_INTENSITY_DOT: "sound-intensity-dot",
+    RESET_DIALOG: "media-recorder-reset-dialog",
+    DIALOG_TEXT: "dialog-text",
+    CONFIRM_BUTTON: "confirm-button",
+    DENY_BUTTON: "deny-button",
+    EXTENDED_MODE: "extended-mode",
+    SELECTED: "selected",
+    DISABLED: "disabled"
+};
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -122,8 +157,8 @@ var Button = exports.Button = function () {
 }();
 
 /***/ }),
-/* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -135,7 +170,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -154,6 +191,8 @@ var RecordButton = exports.RecordButton = function (_Button) {
 
         var _this = _possibleConstructorReturn(this, (RecordButton.__proto__ || Object.getPrototypeOf(RecordButton)).call(this, $view));
 
+        _this._keyboardController = null;
+
         _this.state = state;
         return _this;
     }
@@ -162,18 +201,19 @@ var RecordButton = exports.RecordButton = function (_Button) {
         key: "destroy",
         value: function destroy() {
             _get(RecordButton.prototype.__proto__ || Object.getPrototypeOf(RecordButton.prototype), "destroy", this).call(this);
+            this._keyboardController = null;
             this.state = null;
         }
     }, {
         key: "reset",
         value: function reset() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onResetCallback();
         }
     }, {
         key: "setUnclickView",
         value: function setUnclickView() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
         }
     }, {
         key: "_eventHandler",
@@ -183,14 +223,19 @@ var RecordButton = exports.RecordButton = function (_Button) {
     }, {
         key: "_startRecording",
         value: function _startRecording() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartRecordingCallback();
         }
     }, {
         key: "_stopRecording",
         value: function _stopRecording() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopRecordingCallback();
+        }
+    }, {
+        key: "setKeyboardController",
+        value: function setKeyboardController(keyboardController) {
+            this._keyboardController = keyboardController;
         }
     }, {
         key: "onStartRecording",
@@ -213,7 +258,7 @@ var RecordButton = exports.RecordButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -276,7 +321,10 @@ var BlobService = exports.BlobService = function () {
         key: "getMp3BlobFromDecodedData",
         value: function getMp3BlobFromDecodedData(decodedData) {
             var left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
-            var right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
+            var right = left;
+            if (decodedData.numberOfChannels === 2) {
+                right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
+            }
 
             return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
         }
@@ -330,14 +378,17 @@ var BlobService = exports.BlobService = function () {
 }();
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.SoundIntensity = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -490,7 +541,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
             for (var currentLevel = 1; currentLevel <= intensity; currentLevel++) {
                 var levelId = "#sound-intensity-" + currentLevel;
                 var $level = this.$view.find(levelId);
-                $level.addClass("selected");
+                $level.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             }
         }
     }, {
@@ -499,7 +550,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
             for (var currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
                 var levelId = "#sound-intensity-" + currentLevel;
                 var $level = this.$view.find(levelId);
-                $level.removeClass("selected");
+                $level.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             }
         }
     }]);
@@ -508,8 +559,384 @@ var SoundIntensity = exports.SoundIntensity = function () {
 }();
 
 /***/ }),
-/* 5 */,
-/* 6 */,
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.BaseKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BaseKeyboardController = exports.BaseKeyboardController = function (_KeyboardController) {
+    _inherits(BaseKeyboardController, _KeyboardController);
+
+    function BaseKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
+        _classCallCheck(this, BaseKeyboardController);
+
+        var _this = _possibleConstructorReturn(this, (BaseKeyboardController.__proto__ || Object.getPrototypeOf(BaseKeyboardController)).call(this, elements, columnsCount));
+
+        _this._isRecording = false;
+        _this.DEFAULT_TTS_PHRASES = {
+            DEFAULT_RECORDING_PLAY_BUTTON: "Default recording play button",
+            RECORDING_BUTTON: "Recording button",
+            PLAY_BUTTON: "Play button",
+            RESET_BUTTON: "Reset button",
+            DOWNLOAD_BUTTON: "Download button",
+            RESET_DIALOG: "Reset dialog",
+            START_RECORDING: "Start recording",
+            STOP_RECORDING: "Stop recording",
+            DISABLED: "Disabled"
+        };
+
+
+        if (_this.constructor === BaseKeyboardController) throw new Error("Cannot create an instance of KeyboardController abstract class");
+
+        _this._langTag = model.langAttribute;
+        _this._mediaState = mediaState;
+        _this._activationState = activationState;
+        _this._speak = speak;
+        _this._speakAndExecuteCallback = speakAndExecuteCallback;
+        return _this;
+    }
+
+    _createClass(BaseKeyboardController, [{
+        key: "setSpeechTexts",
+        value: function setSpeechTexts(speechTexts) {
+            this.speechTexts = {
+                DefaultRecordingPlayButton: this.DEFAULT_TTS_PHRASES.DEFAULT_RECORDING_PLAY_BUTTON,
+                RecordingButton: this.DEFAULT_TTS_PHRASES.RECORDING_BUTTON,
+                PlayButton: this.DEFAULT_TTS_PHRASES.PLAY_BUTTON,
+                ResetButton: this.DEFAULT_TTS_PHRASES.RESET_BUTTON,
+                DownloadButton: this.DEFAULT_TTS_PHRASES.DOWNLOAD_BUTTON,
+                ResetDialog: this.DEFAULT_TTS_PHRASES.RESET_DIALOG,
+                StartRecording: this.DEFAULT_TTS_PHRASES.START_RECORDING,
+                StopRecording: this.DEFAULT_TTS_PHRASES.STOP_RECORDING,
+                Disabled: this.DEFAULT_TTS_PHRASES.DISABLED
+            };
+
+            if (!speechTexts || $.isEmptyObject(speechTexts)) {
+                return;
+            };
+
+            this.speechTexts = {
+                DefaultRecordingPlayButton: TTSUtils.getSpeechTextProperty(speechTexts.DefaultRecordingPlayButton.DefaultRecordingPlayButton, this.speechTexts.DefaultRecordingPlayButton),
+                RecordingButton: TTSUtils.getSpeechTextProperty(speechTexts.RecordingButton.RecordingButton, this.speechTexts.RecordingButton),
+                PlayButton: TTSUtils.getSpeechTextProperty(speechTexts.PlayButton.PlayButton, this.speechTexts.PlayButton),
+                ResetButton: TTSUtils.getSpeechTextProperty(speechTexts.ResetButton.ResetButton, this.speechTexts.ResetButton),
+                DownloadButton: TTSUtils.getSpeechTextProperty(speechTexts.DownloadButton.DownloadButton, this.speechTexts.DownloadButton),
+                ResetDialog: TTSUtils.getSpeechTextProperty(speechTexts.ResetDialog.ResetDialog, this.speechTexts.ResetDialog),
+                StartRecording: TTSUtils.getSpeechTextProperty(speechTexts.StartRecording.StartRecording, this.speechTexts.StartRecording),
+                StopRecording: TTSUtils.getSpeechTextProperty(speechTexts.StopRecording.StopRecording, this.speechTexts.StopRecording),
+                Disabled: TTSUtils.getSpeechTextProperty(speechTexts.Disabled.Disabled, this.speechTexts.Disabled)
+            };
+        }
+    }, {
+        key: "getTarget",
+        value: function getTarget(element, willBeClicked) {
+            return $(element);
+        }
+    }, {
+        key: "switchElement",
+        value: function switchElement(move) {
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "switchElement", this).call(this, move);
+            if (!this._isCurrentElementNotDisplayed()) {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "nextElement",
+        value: function nextElement(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(1);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextElement();
+            }
+        }
+    }, {
+        key: "previousElement",
+        value: function previousElement(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(-1);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.previousElement();
+            }
+        }
+    }, {
+        key: "nextRow",
+        value: function nextRow(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(this.columnsCount);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextRow();
+            }
+        }
+    }, {
+        key: "previousRow",
+        value: function previousRow(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(-this.columnsCount);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.previousRow();
+            }
+        }
+    }, {
+        key: "enter",
+        value: function enter(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (!this.keyboardNavigationActive) {
+                this._performFirstEnterEvent();
+            } else {
+                this._performNotFirstEnterEvent();
+            }
+        }
+    }, {
+        key: "_performFirstEnterEvent",
+        value: function _performFirstEnterEvent() {
+            this.keyboardNavigationActive = true;
+
+            if (this._isKeyboardNavigationBlocked()) {
+                this._markActiveElement();
+            } else {
+                this._markAndReadFirstDisplayedElement();
+            }
+        }
+    }, {
+        key: "_markActiveElement",
+        value: function _markActiveElement() {
+            if (this._mediaState.isPlayingDefaultRecording()) {
+                this.markDefaultRecordingPlayButton();
+            } else if (this._mediaState.isRecording() || this._isRecording) {
+                this.markRecordingButton();
+            } else if (this._mediaState.isPlaying()) {
+                this.markPlayButton();
+            }
+        }
+    }, {
+        key: "markDefaultRecordingPlayButton",
+        value: function markDefaultRecordingPlayButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "_markAndReadFirstDisplayedElement",
+        value: function _markAndReadFirstDisplayedElement() {
+            this.markCurrentElement(0);
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextElement();
+            } else {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "_performNotFirstEnterEvent",
+        value: function _performNotFirstEnterEvent() {
+            if (!this._isKeyboardNavigationBlocked()) {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "select",
+        value: function select(event) {
+            if (this._isAddonDisabled() && !this._getCurrentElement().hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                var textVoiceObject = [];
+
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+
+                this._speak(textVoiceObject);
+            }
+
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "select", this).call(this, event);
+        }
+    }, {
+        key: "exitWCAGMode",
+        value: function exitWCAGMode() {
+            this._isRecording = false;
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "exitWCAGMode", this).call(this);
+        }
+    }, {
+        key: "_isAddonDisabled",
+        value: function _isAddonDisabled() {
+            return this._activationState.isInactive();
+        }
+    }, {
+        key: "_isKeyboardNavigationBlocked",
+        value: function _isKeyboardNavigationBlocked() {
+            return this._mediaState.isPlayingDefaultRecording() || this._mediaState.isRecording() || this._mediaState.isPlaying() || this._isRecording;
+        }
+    }, {
+        key: "_isCurrentElementNotDisplayed",
+        value: function _isCurrentElementNotDisplayed() {
+            return this._getCurrentElement().style("display") === "none";
+        }
+    }, {
+        key: "_getCurrentElement",
+        value: function _getCurrentElement() {
+            return this.getTarget(this.keyboardNavigationCurrentElement, false);
+        }
+    }, {
+        key: "readCurrentElement",
+        value: function readCurrentElement() {
+            this.readElement(this.keyboardNavigationCurrentElement);
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "_speakRecordingButtonTTS",
+        value: function _speakRecordingButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.RecordingButton);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakPlayButtonTTS",
+        value: function _speakPlayButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.PlayButton);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "onStartRecording",
+        value: function onStartRecording(callbackFunction) {
+            this._isRecording = true;
+            this._speakStartRecordingTTS(callbackFunction);
+        }
+    }, {
+        key: "onStartRecordingWhenSoundEffect",
+        value: function onStartRecordingWhenSoundEffect() {
+            this._isRecording = true;
+        }
+    }, {
+        key: "_speakStartRecordingTTS",
+        value: function _speakStartRecordingTTS(callbackFunction) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StartRecording);
+
+            this._speakAndExecuteCallback(textVoiceObject, callbackFunction);
+        }
+    }, {
+        key: "onStopRecording",
+        value: function onStopRecording() {
+            this._isRecording = false;
+            this._speakStopRecordingTTS();
+        }
+    }, {
+        key: "onStopRecordingWhenSoundEffect",
+        value: function onStopRecordingWhenSoundEffect() {
+            this._isRecording = false;
+        }
+    }, {
+        key: "_speakStopRecordingTTS",
+        value: function _speakStopRecordingTTS() {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StopRecording);
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushDisabledMessageToTextVoiceObject",
+        value: function _pushDisabledMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObjectWithLanguageFromLesson",
+        value: function _pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+            this._pushMessageToTextVoiceObject(textVoiceObject, message, false);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObjectWithLanguageFromPresenter",
+        value: function _pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+            this._pushMessageToTextVoiceObject(textVoiceObject, message, true);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObject",
+        value: function _pushMessageToTextVoiceObject(textVoiceObject, message) {
+            var usePresenterLangTag = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+            if (usePresenterLangTag) {
+                textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, this._langTag));
+            } else {
+                textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+            }
+        }
+    }]);
+
+    return BaseKeyboardController;
+}(KeyboardController);
+
+/***/ }),
 /* 7 */,
 /* 8 */,
 /* 9 */,
@@ -517,10 +944,12 @@ var SoundIntensity = exports.SoundIntensity = function () {
 /* 11 */,
 /* 12 */,
 /* 13 */,
-/* 14 */
+/* 14 */,
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _MediaRecorder = __webpack_require__(15);
+var _MediaRecorder = __webpack_require__(17);
 
 function AddonMedia_Recorder_create() {
 
@@ -542,6 +971,14 @@ function AddonMedia_Recorder_create() {
         presenter.view = view;
         presenter.mediaRecorder.createPreview(view, model);
         handleDestroyEvent(view);
+    };
+
+    presenter.isEmpty = function isEmpty() {
+        return presenter.mediaRecorder.isEmpty();
+    };
+
+    presenter.getMP3File = function getMP3File() {
+        return presenter.mediaRecorder.getMP3File();
     };
 
     presenter.getState = function getState() {
@@ -598,6 +1035,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.activate();
     };
 
+    presenter.setWCAGStatus = function (isWCAGOn) {
+        presenter.mediaRecorder.setWCAGStatus(isWCAGOn);
+    };
+
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
     };
@@ -608,6 +1049,10 @@ function AddonMedia_Recorder_create() {
 
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
+    };
+
+    presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+        presenter.mediaRecorder.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.executeCommand = function executeCommand(name, params) {
@@ -656,7 +1101,7 @@ function AddonMedia_Recorder_create() {
 window.AddonMedia_Recorder_create = AddonMedia_Recorder_create;
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -666,53 +1111,59 @@ exports.MediaRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _validateModel = __webpack_require__(16);
+var _validateModel = __webpack_require__(18);
 
-var _ActivationState = __webpack_require__(18);
+var _ActivationState = __webpack_require__(20);
 
-var _MediaState = __webpack_require__(19);
+var _MediaState = __webpack_require__(21);
 
-var _Errors = __webpack_require__(20);
+var _Errors = __webpack_require__(22);
 
-var _PlayButton = __webpack_require__(21);
+var _PlayButton = __webpack_require__(23);
 
-var _RecordButton = __webpack_require__(2);
+var _RecordButton = __webpack_require__(3);
 
-var _ResetButton = __webpack_require__(22);
+var _ResetButton = __webpack_require__(24);
 
-var _ResetDialog = __webpack_require__(23);
+var _ResetDialog = __webpack_require__(25);
 
-var _DownloadButton = __webpack_require__(24);
+var _DownloadButton = __webpack_require__(26);
 
-var _Timer = __webpack_require__(25);
+var _Timer = __webpack_require__(27);
 
-var _ProgressBar = __webpack_require__(26);
+var _ProgressBar = __webpack_require__(28);
 
-var _AddonState = __webpack_require__(27);
+var _AddonState = __webpack_require__(29);
 
-var _RecordingTimeLimiter = __webpack_require__(28);
+var _RecordingTimeLimiter = __webpack_require__(30);
 
-var _SoundIntensity = __webpack_require__(4);
+var _SoundIntensity = __webpack_require__(5);
 
-var _DottedSoundIntensity = __webpack_require__(29);
+var _DottedSoundIntensity = __webpack_require__(31);
 
-var _MediaAnalyserService = __webpack_require__(30);
+var _MediaAnalyserService = __webpack_require__(32);
 
-var _AudioLoader = __webpack_require__(32);
+var _AudioLoader = __webpack_require__(34);
 
-var _SoundEffect = __webpack_require__(34);
+var _SoundEffect = __webpack_require__(36);
 
-var _RecordButtonSoundEffect = __webpack_require__(35);
+var _RecordButtonSoundEffect = __webpack_require__(37);
 
-var _AddonViewService = __webpack_require__(36);
+var _AddonViewService = __webpack_require__(38);
 
-var _AudioResourcesProvider = __webpack_require__(37);
+var _AudioResourcesProvider = __webpack_require__(39);
 
-var _AudioRecorder = __webpack_require__(39);
+var _AudioRecorder = __webpack_require__(41);
 
-var _AudioPlayer = __webpack_require__(42);
+var _AudioPlayer = __webpack_require__(44);
 
-var _DefaultRecordingPlayButton = __webpack_require__(45);
+var _DefaultRecordingPlayButton = __webpack_require__(47);
+
+var _DefaultKeyboardController = __webpack_require__(48);
+
+var _ExtendedKeyboardController = __webpack_require__(49);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -722,6 +1173,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
         this.enableAnalyser = true;
         this.isMlibro = false;
+        this.isWCAGOn = false;
+        this.keyboardControllerObject = null;
     }
 
     _createClass(MediaRecorder, [{
@@ -740,6 +1193,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
             } else if (validatedModel.isValid) this._runAddon(view, validatedModel.value);else this._showError(view, validatedModel);
 
             this._executeNotification(JSON.stringify({ type: "platform", target: this.model.ID }));
+            this._buildKeyboardController();
+            this.keyboardControllerObject.setSpeechTexts(upgradedModel['speechTexts']);
+            this.recordButton.setKeyboardController(this.keyboardControllerObject);
         }
     }, {
         key: "createPreview",
@@ -760,6 +1216,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (context != null && "ismLibro" in context) {
                 this.isMlibro = context["ismLibro"];
             }
+        }
+    }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.addonState.isEmpty();
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            return this.addonState.getMP3File();
         }
     }, {
         key: "getState",
@@ -852,6 +1318,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.extendedModeButtonList = null;
 
             this.playerController = null;
+            this.keyboardControllerObject = null;
             this.view = null;
             this.model = null;
         }
@@ -961,26 +1428,26 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "_loadViewHandlers",
         value: function _loadViewHandlers(view) {
             return {
-                $wrapperView: $(view).find(".media-recorder-wrapper"),
-                $playerView: $(view).find(".media-recorder-player-wrapper"),
-                $loaderView: $(view).find(".media-recorder-player-loader"),
-                $defaultRecordingPlayButtonView: $(view).find(".media-recorder-default-recording-play-button"),
-                $recordButtonView: $(view).find(".media-recorder-recording-button"),
-                $playButtonView: $(view).find(".media-recorder-play-button"),
-                $timerView: $(view).find(".media-recorder-timer"),
-                $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
-                $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
-                $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
-                $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
-                $resetButtonView: $(view).find(".media-recorder-reset-button"),
-                $downloadButtonView: $(view).find(".media-recorder-download-button"),
-                $resetDialogView: $(view).find(".media-recorder-reset-dialog")
+                $wrapperView: $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER),
+                $playerView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAYER_WRAPPER),
+                $loaderView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAYER_LOADER),
+                $defaultRecordingPlayButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON),
+                $recordButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON),
+                $playButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAY_BUTTON),
+                $timerView: $(view).find("." + _CssClasses.CSS_CLASSES.TIMER),
+                $soundIntensityView: $(view).find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY),
+                $dottedSoundIntensityView: $(view).find("." + _CssClasses.CSS_CLASSES.DOTTED_SOUND_INTENSITY),
+                $progressBarWrapperView: $(view).find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR),
+                $progressBarSliderView: $(view).find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR_SLIDER),
+                $resetButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.RESET_BUTTON),
+                $downloadButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON),
+                $resetDialogView: $(view).find("." + _CssClasses.CSS_CLASSES.RESET_DIALOG)
             };
         }
     }, {
         key: "_prepareExtendedModeView",
         value: function _prepareExtendedModeView() {
-            this.viewHandlers.$wrapperView.addClass('extended-mode');
+            this.viewHandlers.$wrapperView.addClass(_CssClasses.CSS_CLASSES.EXTENDED_MODE);
             this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
         }
     }, {
@@ -1186,6 +1653,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.model.extendedMode) {
                 this.resetButton.onReset = function () {
                     _this2.resetDialog.open();
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForResetDialogKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markDialogTextAndReadResetDialogTTS();
+                    }
                 };
                 this.resetDialog.onConfirm = function () {
                     _this2.timer.startCountdown();
@@ -1194,6 +1665,18 @@ var MediaRecorder = exports.MediaRecorder = function () {
                         _this2.setEMDefaultStateView();
                     }
                     _this2.progressBar.setProgress(0.0);
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markRecordingButton();
+                        _this2.keyboardControllerObject.readCurrentElement();
+                    }
+                };
+                this.resetDialog.onDeny = function () {
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markResetButton();
+                        _this2.keyboardControllerObject.readCurrentElement();
+                    }
                 };
 
                 this.progressBar.onStartDragging = function () {
@@ -1377,14 +1860,32 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "_stopRecordButton",
+        value: function _stopRecordButton() {
+            if (this.model.isResetRemovesRecording) {
+                this.recordButton.reset();
+            } else {
+                this.recordButton.forceClick();
+            }
+        }
+    }, {
         key: "_stopActions",
         value: function _stopActions() {
-            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
+            if (this.mediaState.isRecording()) {
+                this._stopRecordButton();
+            }
+            if (this.mediaState.isPlaying()) {
+                this.playButton.forceClick();
+            }
+            if (this.mediaState.isPlayingDefaultRecording()) {
+                this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.model.isResetRemovesRecording) {
                 this.resetRecording();
-            } else this.recordButton.forceClick();
-            if (this.mediaState.isPlaying()) this.playButton.forceClick();
-            if (this.mediaState.isPlayingDefaultRecording()) this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.mediaState.isLoaded()) {
+                this.timer.setTime(0);
+            }
         }
     }, {
         key: "_internalElements",
@@ -1411,20 +1912,20 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "_showBrowserError",
         value: function _showBrowserError(view) {
-            var $wrapper = $(view).find(".media-recorder-wrapper");
-            $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
+            var $wrapper = $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER);
+            $wrapper.addClass(_CssClasses.CSS_CLASSES.WRAPPER_BROWSER_NOT_SUPPORTED);
             $wrapper.text(_Errors.Errors["not_supported_browser"] + window.DevicesUtils.getBrowserVersion());
         }
     }, {
         key: "_updatePreview",
         value: function _updatePreview(view, validatedModel) {
             var valid_model = validatedModel.value;
-            var timerViewHandler = $(view).find(".media-recorder-timer");
-            var defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
-            var $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
-            var intensityView = $(view).find(".media-recorder-sound-intensity");
-            var dottedSoundIntensityView = $(view).find(".media-recorder-dotted-sound-intensity");
-            var playButton = $(view).find('.media-recorder-play-button');
+            var timerViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.TIMER);
+            var defaultButtonViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON);
+            var $wrapperViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER);
+            var intensityView = $(view).find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY);
+            var dottedSoundIntensityView = $(view).find("." + _CssClasses.CSS_CLASSES.DOTTED_SOUND_INTENSITY);
+            var playButton = $(view).find("." + _CssClasses.CSS_CLASSES.PLAY_BUTTON);
 
             if (valid_model.extendedMode) {
                 intensityView.css('display', 'none');
@@ -1432,7 +1933,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 dottedSoundIntensityView.css('display', '');
                 defaultButtonViewHandler.hide();
                 timerViewHandler.text('00:00');
-                $wrapperViewHandler.addClass('extended-mode');
+                $wrapperViewHandler.addClass(_CssClasses.CSS_CLASSES.EXTENDED_MODE);
             } else {
                 intensityView.css('display', '');
                 dottedSoundIntensityView.css('display', 'none');
@@ -1559,6 +2060,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
             upgradedModel = this._upgradeResetDialog(upgradedModel);
             upgradedModel = this._upgradeDisableRecording(upgradedModel);
             upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
+            upgradedModel = this._upgradeLangTag(upgradedModel);
+            upgradedModel = this._upgradeSpeechTexts(upgradedModel);
             return upgradedModel;
         }
     }, {
@@ -1637,13 +2140,123 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             return upgradedModel;
         }
+    }, {
+        key: "_upgradeLangTag",
+        value: function _upgradeLangTag(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["langAttribute"]) {
+                upgradedModel["langAttribute"] = "";
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeSpeechTexts",
+        value: function _upgradeSpeechTexts(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["speechTexts"]) {
+                upgradedModel["speechTexts"] = {};
+            }
+            if (!upgradedModel["speechTexts"]["DefaultRecordingPlayButton"]) {
+                upgradedModel["speechTexts"]["DefaultRecordingPlayButton"] = { DefaultRecordingPlayButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["RecordingButton"]) {
+                upgradedModel["speechTexts"]["RecordingButton"] = { RecordingButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["PlayButton"]) {
+                upgradedModel["speechTexts"]["PlayButton"] = { PlayButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["ResetButton"]) {
+                upgradedModel["speechTexts"]["ResetButton"] = { ResetButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["DownloadButton"]) {
+                upgradedModel["speechTexts"]["DownloadButton"] = { DownloadButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["ResetDialog"]) {
+                upgradedModel["speechTexts"]["ResetDialog"] = { ResetDialog: "" };
+            }
+            if (!upgradedModel["speechTexts"]["StartRecording"]) {
+                upgradedModel["speechTexts"]["StartRecording"] = { StartRecording: "" };
+            }
+            if (!upgradedModel["speechTexts"]["StopRecording"]) {
+                upgradedModel["speechTexts"]["StopRecording"] = { StopRecording: "" };
+            }
+            if (!upgradedModel["speechTexts"]["Disabled"]) {
+                upgradedModel["speechTexts"]["Disabled"] = { Disabled: "" };
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "setWCAGStatus",
+        value: function setWCAGStatus(isWCAGOn) {
+            this.isWCAGOn = isWCAGOn;
+        }
+    }, {
+        key: "_buildKeyboardController",
+        value: function _buildKeyboardController() {
+            var columnsCount = 1;
+            var model = this.model;
+            var mediaState = this.mediaState;
+            var activationState = this.activationState;
+            var speak = this._speak.bind(this);
+            var speakAndExecuteCallback = this._speakAndExecuteCallback.bind(this);
+
+            if (this.model.extendedMode) {
+                this.keyboardControllerObject = new _ExtendedKeyboardController.ExtendedKeyboardController(this._getElementsForExtendedKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
+            } else {
+                this.keyboardControllerObject = new _DefaultKeyboardController.DefaultKeyboardController(this._getElementsForDefaultKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
+            }
+        }
+    }, {
+        key: "getKeyboardController",
+        value: function getKeyboardController() {
+            return this.keyboardControllerObject;
+        }
+    }, {
+        key: "_getElementsForDefaultKeyboardNavigation",
+        value: function _getElementsForDefaultKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.PLAY_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_getElementsForExtendedKeyboardNavigation",
+        value: function _getElementsForExtendedKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.PLAY_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.RESET_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_getElementsForResetDialogKeyboardNavigation",
+        value: function _getElementsForResetDialogKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.DIALOG_TEXT + ",\n            ." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.DENY_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_speak",
+        value: function _speak(data) {
+            var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+            if (tts && this.isWCAGOn) {
+                tts.speak(data);
+            }
+        }
+    }, {
+        key: "_speakAndExecuteCallback",
+        value: function _speakAndExecuteCallback(data, callbackFunction) {
+            var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+            if (tts && this.isWCAGOn) {
+                tts.speakWithCallback(data, callbackFunction);
+            } else {
+                callbackFunction();
+            }
+        }
     }]);
 
     return MediaRecorder;
 }();
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1651,7 +2264,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateModel = validateModel;
 
-var _DefaultValues = __webpack_require__(17);
+var _DefaultValues = __webpack_require__(19);
 
 function validateModel(model) {
     var modelValidator = new ModelValidator();
@@ -1673,11 +2286,14 @@ function validateModel(model) {
         'resetDialogText': [ModelValidators.String('resetDialogLabel', { default: 'Are you sure you want to reset the recording?' })],
         'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', { default: 'Yes' })],
         'resetDialogDeny': [ModelValidators.String('resetDialogLabel', { default: 'No' })]
+    }), ModelValidators.String("langAttribute", {
+        trim: true,
+        default: ""
     })]);
 }
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1689,7 +2305,7 @@ var DefaultValues = exports.DefaultValues = {
 };
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1744,7 +2360,7 @@ var ActivationState = exports.ActivationState = function () {
 }();
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1876,7 +2492,7 @@ var MediaState = exports.MediaState = function () {
 }();
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1892,7 +2508,7 @@ var Errors = exports.Errors = {
 };
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1904,7 +2520,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1941,13 +2559,13 @@ var PlayButton = exports.PlayButton = function (_Button) {
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartPlayingCallback();
         }
     }, {
         key: "_stopPlaying",
         value: function _stopPlaying() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopPlayingCallback();
         }
     }, {
@@ -1966,7 +2584,7 @@ var PlayButton = exports.PlayButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1976,7 +2594,7 @@ exports.ResetButton = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2011,14 +2629,17 @@ var ResetButton = exports.ResetButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 23 */
-/***/ (function(module, exports) {
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ResetDialog = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2050,16 +2671,16 @@ var ResetDialog = exports.ResetDialog = function () {
     }, {
         key: '_createView',
         value: function _createView() {
-            this.$view.find('.dialog-text').text(this.labels.text);
-            this.$view.find('.confirm-button').text(this.labels.confirm);
-            this.$view.find('.deny-button').text(this.labels.deny);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DIALOG_TEXT).text(this.labels.text);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON).text(this.labels.confirm);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DENY_BUTTON).text(this.labels.deny);
             this.$view.draggable({});
             var self = this;
-            this.$view.find('.confirm-button').click(function () {
+            this.$view.find("." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON).click(function () {
                 self.close();
                 if (self.onConfirmCallback) self.onConfirmCallback();
             });
-            this.$view.find('.deny-button').click(function () {
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DENY_BUTTON).click(function () {
                 self.close();
                 if (self.onDenyCallback) self.onDenyCallback();
             });
@@ -2080,7 +2701,7 @@ var ResetDialog = exports.ResetDialog = function () {
 }();
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2090,9 +2711,9 @@ exports.DownloadButton = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
 
-var _BlobService = __webpack_require__(3);
+var _BlobService = __webpack_require__(4);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2178,7 +2799,7 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2328,14 +2949,17 @@ var Timer = exports.Timer = function () {
 }();
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports) {
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ProgressBar = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2345,7 +2969,7 @@ var ProgressBar = exports.ProgressBar = function () {
 
         this.$view = $view;
         this.progress = 0.0;
-        this.$slider = $view.find('.media-recorder-progress-bar-slider');
+        this.$slider = $view.find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR_SLIDER);
         this.maxWidth = $view[0].offsetWidth - this.$slider[0].offsetWidth;
         var self = this;
         this.$slider.draggable({
@@ -2419,7 +3043,7 @@ var ProgressBar = exports.ProgressBar = function () {
 }();
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2429,7 +3053,7 @@ exports.AddonState = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BlobService = __webpack_require__(3);
+var _BlobService = __webpack_require__(4);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2463,6 +3087,30 @@ var AddonState = exports.AddonState = function () {
 
             return new Promise(function (resolve) {
                 if (_this2.recording) resolve(_BlobService.BlobService.deserialize(_this2.recording));
+            });
+        }
+    }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.recording == null;
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            var _this3 = this;
+
+            return this.getRecordingBlob().then(function (blob) {
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this3._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this3._fixArrayBuffer;
+
+                return blob.arrayBuffer();
+            }).then(function (arrayBuffer) {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                var context = new AudioContext();
+                return context.decodeAudioData(arrayBuffer);
+            }).then(function (decodedData) {
+                var mp3Blob = _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
+                return new File([mp3Blob], "recording.mp3");
             });
         }
     }, {
@@ -2511,7 +3159,7 @@ var AddonState = exports.AddonState = function () {
 }();
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2576,7 +3224,7 @@ var RecordingTimeLimiter = exports.RecordingTimeLimiter = function () {
 }();
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2586,7 +3234,9 @@ exports.DottedSoundIntensity = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _SoundIntensity2 = __webpack_require__(4);
+var _SoundIntensity2 = __webpack_require__(5);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2604,7 +3254,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
     }
 
     _createClass(DottedSoundIntensity, [{
-        key: '_setIntensity',
+        key: "_setIntensity",
         value: function _setIntensity(intensity) {
             this._clearIntensity();
             var cappedIntensity = intensity;
@@ -2613,13 +3263,13 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
             var heightDiff = heightPercent * (this.$view[0].offsetHeight - 6);
             var tallDotNewHeight = Math.round(6 + heightDiff);
             var shortDotNewHeight = Math.round(6 + heightDiff / 2);
-            this.$view.find('.tall-dot').css('height', tallDotNewHeight + 'px');
-            this.$view.find('.short-dot').css('height', shortDotNewHeight + 'px');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.TALL_DOT).css('height', tallDotNewHeight + 'px');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.SHORT_DOT).css('height', shortDotNewHeight + 'px');
         }
     }, {
-        key: '_clearIntensity',
+        key: "_clearIntensity",
         value: function _clearIntensity() {
-            this.$view.find('.sound-intensity-dot').css('height', '');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY_DOT).css('height', '');
         }
     }]);
 
@@ -2627,7 +3277,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
 }(_SoundIntensity2.SoundIntensity);
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2637,7 +3287,7 @@ exports.MediaAnalyserService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _AnalyserProvider = __webpack_require__(31);
+var _AnalyserProvider = __webpack_require__(33);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2645,7 +3295,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
     function MediaAnalyserService() {
         _classCallCheck(this, MediaAnalyserService);
 
-        this.audioContext = new (AudioContext || webkitAudioContext)();
+        this.audioContext = AudioContextSingleton.getOrCreate();
         this.mediaStreamSource = null;
         this.mediaElementSource = null;
     }
@@ -2694,9 +3344,9 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
         key: "destroy",
         value: function destroy() {
             this.closeAnalyzing();
-            this.audioContext.close();
-            this.mediaElementSource = null;
+            AudioContextSingleton.close();
             this.audioContext = null;
+            this.mediaElementSource = null;
             this.mediaStreamSource = null;
         }
     }]);
@@ -2705,7 +3355,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
 }();
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2740,7 +3390,7 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
 }();
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2750,7 +3400,9 @@ exports.AudioLoader = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Loader2 = __webpack_require__(33);
+var _Loader2 = __webpack_require__(35);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2770,12 +3422,12 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
     _createClass(AudioLoader, [{
         key: "show",
         value: function show() {
-            this.$view.addClass("audio-loader");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.AUDIO_LOADER);
         }
     }, {
         key: "hide",
         value: function hide() {
-            this.$view.removeClass("audio-loader");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.AUDIO_LOADER);
         }
     }]);
 
@@ -2783,7 +3435,7 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
 }(_Loader2.Loader);
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2825,7 +3477,7 @@ var Loader = exports.Loader = function () {
 }();
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2914,7 +3566,7 @@ var SoundEffect = exports.SoundEffect = function () {
 }();
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2926,7 +3578,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _RecordButton2 = __webpack_require__(2);
+var _RecordButton2 = __webpack_require__(3);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2950,7 +3602,13 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
     _createClass(RecordButtonSoundEffect, [{
         key: "_startRecording",
         value: function _startRecording() {
-            if (this.startRecordingSoundEffect.isValid()) this._recordWithSoundEffect();else _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
+            if (this.startRecordingSoundEffect.isValid()) {
+                this._recordWithSoundEffect();
+            } else if (this._isKeyboardControllerNavigationActive()) {
+                this._recordWithTTS();
+            } else {
+                _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
+            }
         }
     }, {
         key: "_recordWithSoundEffect",
@@ -2959,6 +3617,10 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
             this.startRecordingSoundEffect.onStopCallback = function () {};
             _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
             this._playStartRecordingSoundEffect();
+
+            if (this._isKeyboardControllerNavigationActive()) {
+                this._keyboardController.onStartRecordingWhenSoundEffect();
+            }
         }
     }, {
         key: "_playStartRecordingSoundEffect",
@@ -2970,9 +3632,21 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
             }, 1000);else this.startRecordingSoundEffect.playSound();
         }
     }, {
+        key: "_recordWithTTS",
+        value: function _recordWithTTS() {
+            var callbackFunction = _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).bind(this);
+            this._keyboardController.onStartRecording(callbackFunction);
+        }
+    }, {
         key: "_stopRecording",
         value: function _stopRecording() {
-            if (this.stopRecordingSoundEffect.isValid()) this._onStopRecordingWithSoundEffect();else _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            if (this.stopRecordingSoundEffect.isValid()) {
+                this._onStopRecordingWithSoundEffect();
+            } else if (this._isKeyboardControllerNavigationActive()) {
+                this._onStopRecordingWithTTS();
+            } else {
+                _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            }
         }
     }, {
         key: "_onStopRecordingWithSoundEffect",
@@ -2987,6 +3661,21 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
                 _this3.activate();
             };
             this.stopRecordingSoundEffect.playSound();
+
+            if (this._isKeyboardControllerNavigationActive()) {
+                this._keyboardController.onStopRecordingWhenSoundEffect();
+            }
+        }
+    }, {
+        key: "_onStopRecordingWithTTS",
+        value: function _onStopRecordingWithTTS() {
+            _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            this._keyboardController.onStopRecording();
+        }
+    }, {
+        key: "_isKeyboardControllerNavigationActive",
+        value: function _isKeyboardControllerNavigationActive() {
+            return this._keyboardController.keyboardNavigationActive === true;
         }
     }]);
 
@@ -2994,14 +3683,17 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
 }(_RecordButton2.RecordButton);
 
 /***/ }),
-/* 36 */
-/***/ (function(module, exports) {
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.AddonViewService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3020,12 +3712,12 @@ var AddonViewService = exports.AddonViewService = function () {
     }, {
         key: 'activate',
         value: function activate() {
-            this.$view.removeClass("disabled");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.DISABLED);
         }
     }, {
         key: 'deactivate',
         value: function deactivate() {
-            this.$view.addClass("disabled");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.DISABLED);
         }
     }, {
         key: 'destroy',
@@ -3038,7 +3730,7 @@ var AddonViewService = exports.AddonViewService = function () {
 }();
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3048,7 +3740,7 @@ exports.AudioResourcesProvider = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ResourcesProvider2 = __webpack_require__(38);
+var _ResourcesProvider2 = __webpack_require__(40);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3080,7 +3772,7 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
 }(_ResourcesProvider2.ResourcesProvider);
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3142,7 +3834,7 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
 }();
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3152,7 +3844,7 @@ exports.AudioRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseRecorder2 = __webpack_require__(40);
+var _BaseRecorder2 = __webpack_require__(42);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3193,7 +3885,7 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 }(_BaseRecorder2.BaseRecorder);
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3203,7 +3895,7 @@ exports.BaseRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Recorder2 = __webpack_require__(41);
+var _Recorder2 = __webpack_require__(43);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3308,7 +4000,7 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
 }(_Recorder2.Recorder);
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3352,7 +4044,7 @@ var Recorder = exports.Recorder = function () {
 }();
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3362,7 +4054,7 @@ exports.AudioPlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BasePlayer2 = __webpack_require__(43);
+var _BasePlayer2 = __webpack_require__(45);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3393,7 +4085,7 @@ var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
 }(_BasePlayer2.BasePlayer);
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3403,7 +4095,7 @@ exports.BasePlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Player2 = __webpack_require__(44);
+var _Player2 = __webpack_require__(46);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3685,7 +4377,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
 }(_Player2.Player);
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3804,7 +4496,7 @@ var Player = exports.Player = function () {
 }();
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3816,7 +4508,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3855,13 +4549,13 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartPlayingCallback();
         }
     }, {
         key: "_stopPlaying",
         value: function _stopPlaying() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopPlayingCallback();
         }
     }, {
@@ -3878,6 +4572,299 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 
     return DefaultRecordingPlayButton;
 }(_Button2.Button);
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DefaultKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _BaseKeyboardController = __webpack_require__(6);
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DefaultKeyboardController = exports.DefaultKeyboardController = function (_BaseKeyboardControll) {
+    _inherits(DefaultKeyboardController, _BaseKeyboardControll);
+
+    function DefaultKeyboardController() {
+        _classCallCheck(this, DefaultKeyboardController);
+
+        return _possibleConstructorReturn(this, (DefaultKeyboardController.__proto__ || Object.getPrototypeOf(DefaultKeyboardController)).apply(this, arguments));
+    }
+
+    _createClass(DefaultKeyboardController, [{
+        key: "markDefaultRecordingPlayButton",
+        value: function markDefaultRecordingPlayButton() {
+            this.markCurrentElement(0);
+        }
+    }, {
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            this.markCurrentElement(1);
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            this.markCurrentElement(2);
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            var $element = this.getTarget(element, false);
+
+            if ($element.hasClass(_CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON)) {
+                this._speakDefaultRecordingPlayButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.RECORDING_BUTTON)) {
+                this._speakRecordingButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.PLAY_BUTTON)) {
+                this._speakPlayButtonTTS($element);
+            }
+        }
+    }, {
+        key: "_speakDefaultRecordingPlayButtonTTS",
+        value: function _speakDefaultRecordingPlayButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.DefaultRecordingPlayButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }]);
+
+    return DefaultKeyboardController;
+}(_BaseKeyboardController.BaseKeyboardController);
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ExtendedKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _BaseKeyboardController = __webpack_require__(6);
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (_BaseKeyboardControll) {
+    _inherits(ExtendedKeyboardController, _BaseKeyboardControll);
+
+    function ExtendedKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
+        _classCallCheck(this, ExtendedKeyboardController);
+
+        var _this = _possibleConstructorReturn(this, (ExtendedKeyboardController.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController)).call(this, elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback));
+
+        _this._resetDialogLabels = model.resetDialogLabels;
+        _this._disableRecording = model.disableRecording;
+        return _this;
+    }
+
+    _createClass(ExtendedKeyboardController, [{
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            this.markCurrentElement(0);
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            this.markCurrentElement(1);
+        }
+    }, {
+        key: "markResetButton",
+        value: function markResetButton() {
+            this.markCurrentElement(2);
+        }
+    }, {
+        key: "markDownloadButton",
+        value: function markDownloadButton() {
+            this.markCurrentElement(3);
+        }
+    }, {
+        key: "_performFirstEnterEvent",
+        value: function _performFirstEnterEvent() {
+            this.keyboardNavigationActive = true;
+            var $element = this.getTarget(this.keyboardNavigationElements[0], false);
+
+            if (this._isKeyboardNavigationBlocked()) {
+                this._markActiveElement();
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                this.markDialogTextAndReadResetDialogTTS();
+            } else {
+                this._markAndReadFirstDisplayedElement();
+            }
+        }
+    }, {
+        key: "markDialogTextAndReadResetDialogTTS",
+        value: function markDialogTextAndReadResetDialogTTS() {
+            this.markCurrentElement(0);
+            this._speakResetDialogTTS();
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            var $element = this.getTarget(element, false);
+
+            if ($element.hasClass(_CssClasses.CSS_CLASSES.RECORDING_BUTTON)) {
+                this._speakRecordingButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.PLAY_BUTTON)) {
+                this._speakPlayButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.RESET_BUTTON)) {
+                this._speakResetButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON)) {
+                this._speakDownloadButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                this._speakDialogTextTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.CONFIRM_BUTTON)) {
+                this._speakConfirmButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DENY_BUTTON)) {
+                this._speakDenyButtonTTS($element);
+            }
+        }
+    }, {
+        key: "_speakResetButtonTTS",
+        value: function _speakResetButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.ResetButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakDownloadButtonTTS",
+        value: function _speakDownloadButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.DownloadButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakResetDialogTTS",
+        value: function _speakResetDialogTTS() {
+            var textVoiceObject = [];
+
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakDialogTextTTS",
+        value: function _speakDialogTextTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.ResetDialog);
+
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogTextMessageToTextVoiceObject",
+        value: function _pushResetDialogTextMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogText.resetDialogLabel);
+        }
+    }, {
+        key: "_speakConfirmButtonTTS",
+        value: function _speakConfirmButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogConfirmMessageToTextVoiceObject",
+        value: function _pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogConfirm.resetDialogLabel);
+        }
+    }, {
+        key: "_speakDenyButtonTTS",
+        value: function _speakDenyButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogDenyMessageToTextVoiceObject",
+        value: function _pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogDeny.resetDialogLabel);
+        }
+    }, {
+        key: "onStopRecording",
+        value: function onStopRecording() {
+            _get(ExtendedKeyboardController.prototype.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController.prototype), "onStopRecording", this).call(this);
+
+            if (!this._disableRecording) {
+                this.nextElement();
+            }
+        }
+    }, {
+        key: "onStopRecordingWhenSoundEffect",
+        value: function onStopRecordingWhenSoundEffect() {
+            _get(ExtendedKeyboardController.prototype.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController.prototype), "onStopRecordingWhenSoundEffect", this).call(this);
+
+            if (!this._disableRecording) {
+                this.nextElement();
+            }
+        }
+    }]);
+
+    return ExtendedKeyboardController;
+}(_BaseKeyboardController.BaseKeyboardController);
 
 /***/ })
 /******/ ]);

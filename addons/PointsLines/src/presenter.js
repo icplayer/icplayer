@@ -1100,7 +1100,7 @@ function AddonPointsLines_create() {
             presenter.answersNumber = 0;
             presenter.isGradualShowAnswersActive = false;
             presenter.$view.find('.line-show-answer').remove();
-            presenter.$view.find('.line').css("visibility", "visible");
+            presenter.$view.find('.line').css("visibility", "inherit");
         }
     }
 
@@ -1128,7 +1128,7 @@ function AddonPointsLines_create() {
         if (presenter.activity && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
             presenter.$view.find('.line-show-answer').remove();
-            presenter.$view.find('.line').css("visibility", "visible");
+            presenter.$view.find('.line').css("visibility", "inherit");
         }
     };
 

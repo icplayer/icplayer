@@ -18,6 +18,7 @@ function Addonvideo_create() {
     presenter.files = [];
     presenter.video = null;
     presenter.controlBar = null;
+    presenter.isVideoSpeedControllerAdded = false;
     presenter.isCurrentlyVisible = true;
     presenter.isVideoLoaded = false;
     presenter.metadadaLoaded = false;
@@ -941,8 +942,14 @@ function Addonvideo_create() {
 
     presenter.addVideoSpeedController = function () {
         if (presenter.configuration.enableVideoSpeedController) {
+            presenter.isVideoSpeedControllerAdded = true;
             presenter.controlBar.addVideoSpeedController(presenter.setPlaybackRate);
         }
+    }
+
+    presenter.resetVideoSpeedController = function () {
+        presenter.controlBar.resetPlaybackRateSelectValue();
+        presenter.setPlaybackRate(1.0);
     }
 
     presenter.run = function (view, model) {
@@ -1268,7 +1275,11 @@ function Addonvideo_create() {
         presenter.loadSubtitles();
         presenter.loadAudioDescription();
         presenter.setBurgerMenu();
-        presenter.addVideoSpeedController();
+        if (presenter.isVideoSpeedControllerAdded) {
+            presenter.resetVideoSpeedController();
+        } else {
+            presenter.addVideoSpeedController();
+        }
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
