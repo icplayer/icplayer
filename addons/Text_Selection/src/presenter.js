@@ -247,8 +247,15 @@ function AddonText_Selection_create() {
         }
     };
 
+    presenter.getNumberAttribute = function (et) {
+        const elementNumber = parseInt($(et).attr('number'), 10);
+        const parentNumber = parseInt($(et).closest('span.selectable').attr('number'), 10);
+
+        return isNaN(elementNumber) ? parentNumber : elementNumber;
+    }
+
     presenter.startSelection = function (et) {
-        first = parseInt($(et).attr('number'), 10);
+        first = presenter.getNumberAttribute(et);
     };
 
     presenter.endSelection = function (et) {
@@ -257,7 +264,7 @@ function AddonText_Selection_create() {
             return false;
         }
 
-        let last = parseInt($(et).attr('number'), 10);
+        let last = presenter.getNumberAttribute(et);
         const isMultipleSelected = first !== last;
 
         if ($(et).hasClass('text_selection')) {
