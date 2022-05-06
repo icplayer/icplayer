@@ -24,6 +24,28 @@ export class AddonState {
         });
     }
 
+    isEmpty() {
+        return this.recording == null;
+    }
+
+    getMP3File() {
+        return this.getRecordingBlob().then(blob => {
+            File.prototype.arrayBuffer = File.prototype.arrayBuffer || this._fixArrayBuffer;
+            Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || this._fixArrayBuffer;
+
+            return blob.arrayBuffer();
+        })
+        .then(arrayBuffer => {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            var context = new AudioContext();
+            return context.decodeAudioData(arrayBuffer);
+        })
+        .then(decodedData => {
+            const mp3Blob = BlobService.getMp3BlobFromDecodedData(decodedData);
+            return new File([mp3Blob], "recording.mp3");
+        });
+    }
+
     setVisibility(isVisible) {
         this.visibility = isVisible ? true : false;
     }
