@@ -1,3 +1,4 @@
+2022-05-06 Fixed problem with printable version of Text module when audio added to text
 2022-05-06 Fixed not working properly TTS in Text Selection addon when langAttribute not defined
 2022-05-06 Fixed Text-selection not working properly with text formatting
 2022-05-06 Added Audio support to Choice Addon
