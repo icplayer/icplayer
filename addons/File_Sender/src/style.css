@@ -1,0 +1,47 @@
+.file-sender-input-wrapper {
+    border: solid;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.file-sender-input-file {
+    width:100%;
+    height:100%;
+    opacity:0.0001;
+    position: absolute;
+    top: 0px;
+}
+
+.file-sender-input-label {
+    width:100%;
+    height:100%;
+    position: absolute;
+    top: 0px;
+    word-break: break-all;
+}
+
+.file-sender-teacher-dialog-element {
+    cursor: default;
+    display: block;
+    text-align: center;
+}
+
+.file-sender-send-file-button {
+    cursor: default;
+    display: block;
+    text-align: center;
+}
+
+.file-sender-sent-file-reset {
+    color: red;
+    float: right;
+    cursor: default;
+}
+
+.file-sender-sent-file-label {
+    margin-bottom: 1em;
+    cursor: default;
+    overflow-y: clip;
+}

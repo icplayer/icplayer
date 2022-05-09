@@ -973,6 +973,14 @@ function AddonMedia_Recorder_create() {
         handleDestroyEvent(view);
     };
 
+    presenter.isEmpty = function isEmpty() {
+        return presenter.mediaRecorder.isEmpty();
+    };
+
+    presenter.getMP3File = function getMP3File() {
+        return presenter.mediaRecorder.getMP3File();
+    };
+
     presenter.getState = function getState() {
         return presenter.mediaRecorder.getState();
     };
@@ -1208,6 +1216,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (context != null && "ismLibro" in context) {
                 this.isMlibro = context["ismLibro"];
             }
+        }
+    }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.addonState.isEmpty();
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            return this.addonState.getMP3File();
         }
     }, {
         key: "getState",
@@ -1842,14 +1860,32 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "_stopRecordButton",
+        value: function _stopRecordButton() {
+            if (this.model.isResetRemovesRecording) {
+                this.recordButton.reset();
+            } else {
+                this.recordButton.forceClick();
+            }
+        }
+    }, {
         key: "_stopActions",
         value: function _stopActions() {
-            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
+            if (this.mediaState.isRecording()) {
+                this._stopRecordButton();
+            }
+            if (this.mediaState.isPlaying()) {
+                this.playButton.forceClick();
+            }
+            if (this.mediaState.isPlayingDefaultRecording()) {
+                this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.model.isResetRemovesRecording) {
                 this.resetRecording();
-            } else this.recordButton.forceClick();
-            if (this.mediaState.isPlaying()) this.playButton.forceClick();
-            if (this.mediaState.isPlayingDefaultRecording()) this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.mediaState.isLoaded()) {
+                this.timer.setTime(0);
+            }
         }
     }, {
         key: "_internalElements",
@@ -3054,6 +3090,30 @@ var AddonState = exports.AddonState = function () {
             });
         }
     }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.recording == null;
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            var _this3 = this;
+
+            return this.getRecordingBlob().then(function (blob) {
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this3._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this3._fixArrayBuffer;
+
+                return blob.arrayBuffer();
+            }).then(function (arrayBuffer) {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                var context = new AudioContext();
+                return context.decodeAudioData(arrayBuffer);
+            }).then(function (decodedData) {
+                var mp3Blob = _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
+                return new File([mp3Blob], "recording.mp3");
+            });
+        }
+    }, {
         key: "setVisibility",
         value: function setVisibility(isVisible) {
             this.visibility = isVisible ? true : false;
@@ -3235,7 +3295,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
     function MediaAnalyserService() {
         _classCallCheck(this, MediaAnalyserService);
 
-        this.audioContext = new (AudioContext || webkitAudioContext)();
+        this.audioContext = AudioContextSingleton.getOrCreate();
         this.mediaStreamSource = null;
         this.mediaElementSource = null;
     }
@@ -3284,9 +3344,9 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
         key: "destroy",
         value: function destroy() {
             this.closeAnalyzing();
-            this.audioContext.close();
-            this.mediaElementSource = null;
+            AudioContextSingleton.close();
             this.audioContext = null;
+            this.mediaElementSource = null;
             this.mediaStreamSource = null;
         }
     }]);

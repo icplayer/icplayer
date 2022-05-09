@@ -27,6 +27,7 @@ import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
 import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.google.gwt.dom.client.EventTarget;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
 
@@ -86,8 +87,26 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	    	event.stopPropagation();
 	    }
 	    if( DOM.eventGetType(event) != Event.ONTOUCHEND) { //Touchend is handled in setListener
+            if (isEventTargetAudioButton(event)) { //if click event comes from audio then option should not be checked
+                return;
+            }
 	    	super.onBrowserEvent(event);
 	    }
+	}
+
+	private boolean isEventTargetAudioButton (Event event) {
+	    EventTarget target = event.getEventTarget();
+	    if(!com.google.gwt.dom.client.Element.is(target)) {
+	        return false;
+	    }
+
+	    com.google.gwt.dom.client.Element elem = com.google.gwt.dom.client.Element.as(target);
+	    String classNames = elem.getClassName();
+	    if (classNames.contains("ic_text_audio_button")) {
+	        return true;
+	    }
+
+	    return false;
 	}
 	
 	protected void onAttach() {

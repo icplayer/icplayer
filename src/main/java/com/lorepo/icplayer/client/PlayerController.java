@@ -349,6 +349,7 @@ public class PlayerController implements IPlayerController {
 					}
 				}
 				pageLoaded(page, pageController);
+				visitedPages.add(page);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(producedItem);
 				}
@@ -792,7 +793,10 @@ public class PlayerController implements IPlayerController {
 
 	public void clearVisitedPages() {
 		this.visitedPages.clear();
-		this.visitedPages.add(this.pageController1.getPage());
+		IPage page = this.pageController1.getPage();
+		if (page != null) {
+		    this.visitedPages.add(page);
+		}
 	}
 
 	@Override
