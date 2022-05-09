@@ -1088,8 +1088,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
-	private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
-	    button.addClickHandler(new ClickHandler() {
+    private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
+        button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 event.stopPropagation();
@@ -1134,16 +1134,17 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                 }
             }
         });
-	}
-	
-	private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
-		audio.addEndedHandler(new EndedHandler() {
-			@Override
-			public void onEnded(EndedEvent event) {
-				if (listener != null) {
-					listener.onAudioEnded(info);
-				}
-			}
-		});
-	}
+    }
+
+    private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
+        audio.addEndedHandler(new EndedHandler() {
+
+            @Override
+            public void onEnded(EndedEvent event) {
+                if (listener != null) {
+                    listener.onAudioEnded(info);
+                }
+            }
+        });
+    }
 }

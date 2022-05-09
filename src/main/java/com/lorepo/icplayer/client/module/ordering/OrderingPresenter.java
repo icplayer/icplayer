@@ -142,11 +142,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return this.isShowAnswersActive;
 	}
 
-	private void showAnswers() {
-	    resetAudio();
-	    if (!module.isActivity()) { return; }
-	    if (this.isShowErrorsActive)
-	        setWorkMode();
+    private void showAnswers() {
+        resetAudio();
+        if (!module.isActivity()) { return; }
+        if (this.isShowErrorsActive) setWorkMode();
 
         setCurrentViewState();
         this.isShowAnswersActive = true;
@@ -154,7 +153,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
         view.setWorkStatus(false);
         view.setCorrectAnswersStyles();
         view.setCorrectAnswer();
-	}
+    }
 
 	private void hideAnswers() {
 		if (!module.isActivity() || !this.isShowAnswersActive) {
@@ -621,23 +620,23 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		this.currentState_view = view.getState();
 	}
 
-	private void resetAudio() {
-	    for (int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
-	        Widget widget = this.view.getWidget(itemWidgetIndex);
-	        if (widget instanceof ItemWidget) {
-	            ItemWidget itemWidget = (ItemWidget) widget;
-	            resetAudioInItem(itemWidget);
+    private void resetAudio() {
+        for (int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
+            Widget widget = this.view.getWidget(itemWidgetIndex);
+            if (widget instanceof ItemWidget) {
+                ItemWidget itemWidget = (ItemWidget) widget;
+                resetAudioInItem(itemWidget);
             }
         }
     }
 
-	private void resetAudioInItem(ItemWidget itemWidget) {
-	    List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
-	    for (int i = 0; i < audioInfos.size(); i++) {
-	        AudioInfo audioInfo = audioInfos.get(i);
-	        AudioButtonWidget button = audioInfo.getButton();
-	        AudioWidget audio = audioInfo.getAudio();
-	        boolean isElementExists = button != null && audio != null;
+    private void resetAudioInItem(ItemWidget itemWidget) {
+        List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
+        for (int i = 0; i < audioInfos.size(); i++) {
+            AudioInfo audioInfo = audioInfos.get(i);
+            AudioButtonWidget button = audioInfo.getButton();
+            AudioWidget audio = audioInfo.getAudio();
+            boolean isElementExists = button != null && audio != null;
 
             if (isElementExists && !audio.isPaused()) {
                 audio.reset();
