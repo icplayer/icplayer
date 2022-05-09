@@ -53,6 +53,7 @@ function AddonParagraph_create() {
 
     presenter.DEFAULT_TTS_PHRASES = {
         selected: "selected",
+        paragraphContent: "paragraph content",
         bold: "bold",
         italic: "italic",
         underline: "underline",
@@ -521,8 +522,12 @@ function AddonParagraph_create() {
         };
 
         const upgradedModel = presenter.upgradeAttribute(model, "speechTexts", defaultValue);
-        if (!upgradedModel.hasOwnProperty("Selected")) {
-            upgradedModel.Selected = {Selected: ""};
+        if (!upgradedModel.speechTexts.hasOwnProperty("Selected")) {
+            upgradedModel.speechTexts.Selected = {Selected: ""};
+        }
+
+        if (!upgradedModel.speechTexts.hasOwnProperty("ParagraphContent")) {
+            upgradedModel.speechTexts.ParagraphContent = {ParagraphContent: ""};
         }
 
         return upgradedModel;
@@ -542,6 +547,7 @@ function AddonParagraph_create() {
     presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
         presenter.speechTexts = {
             selected: presenter.DEFAULT_TTS_PHRASES.selected,
+            paragraphContent: presenter.DEFAULT_TTS_PHRASES.paragraphContent,
             bold: presenter.DEFAULT_TTS_PHRASES.bold,
             italic: presenter.DEFAULT_TTS_PHRASES.italic,
             underline: presenter.DEFAULT_TTS_PHRASES.underline,
@@ -559,6 +565,9 @@ function AddonParagraph_create() {
             selected: TTSUtils.getSpeechTextProperty(
                 speechTexts.Selected.Selected,
                 presenter.speechTexts.selected),
+            paragraphContent: TTSUtils.getSpeechTextProperty(
+                speechTexts.ParagraphContent.ParagraphContent,
+                presenter.speechTexts.paragraphContent),
             bold : TTSUtils.getSpeechTextProperty(
                 speechTexts.Bold.Bold,
                 presenter.speechTexts.bold),
@@ -1112,8 +1121,15 @@ function AddonParagraph_create() {
         } else {
             el[0].click();
             document.activeElement.blur();
+            presenter.speakSelectedOnAction(el);
         }
         this.mark(this.keyboardNavigationCurrentElement);
+    };
+
+    presenter.speakSelectedOnAction = function Paragraph_speakSelectedOnAction (el) {
+        if (el.hasClass("mce-active")) {
+            presenter.speak(presenter.speechTexts.selected);
+        }
     };
 
     ParagraphKeyboardController.prototype.mark = function (element) {
@@ -1161,7 +1177,11 @@ function AddonParagraph_create() {
             text = element.hasClass("mce-active") ? `${text} ${presenter.speechTexts.selected}` : text;
         } else if (element.hasClass("mce-edit-area")) {
             let contentToRead = presenter.editor.getContent({format : 'text'});
-            text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.langTag)];
+            if (contentToRead.trim().length === 0) {
+                text = presenter.speechTexts.paragraphContent;
+            } else {
+                text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.langTag)];
+            }
         } else {
             let content;
             try {

@@ -1027,6 +1027,7 @@ var ice_dictionary_bl = {
 	"Paragraph_property_weight" : "Тежест",
 	"Paragraph_property_speech_texts": "Speech texts",
 	"Paragraph_property_selected": "Selected",
+	"Paragraph_property_ParagraphContent": "Paragraph content",
 	"Paragraph_property_bold": "Bold",
 	"Paragraph_property_italic": "Italic",
 	"Paragraph_property_underline": "Underline",
