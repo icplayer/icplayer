@@ -71,57 +71,57 @@ public class GWTOrderingItemTestCase extends GWTPowerMockitoTest {
 	        = brDivHTML + brDivHTML
 	        + "element 1"
 	        + brDivHTML + brDivHTML;
-		OrderingItem item = new OrderingItem(1, itemHTML, "string", 1);
-		Element element = item.toPrintableDOMElement(this.indexBox);
+        OrderingItem item = new OrderingItem(1, itemHTML, "string", 1);
+        Element element = item.toPrintableDOMElement(this.indexBox);
 
-		String expectedText = itemHTML;
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
-	}
+        String expectedText = itemHTML;
+        String returnedText = getElementTextNodeInnerHTML(element);
+        assertEquals(expectedText, returnedText);
+    }
 
-	private Element createPrintableDOMElement() {
-		OrderingItem item = new OrderingItem(1, "element 1", "string", 1);
-		return item.toPrintableDOMElement(this.indexBox);
-	}
+    private Element createPrintableDOMElement() {
+        OrderingItem item = new OrderingItem(1, "element 1", "string", 1);
+        return item.toPrintableDOMElement(this.indexBox);
+    }
 
 	@Test
 	public void toPrintableDOMElementCheckStructureWithAudio() {
-		Element element = createPrintableDOMElementWithAudio("element 1");
+        Element element = createPrintableDOMElementWithAudio("element 1");
 
-		Node tableBody = element.getChild(0);
-		Node tableTR = tableBody.getChild(0);
+        Node tableBody = element.getChild(0);
+        Node tableTR = tableBody.getChild(0);
 
-		Element elementTDWithIndexBox = (Element) tableTR.getChild(0);
-		int elementIndexBoxChildAmount = elementTDWithIndexBox.getChildCount();
-		int expectedElementIndexBoxChildAmount = 1;
-		assertEquals(expectedElementIndexBoxChildAmount, elementIndexBoxChildAmount);
+        Element elementTDWithIndexBox = (Element) tableTR.getChild(0);
+        int elementIndexBoxChildAmount = elementTDWithIndexBox.getChildCount();
+        int expectedElementIndexBoxChildAmount = 1;
+        assertEquals(expectedElementIndexBoxChildAmount, elementIndexBoxChildAmount);
 
-		Element elementIndexBox = (Element) elementTDWithIndexBox.getChild(0);
-		String returnedId = elementIndexBox.getId();
-		assertEquals(this.indexBoxId, returnedId);
+        Element elementIndexBox = (Element) elementTDWithIndexBox.getChild(0);
+        String returnedId = elementIndexBox.getId();
+        assertEquals(this.indexBoxId, returnedId);
 
-		Node elementTextNode = tableTR.getChild(1);
-		assertNotNull(elementTextNode);
+        Node elementTextNode = tableTR.getChild(1);
+        assertNotNull(elementTextNode);
 	}
 
 	@Test
 	public void toPrintableDOMElementCheckTextNodeWithAudio() {
 	    String itemHTML = audioHTML + "element 1" + audioHTML;
-		Element element = createPrintableDOMElementWithAudio(itemHTML);
+	    Element element = createPrintableDOMElementWithAudio(itemHTML);
 
-		String expectedText = "element 1";
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
+	    String expectedText = "element 1";
+	    String returnedText = getElementTextNodeInnerHTML(element);
+	    assertEquals(expectedText, returnedText);
 	}
 
 	@Test
 	public void toPrintableDOMElementCheckMultilineTextNodeWithAudio() {
 	    String itemHTML = audioDivHTML + "element 1" + audioDivHTML;
-		Element element = createPrintableDOMElementWithAudio(itemHTML);
+	    Element element = createPrintableDOMElementWithAudio(itemHTML);
 
-		String expectedText = brDivHTML + "element 1" + brDivHTML;
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
+        String expectedText = brDivHTML + "element 1" + brDivHTML;
+        String returnedText = getElementTextNodeInnerHTML(element);
+        assertEquals(expectedText, returnedText);
 	}
 
 	@Test
@@ -130,11 +130,11 @@ public class GWTOrderingItemTestCase extends GWTPowerMockitoTest {
 	        = audioHTML + audioHTML + "element 1"
 	        + audioHTML + audioHTML + "element 2"
 	        + audioHTML + audioHTML;
-		Element element = createPrintableDOMElementWithAudio(itemHTML);
+        Element element = createPrintableDOMElementWithAudio(itemHTML);
 
-		String expectedText = "element 1element 2";
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
+        String expectedText = "element 1element 2";
+        String returnedText = getElementTextNodeInnerHTML(element);
+        assertEquals(expectedText, returnedText);
 	}
 
 	@Test
@@ -143,14 +143,14 @@ public class GWTOrderingItemTestCase extends GWTPowerMockitoTest {
 	        = audioDivHTML + audioDivHTML + "element 1"
 	        + audioDivHTML + audioDivHTML + "element 2"
 	        + audioDivHTML + audioDivHTML;
-		Element element = createPrintableDOMElementWithAudio(itemHTML);
+        Element element = createPrintableDOMElementWithAudio(itemHTML);
 
-		String expectedText
+        String expectedText
 		    = brDivHTML + brDivHTML + "element 1"
 		    + brDivHTML + brDivHTML + "element 2"
 		    + brDivHTML + brDivHTML;
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
+        String returnedText = getElementTextNodeInnerHTML(element);
+        assertEquals(expectedText, returnedText);
 	}
 
 	@Test
@@ -159,23 +159,23 @@ public class GWTOrderingItemTestCase extends GWTPowerMockitoTest {
 	        = audioHTML + audioDivHTML + "element 1"
 	        + audioHTML + " element 2"
 	        + audioDivHTML + audioHTML;
-		Element element = createPrintableDOMElementWithAudio(itemHTML);
+        Element element = createPrintableDOMElementWithAudio(itemHTML);
 
-		String expectedText
-		    = brDivHTML + "element 1 element 2" + brDivHTML;
-		String returnedText = getElementTextNodeInnerHTML(element);
-		assertEquals(expectedText, returnedText);
+        String expectedText
+            = brDivHTML + "element 1 element 2" + brDivHTML;
+        String returnedText = getElementTextNodeInnerHTML(element);
+        assertEquals(expectedText, returnedText);
 	}
 
 	private Element createPrintableDOMElementWithAudio(String itemText) {
-		OrderingItem item = new OrderingItem(1, itemText, "string", 1);
-		return item.toPrintableDOMElement(this.indexBox);
+	    OrderingItem item = new OrderingItem(1, itemText, "string", 1);
+	    return item.toPrintableDOMElement(this.indexBox);
 	}
 
 	private String getElementTextNodeInnerHTML(Element itemElement) {
 	    Node tableBody = itemElement.getChild(0);
-		Node tableTR = tableBody.getChild(0);
-		Element elementTextNode = (Element) tableTR.getChild(1);
-		return elementTextNode.getInnerHTML();
+	    Node tableTR = tableBody.getChild(0);
+	    Element elementTextNode = (Element) tableTR.getChild(1);
+	    return elementTextNode.getInnerHTML();
 	}
 }

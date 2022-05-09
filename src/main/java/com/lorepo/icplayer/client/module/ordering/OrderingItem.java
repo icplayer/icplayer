@@ -179,13 +179,13 @@ public class OrderingItem extends BasicPropertyProvider {
 	}
 
 	private String preprocessItemTextForPrintable() {
-	    String text = this.getText();
-        text = this.removeAudioFromHTML(text);
-	    return AlternativeTextService.getVisibleText(text);
+		String text = this.getText();
+		text = this.removeAudioFromHTML(text);
+		return AlternativeTextService.getVisibleText(text);
 	}
 
 	private String removeAudioFromHTML(String text) {
-        String newText = text.replaceAll(DIV_WITH_AUDIO_REGEX, DIV_WITHOUT_AUDIO);
-        return newText.replaceAll(AUDIO_REGEX, "");
+		String newText = text.replaceAll(DIV_WITH_AUDIO_REGEX, DIV_WITHOUT_AUDIO);
+		return newText.replaceAll(AUDIO_REGEX, "");
 	}
 }

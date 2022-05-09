@@ -1065,7 +1065,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	        if (widget instanceof ItemWidget) {
 	            ItemWidget itemWidget = (ItemWidget) widget;
 	            this.connectSingleAudio(itemWidget.getAudioInfos().iterator());
-	        }
+			}
 		}
 	}
 
@@ -1085,7 +1085,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 			connectAudioEventsHandlers(info, audio);
 			connectAudioButtonEventsHandlers(info, button);
-        }
+		}
 	}
 
 	private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
@@ -1135,15 +1135,15 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
             }
         });
 	}
-
+	
 	private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
-	    audio.addEndedHandler(new EndedHandler() {
-            @Override
-            public void onEnded(EndedEvent event) {
-                if (listener != null) {
-                    listener.onAudioEnded(info);
-                }
-            }
-        });
+		audio.addEndedHandler(new EndedHandler() {
+			@Override
+			public void onEnded(EndedEvent event) {
+				if (listener != null) {
+					listener.onAudioEnded(info);
+				}
+			}
+		});
 	}
 }
