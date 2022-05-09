@@ -144,17 +144,16 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	private void showAnswers() {
 	    resetAudio();
-		if (!module.isActivity()) { return; }
+	    if (!module.isActivity()) { return; }
+	    if (this.isShowErrorsActive)
+	        setWorkMode();
 
-		if (this.isShowErrorsActive)
-			setWorkMode();
+        setCurrentViewState();
+        this.isShowAnswersActive = true;
 
-		setCurrentViewState();
-		this.isShowAnswersActive = true;
-
-		view.setWorkStatus(false);
-		view.setCorrectAnswersStyles();
-		view.setCorrectAnswer();
+        view.setWorkStatus(false);
+        view.setCorrectAnswersStyles();
+        view.setCorrectAnswer();
 	}
 
 	private void hideAnswers() {
@@ -312,16 +311,16 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public void addView(IModuleView view) {
 
-		if (view instanceof IDisplay) {
-			this.view = (IDisplay) view;
-			this.view.addReorderListener(new IReorderListener() {
+	    if (view instanceof IDisplay) {
+	        this.view = (IDisplay) view;
+	        this.view.addReorderListener(new IReorderListener() {
 
-				@Override
-				public void onItemMoved(int sourceIndex, int destIndex) {
-					onValueChanged(sourceIndex, destIndex);
-				}
+	            @Override
+	            public void onItemMoved(int sourceIndex, int destIndex) {
+	                onValueChanged(sourceIndex, destIndex);
+                }
 
-				@Override
+                @Override
                 public void onAudioButtonClicked(AudioInfo audioInfo) {
                     AudioWidget audio = audioInfo.getAudio();
                     AudioButtonWidget button = audioInfo.getButton();
@@ -341,17 +340,17 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
                 @Override
                 public void onAudioEnded(AudioInfo audioInfo) {
-					AudioWidget audio = audioInfo.getAudio();
-					AudioButtonWidget button = audioInfo.getButton();
-					
-					audio.reset();
-					button.setStartPlayingStyleClass();
-				}
-			});
-			
-			this.view.connectAudios();
-		}
-	}
+                    AudioWidget audio = audioInfo.getAudio();
+                    AudioButtonWidget button = audioInfo.getButton();
+
+                    audio.reset();
+                    button.setStartPlayingStyleClass();
+                }
+            });
+
+            this.view.connectAudios();
+        }
+    }
 
 	@Override
 	public IModuleModel getModel() {
@@ -623,27 +622,27 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void resetAudio() {
-	    for(int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
-			Widget widget = this.view.getWidget(itemWidgetIndex);
-			if (widget instanceof ItemWidget) {
-				ItemWidget itemWidget = (ItemWidget) widget;
-				resetAudioInItem(itemWidget);
-			}
-		}
-	}
+	    for (int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
+	        Widget widget = this.view.getWidget(itemWidgetIndex);
+	        if (widget instanceof ItemWidget) {
+	            ItemWidget itemWidget = (ItemWidget) widget;
+	            resetAudioInItem(itemWidget);
+            }
+        }
+    }
 
 	private void resetAudioInItem(ItemWidget itemWidget) {
-		List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
-		for (int i = 0; i < audioInfos.size(); i++) {
-			AudioInfo audioInfo = audioInfos.get(i);
-			AudioButtonWidget button = audioInfo.getButton();
-			AudioWidget audio = audioInfo.getAudio();
-			boolean isElementExists = button != null && audio != null;
-			
-			if (isElementExists && !audio.isPaused()) {
-				audio.reset();
-				button.setStartPlayingStyleClass();
-			}
-		}
-	}
+	    List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
+	    for (int i = 0; i < audioInfos.size(); i++) {
+	        AudioInfo audioInfo = audioInfos.get(i);
+	        AudioButtonWidget button = audioInfo.getButton();
+	        AudioWidget audio = audioInfo.getAudio();
+	        boolean isElementExists = button != null && audio != null;
+
+            if (isElementExists && !audio.isPaused()) {
+                audio.reset();
+                button.setStartPlayingStyleClass();
+            }
+        }
+    }
 }
