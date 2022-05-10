@@ -143,8 +143,13 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	private void showAnswers() {
 		resetAudio();
-		if (!module.blic class ConfigurationManager {isActivity()) { return; }
-		if (this.isShowErrorsActive) setWorkMode();
+		if (!module.isActivity()) {
+			return;
+		}
+
+        if (this.isShowErrorsActive) {
+        	setWorkMode();
+        }
 
 		setCurrentViewState();
 		this.isShowAnswersActive = true;
