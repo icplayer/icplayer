@@ -2161,6 +2161,7 @@ var ice_dictionary_mx = {
 	"Cross_Lesson_property_speech_texts": "Speech texts",
 	"Cross_Lesson_property_go_to_lesson": "Go to lesson",
 	"Cross_Lesson_property_check_for_access": "Check if user has access to resource",
+	"Cross_Lesson_property_access_ids": "List of IDs required for access",
 	"printable_name_label": "Printable",
 	"printable_block_split_label": "Block splitting in print",
 	"printable_is_section": "is section",
