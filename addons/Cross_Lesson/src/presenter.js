@@ -66,8 +66,7 @@ function AddonCross_Lesson_create(){
         if (!validatedCourseId.isValid) {
             return {isError: true, errorCode: 'V_02'};
         }
-        console.log("validateModel method :)");
-        console.log(model);
+
         var checkForAccess = ModelValidationUtils.validateBoolean(model.CheckForAccess);
         if (checkForAccess && model.AccessIDs.trim().length === 0) {
             return {isError: true, errorCode: 'V_04'};
@@ -196,10 +195,8 @@ function AddonCross_Lesson_create(){
 
     presenter.onExternalMessage = function AddonCross_Lesson_onExternalMessage (event) {
         const data = event.data;
-        console.log("onExternalMessage: ", data);
-        if ("indexOf" in data && data.indexOf(crossLessonEventReceivedType) !== -1) {
+        if (typeof data === 'string' && data.indexOf(crossLessonEventReceivedType) !== -1) {
             const value = data.slice(crossLessonEventReceivedType.length);
-            console.log(value);
             if (value !== 'true') {
                 presenter.hide();
             }
@@ -216,7 +213,6 @@ function AddonCross_Lesson_create(){
     };
 
     presenter.handleUserAccess = function AddonCross_Lesson_handleUserAccess () {
-        console.log(presenter.configuration);
         if (!presenter.playerController) {
             return;
         }
@@ -226,9 +222,9 @@ function AddonCross_Lesson_create(){
         }
 
         const data = {"coursesIds": presenter.configuration.accessIds};
-        console.log("data send: ", data);
+
         window.addEventListener("message", presenter.onExternalMessage);
-        presenter.playerController.sendExternalEvent(crossLessonUserAccessEventType, data);
+        presenter.playerController.sendExternalEvent(crossLessonUserAccessEventType, JSON.stringify(data));
     };
 
     presenter.getExternalEventData = function AddonCross_Lesson_getExternalEventData () {
