@@ -147,9 +147,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			return;
 		}
 
-        if (this.isShowErrorsActive) {
-        	setWorkMode();
-        }
+		if (this.isShowErrorsActive) {
+			setWorkMode();
+		}
 
 		setCurrentViewState();
 		this.isShowAnswersActive = true;
