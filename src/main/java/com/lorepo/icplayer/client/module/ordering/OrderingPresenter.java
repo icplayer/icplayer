@@ -135,12 +135,12 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private boolean isShowAnswers() {
-		if (!module.isActivity()) {
-			return false;
-		}
+	    if (!module.isActivity()) {
+	        return false;
+        }
 
-		return this.isShowAnswersActive;
-	}
+        return this.isShowAnswersActive;
+    }
 
     private void showAnswers() {
         resetAudio();
