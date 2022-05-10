@@ -1058,20 +1058,20 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
-    @Override
+	@Override
 	public void connectAudios() {
-	    for (int i = 0; i < innerCellPanel.getWidgetCount(); i++) {
-	        Widget widget = innerCellPanel.getWidget(i);
-	        if (widget instanceof ItemWidget) {
-	            ItemWidget itemWidget = (ItemWidget) widget;
-	            this.connectSingleAudio(itemWidget.getAudioInfos().iterator());
+		for (int i = 0; i < innerCellPanel.getWidgetCount(); i++) {
+			Widget widget = innerCellPanel.getWidget(i);
+			if (widget instanceof ItemWidget) {
+				ItemWidget itemWidget = (ItemWidget) widget;
+				this.connectSingleAudio(itemWidget.getAudioInfos().iterator());
 			}
 		}
 	}
 
 	private void connectSingleAudio(Iterator<AudioInfo> iterator) {
-	    while (iterator.hasNext()) {
-	        final AudioInfo info = iterator.next();
+		while (iterator.hasNext()) {
+			final AudioInfo info = iterator.next();
 			String id = info.getId();
 
 			com.google.gwt.user.client.Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
@@ -1088,63 +1088,67 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
-    private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
-        button.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                event.stopPropagation();
-                event.preventDefault();
-                if (listener != null) {
-                    if (isTouched || isMouseUp || isDragging) {
-                        return;
-                    }
-                    listener.onAudioButtonClicked(info);
-                }
-            }
-        });
+	private void connectAudioButtonEventsHandlers(final AudioInfo info, AudioButtonWidget button) {
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 
-        button.addMouseUpHandler(new MouseUpHandler() {
-            @Override
-            public void onMouseUp(MouseUpEvent event) {
-                event.stopPropagation();
-                event.preventDefault();
-                if (listener != null) {
-                    if (isTouched || isDragging) {
-                        return;
-                    }
-                    isMouseUp = true;
+				if (listener != null) {
+					if (isTouched || isMouseUp || isDragging) {
+						return;
+					}
 
-                    listener.onAudioButtonClicked(info);
-                }
-            }
-        });
+					listener.onAudioButtonClicked(info);
+				}
+			}
+		});
 
-        button.addTouchEndHandler(new TouchEndHandler() {
-            @Override
-            public void onTouchEnd(TouchEndEvent event) {
-                event.stopPropagation();
-                event.preventDefault();
-                if (listener != null) {
-                    if (isDragging) {
-                        return;
-                    }
-                    isTouched = true;
+		button.addMouseUpHandler(new MouseUpHandler() {
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
 
-                    listener.onAudioButtonClicked(info);
-                }
-            }
-        });
-    }
+				if (listener != null) {
+					if (isTouched || isDragging) {
+						return;
+					}
 
-    private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
-        audio.addEndedHandler(new EndedHandler() {
+					isMouseUp = true;
+					listener.onAudioButtonClicked(info);
+				}
+			}
+		});
 
-            @Override
-            public void onEnded(EndedEvent event) {
-                if (listener != null) {
-                    listener.onAudioEnded(info);
-                }
-            }
-        });
-    }
+		button.addTouchEndHandler(new TouchEndHandler() {
+			@Override
+			public void onTouchEnd(TouchEndEvent event) {
+				event.stopPropagation();
+				event.preventDefault();
+
+				if (listener != null) {
+					if (isDragging) {
+						return;
+					}
+
+					isTouched = true;
+					listener.onAudioButtonClicked(info);
+				}
+			}
+		});
+	}
+
+	private void connectAudioEventsHandlers(final AudioInfo info, AudioWidget audio) {
+		audio.addEndedHandler(new EndedHandler() {
+
+			@Override
+			public void onEnded(EndedEvent event) {
+				if (listener != null) {
+					listener.onAudioEnded(info);
+				}
+			}
+		});
+	}
 }

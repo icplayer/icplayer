@@ -130,30 +130,29 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					handleGradualHideAnswers();
 				}
 			});
-			
 		}
 	}
 
 	private boolean isShowAnswers() {
-	    if (!module.isActivity()) {
-	        return false;
-        }
+		if (!module.isActivity()) {
+			return false;
+		}
 
-        return this.isShowAnswersActive;
-    }
+		return this.isShowAnswersActive;
+	}
 
-    private void showAnswers() {
-        resetAudio();
-        if (!module.isActivity()) { return; }
-        if (this.isShowErrorsActive) setWorkMode();
+	private void showAnswers() {
+		resetAudio();
+		if (!module.blic class ConfigurationManager {isActivity()) { return; }
+		if (this.isShowErrorsActive) setWorkMode();
 
-        setCurrentViewState();
-        this.isShowAnswersActive = true;
+		setCurrentViewState();
+		this.isShowAnswersActive = true;
 
-        view.setWorkStatus(false);
-        view.setCorrectAnswersStyles();
-        view.setCorrectAnswer();
-    }
+		view.setWorkStatus(false);
+		view.setCorrectAnswersStyles();
+		view.setCorrectAnswer();
+	}
 
 	private void hideAnswers() {
 		if (!module.isActivity() || !this.isShowAnswersActive) {
@@ -310,46 +309,46 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public void addView(IModuleView view) {
 
-	    if (view instanceof IDisplay) {
-	        this.view = (IDisplay) view;
-	        this.view.addReorderListener(new IReorderListener() {
+		if (view instanceof IDisplay) {
+			this.view = (IDisplay) view;
+			this.view.addReorderListener(new IReorderListener() {
 
-	            @Override
-	            public void onItemMoved(int sourceIndex, int destIndex) {
-	                onValueChanged(sourceIndex, destIndex);
-                }
+				@Override
+				public void onItemMoved(int sourceIndex, int destIndex) {
+					onValueChanged(sourceIndex, destIndex);
+				}
 
-                @Override
-                public void onAudioButtonClicked(AudioInfo audioInfo) {
-                    AudioWidget audio = audioInfo.getAudio();
-                    AudioButtonWidget button = audioInfo.getButton();
+				@Override
+				public void onAudioButtonClicked(AudioInfo audioInfo) {
+					AudioWidget audio = audioInfo.getAudio();
+					AudioButtonWidget button = audioInfo.getButton();
 
-                    if (audio.isPaused()) {
-                        // in future if audio can be paused and replayed from stopped moment
-                        // reset would need to omit audio which was currently pressed
-                        resetAudio();
+					if (audio.isPaused()) {
+						// in future if audio can be paused and replayed from stopped moment
+						// reset would need to omit audio which was currently pressed
+						resetAudio();
 
-                        audio.play();
-                        button.setStopPlayingStyleClass();
-                    } else {
-                        audio.reset();
-                        button.setStartPlayingStyleClass();
-                    }
-                }
+						audio.play();
+						button.setStopPlayingStyleClass();
+					} else {
+						audio.reset();
+						button.setStartPlayingStyleClass();
+					}
+				}
 
-                @Override
-                public void onAudioEnded(AudioInfo audioInfo) {
-                    AudioWidget audio = audioInfo.getAudio();
-                    AudioButtonWidget button = audioInfo.getButton();
+				@Override
+				public void onAudioEnded(AudioInfo audioInfo) {
+					AudioWidget audio = audioInfo.getAudio();
+					AudioButtonWidget button = audioInfo.getButton();
 
-                    audio.reset();
-                    button.setStartPlayingStyleClass();
-                }
-            });
+					audio.reset();
+					button.setStartPlayingStyleClass();
+				}
+			});
 
-            this.view.connectAudios();
-        }
-    }
+			this.view.connectAudios();
+		}
+	}
 
 	@Override
 	public IModuleModel getModel() {
@@ -620,28 +619,28 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		this.currentState_view = view.getState();
 	}
 
-    private void resetAudio() {
-        for (int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++){
-            Widget widget = this.view.getWidget(itemWidgetIndex);
-            if (widget instanceof ItemWidget) {
-                ItemWidget itemWidget = (ItemWidget) widget;
-                resetAudioInItem(itemWidget);
-            }
-        }
-    }
+	private void resetAudio() {
+		for (int itemWidgetIndex = 0; itemWidgetIndex < this.view.getWidgetCount(); itemWidgetIndex++) {
+			Widget widget = this.view.getWidget(itemWidgetIndex);
+			if (widget instanceof ItemWidget) {
+				ItemWidget itemWidget = (ItemWidget) widget;
+				resetAudioInItem(itemWidget);
+			}
+		}
+	}
 
-    private void resetAudioInItem(ItemWidget itemWidget) {
-        List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
-        for (int i = 0; i < audioInfos.size(); i++) {
-            AudioInfo audioInfo = audioInfos.get(i);
-            AudioButtonWidget button = audioInfo.getButton();
-            AudioWidget audio = audioInfo.getAudio();
-            boolean isElementExists = button != null && audio != null;
+	private void resetAudioInItem(ItemWidget itemWidget) {
+		List<AudioInfo> audioInfos = itemWidget.getAudioInfos();
+		for (int i = 0; i < audioInfos.size(); i++) {
+			AudioInfo audioInfo = audioInfos.get(i);
+			AudioButtonWidget button = audioInfo.getButton();
+			AudioWidget audio = audioInfo.getAudio();
 
-            if (isElementExists && !audio.isPaused()) {
-                audio.reset();
-                button.setStartPlayingStyleClass();
-            }
-        }
-    }
+			boolean isElementExists = button != null && audio != null;
+			if (isElementExists && !audio.isPaused()) {
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+		}
+	}
 }
