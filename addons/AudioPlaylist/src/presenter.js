@@ -12,6 +12,29 @@ function AddonAudioPlaylist_create() {
         'items|name_STR01': "Value provided to name property of the item is empty."
     };
 
+    presenter.DEFAULT_TTS_PHRASES = {
+        PLAY: "Play button",
+        PAUSE: "Pause button",
+        PREVIOUS_AUDIO: "Previous audio",
+        NEXT_AUDIO: "Next audio",
+        AUDIO_SPEED_CONTROLLER: "Audio speed controller",
+        VOLUME: "Volume level",
+        TIMER: "Time",
+        AUDIO_ITEM: "Audio item"
+    };
+
+    presenter.NAVIGATION_ELEMENT = {
+        PLAY: "Play",
+        PAUSE: "Pause",
+        PREVIOUS_AUDIO: "PreviousAudio",
+        NEXT_AUDIO: "NextAudio",
+        AUDIO_SPEED_CONTROLLER: "AudioSpeedController",
+        VOLUME: "Volume",
+        TIMER: "Timer",
+        AUDIO_ITEM: "AudioItem"
+    };
+
+
     var classList = {
         addonWrapper: 'wrapper-addon-audio-playlist',
         controls: 'addon-audio-playlist-controls',
@@ -67,6 +90,11 @@ function AddonAudioPlaylist_create() {
         volumeBarFill: null,
         audioSpeedController: null
     };
+    presenter.keyboardControllerObject = null;
+    presenter.selectedElement = null;
+    presenter.isWCAGOn = false;
+    presenter.speechTexts = null;
+    presenter.audioItemCounter = 1;
 
     presenter.dragData = {
         wasPlaying: false,
@@ -104,6 +132,7 @@ function AddonAudioPlaylist_create() {
 
         presenter.view = view;
         var validatedModel = presenter.validateModel(upgradedModel);
+        presenter.setSpeechTexts(model["speechTexts"]);
         this.assignViewItems(view);
 
         if (!validatedModel.isValid) {
@@ -126,10 +155,12 @@ function AddonAudioPlaylist_create() {
 
         updateBallPosition();
         presenter.selectItem(this.state.currentItemIndex);
+        presenter.buildKeyboardController();
     };
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePlaybackSpeedControls(model);
+        upgradedModel = presenter.upgradeSpeechText(upgradedModel);
 
         return upgradedModel;
     }
@@ -145,11 +176,31 @@ function AddonAudioPlaylist_create() {
         return upgradedModel;
     }
 
+    presenter.upgradeSpeechText = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('speechText')) {
+            upgradedModel['speechTexts'] = {};
+        }
+
+        var speechTextProperties = ['play', 'pause', 'prev', 'next', 'audioSpeedController', 'volume', 'timer', 'audioItem'];
+        speechTextProperties.forEach((propertyName) => {
+            if (!upgradedModel['speechTexts'].hasOwnProperty(propertyName)) {
+                var property = {};
+                property[propertyName] = "";
+                upgradedModel['speechTexts'][propertyName] = property;
+            }
+        });
+
+        return upgradedModel;
+    }
+
     presenter.getViewItemsWithClickAndTouchHandlers = function AddonAudioPlaylist_getViewItemsWithClickAndTouchHandlers() {
         return [
             { item: presenter.viewItems.playPauseButton, handler: AddonAudioPlaylist__playPauseButtonHandler },
-            { item: presenter.viewItems.nextButton, handler: AddonAudioPlaylist__nextButtonHandler },
             { item: presenter.viewItems.prevButton, handler: AddonAudioPlaylist__prevButtonHandler },
+            { item: presenter.viewItems.nextButton, handler: AddonAudioPlaylist__nextButtonHandler },
             { item: presenter.viewItems.volumeButton, handler: AddonAudioPlaylist__volumeButtonHandler },
             { item: presenter.viewItems.volumeBar, handler: AddonAudioPlaylist__volumeBarHandler }
         ];
@@ -165,6 +216,225 @@ function AddonAudioPlaylist_create() {
             { event: 'pause', handler: AddonAudioPlaylist___onAudioPause }
         ]
     };
+
+    presenter.initKeyboardNavigationHandlers = function AddonPlaylist_initKeyboardNavigationHandlers() {
+        presenter.keyboardControllerObject.mapping[KeyboardControllerKeys.ARROW_LEFT] = presenter.keyboardControllerObject.left;
+        presenter.keyboardControllerObject.mapping[KeyboardControllerKeys.ARROW_RIGHT] = presenter.keyboardControllerObject.right;
+        presenter.keyboardControllerObject.mapping[KeyboardControllerKeys.ARROW_UP] = presenter.keyboardControllerObject.up;
+        presenter.keyboardControllerObject.mapping[KeyboardControllerKeys.ARROW_DOWN] = presenter.keyboardControllerObject.down;
+        presenter.keyboardControllerObject.mapping[KeyboardControllerKeys.TAB] = presenter.keyboardControllerObject.tab;
+    }
+
+    presenter.buildKeyboardController = function AddonAudioPlaylist_buildKeyboardController() {
+        var elements = [];
+        presenter.getViewItemsWithClickAndTouchHandlers().forEach(function (item) {
+            if (!item.item.className.includes('volume-bar')) {
+                elements.push($(item.item));
+            }
+        });
+
+        elements.splice(3, 0, $(presenter.viewItems.timerBar));
+
+        if(presenter.configuration.enableAudioSpeedController) {
+            elements.splice(4, 0, $(presenter.viewItems.audioSpeedController));
+        }
+
+        presenter.items.forEach((audio) => {
+            elements.push($(audio.row));
+        })
+
+        presenter.keyboardControllerObject = new AudioPlaylistKeyboardController(elements);
+        presenter.keyboardControllerObject.selectEnabled(true);
+
+        presenter.initKeyboardNavigationHandlers();
+    }
+
+    function AudioPlaylistKeyboardController(elements) {
+        KeyboardController.call(this, elements, elements.length);
+    }
+
+    AudioPlaylistKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    AudioPlaylistKeyboardController.prototype.constructor = AudioPlaylistKeyboardController;
+
+    AudioPlaylistKeyboardController.prototype.tab = function (event) {
+        KeyboardController.prototype.nextElement.call(this, event);
+        presenter.selectedElement = null;
+        this.readCurrentElement();
+    }
+
+    AudioPlaylistKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    }
+
+    AudioPlaylistKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
+        var self = this;
+        var promise = new Promise(function (resolve) {
+                resolve(presenter.selectElement(self.keyboardNavigationCurrentElement[0]));
+            });
+        promise.then(function () {
+            if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.AUDIO_ITEM) {
+                self.keyboardNavigationCurrentElement[0].firstChild.click();
+            } else {
+                self.keyboardNavigationCurrentElement[0].click();
+            }
+        });
+    }
+
+    AudioPlaylistKeyboardController.prototype.up = function (event) {
+        event.preventDefault();
+        if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER) {
+            var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+            var index = playbackRateList.indexOf(presenter.playbackRate);
+            if (index !== (playbackRateList.length - 1)) {
+                var $select = $(presenter.viewItems.audioSpeedController).find('select');
+                index++;
+                $select.val(playbackRateList[index]);
+                presenter.playbackRate = playbackRateList[index];
+                presenter.audio.playbackRate = presenter.playbackRate;
+            }
+        } else if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME) {
+            var volume = presenter.audio.volume;
+            volume += 0.1;
+            if (volume > 1.0) volume = 1.0;
+            presenter.audio.volume = volume;
+            var percent = Math.round(volume * 100);
+            presenter.viewItems.volumeBarFill.style.width = `${percent}%`;
+        }
+    }
+
+    AudioPlaylistKeyboardController.prototype.down = function (event) {
+        event.preventDefault();
+        if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER) {
+            var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+            var index = playbackRateList.indexOf(presenter.playbackRate);
+            if (index !== 0) {
+                var $select = $(presenter.viewItems.audioSpeedController).find('select');
+                index--;
+                $select.val(playbackRateList[index]);
+                presenter.playbackRate = playbackRateList[index];
+                presenter.audio.playbackRate = presenter.playbackRate
+            }
+        } else if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME) {
+            var volume = presenter.audio.volume;
+            volume -= 0.1;
+            if (volume < 0.0) volume = 0.0;
+            presenter.audio.volume = volume;
+            var percent = Math.round(volume * 100);
+            presenter.viewItems.volumeBarFill.style.width = `${percent}%`;
+        }
+    }
+
+    AudioPlaylistKeyboardController.prototype.left = function (event) {
+        event.preventDefault();
+        if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.TIMER) {
+            presenter.audio.currentTime -= 5;
+        }
+    }
+
+    AudioPlaylistKeyboardController.prototype.right = function (event) {
+        event.preventDefault();
+        if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.TIMER) {
+            presenter.audio.currentTime += 5;
+        }
+    }
+
+    AudioPlaylistKeyboardController.prototype.escape = function (event) {
+        presenter.pause();
+
+        if (!presenter.audio) presenter.audio.currentTime = 0;
+        presenter.selectedElement = null;
+        presenter.audioItemCounter = 1;
+
+        KeyboardController.prototype.escape.call(this, event);
+    }
+
+    AudioPlaylistKeyboardController.prototype.exitWCAGMode = function (event) {
+        presenter.selectedElement = null;
+        presenter.audioItemCounter = 1;
+
+        KeyboardController.prototype.exitWCAGMode.call(this, event);
+    }
+
+    presenter.getCurrentElement = function(elementHTML) {
+        var elementHTML = elementHTML.outerHTML;
+        switch (true) {
+            case (elementHTML.includes('play-pause-btn') && !presenter.state.isPlaying):
+                return presenter.NAVIGATION_ELEMENT.PLAY;
+            case (elementHTML.includes('play-pause-btn') && presenter.state.isPlaying):
+                return presenter.NAVIGATION_ELEMENT.PAUSE;
+            case (elementHTML.includes('prev-btn')):
+                return presenter.NAVIGATION_ELEMENT.PREVIOUS_AUDIO;
+            case (elementHTML.includes('next-btn')):
+                return presenter.NAVIGATION_ELEMENT.NEXT_AUDIO;
+            case (elementHTML.includes('volume-btn')):
+                return presenter.NAVIGATION_ELEMENT.VOLUME;
+            case (elementHTML.includes('<select>')):
+                return presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER;
+            case (elementHTML.includes('playlist-bar')):
+                return presenter.NAVIGATION_ELEMENT.TIMER;
+            case (elementHTML.includes('playlist-item')):
+                return presenter.NAVIGATION_ELEMENT.AUDIO_ITEM;
+            default:
+                return null;
+        }
+    }
+
+    presenter.selectElement = function (elementHTML) {
+        presenter.selectedElement = presenter.getCurrentElement(elementHTML);
+        return true;
+    }
+
+    presenter.keyboardController = function (keycode, isShift, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShift, event);
+    }
+
+    presenter.getTextToSpeechOrNull = function () {
+        if (presenter.playerController) {
+            return presenter.playerController.getModule('Text_To_Speech1');
+        }
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    }
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull();
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    AudioPlaylistKeyboardController.prototype.readCurrentElement = function () {
+        if (!presenter.isWCAGOn) return;
+
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        var textToRead = presenter.getTextToRead($element);
+
+        presenter.speak(textToRead);
+    }
+
+    presenter.getTextToRead = function ($element) {
+        var currentElement = presenter.getCurrentElement($element[0]);
+        var textToRead = presenter.speechTexts[currentElement];
+
+        if (currentElement === presenter.NAVIGATION_ELEMENT.PLAY) {
+            presenter.audioItemCounter = 1;
+        }
+
+        if (currentElement === presenter.NAVIGATION_ELEMENT.AUDIO_ITEM) {
+            var audioTitle = getAudioTitle($element);
+            return `${presenter.audioItemCounter++} ${textToRead} ${audioTitle}`;
+        }
+        return textToRead;
+    }
+
+    function getAudioTitle($element) {
+        return $element[0].innerText.split(/\n/)[0];
+    }
 
     presenter.destroy = function AddonAudioPlaylist_destroy() {
         presenter.playerController = null;
@@ -272,8 +542,54 @@ function AddonAudioPlaylist_create() {
             ),
             ModelValidators.utils.FieldRename("Stop playing", "stopPlaying", ModelValidators.Boolean("stopPlaying")),
             ModelValidators.utils.FieldRename("Enable audio speed controller", "enableAudioSpeedController",
-                ModelValidators.Boolean("enableAudioSpeedController", {default: false}))
+                ModelValidators.Boolean("enableAudioSpeedController", {default: false})),
+            ModelValidators.String("langAttribute", {
+                trim: true,
+                default: ""
+            })
         ]);
+    };
+
+    presenter.setSpeechTexts = function (speechText) {
+        presenter.speechTexts = {
+            Play: presenter.DEFAULT_TTS_PHRASES.PLAY,
+            Pause: presenter.DEFAULT_TTS_PHRASES.PAUSE,
+            PreviousAudio: presenter.DEFAULT_TTS_PHRASES.PREVIOUS_AUDIO,
+            NextAudio: presenter.DEFAULT_TTS_PHRASES.NEXT_AUDIO,
+            AudioSpeedController: presenter.DEFAULT_TTS_PHRASES.AUDIO_SPEED_CONTROLLER,
+            Volume: presenter.DEFAULT_TTS_PHRASES.VOLUME,
+            Timer: presenter.DEFAULT_TTS_PHRASES.TIMER,
+            AudioItem: presenter.DEFAULT_TTS_PHRASES.AUDIO_ITEM
+        };
+
+        if(!speechText) return;
+
+        presenter.speechTexts = {
+            Play: TTSUtils.getSpeechTextProperty(
+                speechText.play.play,
+                presenter.speechTexts.Play),
+            Pause: TTSUtils.getSpeechTextProperty(
+                speechText.pause.pause,
+                presenter.speechTexts.Pause),
+            PreviousAudio: TTSUtils.getSpeechTextProperty(
+                speechText.prev.prev,
+                presenter.speechTexts.PreviousAudio),
+            NextAudio: TTSUtils.getSpeechTextProperty(
+                speechText.next.next,
+                presenter.speechTexts.NextAudio),
+            AudioSpeedController: TTSUtils.getSpeechTextProperty(
+                speechText.audioSpeedController.audioSpeedController,
+                presenter.speechTexts.AudioSpeedController),
+            Volume: TTSUtils.getSpeechTextProperty(
+                speechText.volume.volume,
+                presenter.speechTexts.Volume),
+            Timer: TTSUtils.getSpeechTextProperty(
+                speechText.timer.timer,
+                presenter.speechTexts.Timer),
+            AudioItem: TTSUtils.getSpeechTextProperty(
+                speechText.audioItem.audioItem,
+                presenter.speechTexts.AudioItem)
+        };
     };
 
     presenter.executeCommand = function AddonAudioPlaylist_executeCommand(name, params) {
@@ -567,6 +883,13 @@ function AddonAudioPlaylist_create() {
 
             presenter.state.sentTime = time;
         }
+    }
+
+    function AddonAudioPlaylist__audioSpeedButtonHandler(event) {
+        event.preventDefault();
+
+        // createPlaybackRateSelectElement();
+        displayPlaybackRate();
     }
 
     function updateBallPosition() {
