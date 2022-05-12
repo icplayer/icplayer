@@ -160,6 +160,7 @@ function AddonAudioPlaylist_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePlaybackSpeedControls(model);
+        upgradedModel = presenter.upgradeLangAttribute(upgradedModel);
         upgradedModel = presenter.upgradeSpeechText(upgradedModel);
 
         return upgradedModel;
@@ -176,11 +177,22 @@ function AddonAudioPlaylist_create() {
         return upgradedModel;
     }
 
+    presenter.upgradeLangAttribute = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('langAttribute')) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.upgradeSpeechText = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (!upgradedModel.hasOwnProperty('speechText')) {
+        if (!upgradedModel.hasOwnProperty('speechTexts')) {
             upgradedModel['speechTexts'] = {};
         }
 
