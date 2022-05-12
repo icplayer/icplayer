@@ -1860,14 +1860,32 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "_stopRecordButton",
+        value: function _stopRecordButton() {
+            if (this.model.isResetRemovesRecording) {
+                this.recordButton.reset();
+            } else {
+                this.recordButton.forceClick();
+            }
+        }
+    }, {
         key: "_stopActions",
         value: function _stopActions() {
-            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
+            if (this.mediaState.isRecording()) {
+                this._stopRecordButton();
+            }
+            if (this.mediaState.isPlaying()) {
+                this.playButton.forceClick();
+            }
+            if (this.mediaState.isPlayingDefaultRecording()) {
+                this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.model.isResetRemovesRecording) {
                 this.resetRecording();
-            } else this.recordButton.forceClick();
-            if (this.mediaState.isPlaying()) this.playButton.forceClick();
-            if (this.mediaState.isPlayingDefaultRecording()) this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.mediaState.isLoaded()) {
+                this.timer.setTime(0);
+            }
         }
     }, {
         key: "_internalElements",
