@@ -694,6 +694,8 @@ var ice_dictionary_bl = {
 	"crossword_property_marked_column_index": "Индекс на маркирана колона",
 	"crossword_property_marked_row_index": "Индекс на маркиран ред",
     "crossword_property_block_wrong_answers": "Блокирай грешните отговори",
+	"crossword_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
+	"crossword_property_auto_navigation": "Auto navigation",
 	"Custom_Scoring_info": "Позволява свързването на няколко модула и създаването на изцяло интерактивни задачи с функцията за общо оценяване.",
 	"Custom_Scoring_name": "Оценяване по избор",
 	"Custom_Scoring_property_script": "Скрипт",

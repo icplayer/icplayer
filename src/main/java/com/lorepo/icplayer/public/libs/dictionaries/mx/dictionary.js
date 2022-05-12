@@ -700,6 +700,8 @@ var ice_dictionary_mx = {
 	"crossword_property_marked_column_index": "Indice de la columna marcada",
 	"crossword_property_marked_row_index": "Indice de la fila marcada",
 	"crossword_property_block_wrong_answers": "Bloquear respuestas incorrectas",
+	"crossword_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
+	"crossword_property_auto_navigation": "Auto navigation",
 	"Custom_Scoring_info": "Permite a enlazar varios módulos y a crear unas actividades interactivas con la función de puntuación común.",
 	"Custom_Scoring_name": "Contador de puntos personalizado",
 	"Custom_Scoring_property_script": "Guión",
