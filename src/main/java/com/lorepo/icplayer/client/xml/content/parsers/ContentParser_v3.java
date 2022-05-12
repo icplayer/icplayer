@@ -7,13 +7,13 @@ import com.google.gwt.xml.client.Element;
 
 public class ContentParser_v3 extends ContentParser_v2 {
     public ContentParser_v3() {
-		this.version = "4";
-	}
-	
-	@Override
-	protected HashMap<String, HashMap<String, String>> parseDictionaryStructure(Element child) {
-        return this.parseToDictionaryType(child);
-	}
+        this.version = "4";
+    }
+    
+    @Override
+    protected HashMap<String, HashMap<String, String>> parseDictionaryStructure(Element xml) {
+        return this.parseToDictionaryType(xml);
+    }
 
     private HashMap<String, HashMap<String, String>> parseToDictionaryType(Element xmlDictionary) {
         HashMap<String, HashMap<String, String>> dictionary = new HashMap<String, HashMap<String, String>>();
