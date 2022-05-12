@@ -198,6 +198,18 @@ function AddonParagraph_create() {
         presenter.showAnswers();
     }
 
+    presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.setWorkMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
     presenter.getParagraphs = function () {
         var paragraph = presenter.$view.find(".paragraph-wrapper"),
             iframe = paragraph.find("iframe"),

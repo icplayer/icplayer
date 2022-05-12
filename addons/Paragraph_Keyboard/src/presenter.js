@@ -165,6 +165,18 @@ function AddonParagraph_Keyboard_create() {
         presenter.showAnswers();
     }
 
+    presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.setWorkMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
+
     presenter.getParagraphs = function () {
         const paragraph = presenter.$view.find(".paragraph-wrapper"),
             iframe = paragraph.find("iframe"),
