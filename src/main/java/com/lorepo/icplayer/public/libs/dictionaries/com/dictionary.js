@@ -700,6 +700,8 @@ var ice_dictionary_en = {
 	"crossword_property_marked_column_index": "Marked column index",
 	"crossword_property_marked_row_index": "Marked row index",
     "crossword_property_block_wrong_answers": "Block wrong answers",
+	"crossword_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
+	"crossword_property_auto_navigation": "Auto navigation",
 	"Custom_Scoring_info": "Allows to bind multiple modules and create fully interactive activities with one common scoring functionality.",
 	"Custom_Scoring_name": "Custom Scoring",
 	"Custom_Scoring_property_script": "Script",
