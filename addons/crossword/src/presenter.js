@@ -79,6 +79,18 @@ function Addoncrossword_create(){
 
     presenter.isModelValid = true;
 
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        CELL: "cell",
+        ACROSS: "across",
+        DOWN: "down",
+        WRONG: "wrong",
+        EMPTY: "empty",
+        OUT_OFF: "out of",
+    };
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -899,6 +911,7 @@ function Addoncrossword_create(){
         return {
             isError: false,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            langTag: model["langAttribute"],
         };
     };
 
@@ -952,7 +965,9 @@ function Addoncrossword_create(){
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelAddShowAllAnswersInGSAModeProperty(model);
-        return upgradeModelAddAutoNavigationProperty(upgradedModel);
+        upgradedModel = upgradeModelAddAutoNavigationProperty(upgradedModel);
+        upgradedModel = upgradeModelAddLangTagProperty(upgradedModel);
+        return upgradeModelAddSpeechTextsProperty(upgradedModel);
     };
 
     function upgradeModelAddShowAllAnswersInGSAModeProperty(model) {
@@ -977,6 +992,46 @@ function Addoncrossword_create(){
         return upgradedModel;
     }
 
+    function upgradeModelAddLangTagProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] =  '';
+        }
+
+        return upgradedModel;
+    }
+
+    function upgradeModelAddSpeechTextsProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Cell"]) {
+            upgradedModel["speechTexts"]["Cell"] = {Cell: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Across"]) {
+            upgradedModel["speechTexts"]["Across"] = {Across: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Down"]) {
+            upgradedModel["speechTexts"]["Down"] = {Down: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Wrong"]) {
+            upgradedModel["speechTexts"]["Wrong"] = {Wrong: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Empty"]) {
+            upgradedModel["speechTexts"]["Empty"] = {Empty: ""};
+        }
+        if (!upgradedModel["speechTexts"]["OutOf"]) {
+            upgradedModel["speechTexts"]["OutOf"] = {OutOf: ""};
+        }
+
+        return upgradedModel;
+    }
+
     presenter.initializeLogic = function(view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
@@ -994,6 +1049,8 @@ function Addoncrossword_create(){
         presenter.prepareGrid(model);
         presenter.prepareCorrectAnswers();
         presenter.createGrid();
+        presenter.setSpeechTexts(model["speechTexts"]);
+        presenter.buildKeyboardController();
     };
 
     presenter.validate = function(mode) {
@@ -1478,6 +1535,115 @@ function Addoncrossword_create(){
             }
         }
     }
+
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    function CrosswordKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Cell: presenter.DEFAULT_TTS_PHRASES.CELL,
+            Across: presenter.DEFAULT_TTS_PHRASES.ACROSS,
+            Down: presenter.DEFAULT_TTS_PHRASES.DOWN,
+            Wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
+            Empty: presenter.DEFAULT_TTS_PHRASES.EMPTY,
+            OutOf: presenter.DEFAULT_TTS_PHRASES.OUT_OFF,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Cell: TTSUtils.getSpeechTextProperty(
+                speechTexts.Cell.Cell,
+                presenter.speechTexts.Cell),
+            Across: TTSUtils.getSpeechTextProperty(
+                speechTexts.Across.Across,
+                presenter.speechTexts.Across),
+            Down: TTSUtils.getSpeechTextProperty(
+                speechTexts.Down.Down,
+                presenter.speechTexts.Down),
+            Wrong: TTSUtils.getSpeechTextProperty(
+                speechTexts.Wrong.PagesList,
+                presenter.speechTexts.Wrong),
+            Empty: TTSUtils.getSpeechTextProperty(
+                speechTexts.Empty.Pagination,
+                presenter.speechTexts.Empty),
+            OutOf: TTSUtils.getSpeechTextProperty(
+                speechTexts.OutOf.OutOf,
+                presenter.speechTexts.OutOf),
+        };
+    };
+
+    CrosswordKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    CrosswordKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    CrosswordKeyboardController.prototype.select = function (event) {
+
+        const $currentElement = this.getCurrentElement();
+        console.log("Current element", $currentElement, $($currentElement));
+
+        // TODO
+    };
+
+    CrosswordKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    };
+
+    CrosswordKeyboardController.prototype.readCurrentElement = function () {
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+
+        // TODO
+    };
+
+    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, false);
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, true);
+    }
+
+    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag)
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+        else
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
+
+    presenter.getTextToSpeechOrNull = function Toc_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.keyboardControllerObject);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
 
     return presenter;
 }

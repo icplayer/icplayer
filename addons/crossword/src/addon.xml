@@ -19,5 +19,26 @@
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="crossword_property_block_wrong_answers" type="boolean" />
 		<property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
         <property name="autoNavigation" displayName="Auto navigation" nameLabel="crossword_property_auto_navigation" type="{Extended, Simple, Off}"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="crossword_property_lang_attribute" type="string"/>
+        <property name="speechTexts" displayName="Speech texts" nameLabel="crossword_property_speech_texts" type="staticlist">
+			<property name="Cell" nameLabel="crossword_speech_text_cell" type="staticrow">
+                <property name="Cell" nameLabel="crossword_speech_text_cell" type="string"/>
+            </property>
+            <property name="Across" nameLabel="crossword_speech_text_across" type="staticrow">
+                <property name="Across" nameLabel="crossword_speech_text_across" type="string"/>
+            </property>
+            <property name="Down" nameLabel="crossword_speech_text_down" type="staticrow">
+                <property name="Down" nameLabel="crossword_speech_text_down" type="string"/>
+            </property>
+            <property name="Wrong" nameLabel="crossword_speech_text_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="crossword_speech_text_wrong" type="string"/>
+            </property>
+			<property name="Empty" nameLabel="crossword_speech_text_empty" type="staticrow">
+                <property name="Empty" nameLabel="crossword_speech_text_empty" type="string"/>
+            </property>
+			<property name="OutOf" nameLabel="crossword_speech_text_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="crossword_speech_text_out_of" type="string"/>
+            </property>
+		</property>
 	</model>
 </addon>
