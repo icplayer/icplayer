@@ -1,3 +1,4 @@
+2022-05-13 Fixed problem with unchecking in limited check and check combinations
 2022-05-13 Added Audio support to Ordering Addon
 2022-05-13 Add keyboard navigation and text-to-speech to Paragraph addon
 2022-05-13 Fixed setAllPagesAsVisited command resetting previously visited pages
