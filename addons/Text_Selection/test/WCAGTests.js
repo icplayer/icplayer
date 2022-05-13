@@ -37,12 +37,12 @@ TestCase('[Text Selection] WCAG', {
         var $correctAnswerElement = $('<span class="selectable correct-answer" number="5">test</span>');
         var $altElement = $('<span class="selectable" number="11"><span aria-label="alternative test"><span aria-hidden="true">visible test</span></span></span>');
 
-        var textVoices = this.presenter.getElementTextVoice($element);
-        var correctTextVoices = this.presenter.getElementTextVoice($correctElement);
-        var wrongTextVoices = this.presenter.getElementTextVoice($wrongElement);
-        var selectTextVoices = this.presenter.getElementTextVoice($selectedElement);
-        var correctAnswerTextVoices = this.presenter.getElementTextVoice($correctAnswerElement);
-        var altTextVoices = this.presenter.getElementTextVoice($altElement);
+        var textVoices = this.presenter.getElementTextVoices($element);
+        var correctTextVoices = this.presenter.getElementTextVoices($correctElement);
+        var wrongTextVoices = this.presenter.getElementTextVoices($wrongElement);
+        var selectTextVoices = this.presenter.getElementTextVoices($selectedElement);
+        var correctAnswerTextVoices = this.presenter.getElementTextVoices($correctAnswerElement);
+        var altTextVoices = this.presenter.getElementTextVoices($altElement);
 
         assertEquals(1, textVoices.length);
         assertEquals({text:'test', lang: 'pl'},textVoices[0]);

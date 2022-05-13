@@ -141,3 +141,15 @@ button.addon-editable-close-full-screen-button {
     text-align: center;
     display: none;
 }
+
+.selected_module_fake {
+    outline: 2px solid rgba(27,144,253,1) !important;
+	-webkit-box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
+	box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
+}
+
+.active_module_fake {
+	outline: 2px solid rgba(0,255,0,1) !important;
+	-webkit-box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
+	box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
+}

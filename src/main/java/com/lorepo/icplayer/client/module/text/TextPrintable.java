@@ -28,6 +28,8 @@ public class TextPrintable {
 		}
 
 		String parsedText = model.parsedText;
+
+		parsedText = removeTextAudio(parsedText);
 		
 		// Convert all inputs with initial text to a printer friendly format
 		parsedText = makePrintableInput(parsedText, showAnswers);
@@ -71,6 +73,43 @@ public class TextPrintable {
 
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
+
+		return parsedText;
+	}
+
+	private boolean hasElementTypeOfButton(Element element) {
+	    return element.hasAttribute("type") && element.getAttribute("type").equals("button");
+	}
+
+	private String removeTextAudio(String parsedText) {
+	    parsedText = removeTextAudioInfo(parsedText);
+	    parsedText = removeTextAudioAudio(parsedText);
+	    return parsedText;
+	}
+
+	private String removeTextAudioInfo(String parsedText) {
+	    HTML html = new HTML(parsedText);
+	    NodeList<Element> inputs
+	        = html.getElement().getElementsByTagName("input");
+	    for (int i = 0; i < inputs.getLength(); i++) {
+            Element item = inputs.getItem(i);
+            if (hasElementTypeOfButton(item)) {
+                String oldValue = item.getString();
+			    parsedText = parsedText.replace(oldValue, "");
+            }
+        }
+		return parsedText;
+	}
+
+	private String removeTextAudioAudio(String parsedText) {
+	    HTML html = new HTML(parsedText);
+	    NodeList<Element> audioElements
+	        = html.getElement().getElementsByTagName("audio");
+	    for (int i = 0; i < audioElements.getLength(); i++) {
+            Element item = audioElements.getItem(i);
+            String oldValue = item.getString();
+			parsedText = parsedText.replace(oldValue, "");
+        }
 
 		return parsedText;
 	}

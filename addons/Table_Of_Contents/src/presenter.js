@@ -4,7 +4,9 @@ function AddonTable_Of_Contents_create(){
 
     var elementsHeights = {};
 
+    presenter.isWCAGOn = false;
     presenter.keyboardControllerObject = null;
+    presenter.isFirstEnter = true;
 
     presenter.ERROR_CODES = {
         E01: "Values in property 'Don't show' pages must be numeric",
@@ -12,12 +14,48 @@ function AddonTable_Of_Contents_create(){
         E03: "Values in property 'Don't show' pages must be unique"
     };
 
+    presenter.DISPAY_TYPES = {
+        DEFAULT: "default",
+        LIST: "list",
+        COMBO_LIST: "comboList",
+        ICONS: "icons",
+        ICONS_LIST: "icons+list"
+    }
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        TITLE: "Title",
+        GO_TO_PAGE: "Go to page",
+        GO_TO_PAGE_NUMBER: "Go to page number",
+        PAGES_LIST: "List of pages",
+        PAGINATION: "Pagination",
+        OUT_OFF: "out of",
+        SELECTED: "Selected",
+    };
+
+    presenter.CSS_CLASSES = {
+        TABLE_OF_CONTENTS: "table-of-contents",
+        PAGINATION: "table-of-contents-pagination",
+        LIST: "table-of-contents-list",
+        TITLE: "table-of-contents-title",
+        SELECTED: "selected",
+        COMBO_LIST: "comboList",
+        ICONS_LIST: "iconsList",
+        IMAGE_CONTAINER: "imageContainer",
+        IMAGE_ELEMENT: "imageElement",
+        LIST_ELEMENT: "listElement",
+        CURRENT_PAGE: "current-page",
+    };
+
+    presenter.ATTRIBUTES = {
+        DATA_PAGE_NUMBER: "data-page-number",
+    };
+
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     function getCorrectObject(v) { return { isValid: true, value: v }; }
 
     function setElementsDimensions(addonWidth, addonHeight) {
-        var wrapper = presenter.$view.find('.table-of-contents:first')[0];
+        var wrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}:first`)[0];
         var wrapperDimensions = DOMOperationsUtils.getOuterDimensions(wrapper);
         var wrapperDistances = DOMOperationsUtils.calculateOuterDistances(wrapperDimensions);
         $(wrapper).css({
@@ -27,7 +65,7 @@ function AddonTable_Of_Contents_create(){
 
         elementsHeights.wrapper = $(wrapper).height();
 
-        var title = presenter.$view.find('.table-of-contents-title')[0];
+        var title = presenter.$view.find(`.${presenter.CSS_CLASSES.TITLE}`)[0];
         var titleDimensions = DOMOperationsUtils.getOuterDimensions(title);
         var titleDistances = DOMOperationsUtils.calculateOuterDistances(titleDimensions);
         $(title).css({
@@ -36,7 +74,7 @@ function AddonTable_Of_Contents_create(){
 
         elementsHeights.title = $(title).height() + titleDistances.vertical;
 
-        var pagination = presenter.$view.find('.table-of-contents-pagination')[0];
+        var pagination = presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`)[0];
         var paginationDimensions = DOMOperationsUtils.getOuterDimensions(pagination);
         var paginationDistances = DOMOperationsUtils.calculateOuterDistances(paginationDimensions);
         $(pagination).css({
@@ -45,7 +83,7 @@ function AddonTable_Of_Contents_create(){
 
         elementsHeights.pagination = $(pagination).height() + paginationDistances.vertical;
 
-        var list = presenter.$view.find('.table-of-contents-list')[0];
+        var list = presenter.$view.find(`.${presenter.CSS_CLASSES.LIST}`)[0];
         var listDimensions = DOMOperationsUtils.getOuterDimensions(list);
         var listDistances = DOMOperationsUtils.calculateOuterDistances(listDimensions);
         $(list).css({
@@ -70,7 +108,7 @@ function AddonTable_Of_Contents_create(){
                 currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
             
             if (currentPageIndex == page.index) {
-                $link.addClass('current-page');
+                $link.addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
         }
         
@@ -78,7 +116,7 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateListElements (isPreview) {
-        var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             $list.append(generateElement(presenter.pages[i].name, presenter.pages[i], isPreview));
@@ -109,8 +147,8 @@ function AddonTable_Of_Contents_create(){
 
     function generateComboList (isPreview) {
         var selectionList = $('<select class="comboList"></select>');
-        presenter.$view.find('.table-of-contents').append(selectionList);
-        var comboList = presenter.$view.find('.comboList');
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(selectionList);
+        var comboList = presenter.$view.find(`.${presenter.CSS_CLASSES.COMBO_LIST}`);
         $(comboList).css("width", "100%");
 
         for (var i = 0; i < presenter.pages.length; i++) {
@@ -119,12 +157,15 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateIconListElement (page, isPreview) {
-        var anchorElement = $('<a class="imageContainer"></a>'),
-            imgElement = document.createElement('img'),
-            listElement = $('<div class="listElement"></div>');
+        var anchorElement = $('<a></a>');
+        $(anchorElement).addClass(presenter.CSS_CLASSES.IMAGE_CONTAINER);
 
-        $(imgElement).addClass("imageElement");
+        var imgElement = document.createElement('img');
+        $(imgElement).addClass(presenter.CSS_CLASSES.IMAGE_ELEMENT);
         imgElement.src = page.preview;
+
+        var listElement = $('<div></div>');
+        $(listElement).addClass(presenter.CSS_CLASSES.LIST_ELEMENT);
         $(listElement).text(page.name);
         $(anchorElement).append(imgElement).append(listElement);
 
@@ -133,8 +174,10 @@ function AddonTable_Of_Contents_create(){
                 commander = presentationController.getCommands(),
                 currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
 
+            $(anchorElement).attr(presenter.ATTRIBUTES.DATA_PAGE_NUMBER, page.numberOfIndex + 1);
+
             if (currentPageIndex == page.index) {
-                $(anchorElement).addClass('current-page');
+                $(anchorElement).addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
 
             $(anchorElement).click(function (event) {
@@ -151,10 +194,11 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateIconElement (page, isPreview) {
-        var anchorElement = $('<a class="imageContainer"></a>'),
-            imgElement = document.createElement('img');
+        var anchorElement = $('<a class="imageContainer"></a>');
+        $(anchorElement).addClass(presenter.CSS_CLASSES.IMAGE_CONTAINER);
+        var imgElement = document.createElement('img');
 
-        $(imgElement).addClass("imageElement");
+        $(imgElement).addClass(presenter.CSS_CLASSES.IMAGE_ELEMENT);
         imgElement.src = page.preview;
         $(anchorElement).append(imgElement);
 
@@ -163,8 +207,10 @@ function AddonTable_Of_Contents_create(){
                 commander = presentationController.getCommands(),
                 currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
 
+            $(anchorElement).attr(presenter.ATTRIBUTES.DATA_PAGE_NUMBER, page.numberOfIndex + 1);
+
             if (currentPageIndex == page.index) {
-                $(anchorElement).addClass('current-page');
+                $(anchorElement).addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
             }
 
             $(anchorElement).click(function (event) {
@@ -181,8 +227,9 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateIcons (isPreview) {
-        var iconsList = $('<div class="iconsList"></div>');
-        presenter.$view.find('.table-of-contents').append(iconsList);
+        var iconsList = $('<div></div>');
+        iconsList.addClass(presenter.CSS_CLASSES.ICONS_LIST);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(iconsList);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             iconsList.append(generateIconElement(presenter.pages[i], isPreview));
@@ -190,8 +237,9 @@ function AddonTable_Of_Contents_create(){
     }
 
     function generateIconsAndList (isPreview) {
-        var iconsList = $('<div class="iconsList"></div>');
-        presenter.$view.find('.table-of-contents').append(iconsList);
+        var iconsList = $('<div></div>');
+        iconsList.addClass(presenter.CSS_CLASSES.ICONS_LIST);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS}`).append(iconsList);
 
         for (var i = 0; i < presenter.pages.length; i++) {
             iconsList.append(generateIconListElement(presenter.pages[i], isPreview));
@@ -207,10 +255,10 @@ function AddonTable_Of_Contents_create(){
     };
 
     function displayPage(page) {
-        var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol'),
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`),
             pages = presenter.pagination.pages[page], i,
             startIndex = presenter.pageStartIndex(page),
-            $pageList = presenter.$view.find('.table-of-contents-pagination');
+            $pageList = presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`);
 
         $list.find('li').hide();
         $list.attr('start', '' + startIndex);
@@ -218,10 +266,10 @@ function AddonTable_Of_Contents_create(){
             $list.find('li:eq(' + pages[i] + ')').show();
         }
 
-        $pageList.children().removeClass('selected');
+        $pageList.children().removeClass(presenter.CSS_CLASSES.SELECTED);
         $pageList.find('a').each(function(){
             if ($(this).text()==(page+1)) {
-                $(this).addClass('selected');
+                $(this).addClass(presenter.CSS_CLASSES.SELECTED);
             }
         });
    }
@@ -231,8 +279,8 @@ function AddonTable_Of_Contents_create(){
     }
 
     function paginateList(spareHeight, isPreview) {
-        var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
-        var $pagination = presenter.$view.find('.table-of-contents .table-of-contents-pagination');
+        var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
+        var $pagination = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.PAGINATION}`);
 
         if (!isSpaceSufficient($list, spareHeight)) return false;
 
@@ -271,12 +319,12 @@ function AddonTable_Of_Contents_create(){
     function handleMouseClickActions() {
         var commander = presentationController.getCommands(),
             presentation = presentationController.getPresentation(),
-            $list = presenter.$view.find('.table-of-contents-list ol'),
+            $list = presenter.$view.find(`.${presenter.CSS_CLASSES.LIST} ol`),
             currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId(),
             pageName;
 
-        if(presenter.configuration.displayType == 'comboList'){
-            presenter.$view.find('.comboList').change(function(event){
+        if(presenter.isComboListDisplayType()){
+            presenter.$view.find(`.${presenter.CSS_CLASSES.COMBO_LIST}`).change(function(event){
                 event.stopPropagation();
                 event.preventDefault();
                 pageName = $(this).val();
@@ -307,14 +355,14 @@ function AddonTable_Of_Contents_create(){
     }
 
     function handlePaginationMouseActions() {
-        var lists = presenter.$view.find('.table-of-contents .table-of-contents-list'),
-        $pagination = presenter.$view.find('.table-of-contents-pagination');
+        var lists = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST}`),
+        $pagination = presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`);
 
         $pagination.click(function (event) {
             event.stopPropagation();
         });
 
-        presenter.$view.find('.table-of-contents-pagination a').each(function() {
+        presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION} a`).each(function() {
             $(this).click(function(event) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -324,7 +372,10 @@ function AddonTable_Of_Contents_create(){
     }
 
     function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.setSpeechTexts(upgradedModel["speechTexts"]);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return false;
@@ -337,47 +388,95 @@ function AddonTable_Of_Contents_create(){
         presenter.pages = isPreview ? mockPresentationPages() : presenter.getPresentationPages();
         presenter.$view = $(view);
 
-        setElementsDimensions(model.Width, model.Height);
+        setElementsDimensions(upgradedModel.Width, upgradedModel.Height);
 
-        if(presenter.configuration.displayType == "comboList"){
+        if(presenter.isComboListDisplayType()){
             generateComboList(isPreview);
-        }else if(presenter.configuration.displayType == "icons"){
+        }else if(presenter.isIconsDisplayType()){
             generateIcons(isPreview);
-        }else if(presenter.configuration.displayType == "icons+list"){
+        }else if(presenter.isIconsListDisplayType()){
             generateIconsAndList(isPreview);
         }else{
             var listHeight = generateListElements(isPreview),
                 spareHeight = elementsHeights.wrapper - elementsHeights.title;
 
-            var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
+            var $list = presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.LIST} ol`);
             if (!isSpaceSufficient($list, spareHeight)) {
                 reportInsufficientSpace();
             }
         }
 
-        if ((listHeight > spareHeight) && (presenter.configuration.displayType == "default" || presenter.configuration.displayType == "" || presenter.configuration.displayType == undefined)) {
+        if ((listHeight > spareHeight) && (presenter.isDefaultDisplayType())) {
             if (!paginateList(spareHeight - elementsHeights.pagination, isPreview)) {
                 reportInsufficientSpace();
             }
         } else {
-            presenter.$view.find('.table-of-contents-pagination').hide();
+            presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION}`).hide();
         }
 
-        if(presenter.configuration.displayType == "list"){
-            var titleHeight = presenter.$view.find('.table-of-contents-title').height();
-            presenter.$view.find(".table-of-contents-list").css({
-               "height":  model.Height-titleHeight+"px",
+        if(presenter.isListDisplayType()){
+            var titleHeight = presenter.$view.find(`.${presenter.CSS_CLASSES.TITLE}`).height();
+            presenter.$view.find(`.${presenter.CSS_CLASSES.LIST}`).css({
+               "height":  upgradedModel.Height-titleHeight+"px",
                "overflow-y": "scroll"
             });
         }
 
         if (!isPreview) handleMouseClickActions();
-        if (!ModelValidationUtils.isStringEmpty(model['Header'])) {
-        	presenter.$view.find('.table-of-contents .table-of-contents-title').text(model['Header'])
+        if (!ModelValidationUtils.isStringEmpty(upgradedModel['Header'])) {
+        	presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_OF_CONTENTS} .${presenter.CSS_CLASSES.TITLE}`).text(upgradedModel['Header'])
         }
 
          presenter.buildKeyboardController();
     }
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeLangTag(model);
+        return presenter.upgradeSpeechTexts(upgradedModel);
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Title"]) {
+            upgradedModel["speechTexts"]["Title"] = {Title: ""};
+        }
+        if (!upgradedModel["speechTexts"]["GoToPage"]) {
+            upgradedModel["speechTexts"]["GoToPage"] = {GoToPage: ""};
+        }
+        if (!upgradedModel["speechTexts"]["GoToPageNumber"]) {
+            upgradedModel["speechTexts"]["GoToPageNumber"] = {GoToPageNumber: ""};
+        }
+        if (!upgradedModel["speechTexts"]["PagesList"]) {
+            upgradedModel["speechTexts"]["PagesList"] = {PagesList: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Pagination"]) {
+            upgradedModel["speechTexts"]["Pagination"] = {Pagination: ""};
+        }
+        if (!upgradedModel["speechTexts"]["OutOf"]) {
+            upgradedModel["speechTexts"]["OutOf"] = {OutOf: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Selected"]) {
+            upgradedModel["speechTexts"]["Selected"] = {Selected: ""};
+        }
+
+        return upgradedModel;
+    };
 
     presenter.validateHiddenPages = function(hiddenPages) {
         if (typeof(hiddenPages) == 'undefined') {
@@ -414,7 +513,8 @@ function AddonTable_Of_Contents_create(){
             ID: model.ID,
             isValid: true,
             hiddenPages: pagesValidationResult.value,
-            displayType: model.displayType
+            displayType: model.displayType,
+            langTag: model.langAttribute,
         };
     };
 
@@ -485,37 +585,100 @@ function AddonTable_Of_Contents_create(){
         presentationController = controller;
     };
 
-    function getElements() {
-        var elements = [];
-
-        if(presenter.configuration.displayType == "comboList"){
-            for (var i = 0; i < presenter.$view.find('select').length; i++) {
-                elements.push($(presenter.$view.find('select')[i]));
-            }
-        }else if(presenter.configuration.displayType == "icons" || presenter.configuration.displayType == "icons+list"){
-            for (var i = 0; i < presenter.$view.find('.iconsList a').length; i++) {
-                elements.push($(presenter.$view.find('.iconsList a')[i]));
-            }
-        }else {
-            for (var i = 0; i < presenter.$view.find('li a').length; i++) {
-                elements.push($(presenter.$view.find('li a')[i]));
-            }
-
-            for (var i = 0; i < presenter.$view.find('.table-of-contents-pagination a').length; i++) {
-                elements.push($(presenter.$view.find('.table-of-contents-pagination a')[i]));
-            }
-        }
-
-        return elements;
-    }
-
     presenter.buildKeyboardController = function () {
-        presenter.keyboardControllerObject = new TocKeyboardController(getElements(), 1);
+        presenter.keyboardControllerObject = new TocKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
         presenter.keyboardControllerObject.selectEnabled(true);
     };
 
+    presenter.getElementsForTTS = function() {
+        var elements = presenter.getElementsForKeyboardNavigation();
+        elements.unshift(presenter.getTitleElementForKeyboardNavigation());
+        return elements;
+    };
+
+    presenter.getElementsForKeyboardNavigation = function() {
+        if (presenter.isComboListDisplayType()){
+            return presenter.getComboListDisplayTypeElementsForKeyboardNavigation();
+        } else if (presenter.isIconsDisplayType() || presenter.isIconsListDisplayType()) {
+            return presenter.getIconsDisplayTypeElementsForKeyboardNavigation();
+        } else if (presenter.isDefaultDisplayType()) {
+            return presenter.getDefaultDisplayTypeElementsForKeyboardNavigation();
+        } else if (presenter.isListDisplayType()) {
+            return presenter.getListDisplayTypeElementsForKeyboardNavigation();
+        }
+    };
+
+    presenter.getDefaultDisplayTypeElementsForKeyboardNavigation = function() {
+        var elements = presenter.getListDisplayTypeElementsForKeyboardNavigation();
+
+        for (var i = 0; i < presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION} a`).length; i++) {
+            elements.push($(presenter.$view.find(`.${presenter.CSS_CLASSES.PAGINATION} a`)[i]));
+        }
+
+        return elements;
+    };
+
+    presenter.getListDisplayTypeElementsForKeyboardNavigation = function() {
+        var elements = [];
+
+        for (var i = 0; i < presenter.$view.find('li a').length; i++) {
+            elements.push($(presenter.$view.find('li a')[i]));
+        }
+
+        return elements;
+    };
+
+    presenter.getIconsDisplayTypeElementsForKeyboardNavigation = function() {
+        var elements = [];
+
+        for (var i = 0; i < presenter.$view.find(`.${presenter.CSS_CLASSES.ICONS_LIST} a`).length; i++) {
+            elements.push($(presenter.$view.find(`.${presenter.CSS_CLASSES.ICONS_LIST} a`)[i]));
+        }
+
+        return elements;
+    };
+
+    presenter.getComboListDisplayTypeElementsForKeyboardNavigation = function() {
+        var elements = [];
+
+        for (var i = 0; i < presenter.$view.find('select').length; i++) {
+            elements.push($(presenter.$view.find('select')[i]));
+        }
+
+        return elements;
+    };
+
+    presenter.getTitleElementForKeyboardNavigation = function() {
+        return $(presenter.$view.find(`.${presenter.CSS_CLASSES.TITLE}`)[0]);
+    };
+
+    presenter.isDefaultDisplayType = function() {
+        var displayType = presenter.configuration.displayType;
+        return (
+          displayType == presenter.DISPAY_TYPES.DEFAULT
+          || displayType == ""
+          || displayType == undefined
+        )
+    };
+
+    presenter.isListDisplayType = function() {
+        return presenter.configuration.displayType == presenter.DISPAY_TYPES.LIST;
+    };
+
+    presenter.isComboListDisplayType = function() {
+        return presenter.configuration.displayType == presenter.DISPAY_TYPES.COMBO_LIST;
+    };
+
+    presenter.isIconsDisplayType = function() {
+        return presenter.configuration.displayType == presenter.DISPAY_TYPES.ICONS;
+    };
+
+    presenter.isIconsListDisplayType = function() {
+        return presenter.configuration.displayType == presenter.DISPAY_TYPES.ICONS_LIST;
+    };
+
     presenter.keyboardController = function(keycode, isShiftDown, event) {
-        if(presenter.configuration.displayType == "comboList") {
+        if (presenter.isComboListDisplayType()) {
             presenter.$view.find('select').focus();
         }
         presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
@@ -530,85 +693,342 @@ function AddonTable_Of_Contents_create(){
 
     function scrollHorizontally(element) {
         var pos = $(element).position().left,
-            currentscroll = presenter.$view.find('.iconsList').scrollLeft(),
-            divwidth = presenter.$view.find('.iconsList').width();
+            currentscroll = presenter.$view.find(`.${presenter.CSS_CLASSES.ICONS_LIST}`).scrollLeft(),
+            divwidth = presenter.$view.find(`.${presenter.CSS_CLASSES.ICONS_LIST}`).width();
 
         pos=(pos+currentscroll)-(divwidth/2);
 
-        presenter.$view.find('.iconsList').scrollLeft(pos);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.ICONS_LIST}`).scrollLeft(pos);
     }
 
     function scrollVertically(element) {
         var pos = $(element).position().top,
-            currentscroll = presenter.$view.find('.table-of-contents-list').scrollTop(),
-            divheight = presenter.$view.find('.table-of-contents-list').height();
+            currentscroll = presenter.$view.find(`.${presenter.CSS_CLASSES.LIST}`).scrollTop(),
+            divheight = presenter.$view.find(`.${presenter.CSS_CLASSES.LIST}`).height();
 
         pos=(pos+currentscroll)-(divheight/2);
 
-        presenter.$view.find('.table-of-contents-list').scrollTop(pos);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.LIST}`).scrollTop(pos);
     }
 
     function centerElement(element){
-        if(presenter.configuration.displayType == "icons" || presenter.configuration.displayType == "icons+list"){
+        if(presenter.isIconsDisplayType() || presenter.isIconsListDisplayType()){
             scrollHorizontally(element);
         }else {
             scrollVertically(element);
         }
     }
 
-    TocKeyboardController.prototype.nextElement = function () {
-        this.switchElement(1);
-
-        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
-            this.nextElement();
-        }
-
-        centerElement(this.keyboardNavigationCurrentElement);
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
     };
 
-    TocKeyboardController.prototype.previousElement = function () {
-        this.switchElement(-1);
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Title: presenter.DEFAULT_TTS_PHRASES.TITLE,
+            GoToPage: presenter.DEFAULT_TTS_PHRASES.GO_TO_PAGE,
+            GoToPageNumber: presenter.DEFAULT_TTS_PHRASES.GO_TO_PAGE_NUMBER,
+            PagesList: presenter.DEFAULT_TTS_PHRASES.PAGES_LIST,
+            Pagination: presenter.DEFAULT_TTS_PHRASES.PAGINATION,
+            OutOf: presenter.DEFAULT_TTS_PHRASES.OUT_OFF,
+            Selected: presenter.DEFAULT_TTS_PHRASES.SELECTED,
+        };
 
-        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
-            this.previousElement();
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
         }
 
-        centerElement(this.keyboardNavigationCurrentElement);
+        presenter.speechTexts = {
+            Title: TTSUtils.getSpeechTextProperty(
+                speechTexts.Title.Title,
+                presenter.speechTexts.Title),
+            GoToPage: TTSUtils.getSpeechTextProperty(
+                speechTexts.GoToPage.GoToPage,
+                presenter.speechTexts.GoToPage),
+            GoToPageNumber: TTSUtils.getSpeechTextProperty(
+                speechTexts.GoToPageNumber.GoToPageNumber,
+                presenter.speechTexts.GoToPageNumber),
+            PagesList: TTSUtils.getSpeechTextProperty(
+                speechTexts.PagesList.PagesList,
+                presenter.speechTexts.PagesList),
+            Pagination: TTSUtils.getSpeechTextProperty(
+                speechTexts.Pagination.Pagination,
+                presenter.speechTexts.Pagination),
+            OutOf: TTSUtils.getSpeechTextProperty(
+                speechTexts.OutOf.OutOf,
+                presenter.speechTexts.OutOf),
+            Selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.Selected)
+        };
     };
 
-    TocKeyboardController.prototype.nextRow = function () {
-        if (event) {
+    // TAB or Right Arrow
+    TocKeyboardController.prototype.nextElement = function (event) {
+        if (event && this.isActiveTTSOrCurrentElementNotComboList()) {
             event.preventDefault();
         }
-        this.switchElement(this.columnsCount);
 
-        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
-            this.nextRow();
+        const isArrowRight = event && event.keyCode === 39;
+        if (isArrowRight && this.isActiveTTSAndCurrentElementComboList()) {
+            this.switchOption(1);
+        } else {
+            this.switchElement(1);
+
+            if (this.isCurrentElementNotDisplayed()) {
+                this.nextElement();
+            }
+
+            centerElement(this.keyboardNavigationCurrentElement);
         }
-
-        centerElement(this.keyboardNavigationCurrentElement);
     };
 
-    TocKeyboardController.prototype.previousRow = function () {
-        if (event) {
+    // SHIFT+TAB or Left Arrow
+    TocKeyboardController.prototype.previousElement = function (event) {
+        if (event && this.isActiveTTSOrCurrentElementNotComboList()) {
             event.preventDefault();
         }
-        this.switchElement(-this.columnsCount);
 
-        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
-            this.previousRow();
+        const isArrowLeft = event && event.keyCode === 37;
+        if (isArrowLeft && this.isActiveTTSAndCurrentElementComboList()) {
+            this.switchOption(-1);
+        } else {
+            this.switchElement(-1);
+
+            if(this.isCurrentElementNotDisplayed()) {
+                this.previousElement();
+            }
+
+            centerElement(this.keyboardNavigationCurrentElement);
         }
-
-        centerElement(this.keyboardNavigationCurrentElement);
     };
 
-    TocKeyboardController.prototype.select = function () {
+    // DOWN Arrow
+    TocKeyboardController.prototype.nextRow = function (event) {
+        if (event && this.isActiveTTSOrCurrentElementNotComboList()) {
+            event.preventDefault();
+        }
+
+        if (this.isActiveTTSAndCurrentElementComboList()) {
+            this.switchOption(1);
+        } else {
+            this.switchElement(this.columnsCount);
+
+            if(this.isCurrentElementNotDisplayed()) {
+                this.nextRow();
+            }
+
+            centerElement(this.keyboardNavigationCurrentElement);
+        }
+    };
+
+    // UP Arrow
+    TocKeyboardController.prototype.previousRow = function (event) {
+        if (event && this.isActiveTTSOrCurrentElementNotComboList()) {
+            event.preventDefault();
+        }
+
+        if (this.isActiveTTSAndCurrentElementComboList()) {
+            this.switchOption(-1);
+        } else {
+            this.switchElement(-this.columnsCount);
+
+            if (this.isCurrentElementNotDisplayed()) {
+                this.previousRow();
+            }
+
+            centerElement(this.keyboardNavigationCurrentElement);
+        }
+    };
+
+    TocKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        if(!this.isCurrentElementNotDisplayed()) {
+            this.readCurrentElement();
+        }
+    };
+
+    TocKeyboardController.prototype.switchOption = function (move) {
+        const $option = this.getCurrentElement();
+        const optionSize = $option.find("option").size();
+        const currentIndex = $option.prop("selectedIndex");
+        const nextIndex = currentIndex + move;
+
+        if (0 <= nextIndex && nextIndex < optionSize) {
+            $option.prop("selectedIndex", nextIndex);
+            this.readCurrentElement();
+        }
+    };
+
+    TocKeyboardController.prototype.select = function (event) {
+        const $currentElement = this.getCurrentElement();
+        const isCurrentElementComboList = isElementComboList($currentElement);
+        const isActiveTTS = presenter.isTTS();
+
+        if (event && (isActiveTTS || !isCurrentElementComboList)) {
+            event.preventDefault();
+        }
         if (!this.isSelectEnabled) {
             return;
         }
 
-        this.selectAction();
+        if (isActiveTTS && isCurrentElementComboList) {
+            $currentElement.change();
+        } else {
+            this.selectAction();
+            if (isParentOfElementPaginationList($currentElement)) {
+                presenter.speak(presenter.speechTexts.Selected);
+            }
+        }
     };
+
+    TocKeyboardController.prototype.isCurrentElementNotDisplayed = function () {
+        return this.getCurrentElement().parent().style("display") === "none";
+    };
+
+    TocKeyboardController.prototype.isActiveTTSAndCurrentElementComboList = function () {
+        return presenter.isTTS() && this.isCurrentElementComboList();
+    };
+
+    TocKeyboardController.prototype.isActiveTTSOrCurrentElementNotComboList = function () {
+        return presenter.isTTS() || !this.isCurrentElementComboList();
+    };
+
+    TocKeyboardController.prototype.isCurrentElementComboList = function () {
+        const $currentElement = this.getCurrentElement();
+        return isElementComboList($currentElement);
+    };
+
+    TocKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    };
+
+    TocKeyboardController.prototype.enter = function (event) {
+        if (presenter.isTTS() && presenter.isFirstEnter) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.isFirstEnter = false;
+        }
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    TocKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.isFirstEnter = true;
+        KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    TocKeyboardController.prototype.readCurrentElement = function () {
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+
+        if ($element.hasClass(presenter.CSS_CLASSES.TITLE)) {
+            presenter.speak(getTitleTTS($element));
+        } else {
+            if ($element.parent().hasClass(presenter.CSS_CLASSES.PAGINATION)) {
+                presenter.speak(getPaginationHyperLinkTTS($element));
+            } else if (isElementComboList($element)) {
+                presenter.speak(getComboListTTS($element));
+            } else if (presenter.isIconsDisplayType()) {
+                presenter.speak(getIconTTS($element));
+            } else {
+                presenter.speak(getHyperLinkTTS($element));
+            }
+        }
+    };
+
+    function isElementComboList($element) {
+        return $element.hasClass(presenter.CSS_CLASSES.COMBO_LIST);
+    }
+
+    function isParentOfElementPaginationList($element) {
+        return $element.parent().hasClass(presenter.CSS_CLASSES.PAGINATION);
+    }
+
+    function getTitleTTS($element) {
+        var textVoiceObject = [];
+
+        const titlePrefix = presenter.speechTexts.Title;
+        pushMessageToTextVoiceObject(textVoiceObject, titlePrefix);
+
+        const titleText = $element[0].innerText;
+        pushMessageToTextVoiceObject(textVoiceObject, titleText, true);
+
+        return textVoiceObject;
+    }
+
+    function getHyperLinkTTS($element) {
+        const goToPagePrefix = presenter.speechTexts.GoToPage;
+        const pageName = $element[0].innerText;
+        return `${goToPagePrefix} ${pageName}`;
+    }
+
+    function getPaginationHyperLinkTTS($element) {
+        const language = document.documentElement.lang;
+        const currentPaginationIndexAsText
+          = window.TTSUtils.numberToOrdinalNumber($element[0].innerText, language, window.TTSUtils.GENDER.NEUTER);
+        const paginationSizeAsText
+          = window.TTSUtils.numberToOrdinalNumber(presenter.pagination.size + 1, language, window.TTSUtils.GENDER.FEMININE);
+
+        var texts = [presenter.speechTexts.Pagination, ];
+        if ($element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+            texts.push(presenter.speechTexts.Selected);
+        }
+        texts.push(`${currentPaginationIndexAsText} ${presenter.speechTexts.OutOf} ${paginationSizeAsText}`);
+
+        return createVoiceObject(texts);
+    }
+
+    function getIconTTS($element) {
+        return `${presenter.speechTexts.GoToPageNumber} ${$element.attr(presenter.ATTRIBUTES.DATA_PAGE_NUMBER)}`;
+    }
+
+    function getComboListTTS($element) {
+        var textVoiceObject = [];
+
+        const prefix = presenter.speechTexts.PagesList;
+        pushMessageToTextVoiceObject(textVoiceObject, prefix);
+
+        const pageName = $element.val();
+        const gotToPageText = `${presenter.speechTexts.GoToPage} ${pageName}`;
+        pushMessageToTextVoiceObject(textVoiceObject, gotToPageText);
+
+        return textVoiceObject;
+    }
+
+    presenter.getTextToSpeechOrNull = function Toc_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data) {
+        var tts = presenter.getTextToSpeechOrNull(presentationController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.isTTS = function () {
+        return presenter.getTextToSpeechOrNull(presentationController) && presenter.isWCAGOn;
+    };
+
+    function createVoiceObject(messages, usePresenterLangTag = false) {
+        var textVoiceObject = [];
+        for (var i = 0; i < messages.length; i++) {
+            pushMessageToTextVoiceObject(textVoiceObject, messages[i], usePresenterLangTag);
+        }
+        return textVoiceObject;
+    }
+
+    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag)
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+        else
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
 
     return presenter;
 }

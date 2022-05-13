@@ -167,8 +167,16 @@ function AddonParagraph_create() {
         return 1;
     }
 
-    presenter.disableParagraph = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
+    presenter.enableEdit = function () {
+        let paragraph = presenter.$view.find(".paragraph-wrapper");
+
+        if(paragraph.hasClass('disabled')) {
+            paragraph.removeClass('disabled');
+        }
+    }
+
+    presenter.disableEdit = function () {
+        let paragraph = presenter.$view.find(".paragraph-wrapper");
 
         if(!paragraph.hasClass('disabled')) {
             paragraph.addClass('disabled');
@@ -178,7 +186,7 @@ function AddonParagraph_create() {
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) { return; }
 
-        presenter.disableParagraph();
+        presenter.disableEdit();
         var elements = presenter.getParagraphs();
         presenter.isShowAnswersActive = true;
 
@@ -195,10 +203,9 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
         var elements = presenter.getParagraphs();
 
-        paragraph.removeClass('disabled');
+        presenter.enableEdit();
         presenter.isShowAnswersActive = false;
 
         if (presenter.cachedAnswer.length) {
@@ -212,7 +219,7 @@ function AddonParagraph_create() {
     }
 
     presenter.gradualShowAnswers = function (data) {
-        presenter.disableParagraph();
+        presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) { return; }
         presenter.showAnswers();
     }
@@ -946,6 +953,7 @@ function AddonParagraph_create() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
+                if (presenter.isShowAnswersActive) presenter.hideAnswers();
                 tinymceState = presenter.editor.getContent({format : 'raw'});
             }catch(err) {
                 return  presenter.state;
@@ -998,6 +1006,7 @@ function AddonParagraph_create() {
             presenter.setText(presenter.configuration.placeholderText);
         } else {
             presenter.editor.setContent('');
+            presenter.setStyles();
         }
         presenter.placeholder.addPlaceholder();
         if (presenter.isLocked) {

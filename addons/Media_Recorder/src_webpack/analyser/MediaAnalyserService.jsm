@@ -3,7 +3,7 @@ import {AnalyserProvider} from "./AnalyserProvider.jsm";
 export class MediaAnalyserService {
 
     constructor() {
-        this.audioContext = new (AudioContext || webkitAudioContext)();
+        this.audioContext = AudioContextSingleton.getOrCreate();
         this.mediaStreamSource = null;
         this.mediaElementSource = null;
     }
@@ -48,9 +48,9 @@ export class MediaAnalyserService {
 
     destroy() {
         this.closeAnalyzing();
-        this.audioContext.close();
-        this.mediaElementSource = null;
+        AudioContextSingleton.close();
         this.audioContext = null;
+        this.mediaElementSource = null;
         this.mediaStreamSource = null;
     }
 }

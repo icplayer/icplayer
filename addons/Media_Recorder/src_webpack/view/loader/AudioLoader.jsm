@@ -1,4 +1,5 @@
 import {Loader} from "./Loader.jsm";
+import {CSS_CLASSES} from "../CssClasses.jsm";
 
 export class AudioLoader extends Loader {
 
@@ -7,10 +8,10 @@ export class AudioLoader extends Loader {
     }
 
     show() {
-        this.$view.addClass("audio-loader");
+        this.$view.addClass(CSS_CLASSES.AUDIO_LOADER);
     }
 
     hide() {
-        this.$view.removeClass("audio-loader");
+        this.$view.removeClass(CSS_CLASSES.AUDIO_LOADER);
     }
 }
