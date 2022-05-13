@@ -91,6 +91,12 @@ function Addoncrossword_create(){
         OUT_OFF: "out of",
     };
 
+    presenter.CSS_CLASSES = {
+        CELL: 'cell',
+        CELL_BLANK: 'cell_blank',
+        CELL_LETTER: "cell_letter",
+    };
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -372,6 +378,27 @@ function Addoncrossword_create(){
         }
     }
 
+    function areLeftCellsEditable(currentPosition) {
+        return !!getNextLeftEditableCellPosition(currentPosition);
+    }
+
+    function getNextLeftEditableCellPosition(currentPosition) {
+        const nextYPosition = currentPosition.y;
+        var nextPosition;
+        for (var nextXPosition = currentPosition.x - 1; nextXPosition >= 0; nextXPosition--) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
     function areBottomCellsEditable(currentPosition) {
         return !!getNextBottomEditableCellPosition(currentPosition);
     }
@@ -380,6 +407,27 @@ function Addoncrossword_create(){
         const nextXPosition = currentPosition.x;
         var nextPosition;
         for (var nextYPosition = currentPosition.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function areTopCellsEditable(currentPosition) {
+        return !!getNextTopEditableCellPosition(currentPosition);
+    }
+
+    function getNextTopEditableCellPosition(currentPosition) {
+        const nextXPosition = currentPosition.x;
+        var nextPosition;
+        for (var nextYPosition = currentPosition.y - 1; nextYPosition >= 0; nextYPosition--) {
             nextPosition = {y: nextYPosition, x: nextXPosition};
             var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
             if (isNextCellNotBlank) {
@@ -491,6 +539,10 @@ function Addoncrossword_create(){
         return _isPositionOfNotBlankCell(position);
     }
 
+    function isBlankCell(cell) {
+        return $(cell).hasClass(presenter.CSS_CLASSES.CELL_BLANK);
+    }
+
     function _isPositionOfNotBlankCell(position) {
         return presenter.crossword[position.y][position.x][0] !== ' ';
     }
@@ -500,6 +552,10 @@ function Addoncrossword_create(){
             return;
         }
         return presenter.$view.find(`.cell_row_${position.y}.cell_column_${position.x}`).find("input")[0];
+    }
+
+    function getElementInput(element) {
+        return $(element).find("input")[0];
     }
 
     function isPositionValid(position) {
@@ -1536,17 +1592,6 @@ function Addoncrossword_create(){
         }
     }
 
-    presenter.keyboardController = function(keycode, isShiftDown, event) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
-    };
-
-    function CrosswordKeyboardController (elements, columnsCount) {
-        KeyboardController.call(this, elements, columnsCount);
-    }
-
-    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
-    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
-
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
             Cell: presenter.DEFAULT_TTS_PHRASES.CELL,
@@ -1572,16 +1617,39 @@ function Addoncrossword_create(){
                 speechTexts.Down.Down,
                 presenter.speechTexts.Down),
             Wrong: TTSUtils.getSpeechTextProperty(
-                speechTexts.Wrong.PagesList,
+                speechTexts.Wrong.Wrong,
                 presenter.speechTexts.Wrong),
             Empty: TTSUtils.getSpeechTextProperty(
-                speechTexts.Empty.Pagination,
+                speechTexts.Empty.Empty,
                 presenter.speechTexts.Empty),
             OutOf: TTSUtils.getSpeechTextProperty(
                 speechTexts.OutOf.OutOf,
                 presenter.speechTexts.OutOf),
         };
     };
+
+    function CrosswordKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject
+            = new CrosswordKeyboardController(
+                presenter.getElementsForKeyboardNavigation(),
+                presenter.columnCount
+        );
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`.${presenter.CSS_CLASSES.CELL}`);
+    };
+
+    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
 
     CrosswordKeyboardController.prototype.exitWCAGMode = function () {
         KeyboardController.prototype.exitWCAGMode.call(this);
@@ -1598,22 +1666,179 @@ function Addoncrossword_create(){
     };
 
     CrosswordKeyboardController.prototype.select = function (event) {
-
-        const $currentElement = this.getCurrentElement();
-        console.log("Current element", $currentElement, $($currentElement));
+        const currentElement = this.getCurrentElement();
 
         // TODO
     };
+
+    CrosswordKeyboardController.prototype.setUpMapping = function (event) {
+        this.mapping
+    }
+
+    /**
+     Action when was called tab
+     @method nextElement
+    */
+    CrosswordKeyboardController.prototype.nextTabIndexElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextRightEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setHorizontalDirection();
+        var move = nextPosition.x - currentCellPosition.x;
+        this.switchElement(move);
+    };
+
+    /**
+     Action when was called shift + tab
+     @method previousElement
+    */
+    CrosswordKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextLeftEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setHorizontalDirection();
+        var move = nextPosition.x - currentCellPosition.x;
+        this.switchElement(move);
+    };
+
+    /**
+     Action when was called right arrow
+     @method nextElement
+    */
+    CrosswordKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextRightEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setHorizontalDirection();
+        var move = nextPosition.x - currentCellPosition.x;
+        this.switchElement(move);
+    };
+
+    /**
+     Action when was called left arrow
+     @method previousElement
+    */
+    CrosswordKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextLeftEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setHorizontalDirection();
+        var move = nextPosition.x - currentCellPosition.x;
+        this.switchElement(move);
+    };
+
+    /**
+     Action when was called up arrow
+     @method nextRow
+    */
+    CrosswordKeyboardController.prototype.nextRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextBottomEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setVerticalDirection();
+        var move = (nextPosition.y - currentCellPosition.y) * this.columnsCount;
+        this.switchElement(move);
+    };
+
+    /**
+     Action when was called down arrow
+     @method previousRow
+    */
+    CrosswordKeyboardController.prototype.previousRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var currentCellPosition = this.getCurrentElementPosition();
+        var nextPosition = getNextTopEditableCellPosition(currentCellPosition);
+        if (!nextPosition) {
+            return;
+        }
+        presenter.setVerticalDirection();
+        var move = (nextPosition.y - currentCellPosition.y) * this.columnsCount;
+        this.switchElement(move);
+    };
+
+    CrosswordKeyboardController.prototype.switchElement = function (move) {
+        var newPositionIndex = this.calculateNewPositionIndex(move);
+        this.markCurrentElement(newPositionIndex);
+    };
+
+    CrosswordKeyboardController.prototype.calculateNewPositionIndex = function (move) {
+        var newPositionIndex = this.keyboardNavigationCurrentElementIndex + move;
+        if (newPositionIndex >= this.keyboardNavigationElementsLen) {
+            newPositionIndex = this.keyboardNavigationElementsLen;
+        } else if (newPositionIndex < 0) {
+            newPositionIndex = this.keyboardNavigationElementsLen;
+        }
+        return newPositionIndex;
+    }
+
+    CrosswordKeyboardController.prototype.mark = function (element) {
+        KeyboardController.prototype.mark.call(this, element);
+        var inputCell = getElementInput(element);
+        $(inputCell).focus();
+    };
+
+    CrosswordKeyboardController.prototype.unmark = function (element) {
+        KeyboardController.prototype.unmark.call(this, element);
+        var inputCell = getElementInput(element);
+        $(inputCell).blur();
+    };
+
+    CrosswordKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    }
+
+    CrosswordKeyboardController.prototype.getCurrentElementPosition = function () {
+        return presenter.getPosition(this.getCurrentElement());
+    }
 
     CrosswordKeyboardController.prototype.getCurrentElement = function () {
         return this.getTarget(this.keyboardNavigationCurrentElement, false);
     };
 
+    CrosswordKeyboardController.prototype.getCurrentInputElement = function () {
+        return $(this.getTarget(this.keyboardNavigationCurrentElement, false)).find("input")[0];
+    };
+
     CrosswordKeyboardController.prototype.readCurrentElement = function () {
-        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        var element = this.getTarget(this.keyboardNavigationCurrentElement, false);
 
         // TODO
     };
+
+
 
     function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
         pushMessageToTextVoiceObject(textVoiceObject, message, false);
