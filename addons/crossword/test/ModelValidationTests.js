@@ -1,4 +1,4 @@
-TestCase("[Crossword] Model validation", {
+TestCase("[Crossword] Model validation tests", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
 
@@ -17,7 +17,8 @@ TestCase("[Crossword] Model validation", {
             "Letter cells border width": "1",
             "Word numbers": "",
             "Marked column index": "4",
-            "Marked row index": ""
+            "Marked row index": "",
+            "autoNavigation": "Simple"
         };
 
         sinon.stub(this.presenter, 'isBlockWrongAnswers');
@@ -149,4 +150,48 @@ TestCase("[Crossword] Model validation", {
         assertEquals(JSON.stringify(this.presenter.correctAnswers), JSON.stringify(expectedPreparedAnswers));
     },
 
+    'test given empty auto navigation property in model when reading configuration then return validation error': function() {
+        this.model["autoNavigation"] = "";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals(this.presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE, validatedModel.errorMessage);
+    },
+
+    'test given not valid value in auto navigation property in model when reading configuration then raise validation error': function() {
+        this.model["autoNavigation"] = "Turbo";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals(this.presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE, validatedModel.errorMessage);
+    },
+
+    'test given "Extended" value in auto navigation property in model when reading configuration then set extended auto navigation mode': function() {
+        this.model["autoNavigation"] = "Extended";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInExtendedMode());
+    },
+
+    'test given "Simple" value in auto navigation property in model when reading configuration then set simple auto navigation mode': function() {
+        this.model["autoNavigation"] = "Simple";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInSimpleMode());
+    },
+
+    'test given "Off" value in auto navigation property in model when reading configuration then set off auto navigation mode': function() {
+        this.model["autoNavigation"] = "Off";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInOffMode());
+    },
 });

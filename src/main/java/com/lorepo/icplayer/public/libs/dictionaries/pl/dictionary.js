@@ -700,6 +700,8 @@ var ice_dictionary_pl = {
 	"crossword_property_marked_column_index": "Indeks zaznaczonej kolumny",
 	"crossword_property_marked_row_index": "Indeks zaznaczonego rzędu",
 	"crossword_property_block_wrong_answers": "Zablokuj błędne odpowiedzi",
+	"crossword_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
+	"crossword_property_auto_navigation": "Auto navigation",
 	"Custom_Scoring_info" : "Pozwala na powiązanie wielu modułów i utworzenie w pełni interaktywnych ćwiczeń połączonych wspólną funkcją zliczania wyników.",
 	"Custom_Scoring_name" : "Niestandardowa punktacja",
 	"Custom_Scoring_property_script": "Skrypt",
