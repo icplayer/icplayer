@@ -274,6 +274,7 @@ function AddonParagraph_create() {
                 presenter.sendOnBlurEvent();
             });
             presenter.isEditorLoaded = true;
+            presenter.setStyles();
             presenter.setSpeechTexts(upgradedModel["speechTexts"]);
             presenter.buildKeyboardController();
         });
@@ -707,6 +708,7 @@ function AddonParagraph_create() {
         this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
         presenter.editor.dom.addClass(this.el, "placeholder");
         this.isSet = true;
+        presenter.setStyles();
     };
 
     presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function AddonParagraph_setPlaceholderAfterEditorChange() {
@@ -818,12 +820,8 @@ function AddonParagraph_create() {
             hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
             hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
-        if (presenter.editor.dom.$("placeholder").length > 0) {
-            return;
-        }
-
         if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss) {
-            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul')];
+            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul'), presenter.editor.dom.$("placeholder")];
 
             for (var i = 0; i < elements.length; i++) {
                 if (elements[i].length == 0) {
