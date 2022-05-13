@@ -41,9 +41,29 @@ Automatic Feedback displays feedback messages in various formats (such as as a t
     </tr>
     <tr>
         <td>ReactTo</td>
-        <td>Specifies in response to what event should the feedback message be displayed</td>
+        <td>Specifies in response to what event should the feedback message be displayed.</td>
     </tr>
 </table>
+
+## Supported commands
+
+ <table border='1'>
+     <tr>
+         <th>Command name</th>
+         <th>Params</th>
+         <th>Description</th>
+     </tr>
+     <tr>
+         <td>displayFeedback</td>
+         <td>item, type</td>
+         <td>Displays the correct/incorrect/empty/partial feedback for the specified item. Type argument should be one of the following values: "correct", "incorrect", "empty", "partial". Item argument should be a number coresponding to the selected element. </td>
+     </tr>
+     <tr>
+         <td>isAllOK</td>
+         <td>---</td>
+         <td>Returns true if all connections are made correctly and there are no mistakes, otherwise false.</td>
+     </tr>
+ </table>
 
 ## CSS classes
 
