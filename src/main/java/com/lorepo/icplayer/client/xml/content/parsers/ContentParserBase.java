@@ -85,6 +85,10 @@ public abstract class ContentParserBase implements IContentParser {
 					String adaptiveStructure = parseAdaptiveStructure(child);
 					content.setAdaptiveStructure(adaptiveStructure);
 				}
+				else if (name.compareTo("dictionary") == 0) {
+					HashMap<String, HashMap<String, String>> dictionary = parseDictionaryStructure(child);
+					content.setDictionaryStructure(dictionary);
+				}
 			}
 		}		
 
@@ -258,5 +262,9 @@ public abstract class ContentParserBase implements IContentParser {
 	
 	protected String parseAdaptiveStructure(Element xml) {
 		return "";
+	}
+
+	protected HashMap<String, HashMap<String, String>> parseDictionaryStructure(Element xml) {
+		return new HashMap<String, HashMap<String, String>>();
 	}
 }

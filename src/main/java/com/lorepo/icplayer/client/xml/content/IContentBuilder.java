@@ -24,6 +24,7 @@ public interface IContentBuilder {
 	public void setFooterPageName(String name);
 	public void addLayout(PageLayout pageLayout);
 	public void setAdaptiveStructure(String structure);
+	public void setDictionaryStructure(HashMap<String, HashMap<String, String>> dictionary);
 	public PageList getPagesList();
 	public PageList getCommonPagesList();
 	public boolean setActualLayoutID(String id);

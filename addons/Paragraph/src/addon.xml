@@ -15,5 +15,35 @@
 		<property name="Title" nameLabel="Paragraph_property_title" type="string" />
 		<property name="Weight" nameLabel="Paragraph_property_weight" type="string" />
 		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
+		<property name="speechTexts" displayName="Speech texts" nameLabel="Paragraph_property_speech_texts" type="staticlist">
+            <property name="Selected" nameLabel="Paragraph_property_selected" type="staticrow">
+                <property name="Selected" nameLabel="Paragraph_property_selected" type="string"/>
+            </property>
+			<property name="ParagraphContent" nameLabel="Paragraph_property_ParagraphContent" type="staticrow">
+                <property name="ParagraphContent" nameLabel="Paragraph_property_ParagraphContent" type="string"/>
+            </property>
+			<property name="Bold" nameLabel="Paragraph_property_bold" type="staticrow">
+                <property name="Bold" nameLabel="Paragraph_property_bold" type="string"/>
+            </property>
+			<property name="Italic" nameLabel="Paragraph_property_italic" type="staticrow">
+                <property name="Italic" nameLabel="Paragraph_property_italic" type="string"/>
+            </property>
+			<property name="Underline" nameLabel="Paragraph_property_underline" type="staticrow">
+                <property name="Underline" nameLabel="Paragraph_property_underline" type="string"/>
+            </property>
+			<property name="AlignLeft" nameLabel="Paragraph_property_AlignLeft" type="staticrow">
+                <property name="AlignLeft" nameLabel="Paragraph_property_AlignLeft" type="string"/>
+            </property>
+			<property name="AlignCenter" nameLabel="Paragraph_property_AlignCenter" type="staticrow">
+                <property name="AlignCenter" nameLabel="Paragraph_property_AlignCenter" type="string"/>
+            </property>
+			<property name="AlignRight" nameLabel="Paragraph_property_AlignRight" type="staticrow">
+                <property name="AlignRight" nameLabel="Paragraph_property_AlignRight" type="string"/>
+            </property>
+			<property name="Justify" nameLabel="Paragraph_property_Justify" type="staticrow">
+                <property name="Justify" nameLabel="Paragraph_property_Justify" type="string"/>
+            </property>
+		</property>
+		<property displayName="Lang attribute" name="langAttribute" nameLabel="Cross_Lesson_property_lang_attribute" type="string"/>
 	</model>
 </addon>
