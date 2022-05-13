@@ -181,7 +181,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 		for(int i = 0; i < optionNodes.getLength(); i++) {
 
-			Element element = (Element)optionNodes.item(i);
+			Element element = (Element) optionNodes.item(i);
 			String text = XMLUtils.getCharacterDataFromElement(element);
 			if (text == null) {
 				text = StringUtils.unescapeXML(XMLUtils.getText(element));

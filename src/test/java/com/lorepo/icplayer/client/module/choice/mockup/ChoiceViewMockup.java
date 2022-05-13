@@ -129,4 +129,9 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void connectAudios() {
+		// TODO Auto-generated method stub
+	}
 }

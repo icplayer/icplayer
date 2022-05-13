@@ -9,6 +9,7 @@ public class ChoicePrintableOption {
 
     private ChoiceOption option = null;
     private boolean isSelected = false;
+    private final String AUDIO_REGEX = "\\\\audio\\{\\S+?\\}";
 
     public ChoicePrintableOption(ChoiceOption option) {
         this.option = option;
@@ -90,16 +91,21 @@ public class ChoicePrintableOption {
     }
 
     private void setOptionTextAsInnerHTMLToElement(Element el) {
-        String text = option.getText();
+        String text = getPreprocessedText();
         text = AlternativeTextService.getVisibleText(text);
         el.setInnerHTML(text);
     }
 
     private void setOptionTextAndValueAsInnerHTMLToElement(Element el) {
-        String text = option.getText();
+        String text = getPreprocessedText();
         String value = Integer.toString(option.getValue());
         String result = text + " (" + value + ")";
         result = AlternativeTextService.getVisibleText(result);
         el.setInnerHTML(result);
+    }
+
+    private String getPreprocessedText() {
+       String text = option.getText();
+       return text.replaceAll(AUDIO_REGEX, "");
     }
 }
