@@ -2233,5 +2233,11 @@ var ice_dictionary_fr = {
     "Automatic_Feedback_property_feedback": "Feedback",
     "Automatic_Feedback_property_display_mode": "Display mode",
     "Automatic_Feedback_property_display_feedback_buttons": "Display feedback buttons",
-    "Automatic_Feedback_property_react_to": "React to"
+    "Automatic_Feedback_property_react_to": "React to",
+    "Start_creating_table": "Start creating the TTS table",
+	"Finish_creating_table": "Finish creating the TTS table",
+	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
+	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
+	"Finish_updating_lesson_addons": "Finish updating the text speech",
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
 };
