@@ -1,3 +1,4 @@
+2022-05-16 Added keyboard navigation and TTS to Audio Playlist
 2022-05-06 Add keyboard navigation and tts to editable window
 2022-05-06 Fixed problem with printable version of Text module when audio added to text
 2022-05-06 Fixed not working properly TTS in Text Selection addon when langAttribute not defined
