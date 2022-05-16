@@ -372,21 +372,21 @@ function AddonAudioPlaylist_create() {
     presenter.getCurrentElement = function(elementHTML) {
         var elementHTML = elementHTML.outerHTML;
         switch (true) {
-            case (elementHTML.includes('play-pause-btn') && !presenter.state.isPlaying):
+            case (elementHTML.includes(classList.playPauseButton) && !presenter.state.isPlaying):
                 return presenter.NAVIGATION_ELEMENT.PLAY;
-            case (elementHTML.includes('play-pause-btn') && presenter.state.isPlaying):
+            case (elementHTML.includes(classList.playPauseButton && presenter.state.isPlaying)):
                 return presenter.NAVIGATION_ELEMENT.PAUSE;
-            case (elementHTML.includes('prev-btn')):
+            case (elementHTML.includes(classList.prev)):
                 return presenter.NAVIGATION_ELEMENT.PREVIOUS_AUDIO;
-            case (elementHTML.includes('next-btn')):
+            case (elementHTML.includes(classList.next)):
                 return presenter.NAVIGATION_ELEMENT.NEXT_AUDIO;
-            case (elementHTML.includes('volume-btn')):
+            case (elementHTML.includes(classList.volume)):
                 return presenter.NAVIGATION_ELEMENT.VOLUME;
-            case (elementHTML.includes('<select>')):
+            case (elementHTML.includes(classList.audioSpeedController)):
                 return presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER;
-            case (elementHTML.includes('playlist-bar')):
+            case (elementHTML.includes(classList.bar)):
                 return presenter.NAVIGATION_ELEMENT.TIMER;
-            case (elementHTML.includes('playlist-item')):
+            case (elementHTML.includes(classList.item)):
                 return presenter.NAVIGATION_ELEMENT.AUDIO_ITEM;
             default:
                 return null;
