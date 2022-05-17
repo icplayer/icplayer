@@ -24,6 +24,22 @@ public abstract class ExecutableButton extends PushButton {
 
 	}
 
+    // these functions in PushButton are adding and removing "down"/"up" suffix,
+    // which causes problems with clicking and hover on iOS
+	@Override
+	protected void onClickCancel() {
+		if (!DevicesUtils.isSafariMobile()) {
+			super.onClickCancel();
+		}
+	}
+
+	@Override
+	protected void onClickStart() {
+		if (!DevicesUtils.isSafariMobile()) {
+			super.onClickStart();
+		}
+	};
+
 	public abstract void execute();
 
 	@Override
