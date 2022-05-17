@@ -15,5 +15,56 @@
         <property name="editingEnabled" displayName="Editing enabled" nameLabel="EditableWindow_property_editing_enabled" type="boolean" />
         <property name="disableResizeHeight" displayName="Disable resize height" nameLabel="EditableWindow_property_disable_resize_height" type="boolean" />
         <property name="offlineMessage" nameLabel="EditableWindow_property_offline_message" type="text" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="EditableWindow_property_speech_texts" type="staticlist">
+            <property name="openFullscreen" nameLabel="EditableWindow_property_openFullscreen" type="staticrow">
+                <property name="openFullscreen" nameLabel="EditableWindow_property_openFullscreen" type="string"/>
+            </property>
+            <property name="closeFullscreen" nameLabel="EditableWindow_property_closeFullscreen" type="staticrow">
+                <property name="closeFullscreen" nameLabel="EditableWindow_property_closeFullscreen" type="string"/>
+            </property>
+            <property name="closeWindow" nameLabel="EditableWindow_property_closeWindow" type="staticrow">
+                <property name="closeWindow" nameLabel="EditableWindow_property_closeWindow" type="string"/>
+            </property>
+            <property name="textTool" nameLabel="EditableWindow_property_textTool" type="staticrow">
+                <property name="textTool" nameLabel="EditableWindow_property_textTool" type="string"/>
+            </property>
+            <property name="highlightSelect" nameLabel="EditableWindow_property_highlightSelect" type="staticrow">
+                <property name="highlightSelect" nameLabel="EditableWindow_property_highlightSelect" type="string"/>
+            </property>
+            <property name="pickAColor" nameLabel="EditableWindow_property_pickAColor" type="staticrow">
+                <property name="pickAColor" nameLabel="EditableWindow_property_pickAColor" type="string"/>
+            </property>
+            <property name="yellow" nameLabel="EditableWindow_property_yellow" type="staticrow">
+                <property name="yellow" nameLabel="EditableWindow_property_yellow" type="string"/>
+            </property>
+            <property name="blue" nameLabel="EditableWindow_property_blue" type="staticrow">
+                <property name="blue" nameLabel="EditableWindow_property_blue" type="string"/>
+            </property>
+            <property name="red" nameLabel="EditableWindow_property_red" type="staticrow">
+                <property name="red" nameLabel="EditableWindow_property_red" type="string"/>
+            </property>
+            <property name="green" nameLabel="EditableWindow_property_green" type="staticrow">
+                <property name="green" nameLabel="EditableWindow_property_green" type="string"/>
+            </property>
+            <property name="white" nameLabel="EditableWindow_property_white" type="staticrow">
+                <property name="white" nameLabel="EditableWindow_property_white" type="string"/>
+            </property>
+            <property name="noColor" nameLabel="EditableWindow_property_noColor" type="staticrow">
+                <property name="noColor" nameLabel="EditableWindow_property_noColor" type="string"/>
+            </property>
+            <property name="reset" nameLabel="EditableWindow_property_reset" type="staticrow">
+                <property name="reset" nameLabel="EditableWindow_property_reset" type="string"/>
+            </property>
+            <property name="image" nameLabel="EditableWindow_property_image" type="staticrow">
+                <property name="image" nameLabel="EditableWindow_property_image" type="string"/>
+            </property>
+            <property name="audio" nameLabel="EditableWindow_property_audio" type="staticrow">
+                <property name="audio" nameLabel="EditableWindow_property_audio" type="string"/>
+            </property>
+            <property name="video" nameLabel="EditableWindow_property_video" type="staticrow">
+                <property name="video" nameLabel="EditableWindow_property_video" type="string"/>
+            </property>
+        </property>
+        <property displayName="Lang attribute" name="langAttribute" nameLabel="EditableWindow_property_lang_attribute" type="string"/>
     </model>
 </addon>
