@@ -16,9 +16,9 @@ public abstract class ExecutableButton extends PushButton {
 		addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-                event.stopPropagation();
-                event.preventDefault();
-                execute();
+				event.stopPropagation();
+				event.preventDefault();
+				execute();
 			}
 		});
 
