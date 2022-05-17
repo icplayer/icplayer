@@ -55,6 +55,14 @@ function AddonText_Coloring_create() {
         DEFAULT: 'All selectable'
     };
 
+    presenter.DEFAULT_TTS_PHRASES = {
+        selected: "selected",
+        deselected: "deselected",
+        textContent: "text content",
+        correct: "correct",
+        incorrect: "incorrect"
+    };
+
     function parseIDs(colorDefinition) {
         var trimmedColorID = colorDefinition.id.trim();
         if (ModelValidationUtils.isStringEmpty(trimmedColorID)) {
@@ -456,6 +464,7 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
         for (var i = 0; i < events.length; i++) {
@@ -510,6 +519,8 @@ function AddonText_Coloring_create() {
             presenter.setColor(presenter.configuration.colors[0].id);
             presenter.stateMachine.notifyEdit();
         }
+        presenter.buildKeyboardController();
+        presenter.setSpeechTexts(model["speechTexts"]);
     };
 
     presenter.createStateMachine = function() {
@@ -714,6 +725,8 @@ function AddonText_Coloring_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelAddProperties(model);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
         return upgradedModel;
     };
 
@@ -735,6 +748,66 @@ function AddonText_Coloring_create() {
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function AddonText_Coloring_upgradeSpeechTexts (model) {
+         let defaultValue = {
+             Selected: {Selected: ""},
+             Deselected: {Deselected: ""},
+             TextContent: {TextContent: ""},
+             Correct: {Correct: ""},
+             Incorrect: {Incorrect: ""}
+        };
+
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+        if (model["speechTexts"] == undefined) {
+            upgradedModel["speechTexts"] = defaultValue;
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function AddonText_Coloring_upgradeLangTag (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+        if (model["langAttribute"] == undefined) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function AddonText_Coloring_setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            selected: presenter.DEFAULT_TTS_PHRASES.selected,
+            deselected: presenter.DEFAULT_TTS_PHRASES.deselected,
+            textContent: presenter.DEFAULT_TTS_PHRASES.textContent,
+            correct: presenter.DEFAULT_TTS_PHRASES.correct,
+            incorrect: presenter.DEFAULT_TTS_PHRASES.incorrect
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.deselected),
+            textContent: TTSUtils.getSpeechTextProperty(
+                speechTexts.TextContent.TextContent,
+                presenter.speechTexts.textContent),
+            correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.correct),
+            incorrect: TTSUtils.getSpeechTextProperty(
+                speechTexts.Incorrect.Incorrect,
+                presenter.speechTexts.Incorrect)
+        };
     };
 
     presenter.validateModel = function (model) {
@@ -771,7 +844,8 @@ function AddonText_Coloring_create() {
             countErrors: ModelValidationUtils.validateBoolean(model.countErrors),
             modelText: modelText,
             height: height,
-            legendTitle: legendTitle
+            legendTitle: legendTitle,
+            langTag: model.langAttribute
         };
     };
 
@@ -1642,6 +1716,163 @@ function AddonText_Coloring_create() {
 
         return $table
     }
+
+    function TextColoringKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TextColoringKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TextColoringKeyboardController.prototype.constructor = TextColoringKeyboardController;
+
+    presenter.buildKeyboardController = function AddonText_Coloring_buildKeyboardController () {
+        presenter.keyboardControllerObject = new TextColoringKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function AddonText_Coloring_getElementsForKeyboardNavigation () {
+        const container = presenter.defaults.css.tokensContainer;
+        const allPossibleContainerClasses = `.${container.bottom}, .${container.left}, .${container.top}, .${container.right}`;
+        return presenter.$view.find(`.text-coloring-color-button, ${allPossibleContainerClasses}, .text-coloring-selectable-word`);
+    };
+
+    presenter.keyboardController = function AddonText_Coloring_keyboardController (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    TextColoringKeyboardController.prototype.getTarget = function (element) {
+        return $(element);
+    };
+
+    TextColoringKeyboardController.prototype.switchElement = function (move) {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        this.readCurrentElement();
+    };
+
+    TextColoringKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    TextColoringKeyboardController.prototype.selectAction = function () {
+        if (!presenter.isAddonInWorkMode()) {
+            return;
+        }
+        KeyboardController.prototype.selectAction.call(this);
+        presenter.speakOnElementSelection();
+    };
+
+    presenter.speakOnElementSelection = function AddonText_Coloring_speakOnElementSelection () {
+        const element = presenter.keyboardControllerObject.getTarget(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
+        let text = ""
+        if (element.hasClass(presenter.defaults.css.colorButton)) {
+            text = presenter.speechTexts.selected;
+        } else if (element.hasClass(presenter.defaults.css.selectableWord)) {
+            const color = presenter.getColorObjectOrNoneFromElementClass(element);
+            text = color ? `${presenter.speechTexts.selected} ${color.description}` : presenter.speechTexts.deselected;
+        }
+
+        if (text) {
+            presenter.speak(text);
+        }
+    };
+
+    TextColoringKeyboardController.prototype.readCurrentElement = function () {
+        const element = this.getTarget(this.keyboardNavigationCurrentElement);
+        let text = "";
+        const elementContent = element[0].textContent;
+
+        if (element.hasClass(presenter.defaults.css.colorButton)) {
+            text = presenter.getTTSForColorButton(element, elementContent);
+        } else if (element[0].className.includes("text-coloring-tokens-container")) {
+            text = presenter.getTTSForContent();
+        } else if (element.hasClass(presenter.defaults.css.selectableWord)) {
+           text = presenter.getTTSForSelectableWord(element, elementContent);
+        }
+
+        presenter.speak(text);
+    };
+
+    presenter.getTTSForColorButton = function AddonText_Coloring_getTTSForColorButton (element, text) {
+        const selectedText = presenter.isColorButtonClicked(element) ? presenter.speechTexts.selected : "";
+        return `${text} ${selectedText}`;
+    };
+
+    presenter.getTTSForContent = function AddonText_Coloring_getTTSForContent (element) {
+        const tts = [TTSUtils.getTextVoiceObject(presenter.speechTexts.textContent)];
+        let text = "";
+        presenter.configuration.filteredTokens.forEach((token) => {
+            text += token.value + " ";
+            if (token.type === "selectable") {
+                tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
+                text = " ";
+                const tokenElement = presenter.getWordTokenByIndex(token.index);
+                tts.push(TTSUtils.getTextVoiceObject(presenter.getTTSForSelectableWord(tokenElement)));
+           }
+        });
+
+        return tts;
+    };
+
+    presenter.getTTSForSelectableWord = function AddonText_Coloring_getTTSForSelectableWord (element, text) {
+        if (!text) {
+            text = "";
+        }
+
+        const color = presenter.getColorObjectOrNoneFromElementClass(element);
+        if (color) {
+           text += ` ${presenter.speechTexts.selected} ${color.description}`;
+        }
+
+        if (element.hasClass(presenter.defaults.css.markings.correct)) {
+           text += ` ${presenter.speechTexts.correct}`;
+        } else if (element.hasClass(presenter.defaults.css.markings.wrong)) {
+           text += ` ${presenter.speechTexts.incorrect}`;
+        }
+
+        return text;
+    };
+
+    presenter.isColorButtonClicked = function AddonText_Coloring_isColorButtonClicked (element) {
+        return element.hasClass(presenter.defaults.css.activeButton);
+    };
+
+    presenter.getColorObjectOrNoneFromElementClass = function AddonText_Coloring_getColorObjectOrNoneFromElementClass (element) {
+        const classList = Array.from(element[0].classList);
+        const underline = classList.find(c => c.includes("text-coloring-colored-with") || c.includes("text-coloring-show-answers"));
+        if (!underline) {
+            return;
+        }
+
+        const colorKey = underline.split("-").slice(-1)[0];
+        return presenter.getColorDefinitionById(colorKey);
+    };
+
+    presenter.isAddonInWorkMode = function AddonText_Coloring_isAddonInWorkMode () {
+        return presenter.stateMachine._actualState === StatefullAddonObject._internal.STATE.WORK;
+    };
+
+    presenter.speak = function AddonText_Coloring_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function AddonText_Coloring_setWCAGStatus(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function AddonText_Coloring_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
 
     return presenter;
 }
