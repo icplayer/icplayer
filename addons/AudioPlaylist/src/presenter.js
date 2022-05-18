@@ -94,7 +94,6 @@ function AddonAudioPlaylist_create() {
     presenter.selectedElement = null;
     presenter.isWCAGOn = false;
     presenter.speechTexts = null;
-    presenter.audioItemCounter = 1;
 
     presenter.dragData = {
         wasPlaying: false,
@@ -274,6 +273,11 @@ function AddonAudioPlaylist_create() {
         this.readCurrentElement();
     }
 
+    AudioPlaylistKeyboardController.prototype.previousElement = function (event) {
+        KeyboardController.prototype.previousElement.call(this, event);
+        this.readCurrentElement();
+    }
+
     AudioPlaylistKeyboardController.prototype.enter = function (event) {
         KeyboardController.prototype.enter.call(this, event);
         this.readCurrentElement();
@@ -357,14 +361,12 @@ function AddonAudioPlaylist_create() {
 
         if (!presenter.audio) presenter.audio.currentTime = 0;
         presenter.selectedElement = null;
-        presenter.audioItemCounter = 1;
 
         KeyboardController.prototype.escape.call(this, event);
     }
 
     AudioPlaylistKeyboardController.prototype.exitWCAGMode = function (event) {
         presenter.selectedElement = null;
-        presenter.audioItemCounter = 1;
 
         KeyboardController.prototype.exitWCAGMode.call(this, event);
     }
@@ -433,19 +435,23 @@ function AddonAudioPlaylist_create() {
         var currentElement = presenter.getCurrentElement($element[0]);
         var textToRead = presenter.speechTexts[currentElement];
 
-        if (currentElement === presenter.NAVIGATION_ELEMENT.PLAY) {
-            presenter.audioItemCounter = 1;
-        }
-
         if (currentElement === presenter.NAVIGATION_ELEMENT.AUDIO_ITEM) {
             var audioTitle = getAudioTitle($element);
-            return `${presenter.audioItemCounter++} ${textToRead} ${audioTitle}`;
+            return `${presenter.getAudioIndex(audioTitle) + 1} ${textToRead} ${audioTitle}`;
         }
         return textToRead;
     }
 
     function getAudioTitle($element) {
         return $element[0].innerText.split(/\n/)[0];
+    }
+
+    presenter.getAudioIndex = function (audioTitle) {
+        for(var i = 0; i < presenter.items.length; i++) {
+            if (presenter.items[i].name === audioTitle) {
+                return presenter.items[i].index;
+            }
+        }
     }
 
     presenter.destroy = function AddonAudioPlaylist_destroy() {

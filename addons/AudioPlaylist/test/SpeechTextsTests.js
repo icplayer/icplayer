@@ -89,6 +89,9 @@ TestCase("Speech texts", {
         $audioItemHTML.addClass('addon-audio-playlist-item');
         $audioItemHTML.text('Test Title');
         this.presenter.speechTexts = this.getDefaultSpeechText();
+        this.presenter.items = [
+            {name: 'Test Title', index: 0}
+        ];
 
         var result = this.presenter.getTextToRead($audioItemHTML);
 
