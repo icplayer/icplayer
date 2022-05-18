@@ -1,4 +1,4 @@
-2022-04-13 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
+2022-05-18 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
 2022-04-06 Fixed Paragraph not setting content properly on page change with show answers active
 2022-04-06 Fixed problem with SourceList module
 2022-04-04 Fixed Limited Hide Answers not un-clicking on Limited Check
