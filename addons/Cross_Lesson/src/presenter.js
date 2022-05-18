@@ -27,6 +27,8 @@ function AddonCross_Lesson_create(){
         GO_TO_LESSON: "Go to lesson"
     };
 
+    presenter.uniqueIdentifier = null;
+
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
     };
@@ -38,6 +40,7 @@ function AddonCross_Lesson_create(){
     function presenterLogic(view, model, preview) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.setUniqueIdentifier(model.ID, view.offsetParent);
 
         if (presenter.configuration.isError) {
             presenter.createErrorView(view, presenter.configuration.errorCode);
@@ -195,8 +198,12 @@ function AddonCross_Lesson_create(){
 
     presenter.onExternalMessage = function AddonCross_Lesson_onExternalMessage (event) {
         const data = event.data;
-        if (typeof data === 'string' && data.indexOf(crossLessonEventReceivedType) !== -1) {
-            const value = data.slice(crossLessonEventReceivedType.length);
+        if (typeof data === 'string' && data.indexOf(crossLessonEventReceivedType) !== -1 && data.indexOf(presenter.uniqueIdentifier) !== -1) {
+            console.log("unique id is: ", presenter.uniqueIdentifier);
+            const lenToSlice = crossLessonEventReceivedType.length;
+            const lenOfWordTrue = 4;
+            const value = data.slice(lenToSlice, lenToSlice + lenOfWordTrue);
+            console.log("value bool is: ", value);
             if (value !== 'true') {
                 presenter.hide();
             }
@@ -212,6 +219,12 @@ function AddonCross_Lesson_create(){
        presenter.playerController.sendExternalEvent(crossLessonEventType, data);
     };
 
+    presenter.setUniqueIdentifier = function AddonCross_Lesson_setUniqueIdentifier (modelID, parentElement){
+        presenter.uniqueIdentifier = `${modelID}-${parentElement.getAttribute("id")}`;
+        console.log("****-uniqie id set-*****");
+        console.log(presenter.uniqueIdentifier);
+    };
+
     presenter.handleUserAccess = function AddonCross_Lesson_handleUserAccess () {
         if (!presenter.playerController) {
             return;
@@ -221,8 +234,11 @@ function AddonCross_Lesson_create(){
             return;
         }
 
-        const data = {"coursesIds": presenter.configuration.accessIds};
-
+        const data = {
+            "coursesIds": presenter.configuration.accessIds,
+            "uniqueId": presenter.uniqueIdentifier
+        };
+        console.log("data payload send to mC: ", data);
         window.addEventListener("message", presenter.onExternalMessage);
         presenter.playerController.sendExternalEvent(crossLessonUserAccessEventType, JSON.stringify(data));
     };
