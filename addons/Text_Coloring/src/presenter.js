@@ -1257,8 +1257,17 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if (isCheckAnswersActive()) {
+            return;
+        }
+
         presenter.stateMachine.check();
     };
+
+    function isCheckAnswersActive() {
+        return (presenter.stateMachine._actualState === StatefullAddonObject._internal.STATE.CORRECT
+            || presenter.stateMachine._actualState === StatefullAddonObject._internal.STATE.WRONG);
+    }
 
     presenter.executeCommand = function (name, params) {
         var commands = {

@@ -1,4 +1,4 @@
-<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="3">
+<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="4">
     <metadata>
         <entry key="useGrid" value="true"/>
         <entry key="snapToGrid" value="true"/>
@@ -135,4 +135,5 @@
         <asset contentType="image/png" fileName="" href="http://0x0800.github.io/2048-STARWARS/style/img/8.svg" title="" type="image"/>
     </assets>
     <adaptive><![CDATA[]]></adaptive>
+    <dictionary></dictionary>
 </interactiveContent>

@@ -1,4 +1,4 @@
-TestCase("[Crossword] Events test", {
+TestCase("[Crossword] Events tests", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
         this.presenter.addonID = 'crossword1';
@@ -10,7 +10,8 @@ TestCase("[Crossword] Events test", {
         this.spies = {
             showAnswers: sinon.spy(this.presenter, 'showAnswers'),
             hideAnswers: sinon.spy(this.presenter, 'hideAnswers'),
-            gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers')
+            gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers'),
+            resetDirection: sinon.spy(this.presenter, 'resetDirection')
         }
     },
 
@@ -68,5 +69,35 @@ TestCase("[Crossword] Events test", {
 
         assertTrue(this.spies.hideAnswers.called);
         assertFalse(this.presenter.isGradualShowAnswersActive);
-    }
+    },
+
+    'test on editable cell input click event should call reset directions': function () {
+        this.presenter.rowCount = 9;
+        this.presenter.columnCount = 10;
+        this.presenter.crossword = getCrosswordForNavigationTests();
+        this.presenter.$view = $(document.createElement('div'));
+        this.presenter.createGrid();
+        var cellInput = this.getCellInputElement(3, 4);
+
+        $(cellInput).trigger('click');
+
+        assertTrue(this.presenter.resetDirection.calledOnce);
+    },
+
+    'test on constant cell input click event should not call reset directions': function () {
+        this.presenter.rowCount = 9;
+        this.presenter.columnCount = 10;
+        this.presenter.crossword = getCrosswordForNavigationTests();
+        this.presenter.$view = $(document.createElement('div'));
+        this.presenter.createGrid();
+        var cellInput = this.getCellInputElement(3, 3);
+
+        $(cellInput).trigger('click');
+
+        assertFalse(this.presenter.resetDirection.called);
+    },
+
+    getCellInputElement: function (x, y) {
+        return this.presenter.$view.find(`.cell_row_${y}.cell_column_${x}`).find("input")[0];
+    },
 });
