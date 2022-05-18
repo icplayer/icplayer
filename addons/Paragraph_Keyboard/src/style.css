@@ -4,6 +4,12 @@ div.paragraph-keyboard-wrapper {
     position: relative;
 }
 
+div.paragraph-keyboard-wrapper.disabled {
+	pointer-events: none;
+  	cursor: default;
+	opacity: 0.5;
+}
+
 div.paragraph-wrapper {
     position: absolute;
     border: solid 1px #9E9E9E;

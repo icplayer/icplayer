@@ -34,6 +34,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.choice.IOptionListener;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
 
 public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
@@ -503,6 +504,16 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	@Override
 	public void onValueChange(IOptionDisplay option, boolean selected) {
 
+	}
+
+	@Override
+	public void onAudioButtonClicked(AudioInfo audioInfo) {
+	    //not implemented
+	}
+
+	@Override
+	public void onAudioEnded(AudioInfo audioInfo) {
+	    //not implemented
 	}
 
 	private void show() {

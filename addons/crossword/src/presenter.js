@@ -4,7 +4,6 @@ function Addoncrossword_create(){
     var playerController;
     var eventBus;
     var originalFieldValue = "";
-    var enableMoveToNextField = false;
 
     presenter.rowCount         = null;
     presenter.columnCount      = null;
@@ -27,6 +26,24 @@ function Addoncrossword_create(){
     presenter.markedColumnIndex = 0;
     presenter.markedRowIndex = 0;
     presenter.maxTabIndex = 0;
+
+    var enableMoveToNextField = false;
+
+    const DIRECTIONS = {
+        NOT_SET: 0,
+        HORIZONTAL: 1,
+        VERTICAL: 2,
+        TAB_INDEX: 3
+    }
+    var currentDirection = DIRECTIONS.NOT_SET;
+
+    const AUTO_NAVIGATION_OPTIONS = {
+        OFF: 0,
+        SIMPLE: 1,
+        EXTENDED: 2
+    }
+    var autoNavigationMode = null;
+
     presenter.SPECIAL_KEYS = {
         DELETE: 46,
         BACKSPACE: 8,
@@ -39,19 +56,20 @@ function Addoncrossword_create(){
     presenter.numberOfConstantLetters = 0;
 
     presenter.ERROR_MESSAGES = {
-        ROWS_NOT_SPECIFIED:                     "Amount of rows is not specified",
-        COLUMNS_NOT_SPECIFIED:                  "Amount of columns is not specified",
-        INVALID_MARKED_COLUMN_INDEX:            "Marked column index cannot be negative, use 0 to disable",
-        INVALID_MARKED_ROW_INDEX:               "Marked row index cannot be negative, use 0 to disable",
-        CELL_WIDTH_NOT_SPECIFIED:               "Cell width is not specified",
-        CELL_HEIGHT_NOT_SPECIFIED:              "Cell height is not specified",
-        INVALID_BLANK_CELLS_BORDER_WIDTH:       "Blank cells border width must be greater on equal to 0",
-        INVALID_LETTER_CELLS_BORDER_WIDTH:      "Letter cells border width must be greater on equal to 0",
-        INVALID_AMOUNT_OF_ROWS_IN_CROSSWORD:    "Amount of lines (that act as rows) in the specified Crossword is different that amount of rows you have specified in Properties",
-        INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD: "Amount of characters (that act as columns) in row %row% of specified Crossword is different that amount of columns you have specified in Properties",
-        DOUBLED_EXCLAMATION_MARK:               "You cannot type 2 exclamation marks in a row",
-        LAST_CHARACTER_EXCLAMATION_MARK:        "You cannot type exclamation mark at the end of line",
-        EXCLAMATION_MARK_BEFORE_EMPTY_FIELD:    "You cannot type exclamation mark before empty field"
+        ROWS_NOT_SPECIFIED:                          "Amount of rows is not specified",
+        COLUMNS_NOT_SPECIFIED:                       "Amount of columns is not specified",
+        INVALID_MARKED_COLUMN_INDEX:                 "Marked column index cannot be negative, use 0 to disable",
+        INVALID_MARKED_ROW_INDEX:                    "Marked row index cannot be negative, use 0 to disable",
+        CELL_WIDTH_NOT_SPECIFIED:                    "Cell width is not specified",
+        CELL_HEIGHT_NOT_SPECIFIED:                   "Cell height is not specified",
+        INVALID_BLANK_CELLS_BORDER_WIDTH:            "Blank cells border width must be greater on equal to 0",
+        INVALID_LETTER_CELLS_BORDER_WIDTH:           "Letter cells border width must be greater on equal to 0",
+        INVALID_AMOUNT_OF_ROWS_IN_CROSSWORD:         "Amount of lines (that act as rows) in the specified Crossword is different that amount of rows you have specified in Properties",
+        INVALID_AMOUNT_OF_COLUMNS_IN_CROSSWORD:      "Amount of characters (that act as columns) in row %row% of specified Crossword is different that amount of columns you have specified in Properties",
+        DOUBLED_EXCLAMATION_MARK:                    "You cannot type 2 exclamation marks in a row",
+        LAST_CHARACTER_EXCLAMATION_MARK:             "You cannot type exclamation mark at the end of line",
+        EXCLAMATION_MARK_BEFORE_EMPTY_FIELD:         "You cannot type exclamation mark before empty field",
+        NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE: "Selected auto navigation mode is not supported"
     };
 
     presenter.VALIDATION_MODE = {
@@ -178,6 +196,10 @@ function Addoncrossword_create(){
                 (presenter.rowCount > i+1 && presenter.crossword[i+1][j] != ' '));
     };
 
+    function getPositionOfCellInputElement($cellInput) {
+        return presenter.getPosition($cellInput.parent(''));
+    }
+
     presenter.getPosition = function($elem) {
         function getPositionFrom(classes, dim) {
             return classes.reduce(function(res, currentElem) {
@@ -220,41 +242,291 @@ function Addoncrossword_create(){
     };
 
     presenter.onCellInputKeyUp = function(event) {
-        var target = event.target;
-        var $target = $(target);
-        $target.css('color','');
+        var currentCellInput = event.target;
+        var $currentCellInput = $(currentCellInput);
+        $currentCellInput.css('color','');
 
         if (validateSpecialKey(event)) {
             return
         }
 
-        if ($target.val().length > 1 && originalFieldValue.length > 0) {
-            $target.val($target.val().replace(originalFieldValue,''));
+        if ($currentCellInput.val().length > 1 && originalFieldValue.length > 0) {
+            $currentCellInput.val($currentCellInput.val().replace(originalFieldValue,''));
         }
         originalFieldValue = '';
 
-        target.value = target.value.toUpperCase();
+        currentCellInput.value = currentCellInput.value.toUpperCase();
 
-        if ($target.val() && enableMoveToNextField) {
-            enableMoveToNextField = false;
-            var next_tab_index = target.tabIndex +1;
-            if (presenter.blockWrongAnswers) {
-                var usersLetter = target.value[0];
-                var pos = presenter.getPosition($target.parent(''));
-                var correctLetter = presenter.crossword[pos.y][pos.x][0];
-                if (usersLetter !== correctLetter) {
-                    presenter.sendScoreEvent(pos, usersLetter, false);
-                    target.value = '';
-                    return;
-                }
-            }
-            if (next_tab_index < presenter.maxTabIndex) {
-                presenter.$view.find('[tabindex=' + next_tab_index + ']').focus();
-            } else {
-                $target.blur();
-            }
+        if ($currentCellInput.val() && enableMoveToNextField) {
+            handleAutoNavigationMove(currentCellInput);
         }
     };
+
+    function handleAutoNavigationMove(currentCellInput) {
+        enableMoveToNextField = false;
+
+        if (presenter.blockWrongAnswers) {
+            var isCorrectValue
+                = presenter.validateIsCorrectValueInCellInput(currentCellInput);
+            if (!isCorrectValue) return;
+        }
+
+        if (!presenter.isAutoNavigationInOffMode()) {
+            presenter.analyzeDirectionOfMove(currentCellInput);
+            presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
+            presenter.moveInCurrentDirection(currentCellInput);
+        }
+    }
+
+    presenter.validateIsCorrectValueInCellInput = function (currentCellInput) {
+        var $currentCellInput = $(currentCellInput);
+        var usersLetter = currentCellInput.value[0];
+        var currentPosition = getPositionOfCellInputElement($currentCellInput);
+
+        var correctLetter = presenter.crossword[currentPosition.y][currentPosition.x][0];
+        if (usersLetter !== correctLetter) {
+            presenter.sendScoreEvent(currentPosition, usersLetter, false);
+            currentCellInput.value = '';
+            return false;
+        }
+        return true;
+    };
+
+    presenter.analyzeDirectionOfMove = function (currentCellInput) {
+        var $currentCellInput = $(currentCellInput);
+        var currentPosition = getPositionOfCellInputElement($currentCellInput);
+
+        var rightElementPosition = calculateRightElementPosition(currentPosition);
+        var isRightCellNotBlank = isPositionOfNotBlankCell(rightElementPosition);
+        var rightCellsEditable = areRightCellsEditable(currentPosition);
+
+        var bottomElementPosition = calculateBottomElementPosition(currentPosition);
+        var isBottomCellNotBlank = isPositionOfNotBlankCell(bottomElementPosition);
+        var bottomCellsEditable = areBottomCellsEditable(currentPosition);
+
+        var topElementPosition = calculateTopElementPosition(currentPosition);
+        var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
+
+        if (presenter.isHorizontalDirection()) {
+            if (!rightCellsEditable) {
+                presenter.setTabIndexDirection();
+            }
+            return;
+        } else if (presenter.isVerticalDirection()) {
+            if (!bottomCellsEditable) {
+                presenter.setTabIndexDirection();
+            }
+            return;
+        }
+
+        var rightCellInput = getCellInput(rightElementPosition);
+        var bottomCellInput = getCellInput(bottomElementPosition);
+
+        if (bottomCellsEditable && !isRightCellNotBlank) {
+            presenter.setVerticalDirection();
+        } else if (rightCellsEditable && !isTopCellNotBlank && !isBottomCellNotBlank) {
+            presenter.setHorizontalDirection();
+        } else if (bottomCellsEditable && !isTopCellNotBlank && isRightCellNotBlank) {
+            presenter.setVerticalDirection();
+        } else if (bottomCellsEditable
+            && (isRightCellNotBlank && !isCellInputElementEmpty(rightCellInput))
+            && (isBottomCellNotBlank && isCellInputElementEmpty(bottomCellInput))) {
+            presenter.setVerticalDirection();
+        } else if (rightCellsEditable) {
+            presenter.setHorizontalDirection();
+        } else {
+            presenter.setTabIndexDirection();
+        }
+    };
+
+    function areRightCellsEditable(currentPosition) {
+        return !!getNextRightEditableCellPosition(currentPosition);
+    }
+
+    function getNextRightEditableCellPosition(currentPosition) {
+        const nextYPosition = currentPosition.y;
+        var nextPosition;
+        for (var nextXPosition = currentPosition.x + 1; nextXPosition < presenter.columnCount; nextXPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function areBottomCellsEditable(currentPosition) {
+        return !!getNextBottomEditableCellPosition(currentPosition);
+    }
+
+    function getNextBottomEditableCellPosition(currentPosition) {
+        const nextXPosition = currentPosition.x;
+        var nextPosition;
+        for (var nextYPosition = currentPosition.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    presenter.updateDirectionOfMoveRelativeToAutoNavigationMode = function () {
+        if (!presenter.isDirectionNotSet()
+            && (presenter.isAutoNavigationInOffMode()
+                || (presenter.isAutoNavigationInSimpleMode()
+                    && presenter.isTabIndexDirection()))) {
+            presenter.resetDirection();
+        }
+    }
+
+    presenter.moveInCurrentDirection = function (currentCellInput) {
+        if (presenter.isHorizontalDirection()) {
+            moveInHorizontalDirection(currentCellInput);
+        } else if (presenter.isVerticalDirection()) {
+            moveInVerticalDirection(currentCellInput);
+        } else if (presenter.isTabIndexDirection()) {
+            moveInTabIndexDirection(currentCellInput);
+        }  else {
+            blurCellInput(currentCellInput);
+        }
+    };
+
+    function moveInVerticalDirection(currentCellInput) {
+        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextBottomEditableCellPosition(currentPosition);
+        if (!!nextCellPosition) {
+            var nextCellInput = getCellInput(nextCellPosition);
+            $(nextCellInput).focus();
+        } else {
+            blurCellInput(currentCellInput);
+        }
+    }
+
+    function moveInHorizontalDirection(currentCellInput) {
+        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextRightEditableCellPosition(currentPosition);
+        if (!!nextCellPosition) {
+            var nextCellInput = getCellInput(nextCellPosition);
+            $(nextCellInput).focus();
+        } else {
+            blurCellInput(currentCellInput);
+        }
+    }
+
+    function moveInTabIndexDirection(currentCellInput) {
+        var nextTabIndex = currentCellInput.tabIndex + 1;
+        if (nextTabIndex < presenter.maxTabIndex) {
+            focusCellInputUsingTabIndex(nextTabIndex);
+        } else {
+            blurCellInput(currentCellInput);
+        }
+    }
+
+    function focusCellInputUsingTabIndex(tabIndex) {
+        presenter.$view.find('[tabindex=' + tabIndex + ']').focus();
+    }
+
+    function blurCellInput(cellInput) {
+        $(cellInput).blur();
+    }
+
+    function calculateLeftElementPosition(oldPosition) {
+        return {y: oldPosition.y, x: oldPosition.x - 1};
+    }
+
+    function calculateRightElementPosition(oldPosition) {
+        return {y: oldPosition.y, x: oldPosition.x + 1};
+    }
+
+    function calculateTopElementPosition(oldPosition) {
+        return {y: oldPosition.y - 1, x: oldPosition.x};
+    }
+
+    function calculateBottomElementPosition(oldPosition) {
+        return {y: oldPosition.y + 1, x: oldPosition.x};
+    }
+
+    function isCellInputElementEmpty(element) {
+        return !element.value;
+    }
+
+    function isPositionOfConstantCell(position) {
+        if (!isPositionValid(position)) {
+            return false;
+        }
+        return _isPositionOfConstantCell(position);
+    }
+
+    function _isPositionOfConstantCell(position) {
+        return presenter.crossword[position.y][position.x][0].includes('!');
+    }
+
+    function isPositionOfNotBlankCell(position) {
+        if (!isPositionValid(position)) {
+            return false;
+        }
+        return _isPositionOfNotBlankCell(position);
+    }
+
+    function _isPositionOfNotBlankCell(position) {
+        return presenter.crossword[position.y][position.x][0] !== ' ';
+    }
+
+    function getCellInput(position) {
+        if (!isPositionValid(position)) {
+            return;
+        }
+        return presenter.$view.find(`.cell_row_${position.y}.cell_column_${position.x}`).find("input")[0];
+    }
+
+    function isPositionValid(position) {
+        return !!position
+            && position.y >= 0 && position.y < presenter.rowCount
+            && position.x >= 0 && position.x < presenter.columnCount;
+    }
+
+    presenter.isDirectionNotSet = function () {
+        return currentDirection === DIRECTIONS.NOT_SET;
+    }
+
+    presenter.isHorizontalDirection = function () {
+        return currentDirection === DIRECTIONS.HORIZONTAL;
+    }
+
+    presenter.isVerticalDirection = function () {
+        return currentDirection === DIRECTIONS.VERTICAL;
+    }
+
+    presenter.isTabIndexDirection = function () {
+        return currentDirection === DIRECTIONS.TAB_INDEX;
+    }
+
+    presenter.resetDirection = function () {
+        currentDirection = DIRECTIONS.NOT_SET;
+    }
+
+    presenter.setHorizontalDirection = function () {
+        currentDirection = DIRECTIONS.HORIZONTAL;
+    }
+
+    presenter.setVerticalDirection = function () {
+        currentDirection = DIRECTIONS.VERTICAL;
+    }
+
+    presenter.setTabIndexDirection = function () {
+        currentDirection = DIRECTIONS.TAB_INDEX;
+    }
 
     presenter.onCellInputKeyDown = function(event) {
         var $target = $(event.target);
@@ -297,14 +569,15 @@ function Addoncrossword_create(){
     };
 
     presenter.onCellInputFocusOut = function(event) {
-        var usersLetter = event.target.value;
-        var pos = presenter.getPosition($(event.target).parent(''));
+        var cellInput = event.target;
+        var usersLetter = cellInput.value;
+        var pos = getPositionOfCellInputElement($(cellInput));
         var correctLetter = presenter.crossword[pos.y][pos.x][0];
         var isOk = usersLetter === correctLetter;
         presenter.sendScoreEvent(pos, usersLetter, isOk);
         var score = isOk ? 1 : 0;
         if(score == 0 && presenter.blockWrongAnswers){
-            event.target.value = "";
+            cellInput.value = "";
         }
         if (isOk) {
             var result = presenter.validateWord(pos);
@@ -312,6 +585,11 @@ function Addoncrossword_create(){
                 presenter.sendCorrectWordEvent(result.word, result.item);
             }
         }
+    };
+
+    presenter.onCellClick = function(event) {
+        presenter.resetDirection();
+        event.stopPropagation();
     };
 
     function setCaretPosition(elem, caretPos) {
@@ -385,7 +663,7 @@ function Addoncrossword_create(){
                             .focus(presenter.onCellInputFocus)
                             .mouseup(presenter.onCellInputMouseUp)
                             .focusout(presenter.onCellInputFocusOut)
-                            .click(function(e) { e.stopPropagation(); });
+                            .click(presenter.onCellClick);
                     }
 
                     if(presenter.preview) {
@@ -613,11 +891,43 @@ function Addoncrossword_create(){
 
         presenter.blockWrongAnswers = presenter.isBlockWrongAnswers(model);
 
+        var autoNavigationPropertyResponse = readModelAutoNavigationMode(model);
+        if (!!autoNavigationPropertyResponse) {
+            return autoNavigationPropertyResponse;
+        }
+
         return {
             isError: false,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
         };
     };
+
+    function readModelAutoNavigationMode(model) {
+        const selectedMode = model["autoNavigation"];
+        if (selectedMode === "Off") {
+            autoNavigationMode = AUTO_NAVIGATION_OPTIONS.OFF;
+        } else if (selectedMode === "Simple") {
+            autoNavigationMode = AUTO_NAVIGATION_OPTIONS.SIMPLE;
+        } else if (selectedMode === "Extended") {
+            autoNavigationMode = AUTO_NAVIGATION_OPTIONS.EXTENDED;
+        } else {
+            return returnErrorMessage(
+                presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE
+            );
+        }
+    }
+
+    presenter.isAutoNavigationInOffMode = function () {
+        return autoNavigationMode === AUTO_NAVIGATION_OPTIONS.OFF;
+    }
+
+    presenter.isAutoNavigationInSimpleMode = function () {
+        return autoNavigationMode === AUTO_NAVIGATION_OPTIONS.SIMPLE;
+    }
+
+    presenter.isAutoNavigationInExtendedMode = function () {
+        return autoNavigationMode === AUTO_NAVIGATION_OPTIONS.EXTENDED;
+    }
 
     presenter.destroyCommands = function () {
         delete presenter.executeCommand;
@@ -641,15 +951,29 @@ function Addoncrossword_create(){
     };
 
     presenter.upgradeModel = function(model) {
-        return upgradeModelAddShowAllAnswersInGSAModeProperty(model);
+        var upgradedModel = upgradeModelAddShowAllAnswersInGSAModeProperty(model);
+        return upgradeModelAddAutoNavigationProperty(upgradedModel);
     };
 
     function upgradeModelAddShowAllAnswersInGSAModeProperty(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
+
         if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
             upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
         }
+
+        return upgradedModel;
+    }
+
+    function upgradeModelAddAutoNavigationProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel["autoNavigation"]) {
+            upgradedModel["autoNavigation"] = "Extended";
+        }
+
         return upgradedModel;
     }
 

@@ -14,9 +14,12 @@ import org.powermock.reflect.Whitebox;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.GWTPowerMockitoTest;
+import com.lorepo.icplayer.client.module.text.AudioButtonWidget;
 
 @PrepareForTest({OrderingView.class})
 public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
@@ -39,7 +42,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		
 		itemWidget1 = new ItemWidget(new OrderingItem(0, "string", "string", 0), this.model);
 		itemWidget2 = new ItemWidget(new OrderingItem(1, "string", "string", 0), this.model);
-		itemWidget3 = new ItemWidget(new OrderingItem(2, "string", "string", 0), this.model);
+		itemWidget3 = new ItemWidget(new OrderingItem(2, "\\audio{/file/serve/5698751586893824}", "string", 0), this.model);
 		
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget1);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget2);
@@ -152,7 +155,6 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 					throw new RuntimeException();
 				}
 			}
-			
 		});
 		
 		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
@@ -160,6 +162,50 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		assertTrue(clicked.isClicked());
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
+	}
+
+	@Test
+	public void spaceWillCallClickEventAndSelectNewItemWhenAudio() throws Exception {
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
+
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
+		class Clicked {
+			boolean clicked = false;
+			Clicked() {
+
+			}
+
+			public void click () throws Exception{
+				Whitebox.invokeMethod(orderingViewPMMock, "moveWidget", 1, 2);
+				this.clicked = true;
+			}
+
+			public boolean isClicked() {
+				return clicked;
+			}
+		};
+
+		final Clicked clicked = new Clicked();
+
+		this.itemWidget3.addMouseUpHandler(new MouseUpHandler() {
+
+			@Override
+			public void onMouseUp(MouseUpEvent event) {
+				try {
+					clicked.click();
+				} catch (Exception e){
+					throw new RuntimeException();
+				}
+			}
+		});
+
+		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
+
+		assertTrue(clicked.isClicked());
+		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
 	
 	@Test
