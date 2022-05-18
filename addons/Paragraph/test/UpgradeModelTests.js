@@ -8,6 +8,8 @@ TestCase("[Paragraph] Upgrade model", {
         this.upgradeTitleStub = sinon.stub(this.presenter, 'upgradeTitle');
         this.upgradeWeightStub = sinon.stub(this.presenter, 'upgradeWeight');
         this.upgradeModelAnswerStub = sinon.stub(this.presenter, 'upgradeModelAnswer');
+        this.upgradeLangTag = sinon.stub(this.presenter, 'upgradeLangTag');
+        this.upgradeSpeechTexts = sinon.stub(this.presenter, 'upgradeSpeechTexts');
     },
 
     tearDown: function () {
@@ -27,6 +29,8 @@ TestCase("[Paragraph] Upgrade model", {
         assertTrue(this.upgradeTitleStub.called);
         assertTrue(this.upgradeWeightStub.called);
         assertTrue(this.upgradeModelAnswerStub.called);
+        assertTrue(this.upgradeLangTag.called);
+        assertTrue(this.upgradeSpeechTexts.called);
     }
 });
 
@@ -110,3 +114,68 @@ TestCase("[Paragraph] Upgrading weight property", {
         assertEquals("", upgradedModel["Weight"]);
     }
 });
+
+TestCase("[Paragraph] Upgrade model with lang tag", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test given empty model when upgrade then should add lang tag with empty value': function () {
+        var model = {};
+
+        var upgradedModel = this.presenter.upgradeLangTag(model);
+
+        assertEquals("", upgradedModel.langAttribute);
+    },
+
+    'test given model with filled langTag when upgrade then should leave value unchanged': function () {
+        var model = {
+            langAttribute: "pl-PL"
+        };
+
+        var upgradedModel = this.presenter.upgradeLangTag(model);
+
+        assertEquals("pl-PL", upgradedModel.langAttribute);
+    },
+});
+
+TestCase("[Paragraph] Upgrade model with speech texts", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test given empty model when upgrade then should add speech Texts with default value': function () {
+        var model = {};
+        var defaultValue = {
+            Bold: {Bold: ""},
+            Italic: {Italic: ""},
+            Underline: {Underline: ""},
+            AlignLeft: {AlignLeft: ""},
+            AlignCenter: {AlignCenter: ""},
+            AlignRight: {AlignRight: ""},
+            Justify: {Justify: ""}
+        };
+        var upgradedModel = this.presenter.upgradeSpeechTexts(model);
+
+        assertEquals(defaultValue, upgradedModel.speechTexts);
+    },
+
+    'test given model with filled langTag when upgrade then should leave value unchanged': function () {
+        var model = {
+            speechTexts: {
+                Bold: {Bold: "wytłuszczone"},
+                Italic: {Italic: "kursywa"},
+                Underline: {Underline: "podkreslenie"},
+                AlignLeft: {AlignLeft: "do lewej"},
+                AlignCenter: {AlignCenter: "do srodka"},
+                AlignRight: {AlignRight: "do prawej"},
+                Justify: {Justify: "wyjustuj"}
+            }
+        };
+
+        var upgradedModel = this.presenter.upgradeSpeechTexts(model);
+
+        assertEquals(model.speechTexts, upgradedModel.speechTexts);
+    },
+})
+

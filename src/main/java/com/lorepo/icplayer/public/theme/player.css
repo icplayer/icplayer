@@ -1091,6 +1091,10 @@ hr, table, fieldset {
     outline: dashed 2px #00ff44 !important;
 }
 
+.keyboard_navigation_active_element_important {
+    outline: dashed 2px #00ff44 !important;
+}
+
 /**
  * Confirmation box
  */

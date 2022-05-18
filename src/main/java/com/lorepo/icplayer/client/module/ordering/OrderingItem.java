@@ -19,6 +19,9 @@ public class OrderingItem extends BasicPropertyProvider {
 	private final ArrayList<Integer> alternativeIndexes = new ArrayList<Integer>();
 	private Integer startingPosition;
 	private String startingPositionString = "";
+	private static final String AUDIO_REGEX = "\\\\audio\\{\\S+?\\}";
+	private static final String DIV_WITH_AUDIO_REGEX = "<div>\\\\audio\\{\\S+?\\}</div>";
+	private static final String DIV_WITHOUT_AUDIO = "<div><br></div>";
 
 	public OrderingItem(int index, String safeHtml, String baseURL, Integer startingPosition) {
 
@@ -170,8 +173,19 @@ public class OrderingItem extends BasicPropertyProvider {
 
 	private Element createTDWithItemText(){
 		Element textTD = DOM.createTD();
-		textTD.setInnerHTML(AlternativeTextService.getVisibleText(this.getText()));
+		String text = this.preprocessItemTextForPrintable();
+		textTD.setInnerHTML(text);
 		return textTD;
 	}
 
+	private String preprocessItemTextForPrintable() {
+		String text = this.getText();
+		text = this.removeAudioFromHTML(text);
+		return AlternativeTextService.getVisibleText(text);
+	}
+
+	private String removeAudioFromHTML(String text) {
+		String newText = text.replaceAll(DIV_WITH_AUDIO_REGEX, DIV_WITHOUT_AUDIO);
+		return newText.replaceAll(AUDIO_REGEX, "");
+	}
 }
