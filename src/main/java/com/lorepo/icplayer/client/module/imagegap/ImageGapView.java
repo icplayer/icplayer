@@ -196,8 +196,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 
 	@Override
 	public void space(KeyDownEvent event) {
-		event.preventDefault(); 
-		this.listener.onClicked();
+		event.preventDefault();
+		if (!module.isDisabled()) {
+			this.listener.onClicked();
+		}
 	}
 
 	@Override
