@@ -970,6 +970,15 @@ function AddonEditableWindow_create() {
         $(presenter.configuration.view).hide();
         presenter.stopAudio();
         presenter.stopVideo();
+
+        var eventBus = presenter.configuration.eventBus;
+        var id = presenter.configuration.model.id;
+        eventBus.sendEvent('ValueChanged', {
+            'source': id,
+            'item': '',
+            'value': 'close',
+            'score': ''
+        });
     };
 
     presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
