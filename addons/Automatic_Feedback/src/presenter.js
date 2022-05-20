@@ -19,7 +19,8 @@ function AddonAutomatic_Feedback_create() {
 
     var REACT_TO = {
         VALUE_CHANGED: "ValueChanged",
-        CHECK: "Check"
+        CHECK: "Check",
+        SCRIPT: "Script"
     }
 
     var FEEDBACK_CLASSES = {
@@ -205,7 +206,7 @@ function AddonAutomatic_Feedback_create() {
     presenter.setShowErrorsMode = function () {
         if (presenter.configuration.reactTo == REACT_TO.CHECK) {
             presenter.activityHandler.onShowErrorsMode();
-        } else {
+        } else if (presenter.configuration.reactTo == REACT_TO.VALUE_CHANGED) {
             if (presenter.configuration.displayMode !== DISPLAY_MODES.BLOCK || presenter.configuration.displayFeedbackButtons) {
                 presenter.activityHandler.clearFeedback();
             }
@@ -215,7 +216,7 @@ function AddonAutomatic_Feedback_create() {
     presenter.setWorkMode = function () {
         if (presenter.configuration.displayMode !== DISPLAY_MODES.BLOCK
             || presenter.configuration.displayFeedbackButtons
-            || presenter.configuration.reactTo !== REACT_TO.VALUE_CHANGED) {
+            || presenter.configuration.reactTo === REACT_TO.CHECK) {
             presenter.activityHandler.clearFeedback();
         }
     }
@@ -241,12 +242,16 @@ function AddonAutomatic_Feedback_create() {
     presenter.onValueChanged = function(data) {
         if (presenter.configuration.reactTo == REACT_TO.VALUE_CHANGED) {
             if (data.source == presenter.configuration.activityModuleID) {
-                if (data.value.length === 0 || data.value == '---') {
-                    presenter.activityHandler.onEmptyAnswer(data.item);
-                } else if (data.score == 0) {
-                    presenter.activityHandler.onIncorrectAnswer(data.item);
+                if (presenter.configuration.activityType == "Default") {
+                    presenter.activityHandler.onShowErrorsMode();
                 } else {
-                    presenter.activityHandler.onCorrectAnswer(data.item);
+                    if (data.value.length === 0 || data.value == '---') {
+                        presenter.activityHandler.onEmptyAnswer(data.item);
+                    } else if (data.score == 0) {
+                        presenter.activityHandler.onIncorrectAnswer(data.item);
+                    } else {
+                        presenter.activityHandler.onCorrectAnswer(data.item);
+                    }
                 }
             } else {
                 presenter.activityHandler.clearFeedback();
@@ -413,6 +418,54 @@ function AddonAutomatic_Feedback_create() {
         return score != 0 && score < maxScore && errorCount == 0;
     }
 
+    presenter.getState = function() {
+        var state = presenter.activityHandler.getState();
+        return state;
+    }
+
+    presenter.setState = function(state) {
+        presenter.reset();
+        presenter.activityHandler.setState(state);
+    }
+
+    presenter.destroy = function AddonAutomatic_Feedback_destroy() {
+        presenter.activityHandler.onDestroy();
+    }
+
+    presenter.displayFeedback = function (item, type) {
+        if (Array.isArray(item) && item.length == 2 && type === undefined) {
+            type = item[1];
+            item = item[0];
+        }
+        switch (type.toLowerCase()) {
+            case "correct":
+                presenter.activityHandler.onCorrectAnswer(item);
+                break;
+            case "incorrect":
+                presenter.activityHandler.onIncorrectAnswer(item);
+                break;
+            case "partial":
+                presenter.activityHandler.onPartialAnswer(item);
+                break;
+            case "empty":
+                presenter.activityHandler.onEmptyAnswer(item);
+                break;
+        }
+    }
+
+    presenter.clearFeedback = function() {
+        presenter.activityHandler.clearFeedback();
+    }
+
+    presenter.executeCommand = function(name, params) {
+        var commands = {
+            'displayFeedback': presenter.displayFeedback,
+            'clearFeedback': presenter.clearFeedback
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
+
     class AbstractActivity {
 
         constructor (presenter) {
@@ -472,19 +525,51 @@ function AddonAutomatic_Feedback_create() {
         lastClass = "";
 
         onCorrectAnswer(itemID) {
-            this.onShowErrorsMode();
+            var _class = FEEDBACK_CLASSES.CORRECT;
+            var feedback = "";
+            if (itemID != null && presenter.configuration.itemFeedbacks[itemID] !== undefined) {
+                feedback = presenter.configuration.itemFeedbacks[itemID].correct;
+            } else {
+                var feedbackObject = this.presenter.configuration.defaultFeedback;
+                feedback = feedbackObject.correct;
+            }
+            this.displayFeedback(feedback, _class);
         }
 
         onIncorrectAnswer(itemID) {
-            this.onShowErrorsMode();
+            var _class = FEEDBACK_CLASSES.INCORRECT;
+            var feedback = "";
+            if (itemID != null && presenter.configuration.itemFeedbacks[itemID] !== undefined) {
+                feedback = presenter.configuration.itemFeedbacks[itemID].incorrect;
+            } else {
+                var feedbackObject = this.presenter.configuration.defaultFeedback;
+                feedback = feedbackObject.incorrect;
+            }
+            this.displayFeedback(feedback, _class);
         }
 
         onEmptyAnswer(itemID) {
-            this.onShowErrorsMode();
+            var _class = FEEDBACK_CLASSES.EMPTY;
+            var feedback = "";
+            if (itemID != null && presenter.configuration.itemFeedbacks[itemID] !== undefined) {
+                feedback = presenter.configuration.itemFeedbacks[itemID].empty;
+            } else {
+                var feedbackObject = this.presenter.configuration.defaultFeedback;
+                feedback = feedbackObject.empty;
+            }
+            this.displayFeedback(feedback, _class);
         }
 
         onPartialAnswer(itemID) {
-            this.onShowErrorsMode();
+            var _class = FEEDBACK_CLASSES.PARTIAL;
+            var feedback = "";
+            if (itemID != null && presenter.configuration.itemFeedbacks[itemID] !== undefined) {
+                feedback = presenter.configuration.itemFeedbacks[itemID].partial;
+            } else {
+                var feedbackObject = this.presenter.configuration.defaultFeedback;
+                feedback = feedbackObject.partial;
+            }
+            this.displayFeedback(feedback, _class);
         }
 
         onShowErrorsMode() {
@@ -514,13 +599,13 @@ function AddonAutomatic_Feedback_create() {
                 feedback = feedbackObject.partial;
                 _class = FEEDBACK_CLASSES.PARTIAL;
             }
-            this.isActivated = true;
-            this.lastFeedback = feedback;
-            this.lastClass = _class;
             this.displayFeedback(feedback, _class);
         }
 
         displayFeedback(feedback, _class) {
+            this.isActivated = true;
+            this.lastFeedback = feedback;
+            this.lastClass = _class;
             if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
                 this.presenter.showBlockFeedback(feedback, _class);
             } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
@@ -678,19 +763,6 @@ function AddonAutomatic_Feedback_create() {
         }
     }
 
-    presenter.getState = function() {
-        var state = presenter.activityHandler.getState();
-        return state;
-    }
-
-    presenter.setState = function(state) {
-        presenter.reset();
-        presenter.activityHandler.setState(state);
-    }
-
-    presenter.destroy = function AddonAutomatic_Feedback_destroy() {
-        presenter.activityHandler.onDestroy();
-    }
 
     return presenter;
 }
