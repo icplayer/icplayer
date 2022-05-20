@@ -375,6 +375,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden")
                 && !this.getView().getStyle().getDisplay().equals("none")
                 && !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-        return isVisible;
+        boolean isEnabled = (!isDisabled()) || isTextToSpeechOn;
+        return isVisible && isEnabled;
     }
 }
