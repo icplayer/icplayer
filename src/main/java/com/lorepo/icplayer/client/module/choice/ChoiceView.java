@@ -2,8 +2,16 @@ package com.lorepo.icplayer.client.module.choice;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.EndedHandler;
+import com.google.gwt.event.dom.client.EndedEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -18,10 +26,14 @@ import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.lorepo.icplayer.client.module.text.AudioWidget;
+import com.lorepo.icplayer.client.module.text.AudioButtonWidget;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Iterator;
 
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView, MathJaxElement {
@@ -510,6 +522,47 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		} else {
 			super.setVisible(false);
 		}
+	}
+
+	@Override
+	public void connectAudios() {
+	    for (IOptionDisplay optionView : optionWidgets) {
+	        this.connectSingleAudio(optionView.getAudioInfos().iterator());
+		}
+	}
+
+	private void connectSingleAudio(Iterator<AudioInfo> iterator) {
+	    while (iterator.hasNext()) {
+	        final AudioInfo info = iterator.next();
+			String id = info.getId();
+
+			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
+			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
+
+			AudioElement audioElement = Document.get().getElementById(AudioWidget.AUDIO_ID_PREFIX + id).cast();
+			AudioWidget audio = new AudioWidget(audioElement);
+
+			info.setAudio(audio);
+			info.setButton(button);
+
+			button.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					if (listener != null) {
+						listener.onAudioButtonClicked(info);
+					}
+				}
+			});
+
+			audio.addEndedHandler(new EndedHandler() {
+				@Override
+				public void onEnded(EndedEvent endedEvent) {
+					if (listener != null) {
+						listener.onAudioEnded(info);
+					}
+				}
+			});
+        }
 	}
 
 }

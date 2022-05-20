@@ -349,6 +349,7 @@ public class PlayerController implements IPlayerController {
 					}
 				}
 				pageLoaded(page, pageController);
+				visitedPages.add(page);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(producedItem);
 				}
@@ -792,7 +793,10 @@ public class PlayerController implements IPlayerController {
 
 	public void clearVisitedPages() {
 		this.visitedPages.clear();
-		this.visitedPages.add(this.pageController1.getPage());
+		IPage page = this.pageController1.getPage();
+		if (page != null) {
+		    this.visitedPages.add(page);
+		}
 	}
 
 	@Override
@@ -833,9 +837,11 @@ public class PlayerController implements IPlayerController {
 		int pageCount = this.getModel().getPageCount();
 		for (int i = 0; i < pageCount; i++) {
 			IPage page = this.getModel().getPage(i);
-			visitedPages.add(page);
-			PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
-			scoreService.setPageScore(page, newPageScore);
+			if (!visitedPages.contains(page)) {
+                		visitedPages.add(page);
+				PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
+				scoreService.setPageScore(page, newPageScore);
+			}
 		}
 	}
 }
