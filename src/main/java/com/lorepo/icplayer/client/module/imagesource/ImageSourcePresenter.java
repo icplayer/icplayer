@@ -488,7 +488,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
 				&& !this.getView().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return isVisible && !this.view.getDisabled();
+		final boolean isEnabled = (!this.view.getDisabled()) || isTextToSpeechOn;
+		return isVisible && isEnabled;
 	}
 	
 	public String getAltText(){

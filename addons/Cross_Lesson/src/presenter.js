@@ -2,11 +2,17 @@ function AddonCross_Lesson_create(){
     var presenter = function() {};
 
     var crossLessonEventType = "crossLesson";
+    var crossLessonUserAccessEventType = "crossLessonUserAccess";
+
+    var crossLessonEventReceivedType = "crossLessonHasUserAccess:";
 
     var errorCodes = {
         "V_01": "Lesson ID is missing",
         "V_02": "Course ID is invalid",
-        "V_03": "Type is invalid. Lesson type should be either 'lesson', 'ebook' or 'course'."
+        "V_03": "Type is invalid. Lesson type should be either 'lesson', 'ebook' or 'course'.",
+        "V_04": "Access id property cannot be empty when check for access is selected.",
+        "V_05": "Access ids given but CheckAccess is not selected.",
+        "V_06": "Wrong values provided in AccessIDs field. Check documentation."
     };
 
     var resourceTypes = {
@@ -21,6 +27,8 @@ function AddonCross_Lesson_create(){
         GO_TO_LESSON: "Go to lesson"
     };
 
+    presenter.uniqueIdentifier = null;
+
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
     };
@@ -32,6 +40,7 @@ function AddonCross_Lesson_create(){
     function presenterLogic(view, model, preview) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.setUniqueIdentifier(model.ID, view.offsetParent);
 
         if (presenter.configuration.isError) {
             presenter.createErrorView(view, presenter.configuration.errorCode);
@@ -42,7 +51,8 @@ function AddonCross_Lesson_create(){
         presenter.connectHandlers();
         presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.buildKeyboardController();
-    }
+        presenter.handleUserAccess();
+    };
 
     presenter.validateModel = function (model) {
         var validatedType = presenter.validateType(model['Type']);
@@ -59,6 +69,21 @@ function AddonCross_Lesson_create(){
         if (!validatedCourseId.isValid) {
             return {isError: true, errorCode: 'V_02'};
         }
+
+        var checkForAccess = ModelValidationUtils.validateBoolean(model.CheckForAccess);
+        if (checkForAccess && model.AccessIDs.trim().length === 0) {
+            return {isError: true, errorCode: 'V_04'};
+        }
+
+        if (!checkForAccess && model.AccessIDs.trim().length > 0) {
+            return {isError: true, errorCode: 'V_05'};
+        }
+
+        var validatedAccessIds = presenter.validateAccessIds(model.AccessIDs);
+        if (checkForAccess && !validatedAccessIds.isValid) {
+            return {isError: true, errorCode: 'V_06'};
+        }
+
         return {
             isError: false,
             buttonText: model['Text'],
@@ -68,7 +93,9 @@ function AddonCross_Lesson_create(){
             page: model['Page'],
             image: model['Image'],
             openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab),
-            langTag: model['langAttribute']
+            langTag: model['langAttribute'],
+            checkForAccess: checkForAccess,
+            accessIds: validatedAccessIds.value
         }
     };
 
@@ -114,6 +141,22 @@ function AddonCross_Lesson_create(){
         }
     };
 
+    presenter.validateAccessIds = function AddonCross_Lesson_validateAccessIds (raw) {
+        raw = String(raw);
+        var ids = raw.split(",");
+        var initialLength = ids.length;
+        var onlyDigitsRegex = /^\d*$/;
+
+        ids = ids.map(id => id.trim());
+        ids = ids.filter((id) => {return id.length > 0 && onlyDigitsRegex.test(id)});
+
+        if (initialLength !== ids.length) {
+            return {isValid: false};
+        }
+
+        return {isValid: true, value: ids};
+    };
+
     presenter.createView = function (view) {
         presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.cross-lesson-wrapper');
@@ -153,26 +196,70 @@ function AddonCross_Lesson_create(){
         presenter.requestCrossLesson();
     };
 
-    presenter.requestCrossLesson = function () {
-        if (presenter.playerController) {
-            var data = {
-                type: presenter.configuration.type,
-                openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
-            };
-            if (presenter.configuration.lessonID) {
-                data.lessonID = presenter.configuration.lessonID;
+    presenter.onExternalMessage = function AddonCross_Lesson_onExternalMessage (event) {
+        const data = event.data;
+        if (typeof data === 'string' && data.indexOf(crossLessonEventReceivedType) !== -1 && data.indexOf(presenter.uniqueIdentifier) !== -1) {
+            const lenToSlice = crossLessonEventReceivedType.length;
+            const lenOfWordTrue = 4;
+            const value = data.slice(lenToSlice, lenToSlice + lenOfWordTrue);
+            if (value !== 'true') {
+                presenter.hide();
             }
-            if (presenter.configuration.page) {
-                data.page = presenter.configuration.page;
-            }
-            if (presenter.configuration.courseID) {
-                data.courseID = presenter.configuration.courseID;
-            }
-            var jsonData = JSON.stringify(data);
-            presenter.playerController.sendExternalEvent(crossLessonEventType, jsonData);
-        } else {
-            console.error("Cannot make a request: no player controller");
         }
+    };
+
+    presenter.requestCrossLesson = function () {
+       const data = presenter.getExternalEventData();
+       if (!data) {
+           return
+       }
+
+       presenter.playerController.sendExternalEvent(crossLessonEventType, data);
+    };
+
+    presenter.setUniqueIdentifier = function AddonCross_Lesson_setUniqueIdentifier (modelID, parentElement){
+        presenter.uniqueIdentifier = `${modelID}-${parentElement.getAttribute("id")}`;
+    };
+
+    presenter.handleUserAccess = function AddonCross_Lesson_handleUserAccess () {
+        if (!presenter.playerController) {
+            return;
+        }
+
+        if (!presenter.configuration.checkForAccess) {
+            return;
+        }
+
+        const data = {
+            "coursesIds": presenter.configuration.accessIds,
+            "uniqueId": presenter.uniqueIdentifier
+        };
+
+        window.addEventListener("message", presenter.onExternalMessage);
+        presenter.playerController.sendExternalEvent(crossLessonUserAccessEventType, JSON.stringify(data));
+    };
+
+    presenter.getExternalEventData = function AddonCross_Lesson_getExternalEventData () {
+        if (!presenter.playerController) {
+            console.error("Cannot make a request: no player controller");
+            return;
+        }
+
+        var data = {
+            type: presenter.configuration.type,
+            openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
+        };
+        if (presenter.configuration.lessonID) {
+            data.lessonID = presenter.configuration.lessonID;
+        }
+        if (presenter.configuration.page) {
+            data.page = presenter.configuration.page;
+        }
+        if (presenter.configuration.courseID) {
+            data.courseID = presenter.configuration.courseID;
+        }
+
+        return JSON.stringify(data);
     };
 
     presenter.setPlayerController = function(controller) {
@@ -244,10 +331,34 @@ function AddonCross_Lesson_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeCheckForAccess = function AddonCross_Lesson_upgradeCheckForAccess (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (upgradedModel['CheckForAccess'] === undefined) {
+            upgradedModel['CheckForAccess'] =  "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeAccessIds = function AddonCross_Lesson_upgradeAccessIds (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (upgradedModel['AccessIDs'] === undefined) {
+            upgradedModel['AccessIDs'] =  "";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function AddonCross_Lesson_upgradeModel (model) {
         var upgradedModel = presenter.upgradeOpenLessonInCurrentTab(model);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeCheckForAccess(upgradedModel);
+        upgradedModel = presenter.upgradeAccessIds(upgradedModel);
         return upgradedModel;
     };
 
