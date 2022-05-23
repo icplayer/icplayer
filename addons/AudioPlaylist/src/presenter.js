@@ -69,6 +69,11 @@ function AddonAudioPlaylist_create() {
         end: "end",
         next: "next"
     };
+    var operationType = {
+        increase: 'increase',
+        decrease: 'decrease'
+    }
+    var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
     presenter.playbackRate = 1.0;
     presenter.playerController = null;
@@ -301,45 +306,58 @@ function AddonAudioPlaylist_create() {
     AudioPlaylistKeyboardController.prototype.up = function (event) {
         event.preventDefault();
         if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER) {
-            var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
-            var index = playbackRateList.indexOf(presenter.playbackRate);
-            if (index !== (playbackRateList.length - 1)) {
-                var $select = $(presenter.viewItems.audioSpeedController).find('select');
-                index++;
-                $select.val(playbackRateList[index]);
-                presenter.playbackRate = playbackRateList[index];
-                presenter.audio.playbackRate = presenter.playbackRate;
-            }
+            presenter.changePlaybackRate(operationType.increase);
         } else if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME) {
-            var volume = presenter.audio.volume;
-            volume += 0.1;
-            if (volume > 1.0) volume = 1.0;
-            presenter.audio.volume = volume;
-            var percent = Math.round(volume * 100);
-            presenter.viewItems.volumeBarFill.style.width = `${percent}%`;
+            presenter.changeVolume(operationType.increase);
         }
     }
 
     AudioPlaylistKeyboardController.prototype.down = function (event) {
         event.preventDefault();
         if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.AUDIO_SPEED_CONTROLLER) {
-            var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
-            var index = playbackRateList.indexOf(presenter.playbackRate);
-            if (index !== 0) {
-                var $select = $(presenter.viewItems.audioSpeedController).find('select');
-                index--;
-                $select.val(playbackRateList[index]);
-                presenter.playbackRate = playbackRateList[index];
-                presenter.audio.playbackRate = presenter.playbackRate
-            }
+            presenter.changePlaybackRate(operationType.decrease);
         } else if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME) {
-            var volume = presenter.audio.volume;
-            volume -= 0.1;
-            if (volume < 0.0) volume = 0.0;
-            presenter.audio.volume = volume;
-            var percent = Math.round(volume * 100);
-            presenter.viewItems.volumeBarFill.style.width = `${percent}%`;
+            presenter.changeVolume(operationType.decrease);
         }
+    }
+
+    presenter.changeVolume = function (type) {
+        var volume = presenter.audio.volume;
+
+        switch (type) {
+            case operationType.increase:
+                volume += 0.1;
+                if (volume > 1.0) volume = 1.0;
+                break;
+            case operationType.decrease:
+                volume -= 0.1;
+                if (volume < 0.0) volume = 0.0;
+                break;
+        }
+
+        presenter.audio.volume = volume;
+        var percent = Math.round(volume * 100);
+        presenter.viewItems.volumeBarFill.style.width = `${percent}%`;
+    }
+
+    presenter.changePlaybackRate = function (type) {
+        var index = playbackRateList.indexOf(presenter.playbackRate);
+        var $select = $(presenter.viewItems.audioSpeedController).find('select');
+
+        switch (type) {
+            case operationType.increase:
+                if (index === (playbackRateList.length - 1)) return;
+                index++;
+                break;
+            case operationType.decrease:
+                if (index === 0) return;
+                index--;
+                break;
+        }
+
+        $select.val(playbackRateList[index]);
+        presenter.playbackRate = playbackRateList[index];
+        presenter.audio.playbackRate = presenter.playbackRate
     }
 
     AudioPlaylistKeyboardController.prototype.left = function (event) {
@@ -697,7 +715,6 @@ function AddonAudioPlaylist_create() {
 
     function createPlaybackRateSelectElement() {
         var $select = $('<select>');
-        var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
         for (var i = 0; i < playbackRateList.length; i++) {
             var $option = $('<option>');
             $option.text(playbackRateList[i]);
@@ -718,7 +735,6 @@ function AddonAudioPlaylist_create() {
     function displayPlaybackRate () {
         $(presenter.viewItems.audioSpeedController).css('display', 'block');
 
-        var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
         var $select = $(presenter.viewItems.audioSpeedController).find('select');
         if ($select.val() === presenter.playbackRate) {
             if (playbackRateList.indexOf(presenter.playbackRate) !== -1) {

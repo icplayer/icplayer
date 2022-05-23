@@ -12,35 +12,35 @@
 		<property name="langAttribute" nameLabel="AudioPlaylist_lang_attribute" type="string" />
 		<property name="speechTexts" nameLabel="AudioPlaylist_property_speech_texts" type="staticlist">
 
-			<property name="play" nameLabel="AudioPlaylist_play" type="staticrow">
+            <property name="play" nameLabel="AudioPlaylist_play" type="staticrow">
                 <property name="play" nameLabel="AudioPlaylist_play" type="string"/>
             </property>
 
-			<property name="pause" nameLabel="AudioPlaylist_pause" type="staticrow">
+            <property name="pause" nameLabel="AudioPlaylist_pause" type="staticrow">
                 <property name="pause" nameLabel="AudioPlaylist_pause" type="string"/>
             </property>
 
-			<property name="prev" nameLabel="AudioPlaylist_prev" type="staticrow">
+            <property name="prev" nameLabel="AudioPlaylist_prev" type="staticrow">
                 <property name="prev" nameLabel="AudioPlaylist_prev" type="string"/>
             </property>
 
-			<property name="next" nameLabel="AudioPlaylist_next" type="staticrow">
+            <property name="next" nameLabel="AudioPlaylist_next" type="staticrow">
                 <property name="next" nameLabel="AudioPlaylist_next" type="string"/>
             </property>
 
-			<property name="audioSpeedController" nameLabel="AudioPlaylist_audioSpeedController" type="staticrow">
+            <property name="audioSpeedController" nameLabel="AudioPlaylist_audioSpeedController" type="staticrow">
                 <property name="audioSpeedController" nameLabel="AudioPlaylist_audioSpeedController" type="string"/>
             </property>
 
-			<property name="volume" nameLabel="AudioPlaylist_volume" type="staticrow">
+            <property name="volume" nameLabel="AudioPlaylist_volume" type="staticrow">
                 <property name="volume" nameLabel="AudioPlaylist_volume" type="string"/>
             </property>
 
-			<property name="timer" nameLabel="AudioPlaylist_timer" type="staticrow">
+            <property name="timer" nameLabel="AudioPlaylist_timer" type="staticrow">
                 <property name="timer" nameLabel="AudioPlaylist_timer" type="string"/>
             </property>
 
-			<property name="audioItem" nameLabel="AudioPlaylist_audioItem" type="staticrow">
+            <property name="audioItem" nameLabel="AudioPlaylist_audioItem" type="staticrow">
                 <property name="audioItem" nameLabel="AudioPlaylist_audioItem" type="string"/>
             </property>
 		</property>
