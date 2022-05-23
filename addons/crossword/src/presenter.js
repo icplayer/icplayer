@@ -1425,7 +1425,6 @@ function Addoncrossword_create(){
 
         if (presenter.isWordNumbersCorrect() && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
-            presenter.$view.find(".cell_letter input").attr('disabled', false);
             presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');
             if (!presenter.userAnswers) {
                 return;
@@ -1465,7 +1464,6 @@ function Addoncrossword_create(){
     }
 
     presenter.replaceUserAnswersByModelAnswers = function () {
-        console.log(presenter.crossword);
         for (let row = 0; row < presenter.rowCount; row++) {
             for (let column = 0; column < presenter.columnCount; column++) {
                 presenter.$view.find('.cell_' + row + 'x' + column + ' input')
@@ -1478,8 +1476,11 @@ function Addoncrossword_create(){
     presenter.replaceAnswersBySavedUserAnswers = function () {
         for (let row = 0; row < presenter.rowCount; row++) {
             for (let column = 0; column < presenter.columnCount; column++) {
-                presenter.$view.find('.cell_' + row + 'x' + column + ' input')
-                    .val(presenter.userAnswers[row][column]);
+                if (!presenter.crossword[row][column][0].includes('!')) {
+                    presenter.$view.find(`.cell_${row}x${column} input`)
+                        .val(presenter.userAnswers[row][column])
+                        .attr('disabled', false);
+                }
             }
         }
     }
