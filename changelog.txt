@@ -1,3 +1,4 @@
+2022-05-23 Add Keyboard Navigation and TTS to Text Coloring addon
 2022-05-20 Block strict letters in Crossword
 2022-05-20 TTS keyboard navigation no longer ignores disabled addons
 2022-05-20 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser

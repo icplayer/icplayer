@@ -1813,15 +1813,20 @@ function AddonText_Coloring_create() {
     presenter.getTTSForContent = function AddonText_Coloring_getTTSForContent (element) {
         const tts = [TTSUtils.getTextVoiceObject(presenter.speechTexts.textContent)];
         let text = "";
+
         presenter.configuration.filteredTokens.forEach((token) => {
             text += token.value + " ";
-            if (token.type === "selectable") {
+            const tokenElement = presenter.getWordTokenByIndex(token.index);
+            const ttsColoring = presenter.getTTSForSelectableWord(tokenElement);
+
+            if (ttsColoring) {
                 tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
                 text = " ";
-                const tokenElement = presenter.getWordTokenByIndex(token.index);
-                tts.push(TTSUtils.getTextVoiceObject(presenter.getTTSForSelectableWord(tokenElement)));
-           }
+                tts.push(TTSUtils.getTextVoiceObject(ttsColoring));
+            }
         });
+
+        tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
 
         return tts;
     };
