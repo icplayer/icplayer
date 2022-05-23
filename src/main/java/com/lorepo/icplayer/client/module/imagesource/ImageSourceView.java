@@ -239,7 +239,9 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	@Override
 	public void space(KeyDownEvent event) {
 		event.getNativeEvent().preventDefault();
-		this.listener.onClicked();
+		if (!module.isDisabled()) {
+			this.listener.onClicked();
+		}
 	}
 
 	@Override

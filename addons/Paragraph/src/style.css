@@ -26,3 +26,7 @@ div.paragraph-lock {
 	position: absolute;
 	top: 1px;
 }
+
+.keyboard-navigation-margin {
+	margin: 5px !important;
+}

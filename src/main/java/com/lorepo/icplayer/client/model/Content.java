@@ -29,7 +29,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public final static String version = "3";
+	public final static String version = "4";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -48,6 +48,8 @@ public class Content implements IContentBuilder, IContent {
 	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 	private ArrayList<Integer> pagesMapping = new ArrayList<Integer>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
+
+	private HashMap<String, HashMap<String, String>> ttsDictionary = new HashMap<String, HashMap<String, String>>();
 
 	private int maxPagesCount = 100;
 
@@ -243,6 +245,9 @@ public class Content implements IContentBuilder, IContent {
 		xml += adaptiveStructure;
 		xml += 	"]]></adaptive>";
 
+		// TTS Dictionary
+		xml += this.createDictionaryStructure();
+
 		xml += 	"</interactiveContent>";
 		return xml;
 	}
@@ -281,6 +286,21 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setAdaptiveStructure(String structure) {
 		this.adaptiveStructure = structure;
+	}
+
+	public HashMap<String, HashMap<String, String>> getDictionaryStructure() {
+		return this.ttsDictionary;
+	}
+
+	@Override
+	public void setDictionaryStructure(HashMap<String, HashMap<String, String>> dictionary) {
+		for (String addonName : dictionary.keySet()) {
+			HashMap<String, String> properties = dictionary.get(addonName);
+			HashMap<String, String> copiedProperties = new HashMap<String, String>();
+			copiedProperties.putAll(properties);
+	
+			this.ttsDictionary.put(addonName, copiedProperties);
+		}
 	}
 
 	@Override
@@ -602,5 +622,28 @@ public class Content implements IContentBuilder, IContent {
 	
 	public boolean isCommonPage(Page page) {
 		return this.getCommonPages().contains(page);
+	}
+
+	private String createDictionaryStructure() {
+		Document document = XMLParser.createDocument();
+		Element dictionary = document.createElement("dictionary");
+		
+		if (this.ttsDictionary.isEmpty()) {
+			return dictionary.toString();
+		}
+
+		for (String addonName : this.ttsDictionary.keySet()) {
+			ModuleXMLElement module = new ModuleXMLElement(addonName);
+			HashMap<String, String> properties = this.ttsDictionary.get(addonName);
+
+			for(String propertyName : properties.keySet()) {
+				SpeechTextXMLElement speechText = new SpeechTextXMLElement(propertyName, properties.get(propertyName));
+				module.addSpeechTextElement(speechText.toXML());
+			}
+
+			dictionary.appendChild(module.toXML());
+		}
+
+		return dictionary.toString();
 	}
 }

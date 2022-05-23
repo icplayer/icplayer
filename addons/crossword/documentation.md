@@ -74,14 +74,14 @@ If you would like to make a letter visible from start, simply type an exclamatio
     <tr>
       <td>Word numbers</td>
       <td>indicates how words should be automatically numbered:
-
-<ul>
-<li><b>both</b> &ndash; put numbers on the first cell of both horizontal & vertical words</li>
-<li><b>horizontal</b> &ndash; put numbers on the first cell of horizontal words</li>
-<li><b>vertical</b> &ndash; put numbers on the first cell of vertical words</li>
-<li><b>none</b> &ndash; don't put any word numbers</li></ul>
-<b>Note:</b> Please keep in mind that having chosen the "None" option in this property, the addon is automatically switched to the "Not Activity" mode. In the Crossword addon, points are awarded only for the words numbered with the "Word numbers" property.
-</td>
+		<ul>
+			<li><b>both</b> &ndash; put numbers on the first cell of both horizontal & vertical words</li>
+			<li><b>horizontal</b> &ndash; put numbers on the first cell of horizontal words</li>
+			<li><b>vertical</b> &ndash; put numbers on the first cell of vertical words</li>
+			<li><b>none</b> &ndash; don't put any word numbers</li>
+		</ul>
+		<b>Note:</b> Please keep in mind that having chosen the "None" option in this property, the addon is automatically switched to the "Not Activity" mode. In the Crossword addon, points are awarded only for the words numbered with the "Word numbers" property.
+		</td>
     <tr>
     <tr>
       <td>Marked column index</td>
@@ -92,13 +92,33 @@ If you would like to make a letter visible from start, simply type an exclamatio
       <td>If set to a value greater than 0, it indicates the index of a row whose cells should have an additional CSS class "cell_row_marked". The row number is calculated starting from 1,  and 1 means topmost row in the crossword.</td>
     </tr>
     <tr>
-        <td>Show all answers in gradual show answers mode</td>
-        <td>If this property is selected the gradual show answer button will show correct answers for entire addon.</td>
-    </tr>
-
-    <tr>
         <td>Block wrong answers</td>
         <td>With this option checked, wrong answers are removed and the "on wrong" event is sent.</td>
+    </tr>
+	<tr>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>Show all answers at once using gradual show answers functionality. Without checking this option, the gradual show answers functionality reveals the answers one by one.</td>
+    </tr>
+	<tr>
+        <td>Auto navigation</td>
+        <td>Auto navigation for editable cells in a crossword.
+
+            Auto navigation uses an algorithm that, based on data (such as the currently selected cell in the crossword, neighboring cells, and the user's last action), determines the direction of cursor movement when the user attempts to fill in the crossword cell. The rules of the algorithm are described below.
+			
+			There are three directions of movement for auto navigation:
+			<ul>
+				<li><b>horizontal</b></li>
+				<li><b>vertical</b></li>
+				<li><b>TabIndex direction</b> &ndash; see description below</li>
+			</ul>
+
+			Auto navigation modes:
+			<ul>
+				<li><b>Extended</b> &ndash; Auto navigation works in any of the directions listed above. In this mode, if there is no next editable cell for the crossword then auto navigation will not point to the next cell. This is the default mode.</li>
+				<li><b>Simple</b> &ndash; Auto navigation works in vertical and horizontal directions. In this mode, if there is no next editable cell for the currently filled in word, the auto-navigation stops pointing to the next cell.</li>
+				<li><b>Off</b> &ndash; Auto navigation is turned off.</li>
+			</ul>
+		</td>
     </tr>
   </tbody>
 </table>
@@ -114,7 +134,17 @@ If you would like to make a letter visible from start, simply type an exclamatio
     <tr>
         <td>isAllOK</td>
         <td>---</td>
-        <td>Returns true when all cells are filled in correctly, otherwise false</td>
+        <td>Returns true when all cells are filled in correctly, otherwise false.</td>
+    </tr>
+	<tr>
+        <td>show</td>
+        <td>---</td>
+        <td>Shows the module.</td>
+    </tr>
+    <tr>
+        <td>hide</td>
+        <td>---</td>
+        <td>Hides the module.</td>
     </tr>
 </table>
 
@@ -190,6 +220,21 @@ This event has the following structure:
         <td>N/A</td>
     </tr>
 </table>
+
+
+Advanced Connector example:
+
+<pre>
+EVENTSTART
+Name:CorrectWord
+Source:crossword1
+SCRIPTSTART
+
+presenter.playerController.getModule('feedback1').change('1');
+
+SCRIPTEND
+EVENTEND
+</pre>
 
 
 ##Show Answers
@@ -344,6 +389,68 @@ Please note that in practice, styles related to the cell position (.cell_AxB, .c
     font-weight: bold;
 }
 </pre>
+
+
+## Auto navigation algorithm
+
+In order to better understand the algorithm, a legend has been created with a description of the elements. 
+
+Legend:
+<table border="1">
+	<tbody>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td><b>blank cell</b></td>
+			<td>Cell that does not belong to the crossword.</td>
+		</tr>
+		<tr>
+			<td><b>constant cell</b></td>
+			<td>Cell with initial, non-editable value.</td>
+		</tr>
+		<tr>
+			<td><b>editable cell</b></td>
+			<td>Editable cell.</td>
+		</tr>
+		<tr>
+			<td><b>current word</b></td>
+			<td>One of the words whose <b>editable cell</b> is pointed to by the cursor. The <b>current word</b> consists only of <b>editable cells</b> and <b>constant cells</b>.</td>
+		</tr>
+		<tr>
+			<td><b>TabIndex direction</b></td>
+			<td>Direction for the auto navigation cursor to point to the next <b>editable cell</b> to the right, regardless of whether the next cell belongs to the same word. If movement in the right direction is not possible then cursor is moved to the leftmost <b>editable cell</b> from the next row.</td>
+		</tr>
+    </tbody>
+</table>
+
+Algorithm rules/sequential steps of the algorithm:
+<ol>
+	<li>If the current direction is horizontal and there is at least one <b>editable cell</b> on the right side in the <b>current word</b>, then move to the first possible <b>editable cell</b> on the right side.</li>
+	<li>If the current direction is horizontal and there is not at least one <b>editable cell</b> to the right side in the <b>current word</b>, then move using the <b>TabIndex direction</b>.</li>
+	<li>If the current direction is vertical and there is at least one <b>editable cell</b> below it in the <b>current word</b>, then move to the first possible <b>editable cell</b> below it.</li>
+	<li>If the current direction is vertical and there is not at least one <b>editable cell</b> below it in the <b>current word</b>, then move using the <b>TabIndex direction</b>.</li>
+	<li>If there is at least one <b>editable cell</b> below it in the <b>current word</b>, and if the right cell is an <b>blank cell</b>, then move to the first possible <b>editable cell</b> below it.</li>
+	<li>If there is at least one <b>editable cell</b> on the right side in the <b>current word</b>, and if the top cell and the bottom cell are <b>blank cells</b>, then move to the first possible <b>editable cell</b> on the right side.</li>
+	<li>If there is at least one <b>editable cell</b> below it in the <b>current word</b>, and if the top cell is an <b>blank cell</b> and the right cell is not an <b>blank cell</b>, then move to the first possible <b>editable cell</b> below it.</li>
+	<li>If there is at least one <b>editable cell</b> below in the <b>current word</b>, and if the right cell is not an <b>blank cell</b> that the user has filled in, and the cell at the bottom is not an <b>blank cell</b> that the user has not filled in, then move to the first possible <b>editable cell</b> below.</li>
+	<li>If there is at least one <b>editable cell</b> on the right side in the <b>current word</b>, then move to the first possible <b>editable cell</b> on the right side.</li>
+	<li>Use the TabIndex direction.</li>
+</ol>
+
+<b>Note:</b> The rules of the algorithm are checked from the first rule to the last. This means that rule 1 will be checked first, then rule 2, and so on. If any rule has all conditions satisfied, then the next rules are not checked.
+
+
+<b>Note:</b> If the auto-navigation mode does not allow chosen direction, then the navigation will not move cursor to the next cell. For example, if the auto-navigation mode is set to Simple and the direction analysis shows the <b>TabIndex direction</b>, then cursor will not be moved to the next cell.
+
+
+In short, the following directions are used for the following rules:
+<ul>
+	<li>1, 6, 9 &ndash; horizontal direction</li>
+	<li>3, 5, 7, 8 &ndash; vertical direction</li>
+	<li>2, 4, 10 &ndash; <b>TabIndex direction</b></li>
+</ul>
 
 ## Demo presentation
 [Demo presentation](/embed/5522005014085632 "Demo presentation") contains examples on how to use the Crossword addon.                           
