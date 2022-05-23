@@ -2020,6 +2020,7 @@ function AddonTable_create() {
 
     TableKeyboardController.prototype.select = function (event) {
         event.preventDefault();
+        presenter.addSpace();
         if (presenter.gapNavigation && presenter.configuration.gapType === 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 
@@ -2042,6 +2043,13 @@ function AddonTable_create() {
             }
         }
     };
+
+    presenter.addSpace = function () {
+        console.log(presenter.getGap(presenter.gapIndex));
+        var $gap = presenter.getGap(presenter.gapIndex)[0];
+        var oldValue = $gap.value;
+        $($gap).val(`${oldValue} `);
+    }
 
     TableKeyboardController.prototype.mark =  function (element) {
         KeyboardController.prototype.mark.call(this, element);
