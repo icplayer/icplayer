@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.ordering;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,6 +11,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.LinkWidget;
 import com.lorepo.icplayer.client.module.text.TextParser;
@@ -27,11 +30,13 @@ public class ItemWidget extends HTML {
 	private EventBus eventBus;
 	private Integer widthWithoutMargin; // safari fix
 	private final OrderingModule container; // safari fix
+	private List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	public ItemWidget(OrderingItem item, OrderingModule container) {
 		this.container = container;
 		TextParser parser = new TextParser();
 		parserResult = parser.parse(item.getText());
+		audioInfos = parserResult.audioInfos;
 		setHTML(parserResult.parsedText);
 		this.item = item;
 		setStyleName("ic_ordering-item");
@@ -90,5 +95,9 @@ public class ItemWidget extends HTML {
 	
 	public Integer getStartingPosition() {
 		return this.item.getStartingPosition();
+	}
+
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
 	}
 }

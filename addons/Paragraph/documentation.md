@@ -43,6 +43,15 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
       <td>Weight</td>
       <td>Set the weight of the paragraph. It is a numeric value between 0 and 100.</td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: bold, italic, underline, align left, align center, align right and justify. <br />
+This texts will be read by Text to Speech addon after a user performs an action.</td> 
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
+    </tr>
 </table>
 
 ## Supported commands

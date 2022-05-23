@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.ordering.mockup;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.module.ordering.IReorderListener;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
 
@@ -29,7 +30,7 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	@Override
 	public void setWorkStatus(boolean b) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -40,13 +41,13 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	@Override
 	public void setCorrectAnswersStyles() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setCorrectAnswer() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	@Override
 	public void removeCorrectAnswersStyles() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -113,6 +114,23 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	}
 
 	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+    @Override
+	public void connectAudios() {
+		// TODO Auto-generated method stub
+	}
+
+    @Override
+	public int getWidgetCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+    @Override
+	public Widget getWidget(int index) {
 		// TODO Auto-generated method stub
 		return null;
 	}

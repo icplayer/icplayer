@@ -20,6 +20,9 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.lorepo.icplayer.client.module.text.AudioWidget;
+import com.lorepo.icplayer.client.module.text.AudioButtonWidget;
 
 public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter, IScoreWithMetadataPresenter {
 
@@ -37,6 +40,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void markAsWrong();
 		public void addBorder();
 		public void removeBorder();
+		public List<AudioInfo> getAudioInfos();
 	}
 	
 	public interface IDisplay extends IModuleView{
@@ -50,6 +54,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public void setVisibleVal(boolean val);
 		public void getOrderedOptions();
 		void isShowErrorsMode(boolean isShowErrorsMode);
+		void connectAudios();
 	}
 	
 	private IDisplay view;
@@ -149,6 +154,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	private void showAnswers() {
+	    resetAudio();
+
 		if (!module.isActivity()) {
 			return;
 		}
@@ -189,6 +196,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
+
+		resetAudio();
 		
 		if(module.isActivity()){
 			for(IOptionDisplay optionView : view.getOptions()){
@@ -245,6 +254,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (module.isActivity()) {
 			saveScore();
 		}
+		resetAudio();
 	}
 	
 	private void reset() {
@@ -384,6 +394,46 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		}
 	}
 
+	@Override
+	public void onAudioButtonClicked(AudioInfo audioInfo) {
+	    AudioWidget audio = audioInfo.getAudio();
+        AudioButtonWidget button = audioInfo.getButton();
+
+        if (audio.isPaused()) {
+            resetAudio();
+            audio.play();
+            button.setStopPlayingStyleClass();
+        } else {
+            audio.reset();
+            button.setStartPlayingStyleClass();
+        }
+	}
+
+	@Override
+	public void onAudioEnded(AudioInfo audioInfo) {
+	    AudioWidget audio = audioInfo.getAudio();
+        AudioButtonWidget button = audioInfo.getButton();
+
+        audio.reset();
+        button.setStartPlayingStyleClass();
+	}
+
+	private void resetAudio() {
+	    for(IOptionDisplay optionView : view.getOptions()){
+	        List<AudioInfo> audioInfos = optionView.getAudioInfos();
+            for (int i = 0; i < audioInfos.size(); i++) {
+                AudioInfo audioInfo = audioInfos.get(i);
+                AudioButtonWidget button = audioInfo.getButton();
+                AudioWidget audio = audioInfo.getAudio();
+                boolean isElementExists = button != null && audio != null;
+
+                if (isElementExists && !audio.isPaused()) {
+                    audio.reset();
+                    button.setStartPlayingStyleClass();
+                }
+            }
+	    }
+	}
 	
 	// ------------------------------------------------------------------------
 	// IActivity
@@ -466,6 +516,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			for(IOptionDisplay optionView : view.getOptions()){
 				optionView.setEventBus(playerServices.getEventBus());
 			}
+			view.connectAudios();
 		}
 	}
 
@@ -752,7 +803,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		boolean isEnabled = !this.module.isDisabled();
+		boolean isEnabled = (!this.module.isDisabled()) || isTextToSpeechOn;
 		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return isVisible && isEnabled && !isGroupDivHidden;
 	}
