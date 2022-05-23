@@ -1339,10 +1339,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.columnCount; k++) {
-                    if(presenter.crossword[max_y][k] == ' ') {
+                    if(presenter.crossword[max_y][k] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[max_y][k] != presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
+                    if(presenter.crossword[max_y][k] !== presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
                         result.word = '';
                         break;
                     }
@@ -1359,10 +1359,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.rowCount; k++) {
-                    if(presenter.crossword[k][max_x] == ' ') {
+                    if(presenter.crossword[k][max_x] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[k][max_x] != presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
+                    if(presenter.crossword[k][max_x] !== presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
                         result.word = '';
                         break;
                     }
