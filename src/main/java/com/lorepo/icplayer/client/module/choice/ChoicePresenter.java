@@ -803,7 +803,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		boolean isEnabled = !this.module.isDisabled();
+		boolean isEnabled = (!this.module.isDisabled()) || isTextToSpeechOn;
 		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return isVisible && isEnabled && !isGroupDivHidden;
 	}

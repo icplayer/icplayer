@@ -63,4 +63,37 @@ TestCase("[Cross Lesson] Upgrade model", {
         assertNotUndefined(upgradedModel.speechTexts);
         assertEquals(this.model.speechTexts, upgradedModel.speechTexts);
     },
+
+    "test given model without checkForAccess when upgradeModel is called then checkForAccess set to false": function () {
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel.CheckForAccess);
+        assertEquals(upgradedModel.CheckForAccess, "False");
+    },
+
+    "test given model with checkForAccess set to True when upgradeModel is called then checkForAccess value remains unchanged": function () {
+        this.model.CheckForAccess = "True";
+
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel.CheckForAccess);
+        assertEquals(upgradedModel.CheckForAccess, "True");
+    },
+
+     "test given model without AccessIDs when upgradeModel is called then AccessIDs set to empty string": function () {
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel.AccessIDs);
+        assertEquals(upgradedModel.AccessIDs, "");
+    },
+
+    "test given model with AccessIDs set when upgradeModel is called then AccessIDs value remains unchanged": function () {
+        var expectedValue = "1234, 5678";
+        this.model.AccessIDs = expectedValue;
+
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel.AccessIDs);
+        assertEquals(upgradedModel.AccessIDs, expectedValue);
+    }
 });
