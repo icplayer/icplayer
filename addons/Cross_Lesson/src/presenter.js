@@ -40,7 +40,6 @@ function AddonCross_Lesson_create(){
     function presenterLogic(view, model, preview) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
-        presenter.setUniqueIdentifier(model.ID, view.offsetParent);
 
         if (presenter.configuration.isError) {
             presenter.createErrorView(view, presenter.configuration.errorCode);
@@ -51,6 +50,7 @@ function AddonCross_Lesson_create(){
         presenter.connectHandlers();
         presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.buildKeyboardController();
+        presenter.setUniqueIdentifier(model.ID);
         presenter.handleUserAccess();
     };
 
@@ -217,8 +217,26 @@ function AddonCross_Lesson_create(){
        presenter.playerController.sendExternalEvent(crossLessonEventType, data);
     };
 
-    presenter.setUniqueIdentifier = function AddonCross_Lesson_setUniqueIdentifier (modelID, parentElement){
-        presenter.uniqueIdentifier = `${modelID}-${parentElement.getAttribute("id")}`;
+    presenter.setUniqueIdentifier = function AddonCross_Lesson_setUniqueIdentifier (modelID){
+        if (!presenter.playerController) {
+            return;
+        }
+
+        const pageIndex = presenter.playerController.getCurrentPageIndex();
+        const pageID = presenter.playerController.getPresentation().getPage(pageIndex).getId();
+        presenter.uniqueIdentifier = `${modelID}-${pageID}`;
+
+        if (!presenter.$view) {
+            return;
+        }
+
+        if (presenter.$view.closest('.ic_header').length) {
+            presenter.uniqueIdentifier += "-header";
+        }
+
+        if (presenter.$view.closest('.ic_footer').length) {
+            presenter.uniqueIdentifier += "-footer";
+        }
     };
 
     presenter.handleUserAccess = function AddonCross_Lesson_handleUserAccess () {
