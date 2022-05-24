@@ -1537,7 +1537,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
 		final boolean hasLinks = module.getLinkInfos().iterator().hasNext();
-		final boolean isEnabled = !this.module.isDisabled();
+		final boolean isEnabled = (!this.module.isDisabled()) || isTextToSpeechOn;
 		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || isWithGaps || hasLinks) && isVisible && isEnabled && !isGroupDivHidden;
 	}
