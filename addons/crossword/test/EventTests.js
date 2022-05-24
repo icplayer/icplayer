@@ -71,12 +71,38 @@ TestCase("[Crossword] Events tests", {
         assertFalse(this.presenter.isGradualShowAnswersActive);
     },
 
+    'test given Show Answers when gaps edited then user answers are properly saved': function () {
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.buildCrossword();
+
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
+            .val("A");
+        this.presenter.showAnswers();
+
+        const expected = "A";
+        const actual = this.presenter.userAnswers[5][5];
+
+        assertTrue(expected === actual);
+    },
+
+    'test given Hide Answers then user answers are properly brought back': function () {
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.buildCrossword();
+
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
+            .val("A");
+
+        this.presenter.showAnswers();
+        this.presenter.hideAnswers();
+
+        const expected = "A";
+        const actual = this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val();
+
+        assertTrue(expected === actual);
+    },
+
     'test on editable cell input click event should call reset directions': function () {
-        this.presenter.rowCount = 9;
-        this.presenter.columnCount = 10;
-        this.presenter.crossword = getCrosswordForNavigationTests();
-        this.presenter.$view = $(document.createElement('div'));
-        this.presenter.createGrid();
+        this.buildCrossword();
         var cellInput = this.getCellInputElement(3, 4);
 
         $(cellInput).trigger('click');
@@ -85,11 +111,7 @@ TestCase("[Crossword] Events tests", {
     },
 
     'test on constant cell input click event should not call reset directions': function () {
-        this.presenter.rowCount = 9;
-        this.presenter.columnCount = 10;
-        this.presenter.crossword = getCrosswordForNavigationTests();
-        this.presenter.$view = $(document.createElement('div'));
-        this.presenter.createGrid();
+        this.buildCrossword();
         var cellInput = this.getCellInputElement(3, 3);
 
         $(cellInput).trigger('click');
@@ -99,5 +121,13 @@ TestCase("[Crossword] Events tests", {
 
     getCellInputElement: function (x, y) {
         return this.presenter.$view.find(`.cell_row_${y}.cell_column_${x}`).find("input")[0];
+    },
+
+    buildCrossword: function() {
+        this.presenter.rowCount = 9;
+        this.presenter.columnCount = 10;
+        this.presenter.crossword = getCrosswordForNavigationTests();
+        this.presenter.$view = $(document.createElement('div'));
+        this.presenter.createGrid();
     },
 });
