@@ -123,9 +123,15 @@ public class WCAGUtils {
 		result = result.replaceAll("<[^>]*?img[^>]*?alt='(.*?)'[^<]*?>", BREAK_TEXT + " $1 " + BREAK_TEXT);
 		return result;	
 	}
-	
+
+	public static String addSpacesToListTags (String text) {
+	    return text.replaceAll("</li>", ", </li>");
+	}
+
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
+        text = addSpacesToListTags(text);
+
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
