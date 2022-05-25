@@ -130,7 +130,7 @@ public class WCAGUtils {
 
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
-        text = addSpacesToListTags(text);
+		text = addSpacesToListTags(text);
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
