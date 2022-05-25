@@ -455,9 +455,9 @@ function AddonAudioPlaylist_create() {
 
         if (currentElement === presenter.NAVIGATION_ELEMENT.AUDIO_ITEM) {
             var audioTitle = getAudioTitle($element);
-            return `${presenter.getAudioIndex(audioTitle) + 1} ${textToRead} ${audioTitle}`;
+            textToRead = `${presenter.getAudioIndex(audioTitle) + 1} ${textToRead} ${audioTitle}`;
         }
-        return textToRead;
+        return [TTSUtils.getTextVoiceObject(textToRead, presenter.configuration.langAttribute)];
     }
 
     function getAudioTitle($element) {
@@ -556,7 +556,7 @@ function AddonAudioPlaylist_create() {
             this.hideAddon();
         }
 
-        presenter.changeItem(state.currentItemIndex)
+        presenter.changeItem(state.currentItemIndex, false);
     };
 
     presenter.validateModel = function AddonAudioPlaylist_validateModel(model) {
@@ -802,10 +802,10 @@ function AddonAudioPlaylist_create() {
         return true;
     }
 
-    presenter.changeItem = function AddonAudioPlaylist_changeItem(index) {
+    presenter.changeItem = function AddonAudioPlaylist_changeItem(index, startPlaying = true) {
         var wasSelected = presenter.selectItem(index);
 
-        if (wasSelected && !presenter.configuration.stopPlaying) {
+        if (wasSelected && !presenter.configuration.stopPlaying && startPlaying) {
             presenter.play();
         }
 
