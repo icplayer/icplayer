@@ -87,7 +87,7 @@ TestCase("[Crossword] Events tests", {
         assertTrue(expected === actual);
     },
 
-    'test given Hide Answers then user answers are properly brought back': function () {
+    'test given Hide Answers when user filled gaps then user answers are properly brought back': function () {
         this.presenter.isWordNumbersCorrect = () => true;
         this.buildCrossword();
 
