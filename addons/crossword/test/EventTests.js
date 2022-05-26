@@ -62,6 +62,8 @@ TestCase("[Crossword] Events tests", {
     },
 
     'test GHA event calls the right method and changes isGradualShowAnswersActive to false': function () {
+        this.presenter.$view = { find: () => ({ removeClass: () => null }) };
+        this.presenter.isWordNumbersCorrect = () => true;
         this.presenter.isGradualShowAnswersActive = true;
         var eventName = "GradualHideAnswers";
         var eventData = {};
