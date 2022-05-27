@@ -41,7 +41,7 @@ TestCase("[Paragraph] Reset method", {
 
         this.presenter.reset();
 
-        assertEquals("", this.spies.setStyles.getCall(0).args[0]);
+        assertEquals(true, this.spies.setStyles.calledOnce);
     },
 
     'test when placeholder is editable on reset set content to placeholder text': function () {
