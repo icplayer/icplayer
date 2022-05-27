@@ -1433,10 +1433,14 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
+        var activeColorID = presenter.configuration.activeColorID;
+        if (!presenter.configuration.eraserMode && activeColorID === null) {
+            activeColorID = presenter.stateMachine.previousActiveColorID;
+        }
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
             tokens: presenter.configuration.filteredTokens,
-            activeColorID: presenter.configuration.activeColorID
+            activeColorID: activeColorID
         });
     };
 
