@@ -1,4 +1,6 @@
 2022-05-24 Fix display ZoomImage in mobile
+2022-05-24 Fix Drawing.uploadImage command not working on Safari iOS
+2022-05-20 Changed Show Answers property from single string to multiple correct answers in Addon Paragraph
 2022-05-20 Block strict letters in Crossword
 2022-05-20 TTS keyboard navigation no longer ignores disabled addons
 2022-05-20 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
