@@ -280,329 +280,14 @@ function Addoncrossword_create(){
         }
     };
 
-    function handleAutoNavigationMove(currentCellInput) {
-        enableMoveToNextField = false;
-
-        if (presenter.blockWrongAnswers) {
-            var isCorrectValue
-                = presenter.validateIsCorrectValueInCellInput(currentCellInput);
-            if (!isCorrectValue) return;
-        }
-
-        if (!presenter.isAutoNavigationInOffMode()) {
-            presenter.analyzeDirectionOfMove(currentCellInput);
-            presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
-            presenter.moveInCurrentDirection(currentCellInput);
-        }
-    }
-
-    presenter.validateIsCorrectValueInCellInput = function (currentCellInput) {
-        var $currentCellInput = $(currentCellInput);
-        var usersLetter = currentCellInput.value[0];
-        var currentPosition = getPositionOfCellInputElement($currentCellInput);
-
-        var correctLetter = presenter.crossword[currentPosition.y][currentPosition.x][0];
-        if (usersLetter !== correctLetter) {
-            presenter.sendScoreEvent(currentPosition, usersLetter, false);
-            currentCellInput.value = '';
-            return false;
-        }
-        return true;
-    };
-
-    presenter.analyzeDirectionOfMove = function (currentCellInput) {
-        var $currentCellInput = $(currentCellInput);
-        var currentPosition = getPositionOfCellInputElement($currentCellInput);
-
-        var rightElementPosition = calculateRightElementPosition(currentPosition);
-        var isRightCellNotBlank = isPositionOfNotBlankCell(rightElementPosition);
-        var rightCellsEditable = areRightCellsEditable(currentPosition);
-
-        var bottomElementPosition = calculateBottomElementPosition(currentPosition);
-        var isBottomCellNotBlank = isPositionOfNotBlankCell(bottomElementPosition);
-        var bottomCellsEditable = areBottomCellsEditable(currentPosition);
-
-        var topElementPosition = calculateTopElementPosition(currentPosition);
-        var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
-
-        if (presenter.isHorizontalDirection()) {
-            if (!rightCellsEditable) {
-                presenter.setTabIndexDirection();
-            }
-            return;
-        } else if (presenter.isVerticalDirection()) {
-            if (!bottomCellsEditable) {
-                presenter.setTabIndexDirection();
-            }
-            return;
-        }
-
-        var rightCellInput = getCellInput(rightElementPosition);
-        var bottomCellInput = getCellInput(bottomElementPosition);
-
-        if (bottomCellsEditable && !isRightCellNotBlank) {
-            presenter.setVerticalDirection();
-        } else if (rightCellsEditable && !isTopCellNotBlank && !isBottomCellNotBlank) {
-            presenter.setHorizontalDirection();
-        } else if (bottomCellsEditable && !isTopCellNotBlank && isRightCellNotBlank) {
-            presenter.setVerticalDirection();
-        } else if (bottomCellsEditable
-            && (isRightCellNotBlank && !isCellInputElementEmpty(rightCellInput))
-            && (isBottomCellNotBlank && isCellInputElementEmpty(bottomCellInput))) {
-            presenter.setVerticalDirection();
-        } else if (rightCellsEditable) {
-            presenter.setHorizontalDirection();
-        } else {
-            presenter.setTabIndexDirection();
-        }
-    };
-
-    function areRightCellsEditable(currentPosition) {
-        return !!getNextRightEditableCellPosition(currentPosition);
-    }
-
-    function getNextRightEditableCellPosition(currentPosition) {
-        const nextYPosition = currentPosition.y;
-        var nextPosition;
-        for (var nextXPosition = currentPosition.x + 1; nextXPosition < presenter.columnCount; nextXPosition++) {
-            nextPosition = {y: nextYPosition, x: nextXPosition};
-            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
-            if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
-                    return nextPosition;
-                }
-            } else {
-                return;
-            }
-        }
-    }
-
-    function areLeftCellsEditable(currentPosition) {
-        return !!getNextLeftEditableCellPosition(currentPosition);
-    }
-
-    function getNextLeftEditableCellPosition(currentPosition) {
-        const nextYPosition = currentPosition.y;
-        var nextPosition;
-        for (var nextXPosition = currentPosition.x - 1; nextXPosition >= 0; nextXPosition--) {
-            nextPosition = {y: nextYPosition, x: nextXPosition};
-            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
-            if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
-                    return nextPosition;
-                }
-            } else {
-                return;
-            }
-        }
-    }
-
-    function areBottomCellsEditable(currentPosition) {
-        return !!getNextBottomEditableCellPosition(currentPosition);
-    }
-
-    function getNextBottomEditableCellPosition(currentPosition) {
-        const nextXPosition = currentPosition.x;
-        var nextPosition;
-        for (var nextYPosition = currentPosition.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
-            nextPosition = {y: nextYPosition, x: nextXPosition};
-            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
-            if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
-                    return nextPosition;
-                }
-            } else {
-                return;
-            }
-        }
-    }
-
-    function areTopCellsEditable(currentPosition) {
-        return !!getNextTopEditableCellPosition(currentPosition);
-    }
-
-    function getNextTopEditableCellPosition(currentPosition) {
-        const nextXPosition = currentPosition.x;
-        var nextPosition;
-        for (var nextYPosition = currentPosition.y - 1; nextYPosition >= 0; nextYPosition--) {
-            nextPosition = {y: nextYPosition, x: nextXPosition};
-            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
-            if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
-                    return nextPosition;
-                }
-            } else {
-                return;
-            }
-        }
-    }
-
-    presenter.updateDirectionOfMoveRelativeToAutoNavigationMode = function () {
-        if (!presenter.isDirectionNotSet()
-            && (presenter.isAutoNavigationInOffMode()
-                || (presenter.isAutoNavigationInSimpleMode()
-                    && presenter.isTabIndexDirection()))) {
-            presenter.resetDirection();
-        }
-    }
-
-    presenter.moveInCurrentDirection = function (currentCellInput) {
-        if (presenter.isHorizontalDirection()) {
-            moveInHorizontalDirection(currentCellInput);
-        } else if (presenter.isVerticalDirection()) {
-            moveInVerticalDirection(currentCellInput);
-        } else if (presenter.isTabIndexDirection()) {
-            moveInTabIndexDirection(currentCellInput);
-        }  else {
-            blurCellInput(currentCellInput);
-        }
-    };
-
-    function moveInVerticalDirection(currentCellInput) {
-        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
-        var nextCellPosition = getNextBottomEditableCellPosition(currentPosition);
-        if (!!nextCellPosition) {
-            var nextCellInput = getCellInput(nextCellPosition);
-            $(nextCellInput).focus();
-        } else {
-            blurCellInput(currentCellInput);
-        }
-    }
-
-    function moveInHorizontalDirection(currentCellInput) {
-        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
-        var nextCellPosition = getNextRightEditableCellPosition(currentPosition);
-        if (!!nextCellPosition) {
-            var nextCellInput = getCellInput(nextCellPosition);
-            $(nextCellInput).focus();
-        } else {
-            blurCellInput(currentCellInput);
-        }
-    }
-
-    function moveInTabIndexDirection(currentCellInput) {
-        var nextTabIndex = currentCellInput.tabIndex + 1;
-        if (nextTabIndex < presenter.maxTabIndex) {
-            focusCellInputUsingTabIndex(nextTabIndex);
-        } else {
-            blurCellInput(currentCellInput);
-        }
-    }
-
-    function focusCellInputUsingTabIndex(tabIndex) {
-        presenter.$view.find('[tabindex=' + tabIndex + ']').focus();
-    }
-
-    function blurCellInput(cellInput) {
-        $(cellInput).blur();
-    }
-
-    function calculateLeftElementPosition(oldPosition) {
-        return {y: oldPosition.y, x: oldPosition.x - 1};
-    }
-
-    function calculateRightElementPosition(oldPosition) {
-        return {y: oldPosition.y, x: oldPosition.x + 1};
-    }
-
-    function calculateTopElementPosition(oldPosition) {
-        return {y: oldPosition.y - 1, x: oldPosition.x};
-    }
-
-    function calculateBottomElementPosition(oldPosition) {
-        return {y: oldPosition.y + 1, x: oldPosition.x};
-    }
-
-    function isCellInputElementEmpty(element) {
-        return !element.value;
-    }
-
-    function isPositionOfConstantCell(position) {
-        if (!isPositionValid(position)) {
-            return false;
-        }
-        return _isPositionOfConstantCell(position);
-    }
-
-    function _isPositionOfConstantCell(position) {
-        return presenter.crossword[position.y][position.x][0].includes('!');
-    }
-
-    function isPositionOfNotBlankCell(position) {
-        if (!isPositionValid(position)) {
-            return false;
-        }
-        return _isPositionOfNotBlankCell(position);
-    }
-
-    function isBlankCell(cell) {
-        return $(cell).hasClass(presenter.CSS_CLASSES.CELL_BLANK);
-    }
-
-    function _isPositionOfNotBlankCell(position) {
-        return presenter.crossword[position.y][position.x][0] !== ' ';
-    }
-
-    function getCellInput(position) {
-        if (!isPositionValid(position)) {
-            return;
-        }
-        return presenter.$view.find(`.cell_row_${position.y}.cell_column_${position.x}`).find("input")[0];
-    }
-
-    function getElementInput(element) {
-        return $(element).find("input")[0];
-    }
-
-    function isPositionValid(position) {
-        return !!position
-            && position.y >= 0 && position.y < presenter.rowCount
-            && position.x >= 0 && position.x < presenter.columnCount;
-    }
-
-    presenter.isDirectionNotSet = function () {
-        return currentDirection === DIRECTIONS.NOT_SET;
-    }
-
-    presenter.isHorizontalDirection = function () {
-        return currentDirection === DIRECTIONS.HORIZONTAL;
-    }
-
-    presenter.isVerticalDirection = function () {
-        return currentDirection === DIRECTIONS.VERTICAL;
-    }
-
-    presenter.isTabIndexDirection = function () {
-        return currentDirection === DIRECTIONS.TAB_INDEX;
-    }
-
-    presenter.resetDirection = function () {
-        currentDirection = DIRECTIONS.NOT_SET;
-    }
-
-    presenter.setHorizontalDirection = function () {
-        currentDirection = DIRECTIONS.HORIZONTAL;
-    }
-
-    presenter.setVerticalDirection = function () {
-        currentDirection = DIRECTIONS.VERTICAL;
-    }
-
-    presenter.setTabIndexDirection = function () {
-        currentDirection = DIRECTIONS.TAB_INDEX;
-    }
-
     presenter.onCellInputKeyDown = function(event) {
+        console.log(event.keyCode)
         var $target = $(event.target);
         if (event.keyCode == presenter.SPECIAL_KEYS.BACKSPACE) {
             if (!$target.val()) {
                 var previous_tab_index = event.target.tabIndex - 1;
                 if (previous_tab_index >= presenter.tabIndexBase) {
-                    var previous_element = presenter.$view.find('[tabindex=' + previous_tab_index + ']');
+                    var previous_element = findCellInputElement(previous_tab_index);
                     previous_element.focus();
                     previous_element.val('');
                     return;
@@ -659,6 +344,334 @@ function Addoncrossword_create(){
         presenter.resetDirection();
         event.stopPropagation();
     };
+
+    function handleAutoNavigationMove(currentCellInput) {
+        enableMoveToNextField = false;
+
+        if (presenter.blockWrongAnswers) {
+            var isCorrectValue
+                = presenter.validateIsCorrectValueInCellInput(currentCellInput);
+            if (!isCorrectValue) return;
+        }
+
+        if (!presenter.isAutoNavigationInOffMode()) {
+            presenter.analyzeDirectionOfMove(currentCellInput);
+            presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
+            presenter.moveInCurrentDirection(currentCellInput);
+        }
+    }
+
+    presenter.validateIsCorrectValueInCellInput = function (currentCellInput) {
+        var $currentCellInput = $(currentCellInput);
+        var usersLetter = currentCellInput.value[0];
+        var currentPosition = getPositionOfCellInputElement($currentCellInput);
+
+        var correctLetter = presenter.crossword[currentPosition.y][currentPosition.x][0];
+        if (usersLetter !== correctLetter) {
+            presenter.sendScoreEvent(currentPosition, usersLetter, false);
+            currentCellInput.value = '';
+            return false;
+        }
+        return true;
+    };
+
+    presenter.analyzeDirectionOfMove = function (currentCellInput) {
+        var $currentCellInput = $(currentCellInput);
+        var currentPosition = getPositionOfCellInputElement($currentCellInput);
+
+        var rightElementPosition = calculateRightElementPosition(currentPosition);
+        var isRightCellNotBlank = isPositionOfNotBlankCell(rightElementPosition);
+        var rightCellsEditable = isAnyOfRightCellsEditable(currentPosition);
+
+        var bottomElementPosition = calculateBottomElementPosition(currentPosition);
+        var isBottomCellNotBlank = isPositionOfNotBlankCell(bottomElementPosition);
+        var bottomCellsEditable = isAnyOfBottomCellsEditable(currentPosition);
+
+        var topElementPosition = calculateTopElementPosition(currentPosition);
+        var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
+
+        if (presenter.isHorizontalDirection()) {
+            if (!rightCellsEditable) {
+                presenter.setTabIndexDirection();
+            }
+            return;
+        } else if (presenter.isVerticalDirection()) {
+            if (!bottomCellsEditable) {
+                presenter.setTabIndexDirection();
+            }
+            return;
+        }
+
+        var rightCellInput = getCellInput(rightElementPosition);
+        var bottomCellInput = getCellInput(bottomElementPosition);
+
+        if (bottomCellsEditable && !isRightCellNotBlank) {
+            presenter.setVerticalDirection();
+        } else if (rightCellsEditable && !isTopCellNotBlank && !isBottomCellNotBlank) {
+            presenter.setHorizontalDirection();
+        } else if (bottomCellsEditable && !isTopCellNotBlank && isRightCellNotBlank) {
+            presenter.setVerticalDirection();
+        } else if (bottomCellsEditable
+            && (isRightCellNotBlank && !isCellInputElementEmpty(rightCellInput))
+            && (isBottomCellNotBlank && isCellInputElementEmpty(bottomCellInput))) {
+            presenter.setVerticalDirection();
+        } else if (rightCellsEditable) {
+            presenter.setHorizontalDirection();
+        } else {
+            presenter.setTabIndexDirection();
+        }
+    };
+
+    function isAnyOfRightCellsEditable(currentPosition) {
+        return !!getNextRightEditableCellPosition(currentPosition);
+    }
+
+    function getNextRightEditableCellPosition(currentPosition) {
+        const nextYPosition = currentPosition.y;
+        var nextPosition;
+        for (var nextXPosition = currentPosition.x + 1; nextXPosition < presenter.columnCount; nextXPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function isAnyOfLeftCellsEditable(currentPosition) {
+        return !!getNextLeftEditableCellPosition(currentPosition);
+    }
+
+    function getNextLeftEditableCellPosition(currentPosition) {
+        const nextYPosition = currentPosition.y;
+        var nextPosition;
+        for (var nextXPosition = currentPosition.x - 1; nextXPosition >= 0; nextXPosition--) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function isAnyOfBottomCellsEditable(currentPosition) {
+        return !!getNextBottomEditableCellPosition(currentPosition);
+    }
+
+    function getNextBottomEditableCellPosition(currentPosition) {
+        const nextXPosition = currentPosition.x;
+        var nextPosition;
+        for (var nextYPosition = currentPosition.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function isAnyOfTopCellsEditable(currentPosition) {
+        return !!getNextTopEditableCellPosition(currentPosition);
+    }
+
+    function getNextTopEditableCellPosition(currentPosition) {
+        const nextXPosition = currentPosition.x;
+        var nextPosition;
+        for (var nextYPosition = currentPosition.y - 1; nextYPosition >= 0; nextYPosition--) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
+                if (!isNextCellConstant) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function getNextTabIndexEditableCellPosition(currentCellInput) {
+        var newTabIndex = currentCellInput.tabIndex + 1;
+        return getPositionOfCellInputElementWithTabIndex(newTabIndex);
+    }
+
+    function getPreviousTabIndexEditableCellPosition(currentCellInput) {
+        var newTabIndex = currentCellInput.tabIndex - 1;
+        return getPositionOfCellInputElementWithTabIndex(newTabIndex);
+    }
+
+    function getPositionOfCellInputElementWithTabIndex(tabIndex) {
+        if (tabIndex < presenter.tabIndexBase || tabIndex >= presenter.maxTabIndex) {
+            return;
+        }
+
+        var newCellInputElement = findCellInputElement(tabIndex);
+        var newPosition = getPositionOfCellInputElement($(newCellInputElement));
+        if (!isPositionValid(newPosition)) {
+            return;
+        }
+
+        return newPosition;
+    }
+
+    function findCellInputElement(tabIndex) {
+        return presenter.$view.find('[tabindex=' + tabIndex + ']');
+    }
+
+    presenter.updateDirectionOfMoveRelativeToAutoNavigationMode = function () {
+        if (!presenter.isDirectionNotSet()
+            && (presenter.isAutoNavigationInOffMode()
+                || (presenter.isAutoNavigationInSimpleMode()
+                    && presenter.isTabIndexDirection()))) {
+            presenter.resetDirection();
+        }
+    }
+
+    presenter.moveInCurrentDirection = function (currentCellInput) {
+        if (presenter.isHorizontalDirection()) {
+            moveInHorizontalDirection(currentCellInput);
+        } else if (presenter.isVerticalDirection()) {
+            moveInVerticalDirection(currentCellInput);
+        } else if (presenter.isTabIndexDirection()) {
+            moveInTabIndexDirection(currentCellInput);
+        }  else {
+            blurCellInput(currentCellInput);
+        }
+    };
+
+    function moveInVerticalDirection(currentCellInput) {
+        const customEvent = {target: currentCellInput};
+        moveToNextEditableBottomElement(customEvent, true);
+    }
+
+    function moveInHorizontalDirection(currentCellInput) {
+        const customEvent = {target: currentCellInput};
+        moveToNextEditableRightElement(customEvent, true);
+    }
+
+    function moveInTabIndexDirection(currentCellInput, blurIfBlocked = true) {
+        const customEvent = {target: currentCellInput};
+        moveToNextEditableTabIndexElement(customEvent, true);
+    }
+
+    function focusCellInputUsingPosition(nextPosition) {
+        $(getCellInput(nextPosition)).focus();
+    }
+
+    function focusCellInputUsingTabIndex(tabIndex) {
+        findCellInputElement(tabIndex).focus();
+    }
+
+    function blurCellInput(cellInput) {
+        $(cellInput).blur();
+    }
+
+    function calculateLeftElementPosition(oldPosition) {
+        return {y: oldPosition.y, x: oldPosition.x - 1};
+    }
+
+    function calculateRightElementPosition(oldPosition) {
+        return {y: oldPosition.y, x: oldPosition.x + 1};
+    }
+
+    function calculateTopElementPosition(oldPosition) {
+        return {y: oldPosition.y - 1, x: oldPosition.x};
+    }
+
+    function calculateBottomElementPosition(oldPosition) {
+        return {y: oldPosition.y + 1, x: oldPosition.x};
+    }
+
+    function isCellInputElementEmpty(element) {
+        return !element.value;
+    }
+
+    function isPositionOfConstantCell(position) {
+        if (!isPositionValid(position)) {
+            return false;
+        }
+        return _isPositionOfConstantCell(position);
+    }
+
+    function _isPositionOfConstantCell(position) {
+        return presenter.crossword[position.y][position.x][0].includes('!');
+    }
+
+    function isPositionOfNotBlankCell(position) {
+        if (!isPositionValid(position)) {
+            return false;
+        }
+        return _isPositionOfNotBlankCell(position);
+    }
+
+    function _isPositionOfNotBlankCell(position) {
+        return presenter.crossword[position.y][position.x][0] !== ' ';
+    }
+
+    function getCellInput(position) {
+        if (!isPositionValid(position)) {
+            return;
+        }
+        return presenter.$view.find(`.cell_row_${position.y}.cell_column_${position.x}`).find("input")[0];
+    }
+
+    function getElementInput(element) {
+        return $(element).find("input")[0];
+    }
+
+    function isPositionValid(position) {
+        return !!position
+            && position.y >= 0 && position.y < presenter.rowCount
+            && position.x >= 0 && position.x < presenter.columnCount;
+    }
+
+    presenter.isDirectionNotSet = function () {
+        return currentDirection === DIRECTIONS.NOT_SET;
+    }
+
+    presenter.isHorizontalDirection = function () {
+        return currentDirection === DIRECTIONS.HORIZONTAL;
+    }
+
+    presenter.isVerticalDirection = function () {
+        return currentDirection === DIRECTIONS.VERTICAL;
+    }
+
+    presenter.isTabIndexDirection = function () {
+        return currentDirection === DIRECTIONS.TAB_INDEX;
+    }
+
+    presenter.resetDirection = function () {
+        currentDirection = DIRECTIONS.NOT_SET;
+    }
+
+    presenter.setHorizontalDirection = function () {
+        currentDirection = DIRECTIONS.HORIZONTAL;
+    }
+
+    presenter.setVerticalDirection = function () {
+        currentDirection = DIRECTIONS.VERTICAL;
+    }
+
+    presenter.setTabIndexDirection = function () {
+        currentDirection = DIRECTIONS.TAB_INDEX;
+    }
 
     function setCaretPosition(elem, caretPos) {
         var range;
@@ -1645,10 +1658,20 @@ function Addoncrossword_create(){
                 presenter.getElementsForKeyboardNavigation(),
                 presenter.columnCount
         );
+        presenter.keyboardControllerObject.setUpMapping();
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
         return presenter.$view.find(`.${presenter.CSS_CLASSES.CELL}`);
+    };
+
+    CrosswordKeyboardController.prototype.setUpMapping = function () {
+        var keys = {
+            TAB: 9,
+        };
+
+        this.mapping[keys.TAB] = this.nextTabIndexElement;
+        this.shiftKeysMapping[keys.TAB] = this.previousTabIndexElement;
     };
 
     CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
@@ -1664,9 +1687,32 @@ function Addoncrossword_create(){
     };
 
     CrosswordKeyboardController.prototype.enter = function (event) {
-        KeyboardController.prototype.enter.call(this, event);
+        if (event) {
+            event.preventDefault();
+        }
+        if (this.keyboardNavigationActive) {
+            return;
+        }
+        this.keyboardNavigationActive = true;
+        moveToFirstEditableElement();
+
         this.readCurrentElement();
     };
+
+    function moveToFirstEditableElement() {
+        var firstElement = findCellInputElement(presenter.tabIndexBase);
+        var cellPosition = getPositionOfCellInputElement($(firstElement));
+        if (!isPositionValid(cellPosition)) {
+            return;
+        }
+
+        presenter.setTabIndexDirection();
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(cellPosition);
+        } else {
+            focusCellInputUsingPosition(cellPosition);
+        }
+    }
 
     CrosswordKeyboardController.prototype.select = function (event) {
         const currentElement = this.getCurrentElement();
@@ -1674,132 +1720,219 @@ function Addoncrossword_create(){
         // TODO
     };
 
-    CrosswordKeyboardController.prototype.setUpMapping = function (event) {
-        this.mapping
-    }
-
     /**
      Action when was called tab
-     @method nextElement
+     @method nextTabIndexElement
     */
     CrosswordKeyboardController.prototype.nextTabIndexElement = function (event) {
-        if (event) {
+        presenter.setTabIndexDirection();
+        moveToNextEditableTabIndexElement(event);
+    };
+
+    function moveToNextEditableTabIndexElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextRightEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var nextCellPosition = getNextTabIndexEditableCellPosition(currentCellInput);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setHorizontalDirection();
-        var move = nextPosition.x - currentCellPosition.x;
-        this.switchElement(move);
-    };
+
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
+
 
     /**
      Action when was called shift + tab
-     @method previousElement
+     @method previousTabIndexElement
     */
-    CrosswordKeyboardController.prototype.previousElement = function (event) {
-        if (event) {
+    CrosswordKeyboardController.prototype.previousTabIndexElement = function (event) {
+        presenter.setTabIndexDirection();
+        moveToPreviousEditableTabIndexElement(event);
+    };
+
+    function moveToPreviousEditableTabIndexElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextLeftEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var nextCellPosition = getPreviousTabIndexEditableCellPosition(currentCellInput);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setHorizontalDirection();
-        var move = nextPosition.x - currentCellPosition.x;
-        this.switchElement(move);
-    };
+
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
 
     /**
      Action when was called right arrow
      @method nextElement
     */
     CrosswordKeyboardController.prototype.nextElement = function (event) {
-        if (event) {
+        presenter.setHorizontalDirection();
+        moveToNextEditableRightElement(event);
+    };
+
+
+    function moveToNextEditableRightElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextRightEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var currentCellPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextRightEditableCellPosition(currentCellPosition);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setHorizontalDirection();
-        var move = nextPosition.x - currentCellPosition.x;
-        this.switchElement(move);
-    };
+
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
 
     /**
      Action when was called left arrow
      @method previousElement
     */
     CrosswordKeyboardController.prototype.previousElement = function (event) {
-        if (event) {
+        presenter.setHorizontalDirection();
+        moveToNextEditableLeftElement(event);
+    };
+
+    function moveToNextEditableLeftElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextLeftEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var currentCellPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextLeftEditableCellPosition(currentCellPosition);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setHorizontalDirection();
-        var move = nextPosition.x - currentCellPosition.x;
-        this.switchElement(move);
-    };
+
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
 
     /**
      Action when was called up arrow
      @method nextRow
     */
     CrosswordKeyboardController.prototype.nextRow = function (event) {
-        if (event) {
+        presenter.setVerticalDirection();
+        moveToNextEditableBottomElement(event);
+    };
+
+    function moveToNextEditableBottomElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextBottomEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var currentCellPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextBottomEditableCellPosition(currentCellPosition);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setVerticalDirection();
-        var move = (nextPosition.y - currentCellPosition.y) * this.columnsCount;
-        this.switchElement(move);
-    };
+
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
 
     /**
      Action when was called down arrow
      @method previousRow
     */
     CrosswordKeyboardController.prototype.previousRow = function (event) {
-        if (event) {
+        presenter.setVerticalDirection();
+        moveToNextEditableTopElement(event);
+    };
+
+    function moveToNextEditableTopElement(event, blurCurrentOnAbsenceOfNext = false) {
+        if (event && event.preventDefault) {
             event.preventDefault();
         }
 
-        var currentCellPosition = this.getCurrentElementPosition();
-        var nextPosition = getNextTopEditableCellPosition(currentCellPosition);
-        if (!nextPosition) {
+        var currentCellInput = presenter.isWCAGOn
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : $(event.target);
+        var currentCellPosition = getPositionOfCellInputElement($(currentCellInput));
+        var nextCellPosition = getNextTopEditableCellPosition(currentCellPosition);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
             return;
         }
-        presenter.setVerticalDirection();
-        var move = (nextPosition.y - currentCellPosition.y) * this.columnsCount;
-        this.switchElement(move);
-    };
 
-    CrosswordKeyboardController.prototype.switchElement = function (move) {
-        var newPositionIndex = this.calculateNewPositionIndex(move);
+        if (presenter.isWCAGOn) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.switchCellInputElement = function (newPosition) {
+        var newPositionIndex = this.calculateNewPositionIndex(newPosition);
         this.markCurrentElement(newPositionIndex);
     };
 
-    CrosswordKeyboardController.prototype.calculateNewPositionIndex = function (move) {
-        var newPositionIndex = this.keyboardNavigationCurrentElementIndex + move;
-        if (newPositionIndex >= this.keyboardNavigationElementsLen) {
+    CrosswordKeyboardController.prototype.calculateNewPositionIndex = function (newPosition) {
+        var newPositionIndex = this.keyboardNavigationElements.toArray().findIndex(
+            cellElement =>
+                $(cellElement).hasClass(`cell_row_${newPosition.y}`)
+                && $(cellElement).hasClass(`cell_column_${newPosition.x}`)
+        );
+
+        if (newPositionIndex === -1) {
+            newPositionIndex = this.keyboardNavigationCurrentElementIndex;
+        } else if (newPositionIndex >= this.keyboardNavigationElementsLen) {
             newPositionIndex = this.keyboardNavigationElementsLen;
         } else if (newPositionIndex < 0) {
             newPositionIndex = this.keyboardNavigationElementsLen;
