@@ -806,7 +806,7 @@ function AddonText_Coloring_create() {
                 presenter.speechTexts.correct),
             incorrect: TTSUtils.getSpeechTextProperty(
                 speechTexts.Incorrect.Incorrect,
-                presenter.speechTexts.Incorrect)
+                presenter.speechTexts.incorrect)
         };
     };
 
@@ -1799,7 +1799,7 @@ function AddonText_Coloring_create() {
         } else if (element[0].className.includes("text-coloring-tokens-container")) {
             text = presenter.getTTSForContent();
         } else if (element.hasClass(presenter.defaults.css.selectableWord)) {
-           text = presenter.getTTSForSelectableWord(element, elementContent);
+            text = presenter.getTTSForWord(element, elementContent);
         }
 
         presenter.speak(text);
@@ -1817,7 +1817,7 @@ function AddonText_Coloring_create() {
         presenter.configuration.filteredTokens.forEach((token) => {
             text += token.value + " ";
             const tokenElement = presenter.getWordTokenByIndex(token.index);
-            const ttsColoring = presenter.getTTSForSelectableWord(tokenElement);
+            const ttsColoring = presenter.getWordTTSAttributes(tokenElement);
 
             if (ttsColoring) {
                 tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
@@ -1831,10 +1831,19 @@ function AddonText_Coloring_create() {
         return tts;
     };
 
-    presenter.getTTSForSelectableWord = function AddonText_Coloring_getTTSForSelectableWord (element, text) {
-        if (!text) {
-            text = "";
+    presenter.getTTSForWord = function AddonText_Coloring_getTTSForWord (element, word) {
+        const tts = [TTSUtils.getTextVoiceObject(word, presenter.configuration.langTag)];
+
+        let wordAttributes = presenter.getWordTTSAttributes(element);
+        if (wordAttributes) {
+            tts.push(TTSUtils.getTextVoiceObject(wordAttributes));
         }
+
+        return tts;
+    };
+
+    presenter.getWordTTSAttributes = function AddonText_Coloring_getWordTTSAttributes (element) {
+        let text = "";
 
         const color = presenter.getColorObjectOrNoneFromElementClass(element);
         if (color) {
