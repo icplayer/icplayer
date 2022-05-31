@@ -709,6 +709,7 @@ var ice_dictionary_en = {
 	"crossword_speech_text_down": "down",
 	"crossword_speech_text_wrong": "wrong",
 	"crossword_speech_text_empty": "empty",
+	"crossword_speech_text_disabled": "disabled",
 	"crossword_speech_text_out_of": "out of",
 	"Custom_Scoring_info": "Allows to bind multiple modules and create fully interactive activities with one common scoring functionality.",
 	"Custom_Scoring_name": "Custom Scoring",

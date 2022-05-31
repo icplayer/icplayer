@@ -709,6 +709,7 @@ var ice_dictionary_mx = {
 	"crossword_speech_text_down": "down",
 	"crossword_speech_text_wrong": "wrong",
 	"crossword_speech_text_empty": "empty",
+	"crossword_speech_text_disabled": "disabled",
 	"crossword_speech_text_out_of": "out of",
 	"Custom_Scoring_info": "Permite a enlazar varios módulos y a crear unas actividades interactivas con la función de puntuación común.",
 	"Custom_Scoring_name": "Contador de puntos personalizado",

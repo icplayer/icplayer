@@ -703,6 +703,7 @@ var ice_dictionary_bl = {
 	"crossword_speech_text_down": "down",
 	"crossword_speech_text_wrong": "wrong",
 	"crossword_speech_text_empty": "empty",
+	"crossword_speech_text_disabled": "disabled",
 	"crossword_speech_text_out_of": "out of",
 	"Custom_Scoring_info": "Позволява свързването на няколко модула и създаването на изцяло интерактивни задачи с функцията за общо оценяване.",
 	"Custom_Scoring_name": "Оценяване по избор",

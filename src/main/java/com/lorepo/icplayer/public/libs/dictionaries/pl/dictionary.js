@@ -709,6 +709,7 @@ var ice_dictionary_pl = {
 	"crossword_speech_text_down": "down",
 	"crossword_speech_text_wrong": "wrong",
 	"crossword_speech_text_empty": "empty",
+	"crossword_speech_text_disabled": "disabled",
 	"crossword_speech_text_out_of": "out of",
 	"Custom_Scoring_info" : "Pozwala na powiązanie wielu modułów i utworzenie w pełni interaktywnych ćwiczeń połączonych wspólną funkcją zliczania wyników.",
 	"Custom_Scoring_name" : "Niestandardowa punktacja",

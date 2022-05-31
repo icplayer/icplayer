@@ -36,6 +36,9 @@
 			<property name="Empty" nameLabel="crossword_speech_text_empty" type="staticrow">
                 <property name="Empty" nameLabel="crossword_speech_text_empty" type="string"/>
             </property>
+            <property name="Disabled" nameLabel="crossword_speech_text_disabled" type="staticrow">
+                <property name="Disabled" nameLabel="crossword_speech_text_disabled" type="string"/>
+            </property>
 			<property name="OutOf" nameLabel="crossword_speech_text_out_of" type="staticrow">
                 <property name="OutOf" nameLabel="crossword_speech_text_out_of" type="string"/>
             </property>
