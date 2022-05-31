@@ -33,7 +33,8 @@ function Addoncrossword_create(){
         NOT_SET: 0,
         HORIZONTAL: 1,
         VERTICAL: 2,
-        TAB_INDEX: 3
+        TAB_INDEX: 3,
+        NEXT_VERTICAL_ANSWER: 4
     }
     var currentDirection = DIRECTIONS.NOT_SET;
 
@@ -292,6 +293,42 @@ function Addoncrossword_create(){
         return true;
     };
 
+    presenter.isWordOrientationOnlyHorizontal = function () {
+        return presenter.wordNumbersHorizontal && !presenter.wordNumbersVertical;
+    }
+
+    presenter.isWordOrientationOnlyVertical = function () {
+        return presenter.wordNumbersVertical && !presenter.wordNumbersHorizontal;
+    }
+
+    presenter.getWordBeginCellAtColumn = function (i) {
+        return presenter.$view.find(`.cell_word_begin_vertical.cell_column_${i}`);
+    }
+
+    presenter.findNextColumn = function (currentPosition) {
+        const nextColumnIndex = currentPosition.x + 1;
+
+        for (let i = nextColumnIndex; i <= presenter.columnCount; i++) {
+            const $nextColumnWordBeginCell = presenter.getWordBeginCellAtColumn(i);
+
+            if ($nextColumnWordBeginCell.length) {
+                const position = presenter.getPosition($nextColumnWordBeginCell);
+                if (areBottomCellsEditable(position)) {
+                    position.y =- 1;
+                    return getNextBottomEditableCellPosition(position);
+                }
+            }
+
+        }
+    }
+
+    presenter.updateDirectionBasedOnWordOrientation = function () {
+        if (presenter.isWordOrientationOnlyHorizontal()) {
+            presenter.setHorizontalDirection();
+        } else if (presenter.isWordOrientationOnlyVertical()) {
+            presenter.setVerticalDirection();
+        }
+    }
     presenter.analyzeDirectionOfMove = function (currentCellInput) {
         var $currentCellInput = $(currentCellInput);
         var currentPosition = getPositionOfCellInputElement($currentCellInput);
@@ -307,14 +344,21 @@ function Addoncrossword_create(){
         var topElementPosition = calculateTopElementPosition(currentPosition);
         var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
 
+        presenter.updateDirectionBasedOnWordOrientation();
+
         if (presenter.isHorizontalDirection()) {
             if (!rightCellsEditable) {
                 presenter.setTabIndexDirection();
             }
             return;
-        } else if (presenter.isVerticalDirection()) {
+        }
+        if (presenter.isVerticalDirection()) {
             if (!bottomCellsEditable) {
-                presenter.setTabIndexDirection();
+                if (presenter.isWordOrientationOnlyVertical()) {
+                    presenter.setNextVerticalAnswerDirection();
+                } else {
+                    presenter.setTabIndexDirection();
+                }
             }
             return;
         }
@@ -376,7 +420,8 @@ function Addoncrossword_create(){
                     return nextPosition;
                 }
             } else {
-                return;
+                if (!presenter.isNextVerticalAnswerDirection())
+                    return;
             }
         }
     }
@@ -385,7 +430,8 @@ function Addoncrossword_create(){
         if (!presenter.isDirectionNotSet()
             && (presenter.isAutoNavigationInOffMode()
                 || (presenter.isAutoNavigationInSimpleMode()
-                    && presenter.isTabIndexDirection()))) {
+                    && (presenter.isTabIndexDirection()
+                        || presenter.isNextVerticalAnswerDirection())))) {
             presenter.resetDirection();
         }
     }
@@ -397,7 +443,9 @@ function Addoncrossword_create(){
             moveInVerticalDirection(currentCellInput);
         } else if (presenter.isTabIndexDirection()) {
             moveInTabIndexDirection(currentCellInput);
-        }  else {
+        }  else if (presenter.isNextVerticalAnswerDirection()) {
+            moveToNextVerticalAnswer(currentCellInput);
+        } else {
             blurCellInput(currentCellInput);
         }
     };
@@ -428,6 +476,17 @@ function Addoncrossword_create(){
         var nextTabIndex = currentCellInput.tabIndex + 1;
         if (nextTabIndex < presenter.maxTabIndex) {
             focusCellInputUsingTabIndex(nextTabIndex);
+        } else {
+            blurCellInput(currentCellInput);
+        }
+    }
+
+    function moveToNextVerticalAnswer(currentCellInput) {
+        const currentPosition = getPositionOfCellInputElement($(currentCellInput));
+        const nextCellPosition = presenter.findNextColumn(currentPosition);
+        if (!!nextCellPosition) {
+            const nextCellInput = getCellInput(nextCellPosition);
+            $(nextCellInput).focus();
         } else {
             blurCellInput(currentCellInput);
         }
@@ -512,6 +571,10 @@ function Addoncrossword_create(){
         return currentDirection === DIRECTIONS.TAB_INDEX;
     }
 
+    presenter.isNextVerticalAnswerDirection = function () {
+        return currentDirection === DIRECTIONS.NEXT_VERTICAL_ANSWER;
+    }
+
     presenter.resetDirection = function () {
         currentDirection = DIRECTIONS.NOT_SET;
     }
@@ -522,6 +585,10 @@ function Addoncrossword_create(){
 
     presenter.setVerticalDirection = function () {
         currentDirection = DIRECTIONS.VERTICAL;
+    }
+
+    presenter.setNextVerticalAnswerDirection = function () {
+        currentDirection = DIRECTIONS.NEXT_VERTICAL_ANSWER
     }
 
     presenter.setTabIndexDirection = function () {
