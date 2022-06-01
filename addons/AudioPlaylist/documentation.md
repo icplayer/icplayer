@@ -40,7 +40,7 @@ Note: It's recommended to use files with <a href="http://en.wikipedia.org/wiki/B
     </tr>
     <tr>
         <td>Stop playing</td>
-        <td></td>
+        <td>This property disables auto playing.</td>
     </tr>
     <tr>
         <td>Enable audio speed controller</td>
@@ -258,19 +258,19 @@ When audio playback is paused.
     </tr>
     <tr>
         <td>wrapper-addon-audio-playlist</td>
-        <td>Styles for container keeps all elemnts.</td>
+        <td>Styles for a container keeps all elemnts.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-controls</td>
-        <td>Styles for wrapper which keeps audio control buttons.</td>
+        <td>Styles for a wrapper which keeps audio control buttons.</td>
     </tr>
     <tr>
         <td>audio-playlist-prev-btn</td>
-        <td>Styles for button that supports picking previous audio.</td>
+        <td>Styles for a button that supports picking previous audio.</td>
     </tr>
     <tr>
         <td>audio-playlist-next-btn</td>
-        <td>Styles for button that supports picking next audio.</td>
+        <td>Styles for a button that supports picking next audio.</td>
     </tr>
     <tr>
         <td>audio-playlist-play-pause-btn</td>
@@ -278,11 +278,11 @@ When audio playback is paused.
     </tr>
     <tr>
         <td>audio-playlist-play-btn</td>
-        <td>Styles for button that supports start playing audio</td>
+        <td>Styles for a button that supports start playing audio</td>
     </tr>
     <tr>
         <td>audio-playlist-pause-btn</td>
-        <td>Styles for button that supports stop playing audio</td>
+        <td>Styles for a button that supports stop playing audio</td>
     </tr>
     <tr>
         <td>audio-playlist-timer</td>
@@ -290,7 +290,7 @@ When audio playback is paused.
     </tr>
     <tr>
         <td>audio-playlist-bar</td>
-        <td>Styles for element shows the progress of the playback.</td>
+        <td>Styles for an element shows the progress of the playback.</td>
     </tr>
     <tr>
         <td>audio-playlist-bar--fill</td>
@@ -310,50 +310,50 @@ When audio playback is paused.
     </tr>
     <tr>
         <td>addon-audio-playlist-items</td>
-        <td></td>
+        <td>Styles for a container which keeps audio items.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-item</td>
-        <td></td>
+        <td>Style for an audio item.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-item--name</td>
-        <td></td>
+        <td>Styles for an audio item title.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-item--selected</td>
-        <td></td>
+        <td>Styles for an audio which is marked.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-item--button</td>
-        <td></td>
+        <td>Styles for an audio item control buttons.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-item--button-playing</td>
-        <td></td>
+        <td>Styles for a button which shows playing audio.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-volume-wrapper</td>
-        <td></td>
+        <td>Styles for a container which keeps volume control button.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-volume-wrapper--expanded</td>
-        <td></td>
+        <td>Styles for an opened volume container.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-volume-bar</td>
-        <td></td>
+        <td>Styles for an element shows the volume level.</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-volume-bar--hidden</td>
-        <td></td>
+        <td>Styles for a hidden layer which visualizes the volume level</td>
     </tr>
     <tr>
         <td>addon-audio-playlist-volume-bar--fill</td>
-        <td></td>
+        <td>Styles for a layer which visualizes the volume level.</td>
     </tr>
     <tr>
         <td>audio-speed-controller</td>
-        <td></td>
+        <td>Styles for an element which changes audio playback rate.</td>
     </tr>
 </table>
