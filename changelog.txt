@@ -6,6 +6,10 @@
 2022-05-20 Block strict letters in Crossword
 2022-05-20 TTS keyboard navigation no longer ignores disabled addons
 2022-05-20 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
+2022-05-20 Block strict letters in Crossword
+2022-05-20 TTS keyboard navigation no longer ignores disabled addons
+2022-05-20 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
+2022-05-19 Added keyboard navigation and TTS to Audio Playlist
 2022-05-18 Added React to Script in the Automatic Feedback addon
 2022-05-16 Added an event when Editable Window is closed
 2022-05-13 Added Show Answers property to Paragraph Keyboard
