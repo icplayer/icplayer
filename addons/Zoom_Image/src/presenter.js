@@ -193,17 +193,19 @@ function AddonZoom_Image_create() {
         var dialog = {};
         var x = image.width;
         var y = image.height;
-        var xProportion = x / $player.width();
-        var yProportion = y / $player.height();
+        var playerWidth = $player[0].getBoundingClientRect()?.width || $player.width();
+        var playerHeight = $player[0].getBoundingClientRect()?.height || $player.height();
+        var xProportion = x / playerWidth;
+        var yProportion = y / playerHeight;
 
         if (xProportion < 1 && yProportion < 1) {
             dialog.width = x;
             dialog.height = y;
         } else if (xProportion > yProportion) {
-            dialog.width = $player.width();
+            dialog.width = playerWidth;
             dialog.height = y / xProportion;
         } else {
-            dialog.height = $player.height();
+            dialog.height = playerHeight;
             dialog.width = x / yProportion;
         }
 

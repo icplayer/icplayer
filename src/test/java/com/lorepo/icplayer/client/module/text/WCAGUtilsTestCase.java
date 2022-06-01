@@ -62,4 +62,13 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String result = WCAGUtils.getImageAltTextsWithBreaks(html);
 		assertEquals(expected, result);
 	}
+
+	@Test
+	public void testAddSpacesToListElements() {
+		String html = "<div> <ul> <li>element</li> <li>!@#|\\$%/^&*()_+<></li> </ul> </div>";
+		String expected = "<div> <ul> <li>element, </li> <li>!@#|\\$%/^&*()_+<>, </li> </ul> </div>";
+
+		String result = WCAGUtils.addSpacesToListTags(html);
+		assertEquals(expected, result);
+	}
 }
