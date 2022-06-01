@@ -1253,7 +1253,11 @@ function AddonText_Coloring_create() {
             presenter.configuration.activeColor = null;
         }
         presenter.disconnectWordTokensHandlers();
-        presenter.setColor(presenter.configuration.colors[0].id);
+        if  (presenter.stateMachine.previousActiveColorID !== null) {
+            presenter.setColor(presenter.stateMachine.previousActiveColorID);
+        } else {
+            presenter.setColor(presenter.configuration.colors[0].id);
+        }
     };
 
     presenter.setShowErrorsMode = function () {
