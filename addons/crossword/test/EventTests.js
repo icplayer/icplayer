@@ -71,7 +71,7 @@ TestCase("[Crossword] Events tests", {
         assertFalse(this.presenter.isGradualShowAnswersActive);
     },
 
-    'test on editable cell input click event should call reset directions': function () {
+    'test given editable cell when triggered click event on it then resetDirections should be called': function () {
         this.presenter.rowCount = 9;
         this.presenter.columnCount = 10;
         this.presenter.crossword = getCrosswordForNavigationTests();
@@ -84,7 +84,7 @@ TestCase("[Crossword] Events tests", {
         assertTrue(this.presenter.resetDirection.calledOnce);
     },
 
-    'test on constant cell input click event should not call reset directions': function () {
+    'test given constant cell when triggered click event on it then resetDirections should not be called': function () {
         this.presenter.rowCount = 9;
         this.presenter.columnCount = 10;
         this.presenter.crossword = getCrosswordForNavigationTests();

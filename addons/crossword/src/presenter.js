@@ -275,8 +275,9 @@ function Addoncrossword_create(){
             presenter.SPECIAL_KEYS.RIGHT_ARROW,
             presenter.SPECIAL_KEYS.UP_ARROW,
             presenter.SPECIAL_KEYS.DOWN_ARROW,
+            presenter.SPECIAL_KEYS.TAB,
         ].includes(event.keyCode)) {
-            presenter.keyboardController(event.keyCode, false, event);
+            presenter.keyboardController(event.keyCode, event.shiftKey, event);
             return;
         }
 
@@ -1679,20 +1680,6 @@ function Addoncrossword_create(){
         };
     };
 
-    function CrosswordKeyboardController (elements, columnsCount) {
-        KeyboardController.call(this, elements, columnsCount);
-        // this.updateMapping();
-    }
-
-    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
-    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
-
-    CrosswordKeyboardController.prototype.updateMapping = function () {
-        this.mapping[presenter.SPECIAL_KEYS.BACKSPACE] = this.executeBackspace;
-        this.mapping[presenter.SPECIAL_KEYS.TAB] = this.nextTabIndexElement;
-        this.shiftKeysMapping[presenter.SPECIAL_KEYS.TAB] = this.previousTabIndexElement;
-    };
-
     presenter.keyboardController = function(keycode, isShiftDown, event) {
         presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
     };
@@ -1709,13 +1696,27 @@ function Addoncrossword_create(){
         return presenter.$view.find(`.${presenter.CSS_CLASSES.CELL}`);
     };
 
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    function CrosswordKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+        this.updateMapping();
+    }
+
+    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
+
     CrosswordKeyboardController.prototype.exitWCAGMode = function () {
         KeyboardController.prototype.exitWCAGMode.call(this);
         presenter.setWCAGStatus(false);
     };
 
-    presenter.setWCAGStatus = function(isWCAGOn) {
-        presenter.isWCAGOn = isWCAGOn;
+    CrosswordKeyboardController.prototype.updateMapping = function () {
+        this.mapping[presenter.SPECIAL_KEYS.BACKSPACE] = this.executeBackspace;
+        this.mapping[presenter.SPECIAL_KEYS.TAB] = this.nextTabIndexElement;
+        this.shiftKeysMapping[presenter.SPECIAL_KEYS.TAB] = this.previousTabIndexElement;
     };
 
     CrosswordKeyboardController.prototype.enter = function (event) {
@@ -1728,13 +1729,18 @@ function Addoncrossword_create(){
             return;
         }
         this.keyboardNavigationActive = true;
-        moveToFirstEditableElement();
+        this.moveToFirstElement();
         this.readCurrentElementInShortForm();
     };
 
-    function moveToFirstEditableElement() {
-        var firstElement = findCellInputElement(presenter.tabIndexBase);
-        var cellPosition = getPositionOfCellInputElement($(firstElement));
+    CrosswordKeyboardController.prototype.moveToFirstElement = function () {
+        var cellPosition;
+        if (presenter.isWCAGOn) {
+            cellPosition = presenter.correctAnswers[0]["position"];
+        } else {
+            var firstElement = findCellInputElement(presenter.tabIndexBase);
+            cellPosition = getPositionOfCellInputElement($(firstElement));
+        }
         if (!isPositionValid(cellPosition)) {
             return;
         }
@@ -1893,7 +1899,7 @@ function Addoncrossword_create(){
 
     /**
      Action when was called backspace
-     @method nextRow
+     @method executeBackspace
     */
     CrosswordKeyboardController.prototype.executeBackspace = function (event) {
         handleBackspaceEvent(event);
@@ -2001,26 +2007,31 @@ function Addoncrossword_create(){
 
         var correctHorizontalAnswer;
         var correctVerticalAnswer;
+        var trueLength;
         for (var i = 0; i < presenter.correctAnswers.length; i++) {
             var correctAnswer = presenter.correctAnswers[i];
 
             if (correctAnswer.isHorizontal) {
                 if (correctHorizontalAnswer !== undefined) continue;
 
+                trueLength = [...correctAnswer.answer].filter((x) => x !== '!').length;
                 if (currentPosition.y === correctAnswer.position.y
                     && correctAnswer.position.x <= currentPosition.x
-                    && currentPosition.x < correctAnswer.position.x + correctAnswer.answer.length) {
+                    && currentPosition.x < correctAnswer.position.x + trueLength) {
                     correctHorizontalAnswer = {...correctAnswer};
                     correctHorizontalAnswer["id"] = i + 1;
+                    correctHorizontalAnswer["trueLength"] = trueLength;
                 }
             } else {
                 if (correctVerticalAnswer !== undefined) continue;
 
+                trueLength = [...correctAnswer.answer].filter((x) => x !== '!').length;
                 if (currentPosition.x === correctAnswer.position.x
                     && correctAnswer.position.y <= currentPosition.y
-                    && currentPosition.y < correctAnswer.position.y + correctAnswer.answer.length) {
+                    && currentPosition.y < correctAnswer.position.y + trueLength) {
                     correctVerticalAnswer = {...correctAnswer};
                     correctVerticalAnswer["id"] = i + 1;
+                    correctVerticalAnswer["trueLength"] = trueLength;
                 }
             }
         }
@@ -2031,7 +2042,7 @@ function Addoncrossword_create(){
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
 
             relativePosition = currentPosition.x - correctHorizontalAnswer.position.x + 1;
-            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctHorizontalAnswer.answer.length}`;
+            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctHorizontalAnswer.trueLength}`;
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
         }
 
@@ -2040,7 +2051,7 @@ function Addoncrossword_create(){
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
 
             relativePosition = currentPosition.y - correctVerticalAnswer.position.y + 1;
-            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctVerticalAnswer.answer.length}`;
+            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctVerticalAnswer.trueLength}`;
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
         }
 
