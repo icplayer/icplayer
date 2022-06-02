@@ -2045,6 +2045,8 @@ function AddonTable_create() {
     };
 
     presenter.addWhiteSpaceToValue = function () {
+        if (!presenter.getGap(presenter.gapIndex)) return;
+
         var gap = presenter.getGap(presenter.gapIndex)[0];
         var classNames = ['ic_filled_gap', 'ic_gap'];
         var isInputTypeGap = classNames.some(className => gap.classList.contains(className));
