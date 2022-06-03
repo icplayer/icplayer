@@ -1,4 +1,6 @@
 2027-06-01 Fixed color not being retained by the Text Coloring addon if you leave the page in check answers mode
+2022-05-31 Fixed Crossword auto-navigation ignoring fixed word orientation
+2022-05-31 Cross Lesson change logic with CheckUserAccess
 2022-05-27 Fixed NextPageButton and PrevPageButton triggering click twice on moodle on iOS
 2022-05-24 Fix display ZoomImage in mobile
 2022-05-24 Fix Drawing.uploadImage command not working on Safari iOS
@@ -6,6 +8,7 @@
 2022-05-20 Block strict letters in Crossword
 2022-05-20 TTS keyboard navigation no longer ignores disabled addons
 2022-05-20 Add new property to CrossLesson addon - check access to cross lesson in LMS mCourser
+2022-05-19 Fixed Crossword improper answers on Gradual Show Answers
 2022-05-18 Added React to Script in the Automatic Feedback addon
 2022-05-16 Added an event when Editable Window is closed
 2022-05-13 Added Show Answers property to Paragraph Keyboard
