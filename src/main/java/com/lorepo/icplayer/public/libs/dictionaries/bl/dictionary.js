@@ -2125,7 +2125,7 @@ var ice_dictionary_bl = {
 	"Media_Recorder_speech_text_download_button": "Download button",
 	"Media_Recorder_speech_text_reset_dialog": "Reset dialog",
 	"Media_Recorder_speech_text_start_recording": "Start recording",
-	"Media_Recorder_speech_text_stop_recording": "Stop recording",
+	"Media_Recorder_speech_text_stop_recording": "Recording stopped",
 	"Media_Recorder_speech_text_disabled": "Disabled",
 	"Editor_load_theme_error": "Грешка при зареждане на шаблона (кликнете върху <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> за повече информация)",
 	"Editor_begin_adding_tts":"Започни да добавяш TTS към презентацията",
