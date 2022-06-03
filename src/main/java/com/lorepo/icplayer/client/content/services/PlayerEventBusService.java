@@ -251,6 +251,8 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			for (JavaScriptObject listener : eventListeners) {
 				onEvent(listener, eventName, jsData);
 			}
+		} else if (eventName == PAGE_LOADED_EVENT_NAME) {
+		    pageLoadedListeners.put(data.get("source"), new ArrayList<JavaScriptObject>());
 		}
 
 	}
