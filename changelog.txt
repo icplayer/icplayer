@@ -1,3 +1,4 @@
+2027-06-01 Fixed color not being retained by the Text Coloring addon if you leave the page in check answers mode
 2022-05-31 Fixed Crossword auto-navigation ignoring fixed word orientation
 2022-05-31 Cross Lesson change logic with CheckUserAccess
 2022-05-27 Fixed NextPageButton and PrevPageButton triggering click twice on moodle on iOS
