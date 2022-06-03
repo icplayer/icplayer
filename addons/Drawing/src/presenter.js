@@ -16,6 +16,8 @@ function AddonDrawing_create() {
         bottomRight: 3,
     };
 
+    presenter.imageInputElement = null;
+
     presenter.$textWrapper = null;
 
     function setDefaultAddonMode() {
@@ -1009,10 +1011,16 @@ function AddonDrawing_create() {
 
     presenter.uploadImage = function() {
         var element = document.createElement("input");
+        $('body')[0].append(element);
+        element.style.display = 'none';
         element.setAttribute("id", "importFile");
         element.setAttribute("type", "file");
         element.setAttribute("accept", "image/png,image/jpeg");
-        element.onchange = presenter.handleImage;
+
+        if (presenter.imageInputElement) presenter.imageInputElement.remove();
+        presenter.imageInputElement = element;
+
+        element.addEventListener('change', presenter.handleImage);
         element.click();
     }
 
@@ -1299,6 +1307,7 @@ function AddonDrawing_create() {
         presenter.configuration.tmp_ctx.removeEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
+        if (presenter.imageInputElement) presenter.imageInputElement.remove();
     }
 
     return presenter;

@@ -153,7 +153,9 @@ TestCase("[Paragraph] Upgrade model with speech texts", {
             AlignLeft: {AlignLeft: ""},
             AlignCenter: {AlignCenter: ""},
             AlignRight: {AlignRight: ""},
-            Justify: {Justify: ""}
+            Justify: {Justify: ""},
+            Selected:{Selected:""},
+            ParagraphContent:{ParagraphContent: ""}
         };
         var upgradedModel = this.presenter.upgradeSpeechTexts(model);
 
@@ -169,7 +171,9 @@ TestCase("[Paragraph] Upgrade model with speech texts", {
                 AlignLeft: {AlignLeft: "do lewej"},
                 AlignCenter: {AlignCenter: "do srodka"},
                 AlignRight: {AlignRight: "do prawej"},
-                Justify: {Justify: "wyjustuj"}
+                Justify: {Justify: "wyjustuj"},
+                Selected: {Selected: "wybrano"},
+                ParagraphContent: {ParagraphContent: "zawartość"}
             }
         };
 
@@ -177,5 +181,51 @@ TestCase("[Paragraph] Upgrade model with speech texts", {
 
         assertEquals(model.speechTexts, upgradedModel.speechTexts);
     },
-})
+});
+
+TestCase("[Paragraph] Upgrade model with show answers", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test given no show answer when upgradeModelAnswer then value should be object with empty string': function () {
+        var model = {};
+        var expected = {
+            "Show Answers": [{Text: ""}]
+        }
+
+
+        var upgradedModel = this.presenter.upgradeModelAnswer(model);
+
+        assertEquals(expected, upgradedModel);
+    },
+
+    'test given show answer as plain string when upgradeModelAnswer then value should be object with given string': function () {
+        var model = {
+            "Show Answers": "this is correct answer"
+        };
+        var expected = {
+            "Show Answers": [{Text: "this is correct answer"}]
+        }
+
+
+        var upgradedModel = this.presenter.upgradeModelAnswer(model);
+
+        assertEquals(expected, upgradedModel);
+    },
+
+     'test given show answer as correct object when upgradeModelAnswer then value remain unchanged': function () {
+        var model = {
+            "Show Answers": [{Text: "this is correct answer"}]
+        };
+        var expected = {
+            "Show Answers": [{Text: "this is correct answer"}]
+        }
+
+
+        var upgradedModel = this.presenter.upgradeModelAnswer(model);
+
+        assertEquals(expected, upgradedModel);
+    }
+});
 
