@@ -199,12 +199,20 @@ function AddonParagraph_create() {
         var elements = presenter.getParagraphs();
         presenter.initializeShowAnswers(elements);
 
-        presenter.configuration.modelAnswer.forEach((answer) => {
-           elements[0].innerHTML += answer.Text + "<div></div><br>";
-        });
-
+        elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
         presenter.isShowAnswersActive = true;
     };
+
+    function combineAnswers(answersArray) {
+        var newText = "";
+        if (answersArray.length > 0) {
+           newText += answersArray[0].Text;
+        }
+        for (var answerID = 1; answerID < answersArray.length; answerID++) {
+           newText += "<div></div><br>" + answersArray[answerID].Text;
+        }
+        return newText;
+    }
 
     presenter.hideAnswers = function () {
         var elements = presenter.getParagraphs();
@@ -234,7 +242,10 @@ function AddonParagraph_create() {
             presenter.isGradualShowAnswersActive = true;
         }
 
-        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text + "<div></div><br>";
+        if (presenter.currentGSAIndex !== 0) {
+            elements[0].innerHTML += "<div></div><br>";
+        }
+        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
         presenter.currentGSAIndex++;
     };
 
