@@ -33,7 +33,8 @@ function Addoncrossword_create(){
         NOT_SET: 0,
         HORIZONTAL: 1,
         VERTICAL: 2,
-        TAB_INDEX: 3
+        TAB_INDEX: 3,
+        NEXT_VERTICAL_ANSWER: 4
     }
     var currentDirection = DIRECTIONS.NOT_SET;
 
@@ -79,6 +80,10 @@ function Addoncrossword_create(){
 
     presenter.isModelValid = true;
 
+    presenter.isWordNumbersCorrect = function () {
+        return presenter.wordNumbersHorizontal || presenter.wordNumbersVertical;
+    }
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -117,50 +122,56 @@ function Addoncrossword_create(){
         }
     };
 
+    presenter.isAnswerVisibleByDefault = function (answer) {
+        return (answer.match(/!/g) || []).length * 2 === answer.length;
+    }
+
+    presenter.prepareAnswerHorizontal = function (row, column) {
+        const position = { x: column, y: row };
+        let answer = "";
+        for(let i = column; i < presenter.columnCount; i++){
+            if (presenter.crossword[row][i] == ' ') {
+                break;
+            }
+            answer = answer + presenter.crossword[row][i];
+        }
+        let answerData = {
+            answer,
+            position,
+            isHorizontal: true
+        };
+        if (!presenter.isAnswerVisibleByDefault(answer))
+            presenter.correctAnswers.push(answerData);
+    }
+
+    presenter.prepareAnswerVertical = function (row, column) {
+        const position = { x: column, y: row };
+        let answer = "";
+        for (let i = row; i < presenter.rowCount; i++){
+            if (presenter.crossword[i][column] == ' '){
+                break;
+            }
+            answer = answer + presenter.crossword[i][column];
+        }
+        let answerData = {
+            answer,
+            position,
+            isHorizontal: false
+        };
+        if (!presenter.isAnswerVisibleByDefault(answer))
+            presenter.correctAnswers.push(answerData);
+    }
+
     presenter.prepareCorrectAnswers = function() {
         presenter.correctAnswers = [];
-        var answer, isHorizontal;
-        for(var i = 0; i < presenter.rowCount; i++) {
-            for(var j = 0; j < presenter.columnCount; j++){
-                if(presenter.isHorizontalWordBegin(i, j)){
-                    var position = {
-                        x: j,
-                        y: i
-                    };
-                    isHorizontal = true;
-                    answer = "";
-                    for(var k = j; k < presenter.columnCount; k++){
-                        if(presenter.crossword[i][k] == ' '){
-                            break;
-                        }
-                        answer = answer + presenter.crossword[i][k];
-                    }
-                    let answerData = {
-                        answer: answer,
-                        isHorizontal: isHorizontal,
-                        position: position
-                    };
-                    presenter.correctAnswers.push(answerData);
+
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++){
+                if(presenter.isHorizontalWordBegin(row, column)){
+                    presenter.prepareAnswerHorizontal(row, column);
                 }
-                if(presenter.isVerticalWordBegin(i, j)){
-                    var position = {
-                        x: j,
-                        y: i
-                    };
-                    isHorizontal = false;
-                    answer = "";
-                    for(var k = i; k < presenter.rowCount; k++){
-                        if(presenter.crossword[k][j] == ' '){
-                            break;
-                        }
-                        answer = answer + presenter.crossword[k][j];
-                    }
-                    let answerData = {
-                        answer: answer,
-                        isHorizontal: isHorizontal,
-                        position: position
-                    };
-                    presenter.correctAnswers.push(answerData);
+                if(presenter.isVerticalWordBegin(row, column)){
+                    presenter.prepareAnswerVertical(row, column);
                 }
             }
         }
@@ -292,6 +303,42 @@ function Addoncrossword_create(){
         return true;
     };
 
+    presenter.isWordOrientationOnlyHorizontal = function () {
+        return presenter.wordNumbersHorizontal && !presenter.wordNumbersVertical;
+    }
+
+    presenter.isWordOrientationOnlyVertical = function () {
+        return presenter.wordNumbersVertical && !presenter.wordNumbersHorizontal;
+    }
+
+    presenter.getWordBeginCellAtColumn = function (i) {
+        return presenter.$view.find(`.cell_word_begin_vertical.cell_column_${i}`);
+    }
+
+    presenter.findNextColumn = function (currentPosition) {
+        const nextColumnIndex = currentPosition.x + 1;
+
+        for (let i = nextColumnIndex; i <= presenter.columnCount; i++) {
+            const $nextColumnWordBeginCell = presenter.getWordBeginCellAtColumn(i);
+
+            if ($nextColumnWordBeginCell.length) {
+                const position = presenter.getPosition($nextColumnWordBeginCell);
+                if (areBottomCellsEditable(position)) {
+                    position.y =- 1;
+                    return getNextBottomEditableCellPosition(position);
+                }
+            }
+
+        }
+    }
+
+    presenter.updateDirectionBasedOnWordOrientation = function () {
+        if (presenter.isWordOrientationOnlyHorizontal()) {
+            presenter.setHorizontalDirection();
+        } else if (presenter.isWordOrientationOnlyVertical()) {
+            presenter.setVerticalDirection();
+        }
+    }
     presenter.analyzeDirectionOfMove = function (currentCellInput) {
         var $currentCellInput = $(currentCellInput);
         var currentPosition = getPositionOfCellInputElement($currentCellInput);
@@ -307,14 +354,21 @@ function Addoncrossword_create(){
         var topElementPosition = calculateTopElementPosition(currentPosition);
         var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
 
+        presenter.updateDirectionBasedOnWordOrientation();
+
         if (presenter.isHorizontalDirection()) {
             if (!rightCellsEditable) {
                 presenter.setTabIndexDirection();
             }
             return;
-        } else if (presenter.isVerticalDirection()) {
+        }
+        if (presenter.isVerticalDirection()) {
             if (!bottomCellsEditable) {
-                presenter.setTabIndexDirection();
+                if (presenter.isWordOrientationOnlyVertical()) {
+                    presenter.setNextVerticalAnswerDirection();
+                } else {
+                    presenter.setTabIndexDirection();
+                }
             }
             return;
         }
@@ -376,7 +430,8 @@ function Addoncrossword_create(){
                     return nextPosition;
                 }
             } else {
-                return;
+                if (!presenter.isNextVerticalAnswerDirection())
+                    return;
             }
         }
     }
@@ -385,7 +440,8 @@ function Addoncrossword_create(){
         if (!presenter.isDirectionNotSet()
             && (presenter.isAutoNavigationInOffMode()
                 || (presenter.isAutoNavigationInSimpleMode()
-                    && presenter.isTabIndexDirection()))) {
+                    && (presenter.isTabIndexDirection()
+                        || presenter.isNextVerticalAnswerDirection())))) {
             presenter.resetDirection();
         }
     }
@@ -397,7 +453,9 @@ function Addoncrossword_create(){
             moveInVerticalDirection(currentCellInput);
         } else if (presenter.isTabIndexDirection()) {
             moveInTabIndexDirection(currentCellInput);
-        }  else {
+        }  else if (presenter.isNextVerticalAnswerDirection()) {
+            moveToNextVerticalAnswer(currentCellInput);
+        } else {
             blurCellInput(currentCellInput);
         }
     };
@@ -428,6 +486,17 @@ function Addoncrossword_create(){
         var nextTabIndex = currentCellInput.tabIndex + 1;
         if (nextTabIndex < presenter.maxTabIndex) {
             focusCellInputUsingTabIndex(nextTabIndex);
+        } else {
+            blurCellInput(currentCellInput);
+        }
+    }
+
+    function moveToNextVerticalAnswer(currentCellInput) {
+        const currentPosition = getPositionOfCellInputElement($(currentCellInput));
+        const nextCellPosition = presenter.findNextColumn(currentPosition);
+        if (!!nextCellPosition) {
+            const nextCellInput = getCellInput(nextCellPosition);
+            $(nextCellInput).focus();
         } else {
             blurCellInput(currentCellInput);
         }
@@ -512,6 +581,10 @@ function Addoncrossword_create(){
         return currentDirection === DIRECTIONS.TAB_INDEX;
     }
 
+    presenter.isNextVerticalAnswerDirection = function () {
+        return currentDirection === DIRECTIONS.NEXT_VERTICAL_ANSWER;
+    }
+
     presenter.resetDirection = function () {
         currentDirection = DIRECTIONS.NOT_SET;
     }
@@ -522,6 +595,10 @@ function Addoncrossword_create(){
 
     presenter.setVerticalDirection = function () {
         currentDirection = DIRECTIONS.VERTICAL;
+    }
+
+    presenter.setNextVerticalAnswerDirection = function () {
+        currentDirection = DIRECTIONS.NEXT_VERTICAL_ANSWER
     }
 
     presenter.setTabIndexDirection = function () {
@@ -1291,11 +1368,10 @@ function Addoncrossword_create(){
     };
 
     presenter.isAllOK = function() {
-        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+        if (presenter.isWordNumbersCorrect()) {
             return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
-        }else{
-            return false;
         }
+        return false;
     };
 
     function getEventObject(it, val, sc) {
@@ -1336,10 +1412,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.columnCount; k++) {
-                    if(presenter.crossword[max_y][k] == ' ') {
+                    if(presenter.crossword[max_y][k] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[max_y][k] != presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
+                    if(presenter.crossword[max_y][k] !== presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
                         result.word = '';
                         break;
                     }
@@ -1356,10 +1432,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.rowCount; k++) {
-                    if(presenter.crossword[k][max_x] == ' ') {
+                    if(presenter.crossword[k][max_x] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[k][max_x] != presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
+                    if(presenter.crossword[k][max_x] !== presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
                         result.word = '';
                         break;
                     }
@@ -1370,7 +1446,7 @@ function Addoncrossword_create(){
             }
         }
 
-        if (result.word != '' ) {
+        if (result.word !== '' ) {
             result.valid = true;
         }
 
@@ -1386,100 +1462,123 @@ function Addoncrossword_create(){
 
     presenter.onEventReceived = function (eventName, data) {
         if (!presenter.isModelValid) return;
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        } else if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
-            }
-            if (data.moduleID === presenter.addonID) {
-                presenter.gradualShowAnswers(parseInt(data.item, 10));
-            }
-        } else if (eventName === "GradualHideAnswers") {
-            presenter.isGradualShowAnswersActive = false;
-            presenter.hideAnswers();
+
+        switch(eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(data);
+                break;
+
+            case "HideAnswers":
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
         }
-    };
+    }
 
     presenter.showAnswers = function () {
-        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+        if (presenter.isWordNumbersCorrect()) {
             if (presenter.isShowAnswersActive) {
                 presenter.hideAnswers();
             }
             presenter.isShowAnswersActive = true;
             presenter.setWorkMode();
-            presenter.userAnswers = new Array(presenter.rowCount);
-            presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
             presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
 
-            for (var i = 0; i < presenter.rowCount; i++) {
-                presenter.userAnswers[i] = new Array(presenter.columnCount);
-                for(var j = 0; j < presenter.columnCount; j++) {
-                    presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
-                    presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.crossword[i][j].replace(/[!]/g,""));
-                }
-            }
+            presenter.saveUserAnswers();
+            presenter.replaceUserAnswersByModelAnswers();
         }
     };
-    
+
     presenter.hideAnswers = function () {
-        if ((presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) && presenter.isShowAnswersActive) {
-            presenter.isShowAnswersActive = false;
+        if (presenter.isWordNumbersCorrect() && (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive)) {
             presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');
+            presenter.isShowAnswersActive = false;
+            presenter.isGradualShowAnswersActive = false;
             if (!presenter.userAnswers) {
                 return;
             }
-            for (var i = 0; i < presenter.rowCount; i++) {
-                for (var j = 0; j < presenter.columnCount; j++) {
-                    if (!presenter.crossword[i][j][0].includes('!')) {
-                        presenter.$view.find(`.cell_${i}x${j} input`)
-                            .val(presenter.userAnswers[i][j])
-                            .attr('disabled', false);
-                    }
-                }
-            }
+
+            presenter.replaceAnswersBySavedUserAnswers();
         }
     };
 
-    presenter.gradualShowAnswers = function (itemIndex) {
+    presenter.gradualShowAnswers = function (data) {
+        presenter.isGradualShowAnswersActive = true;
+        if (data.moduleID !== presenter.addonID) return;
+        if (!presenter.isWordNumbersCorrect()) return;
+
         if (presenter.showAllAnswersInGradualShowAnswersMode === "True") {
             presenter.showAnswers();
+        } else {
+            presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
+            const itemIndex = parseInt(data.item, 10);
+            const answerData = presenter.correctAnswers[itemIndex];
+
+            if(itemIndex === 0) presenter.prepareCrosswordForGSA();
+            presenter.fillRowGaps(answerData);
         }
-        else {
-            if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
-                if(itemIndex == 0) {
-                    presenter.prepareCrosswordForGSA();
-                }
-                var answerData = presenter.correctAnswers[itemIndex];
-                var answer = answerData.answer;
-                var x = answerData.position.x;
-                var y = answerData.position.y;
-                if (answerData.isHorizontal) {
-                    for (var i = 0; i < answer.length; i++) {
-                        presenter.$view.find('.cell_' + y + 'x' + (x + i) + ' input').val(answer.charAt(i));
-                    }
-                }
-                if (!answerData.isHorizontal) {
-                    for (var i = 0; i < answer.length; i++) {
-                        presenter.$view.find('.cell_' + (y + i) + 'x' + x + ' input').val(answer.charAt(i));
-                    }
+    }
+
+    presenter.saveUserAnswers = function () {
+        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
+
+        presenter.userAnswers = new Array(presenter.rowCount);
+        for (let row = 0; row < presenter.rowCount; row++) {
+            presenter.userAnswers[row] = new Array(presenter.columnCount);
+            for (let column = 0; column < presenter.columnCount; column++) {
+                presenter.userAnswers[row][column] = presenter.$view.find('.cell_' + row + 'x' + column + ' input')
+                    .val();
+            }
+        }
+    }
+
+    presenter.replaceUserAnswersByModelAnswers = function () {
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++) {
+                presenter.$view.find('.cell_' + row + 'x' + column + ' input')
+                    .val(presenter.crossword[row][column]
+                        .replaceAll("!",""));
+            }
+        }
+    }
+
+    presenter.replaceAnswersBySavedUserAnswers = function () {
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++) {
+                if (!presenter.crossword[row][column][0].includes('!')) {
+                    presenter.$view.find(`.cell_${row}x${column} input`)
+                        .val(presenter.userAnswers[row][column])
+                        .attr('disabled', false);
                 }
             }
         }
     }
 
-    presenter.prepareCrosswordForGSA = function () {
-        presenter.setWorkMode();
-        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
-        presenter.userAnswers = new Array(presenter.rowCount);
-        for(var i = 0; i < presenter.rowCount; i++) {
-            presenter.userAnswers[i] = new Array(presenter.columnCount);
-            for(var j = 0; j < presenter.columnCount; j++) {
-                presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
+
+    presenter.fillRowGaps = function (answerData) {
+        const answer = answerData.answer.replaceAll("!","");
+        const { x, y } = answerData.position;
+
+        if (answerData.isHorizontal) {
+            for (let i = 0; i < answer.length; i++) {
+                presenter.$view.find('.cell_' + y + 'x' + (x + i) + ' input').val(answer.charAt(i));
+            }
+        } else {
+            for (let i = 0; i < answer.length; i++) {
+                presenter.$view.find('.cell_' + (y + i) + 'x' + x + ' input').val(answer.charAt(i));
             }
         }
+    }
+
+
+
+    presenter.prepareCrosswordForGSA = function () {
+        presenter.setWorkMode();
+        presenter.saveUserAnswers();
     }
 
     return presenter;

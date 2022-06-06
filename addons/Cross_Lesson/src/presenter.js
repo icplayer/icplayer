@@ -10,9 +10,8 @@ function AddonCross_Lesson_create(){
         "V_01": "Lesson ID is missing",
         "V_02": "Course ID is invalid",
         "V_03": "Type is invalid. Lesson type should be either 'lesson', 'ebook' or 'course'.",
-        "V_04": "Access id property cannot be empty when check for access is selected.",
-        "V_05": "Access ids given but CheckAccess is not selected.",
-        "V_06": "Wrong values provided in AccessIDs field. Check documentation."
+        "V_04": "Access ids given but CheckAccess is not selected.",
+        "V_05": "Either CourseID is empty or incorrect values provided in AccessIDs field. Check documentation."
     };
 
     var resourceTypes = {
@@ -71,17 +70,18 @@ function AddonCross_Lesson_create(){
         }
 
         var checkForAccess = ModelValidationUtils.validateBoolean(model.CheckForAccess);
-        if (checkForAccess && model.AccessIDs.trim().length === 0) {
+
+        if (!checkForAccess && model.AccessIDs.trim().length > 0) {
             return {isError: true, errorCode: 'V_04'};
         }
 
-        if (!checkForAccess && model.AccessIDs.trim().length > 0) {
-            return {isError: true, errorCode: 'V_05'};
+        if (checkForAccess && model.AccessIDs.trim().length === 0) {
+            model.AccessIDs = validatedCourseId.value;
         }
 
         var validatedAccessIds = presenter.validateAccessIds(model.AccessIDs);
         if (checkForAccess && !validatedAccessIds.isValid) {
-            return {isError: true, errorCode: 'V_06'};
+            return {isError: true, errorCode: 'V_05'};
         }
 
         return {
