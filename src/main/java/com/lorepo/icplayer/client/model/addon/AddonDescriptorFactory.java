@@ -50,6 +50,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Plot", "activities_menu");
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
+		addDescriptor("Speechace", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
 		addDescriptor("Text_Coloring", "activities_menu");
