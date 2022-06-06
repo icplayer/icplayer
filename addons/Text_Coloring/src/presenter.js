@@ -1810,13 +1810,16 @@ function AddonText_Coloring_create() {
         return `${text} ${selectedText}`;
     };
 
-    presenter.getTTSForContent = function AddonText_Coloring_getTTSForContent (element) {
+    presenter.getTTSForContent = function AddonText_Coloring_getTTSForContent () {
         const tts = [TTSUtils.getTextVoiceObject(presenter.speechTexts.textContent)];
         let text = "";
 
         presenter.configuration.filteredTokens.forEach((token) => {
             text += token.value + " ";
             const tokenElement = presenter.getWordTokenByIndex(token.index);
+            if (!tokenElement.length) {
+                return;
+            }
             const ttsColoring = presenter.getWordTTSAttributes(tokenElement);
 
             if (ttsColoring) {
