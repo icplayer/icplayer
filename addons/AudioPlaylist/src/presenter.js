@@ -455,9 +455,10 @@ function AddonAudioPlaylist_create() {
 
         if (currentElement === presenter.NAVIGATION_ELEMENT.AUDIO_ITEM) {
             var audioTitle = getAudioTitle($element);
-            textToRead = `${presenter.getAudioIndex(audioTitle) + 1} ${textToRead} ${audioTitle}`;
+            textToRead = `${presenter.getAudioIndex(audioTitle) + 1} ${textToRead}`;
+            return [TTSUtils.getTextVoiceObject(textToRead), TTSUtils.getTextVoiceObject(audioTitle, presenter.configuration.langAttribute)];
         }
-        return [TTSUtils.getTextVoiceObject(textToRead, presenter.configuration.langAttribute)];
+        return [TTSUtils.getTextVoiceObject(textToRead)];
     }
 
     function getAudioTitle($element) {
