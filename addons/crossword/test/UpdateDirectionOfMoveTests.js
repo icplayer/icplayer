@@ -89,6 +89,15 @@ TestCase("[Crossword] Update direction of move tests", {
         assertTrue(this.presenter.isDirectionNotSet());
     },
 
+    'test given NextVerticalAnswer direction and simple mode for auto navigation when calling update then reset direction': function () {
+        this.presenter.setNextVerticalAnswerDirection();
+        this.setSimpleAutoNavigationMode();
+
+        this.presenter.updateDirectionOfMoveRelativeToAutoNavigationMode();
+
+        assertTrue(this.presenter.isDirectionNotSet());
+    },
+
     'test no given direction and simple mode for auto navigation when calling update then do not set direction': function () {
         this.presenter.resetDirection();
         this.setSimpleAutoNavigationMode();

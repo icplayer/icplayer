@@ -423,6 +423,7 @@ Algorithm rules/sequential steps of the algorithm:
 
 <b>Note:</b> The rules of the algorithm are checked from the first rule to the last. This means that rule 1 will be checked first, then rule 2, and so on. If any rule has all conditions satisfied, then the next rules are not checked.
 
+<b>Note:</b> If "Word numbers" property is set to horizontal or vertical, auto-navigation will ignore the algorithm and jump to the next possible horizontal/vertical answer if available.
 
 <b>Note:</b> If the auto-navigation mode does not allow chosen direction, then the navigation will not move cursor to the next cell. For example, if the auto-navigation mode is set to Simple and the direction analysis shows the <b>TabIndex direction</b>, then cursor will not be moved to the next cell.
 

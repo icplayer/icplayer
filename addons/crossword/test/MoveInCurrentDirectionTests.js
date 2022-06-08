@@ -151,7 +151,19 @@ TestCase("[Crossword] Move in current direction tests", {
         this.validateIsCellInputElementFocused(0, 8);
     },
 
-    // not set direction tests
+    // NextVerticalAnswerDirection tests
+
+    'test given findNextColumn when next column has answers then return first available gap': function () {
+        this.presenter.$view.find(`.cell_row_1.cell_column_6`).addClass("cell_word_begin_vertical cell_column_6")
+        this.presenter.isNextVerticalAnswerDirection = () => true;
+
+        const res = this.presenter.findNextColumn({ x: 5, y: 5 })
+
+        const expected = JSON.stringify({ y: 1, x: 6 })
+        const actual = JSON.stringify(res);
+
+        assertTrue(expected === actual);
+    },
 
     'test not given direction for auto navigation when moving then do not blur current element': function () {
         this.presenter.resetDirection();
