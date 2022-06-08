@@ -165,6 +165,8 @@ TestCase("[Crossword] Move in current direction tests", {
         assertTrue(expected === actual);
     },
 
+    // not set direction tests
+
     'test not given direction for auto navigation when moving then do not blur current element': function () {
         this.presenter.resetDirection();
         var cellInput = this.getCellInputElement(3, 4);

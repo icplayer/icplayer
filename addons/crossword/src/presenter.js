@@ -104,10 +104,6 @@ function Addoncrossword_create(){
         CELL_LETTER: "cell_letter",
     };
 
-    presenter.isWordNumbersCorrect = function () {
-        return presenter.wordNumbersHorizontal || presenter.wordNumbersVertical;
-    }
-
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -397,6 +393,10 @@ function Addoncrossword_create(){
         return true;
     };
 
+    presenter.isWordNumbersCorrect = function () {
+        return presenter.wordNumbersHorizontal || presenter.wordNumbersVertical;
+    }
+
     presenter.isWordOrientationOnlyHorizontal = function () {
         return presenter.wordNumbersHorizontal && !presenter.wordNumbersVertical;
     }
@@ -417,12 +417,11 @@ function Addoncrossword_create(){
 
             if ($nextColumnWordBeginCell.length) {
                 const position = presenter.getPosition($nextColumnWordBeginCell);
-                if (areBottomCellsEditable(position)) {
+                if (isAnyOfBottomCellsEditable(position)) {
                     position.y =- 1;
-                    return getNextBottomEditableCellPosition(position);
+                    return getNextBottomCellPosition(position);
                 }
             }
-
         }
     }
 

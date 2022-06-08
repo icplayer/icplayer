@@ -86,8 +86,7 @@ TestCase("[Crossword] Events tests", {
         this.presenter.isWordNumbersCorrect = () => true;
         this.buildCrossword();
 
-        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
-            .val("A");
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
         this.presenter.showAnswers();
 
         const expected = "A";
@@ -100,8 +99,7 @@ TestCase("[Crossword] Events tests", {
         this.presenter.isWordNumbersCorrect = () => true;
         this.buildCrossword();
 
-        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
-            .val("A");
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
 
         this.presenter.showAnswers();
         this.presenter.hideAnswers();
