@@ -60,12 +60,16 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
     </tr>
     <tr>
       <td>Editable placeholder</td>
-      <td>Sets the text from the placholder as editable text.
+      <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
       </td>
     </tr>
     <tr>
       <td>Manual grading</td>
       <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possible to be verified without previewing the lesson.</td>
+    </tr>
+    <tr>
+      <td>Show answers</td>
+      <td>Text to display on Show Answers.</td>
     </tr>
     <tr>
       <td>Title</td>
@@ -74,10 +78,6 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
     <tr>
       <td>Weight</td>
       <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a natural number. The default Paragraph’s weight equals 1.</td>
-    </tr>
-    <tr>
-      <td>Show answers</td>
-      <td>Text to display on Show Answers.</td>
     </tr>
 </table>
 
