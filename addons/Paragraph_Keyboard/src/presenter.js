@@ -2,6 +2,7 @@ function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
     var eventBus;
 
+    presenter.placeholder = null;
     presenter.editor = null;
     presenter.window = null;
     presenter.isVisibleValue = null;
@@ -14,6 +15,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.cachedAnswer = [];
     presenter.isShowAnswersActive = false;
     presenter.eKeyboardButtons = [];
+    presenter.isEditorLoaded = false;
     var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
@@ -310,6 +312,7 @@ function AddonParagraph_Keyboard_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            isPlaceholderEditable = ModelValidationUtils.validateBoolean(model['Editable placeholder']),
             toolbar = presenter.validateToolbar(model['Custom toolbar'], model["Width"]),
             height = model.Height,
             hasDefaultFontFamily = false,
@@ -378,7 +381,10 @@ function AddonParagraph_Keyboard_create() {
             hasDefaultFontFamily: hasDefaultFontFamily,
             hasDefaultFontSize: hasDefaultFontSize,
             content_css: model['Custom CSS'],
-
+            isPlaceholderSet: !ModelValidationUtils.isStringEmpty(model["Placeholder Text"]),
+            placeholderText: model["Placeholder Text"],
+            isPlaceholderEditable: isPlaceholderEditable,
+            pluginName: presenter.makePluginName(model["ID"]),
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
             error: false,
@@ -405,11 +411,27 @@ function AddonParagraph_Keyboard_create() {
         return upgradedModel;
     };
 
+    presenter.getPlugins = function AddonParagraph_Keyboard_getPlugins() {
+        var plugins = [];
+        if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
+            presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
+            plugins.push("textcolor");
+        }
+
+        if (presenter.configuration.isPlaceholderSet) {
+            plugins.push(presenter.configuration.pluginName);
+        }
+
+        return plugins.join(" ");
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeTitle(model);
-            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
-            upgradedModel = presenter.upgradeWeight(upgradedModel);
-            upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
+        upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+        upgradedModel = presenter.upgradeWeight(upgradedModel);
+        upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
+        upgradedModel = presenter.upgradePlaceholderText(upgradedModel);
+        upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
         return upgradedModel;
     };
 
@@ -421,6 +443,14 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "Title", "");
     };
 
+    presenter.upgradePlaceholderText = function (model) {
+        return presenter.upgradeAttribute(model, "Placeholder Text", "");
+    };
+
+    presenter.upgradeEditablePlaceholder = function (model) {
+        return presenter.upgradeAttribute(model, "Editable placeholder", "");
+    };
+
     presenter.upgradeWeight = function (model) {
         return presenter.upgradeAttribute(model, "Weight", "");
     };
@@ -429,14 +459,6 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
-
-    /**
-     * Initialize the addon.
-     * For now the height is set to addon height minus 37 which is TinyMCE toolbar height.
-     * It was not possible to get that value in easy and dynamic way and it didn't make sense
-     * for prototype purpose. Also the set of controls is static and it could be be moved to
-     * configuration.
-     */
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
@@ -455,8 +477,30 @@ function AddonParagraph_Keyboard_create() {
         });
 
         presenter.setWrapperID();
+
+        presenter.placeholder = new presenter.placeholderElement();
+        presenter.configuration.plugins = presenter.getPlugins();
+        presenter.addPlugins();
+
         presenter.buildKeyboard();
 
+        presenter.calculateAndSetSizeForAddon();
+
+        tinymce.init(presenter.getTinyMceInitConfiguration()).then(function (editors) {
+            presenter.editor = editors[0];
+            presenter.onInit();
+            presenter.isEditorLoaded = true;
+        });
+    };
+
+    /**
+     * Calculate and set in configuration new size for addon.
+     * For now the height is set to addon height minus 37 which is TinyMCE toolbar height.
+     * It was not possible to get that value in easy and dynamic way, and it didn't make sense
+     * for prototype purpose. Also, the set of controls is static, and it could be moved to
+     * configuration.
+     */
+    presenter.calculateAndSetSizeForAddon = function AddonParagraph_Keyboard_calculateAndSetAddonSize() {
         var $keyboard = presenter.$view.find('.paragraph-keyboard'),
             $paragraph = presenter.$view.find('.paragraph-wrapper'),
             keyboardPosition = presenter.configuration.keyboardPosition;
@@ -503,15 +547,11 @@ function AddonParagraph_Keyboard_create() {
                     break;
             }
         }
+    };
 
-        var plugins = undefined;
-        if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
-            presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
-            plugins = "textcolor";
-        }
-
-        tinymce.init({
-            plugins: plugins,
+    presenter.getTinyMceInitConfiguration = function AddonParagraph_Keyboard_getTinyMceConfiguration() {
+        return {
+            plugins: presenter.configuration.plugins,
             selector : presenter.getTinyMCESelector(),
             width: presenter.configuration.width,
             height: presenter.configuration.paragraphHeight,
@@ -519,13 +559,17 @@ function AddonParagraph_Keyboard_create() {
             menubar: false,
             toolbar: presenter.configuration.toolbar,
             content_css: presenter.configuration.content_css,
-            setup : function(editor) {
-                editor.on("NodeChange", presenter.setStyles);
-            }
-        }).then(function (editors) {
-            presenter.editor = editors[0];
-            presenter.onInit();
-        });
+            setup: presenter.setup,
+        };
+    };
+
+    presenter.setup = function AddonParagraph_Keyboard_setup(editor) {
+        if (presenter.editor == null) {
+            presenter.editor = editor;
+        }
+
+        editor.on("NodeChange", presenter.setStyles);
+        editor.on("keyup", presenter.onTinymceChange);
     };
 
     presenter.sendOnBlurEvent = function () {
@@ -575,6 +619,7 @@ function AddonParagraph_Keyboard_create() {
 
         tinymce.AddOnManager.PluginManager.items.length = 0;
 
+        presenter.placeholder = null;
         presenter.$tinyMCEToolbar = null;
         presenter.jQueryTinyMCEHTML = null;
         presenter.$TinyMCEBody = null;
@@ -677,7 +722,7 @@ function AddonParagraph_Keyboard_create() {
                 start : start,
                 range: range
             };
-        return caretData;
+            return caretData;
         }
     };
 
@@ -686,9 +731,19 @@ function AddonParagraph_Keyboard_create() {
         e.preventDefault();
         var $this = $(this),
             text = $this.text();
+        const wasEditablePlaceholderSet = (
+            presenter.placeholder.isSet
+            && presenter.configuration.isPlaceholderEditable
+            && presenter.configuration.isPlaceholderSet
+            && !!$(presenter.getText()).text()
+        );
 
         presenter.window.focus();
         $(presenter.editor.contentDocument).find('body').focus();
+
+        if (wasEditablePlaceholderSet) {
+            setCaretOnEndOfEditorLastElement();
+        }
 
         if (presenter.lastCaret) {
             // in IE 11 we have to set caret's position manually, because by default it is set at the beginning
@@ -704,6 +759,14 @@ function AddonParagraph_Keyboard_create() {
             $this.removeClass('clicked');
         }, 200);
     };
+
+    function setCaretOnEndOfEditorLastElement() {
+        var selection = presenter.window.getSelection();
+        if (selection.getRangeAt && selection.rangeCount) {
+            var range = selection.getRangeAt(0);
+            range.setStartAfter(range.endContainer);
+        }
+    }
 
     presenter.switchKeyboard = function AddonParagraph_Keyboard_switchKeyboard(e) {
         e.stopPropagation();
@@ -757,6 +820,7 @@ function AddonParagraph_Keyboard_create() {
                     } else {
                         $button = $('<div>').addClass('paragraph-keyboard-letter').text(t);
                         $button.on('click', presenter.clickKeyboard);
+                        $button.on('mousedown', presenter.onMouseDownKeyboard);
                         keyRow.append($button);
                     }
 
@@ -773,6 +837,10 @@ function AddonParagraph_Keyboard_create() {
             }
             keyboard.append(keySetLayer);
         });
+    };
+
+    presenter.onMouseDownKeyboard = function () {
+        presenter.placeholder.shouldBeSet = false;
     };
 
     presenter.onInit = function AddonParagraph_Keyboard_onInit() {
@@ -827,8 +895,12 @@ function AddonParagraph_Keyboard_create() {
         }
 
         presenter.editor.on('blur', function () {
-                presenter.sendOnBlurEvent();
+            presenter.sendOnBlurEvent();
         });
+
+        if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
+            presenter.setText(presenter.configuration.placeholderText);
+        }
     };
 
     function checkForChanges(){
@@ -851,12 +923,13 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
         var tinymceState = '';
-
         if (presenter.editor != null && presenter.editor.hasOwnProperty("id")) {
-            if (presenter.isShowAnswersActive) presenter.hideAnswers();
-            tinymceState = presenter.editor.getContent({format : 'raw'});
-        } else {
-            tinymceState = presenter.cacheTinymceState;
+            try {
+                if (presenter.isShowAnswersActive) presenter.hideAnswers();
+                tinymceState = presenter.editor.getContent({format : 'raw'});
+            } catch (err) {
+                return  presenter.state;
+            }
         }
 
         return JSON.stringify({
@@ -867,16 +940,23 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.setState = function AddonParagraph_Keyboard_setState(state) {
-        var parsedState = JSON.parse(state);
-        presenter.cacheTinymceState = parsedState.tinymceState;
+        var parsedState = JSON.parse(state),
+            tinymceState = parsedState.tinymceState;
 
-        if (presenter.editor  != null) {
-            presenter.editor.setContent(parsedState.tinymceState, {format : 'raw'});
-        } else {
-            presenter.configuration.state = parsedState.tinymceState;
+        presenter.configuration.isVisible = parsedState.isVisible;
+        presenter.setVisibility(presenter.configuration.isVisible);
+
+        if (tinymceState !== undefined
+            && tinymceState !== ""
+            && tinymceState.indexOf("class=\"placeholder\"") === -1) {
+            if (presenter.editor != null && presenter.editor.initialized) {
+                presenter.editor.setContent(tinymceState, {format: 'raw'});
+                presenter.state = state;
+            } else {
+                presenter.configuration.state = tinymceState;
+                presenter.state = state;
+            }
         }
-
-        presenter.setVisibility(parsedState.isVisible);
 
         if (parsedState.isLocked) {
             presenter.lock();
@@ -904,9 +984,15 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.reset = function AddonParagraph_Keyboard_reset() {
-        presenter.editor.setContent('');
-        presenter.setStyles();
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.placeholder.removePlaceholder();
+        if (presenter.configuration.isPlaceholderEditable) {
+            presenter.setText(presenter.configuration.placeholderText);
+        } else {
+            presenter.editor.setContent('');
+            presenter.setStyles();
+        }
+        presenter.placeholder.addPlaceholder();
         if (presenter.isLocked) {
             presenter.unlock();
         }
@@ -950,6 +1036,15 @@ function AddonParagraph_Keyboard_create() {
     }
 
     presenter.isAttempted = function AddonParagraph_Keyboard_isAttempted() {
+        if (!presenter.isEditorLoaded) {
+            if (presenter.state) {
+                var parser = new DOMParser();
+                var stateNode = parser.parseFromString(JSON.parse(presenter.state).tinymceState, "text/html");
+                return $(stateNode).text() != '';
+            } else {
+                return false;
+            }
+        }
         var content = presenter.getText().replace(/<[^>]*>/g,''); //remove HTML tags
         return !!content;
     }
@@ -986,6 +1081,96 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.getOpenEndedContent = function () {
         return presenter.getText();
+    };
+
+    presenter.addPlugins = function AddonParagraph_Keyboard_addPlugins() {
+        if (presenter.configuration.isPlaceholderSet) {
+            presenter.addPlaceholderPlugin();
+        }
+    };
+
+    presenter.makePluginName = function AddonParagraph_Keyboard_makePluginName(addonID) {
+        var name = 'placeholder';
+        addonID.replace(/[a-z0-9]+/gi, function(x) {
+            name += "_" + x;
+        });
+
+        return name;
+    };
+
+    presenter.onFocus = function AddonParagraph_Keyboard_onFocus() {
+        if (presenter.placeholder.isSet) {
+            presenter.placeholder.removePlaceholder();
+            presenter.placeholder.shouldBeSet = (presenter.placeholder.getEditorContent() == "");
+        }
+    };
+
+    presenter.onBlur = function AddonParagraph_Keyboard_onBlur() {
+        if (presenter.placeholder.shouldBeSet) {
+            presenter.placeholder.addPlaceholder();
+        } else {
+            presenter.placeholder.removePlaceholder();
+        }
+    };
+
+    presenter.addPlaceholderPlugin = function AddonParagraph_Keyboard_addPlaceholderPlugin() {
+        tinymce.PluginManager.add(presenter.configuration.pluginName, function(editor) {
+            editor.on('init', function () {
+                presenter.placeholder.init(editor.id);
+                editor.on('blur', presenter.onBlur);
+                editor.on('focus', presenter.onFocus);
+            });
+        });
+    };
+
+    presenter.placeholderElement = function AddonParagraph_Keyboard_placeholderElement() {
+        this.isSet = true;
+        this.shouldBeSet = false;
+        this.keyboardChange = false;
+        this.placeholderText = presenter.configuration.isPlaceholderEditable ? "" : presenter.configuration.placeholderText;
+        this.contentAreaContainer = null;
+        this.el = null;
+        this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
+    };
+
+    presenter.placeholderElement.prototype.init = function AddonParagraph_Keyboard_placeholderElement_init() {
+        this.contentAreaContainer = presenter.editor.getBody();
+        this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+
+        tinymce.DOM.setStyle(this.contentAreaContainer, 'position', 'relative');
+        tinymce.DOM.addClass(this.el, "placeholder");
+    };
+
+    presenter.placeholderElement.prototype.addPlaceholder = function AddonParagraph_Keyboard_addPlaceholder() {
+        this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
+        presenter.editor.dom.addClass(this.el, "placeholder");
+        this.isSet = true;
+        presenter.setStyles();
+    };
+
+    presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function AddonParagraph_Keyboard_setPlaceholderAfterEditorChange() {
+        if (this.getEditorContent() == "") {
+            this.shouldBeSet = true;
+        } else {
+            this.shouldBeSet = false;
+            this.removePlaceholder();
+        }
+    };
+
+    presenter.placeholderElement.prototype.removePlaceholder = function AddonParagraph_Keyboard_removePlaceholder() {
+        this.isSet = false;
+        presenter.editor.dom.remove(this.el);
+    };
+
+    presenter.placeholderElement.prototype.getEditorContent = function AddonParagraph_Keyboard_getEditorContent() {
+        return presenter.editor.getContent();
+    };
+
+    presenter.onTinymceChange = function AddonParagraph_Keyboard_onTinymceChange(editor, event) {
+        this.keyboardChange = true;
+        if (presenter.configuration.isPlaceholderSet) {
+            presenter.placeholder.setPlaceholderAfterEditorChange();
+        }
     };
 
     return presenter;

@@ -282,7 +282,7 @@ function AddonParagraph_create() {
             e.preventDefault();
         });
 
-        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+        presenter.setWrapperID();
 
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
@@ -311,6 +311,11 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
+    };
+
+    presenter.setWrapperID = function AddonParagraph_setWrapperID() {
+        var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
+        $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -498,7 +503,7 @@ function AddonParagraph_create() {
             plugins.push("textcolor");
         }
 
-        if(presenter.configuration.isPlaceholderSet) {
+        if (presenter.configuration.isPlaceholderSet) {
             plugins.push(presenter.configuration.pluginName);
         }
 
@@ -674,6 +679,7 @@ function AddonParagraph_create() {
             presenter.editor = null;
             presenter.playerController = null;
             presenter.LANGUAGES = null;
+            presenter.setWrapperID = null;
         } catch (e) {
             // In case that the first layout is different than the default one
             // the addon may not fully initialize before onDestroy is called

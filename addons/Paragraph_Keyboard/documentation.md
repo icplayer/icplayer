@@ -21,42 +21,48 @@ The Paragraph eKeyboard module allows a student to enter a free form text. It al
       <td>Hide toolbar</td>
       <td>Hides a toolbar and so extends the editable area space.</td>
     </tr>
-<tr>
+    <tr>
       <td>Custom toolbar</td>
       <td>Enables to define a custom toolbar. Below is a list of all available toolbar/menu controls that you can add to your Paragraph addon:<br><br>
 newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect bullist numlist outdent indent blockquote undo redo removeformat subscript superscript<br><br>
 <strong>Note:</strong> Use pipe "|" to group buttons.
-</td>
+      </td>
     </tr>
     <tr>
       <td>Custom CSS</td>
       <td>This property enables you to specify a separate file with custom CSS styles that extend the main CSS content. This CSS file is the one used within the editor (the editable area).<br /> If "Default font family" and "Default font size" are defined, they have higher priority than styles used in Custom CSS file.
-<p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
-</td>
+        <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
+      </td>
     </tr>
     <tr>
       <td>Keyboard Layout Type</td>
       <td>Type of the eKeyboard layout. You can choose one of the standard layouts: French, German and Spanish special characters or Custom which means you can set whatever Layout you like by configuring Custom Layout field.
-</td>
+      </td>
     </tr>
     <tr>
       <td>Custom Keyboard Layout</td>
-      <td>Buttons should be space separated, group of buttons (rows) should be new line separated. Layout object has to have at least a "default" property with standard keyboard. The following action keys are supported: <ul>
-<li>{shift} – used as CapsLock</li>
-<li>{empty} – used as an empty space</li>
-</ul>
-</td>
+      <td>Buttons should be space separated, group of buttons (rows) should be new line separated. Layout object has to have at least a "default" property with standard keyboard. The following action keys are supported: 
+        <ul>
+          <li>{shift} – used as CapsLock</li>
+          <li>{empty} – used as an empty space</li>
+        </ul>
+      </td>
     </tr>
     <tr>
       <td>Keyboard Position</td>
       <td>Position of the Keyboard in relation to the text field. If position is right or left, the keyboard layout will be transposed. If position is set as Custom, you have to specify the position by presentation CSS styles.
-</td>
+      </td>
     </tr>
     <tr>
-      <td>Weight</td>
-      <td>Set the weight of the paragraph. It is a numeric value between 0 and 100.</td>
+      <td>Placeholder text</td>
+      <td>This property enables you to specify a free text content to be used as a placeholder. Allows for html styling.
+      </td>
     </tr>
-
+    <tr>
+      <td>Editable placeholder</td>
+      <td>Sets the text from the placholder as editable text.
+      </td>
+    </tr>
 </table>
 
 ## Supported commands
@@ -85,12 +91,27 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
     <tr>
         <td>lock</td>
         <td>---</td>
-        <td>covers the module with mask</td> 
+        <td>locks the module, hiding it's contents and disabling edition</td> 
     </tr>
     <tr>
         <td>unlock</td>
         <td>---</td>
-        <td>removes mask from the module</td> 
+        <td>unlocks the module, displaying it's contents and enabling edition</td> 
+    </tr>
+    <tr>
+        <td>getText</td>
+        <td>---</td>
+        <td>returns module content</td> 
+    </tr>
+    <tr>
+        <td>setText</td>
+        <td>text</td>
+        <td>sets the content of the module to the text given as parameter</td> 
+    </tr>
+    <tr>
+        <td>isAttempted</td>
+        <td>---</td>
+        <td>returns true if any text was inserted</td> 
     </tr>
 </table>
 
@@ -113,36 +134,29 @@ This module does not generate any events.
         <td>.paragraph-keyboard-wrapper</td>
         <td>Simple addon wrapper</td>
     </tr>
-    </tr>
 	<tr>
         <td>.paragraph-wrapper</td>
         <td>Simple wrapper for Text editor.</td>
-    </tr>
     </tr>
 	<tr>
         <td>.paragraph-keyboard</td>
         <td>Layer with eKeyboard.</td>
     </tr>
-    </tr>
 	<tr>
         <td>.paragraph-keyboard-letter</td>
         <td>Standard keyboard letter.</td>
-    </tr>
     </tr>
 	<tr>
         <td>.paragraph-keyboard-empty</td>
         <td>Empty field on keyboard.</td>
     </tr>
-    </tr>
 	<tr>
         <td>.paragraph-keyboard-letter.clicked</td>
         <td>Style appears when a letter is clicked.</td>
     </tr>
-    </tr>
 	<tr>
         <td>.paragraph-keyboard-shift</td>
         <td>Style for CapsLock button.</td>
-    </tr>
     </tr>
 	<tr>
         <td>.paragraph-keyboard-shift.clicked</td>
