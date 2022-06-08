@@ -63,6 +63,22 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
       <td>Sets the text from the placholder as editable text.
       </td>
     </tr>
+    <tr>
+      <td>Manual grading</td>
+      <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possible to be verified without previewing the lesson.</td>
+    </tr>
+    <tr>
+      <td>Title</td>
+      <td>The title of the Paragraph visible when the Assignment’s open activities are manually graded on mCourser. The title is visible above each Paragraph's preview, however, it is not visible in the lesson itself.</td>
+    </tr>
+    <tr>
+      <td>Weight</td>
+      <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a natural number. The default Paragraph’s weight equals 1.</td>
+    </tr>
+    <tr>
+      <td>Show answers</td>
+      <td>Text to display on Show Answers.</td>
+    </tr>
 </table>
 
 ## Supported commands
