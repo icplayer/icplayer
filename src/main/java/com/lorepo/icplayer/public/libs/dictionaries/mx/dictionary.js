@@ -1165,7 +1165,7 @@ var ice_dictionary_mx = {
 	"Paragraph_Keyboard_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_property_custom_toolbar": "Barra de herramientas personalizada",
 	"Paragraph_Keyboard_property_custom_css": "CSS personalizado ",
-	"Paragraph_Keyboard_property_placeholder_text": "Placeholder Text",
+	"Paragraph_Keyboard_property_placeholder_text": "Placeholder text",
 	"Paragraph_Keyboard_property_layout_type": "Disposición del teclado",
 	"Paragraph_Keyboard_property_keyboard_layout": "Disposición del teclado personalizada",
 	"Paragraph_Keyboard_property_keyboard_position": "Posición del teclado",

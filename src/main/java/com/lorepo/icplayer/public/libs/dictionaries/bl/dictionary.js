@@ -1045,7 +1045,7 @@ var ice_dictionary_bl = {
 	"Paragraph_Keyboard_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_property_custom_toolbar": "Лента с инструменти по избор",
 	"Paragraph_Keyboard_property_custom_css": "CSS по избор",
-	"Paragraph_Keyboard_property_placeholder_text": "Placeholder Text",
+	"Paragraph_Keyboard_property_placeholder_text": "Placeholder text",
 	"Paragraph_Keyboard_property_layout_type": "Тип оформление на клавиатурата",
 	"Paragraph_Keyboard_property_keyboard_layout": "Оформление на клавиатурата по избор",
 	"Paragraph_Keyboard_property_keyboard_position": "Позиция на клавиатурата",

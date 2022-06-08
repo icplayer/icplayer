@@ -1165,7 +1165,7 @@ var ice_dictionary_fr = {
     "Paragraph_Keyboard_property_editable_placeholder": "Editable placeholder",
     "Paragraph_Keyboard_property_custom_toolbar": "Personnaliser la barre d'outils",
     "Paragraph_Keyboard_property_custom_css": "Personnaliser le CSS",
-    "Paragraph_Keyboard_property_placeholder_text": "Placeholder Text",
+    "Paragraph_Keyboard_property_placeholder_text": "Placeholder text",
     "Paragraph_Keyboard_property_layout_type": "Type de style clavier",
     "Paragraph_Keyboard_property_keyboard_layout": "Personnaliser le style du clavier",
     "Paragraph_Keyboard_property_keyboard_position": "Position du clavier",

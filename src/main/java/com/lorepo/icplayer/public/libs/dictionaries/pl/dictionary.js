@@ -1164,7 +1164,7 @@ var ice_dictionary_pl = {
 	"Paragraph_Keyboard_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_property_custom_toolbar": "Niestandardowy pasek narzędzi",
 	"Paragraph_Keyboard_property_custom_css": "Niestandardowy CSS",
-	"Paragraph_Keyboard_property_placeholder_text": "Placeholder Text",
+	"Paragraph_Keyboard_property_placeholder_text": "Placeholder text",
 	"Paragraph_Keyboard_property_layout_type": "Typ układu klawiatury",
 	"Paragraph_Keyboard_property_keyboard_layout": "Niestandardowy układ klawiatury",
 	"Paragraph_Keyboard_property_keyboard_position": "Pozycja klawiatury",
