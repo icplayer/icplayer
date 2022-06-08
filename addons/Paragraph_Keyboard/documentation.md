@@ -22,10 +22,20 @@ The Paragraph eKeyboard module allows a student to enter a free form text. It al
       <td>Hides a toolbar and so extends the editable area space.</td>
     </tr>
     <tr>
+      <td>Editable placeholder</td>
+      <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
+      </td>
+    </tr>
+    <tr>
       <td>Custom toolbar</td>
       <td>Enables to define a custom toolbar. Below is a list of all available toolbar/menu controls that you can add to your Paragraph addon:<br><br>
 newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect bullist numlist outdent indent blockquote undo redo removeformat subscript superscript<br><br>
 <strong>Note:</strong> Use pipe "|" to group buttons.
+      </td>
+    </tr>
+    <tr>
+      <td>Placeholder text</td>
+      <td>This property enables you to specify a free text content to be used as a placeholder. Allows for html styling.
       </td>
     </tr>
     <tr>
@@ -51,16 +61,6 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
     <tr>
       <td>Keyboard Position</td>
       <td>Position of the Keyboard in relation to the text field. If position is right or left, the keyboard layout will be transposed. If position is set as Custom, you have to specify the position by presentation CSS styles.
-      </td>
-    </tr>
-    <tr>
-      <td>Placeholder text</td>
-      <td>This property enables you to specify a free text content to be used as a placeholder. Allows for html styling.
-      </td>
-    </tr>
-    <tr>
-      <td>Editable placeholder</td>
-      <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
       </td>
     </tr>
     <tr>
