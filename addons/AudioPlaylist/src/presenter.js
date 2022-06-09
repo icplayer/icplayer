@@ -273,9 +273,18 @@ function AddonAudioPlaylist_create() {
     AudioPlaylistKeyboardController.prototype.constructor = AudioPlaylistKeyboardController;
 
     AudioPlaylistKeyboardController.prototype.tab = function (event) {
+        this.closeVolumeBar();
         KeyboardController.prototype.nextElement.call(this, event);
         presenter.selectedElement = null;
         this.readCurrentElement();
+    }
+
+    AudioPlaylistKeyboardController.prototype.closeVolumeBar = function () {
+        const isVolumeBarClosed = presenter.viewItems.volumeBar.classList.contains(classList.volumeBarHidden);
+        const isVolumeElementSelected = presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME;
+        if (isVolumeElementSelected && !isVolumeBarClosed) {
+            this.keyboardNavigationCurrentElement[0].click();
+        }
     }
 
     AudioPlaylistKeyboardController.prototype.previousElement = function (event) {
@@ -290,6 +299,8 @@ function AddonAudioPlaylist_create() {
 
     AudioPlaylistKeyboardController.prototype.select = function (event) {
         event.preventDefault();
+        if (presenter.selectedElement === presenter.NAVIGATION_ELEMENT.VOLUME) return;
+
         var self = this;
         var promise = new Promise(function (resolve) {
                 resolve(presenter.selectElement(self.keyboardNavigationCurrentElement[0]));
