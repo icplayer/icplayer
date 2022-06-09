@@ -1,5 +1,5 @@
 ## Description
-The Audio Playlist addon allows users to create a list of sounds and play them. This addon works on all common browsers. For Internet Explorer 9 you have to use mp3 format, for others ogg format. 
+The Audio Playlist addon allows users to create a list of sounds and play them. This addon works on all common browsers.
 <div style="border:1px solid Tomato; padding:5px; margin-bottom:21px;">
 Note: It's recommended to use files with <a href="http://en.wikipedia.org/wiki/Bit_rate">bitrate</a> 64 kb/s or higher. Files with lower quality could have difficulties with reproduction.
 </div>
@@ -26,11 +26,11 @@ Note: It's recommended to use files with <a href="http://en.wikipedia.org/wiki/B
                     </tr>
                     <tr>
                         <td>Mp3</td>
-                        <td>This property serves for uploading an audio file in mp3 format into the module. It's needed for Internet Explorer.</td>
+                        <td>This property serves for uploading an audio file in mp3 format into the module.</td>
                     </tr>
                     <tr>
                         <td>Ogg</td>
-                        <td>This property serves for uploading an audio file in ogg format into the module. It's needed for all common browsers (exclude Internet Explorer and Safari).</td>
+                        <td>This property serves for uploading an audio file in ogg format into the module. It's needed for all common browsers.</td>
                     </tr>
                 </table>
                 <div style="border:1px solid Tomato; padding:5px; margin-bottom:21px;">

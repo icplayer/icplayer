@@ -920,13 +920,6 @@ function AddonAudioPlaylist_create() {
         }
     }
 
-    function AddonAudioPlaylist__audioSpeedButtonHandler(event) {
-        event.preventDefault();
-
-        // createPlaybackRateSelectElement();
-        displayPlaybackRate();
-    }
-
     function updateBallPosition() {
         var halvedBallWidth = presenter.viewItems.timerSliderBall.offsetWidth / 2;
         var timerFillWidth = presenter.viewItems.timerSlider.offsetWidth;

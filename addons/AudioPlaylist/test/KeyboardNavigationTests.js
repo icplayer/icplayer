@@ -73,8 +73,8 @@ TestCase("Keyboard navigation", {
     },
 
     'test if build controller will create keyboard controller': function () {
-      assertTrue(this.keyboardControllerObject !== null);
-      assertEquals(this.keyboardControllerObject.keyboardNavigationElements.length, 6);
+        assertTrue(this.keyboardControllerObject !== null);
+        assertEquals(this.keyboardControllerObject.keyboardNavigationElements.length, 6);
     },
 
     'test when tab was called then next element should be marked': function () {
