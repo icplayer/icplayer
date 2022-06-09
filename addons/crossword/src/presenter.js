@@ -92,6 +92,7 @@ function Addoncrossword_create(){
         CELL: "cell",
         ACROSS: "across",
         DOWN: "down",
+        CORRECT: "correct",
         WRONG: "wrong",
         EMPTY: "empty",
         DISABLED: "disabled",
@@ -102,6 +103,8 @@ function Addoncrossword_create(){
         CELL: 'cell',
         CELL_BLANK: 'cell_blank',
         CELL_LETTER: "cell_letter",
+        CELL_VALID: "cell_valid",
+        CELL_INVALID: "cell_invalid",
     };
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -1193,6 +1196,9 @@ function Addoncrossword_create(){
         if (!upgradedModel["speechTexts"]["Down"]) {
             upgradedModel["speechTexts"]["Down"] = {Down: ""};
         }
+        if (!upgradedModel["speechTexts"]["Correct"]) {
+            upgradedModel["speechTexts"]["Correct"] = {Correct: ""};
+        }
         if (!upgradedModel["speechTexts"]["Wrong"]) {
             upgradedModel["speechTexts"]["Wrong"] = {Wrong: ""};
         }
@@ -1276,11 +1282,14 @@ function Addoncrossword_create(){
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = j; l < k; l++) {
                             markedCell = presenter.$view.find('.cell_' + i + 'x' + l);
-                            if(!markedCell.hasClass('cell_valid'))
-                                markedCell.addClass('cell_' + (wordValid ? 'valid' : 'invalid'));
+                            if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
+                                markedCell.addClass(
+                                    wordValid
+                                        ? presenter.CSS_CLASSES.CELL_VALID
+                                        : presenter.CSS_CLASSES.CELL_INVALID);
 
-                            if(wordValid && markedCell.hasClass('cell_invalid'))
-                                markedCell.removeClass('cell_invalid');
+                            if(wordValid && markedCell.hasClass(presenter.CSS_CLASSES.CELL_INVALID))
+                                markedCell.removeClass(presenter.CSS_CLASSES.CELL_INVALID);
                         }
                     }
                 }
@@ -1305,12 +1314,14 @@ function Addoncrossword_create(){
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = i; l < k; l++) {
                             markedCell = presenter.$view.find('.cell_' + l + 'x' + j);
-                            if(!markedCell.hasClass('cell_valid'))
-                                markedCell.addClass('cell_' + (wordValid ? 'valid' : 'invalid'));
+                            if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
+                                markedCell.addClass(
+                                    wordValid
+                                        ? presenter.CSS_CLASSES.CELL_VALID
+                                        : presenter.CSS_CLASSES.CELL_INVALID);
 
-                            if(wordValid && markedCell.hasClass('cell_invalid'))
-                                markedCell.removeClass('cell_invalid');
-
+                            if(wordValid && markedCell.hasClass(presenter.CSS_CLASSES.CELL_INVALID))
+                                markedCell.removeClass(presenter.CSS_CLASSES.CELL_INVALID);
                         }
                     }
                 }
@@ -1333,8 +1344,8 @@ function Addoncrossword_create(){
 
     presenter.setWorkMode = function() {
         presenter.$view.find(".cell_letter:not(.cell_constant_letter) input").attr('disabled', false);
-        presenter.$view.find(".cell_valid").removeClass("cell_valid");
-        presenter.$view.find(".cell_invalid").removeClass("cell_invalid");
+        presenter.$view.find('.' + presenter.CSS_CLASSES.CELL_VALID).removeClass(presenter.CSS_CLASSES.CELL_VALID);
+        presenter.$view.find('.' + presenter.CSS_CLASSES.CELL_INVALID).removeClass(presenter.CSS_CLASSES.CELL_INVALID);
     };
 
     presenter.cellBlurEventHandler = function () {
@@ -1741,6 +1752,7 @@ function Addoncrossword_create(){
             Cell: presenter.DEFAULT_TTS_PHRASES.CELL,
             Across: presenter.DEFAULT_TTS_PHRASES.ACROSS,
             Down: presenter.DEFAULT_TTS_PHRASES.DOWN,
+            Correct: presenter.DEFAULT_TTS_PHRASES.CORRECT,
             Wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
             Empty: presenter.DEFAULT_TTS_PHRASES.EMPTY,
             Disabled: presenter.DEFAULT_TTS_PHRASES.DISABLED,
@@ -1761,6 +1773,9 @@ function Addoncrossword_create(){
             Down: TTSUtils.getSpeechTextProperty(
                 speechTexts.Down.Down,
                 presenter.speechTexts.Down),
+            Correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.Correct),
             Wrong: TTSUtils.getSpeechTextProperty(
                 speechTexts.Wrong.Wrong,
                 presenter.speechTexts.Wrong),
@@ -2093,72 +2108,26 @@ function Addoncrossword_create(){
     };
 
     CrosswordKeyboardController.prototype.readCurrentElement = function () {
-        var currentCellInput = this.getCurrentInputElement();
-        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
-
         var textVoiceObject = [];
+        var cellInput = this.getCurrentInputElement();
+        var currentPosition = getPositionOfCellInputElement($(cellInput));
 
-        var cellIndexMessage = this._createIndexMessage(currentPosition);
-        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, cellIndexMessage);
+        this.addMessageAboutElementIndex(textVoiceObject, currentPosition);
 
-        var correctHorizontalAnswer;
-        var correctVerticalAnswer;
-        var trueLength;
-        for (var i = 0; i < presenter.correctAnswers.length; i++) {
-            var correctAnswer = presenter.correctAnswers[i];
-
-            if (correctAnswer.isHorizontal) {
-                if (correctHorizontalAnswer !== undefined) continue;
-
-                trueLength = [...correctAnswer.answer].filter((x) => x !== '!').length;
-                if (currentPosition.y === correctAnswer.position.y
-                    && correctAnswer.position.x <= currentPosition.x
-                    && currentPosition.x < correctAnswer.position.x + trueLength) {
-                    correctHorizontalAnswer = {...correctAnswer};
-                    correctHorizontalAnswer["id"] = i + 1;
-                    correctHorizontalAnswer["trueLength"] = trueLength;
-                }
-            } else {
-                if (correctVerticalAnswer !== undefined) continue;
-
-                trueLength = [...correctAnswer.answer].filter((x) => x !== '!').length;
-                if (currentPosition.x === correctAnswer.position.x
-                    && correctAnswer.position.y <= currentPosition.y
-                    && currentPosition.y < correctAnswer.position.y + trueLength) {
-                    correctVerticalAnswer = {...correctAnswer};
-                    correctVerticalAnswer["id"] = i + 1;
-                    correctVerticalAnswer["trueLength"] = trueLength;
-                }
-            }
+        if (presenter.wordNumbersHorizontal) {
+            this.addMessageAboutHorizontalAnswer(textVoiceObject, currentPosition);
         }
 
-        var answerIDMessage, relativePosition, outOfMessage;
-        if (correctHorizontalAnswer) {
-            answerIDMessage = `${presenter.speechTexts.Across} ${correctHorizontalAnswer.id}`;
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
-
-            relativePosition = currentPosition.x - correctHorizontalAnswer.position.x + 1;
-            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctHorizontalAnswer.trueLength}`;
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
+        if (presenter.wordNumbersVertical) {
+            this.addMessageAboutVerticalAnswer(textVoiceObject, currentPosition);
         }
 
-        if (correctVerticalAnswer) {
-            answerIDMessage = `${presenter.speechTexts.Down} ${correctVerticalAnswer.id}`;
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
-
-            relativePosition = currentPosition.y - correctVerticalAnswer.position.y + 1;
-            outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${correctVerticalAnswer.trueLength}`;
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
-        }
-
-        if (currentCellInput.value) {
-            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, currentCellInput.value);
-        } else {
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Empty);
-        }
+        this.addMessageAboutValue(textVoiceObject, cellInput.value);
 
         if (isPositionOfConstantCell(currentPosition)) {
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Disabled);
+        } else {
+            this.addMessageAboutCorrectness(textVoiceObject);
         }
 
         presenter.speak(textVoiceObject);
@@ -2169,27 +2138,97 @@ function Addoncrossword_create(){
         var cellInput = this.getCurrentInputElement();
         var currentPosition = getPositionOfCellInputElement($(cellInput));
 
-        var cellIndexMessage = this._createIndexMessage(currentPosition);
-        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, cellIndexMessage);
-
-        if (cellInput.value) {
-            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, cellInput.value);
-        } else {
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Empty);
-        }
+        this.addMessageAboutElementIndex(textVoiceObject, currentPosition);
+        this.addMessageAboutValue(textVoiceObject, cellInput.value);
 
         if (isPositionOfConstantCell(currentPosition)) {
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Disabled);
+        } else {
+            this.addMessageAboutCorrectness(textVoiceObject);
         }
 
         presenter.speak(textVoiceObject);
     }
 
-    CrosswordKeyboardController.prototype._createIndexMessage = function (position) {
+    CrosswordKeyboardController.prototype.addMessageAboutElementIndex = function (textVoiceObject, position) {
         const alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
-        return presenter.speechTexts.Cell
+        const message = presenter.speechTexts.Cell
             + " " + alphabet[position.x % alphabet.length]
             + " " + (position.y + 1);
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message);
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutHorizontalAnswer = function (textVoiceObject, position) {
+        var foundAnswer, trueLength, nextAnswer;
+        for (var i = 0; i < presenter.correctAnswers.length; i++) {
+            nextAnswer = presenter.correctAnswers[i];
+
+            if (nextAnswer.isHorizontal) {
+                trueLength = [...nextAnswer.answer].filter((x) => x !== '!').length;
+                if (position.y === nextAnswer.position.y
+                    && nextAnswer.position.x <= position.x
+                    && position.x < nextAnswer.position.x + trueLength) {
+                    foundAnswer = {...nextAnswer};
+                    foundAnswer["id"] = i + 1;
+                    foundAnswer["trueLength"] = trueLength;
+                    break;
+                }
+            }
+        }
+
+        if (foundAnswer) {
+            const answerIDMessage = `${presenter.speechTexts.Across} ${foundAnswer.id}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
+
+            const relativePosition = position.x - foundAnswer.position.x + 1;
+            const outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${foundAnswer.trueLength}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutVerticalAnswer = function (textVoiceObject, position) {
+        var foundAnswer, trueLength, nextAnswer;
+        for (var i = 0; i < presenter.correctAnswers.length; i++) {
+            nextAnswer = presenter.correctAnswers[i];
+
+            if (!nextAnswer.isHorizontal) {
+                trueLength = [...nextAnswer.answer].filter((x) => x !== '!').length;
+                if (position.x === nextAnswer.position.x
+                    && nextAnswer.position.y <= position.y
+                    && position.y < nextAnswer.position.y + trueLength) {
+                    foundAnswer = {...nextAnswer};
+                    foundAnswer["id"] = i + 1;
+                    foundAnswer["trueLength"] = trueLength;
+                    break;
+                }
+            }
+        }
+
+        if (foundAnswer) {
+            const answerIDMessage = `${presenter.speechTexts.Down} ${foundAnswer.id}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
+
+            const relativePosition = position.y - foundAnswer.position.y + 1;
+            const outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${foundAnswer.trueLength}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutValue = function (textVoiceObject, value) {
+        if (value) {
+            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, value);
+        } else {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Empty);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutCorrectness = function (textVoiceObject) {
+        var $cell = $(this.getCurrentElement());
+        if ($cell.hasClass(presenter.CSS_CLASSES.CELL_VALID)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Correct);
+        } else if ($cell.hasClass(presenter.CSS_CLASSES.CELL_INVALID)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Wrong);
+        }
     }
 
     CrosswordKeyboardController.prototype.speakWrong = function () {

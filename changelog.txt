@@ -1,4 +1,4 @@
-2022-06-08 Added keyboard navigation and TTS to Crossword
+2022-06-09 Added keyboard navigation and TTS to Crossword
 2022-06-02 Fixed editing gaps in Table
 2022-06-02 Fixed Assessments Navigation Bar not adding "inactive" class
 2027-06-01 Fixed color not being retained by the Text Coloring addon if you leave the page in check answers mode

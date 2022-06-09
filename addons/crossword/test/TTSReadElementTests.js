@@ -357,6 +357,14 @@ TestCase("[Crossword] Read full form of current element tests - both numbering a
         return this.tts.speak.args[0][0];
     },
 
+    markAsCorrectCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_VALID);
+    },
+
+    markAsWrongCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_INVALID);
+    },
+
     'test given empty editable cell representing char of horizontal word when calling full form of read method then speak with correct TTS' : function() {
         this.markAndFocusElementWithPosition(2, 1);
 
@@ -519,6 +527,80 @@ TestCase("[Crossword] Read full form of current element tests - both numbering a
         ]
         this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
     },
+
+    'test given editable cell marked as correct when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "across 4",
+            "4 out of 8",
+            "down 2",
+            "2 out of 7",
+            "X",
+            "correct",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given editable cell marked as wrong when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "across 4",
+            "4 out of 8",
+            "down 2",
+            "2 out of 7",
+            "X",
+            "wrong",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as correct when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "across 5",
+            "3 out of 7",
+            "down 2",
+            "4 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as wrong when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "across 5",
+            "3 out of 7",
+            "down 2",
+            "4 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
 });
 
 TestCase("[Crossword] Read full form of current element tests - vertical numbering active", {
@@ -591,6 +673,14 @@ TestCase("[Crossword] Read full form of current element tests - vertical numberi
     getFirstReadText: function() {
         // gets first call
         return this.tts.speak.args[0][0];
+    },
+
+    markAsCorrectCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_VALID);
+    },
+
+    markAsWrongCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_INVALID);
     },
 
     'test given empty editable cell representing char of horizontal word when calling full form of read method then speak with correct TTS' : function() {
@@ -743,6 +833,72 @@ TestCase("[Crossword] Read full form of current element tests - vertical numberi
         ]
         this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
     },
+
+    'test given editable cell marked as correct when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "down 2",
+            "2 out of 7",
+            "X",
+            "correct",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given editable cell marked as wrong when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "down 2",
+            "2 out of 7",
+            "X",
+            "wrong",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as correct when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "down 2",
+            "4 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as wrong when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "down 2",
+            "4 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
 });
 
 TestCase("[Crossword] Read full form of current element tests - horizontal numbering active", {
@@ -815,6 +971,14 @@ TestCase("[Crossword] Read full form of current element tests - horizontal numbe
     getFirstReadText: function() {
         // gets first call
         return this.tts.speak.args[0][0];
+    },
+
+    markAsCorrectCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_VALID);
+    },
+
+    markAsWrongCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_INVALID);
     },
 
     'test given empty editable cell representing char of horizontal word when calling full form of read method then speak with correct TTS' : function() {
@@ -967,6 +1131,72 @@ TestCase("[Crossword] Read full form of current element tests - horizontal numbe
         ]
         this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
     },
+
+    'test given editable cell marked as correct when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "across 1",
+            "4 out of 8",
+            "X",
+            "correct",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given editable cell marked as wrong when calling full form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(3, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 2",
+            "across 1",
+            "4 out of 8",
+            "X",
+            "wrong",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as correct when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "across 2",
+            "3 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as wrong when calling full form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElement();
+
+        const expectedTexts = [
+            "cell D 4",
+            "across 2",
+            "3 out of 7",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
 });
 
 TestCase("[Crossword] Read short form of current element tests", {
@@ -1039,6 +1269,14 @@ TestCase("[Crossword] Read short form of current element tests", {
         return this.tts.speak.args[0][0];
     },
 
+    markAsCorrectCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_VALID);
+    },
+
+    markAsWrongCurrentElement: function () {
+        $(this.keyboardControllerObject.getCurrentElement()).addClass(this.presenter.CSS_CLASSES.CELL_INVALID);
+    },
+
     'test given empty editable cell when calling short form of read method then speak with correct TTS' : function() {
         this.markAndFocusElementWithPosition(2, 1);
 
@@ -1072,6 +1310,64 @@ TestCase("[Crossword] Read short form of current element tests", {
         const expectedTexts = [
             "cell H 6",
             "E",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given editable cell marked as correct when calling short form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(2, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElementInShortForm();
+
+        const expectedTexts = [
+            "cell C 2",
+            "X",
+            "correct",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given editable cell marked as wrong when calling short form of read method then speak with correct TTS' : function() {
+        this.markAndFocusElementWithPosition(2, 1);
+        this.fillInKeyboardControllerCurrentElement();
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElementInShortForm();
+
+        const expectedTexts = [
+            "cell C 2",
+            "X",
+            "wrong",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as correct when calling short form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsCorrectCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElementInShortForm();
+
+        const expectedTexts = [
+            "cell D 4",
+            "M",
+            "disabled",
+        ]
+        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+    },
+
+    'test given constant cell marked as wrong when calling short form of read method then do not speak about correctness' : function() {
+        this.markAndFocusElementWithPosition(3, 3);
+        this.markAsWrongCurrentElement();
+
+        this.keyboardControllerObject.readCurrentElementInShortForm();
+
+        const expectedTexts = [
+            "cell D 4",
+            "M",
             "disabled",
         ]
         this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);

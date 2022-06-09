@@ -30,6 +30,9 @@
             <property name="Down" nameLabel="crossword_speech_text_down" type="staticrow">
                 <property name="Down" nameLabel="crossword_speech_text_down" type="string"/>
             </property>
+            <property name="Correct" nameLabel="crossword_speech_text_correct" type="staticrow">
+                <property name="Correct" nameLabel="crossword_speech_text_correct" type="string"/>
+            </property>
             <property name="Wrong" nameLabel="crossword_speech_text_wrong" type="staticrow">
                 <property name="Wrong" nameLabel="crossword_speech_text_wrong" type="string"/>
             </property>
