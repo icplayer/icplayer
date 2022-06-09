@@ -20,12 +20,16 @@ public class ContentParser_v3 extends ContentParser_v2 {
         NodeList addonNodes = xmlDictionary.getChildNodes();
         
         for (int i = 0; i < addonNodes.getLength(); i++) {
+            if (!(addonNodes.item(i) instanceof Element)) continue;
+
             Element addon = (Element) addonNodes.item(i);
             NodeList propertyNodes = addon.getChildNodes();
             HashMap<String, String> properties = new HashMap<String, String>();
             String addonName = addon.getAttribute("type");
 
             for (int j = 0; j < propertyNodes.getLength(); j++) {
+                if (!(propertyNodes.item(j) instanceof Element)) continue;
+
                 Element property = (Element) propertyNodes.item(j);
                 String propertyName = property.getAttribute("type");
                 String editedPropertyName = property.getAttribute("value");
