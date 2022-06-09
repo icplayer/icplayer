@@ -490,6 +490,7 @@ function AddonParagraph_Keyboard_create() {
             presenter.editor = editors[0];
             presenter.onInit();
             presenter.isEditorLoaded = true;
+            presenter.setStyles();
         });
     };
 
@@ -650,6 +651,7 @@ function AddonParagraph_Keyboard_create() {
 
         presenter.switchKeyboard = null;
         presenter.clickKeyboard = null;
+        presenter.onMouseDownKeyboard = null;
         presenter.buildKeyboard = null;
         presenter.eKeyboardButtons.forEach(function ($button) {
             $button.off();
@@ -672,7 +674,7 @@ function AddonParagraph_Keyboard_create() {
             hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
         if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss) {
-            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul')];
+            var elements = [presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul'), presenter.editor.dom.$("placeholder")];
 
             for (var i = 0; i < elements.length; i++) {
                 if (!hasDefaultFontFamily || !hasContentCss) {
@@ -731,12 +733,7 @@ function AddonParagraph_Keyboard_create() {
         e.preventDefault();
         var $this = $(this),
             text = $this.text();
-        const wasEditablePlaceholderSet = (
-            presenter.placeholder.isSet
-            && presenter.configuration.isPlaceholderEditable
-            && presenter.configuration.isPlaceholderSet
-            && !!$(presenter.getText()).text()
-        );
+        const wasEditablePlaceholderSet = isEditablePlaceholderSet();
 
         presenter.window.focus();
         $(presenter.editor.contentDocument).find('body').focus();
@@ -760,6 +757,14 @@ function AddonParagraph_Keyboard_create() {
         }, 200);
     };
 
+    function isEditablePlaceholderSet() {
+        return (presenter.placeholder.isSet
+            && presenter.configuration.isPlaceholderEditable
+            && presenter.configuration.isPlaceholderSet
+            && !!$(presenter.getText()).text()
+        );
+    }
+
     function setCaretOnEndOfEditorLastElement() {
         var selection = presenter.window.getSelection();
         if (selection.getRangeAt && selection.rangeCount) {
@@ -782,6 +787,7 @@ function AddonParagraph_Keyboard_create() {
 
         presenter.window.focus();
         $(presenter.editor.contentDocument).find('body').focus();
+
         if (presenter.lastCaret) {
             presenter.caret(presenter.lastCaret);
         }
