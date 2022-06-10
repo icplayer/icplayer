@@ -191,14 +191,22 @@ public class AddonDescriptorFactory {
 	}
 	
 	public void setWirisEnabled(boolean isEnabled) {
-		if (isEnabled) {
-			if (!addonList.containsKey("MathText")) {
-				addDescriptor("MathText", "activities_menu");
+		setOptionalAddonEnabled(isEnabled, "MathText", "activities_menu");
+	}
+
+	public void setSpeechaceEnabled(boolean isEnabled) {
+        setOptionalAddonEnabled(isEnabled, "Speechace", "activities_menu");
+	}
+
+	private void setOptionalAddonEnabled(boolean isEnabled, String addonName, String category) {
+	    if (isEnabled) {
+			if (!addonList.containsKey(addonName)) {
+				addDescriptor(addonName, category);
 			}
 		} else {
-			if (addonList.containsKey("MathText")) {
-				addonList.remove("MathText");
+			if (addonList.containsKey(addonName)) {
+				addonList.remove(addonName);
 			}
-		}
+		}	
 	}
 }
