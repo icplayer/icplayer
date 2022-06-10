@@ -2119,7 +2119,7 @@ var ice_dictionary_pl = {
 	"Media_Recorder_speech_text_download_button": "Download button",
 	"Media_Recorder_speech_text_reset_dialog": "Reset dialog",
 	"Media_Recorder_speech_text_start_recording": "Start recording",
-	"Media_Recorder_speech_text_stop_recording": "Stop recording",
+	"Media_Recorder_speech_text_stop_recording": "Recording stopped",
 	"Media_Recorder_speech_text_disabled": "Disabled",
 	"Editor_load_theme_error":"Błąd podczas wgrywania szablonu (więcej informacji dostępnych jest <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">tutaj</a>)",
 	"Editor_begin_adding_tts":"Begin adding TTS to the presentation",

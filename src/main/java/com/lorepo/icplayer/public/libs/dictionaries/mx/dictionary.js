@@ -2120,7 +2120,7 @@ var ice_dictionary_mx = {
 	"Media_Recorder_speech_text_download_button": "Download button",
 	"Media_Recorder_speech_text_reset_dialog": "Reset dialog",
 	"Media_Recorder_speech_text_start_recording": "Start recording",
-	"Media_Recorder_speech_text_stop_recording": "Stop recording",
+	"Media_Recorder_speech_text_stop_recording": "Recording stopped",
 	"Media_Recorder_speech_text_disabled": "Disabled",
 	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)",
 	"Editor_begin_adding_tts":"Begin adding TTS to the presentation",
