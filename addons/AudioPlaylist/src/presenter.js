@@ -388,6 +388,7 @@ function AddonAudioPlaylist_create() {
 
     AudioPlaylistKeyboardController.prototype.escape = function (event) {
         presenter.pause();
+        this.closeVolumeBar();
 
         if (!presenter.audio) presenter.audio.currentTime = 0;
         presenter.selectedElement = null;
@@ -396,6 +397,7 @@ function AddonAudioPlaylist_create() {
     }
 
     AudioPlaylistKeyboardController.prototype.exitWCAGMode = function (event) {
+        this.closeVolumeBar();
         presenter.selectedElement = null;
 
         KeyboardController.prototype.exitWCAGMode.call(this, event);
