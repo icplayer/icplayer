@@ -73,12 +73,20 @@ TestCase("[Crossword] Events tests", {
         assertFalse(this.presenter.isGradualShowAnswersActive);
     },
 
+    'test given editable cell when triggered click event on it then resetDirections should be called': function () {
+        this.buildCrossword();
+        var cellInput = this.getCellInputElement(3, 4);
+
+        $(cellInput).trigger('click');
+
+        assertTrue(this.presenter.resetDirection.calledOnce);
+    },
+
     'test given Show Answers when gaps edited then user answers are properly saved': function () {
         this.presenter.isWordNumbersCorrect = () => true;
         this.buildCrossword();
 
-        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
-            .val("A");
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
         this.presenter.showAnswers();
 
         const expected = "A";
@@ -91,8 +99,7 @@ TestCase("[Crossword] Events tests", {
         this.presenter.isWordNumbersCorrect = () => true;
         this.buildCrossword();
 
-        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input')
-            .val("A");
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
 
         this.presenter.showAnswers();
         this.presenter.hideAnswers();
@@ -103,16 +110,7 @@ TestCase("[Crossword] Events tests", {
         assertTrue(expected === actual);
     },
 
-    'test on editable cell input click event should call reset directions': function () {
-        this.buildCrossword();
-        var cellInput = this.getCellInputElement(3, 4);
-
-        $(cellInput).trigger('click');
-
-        assertTrue(this.presenter.resetDirection.calledOnce);
-    },
-
-    'test on constant cell input click event should not call reset directions': function () {
+    'test given constant cell when triggered click event on it then resetDirections should not be called': function () {
         this.buildCrossword();
         var cellInput = this.getCellInputElement(3, 3);
 
