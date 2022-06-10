@@ -387,7 +387,7 @@ function AddonAudio_create(){
         var $select = $('<select>');
         for (var i = 0; i < playbackRateList.length; i++) {
             var $option = $('<option>');
-            $option.text('×' + playbackRateList[i]);
+            $option.text(playbackRateList[i]);
             $option.attr('value', playbackRateList[i]);
             if (playbackRateList[i] == 1) {
                 $option.attr('selected', 'selected');
@@ -417,7 +417,7 @@ function AddonAudio_create(){
                 $select.val(presenter.playbackRate);
             } else {
                 var $customOption = $('<option>');
-                $customOption.text('×' + presenter.playbackRate);
+                $customOption.text(presenter.playbackRate);
                 $customOption.attr('value', presenter.playbackRate);
                 $customOption.addClass('custom-option');
                 $select.append($customOption);
