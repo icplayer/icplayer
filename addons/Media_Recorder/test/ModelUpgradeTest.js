@@ -166,7 +166,7 @@ TestCase("[Media Recorder] Upgrade model - speech texts", {
                 DownloadButton: {DownloadButton: "Download button"},
                 ResetDialog: {ResetDialog: "Reset dialog"},
                 StartRecording: {StartRecording: "Start recording"},
-                StopRecording: {StopRecording: "Stop recording"},
+                StopRecording: {StopRecording: "Recording stopped"},
                 Disabled: {Disabled: "Disabled"},
             }
         };

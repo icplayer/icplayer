@@ -21,12 +21,10 @@
             var mobile_agent = userAgent.match(/Android/i) ||
                 userAgent.match(/BlackBerry/i) ||
                 userAgent.match(/iPhone|iPad|iPod/i) ||
+                (userAgent.match(/Mac/) && window.navigator.maxTouchPoints && window.navigator.maxTouchPoints > 2) ||
                 userAgent.match(/IEMobile/i) ||
                 userAgent.match(/Opera Mini/i);
-            if (mobile_agent)
-                return true;
-            else
-                return false;
+            return !!mobile_agent;
         },
 
         /**
@@ -73,11 +71,9 @@
         isSafariMobile: function(userAgent) {
             if (userAgent === undefined || !userAgent)
                 return false;
-            var mobile_agent = userAgent.match(/iPhone|iPad|iPod/i);
-            if (mobile_agent)
-                return true;
-            else
-                return false;
+            var mobile_agent = userAgent.match(/iPhone|iPad|iPod/i) ||
+                (userAgent.match(/Mac/) && window.navigator.maxTouchPoints && window.navigator.maxTouchPoints > 2);
+            return !!mobile_agent;
         },
 
         /**

@@ -33,7 +33,8 @@ function Addoncrossword_create(){
         NOT_SET: 0,
         HORIZONTAL: 1,
         VERTICAL: 2,
-        TAB_INDEX: 3
+        TAB_INDEX: 3,
+        NEXT_VERTICAL_ANSWER: 4
     }
     var currentDirection = DIRECTIONS.NOT_SET;
 
@@ -45,12 +46,17 @@ function Addoncrossword_create(){
     var autoNavigationMode = null;
 
     presenter.SPECIAL_KEYS = {
-        DELETE: 46,
         BACKSPACE: 8,
         TAB: 9,
-        ESCAPE: 27,
+        ENTER: 13,
         SHIFT: 16,
-        CTRL: 17
+        CTRL: 17,
+        ESCAPE: 27,
+        LEFT_ARROW: 37,
+        UP_ARROW: 38,
+        RIGHT_ARROW: 39,
+        DOWN_ARROW: 40,
+        DELETE: 46,
     };
 
     presenter.numberOfConstantLetters = 0;
@@ -78,6 +84,28 @@ function Addoncrossword_create(){
     };
 
     presenter.isModelValid = true;
+
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        CELL: "cell",
+        ACROSS: "across",
+        DOWN: "down",
+        CORRECT: "correct",
+        WRONG: "wrong",
+        EMPTY: "empty",
+        DISABLED: "disabled",
+        OUT_OFF: "out of",
+    };
+
+    presenter.CSS_CLASSES = {
+        CELL: 'cell',
+        CELL_BLANK: 'cell_blank',
+        CELL_LETTER: "cell_letter",
+        CELL_VALID: "cell_valid",
+        CELL_INVALID: "cell_invalid",
+    };
 
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
@@ -117,50 +145,56 @@ function Addoncrossword_create(){
         }
     };
 
+    presenter.isAnswerVisibleByDefault = function (answer) {
+        return (answer.match(/!/g) || []).length * 2 === answer.length;
+    }
+
+    presenter.prepareAnswerHorizontal = function (row, column) {
+        const position = { x: column, y: row };
+        let answer = "";
+        for(let i = column; i < presenter.columnCount; i++){
+            if (presenter.crossword[row][i] == ' ') {
+                break;
+            }
+            answer = answer + presenter.crossword[row][i];
+        }
+        let answerData = {
+            answer,
+            position,
+            isHorizontal: true
+        };
+        if (!presenter.isAnswerVisibleByDefault(answer))
+            presenter.correctAnswers.push(answerData);
+    }
+
+    presenter.prepareAnswerVertical = function (row, column) {
+        const position = { x: column, y: row };
+        let answer = "";
+        for (let i = row; i < presenter.rowCount; i++){
+            if (presenter.crossword[i][column] == ' '){
+                break;
+            }
+            answer = answer + presenter.crossword[i][column];
+        }
+        let answerData = {
+            answer,
+            position,
+            isHorizontal: false
+        };
+        if (!presenter.isAnswerVisibleByDefault(answer))
+            presenter.correctAnswers.push(answerData);
+    }
+
     presenter.prepareCorrectAnswers = function() {
         presenter.correctAnswers = [];
-        var answer, isHorizontal;
-        for(var i = 0; i < presenter.rowCount; i++) {
-            for(var j = 0; j < presenter.columnCount; j++){
-                if(presenter.isHorizontalWordBegin(i, j)){
-                    var position = {
-                        x: j,
-                        y: i
-                    };
-                    isHorizontal = true;
-                    answer = "";
-                    for(var k = j; k < presenter.columnCount; k++){
-                        if(presenter.crossword[i][k] == ' '){
-                            break;
-                        }
-                        answer = answer + presenter.crossword[i][k];
-                    }
-                    let answerData = {
-                        answer: answer,
-                        isHorizontal: isHorizontal,
-                        position: position
-                    };
-                    presenter.correctAnswers.push(answerData);
+
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++){
+                if(presenter.isHorizontalWordBegin(row, column)){
+                    presenter.prepareAnswerHorizontal(row, column);
                 }
-                if(presenter.isVerticalWordBegin(i, j)){
-                    var position = {
-                        x: j,
-                        y: i
-                    };
-                    isHorizontal = false;
-                    answer = "";
-                    for(var k = i; k < presenter.rowCount; k++){
-                        if(presenter.crossword[k][j] == ' '){
-                            break;
-                        }
-                        answer = answer + presenter.crossword[k][j];
-                    }
-                    let answerData = {
-                        answer: answer,
-                        isHorizontal: isHorizontal,
-                        position: position
-                    };
-                    presenter.correctAnswers.push(answerData);
+                if(presenter.isVerticalWordBegin(row, column)){
+                    presenter.prepareAnswerVertical(row, column);
                 }
             }
         }
@@ -227,49 +261,119 @@ function Addoncrossword_create(){
     presenter.SPECIAL_KEYS_CODES = dictValues(presenter.SPECIAL_KEYS);
 
     var validateSpecialKey = function(event) {
-        // Allow: backspace, delete, tab, shift and escape
         if (presenter.SPECIAL_KEYS_CODES.indexOf(event.keyCode) > -1 ||
-            // Allow:  dot
+            // Allow: dot
             (event.keyCode == 190) ||
             // Allow: Ctrl+A
             (event.keyCode == 65 && event.ctrlKey === true) ||
-            // Allow: home, end, left, right
-            (event.keyCode >= 35 && event.keyCode <= 39)) {
+            // Allow: end and home
+            (event.keyCode >= 35 && event.keyCode <= 36)) {
             // let it happen, don't do anything
             return true;
         }
         return false;
     };
 
-    presenter.onCellInputKeyUp = function(event) {
-        var currentCellInput = event.target;
-        var $currentCellInput = $(currentCellInput);
-        $currentCellInput.css('color','');
+    presenter.onCellInputKeyDown = function(event) {
+        if (event.keyCode === presenter.SPECIAL_KEYS.ENTER) {
+            return;
+        }
+
+        if ([
+            presenter.SPECIAL_KEYS.BACKSPACE,
+            presenter.SPECIAL_KEYS.LEFT_ARROW,
+            presenter.SPECIAL_KEYS.RIGHT_ARROW,
+            presenter.SPECIAL_KEYS.UP_ARROW,
+            presenter.SPECIAL_KEYS.DOWN_ARROW,
+            presenter.SPECIAL_KEYS.TAB,
+        ].includes(event.keyCode)) {
+            presenter.keyboardController(event.keyCode, event.shiftKey, event);
+            return;
+        }
+
+        var $cellInput = $(event.target);
+        if (originalFieldValue.length == 0) {
+            originalFieldValue = $cellInput.val();
+        }
 
         if (validateSpecialKey(event)) {
             return
         }
 
-        if ($currentCellInput.val().length > 1 && originalFieldValue.length > 0) {
-            $currentCellInput.val($currentCellInput.val().replace(originalFieldValue,''));
+        $cellInput.css('color', 'rgba(0,0,0,0.0)');
+        enableMoveToNextField = true;
+    };
+
+    presenter.onCellInputKeyUp = function(event) {
+        var cellInput = event.target;
+        var $cellInput = $(cellInput);
+        $cellInput.css('color','');
+
+        if (validateSpecialKey(event)) {
+            return
+        }
+
+        if ($cellInput.val().length > 1 && originalFieldValue.length > 0) {
+            $cellInput.val($cellInput.val().replace(originalFieldValue,''));
         }
         originalFieldValue = '';
 
-        currentCellInput.value = currentCellInput.value.toUpperCase();
+        cellInput.value = cellInput.value.toUpperCase();
 
-        if ($currentCellInput.val() && enableMoveToNextField) {
-            handleAutoNavigationMove(currentCellInput);
+        if (presenter.blockWrongAnswers) {
+            var isCorrectValue
+                = presenter.validateIsCorrectValueInCellInput(cellInput);
+            if (!isCorrectValue) {
+                presenter.keyboardControllerObject.speakWrong();
+                enableMoveToNextField = false;
+            }
         }
+
+        if ($cellInput.val() && enableMoveToNextField) {
+            handleAutoNavigationMove(cellInput);
+        }
+    };
+
+    presenter.onCellInputFocus = function(event) {
+        event.target.select();
+        var length = $(event.target).val().length;
+        setCaretPosition(event.target, length + 1);
+        if(length > 1) {
+            $(event.target).val($(event.target).val().substring(1, 2));
+        }
+        $(event.target).val($(event.target).val().toUpperCase());
+    };
+ 
+    presenter.onCellInputMouseUp = function(event) {
+        event.preventDefault();
+    };
+
+    presenter.onCellInputFocusOut = function(event) {
+        var cellInput = event.target;
+        var usersLetter = cellInput.value;
+        var pos = getPositionOfCellInputElement($(cellInput));
+        var correctLetter = presenter.crossword[pos.y][pos.x][0];
+        var isOk = usersLetter === correctLetter;
+        presenter.sendScoreEvent(pos, usersLetter, isOk);
+        var score = isOk ? 1 : 0;
+        if(score == 0 && presenter.blockWrongAnswers){
+            cellInput.value = "";
+        }
+        if (isOk) {
+            var result = presenter.validateWord(pos);
+            if (result.valid) {
+                presenter.sendCorrectWordEvent(result.word, result.item);
+            }
+        }
+    };
+
+    presenter.onCellClick = function(event) {
+        presenter.resetDirection();
+        event.stopPropagation();
     };
 
     function handleAutoNavigationMove(currentCellInput) {
         enableMoveToNextField = false;
-
-        if (presenter.blockWrongAnswers) {
-            var isCorrectValue
-                = presenter.validateIsCorrectValueInCellInput(currentCellInput);
-            if (!isCorrectValue) return;
-        }
 
         if (!presenter.isAutoNavigationInOffMode()) {
             presenter.analyzeDirectionOfMove(currentCellInput);
@@ -292,29 +396,75 @@ function Addoncrossword_create(){
         return true;
     };
 
+    presenter.isWordNumbersCorrect = function () {
+        return presenter.wordNumbersHorizontal || presenter.wordNumbersVertical;
+    }
+
+    presenter.isWordOrientationOnlyHorizontal = function () {
+        return presenter.wordNumbersHorizontal && !presenter.wordNumbersVertical;
+    }
+
+    presenter.isWordOrientationOnlyVertical = function () {
+        return presenter.wordNumbersVertical && !presenter.wordNumbersHorizontal;
+    }
+
+    presenter.getWordBeginCellAtColumn = function (i) {
+        return presenter.$view.find(`.cell_word_begin_vertical.cell_column_${i}`);
+    }
+
+    presenter.findNextColumn = function (currentPosition) {
+        const nextColumnIndex = currentPosition.x + 1;
+
+        for (let i = nextColumnIndex; i <= presenter.columnCount; i++) {
+            const $nextColumnWordBeginCell = presenter.getWordBeginCellAtColumn(i);
+
+            if ($nextColumnWordBeginCell.length) {
+                const position = presenter.getPosition($nextColumnWordBeginCell);
+                if (isAnyOfBottomCellsEditable(position)) {
+                    position.y =- 1;
+                    return getNextBottomCellPosition(position);
+                }
+            }
+        }
+    }
+
+    presenter.updateDirectionBasedOnWordOrientation = function () {
+        if (presenter.isWordOrientationOnlyHorizontal()) {
+            presenter.setHorizontalDirection();
+        } else if (presenter.isWordOrientationOnlyVertical()) {
+            presenter.setVerticalDirection();
+        }
+    }
     presenter.analyzeDirectionOfMove = function (currentCellInput) {
         var $currentCellInput = $(currentCellInput);
         var currentPosition = getPositionOfCellInputElement($currentCellInput);
 
         var rightElementPosition = calculateRightElementPosition(currentPosition);
         var isRightCellNotBlank = isPositionOfNotBlankCell(rightElementPosition);
-        var rightCellsEditable = areRightCellsEditable(currentPosition);
+        var rightCellsEditable = isAnyOfRightCellsEditable(currentPosition);
 
         var bottomElementPosition = calculateBottomElementPosition(currentPosition);
         var isBottomCellNotBlank = isPositionOfNotBlankCell(bottomElementPosition);
-        var bottomCellsEditable = areBottomCellsEditable(currentPosition);
+        var bottomCellsEditable = isAnyOfBottomCellsEditable(currentPosition);
 
         var topElementPosition = calculateTopElementPosition(currentPosition);
         var isTopCellNotBlank = isPositionOfNotBlankCell(topElementPosition);
+
+        presenter.updateDirectionBasedOnWordOrientation();
 
         if (presenter.isHorizontalDirection()) {
             if (!rightCellsEditable) {
                 presenter.setTabIndexDirection();
             }
             return;
-        } else if (presenter.isVerticalDirection()) {
+        }
+        if (presenter.isVerticalDirection()) {
             if (!bottomCellsEditable) {
-                presenter.setTabIndexDirection();
+                if (presenter.isWordOrientationOnlyVertical()) {
+                    presenter.setNextVerticalAnswerDirection();
+                } else {
+                    presenter.setTabIndexDirection();
+                }
             }
             return;
         }
@@ -339,19 +489,23 @@ function Addoncrossword_create(){
         }
     };
 
-    function areRightCellsEditable(currentPosition) {
-        return !!getNextRightEditableCellPosition(currentPosition);
+    function isAnyOfRightCellsEditable(position) {
+        return !!getNextRightCellPosition(position);
     }
 
-    function getNextRightEditableCellPosition(currentPosition) {
-        const nextYPosition = currentPosition.y;
+    function getNextRightCellPositionOfCellInput(cellInput, includeConstantCells = false) {
+        const position = getPositionOfCellInputElement($(cellInput));
+        return getNextRightCellPosition(position, includeConstantCells);
+    }
+
+    function getNextRightCellPosition(position, includeConstantCells = false) {
+        const nextYPosition = position.y;
         var nextPosition;
-        for (var nextXPosition = currentPosition.x + 1; nextXPosition < presenter.columnCount; nextXPosition++) {
+        for (var nextXPosition = position.x + 1; nextXPosition < presenter.columnCount; nextXPosition++) {
             nextPosition = {y: nextYPosition, x: nextXPosition};
             var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
             if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
+                if (includeConstantCells || !isPositionOfConstantCell(nextPosition)) {
                     return nextPosition;
                 }
             } else {
@@ -360,32 +514,116 @@ function Addoncrossword_create(){
         }
     }
 
-    function areBottomCellsEditable(currentPosition) {
-        return !!getNextBottomEditableCellPosition(currentPosition);
+    function isAnyOfLeftCellsEditable(position) {
+        return !!getNextLeftCellPosition(position);
     }
 
-    function getNextBottomEditableCellPosition(currentPosition) {
-        const nextXPosition = currentPosition.x;
+    function getNextLeftCellPositionOfCellInput(cellInput, includeConstantCells = false) {
+        const position = getPositionOfCellInputElement($(cellInput));
+        return getNextLeftCellPosition(position, includeConstantCells);
+    }
+
+    function getNextLeftCellPosition(position, includeConstantCells = false) {
+        const nextYPosition = position.y;
         var nextPosition;
-        for (var nextYPosition = currentPosition.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
+        for (var nextXPosition = position.x - 1; nextXPosition >= 0; nextXPosition--) {
             nextPosition = {y: nextYPosition, x: nextXPosition};
             var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
             if (isNextCellNotBlank) {
-                var isNextCellConstant = isPositionOfConstantCell(nextPosition);
-                if (!isNextCellConstant) {
+                if (includeConstantCells || !isPositionOfConstantCell(nextPosition)) {
                     return nextPosition;
                 }
             } else {
                 return;
             }
         }
+    }
+
+    function isAnyOfBottomCellsEditable(position) {
+        return !!getNextBottomCellPosition(position);
+    }
+
+    function getNextBottomCellPositionOfCellInput(cellInput, includeConstantCells = false) {
+        const position = getPositionOfCellInputElement($(cellInput));
+        return getNextBottomCellPosition(position, includeConstantCells);
+    }
+
+    function getNextBottomCellPosition(position, includeConstantCells = false) {
+        const nextXPosition = position.x;
+        var nextPosition;
+        for (var nextYPosition = position.y + 1; nextYPosition < presenter.rowCount; nextYPosition++) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                if (includeConstantCells || !isPositionOfConstantCell(nextPosition)) {
+                    return nextPosition;
+                }
+            } else {
+                if (!presenter.isNextVerticalAnswerDirection())
+                    return;
+            }
+        }
+    }
+
+    function isAnyOfTopCellsEditable(position) {
+        return !!getNextTopCellPosition(position);
+    }
+
+    function getNextTopCellPositionOfCellInput(cellInput, includeConstantCells = false) {
+        const position = getPositionOfCellInputElement($(cellInput));
+        return getNextTopCellPosition(position, includeConstantCells);
+    }
+
+    function getNextTopCellPosition(position, includeConstantCells = false) {
+        const nextXPosition = position.x;
+        var nextPosition;
+        for (var nextYPosition = position.y - 1; nextYPosition >= 0; nextYPosition--) {
+            nextPosition = {y: nextYPosition, x: nextXPosition};
+            var isNextCellNotBlank = isPositionOfNotBlankCell(nextPosition);
+            if (isNextCellNotBlank) {
+                if (includeConstantCells || !isPositionOfConstantCell(nextPosition)) {
+                    return nextPosition;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    function getNextTabIndexEditableCellPositionOfCellInput(cellInput) {
+        const newTabIndex = cellInput.tabIndex + 1;
+        return getPositionOfCellInputElementWithTabIndex(newTabIndex);
+    }
+
+    function getPreviousTabIndexEditableCellPositionOfCellInput(cellInput) {
+        const newTabIndex = cellInput.tabIndex - 1;
+        return getPositionOfCellInputElementWithTabIndex(newTabIndex);
+    }
+
+    function getPositionOfCellInputElementWithTabIndex(tabIndex) {
+        if (tabIndex < presenter.tabIndexBase || tabIndex >= presenter.maxTabIndex) {
+            return;
+        }
+
+        var newCellInputElement = findCellInputElement(tabIndex);
+        var newPosition = getPositionOfCellInputElement($(newCellInputElement));
+        if (!isPositionValid(newPosition)) {
+            return;
+        }
+
+        return newPosition;
+    }
+
+    function findCellInputElement(tabIndex) {
+        return presenter.$view.find('[tabindex=' + tabIndex + ']');
     }
 
     presenter.updateDirectionOfMoveRelativeToAutoNavigationMode = function () {
         if (!presenter.isDirectionNotSet()
             && (presenter.isAutoNavigationInOffMode()
                 || (presenter.isAutoNavigationInSimpleMode()
-                    && presenter.isTabIndexDirection()))) {
+                    && (presenter.isTabIndexDirection()
+                        || presenter.isNextVerticalAnswerDirection())))) {
             presenter.resetDirection();
         }
     }
@@ -397,44 +635,47 @@ function Addoncrossword_create(){
             moveInVerticalDirection(currentCellInput);
         } else if (presenter.isTabIndexDirection()) {
             moveInTabIndexDirection(currentCellInput);
-        }  else {
-            blurCellInput(currentCellInput);
+        }  else if (presenter.isNextVerticalAnswerDirection()) {
+            moveToNextVerticalAnswer(currentCellInput);
         }
     };
 
-    function moveInVerticalDirection(currentCellInput) {
-        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
-        var nextCellPosition = getNextBottomEditableCellPosition(currentPosition);
+    function moveInVerticalDirection(startingCellInput) {
+        const customEvent = createKeyboardNavigationEventForMove(startingCellInput);
+        moveToNextBottomCellInput(customEvent);
+    }
+
+    function moveInHorizontalDirection(startingCellInput) {
+        const customEvent = createKeyboardNavigationEventForMove(startingCellInput);
+        moveToNextRightCellInput(customEvent);
+    }
+
+    function moveInTabIndexDirection(startingCellInput) {
+        const customEvent = createKeyboardNavigationEventForMove(startingCellInput);
+        moveToNextEditableTabIndexCellInput(customEvent);
+    }
+
+    function createKeyboardNavigationEventForMove(cellInput) {
+        return {
+            target: cellInput,
+            preventDefault: function () {},
+            stopPropagation: function () {},
+        };
+    }
+
+    function focusCellInputUsingPosition(nextPosition) {
+        $(getCellInput(nextPosition)).focus();
+    }
+
+    function moveToNextVerticalAnswer(currentCellInput) {
+        const currentPosition = getPositionOfCellInputElement($(currentCellInput));
+        const nextCellPosition = presenter.findNextColumn(currentPosition);
         if (!!nextCellPosition) {
-            var nextCellInput = getCellInput(nextCellPosition);
+            const nextCellInput = getCellInput(nextCellPosition);
             $(nextCellInput).focus();
         } else {
             blurCellInput(currentCellInput);
         }
-    }
-
-    function moveInHorizontalDirection(currentCellInput) {
-        var currentPosition = getPositionOfCellInputElement($(currentCellInput));
-        var nextCellPosition = getNextRightEditableCellPosition(currentPosition);
-        if (!!nextCellPosition) {
-            var nextCellInput = getCellInput(nextCellPosition);
-            $(nextCellInput).focus();
-        } else {
-            blurCellInput(currentCellInput);
-        }
-    }
-
-    function moveInTabIndexDirection(currentCellInput) {
-        var nextTabIndex = currentCellInput.tabIndex + 1;
-        if (nextTabIndex < presenter.maxTabIndex) {
-            focusCellInputUsingTabIndex(nextTabIndex);
-        } else {
-            blurCellInput(currentCellInput);
-        }
-    }
-
-    function focusCellInputUsingTabIndex(tabIndex) {
-        presenter.$view.find('[tabindex=' + tabIndex + ']').focus();
     }
 
     function blurCellInput(cellInput) {
@@ -490,6 +731,10 @@ function Addoncrossword_create(){
         return presenter.$view.find(`.cell_row_${position.y}.cell_column_${position.x}`).find("input")[0];
     }
 
+    function getElementInput(element) {
+        return $(element).find("input")[0];
+    }
+
     function isPositionValid(position) {
         return !!position
             && position.y >= 0 && position.y < presenter.rowCount
@@ -512,6 +757,10 @@ function Addoncrossword_create(){
         return currentDirection === DIRECTIONS.TAB_INDEX;
     }
 
+    presenter.isNextVerticalAnswerDirection = function () {
+        return currentDirection === DIRECTIONS.NEXT_VERTICAL_ANSWER;
+    }
+
     presenter.resetDirection = function () {
         currentDirection = DIRECTIONS.NOT_SET;
     }
@@ -524,73 +773,13 @@ function Addoncrossword_create(){
         currentDirection = DIRECTIONS.VERTICAL;
     }
 
+    presenter.setNextVerticalAnswerDirection = function () {
+        currentDirection = DIRECTIONS.NEXT_VERTICAL_ANSWER
+    }
+
     presenter.setTabIndexDirection = function () {
         currentDirection = DIRECTIONS.TAB_INDEX;
     }
-
-    presenter.onCellInputKeyDown = function(event) {
-        var $target = $(event.target);
-        if (event.keyCode == presenter.SPECIAL_KEYS.BACKSPACE) {
-            if (!$target.val()) {
-                var previous_tab_index = event.target.tabIndex - 1;
-                if (previous_tab_index >= presenter.tabIndexBase) {
-                    var previous_element = presenter.$view.find('[tabindex=' + previous_tab_index + ']');
-                    previous_element.focus();
-                    previous_element.val('');
-                    return;
-                }
-            }
-        }
-
-        if (originalFieldValue.length == 0) {
-            originalFieldValue = $target.val();
-        }
-
-        if (validateSpecialKey(event)) {
-            return
-        }
-
-        $target.css('color', 'rgba(0,0,0,0.0)');
-        enableMoveToNextField = true;
-    };
-
-    presenter.onCellInputFocus = function(event) {
-        event.target.select();
-        var length = $(event.target).val().length;
-        setCaretPosition(event.target, length + 1);
-        if(length > 1) {
-            $(event.target).val($(event.target).val().substring(1, 2));
-        }
-        $(event.target).val($(event.target).val().toUpperCase());
-    };
- 
-    presenter.onCellInputMouseUp = function(event) {
-        event.preventDefault();
-    };
-
-    presenter.onCellInputFocusOut = function(event) {
-        var cellInput = event.target;
-        var usersLetter = cellInput.value;
-        var pos = getPositionOfCellInputElement($(cellInput));
-        var correctLetter = presenter.crossword[pos.y][pos.x][0];
-        var isOk = usersLetter === correctLetter;
-        presenter.sendScoreEvent(pos, usersLetter, isOk);
-        var score = isOk ? 1 : 0;
-        if(score == 0 && presenter.blockWrongAnswers){
-            cellInput.value = "";
-        }
-        if (isOk) {
-            var result = presenter.validateWord(pos);
-            if (result.valid) {
-                presenter.sendCorrectWordEvent(result.word, result.item);
-            }
-        }
-    };
-
-    presenter.onCellClick = function(event) {
-        presenter.resetDirection();
-        event.stopPropagation();
-    };
 
     function setCaretPosition(elem, caretPos) {
         var range;
@@ -899,6 +1088,7 @@ function Addoncrossword_create(){
         return {
             isError: false,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            langTag: model["langAttribute"],
         };
     };
 
@@ -952,7 +1142,9 @@ function Addoncrossword_create(){
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelAddShowAllAnswersInGSAModeProperty(model);
-        return upgradeModelAddAutoNavigationProperty(upgradedModel);
+        upgradedModel = upgradeModelAddAutoNavigationProperty(upgradedModel);
+        upgradedModel = upgradeModelAddLangTagProperty(upgradedModel);
+        return upgradeModelAddSpeechTextsProperty(upgradedModel);
     };
 
     function upgradeModelAddShowAllAnswersInGSAModeProperty(model) {
@@ -977,6 +1169,52 @@ function Addoncrossword_create(){
         return upgradedModel;
     }
 
+    function upgradeModelAddLangTagProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] =  '';
+        }
+
+        return upgradedModel;
+    }
+
+    function upgradeModelAddSpeechTextsProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Cell"]) {
+            upgradedModel["speechTexts"]["Cell"] = {Cell: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Across"]) {
+            upgradedModel["speechTexts"]["Across"] = {Across: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Down"]) {
+            upgradedModel["speechTexts"]["Down"] = {Down: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Correct"]) {
+            upgradedModel["speechTexts"]["Correct"] = {Correct: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Wrong"]) {
+            upgradedModel["speechTexts"]["Wrong"] = {Wrong: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Empty"]) {
+            upgradedModel["speechTexts"]["Empty"] = {Empty: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Disabled"]) {
+            upgradedModel["speechTexts"]["Disabled"] = {Disabled: ""};
+        }
+        if (!upgradedModel["speechTexts"]["OutOf"]) {
+            upgradedModel["speechTexts"]["OutOf"] = {OutOf: ""};
+        }
+
+        return upgradedModel;
+    }
+
     presenter.initializeLogic = function(view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
@@ -994,6 +1232,8 @@ function Addoncrossword_create(){
         presenter.prepareGrid(model);
         presenter.prepareCorrectAnswers();
         presenter.createGrid();
+        presenter.setSpeechTexts(model["speechTexts"]);
+        presenter.buildKeyboardController();
     };
 
     presenter.validate = function(mode) {
@@ -1042,11 +1282,14 @@ function Addoncrossword_create(){
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = j; l < k; l++) {
                             markedCell = presenter.$view.find('.cell_' + i + 'x' + l);
-                            if(!markedCell.hasClass('cell_valid'))
-                                markedCell.addClass('cell_' + (wordValid ? 'valid' : 'invalid'));
+                            if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
+                                markedCell.addClass(
+                                    wordValid
+                                        ? presenter.CSS_CLASSES.CELL_VALID
+                                        : presenter.CSS_CLASSES.CELL_INVALID);
 
-                            if(wordValid && markedCell.hasClass('cell_invalid'))
-                                markedCell.removeClass('cell_invalid');
+                            if(wordValid && markedCell.hasClass(presenter.CSS_CLASSES.CELL_INVALID))
+                                markedCell.removeClass(presenter.CSS_CLASSES.CELL_INVALID);
                         }
                     }
                 }
@@ -1071,12 +1314,14 @@ function Addoncrossword_create(){
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = i; l < k; l++) {
                             markedCell = presenter.$view.find('.cell_' + l + 'x' + j);
-                            if(!markedCell.hasClass('cell_valid'))
-                                markedCell.addClass('cell_' + (wordValid ? 'valid' : 'invalid'));
+                            if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
+                                markedCell.addClass(
+                                    wordValid
+                                        ? presenter.CSS_CLASSES.CELL_VALID
+                                        : presenter.CSS_CLASSES.CELL_INVALID);
 
-                            if(wordValid && markedCell.hasClass('cell_invalid'))
-                                markedCell.removeClass('cell_invalid');
-
+                            if(wordValid && markedCell.hasClass(presenter.CSS_CLASSES.CELL_INVALID))
+                                markedCell.removeClass(presenter.CSS_CLASSES.CELL_INVALID);
                         }
                     }
                 }
@@ -1099,8 +1344,8 @@ function Addoncrossword_create(){
 
     presenter.setWorkMode = function() {
         presenter.$view.find(".cell_letter:not(.cell_constant_letter) input").attr('disabled', false);
-        presenter.$view.find(".cell_valid").removeClass("cell_valid");
-        presenter.$view.find(".cell_invalid").removeClass("cell_invalid");
+        presenter.$view.find('.' + presenter.CSS_CLASSES.CELL_VALID).removeClass(presenter.CSS_CLASSES.CELL_VALID);
+        presenter.$view.find('.' + presenter.CSS_CLASSES.CELL_INVALID).removeClass(presenter.CSS_CLASSES.CELL_INVALID);
     };
 
     presenter.cellBlurEventHandler = function () {
@@ -1291,11 +1536,10 @@ function Addoncrossword_create(){
     };
 
     presenter.isAllOK = function() {
-        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+        if (presenter.isWordNumbersCorrect()) {
             return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
-        }else{
-            return false;
         }
+        return false;
     };
 
     function getEventObject(it, val, sc) {
@@ -1336,10 +1580,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.columnCount; k++) {
-                    if(presenter.crossword[max_y][k] == ' ') {
+                    if(presenter.crossword[max_y][k] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[max_y][k] != presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
+                    if(presenter.crossword[max_y][k] !== presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
                         result.word = '';
                         break;
                     }
@@ -1356,10 +1600,10 @@ function Addoncrossword_create(){
                     continue;
                 }
                 for (k = i; k < presenter.rowCount; k++) {
-                    if(presenter.crossword[k][max_x] == ' ') {
+                    if(presenter.crossword[k][max_x] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[k][max_x] != presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
+                    if(presenter.crossword[k][max_x] !== presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
                         result.word = '';
                         break;
                     }
@@ -1370,7 +1614,7 @@ function Addoncrossword_create(){
             }
         }
 
-        if (result.word != '' ) {
+        if (result.word !== '' ) {
             result.valid = true;
         }
 
@@ -1386,98 +1630,652 @@ function Addoncrossword_create(){
 
     presenter.onEventReceived = function (eventName, data) {
         if (!presenter.isModelValid) return;
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        } else if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
-            }
-            if (data.moduleID === presenter.addonID) {
-                presenter.gradualShowAnswers(parseInt(data.item, 10));
-            }
-        } else if (eventName === "GradualHideAnswers") {
-            presenter.isGradualShowAnswersActive = false;
-            presenter.hideAnswers();
+
+        switch(eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(data);
+                break;
+
+            case "HideAnswers":
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
         }
-    };
+    }
 
     presenter.showAnswers = function () {
-        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+        if (presenter.isWordNumbersCorrect()) {
             if (presenter.isShowAnswersActive) {
                 presenter.hideAnswers();
             }
             presenter.isShowAnswersActive = true;
             presenter.setWorkMode();
-            presenter.userAnswers = new Array(presenter.rowCount);
-            presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
             presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
 
-            for (var i = 0; i < presenter.rowCount; i++) {
-                presenter.userAnswers[i] = new Array(presenter.columnCount);
-                for(var j = 0; j < presenter.columnCount; j++) {
-                    presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
-                    presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.crossword[i][j].replace(/[!]/g,""));
-                }
-            }
+            presenter.saveUserAnswers();
+            presenter.replaceUserAnswersByModelAnswers();
         }
     };
-    
+
     presenter.hideAnswers = function () {
-        if ((presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) && presenter.isShowAnswersActive) {
-            presenter.isShowAnswersActive = false;
-            presenter.$view.find(".cell_letter input").attr('disabled', false);
+        if (presenter.isWordNumbersCorrect() && (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive)) {
             presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');
+            presenter.isShowAnswersActive = false;
+            presenter.isGradualShowAnswersActive = false;
             if (!presenter.userAnswers) {
                 return;
             }
-            for (var i = 0; i < presenter.rowCount; i++) {
-                for (var j = 0; j < presenter.columnCount; j++) {
-                    presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.userAnswers[i][j]);
-                }
-            }
+
+            presenter.replaceAnswersBySavedUserAnswers();
         }
     };
 
-    presenter.gradualShowAnswers = function (itemIndex) {
+    presenter.gradualShowAnswers = function (data) {
+        presenter.isGradualShowAnswersActive = true;
+        if (data.moduleID !== presenter.addonID) return;
+        if (!presenter.isWordNumbersCorrect()) return;
+
         if (presenter.showAllAnswersInGradualShowAnswersMode === "True") {
             presenter.showAnswers();
+        } else {
+            presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
+            const itemIndex = parseInt(data.item, 10);
+            const answerData = presenter.correctAnswers[itemIndex];
+
+            if(itemIndex === 0) presenter.prepareCrosswordForGSA();
+            presenter.fillRowGaps(answerData);
         }
-        else {
-            if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
-                if(itemIndex == 0) {
-                    presenter.prepareCrosswordForGSA();
+    }
+
+    presenter.saveUserAnswers = function () {
+        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
+
+        presenter.userAnswers = new Array(presenter.rowCount);
+        for (let row = 0; row < presenter.rowCount; row++) {
+            presenter.userAnswers[row] = new Array(presenter.columnCount);
+            for (let column = 0; column < presenter.columnCount; column++) {
+                presenter.userAnswers[row][column] = presenter.$view.find('.cell_' + row + 'x' + column + ' input')
+                    .val();
+            }
+        }
+    }
+
+    presenter.replaceUserAnswersByModelAnswers = function () {
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++) {
+                presenter.$view.find('.cell_' + row + 'x' + column + ' input')
+                    .val(presenter.crossword[row][column]
+                        .replaceAll("!",""));
+            }
+        }
+    }
+
+    presenter.replaceAnswersBySavedUserAnswers = function () {
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++) {
+                if (!presenter.crossword[row][column][0].includes('!')) {
+                    presenter.$view.find(`.cell_${row}x${column} input`)
+                        .val(presenter.userAnswers[row][column])
+                        .attr('disabled', false);
                 }
-                var answerData = presenter.correctAnswers[itemIndex];
-                var answer = answerData.answer;
-                var x = answerData.position.x;
-                var y = answerData.position.y;
-                if (answerData.isHorizontal) {
-                    for (var i = 0; i < answer.length; i++) {
-                        presenter.$view.find('.cell_' + y + 'x' + (x + i) + ' input').val(answer.charAt(i));
-                    }
-                }
-                if (!answerData.isHorizontal) {
-                    for (var i = 0; i < answer.length; i++) {
-                        presenter.$view.find('.cell_' + (y + i) + 'x' + x + ' input').val(answer.charAt(i));
-                    }
-                }
+            }
+        }
+    }
+
+
+    presenter.fillRowGaps = function (answerData) {
+        const answer = answerData.answer.replaceAll("!","");
+        const { x, y } = answerData.position;
+
+        if (answerData.isHorizontal) {
+            for (let i = 0; i < answer.length; i++) {
+                presenter.$view.find('.cell_' + y + 'x' + (x + i) + ' input').val(answer.charAt(i));
+            }
+        } else {
+            for (let i = 0; i < answer.length; i++) {
+                presenter.$view.find('.cell_' + (y + i) + 'x' + x + ' input').val(answer.charAt(i));
             }
         }
     }
 
     presenter.prepareCrosswordForGSA = function () {
         presenter.setWorkMode();
-        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
-        presenter.userAnswers = new Array(presenter.rowCount);
-        for(var i = 0; i < presenter.rowCount; i++) {
-            presenter.userAnswers[i] = new Array(presenter.columnCount);
-            for(var j = 0; j < presenter.columnCount; j++) {
-                presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
+        presenter.saveUserAnswers();
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Cell: presenter.DEFAULT_TTS_PHRASES.CELL,
+            Across: presenter.DEFAULT_TTS_PHRASES.ACROSS,
+            Down: presenter.DEFAULT_TTS_PHRASES.DOWN,
+            Correct: presenter.DEFAULT_TTS_PHRASES.CORRECT,
+            Wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
+            Empty: presenter.DEFAULT_TTS_PHRASES.EMPTY,
+            Disabled: presenter.DEFAULT_TTS_PHRASES.DISABLED,
+            OutOf: presenter.DEFAULT_TTS_PHRASES.OUT_OFF,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Cell: TTSUtils.getSpeechTextProperty(
+                speechTexts.Cell.Cell,
+                presenter.speechTexts.Cell),
+            Across: TTSUtils.getSpeechTextProperty(
+                speechTexts.Across.Across,
+                presenter.speechTexts.Across),
+            Down: TTSUtils.getSpeechTextProperty(
+                speechTexts.Down.Down,
+                presenter.speechTexts.Down),
+            Correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.Correct),
+            Wrong: TTSUtils.getSpeechTextProperty(
+                speechTexts.Wrong.Wrong,
+                presenter.speechTexts.Wrong),
+            Empty: TTSUtils.getSpeechTextProperty(
+                speechTexts.Empty.Empty,
+                presenter.speechTexts.Empty),
+            Disabled: TTSUtils.getSpeechTextProperty(
+                speechTexts.Disabled.Disabled,
+                presenter.speechTexts.Disabled),
+            OutOf: TTSUtils.getSpeechTextProperty(
+                speechTexts.OutOf.OutOf,
+                presenter.speechTexts.OutOf),
+        };
+    };
+
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject
+            = new CrosswordKeyboardController(
+                presenter.getElementsForKeyboardNavigation(),
+                presenter.columnCount
+        );
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`.${presenter.CSS_CLASSES.CELL}`);
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    function CrosswordKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+        this.updateMapping();
+    }
+
+    CrosswordKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    CrosswordKeyboardController.prototype.constructor = CrosswordKeyboardController;
+
+    CrosswordKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    CrosswordKeyboardController.prototype.updateMapping = function () {
+        this.mapping[presenter.SPECIAL_KEYS.BACKSPACE] = this.executeBackspace;
+        this.mapping[presenter.SPECIAL_KEYS.TAB] = this.nextTabIndexElement;
+        this.shiftKeysMapping[presenter.SPECIAL_KEYS.TAB] = this.previousTabIndexElement;
+    };
+
+    CrosswordKeyboardController.prototype.enter = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (this.keyboardNavigationActive) {
+            this.readCurrentElement();
+            return;
+        }
+        this.keyboardNavigationActive = true;
+        this.moveToFirstElement();
+        this.readCurrentElementInShortForm();
+    };
+
+    CrosswordKeyboardController.prototype.moveToFirstElement = function () {
+        var cellPosition;
+        if (presenter.isWCAGOn) {
+            cellPosition = presenter.correctAnswers[0]["position"];
+        } else {
+            var firstElement = findCellInputElement(presenter.tabIndexBase);
+            cellPosition = getPositionOfCellInputElement($(firstElement));
+        }
+        if (!isPositionValid(cellPosition)) {
+            return;
+        }
+
+        presenter.setTabIndexDirection();
+        if (presenter.keyboardControllerObject.keyboardNavigationActive) {
+            presenter.keyboardControllerObject.switchCellInputElement(cellPosition);
+        } else {
+            focusCellInputUsingPosition(cellPosition);
+        }
+    }
+
+    /**
+     Action when was called tab
+     @method nextTabIndexElement
+    */
+    CrosswordKeyboardController.prototype.nextTabIndexElement = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()) {
+            presenter.setTabIndexDirection();
+        }
+        moveToNextEditableTabIndexCellInput(event);
+    };
+
+    function moveToNextEditableTabIndexCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getNextTabIndexEditableCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    /**
+     Action when was called shift + tab
+     @method previousTabIndexElement
+    */
+    CrosswordKeyboardController.prototype.previousTabIndexElement = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()) {
+            presenter.setTabIndexDirection();
+        }
+        moveToPreviousEditableTabIndexCellInput(event);
+    };
+
+    function moveToPreviousEditableTabIndexCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getPreviousTabIndexEditableCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    /**
+     Action when was called right arrow
+     @method nextElement
+    */
+    CrosswordKeyboardController.prototype.nextElement = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()
+            || presenter.isAutoNavigationInSimpleMode()) {
+            presenter.setHorizontalDirection();
+        }
+        moveToNextRightCellInput(event);
+    };
+
+    function moveToNextRightCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getNextRightCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    /**
+     Action when was called left arrow
+     @method previousElement
+    */
+    CrosswordKeyboardController.prototype.previousElement = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()
+            || presenter.isAutoNavigationInSimpleMode()) {
+            presenter.setHorizontalDirection();
+        }
+        moveToNextLeftCellInput(event);
+    };
+
+    function moveToNextLeftCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getNextLeftCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    /**
+     Action when was called down arrow
+     @method nextRow
+    */
+    CrosswordKeyboardController.prototype.nextRow = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()
+            || presenter.isAutoNavigationInSimpleMode()) {
+            presenter.setVerticalDirection();
+        }
+        moveToNextBottomCellInput(event);
+    };
+
+    function moveToNextBottomCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getNextBottomCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    /**
+     Action when was called up arrow
+     @method previousRow
+    */
+    CrosswordKeyboardController.prototype.previousRow = function (event) {
+        if (presenter.isAutoNavigationInExtendedMode()
+            || presenter.isAutoNavigationInSimpleMode()) {
+            presenter.setVerticalDirection();
+        }
+        moveToNextTopCellInput(event);
+    };
+
+    function moveToNextTopCellInput(event, blurCurrentOnAbsenceOfNext = false) {
+        _moveToCellInputWithGivenPosition(
+            event,
+            getNextTopCellPositionOfCellInput,
+            blurCurrentOnAbsenceOfNext
+        );
+    }
+
+    function _moveToCellInputWithGivenPosition(event, getNewPosition, blurCurrentOnAbsenceOfNext = false) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const currentCellInput = presenter.keyboardControllerObject.keyboardNavigationActive
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : event.target;
+        const includeConstantCells = presenter.isWCAGOn;
+        const nextCellPosition = getNewPosition(currentCellInput, includeConstantCells);
+        if (!nextCellPosition) {
+            if (blurCurrentOnAbsenceOfNext) {
+                blurCellInput(currentCellInput);
+            }
+            return;
+        }
+
+        if (presenter.keyboardControllerObject.keyboardNavigationActive) {
+            presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+            presenter.keyboardControllerObject.readCurrentElementInShortForm();
+        } else {
+            focusCellInputUsingPosition(nextCellPosition);
+        }
+    }
+
+    /**
+     Action when was called backspace
+     @method executeBackspace
+    */
+    CrosswordKeyboardController.prototype.executeBackspace = function (event) {
+        handleBackspaceEvent(event);
+    };
+
+    function handleBackspaceEvent(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+
+        var currentCellInput = presenter.keyboardControllerObject.keyboardNavigationActive
+            ? presenter.keyboardControllerObject.getCurrentInputElement()
+            : event.target;
+        if (!$(currentCellInput).val()) {
+            var nextCellPosition = getNextCellPositionForBackspaceAction(currentCellInput);
+            if (!nextCellPosition) {
+                return;
+            }
+
+            if (presenter.keyboardControllerObject.keyboardNavigationActive) {
+                presenter.keyboardControllerObject.switchCellInputElement(nextCellPosition);
+                if (!isPositionOfConstantCell(nextCellPosition)) {
+                    $(presenter.keyboardControllerObject.getCurrentInputElement()).val('');
+                }
+                presenter.keyboardControllerObject.readCurrentElementInShortForm();
+            } else {
+                var $previousElement = $(getCellInput(nextCellPosition));
+                $previousElement.focus();
+                $previousElement.val('');
             }
         }
     }
+
+    function getNextCellPositionForBackspaceAction(currentCellInput) {
+        if (presenter.isTabIndexDirection() || presenter.isDirectionNotSet()) {
+            const previousTabIndex = currentCellInput.tabIndex - 1;
+            return getPositionOfCellInputElementWithTabIndex(previousTabIndex);
+        }
+
+        const currentCellPosition = getPositionOfCellInputElement($(currentCellInput));
+        if (presenter.isVerticalDirection()) {
+            return getNextTopCellPosition(currentCellPosition, presenter.isWCAGOn);
+        }
+        return getNextLeftCellPosition(currentCellPosition, presenter.isWCAGOn);
+    }
+
+    CrosswordKeyboardController.prototype.switchCellInputElement = function (newPosition) {
+        var newPositionIndex = this.calculateNewPositionIndex(newPosition);
+        this.markCurrentElement(newPositionIndex);
+    };
+
+    CrosswordKeyboardController.prototype.calculateNewPositionIndex = function (newPosition) {
+        var newPositionIndex = this.keyboardNavigationElements.toArray().findIndex(
+            cellElement =>
+                $(cellElement).hasClass(`cell_row_${newPosition.y}`)
+                && $(cellElement).hasClass(`cell_column_${newPosition.x}`)
+        );
+
+        if (newPositionIndex === -1) {
+            newPositionIndex = this.keyboardNavigationCurrentElementIndex;
+        } else if (newPositionIndex >= this.keyboardNavigationElementsLen) {
+            newPositionIndex = this.keyboardNavigationElementsLen;
+        } else if (newPositionIndex < 0) {
+            newPositionIndex = this.keyboardNavigationElementsLen;
+        }
+        return newPositionIndex;
+    }
+
+    CrosswordKeyboardController.prototype.mark = function (element) {
+        KeyboardController.prototype.mark.call(this, element);
+        var inputCell = getElementInput(element);
+        $(inputCell).focus();
+    };
+
+    CrosswordKeyboardController.prototype.unmark = function (element) {
+        KeyboardController.prototype.unmark.call(this, element);
+        var inputCell = getElementInput(element);
+        $(inputCell).blur();
+    };
+
+    CrosswordKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    }
+
+    CrosswordKeyboardController.prototype.getCurrentElementPosition = function () {
+        return presenter.getPosition(this.getCurrentElement());
+    }
+
+    CrosswordKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    };
+
+    CrosswordKeyboardController.prototype.getCurrentInputElement = function () {
+        return $(this.getTarget(this.keyboardNavigationCurrentElement, false)).find("input")[0];
+    };
+
+    CrosswordKeyboardController.prototype.readCurrentElement = function () {
+        var textVoiceObject = [];
+        var cellInput = this.getCurrentInputElement();
+        var currentPosition = getPositionOfCellInputElement($(cellInput));
+
+        this.addMessageAboutElementIndex(textVoiceObject, currentPosition);
+
+        if (presenter.wordNumbersHorizontal) {
+            this.addMessageAboutHorizontalAnswer(textVoiceObject, currentPosition);
+        }
+
+        if (presenter.wordNumbersVertical) {
+            this.addMessageAboutVerticalAnswer(textVoiceObject, currentPosition);
+        }
+
+        this.addMessageAboutValue(textVoiceObject, cellInput.value);
+
+        if (isPositionOfConstantCell(currentPosition)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Disabled);
+        } else {
+            this.addMessageAboutCorrectness(textVoiceObject);
+        }
+
+        presenter.speak(textVoiceObject);
+    };
+
+    CrosswordKeyboardController.prototype.readCurrentElementInShortForm = function () {
+        var textVoiceObject = [];
+        var cellInput = this.getCurrentInputElement();
+        var currentPosition = getPositionOfCellInputElement($(cellInput));
+
+        this.addMessageAboutElementIndex(textVoiceObject, currentPosition);
+        this.addMessageAboutValue(textVoiceObject, cellInput.value);
+
+        if (isPositionOfConstantCell(currentPosition)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Disabled);
+        } else {
+            this.addMessageAboutCorrectness(textVoiceObject);
+        }
+
+        presenter.speak(textVoiceObject);
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutElementIndex = function (textVoiceObject, position) {
+        const alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
+        const message = presenter.speechTexts.Cell
+            + " " + alphabet[position.x % alphabet.length]
+            + " " + (position.y + 1);
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message);
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutHorizontalAnswer = function (textVoiceObject, position) {
+        var foundAnswer, trueLength, nextAnswer;
+        for (var i = 0; i < presenter.correctAnswers.length; i++) {
+            nextAnswer = presenter.correctAnswers[i];
+
+            if (nextAnswer.isHorizontal) {
+                trueLength = [...nextAnswer.answer].filter((x) => x !== '!').length;
+                if (position.y === nextAnswer.position.y
+                    && nextAnswer.position.x <= position.x
+                    && position.x < nextAnswer.position.x + trueLength) {
+                    foundAnswer = {...nextAnswer};
+                    foundAnswer["id"] = i + 1;
+                    foundAnswer["trueLength"] = trueLength;
+                    break;
+                }
+            }
+        }
+
+        if (foundAnswer) {
+            const answerIDMessage = `${presenter.speechTexts.Across} ${foundAnswer.id}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
+
+            const relativePosition = position.x - foundAnswer.position.x + 1;
+            const outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${foundAnswer.trueLength}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutVerticalAnswer = function (textVoiceObject, position) {
+        var foundAnswer, trueLength, nextAnswer;
+        for (var i = 0; i < presenter.correctAnswers.length; i++) {
+            nextAnswer = presenter.correctAnswers[i];
+
+            if (!nextAnswer.isHorizontal) {
+                trueLength = [...nextAnswer.answer].filter((x) => x !== '!').length;
+                if (position.x === nextAnswer.position.x
+                    && nextAnswer.position.y <= position.y
+                    && position.y < nextAnswer.position.y + trueLength) {
+                    foundAnswer = {...nextAnswer};
+                    foundAnswer["id"] = i + 1;
+                    foundAnswer["trueLength"] = trueLength;
+                    break;
+                }
+            }
+        }
+
+        if (foundAnswer) {
+            const answerIDMessage = `${presenter.speechTexts.Down} ${foundAnswer.id}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, answerIDMessage);
+
+            const relativePosition = position.y - foundAnswer.position.y + 1;
+            const outOfMessage = `${relativePosition} ${presenter.speechTexts.OutOf} ${foundAnswer.trueLength}`;
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, outOfMessage);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutValue = function (textVoiceObject, value) {
+        if (value) {
+            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, value);
+        } else {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Empty);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.addMessageAboutCorrectness = function (textVoiceObject) {
+        var $cell = $(this.getCurrentElement());
+        if ($cell.hasClass(presenter.CSS_CLASSES.CELL_VALID)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Correct);
+        } else if ($cell.hasClass(presenter.CSS_CLASSES.CELL_INVALID)) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Wrong);
+        }
+    }
+
+    CrosswordKeyboardController.prototype.speakWrong = function () {
+        var textVoiceObject = [];
+
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Wrong);
+
+        presenter.speak(textVoiceObject);
+    }
+
+    CrosswordKeyboardController.prototype.speakDisabled = function () {
+        var textVoiceObject = [];
+
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.Disabled);
+
+        presenter.speak(textVoiceObject);
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, false);
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, true);
+    }
+
+    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag)
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+        else
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
 
     return presenter;
 }

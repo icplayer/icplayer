@@ -1253,7 +1253,11 @@ function AddonText_Coloring_create() {
             presenter.configuration.activeColor = null;
         }
         presenter.disconnectWordTokensHandlers();
-        presenter.setColor(presenter.configuration.colors[0].id);
+        if  (presenter.stateMachine.previousActiveColorID !== null) {
+            presenter.setColor(presenter.stateMachine.previousActiveColorID);
+        } else {
+            presenter.setColor(presenter.configuration.colors[0].id);
+        }
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1433,10 +1437,14 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
+        var activeColorID = presenter.configuration.activeColorID;
+        if (!presenter.configuration.eraserMode && activeColorID === null) {
+            activeColorID = presenter.stateMachine.previousActiveColorID;
+        }
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
             tokens: presenter.configuration.filteredTokens,
-            activeColorID: presenter.configuration.activeColorID
+            activeColorID: activeColorID
         });
     };
 

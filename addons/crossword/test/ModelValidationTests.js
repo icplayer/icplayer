@@ -127,27 +127,37 @@ TestCase("[Crossword] Model validation tests", {
         assertEquals(this.presenter.ERROR_MESSAGES.EXCLAMATION_MARK_BEFORE_EMPTY_FIELD, validatedModel.errorMessage);
     },
 
+    'test given isAnswerVisibleByDefault when answer is filled then return true': function() {
+        const answer = "!N!E!W";
+
+        const actual = this.presenter.isAnswerVisibleByDefault(answer);
+        const expected = true;
+
+        assertEquals(expected, actual);
+    },
+
     'test prepareCorrectAnswers prepares correct Answers': function () {
         this.presenter.rowCount = 5;
         this.presenter.columnCount = 7;
         this.presenter.wordNumbersHorizontal = true;
         this.presenter.wordNumbersVertical = true;
         this.presenter.crossword = [
-            ["E", "N", "G", "L", "I", "S", "H"],
-            [" ", " ", " ", "O", " ", " ", " "],
-            [" ", "N", "E", "V", "E", "R", " "],
-            [" ", "E", " ", "E", " ", " ", " "],
+            ["!E", "!N", "!G", "!L", "!I", "!S", "!H"],
+            [" ", " ", " ", "!O", " ", " ", " "],
+            [" ", "N", "E", "!V", "E", "R", " "],
+            [" ", "E", " ", "!E", " ", " ", " "],
             [" ", "W", " ", " ", " ", " ", " "],
         ];
 
-        let expectedPreparedAnswers = [
-            { answer: "ENGLISH", isHorizontal: true, position: { x: 0, y: 0 } },
-            { answer: "LOVE", isHorizontal: false, position: { x: 3, y: 0 } },
-            { answer: "NEVER", isHorizontal: true, position: { x: 1, y: 2 } },
-            { answer: "NEW", isHorizontal: false, position: { x: 1, y: 2 } },
-        ];
         this.presenter.prepareCorrectAnswers();
-        assertEquals(JSON.stringify(this.presenter.correctAnswers), JSON.stringify(expectedPreparedAnswers));
+
+        const actual = JSON.stringify(this.presenter.correctAnswers);
+        const expected = JSON.stringify([
+            { answer: "NE!VER", position: { x: 1, y: 2 }, isHorizontal: true },
+            { answer: "NEW", position: { x: 1, y: 2 }, isHorizontal: false },
+        ]);
+
+        assertEquals(expected, actual);
     },
 
     'test given empty auto navigation property in model when reading configuration then return validation error': function() {

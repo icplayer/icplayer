@@ -8,7 +8,6 @@ import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 public abstract class ExecutableButton extends PushButton {
 	protected IPlayerServices playerServices;
-	private long hoverTimeout = -1;
 	private String originalDisplay = "placeholder-value";
 	
 	public ExecutableButton(IPlayerServices playerServices) {
@@ -17,29 +16,13 @@ public abstract class ExecutableButton extends PushButton {
 		addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (checkIsClick()) {
-					event.stopPropagation();
-					event.preventDefault();
-
-					execute();
-				}
+				event.stopPropagation();
+				event.preventDefault();
+				execute();
 			}
 		});
 
 	}
-
-	private boolean checkIsClick () {
-		if (this.hoverTimeout > -1) {
-			long currentTime = System.currentTimeMillis();
-			if (currentTime - this.hoverTimeout < 200) {
-				this.hoverTimeout = -1;
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 
     // these functions in PushButton are adding and removing "down"/"up" suffix,
     // which causes problems with clicking and hover on iOS
@@ -49,26 +32,16 @@ public abstract class ExecutableButton extends PushButton {
 			super.onClickCancel();
 		}
 	}
-	
+
 	@Override
 	protected void onClickStart() {
 		if (!DevicesUtils.isSafariMobile()) {
 			super.onClickStart();
 		}
 	};
-	
+
 	public abstract void execute();
-	
-	@Override
-	public void addStyleDependentName(String styleSuffix) {
-        if (DevicesUtils.isSafariMobile() && styleSuffix.indexOf("up-hovering") > -1) {
-            this.hoverTimeout = System.currentTimeMillis();
-            this.execute();
-        } else {
-            super.addStyleDependentName(styleSuffix);
-        }
-    }
-	
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (originalDisplay.equals("placeholder-value")) {

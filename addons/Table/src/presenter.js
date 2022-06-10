@@ -2020,6 +2020,7 @@ function AddonTable_create() {
 
     TableKeyboardController.prototype.select = function (event) {
         event.preventDefault();
+        presenter.addWhiteSpaceToValue();
         if (presenter.gapNavigation && presenter.configuration.gapType === 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 
@@ -2042,6 +2043,18 @@ function AddonTable_create() {
             }
         }
     };
+
+    presenter.addWhiteSpaceToValue = function () {
+        if (!presenter.getGap(presenter.gapIndex)) return;
+
+        var gap = presenter.getGap(presenter.gapIndex)[0];
+        var classNames = ['ic_filled_gap', 'ic_gap'];
+        var isInputTypeGap = classNames.some(className => gap.classList.contains(className));
+        if (!gap || !isInputTypeGap) return;
+
+        var oldValue = gap.value;
+        $(gap).val(`${oldValue} `);
+    }
 
     TableKeyboardController.prototype.mark =  function (element) {
         KeyboardController.prototype.mark.call(this, element);
@@ -2334,7 +2347,7 @@ function AddonTable_create() {
     };
 
     presenter.getCurrentGapsNumber = function() {
-        return $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice').length;
+        return $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap').length;
     };
 
     presenter.clearCurrentCell = function() {
@@ -2346,7 +2359,7 @@ function AddonTable_create() {
     };
 
     presenter.getGap = function (index) {
-        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap');
         if ($gaps.length === 0) return;
         if (index < 0) index = 0;
         if (index >= $gaps.length) index = $gaps.length-1;
@@ -2354,7 +2367,7 @@ function AddonTable_create() {
     };
 
     presenter.selectGap = function(index) {
-        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap');
         if ($gaps.length === 0) return;
         if(index < 0) index = 0;
         if(index >= $gaps.length) index = $gaps.length - 1;

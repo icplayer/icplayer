@@ -12,6 +12,7 @@ function AddonParagraph_create() {
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
     presenter.cachedAnswer = [];
+    presenter.currentGSAIndex = 0;
 
     presenter.isEditorLoaded = false;
 
@@ -183,23 +184,34 @@ function AddonParagraph_create() {
         }
     }
 
-    presenter.showAnswers = function () {
+    presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
+        presenter.disableEdit();
+        $(elements).each(function () {
+            let paragraph = $(this)[0];
+            presenter.cachedAnswer.push(paragraph.innerHTML);
+            paragraph.innerHTML = "";
+        });
+    };
+
+    presenter.showAnswers = function (index) {
         if (presenter.isShowAnswersActive) { return; }
 
-        presenter.disableEdit();
         var elements = presenter.getParagraphs();
-        presenter.isShowAnswersActive = true;
+        presenter.initializeShowAnswers(elements);
 
-        for (var [key, value] of Object.entries(elements)) {
-            if (+key > -1) {
-                presenter.cachedAnswer.push(value.innerHTML);
-                if (+key === 0) {
-                    value.innerHTML = presenter.configuration.modelAnswer;
-                } else {
-                    value.innerHTML = '';
-                }
-            }
+        elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
+        presenter.isShowAnswersActive = true;
+    };
+
+    function combineAnswers(answersArray) {
+        var newText = "";
+        if (answersArray.length > 0) {
+           newText += answersArray[0].Text;
         }
+        for (var answerID = 1; answerID < answersArray.length; answerID++) {
+           newText += "<div></div><br>" + answersArray[answerID].Text;
+        }
+        return newText;
     }
 
     presenter.hideAnswers = function () {
@@ -207,6 +219,8 @@ function AddonParagraph_create() {
 
         presenter.enableEdit();
         presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
+        presenter.currentGSAIndex = 0;
 
         if (presenter.cachedAnswer.length) {
             for (var [key, value] of Object.entries(elements)) {
@@ -221,8 +235,19 @@ function AddonParagraph_create() {
     presenter.gradualShowAnswers = function (data) {
         presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) { return; }
-        presenter.showAnswers();
-    }
+
+        var elements = presenter.getParagraphs();
+        if (!presenter.isGradualShowAnswersActive) {
+            presenter.initializeShowAnswers(elements);
+            presenter.isGradualShowAnswersActive = true;
+        }
+
+        if (presenter.currentGSAIndex !== 0) {
+            elements[0].innerHTML += "<div></div><br>";
+        }
+        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
+        presenter.currentGSAIndex++;
+    };
 
     presenter.setShowErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
@@ -268,7 +293,7 @@ function AddonParagraph_create() {
             e.preventDefault();
         });
 
-        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+        presenter.setWrapperID();
 
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
@@ -297,6 +322,11 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
+    };
+
+    presenter.setWrapperID = function AddonParagraph_setWrapperID() {
+        var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
+        $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -484,7 +514,7 @@ function AddonParagraph_create() {
             plugins.push("textcolor");
         }
 
-        if(presenter.configuration.isPlaceholderSet) {
+        if (presenter.configuration.isPlaceholderSet) {
             plugins.push(presenter.configuration.pluginName);
         }
 
@@ -523,7 +553,14 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModelAnswer = function (model) {
-        return presenter.upgradeAttribute(model, "Show Answers", "");
+        const upgradedModel = presenter.upgradeAttribute(model, "Show Answers", [{Text: ""}]);
+
+        // for backward compatibility where modal answer was single string and now is Array of strings we need to upgrade model
+        if (!Array.isArray(upgradedModel["Show Answers"])) {
+            upgradedModel["Show Answers"] = [{Text: upgradedModel["Show Answers"]}];
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeLangTag = function (model) {
@@ -653,6 +690,7 @@ function AddonParagraph_create() {
             presenter.editor = null;
             presenter.playerController = null;
             presenter.LANGUAGES = null;
+            presenter.setWrapperID = null;
         } catch (e) {
             // In case that the first layout is different than the default one
             // the addon may not fully initialize before onDestroy is called
@@ -1066,7 +1104,7 @@ function AddonParagraph_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
-        var modelAnswer = configuration.modelAnswer;
+        var modelAnswers = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -1083,7 +1121,9 @@ function AddonParagraph_create() {
 
         var innerText = "";
         if (showAnswers) {
-            innerText = modelAnswer;
+            modelAnswers.forEach((answer) => {
+                innerText += answer.Text += "<div></div><br>";
+            });
         }
         if (presenter.printableState) {
             innerText = presenter.printableState;
@@ -1232,6 +1272,10 @@ function AddonParagraph_create() {
         }
 
         return null;
+    };
+
+    presenter.getActivitiesCount = function Paragraph_getActivitiesCount () {
+        return presenter.configuration.modelAnswer.length;
     };
 
     return presenter;
