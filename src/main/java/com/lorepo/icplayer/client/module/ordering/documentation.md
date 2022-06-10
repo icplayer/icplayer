@@ -3,6 +3,10 @@ The Ordering module enables to insert a ready-made activity template with  diffe
 
 The module allows to indicate multiple items, their content and of course the correct order. The correct answers are not counted individually, the Ordering activity is to be solved right or wrong as a whole. However, it is possible to define more than one correct order.
 
+The Ordering module also allows inserting simple audio controls. They add the possibility of playing and stopping a sound. Though there may be more than one audio in the text module, only one sound can be played simultaneously.
+To add an audio control, use "Insert Audio" button on the toolbar of the text editor.
+Adding the audio control is also possible using \audio{URL} syntax, where URL is the URL of the audio resource.
+
 ## Properties
 
 <table border='1'>
@@ -83,14 +87,14 @@ This texts will be read by Text to Speech addon after a user performs an action.
         <td>returns true if user tries to solve module. This command is not available if module has 'Is Activity' property deselected.</td> 
     </tr>
     <tr>
-        <td>shows</td>
+        <td>show</td>
         <td>---</td>
-        <td>show module</td> 
+        <td>shows module</td> 
     </tr>
     <tr>
-        <td>hides</td>
+        <td>hide</td>
         <td>---</td>
-        <td>hide module</td> 
+        <td>hides module</td> 
     </tr>
     <tr>
         <td>reset</td>
