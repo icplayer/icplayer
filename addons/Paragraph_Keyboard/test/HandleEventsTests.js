@@ -1,4 +1,4 @@
-TestCase("[Paragraph_Keyboard] handle events related to showing model answer", {
+TestCase("[Paragraph Keyboard] handle events related to showing model answer", {
     setUp: function () {
         this.presenter = AddonParagraph_Keyboard_create();
 

@@ -1,4 +1,5 @@
-2022-06-10 Changed Media Recorder TTS text for stop recording
+2022-06-09 Added placeholder to Paragraph Keyboard addon
+2022-06-09 Changed Media Recorder TTS text for stop recording
 2022-06-09 Added keyboard navigation and TTS to Crossword
 2022-06-06 Removed redundant blank lines for paragraph
 2022-06-02 Fixed editing gaps in Table
