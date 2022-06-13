@@ -1,3 +1,4 @@
+2022-06-13 Fixed TTS in Text Gaps not reseting index after quitting Keyboard Navigation
 2022-06-02 Fixed editing gaps in Table
 2022-06-02 Fixed Assessments Navigation Bar not adding "inactive" class
 2027-06-01 Fixed color not being retained by the Text Coloring addon if you leave the page in check answers mode
