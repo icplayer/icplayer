@@ -290,6 +290,7 @@ function AddonAudioPlaylist_create() {
     AudioPlaylistKeyboardController.prototype.previousElement = function (event) {
         this.closeVolumeBar();
         KeyboardController.prototype.previousElement.call(this, event);
+        presenter.selectedElement = null;
         this.readCurrentElement();
     }
 
