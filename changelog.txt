@@ -1,3 +1,4 @@
+2022-06-13 New Addon Speechace
 2022-05-27 Fixed NextPageButton and PrevPageButton triggering click twice on moodle on iOS
 2022-05-24 Fix display ZoomImage in mobile
 2022-05-24 Fix Drawing.uploadImage command not working on Safari iOS
