@@ -101,7 +101,7 @@ function AddonSpeechace_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model[attrName] == undefined) {
+        if (model[attrName] === undefined) {
             upgradedModel[attrName] = defaultValue;
         }
 
