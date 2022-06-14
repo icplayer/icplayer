@@ -13,7 +13,7 @@ function AddonSpeechace_create() {
     presenter.DEFAULTS = {
         JWTsessionTokenURL: "/api/v2/jwt/session_token",
         speechaceCourseURL: "/speechace/url/",
-        collectionId: ""
+        collectionId: 0
     };
 
     presenter.JWTsessionTokenURL = "";
@@ -34,9 +34,23 @@ function AddonSpeechace_create() {
       presenter.setIframe(view);
 
       if (!presenter.isPreview) {
-          presenter.runLogic(10);
+          const iterations = presenter.isMauthor() ? 1 : 10;
+          presenter.runLogic(iterations);
           presenter.registerEvents();
       }
+    };
+
+    presenter.isMauthor = function AddonSpeechace_isMauthor () {
+        const names = ["lorepo", "mauthor"];
+        const origin = window.origin;
+        let isMauthor = false;
+        names.forEach((name) => {
+            if (origin.includes(name)) {
+                isMauthor = true;
+                return;
+            }
+        });
+        return isMauthor;
     };
 
     presenter.run = function AddonSpeechace_run (view, model) {
@@ -69,8 +83,8 @@ function AddonSpeechace_create() {
             if (iterationsLeft > 0) {
                 window.setTimeout(function(){presenter.runLogic(iterationsLeft-1)}, 500);
             } else {
-                console.error(errorCodes["V_04"]);
-                console.error("Setting default URLs");
+                console.warn(errorCodes["V_04"]);
+                console.warn("Setting default URLs - no context metadata was set");
                 presenter.JWTsessionTokenURL = presenter.DEFAULTS.JWTsessionTokenURL;
                 presenter.speechaceCourseURL = presenter.DEFAULTS.speechaceCourseURL;
                 presenter.collectionID = presenter.DEFAULTS.collectionId;
@@ -178,8 +192,8 @@ function AddonSpeechace_create() {
 
     presenter.getCourseURL = function AddonSpeechace_getCourseURL (token) {
         let url = `${presenter.speechaceCourseURL}?course_key=${presenter.configuration.courseId}`;
-        if (presenter.collectionID.length > 0) {
-            url += `&collectionID=${presenter.collectionID}`;
+        if (presenter.collectionID) {
+            url += `&collection_id=${presenter.collectionID}`;
         }
         const config = {
             method: 'GET',
