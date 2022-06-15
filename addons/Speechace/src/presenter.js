@@ -11,12 +11,12 @@ function AddonSpeechace_create() {
     presenter.eventBus = null;
 
     presenter.DEFAULTS = {
-        JWTsessionTokenURL: "/api/v2/jwt/session_token",
+        JWTSessionTokenURL: "/api/v2/jwt/session_token",
         speechaceCourseURL: "/speechace/url/",
         collectionId: 0
     };
 
-    presenter.JWTsessionTokenURL = "";
+    presenter.JWTSessionTokenURL = "";
     presenter.speechaceCourseURL = "";
     presenter.isFetchingScore = false;
 
@@ -43,14 +43,7 @@ function AddonSpeechace_create() {
     presenter.isMauthor = function AddonSpeechace_isMauthor () {
         const names = ["lorepo", "mauthor"];
         const origin = window.origin;
-        let isMauthor = false;
-        names.forEach((name) => {
-            if (origin.includes(name)) {
-                isMauthor = true;
-                return;
-            }
-        });
-        return isMauthor;
+        return names.some((name) => origin.includes(name));
     };
 
     presenter.run = function AddonSpeechace_run (view, model) {
@@ -62,10 +55,10 @@ function AddonSpeechace_create() {
     };
 
     presenter.runLogic = function AddonSpeechace_runLogic (iterationsLeft) {
-        var context = presenter.playerController && presenter.playerController.getContextMetadata();
+        const context = presenter.playerController && presenter.playerController.getContextMetadata();
         if (context != null) {
-            if ("JWTsessionTokenURL" in context) {
-                presenter.JWTsessionTokenURL = context["JWTsessionTokenURL"];
+            if ("JWTSessionTokenURL" in context) {
+                presenter.JWTSessionTokenURL = context["JWTSessionTokenURL"];
             }
 
             if ("speechaceCourseURL" in context) {
@@ -74,7 +67,7 @@ function AddonSpeechace_create() {
 
             presenter.collectionID = "collectionID" in context ? context["collectionID"] : presenter.DEFAULTS.collectionId;
 
-            if (presenter.JWTsessionTokenURL.length > 0 && presenter.speechaceCourseURL.length > 0) {
+            if (presenter.JWTSessionTokenURL.length && presenter.speechaceCourseURL.length) {
                 presenter.handleURLLogic();
             } else {
                 presenter.createErrorView("V_03");
@@ -85,7 +78,7 @@ function AddonSpeechace_create() {
             } else {
                 console.warn(errorCodes["V_04"]);
                 console.warn("Setting default URLs - no context metadata was set");
-                presenter.JWTsessionTokenURL = presenter.DEFAULTS.JWTsessionTokenURL;
+                presenter.JWTSessionTokenURL = presenter.DEFAULTS.JWTSessionTokenURL;
                 presenter.speechaceCourseURL = presenter.DEFAULTS.speechaceCourseURL;
                 presenter.collectionID = presenter.DEFAULTS.collectionId;
                 presenter.handleURLLogic();
@@ -112,7 +105,7 @@ function AddonSpeechace_create() {
     };
 
     presenter.upgradeAttribute = function AddonSpeechace_upgradeAttribute (model, attrName, defaultValue) {
-        var upgradedModel = {};
+        const upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (model[attrName] === undefined) {
@@ -166,7 +159,7 @@ function AddonSpeechace_create() {
     presenter.executeCommand = function AddonSpeechace_executeCommand (name, params) {
         if (!presenter.configuration.isValid) return;
 
-        var commands = {
+        const commands = {
             'show': presenter.show,
             'hide': presenter.hide
         };
@@ -187,7 +180,7 @@ function AddonSpeechace_create() {
     };
 
     presenter.fetchSessionJWTToken = function() {
-        return fetch(presenter.JWTsessionTokenURL, {method: 'GET'});
+        return fetch(presenter.JWTSessionTokenURL, {method: 'GET'});
     };
 
     presenter.getCourseURL = function AddonSpeechace_getCourseURL (token) {
@@ -197,7 +190,7 @@ function AddonSpeechace_create() {
         }
         const config = {
             method: 'GET',
-            headers: { 'Authorization': 'JWT ' + token }
+            headers: { 'Authorization': `JWT ${token}` }
         };
 
         return fetch(url, config);
@@ -222,7 +215,7 @@ function AddonSpeechace_create() {
     presenter.getState = function AddonSpeechace_getState () {
         if (!presenter.configuration.isValid) return "";
 
-    	return JSON.stringify({
+        return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
             averageScore: presenter.averageScore
         });
@@ -231,7 +224,7 @@ function AddonSpeechace_create() {
     presenter.setState = function AddonSpeechace_setState (state) {
         if (!state) return;
 
-    	var parsedState = JSON.parse(state);
+        const parsedState = JSON.parse(state);
 
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);

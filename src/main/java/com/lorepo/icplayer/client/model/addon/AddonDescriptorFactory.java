@@ -199,14 +199,12 @@ public class AddonDescriptorFactory {
 	}
 
 	private void setOptionalAddonEnabled(boolean isEnabled, String addonName, String category) {
-	    if (isEnabled) {
-			if (!addonList.containsKey(addonName)) {
-				addDescriptor(addonName, category);
-			}
-		} else {
-			if (addonList.containsKey(addonName)) {
-				addonList.remove(addonName);
-			}
-		}	
+	    if (isEnabled && !addonList.containsKey(addonName)) {
+			addDescriptor(addonName, category);
+		}
+
+		if (!isEnabled && addonList.containsKey(addonName)) {
+		    addonList.remove(addonName);
+		}
 	}
 }
