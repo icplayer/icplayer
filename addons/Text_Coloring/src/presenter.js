@@ -9,6 +9,7 @@ function AddonText_Coloring_create() {
     var presenter = function () {};
     presenter.printableState = null;
     presenter.initialVisibility = null;
+    presenter.isFirstEnter = true;
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -1737,10 +1738,18 @@ function AddonText_Coloring_create() {
         presenter.keyboardControllerObject = new TextColoringKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
 
-    presenter.getElementsForKeyboardNavigation = function AddonText_Coloring_getElementsForKeyboardNavigation () {
+    presenter.getDefaultElementsStringForKeyboardNavigation = function AddonText_Coloring_getDefaultElementsStringForKeyboardNavigation () {
+        return ".text-coloring-color-button, .text-coloring-selectable-word";
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(presenter.getDefaultElementsStringForKeyboardNavigation());
+    };
+
+    presenter.getElementsForTTS = function () {
         const container = presenter.defaults.css.tokensContainer;
         const allPossibleContainerClasses = `.${container.bottom}, .${container.left}, .${container.top}, .${container.right}`;
-        return presenter.$view.find(`.text-coloring-color-button, ${allPossibleContainerClasses}, .text-coloring-selectable-word`);
+        return presenter.$view.find(`${presenter.getDefaultElementsStringForKeyboardNavigation()}, ${allPossibleContainerClasses}`);
     };
 
     presenter.keyboardController = function AddonText_Coloring_keyboardController (keycode, isShiftKeyDown, event) {
@@ -1762,8 +1771,18 @@ function AddonText_Coloring_create() {
     };
 
     TextColoringKeyboardController.prototype.enter = function (event) {
+        if (presenter.isTTS() && presenter.isFirstEnter) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.isFirstEnter = false;
+        }
         KeyboardController.prototype.enter.call(this, event);
         this.readCurrentElement();
+    };
+
+     TextColoringKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.isFirstEnter = true;
+        KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.exitWCAGMode.call(this);
     };
 
     TextColoringKeyboardController.prototype.selectAction = function () {
@@ -1898,6 +1917,10 @@ function AddonText_Coloring_create() {
         }
 
         return null;
+    };
+
+    presenter.isTTS = function AddonText_Coloring_isTTS () {
+        return presenter.getTextToSpeechOrNull(presenter.playerController) && presenter.isWCAGOn;
     };
 
     return presenter;
