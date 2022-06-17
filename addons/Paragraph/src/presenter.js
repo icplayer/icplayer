@@ -199,12 +199,20 @@ function AddonParagraph_create() {
         var elements = presenter.getParagraphs();
         presenter.initializeShowAnswers(elements);
 
-        presenter.configuration.modelAnswer.forEach((answer) => {
-           elements[0].innerHTML += answer.Text + "<div></div><br>";
-        });
-
+        elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
         presenter.isShowAnswersActive = true;
     };
+
+    function combineAnswers(answersArray) {
+        var newText = "";
+        if (answersArray.length > 0) {
+           newText += answersArray[0].Text;
+        }
+        for (var answerID = 1; answerID < answersArray.length; answerID++) {
+           newText += "<div></div><br>" + answersArray[answerID].Text;
+        }
+        return newText;
+    }
 
     presenter.hideAnswers = function () {
         var elements = presenter.getParagraphs();
@@ -234,7 +242,10 @@ function AddonParagraph_create() {
             presenter.isGradualShowAnswersActive = true;
         }
 
-        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text + "<div></div><br>";
+        if (presenter.currentGSAIndex !== 0) {
+            elements[0].innerHTML += "<div></div><br>";
+        }
+        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
         presenter.currentGSAIndex++;
     };
 
@@ -282,7 +293,7 @@ function AddonParagraph_create() {
             e.preventDefault();
         });
 
-        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+        presenter.setWrapperID();
 
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
@@ -311,6 +322,11 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
+    };
+
+    presenter.setWrapperID = function AddonParagraph_setWrapperID() {
+        var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
+        $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -498,7 +514,7 @@ function AddonParagraph_create() {
             plugins.push("textcolor");
         }
 
-        if(presenter.configuration.isPlaceholderSet) {
+        if (presenter.configuration.isPlaceholderSet) {
             plugins.push(presenter.configuration.pluginName);
         }
 
@@ -674,6 +690,7 @@ function AddonParagraph_create() {
             presenter.editor = null;
             presenter.playerController = null;
             presenter.LANGUAGES = null;
+            presenter.setWrapperID = null;
         } catch (e) {
             // In case that the first layout is different than the default one
             // the addon may not fully initialize before onDestroy is called
