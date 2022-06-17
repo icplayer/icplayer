@@ -1,3 +1,4 @@
+2022-06-17 Fixed TTS in Text Gaps not reseting index after quitting Keyboard Navigation
 2022-06-17 Fixed TTS Dictionary not being parsed after lesson template update
 2022-06-10 Changed playback speed text in Audio
 2022-06-09 Added placeholder to Paragraph Keyboard addon
