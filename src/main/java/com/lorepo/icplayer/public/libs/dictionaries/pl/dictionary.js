@@ -1016,6 +1016,8 @@ var ice_dictionary_pl = {
 	"Limited_Reset_info": "Umożliwia dodanie przycisku, którego kliknięcie pozwala usunąć wyniki w wybranych modułach.",
 	"Limited_Reset_property_title" : "Tytuł",
 	"Limited_Reset_property_works_with" : "Współpracuje z",
+	"Limited_Reset_property_speech_texts": "Speech texts",
+	"Limited_Reset_speech_text_reset": "Activity has been reset",
 	"Lesson_Reset_name": "Usuń wyniki w lekcji",
 	"Lesson_Reset_info": "Pozwala na dodanie przycisku, którego wybranie spowoduje usunięcie wyników w lekcji.",
 	"Lesson_Reset_property_title" : "Tytuł",

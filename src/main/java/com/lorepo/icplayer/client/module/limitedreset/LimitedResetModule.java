@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.limitedreset;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
@@ -16,6 +19,7 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.ModuleUtils;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleModel {
 	
@@ -23,6 +27,9 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();
 	private boolean resetOnlyWrong = false;
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+
+    public static final int RESET_INDEX = 0;
 
 	public LimitedResetModule() {
 		super("Limited Reset", DictionaryWrapper.get("Limited_Reset_name"));
@@ -30,6 +37,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		addPropertyTitle();
 		addPropertyWorksWith();
 		addPropertyResetOnlyWrong();
+		addPropertySpeechTexts();
 	}
 	
 	public String getTitle () {
@@ -151,6 +159,76 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		addProperty(property);
 	}
 
+    private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Limited_Reset_property_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Limited_Reset_property_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("reset", "Limited_Reset_speech_text"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == LimitedResetModule.RESET_INDEX) {
+				return "Activity has been reset";
+			}
+
+			return "";
+		}
+
+		return text;
+	}
+
 	@Override
 	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
@@ -164,6 +242,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 					title = XMLUtils.getAttributeAsString(childElement, "title");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					resetOnlyWrong = XMLUtils.getAttributeAsBoolean(childElement, "resetOnlyWrong", false);
+					this.speechTextItems.get(LimitedResetModule.RESET_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "reset"));
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
@@ -176,6 +255,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		this.setBaseXMLAttributes(limitedResetModule);
 		limitedResetModule.appendChild(this.getLayoutsXML());
 		limitedResetModule.appendChild(this.modelToXML());
+
 		return limitedResetModule.toString();
 	}
 
@@ -185,6 +265,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		Element limitedResetElement = XMLUtils.createElement("limitedReset");
 		limitedResetElement.setAttribute("title", encodedTitle);
 		limitedResetElement.setAttribute("resetOnlyWrong", Boolean.toString(resetOnlyWrong));
+		limitedResetElement.setAttribute("reset", this.speechTextItems.get(LimitedResetModule.RESET_INDEX).getText());
 		
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
 

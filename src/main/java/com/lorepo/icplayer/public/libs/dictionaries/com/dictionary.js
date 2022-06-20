@@ -903,6 +903,8 @@ var ice_dictionary_en = {
 	"Limited_Reset_info": "Allows to add a button clicking on which will reset answers given in specified modules.",
 	"Limited_Reset_property_title" : "Title",
 	"Limited_Reset_property_works_with" : "Works with",
+	"Limited_Reset_property_speech_texts": "Speech texts",
+	"Limited_Reset_speech_text_reset": "Activity has been reset",
 	"Lesson_Reset_name": "Lesson Reset",
 	"Lesson_Reset_info": "Allows to add a button clicking on which will reset score in lesson",
 	"Lesson_Reset_property_title" : "Title",
