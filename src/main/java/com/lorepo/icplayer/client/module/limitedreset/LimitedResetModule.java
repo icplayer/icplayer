@@ -28,8 +28,8 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 	private List<String> modules = new LinkedList<String>();
 	private boolean resetOnlyWrong = false;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
-
-    public static final int RESET_INDEX = 0;
+	
+	public static final int RESET_INDEX = 0;
 
 	public LimitedResetModule() {
 		super("Limited Reset", DictionaryWrapper.get("Limited_Reset_name"));
@@ -158,8 +158,8 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		
 		addProperty(property);
 	}
-
-    private void addPropertySpeechTexts() {
+	
+	private void addPropertySpeechTexts() {
 		IStaticListProperty property = new IStaticListProperty() {
 			@Override
 			public String getName() {
@@ -200,12 +200,10 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 			}
 
 			@Override
-			public void moveChildUp(int index) {
-			}
+			public void moveChildUp(int index) {}
 
 			@Override
-			public void moveChildDown(int index) {
-			}
+			public void moveChildDown(int index) {}
 		};
 
 		addProperty(property);

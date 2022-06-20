@@ -1018,7 +1018,7 @@ var ice_dictionary_fr = {
     "Limited_Reset_property_title": "Titre",
     "Limited_Reset_property_works_with": "Fonctionne avec",
     "Limited_Reset_property_speech_texts": "Speech texts",
-	"Limited_Reset_speech_text_reset": "Activity has been reset",
+    "Limited_Reset_speech_text_reset": "Activity has been reset",
     "Lesson_Reset_name": "Réinitialisation de la leçon",
     "Lesson_Reset_info": "Permet d’ajouter un bouton sur lequel cliquer pour réinitialiser les scores de la leçon",
     "Lesson_Reset_property_title" : "Titre",

@@ -68,51 +68,51 @@ public class GWTLimitedResetViewWCAGTestCase extends GwtTest {
 	}
 
 	@Test
-    public void textGivenViewWhenSpacePressThenDoNotPerformResetAndDoNotSpeek() {
-        this.activateWCAG();
+	public void textGivenViewWhenSpacePressThenDoNotPerformResetAndDoNotSpeek() {
+		this.activateWCAG();
 
-        this.pressSpace();
+		this.pressSpace();
 
-        this.verifyIfNotPerformedReset();
+		this.verifyIfNotPerformedReset();
 		this.verifyIfSpeechTextCreatedCountEqualTo(0);
-    }
+	}
 
 	private void activateWCAG() {
-        this.viewSpy.setWCAGStatus(true);
-    }
+		this.viewSpy.setWCAGStatus(true);
+	}
 
-    private void deactivateWCAG() {
-        this.viewSpy.setWCAGStatus(false);
-    }
+	private void deactivateWCAG() {
+		this.viewSpy.setWCAGStatus(false);
+	}
 
 	private void pressEnter() {
-        KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
 
-        this.viewSpy.enter(eventMock, false);
-    }
+		this.viewSpy.enter(eventMock, false);
+	}
 
-    private void pressSpace() {
-        KeyDownEvent eventMock = mock(KeyDownEvent.class);
+	private void pressSpace() {
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
 
-        this.viewSpy.space(eventMock);
-    }
+		this.viewSpy.space(eventMock);
+	}
 
 	private void verifyIfSpeechTextCreatedCountEqualTo(int expectedCount) {
-        assertEquals(
+		assertEquals(
 			"Speech text should be created " + expectedCount + " times but was " + TextToSpeechVoicePatcher.callCount(),
-            expectedCount,
-            TextToSpeechVoicePatcher.callCount()
-        );
-    }
+			expectedCount,
+			TextToSpeechVoicePatcher.callCount()
+		);
+	}
 
 	private void verifyIfSpokenResetSpeechText() {
 		String message = "Activity has been reset";
-        assertEquals(
+		assertEquals(
 			"Spoken speech text should be '" + message + "' but was " + TextToSpeechVoicePatcher.lastCreatedItemText(),
-            message,
-            TextToSpeechVoicePatcher.lastCreatedItemText()
-        );
-    }
+			message,
+			TextToSpeechVoicePatcher.lastCreatedItemText()
+		);
+	}
 
 	private void verifyIfPerformedReset() {
 		verify(this.viewSpy, times(1)).performReset();

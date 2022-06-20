@@ -32,7 +32,7 @@ public class LimitedResetView extends PushButton implements IDisplay, IWCAG, IWC
 	private Set<String> activeLimitedShowAnswersModules = new HashSet<String>();
 	private String originalDisplay = "";
 	private boolean isWCAGOn = false;
-    private PageController pageController = null;
+	private PageController pageController = null;
 	
 	public LimitedResetView(LimitedResetModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -69,31 +69,30 @@ public class LimitedResetView extends PushButton implements IDisplay, IWCAG, IWC
 	public void performReset() {
 	    if (isDisabled) {
             return;
-        }
-
-        if (isShowAnswersMode) {
-            playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
-
-            isShowAnswersMode = false;
-        }
-
-        if (activeLimitedShowAnswersModules.size() != 0) {
-            sendLimitedHideAnswerEvent();
-        }
-
-
-        playerServices.getCommands().resetPageScore();
-
-        for (String moduleID : module.getModules()) {
-            IPresenter presenter = playerServices.getModule(moduleID);
-
-            if (presenter == null) {
-                continue;
-            }
-
-            presenter.reset(module.getResetOnlyWrongAnswers());
-        }
-        sendResetClickedEvent(module.getId(), this);
+		}
+		
+		if (isShowAnswersMode) {
+			playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+			
+			isShowAnswersMode = false;
+		}
+		
+		if (activeLimitedShowAnswersModules.size() != 0) {
+			sendLimitedHideAnswerEvent();
+		}
+		
+		playerServices.getCommands().resetPageScore();
+		
+		for (String moduleID : module.getModules()) {
+			IPresenter presenter = playerServices.getModule(moduleID);
+			
+			if (presenter == null) {
+				continue;
+			}
+			
+			presenter.reset(module.getResetOnlyWrongAnswers());
+		}
+		sendResetClickedEvent(module.getId(), this);
 	}
 
 	private static native void sendResetClickedEvent(String moduleID, LimitedResetView x) /*-{
@@ -165,81 +164,81 @@ public class LimitedResetView extends PushButton implements IDisplay, IWCAG, IWC
 			super.setVisible(false);
 		}
 	}
-
+	
 	@Override
-    public void enter(KeyDownEvent event, boolean isExiting) {
-        if (isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
+		if (isExiting) {
 			return;
 		}
-
+		
 		this.performReset();
-        if (isWCAGOn && pageController != null) {
-            List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		if (isWCAGOn && pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			
+			addSpeechTextToVoicesArray(textVoices, LimitedResetModule.RESET_INDEX);
+			
+			speak(textVoices);
+		}
+	}
+	
+	private void addSpeechTextToVoicesArray (List<TextToSpeechVoice> textVoices, int id) {
+		textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(id), null));
+	}
 
-            addSpeechTextToVoicesArray(textVoices, LimitedResetModule.RESET_INDEX);
+	@Override
+	public void space(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
-            speak(textVoices);
-        }
-    }
+	@Override
+	public void tab(KeyDownEvent event) {}
 
-    private void addSpeechTextToVoicesArray (List<TextToSpeechVoice> textVoices, int id) {
-        textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(id), null));
-    }
+	@Override
+	public void left(KeyDownEvent event) {}
 
-    @Override
-    public void space(KeyDownEvent event) {
-        event.preventDefault();
-    }
+	@Override
+	public void right(KeyDownEvent event) {}
 
-    @Override
-    public void tab(KeyDownEvent event) {}
+	@Override
+	public void down(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
-    @Override
-    public void left(KeyDownEvent event) {}
+	@Override
+	public void up(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
-    @Override
-    public void right(KeyDownEvent event) {}
+	@Override
+	public void escape(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
-    @Override
-    public void down(KeyDownEvent event) {
-        event.preventDefault();
-    }
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
 
-    @Override
-    public void up(KeyDownEvent event) {
-        event.preventDefault();
-    }
+	@Override
+	public void shiftTab(KeyDownEvent event) {}
 
-    @Override
-    public void escape(KeyDownEvent event) {
-        event.preventDefault();
-    }
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
 
-    @Override
-    public void customKeyCode(KeyDownEvent event) {}
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+	}
 
-    @Override
-    public void shiftTab(KeyDownEvent event) {}
+	@Override
+	public String getLang() {
+		return null;
+	}
 
-    @Override
-    public void setPageController(PageController pc) {
-        this.setWCAGStatus(true);
-        this.pageController = pc;
-    }
-
-    @Override
-    public void setWCAGStatus(boolean isWCAGOn) {
-        this.isWCAGOn = isWCAGOn;
-    }
-
-    @Override
-    public String getLang() {
-        return null;
-    }
-
-    private void speak (List<TextToSpeechVoice> textVoices) {
-        if (this.pageController != null) {
-            this.pageController.speak(textVoices);
-        }
-    }
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
+	}
 }
