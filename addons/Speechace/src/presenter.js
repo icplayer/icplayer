@@ -12,8 +12,9 @@ function AddonSpeechace_create() {
 
     presenter.DEFAULTS = {
         JWTSessionTokenURL: "/api/v2/jwt/session_token",
-        speechaceCourseURL: "/speechace/url/",
-        collectionId: 0
+        speechaceCourseURL: "/speechace/url",
+        collectionId: 0,
+        speechaceBaseUrl: "https://embeddev.speechace.com/embed"
     };
 
     presenter.JWTSessionTokenURL = "";
@@ -101,7 +102,8 @@ function AddonSpeechace_create() {
     };
 
     presenter.upgradeModel = function AddonSpeechace_upgradeModel (model) {
-        return presenter.upgradeCourseId(model);
+        let upgradedModel = presenter.upgradeCourseId(model);
+        return presenter.upgradeSpeechaceBaseUrl(upgradedModel);
     };
 
     presenter.upgradeAttribute = function AddonSpeechace_upgradeAttribute (model, attrName, defaultValue) {
@@ -119,6 +121,14 @@ function AddonSpeechace_create() {
         return presenter.upgradeAttribute(model, "CourseId", "");
     };
 
+    presenter.upgradeSpeechaceBaseUrl = function AddonSpeechace_upgradeSpeechaceBaseUrl (model) {
+        let upgradedModel = presenter.upgradeAttribute(model, "SpeechaceBaseUrl", "");
+        if (!upgradedModel["SpeechaceBaseUrl"].trim()) {
+            upgradedModel["SpeechaceBaseUrl"] = presenter.DEFAULTS.speechaceBaseUrl;
+        }
+        return upgradedModel;
+    };
+
     presenter.validateModel = function AddonSpeechace_validateModel (model) {
         const validatedCourseId = presenter.validateCourseId(model["CourseId"]);
         if (!validatedCourseId.isValid) {
@@ -130,7 +140,8 @@ function AddonSpeechace_create() {
             isValid: true,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             courseId: validatedCourseId.value,
-            maxScore: 100
+            maxScore: 100,
+            speechaceBaseUrl: model["SpeechaceBaseUrl"]
         };
     };
 
@@ -184,22 +195,27 @@ function AddonSpeechace_create() {
     };
 
     presenter.getCourseURL = function AddonSpeechace_getCourseURL (token) {
-        let url = `${presenter.speechaceCourseURL}?course_key=${presenter.configuration.courseId}`;
-        if (presenter.collectionID) {
-            url += `&collection_id=${presenter.collectionID}`;
-        }
-        const config = {
-            method: 'GET',
-            headers: { 'Authorization': `JWT ${token}` }
+        const data = {
+            course_key: presenter.configuration.courseId,
+            speechace_base_url: presenter.speechaceBaseUrl
         };
 
-        return fetch(url, config);
+        if (presenter.collectionID) {
+            data["collection_id"] = presenter.collectionID;
+        }
+
+        const config = {
+            method: 'POST',
+            headers: { 'Authorization': `JWT ${token}` },
+            body: JSON.stringify(data)
+        };
+
+        return fetch(presenter.speechaceCourseURL, config);
     };
 
     presenter.handleDataReceived = function AddonSpeechace_handleDataReceived (data) {
         presenter.iframe.attr("src", data.course_url);
         presenter.speechaceToken = data.token;
-        presenter.speechaceUrl = data.speechace_url; //"https://embeddev.speechace.com/embed/ui/";
     };
 
     presenter.registerEvents = function AddonSpeechace_registerEvents () {
@@ -263,11 +279,11 @@ function AddonSpeechace_create() {
 
     presenter.generateScoreUrl = function AddonSpeechace_generateScoreUrl() {
         const unixTimestamp = Math.round((new Date()).getTime() / 1000);
-        const coreUrl = presenter.speechaceUrl;
+        const coreUrl = presenter.speechaceBaseUrl;
         const courseId = presenter.configuration.courseId;
         const token = presenter.speechaceToken;
 
-        return `${coreUrl}/embed/api/${courseId}/report?speechace_token=${token}&session_start_time=${unixTimestamp}`;
+        return `${coreUrl}/api/${courseId}/report?speechace_token=${token}&session_start_time=${unixTimestamp}`;
     };
 
     presenter.saveScore = function AddonSpeechace_saveScore(data) {
