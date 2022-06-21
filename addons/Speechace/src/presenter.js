@@ -9,6 +9,7 @@ function AddonSpeechace_create() {
     };
 
     presenter.eventBus = null;
+    presenter.speechaceToken = null;
 
     presenter.DEFAULTS = {
         JWTSessionTokenURL: "/api/v2/jwt/session_token",
@@ -23,6 +24,7 @@ function AddonSpeechace_create() {
 
     presenter.presenterLogic = function AddonSpeechace_presenterLogic (view, model, isPreview) {
       presenter.$view = $(view);
+      presenter.view = view;
       presenter.isPreview = isPreview;
 
       const upgradedModel = presenter.upgradeModel(model);
@@ -222,14 +224,23 @@ function AddonSpeechace_create() {
     };
 
     presenter.registerEvents = function AddonSpeechace_registerEvents () {
-        window.addEventListener("message", myHandler, false);
+        window.addEventListener("message", presenter.handleMessageReceived, false);
+        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+    };
 
-        function myHandler(event) {
-            if (event.data === "speechaceActivityComplete") {
+    presenter.handleMessageReceived = function AddonSpeechace_handleMessageReceived (event) {
+        if (event.data === "speechaceActivityComplete") {
                 presenter.requestScore();
-            }
         }
     };
+
+    presenter.destroy = function AddonSpeechace_destroy () {
+        if (event.target !== this) {
+            return;
+        }
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        window.removeEventListener("message", presenter.handleMessageReceived);
+    }
 
     presenter.getState = function AddonSpeechace_getState () {
         if (!presenter.configuration.isValid) return "";
