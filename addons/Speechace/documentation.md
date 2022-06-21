@@ -17,6 +17,10 @@ Configuration of this addon requires passing proper data in setContextMetadata m
         <td>CourseId</td>
         <td>This property is the course id in speechace system. It cannot remain empty.</td>
     </tr>
+    <tr>
+        <td>SpeechaceBaseUrl</td>
+        <td>Base URL to speechace courses. Can be empty. If empty default is set to : https://embeddev.speechace.com/embed.</td>
+    </tr>
 </tbody>
 </table>
 

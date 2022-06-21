@@ -1171,6 +1171,7 @@ var ice_dictionary_en = {
 	"Slideshow_property_lang": "Lang attribute",
 	"Speechace_name": "Speechace",
 	"Speechace_course_id": "Course ID",
+	"Speechace_base_url": "Speechace base URL",
 	"Standard_Shapes_info": "Allows to embed basic shapes into a presentation, including lines, squares, rectangles, circles, or ellipses.",
 	"Standard_Shapes_name": "Standard Shapes",
 	"Standard_Shapes_property_shape": "Shape",

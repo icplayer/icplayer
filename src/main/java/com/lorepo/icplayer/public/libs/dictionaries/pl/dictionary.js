@@ -1284,6 +1284,7 @@ var ice_dictionary_pl = {
 	"Slideshow_property_lang": "Lang attribute",
 	"Speechace_name": "Speechace",
 	"Speechace_course_id": "Course ID",
+	"Speechace_base_url": "Speechace base URL",
 	"Standard_Shapes_info" : "Pozwala na wstawienie do prezentacji podstawowych figur (kształtów), takich jak linie, kwadraty, prostokąty i koła.",
 	"Standard_Shapes_name" : "Standardowe kształty",
 	"Standard_Shapes_property_shape": "Kształt",
