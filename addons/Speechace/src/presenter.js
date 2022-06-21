@@ -197,7 +197,7 @@ function AddonSpeechace_create() {
     presenter.getCourseURL = function AddonSpeechace_getCourseURL (token) {
         const data = {
             course_key: presenter.configuration.courseId,
-            speechace_base_url: presenter.speechaceBaseUrl
+            speechace_base_url: presenter.configuration.speechaceBaseUrl
         };
 
         if (presenter.collectionID) {
@@ -206,7 +206,10 @@ function AddonSpeechace_create() {
 
         const config = {
             method: 'POST',
-            headers: { 'Authorization': `JWT ${token}` },
+            headers: {
+                'Authorization': `JWT ${token}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(data)
         };
 
@@ -279,7 +282,7 @@ function AddonSpeechace_create() {
 
     presenter.generateScoreUrl = function AddonSpeechace_generateScoreUrl() {
         const unixTimestamp = Math.round((new Date()).getTime() / 1000);
-        const coreUrl = presenter.speechaceBaseUrl;
+        const coreUrl = presenter.configuration.speechaceBaseUrl;
         const courseId = presenter.configuration.courseId;
         const token = presenter.speechaceToken;
 
