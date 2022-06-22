@@ -1,4 +1,5 @@
 TestCase("[Gradual Show Answer] Set speech texts tests", {
+
     setUp: function () {
         this.presenter = AddonGradual_Show_Answer_create();
     },

@@ -158,7 +158,7 @@ TestCase("[Gradual Show Answer] Keyboard controller and TTS activation tests", {
     'test given view, keyboard navigation is active when activated down arrow then execute preventDefaultEvent method' : function() {
         this.activateKeyboardNavigation();
 
-        activateUpArrowEvent(this.presenter);
+        activateDownArrowEvent(this.presenter);
 
         this.verifyIfExecutedOnlyPreventDefaultEventMethod();
     },
@@ -166,7 +166,7 @@ TestCase("[Gradual Show Answer] Keyboard controller and TTS activation tests", {
     'test given view, TTS navigation is active when activated down arrow then execute preventDefaultEvent method' : function() {
         this.activateTTSWithoutReading();
 
-        activateUpArrowEvent(this.presenter);
+        activateDownArrowEvent(this.presenter);
 
         this.verifyIfExecutedOnlyPreventDefaultEventMethod();
     },

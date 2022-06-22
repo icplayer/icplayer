@@ -6,7 +6,7 @@
         <property displayName="Is hide answers" name="Is hide answers" nameLabel="Gradual_Show_Answer_property_is_hide_answers" type="boolean" />
         <property name="worksWith" nameLabel="Gradual_Show_Answer_property_works_with" type="text"/>
         <property name="speechTexts" displayName="Speech texts" nameLabel="Gradual_Show_Answer_property_speech_texts" type="staticlist">
-			<property name="AnswerHasBeenShown" nameLabel="Gradual_Show_Answer_speech_text_answer_has_been_shown" type="staticrow">
+            <property name="AnswerHasBeenShown" nameLabel="Gradual_Show_Answer_speech_text_answer_has_been_shown" type="staticrow">
                 <property name="AnswerHasBeenShown" nameLabel="Gradual_Show_Answer_speech_text_answer_has_been_shown" type="string"/>
             </property>
             <property name="AnswersAreHidden" nameLabel="Gradual_Show_Answer_speech_text_answers_are_hidden" type="staticrow">
@@ -24,6 +24,6 @@
             <property name="Disabled" nameLabel="Gradual_Show_Answer_speech_text_disabled" type="staticrow">
                 <property name="Disabled" nameLabel="Gradual_Show_Answer_speech_text_disabled" type="string"/>
             </property>
-		</property>
+        </property>
 	</model>
 </addon>
