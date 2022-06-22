@@ -5,5 +5,25 @@
         <property displayName="Is disabled" name="Is Disabled" nameLabel="Gradual_Show_Answer_property_disabled" type="boolean" />
         <property displayName="Is hide answers" name="Is hide answers" nameLabel="Gradual_Show_Answer_property_is_hide_answers" type="boolean" />
         <property name="worksWith" nameLabel="Gradual_Show_Answer_property_works_with" type="text"/>
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Gradual_Show_Answer_property_speech_texts" type="staticlist">
+			<property name="AnswerHasBeenShown" nameLabel="Gradual_Show_Answer_speech_text_answer_has_been_shown" type="staticrow">
+                <property name="AnswerHasBeenShown" nameLabel="Gradual_Show_Answer_speech_text_answer_has_been_shown" type="string"/>
+            </property>
+            <property name="AnswersAreHidden" nameLabel="Gradual_Show_Answer_speech_text_answers_are_hidden" type="staticrow">
+                <property name="AnswersAreHidden" nameLabel="Gradual_Show_Answer_speech_text_answers_are_hidden" type="string"/>
+            </property>
+            <property name="NoNewAnswerToShow" nameLabel="Gradual_Show_Answer_speech_text_no_new_answer_to_show" type="staticrow">
+                <property name="NoNewAnswerToShow" nameLabel="Gradual_Show_Answer_speech_text_no_new_answer_to_show" type="string"/>
+            </property>
+            <property name="EditionIsBlocked" nameLabel="Gradual_Show_Answer_speech_text_edition_is_blocked" type="staticrow">
+                <property name="EditionIsBlocked" nameLabel="Gradual_Show_Answer_speech_text_edition_is_blocked" type="string"/>
+            </property>
+            <property name="EditionIsNotBlocked" nameLabel="Gradual_Show_Answer_speech_text_edition_is_not_blocked" type="staticrow">
+                <property name="EditionIsNotBlocked" nameLabel="Gradual_Show_Answer_speech_text_edition_is_not_blocked" type="string"/>
+            </property>
+            <property name="Disabled" nameLabel="Gradual_Show_Answer_speech_text_disabled" type="staticrow">
+                <property name="Disabled" nameLabel="Gradual_Show_Answer_speech_text_disabled" type="string"/>
+            </property>
+		</property>
 	</model>
 </addon>
