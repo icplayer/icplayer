@@ -13,6 +13,7 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.playerController = undefined;
+    presenter.isWCAGOn = false;
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -276,12 +277,12 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.setWCAGStatus = function AddonExternal_link_setWCAGStatus (isOn) {
-        isWCAGOn = isOn;
+        presenter.isWCAGOn = isOn;
     };
 
     presenter.speak = function AddonExternal_link_speak (data) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts) {
+        if (tts && presenter.isWCAGOn) {
             tts.speak(data);
         }
     };
