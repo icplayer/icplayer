@@ -214,7 +214,7 @@ function AddonSpeechace_create() {
         }
     };
 
-    presenter.destroy = function AddonSpeechace_destroy () {
+    presenter.destroy = function AddonSpeechace_destroy (event) {
         if (event.target !== this) {
             return;
         }
