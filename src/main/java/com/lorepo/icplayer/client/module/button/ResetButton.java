@@ -2,10 +2,12 @@ package com.lorepo.icplayer.client.module.button;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.KeyboarNavigationBasicDialog;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
@@ -13,6 +15,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
 
+import java.util.ArrayList;
 
 class ResetButton extends ExecutableButton {
 
@@ -24,6 +27,8 @@ class ResetButton extends ExecutableButton {
 	private boolean confReset;
 	private IPlayerCommands pageService;
 	private boolean resetOnlyWrong = false;
+	private ArrayList<Button> buttons = new ArrayList<Button>();
+	private int position = -1;
 
 	public static native void removeHoveringFromButtons() /*-{
 	  var reset = $wnd.$('[id^="Reset"]');
@@ -76,8 +81,9 @@ class ResetButton extends ExecutableButton {
 				this.confInfoNo = "No";
 			}
 
-			final DialogBox dialogBox = new DialogBox();
+			final KeyboarNavigationBasicDialog dialogBox = new KeyboarNavigationBasicDialog();
 			dialogBox.setStyleName("ic_confim_box");
+			dialogBox.addStyleName("ic_active_module");
 	        dialogBox.setHTML("<center>" + confInfo + "</center>");
 	        Button yesButton =  new Button(confInfoYes);
 	        Button noButton = new Button(confInfoNo);
@@ -98,8 +104,10 @@ class ResetButton extends ExecutableButton {
 	        noButton.addClickHandler(new ClickHandler() {
 	            @Override
 	            public void onClick(ClickEvent event) {
-	                dialogBox.hide();
 	                removeHoveringFromButtons();
+					buttons.clear();
+					position = -1;
+					dialogBox.hide();
 	              }
 	        });
 
@@ -107,10 +115,15 @@ class ResetButton extends ExecutableButton {
 	            @Override
 	            public void onClick(ClickEvent event) {
 	            	pageService.reset(resetOnlyWrong);
-	                dialogBox.hide();
 	                removeHoveringFromButtons();
+					buttons.clear();
+					position = -1;
+					dialogBox.hide();
 	              }
 	        });
+
+			this.buttons.add(yesButton);
+			this.buttons.add(noButton);
 
             dialogBox.setWidget(dialogHPanel);
             dialogBox.setPopupPosition(left, top);
@@ -123,4 +136,64 @@ class ResetButton extends ExecutableButton {
             removeHoveringFromButtons();
         }
     }
+
+	public boolean isConfirmationActive() {
+		return this.confReset;
+	}
+
+	public String getTextFromButton() {
+		Button selectedButton = this.buttons.get(this.position);
+		return selectedButton.getText();
+	}
+
+	public String getTextFromDialog() {
+		return this.confInfo;
+	}
+
+	public boolean isDialogExist() {
+		return this.buttons.size() > 0;
+	}
+
+	public void clear() {
+		this.buttons.clear();
+	}
+
+	public void enter (KeyDownEvent event, boolean isExiting) {
+		if (this.position == 0) {
+			this.buttons.get(0).click();
+		} else if (this.position == 1) {
+			this.buttons.get(1).click();
+		}
+	}
+
+	public void tab(KeyDownEvent event) {
+		this.position = this.position + 1;
+
+		if (this.position >= this.buttons.size()) {
+			this.position = 0;
+		}
+
+		this.updateStyleForButtons();
+	}
+
+	public void shiftTab(KeyDownEvent event) {
+		this.position = this.position - 1;
+
+		if (this.position < 0) {
+			this.position = 1;
+		}
+
+		this.updateStyleForButtons();
+	}
+
+	private void updateStyleForButtons() {
+		Button selectedButton = this.buttons.get(this.position);
+		for (Button button : this.buttons) {
+			button.removeStyleName("ic_selected_module");
+		}
+
+		if (selectedButton != null) {
+			selectedButton.addStyleName("ic_selected_module");
+		}
+	}
 }

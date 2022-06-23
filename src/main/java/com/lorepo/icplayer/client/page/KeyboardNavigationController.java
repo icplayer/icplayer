@@ -373,7 +373,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton() || !isModuleEnterable())) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || (isModuleButton() && !isModuleEnterable()) || !isModuleEnterable())) {
 					if (moduleIsActivated) { // If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
 						moduleIsActivated = false;

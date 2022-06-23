@@ -17,8 +17,9 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.module.IEnterable;
 
-public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
+public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, IEnterable {
 	private static final String DISABLED_STYLE = "disabled";
 	
 	private ButtonModule module;
@@ -150,12 +151,18 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		}
 		
 		Widget buttonWidget = this.getWidget();
-		if (buttonWidget instanceof ExecutableButton) {
-			((ExecutableButton) buttonWidget).execute();
-			
-			if (isWCAGOn) {
-				ButtonType type = module.getType();
-				if (ButtonType.reset == type) {
+		if (buttonWidget instanceof ExecutableButton && isWCAGOn) {
+			if (this.isResetButton()) {
+				ResetButton resetButton = (ResetButton) buttonWidget;
+
+				if (resetButton.isConfirmationActive()) {
+					if (!resetButton.isDialogExist()) {
+						((ExecutableButton) buttonWidget).execute();
+						speak(TextToSpeechVoice.create(resetButton.getTextFromDialog()));
+					}
+					resetButton.enter(event, isExiting);
+				} else {
+					((ExecutableButton) buttonWidget).execute();
 					speak(TextToSpeechVoice.create(module.getResetSpeechTextItem(ButtonModule.RESET_BUTTON_RESET_INDEX)));
 				}
 			}
@@ -171,6 +178,14 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void tab(KeyDownEvent event) {	
+		if (this.isResetButton()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton resetButton = (ResetButton) buttonWidget;
+			if (!resetButton.isDialogExist()) return;
+			resetButton.tab(event);
+
+			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
+		}
 	}
 
 
@@ -197,8 +212,12 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void escape(KeyDownEvent event) {	
-		event.preventDefault(); 
+	public void escape(KeyDownEvent event) {
+		if (this.isResetButton()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton button = (ResetButton) buttonWidget;
+			button.clear();
+		}
 	}
 
 
@@ -209,7 +228,14 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
+		if (this.isResetButton()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton resetButton = (ResetButton) buttonWidget;
+			if (!resetButton.isDialogExist()) return;
+			resetButton.shiftTab(event);
 
+			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
+		}
 	}
 
 	@Override
@@ -260,5 +286,15 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		} else {
 			super.setVisible(false);
 		}
+	}
+
+	@Override
+	public boolean isEnterable() {
+		return this.isResetButton();
+	}
+
+	private boolean isResetButton() {
+		ButtonType type = module.getType();
+		return type == ButtonType.reset;
 	}
 }
