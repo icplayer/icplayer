@@ -14,8 +14,8 @@ Configuration of this addon requires passing proper data in setContextMetadata m
         <th>Description</th>
     </tr>
     <tr>
-        <td>CourseId</td>
-        <td>This property is the course id in speechace system. It cannot remain empty.</td>
+        <td>Course Key</td>
+        <td>This property is the course key in speechace system. It cannot remain empty.</td>
     </tr>
 </tbody>
 </table>

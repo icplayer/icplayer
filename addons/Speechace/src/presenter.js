@@ -200,7 +200,7 @@ function AddonSpeechace_create() {
     presenter.handleDataReceived = function AddonSpeechace_handleDataReceived (data) {
         presenter.iframe.attr("src", data.course_url);
         presenter.speechaceToken = data.token;
-        presenter.speechaceUrl = data.speechace_url; //"https://embeddev.speechace.com/embed/ui/";
+        presenter.speechaceUrl = data.speechace_url;
     };
 
     presenter.registerEvents = function AddonSpeechace_registerEvents () {
