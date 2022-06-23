@@ -1018,6 +1018,7 @@ var ice_dictionary_mx = {
 	"Limited_Reset_property_title": "Texto",
 	"Limited_Reset_property_works_with": "Funciona con",
 	"Limited_Reset_property_speech_texts": "Speech texts",
+	"Limited_Reset_speech_text_disabled": "Disabled",
 	"Limited_Reset_speech_text_reset": "Activity has been reset",
 	"Lesson_Reset_name": "Reinicio de lección",
 	"Lesson_Reset_info": "Permite agregar un botón que restablece la puntuación de la lección",

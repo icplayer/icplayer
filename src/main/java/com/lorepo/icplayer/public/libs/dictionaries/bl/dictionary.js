@@ -898,6 +898,7 @@ var ice_dictionary_bl = {
 	"Limited_Reset_property_title" : "Заглавие",
 	"Limited_Reset_property_works_with" : "Работи с",
 	"Limited_Reset_property_speech_texts": "Speech texts",
+	"Limited_Reset_speech_text_disabled": "Disabled",
 	"Limited_Reset_speech_text_reset": "Activity has been reset",
 	"Lesson_Reset_name": "Нулиране на урок",
 	"Lesson_Reset_info": "Позволява добавянето на бутон, който да кликнете, за да изчистите резултата в даден урок",

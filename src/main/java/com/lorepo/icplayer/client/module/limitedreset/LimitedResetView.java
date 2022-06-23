@@ -170,12 +170,19 @@ public class LimitedResetView extends PushButton implements IDisplay, IWCAG, IWC
 		if (isExiting) {
 			return;
 		}
-		
-		this.performReset();
+
+		if (!isDisabled) {
+		    this.performReset();
+        }
+
 		if (isWCAGOn && pageController != null) {
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 			
-			addSpeechTextToVoicesArray(textVoices, LimitedResetModule.RESET_INDEX);
+			if (isDisabled) {
+				addSpeechTextToVoicesArray(textVoices, LimitedResetModule.DISABLED_INDEX);
+			} else {
+				addSpeechTextToVoicesArray(textVoices, LimitedResetModule.RESET_INDEX);
+			}
 			
 			speak(textVoices);
 		}

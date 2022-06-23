@@ -28,8 +28,9 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 	private List<String> modules = new LinkedList<String>();
 	private boolean resetOnlyWrong = false;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
-	
-	public static final int RESET_INDEX = 0;
+
+	public static final int DISABLED_INDEX = 0;
+	public static final int RESET_INDEX = 1;
 
 	public LimitedResetModule() {
 		super("Limited Reset", DictionaryWrapper.get("Limited_Reset_name"));
@@ -191,6 +192,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 
 			@Override
 			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("disabled", "Limited_Reset_speech_text"));
 				speechTextItems.add(new SpeechTextsStaticListItem("reset", "Limited_Reset_speech_text"));
 			}
 
@@ -221,6 +223,10 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 				return "Activity has been reset";
 			}
 
+			if (index == LimitedResetModule.DISABLED_INDEX) {
+				return "Disabled";
+			}
+
 			return "";
 		}
 
@@ -240,6 +246,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 					title = XMLUtils.getAttributeAsString(childElement, "title");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					resetOnlyWrong = XMLUtils.getAttributeAsBoolean(childElement, "resetOnlyWrong", false);
+					this.speechTextItems.get(LimitedResetModule.DISABLED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "disabled"));
 					this.speechTextItems.get(LimitedResetModule.RESET_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "reset"));
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
@@ -263,6 +270,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		Element limitedResetElement = XMLUtils.createElement("limitedReset");
 		limitedResetElement.setAttribute("title", encodedTitle);
 		limitedResetElement.setAttribute("resetOnlyWrong", Boolean.toString(resetOnlyWrong));
+		limitedResetElement.setAttribute("disabled", this.speechTextItems.get(LimitedResetModule.DISABLED_INDEX).getText());
 		limitedResetElement.setAttribute("reset", this.speechTextItems.get(LimitedResetModule.RESET_INDEX).getText());
 		
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);

@@ -45,6 +45,29 @@ public class GWTLimitedResetViewWCAGTestCase extends GwtTest {
 	}
 
 	@Test
+	public void testGivenDisabledViewWhenFirstEnterPressThenDoNotPerformResetAndReadDisabledSpeechText() {
+		this.viewSpy.setDisabled(true);
+
+		this.pressEnter();
+
+		this.verifyIfNotPerformedReset();
+		this.verifyIfSpeechTextCreatedCountEqualTo(1);
+		this.verifyIfSpokenDisabledSpeechText();
+	}
+	
+	@Test
+	public void testGivenViewWhenEnterPressThenDoNotPerformResetAndReadDisabledSpeechText() {
+		this.viewSpy.setDisabled(true);
+		this.activateWCAG();
+
+		this.pressEnter();
+
+		this.verifyIfNotPerformedReset();
+		this.verifyIfSpeechTextCreatedCountEqualTo(1);
+		this.verifyIfSpokenDisabledSpeechText();
+	}
+
+	@Test
 	public void testGivenViewWhenFirstEnterPressThenPerformResetAndReadResetSpeechText() {
 		this.pressEnter();
 
@@ -102,10 +125,19 @@ public class GWTLimitedResetViewWCAGTestCase extends GwtTest {
 		);
 	}
 
+	private void verifyIfSpokenDisabledSpeechText() {
+		String message = "Disabled";
+		assertEquals(
+			"Spoken speech text should be '" + message + "' but was '" + TextToSpeechVoicePatcher.lastCreatedItemText() + "'",
+			message,
+			TextToSpeechVoicePatcher.lastCreatedItemText()
+		);
+	}
+
 	private void verifyIfSpokenResetSpeechText() {
 		String message = "Activity has been reset";
 		assertEquals(
-			"Spoken speech text should be '" + message + "' but was " + TextToSpeechVoicePatcher.lastCreatedItemText(),
+			"Spoken speech text should be '" + message + "' but was '" + TextToSpeechVoicePatcher.lastCreatedItemText() + "'",
 			message,
 			TextToSpeechVoicePatcher.lastCreatedItemText()
 		);
