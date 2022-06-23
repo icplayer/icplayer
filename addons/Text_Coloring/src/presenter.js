@@ -61,7 +61,7 @@ function AddonText_Coloring_create() {
         deselected: "deselected",
         textContent: "text content",
         correct: "correct",
-        incorrect: "incorrect"
+        incorrect: "wrong"
     };
 
     function parseIDs(colorDefinition) {
