@@ -51,6 +51,7 @@ function AddonExternal_Link_Button_create() {
 
     presenter.createElements = function (wrapper) {
         var $ahref = $(document.createElement('a'));
+        presenter.$ahref = $ahref;
         $ahref.attr('href',presenter.configuration.URI);
 
         if (presenter.configuration.targetType == 'Blank'){
@@ -121,6 +122,7 @@ function AddonExternal_Link_Button_create() {
         var $element = presenter.createElements($wrapper);
         
         presenter.setElementsDimensions(model, $wrapper, $element);
+        presenter.buildKeyboardController();
     };
 
     presenter.createPreview = function(view, model) {
@@ -225,6 +227,63 @@ function AddonExternal_Link_Button_create() {
 
         presenter.configuration.isVisible = state.isVisible;
         presenter.setVisibilityFromConfig();
+    };
+
+    function ExternalLinkKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    ExternalLinkKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ExternalLinkKeyboardController.prototype.constructor = ExternalLinkKeyboardController;
+
+    presenter.buildKeyboardController = function AddonExternal_link_buildKeyboardController () {
+        presenter.keyboardControllerObject = new ExternalLinkKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function AddonExternal_link_getElementsForKeyboardNavigation () {
+        return presenter.$view.find(".external-link-button-wrapper")
+    };
+
+
+    presenter.keyboardController = function AddonExternal_link_keyboardController (keycode, isShiftKeyDown, event) {
+        if (keycode == window.KeyboardControllerKeys.SPACE ||
+            keycode == window.KeyboardControllerKeys.ARROW_UP ||
+            keycode == window.KeyboardControllerKeys.ARROW_DOWN ||
+            keycode == window.KeyboardControllerKeys.ESC)
+        {
+            event.preventDefault();
+        }
+
+        if (keycode === window.KeyboardControllerKeys.ENTER) {
+            presenter.speak(presenter.configuration.title.trim());
+        }
+
+        if (keycode === window.KeyboardControllerKeys.SPACE) {
+            presenter.$ahref[0].click();
+        }
+    };
+
+    ExternalLinkKeyboardController.prototype.getTarget = function (element) {
+        return $(element);
+    };
+
+    presenter.getTextToSpeechOrNull = function AddonExternal_link_getTextToSpeechOrNull (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function AddonExternal_link_setWCAGStatus (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.speak = function AddonExternal_link_speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speak(data);
+        }
     };
 
     return presenter;
