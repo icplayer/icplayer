@@ -35,8 +35,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private ArrayList<NavigationTextElement> navigationTextElements = new ArrayList<NavigationTextElement>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int clicks = -1;
-	private int gapCounter = -1;
+	private int activeGapIndex = -1;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
@@ -515,12 +514,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public String getName() {
 		return "Text";
 	}
-	
+
+	private void handleWCAGExit() {
+        this.removeNavigationElementSelections();
+        activeGapIndex = -1;
+        activeGap = null;
+        moduleHasFocus = false;
+	}
+
 	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
-			this.removeNavigationElementSelections();
-			clicks = -1;
-			activeGap = null;
+			handleWCAGExit();
 		} else {
 			if (activeGap == null) {
 				if (textElements.size() > 0) {
@@ -537,13 +541,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void focusOnNextGap() {
-		gapCounter++;
-		activeGap = textElements.get(gapCounter);
+		activeGapIndex++;
+		activeGap = textElements.get(activeGapIndex);
 	}
 
 	private void focusOnPrevGap() {
-		gapCounter--;
-		activeGap = textElements.get(gapCounter);
+		activeGapIndex--;
+		activeGap = textElements.get(activeGapIndex);
 	}
 
 	private void move (boolean goNext) {
@@ -555,23 +559,22 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 		
 		this.removeNavigationElementSelections();
-		
-		clicks += goNext ? 1 : -1; 
-		
-		if (clicks >= size) {
-			clicks = size-1;
+		int nextGapIndex = goNext ? activeGapIndex + 1 : activeGapIndex - 1;
+
+		if (nextGapIndex >= size) {
+			nextGapIndex = size - 1;
 			hasAchievedMaximum = true;
 		}
-		
-		if (clicks < 0) {
-			clicks = 0;
+
+		if (nextGapIndex < 0) {
+			nextGapIndex = 0;
 		}
 
-		NavigationTextElement activeElement = navigationTextElements.get(clicks);
+		NavigationTextElement activeElement = navigationTextElements.get(nextGapIndex);
 		if (!(activeElement instanceof LinkWidget)) {
 			if (goNext && !hasAchievedMaximum) {
 				focusOnNextGap();
-			} else if (!goNext && gapCounter > 0) {
+			} else if (!goNext && activeGapIndex > 0) {
 				focusOnPrevGap();
 			}
 		}
@@ -580,7 +583,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		activeElement.setElementFocus(true);
 		moduleHasFocus = true;
 		
-		this.readNavigationText(activeElement, gapCounter);
+		this.readNavigationText(activeElement, activeGapIndex);
 	}
 
 	@Override
@@ -591,11 +594,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void escape(KeyDownEvent event) {
 	    event.preventDefault();
-		this.removeNavigationElementSelections();
-		moduleHasFocus = false;
-		clicks = -1;
-		gapCounter = -1;
-		activeGap = null;
+	    handleWCAGExit();
 	}
 
 	@Override
