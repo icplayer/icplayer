@@ -1,6 +1,6 @@
-TestCase("[Paragraph] Reset method", {
+TestCase("[Paragraph Keyboard] Reset method", {
     setUp: function () {
-        this.presenter = AddonParagraph_create();
+        this.presenter = AddonParagraph_Keyboard_create();
         this.presenter.configuration = {
             isValid: true,
             placeholderText: "placeholder"

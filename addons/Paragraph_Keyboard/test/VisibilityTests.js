@@ -7,7 +7,7 @@ function getValidModel(isVisible) {
     }
 }
 
-TestCase('[Paragraph_Keyboard] Visibility tests', {
+TestCase('[Paragraph Keyboard] Visibility tests', {
     setUp: function () {
         this.presenter = AddonParagraph_Keyboard_create();
 

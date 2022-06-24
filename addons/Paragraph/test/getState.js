@@ -40,6 +40,7 @@ TestCase("[Paragraph] getState method", {
 
         assertEquals("", state.tinymceState);
     },
+
     'test getState for non existed editor': function () {
         this.presenter.editor = undefined;
 

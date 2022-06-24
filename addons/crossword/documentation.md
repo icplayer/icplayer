@@ -115,7 +115,7 @@ If you would like to make a letter visible from start, simply type an exclamatio
 			Auto navigation modes:
 			<ul>
 				<li><b>Extended</b> &ndash; Auto navigation works in any of the directions listed above. In this mode, if there is no next editable cell for the crossword then auto navigation will not point to the next cell. This is the default mode.</li>
-				<li><b>Simple</b> &ndash; Auto navigation works in vertical and horizontal directions. In this mode, if there is no next editable cell for the currently filled in word, the auto-navigation stops pointing to the next cell.</li>
+				<li><b>Simple</b> &ndash; Auto navigation works in vertical and horizontal directions. In this mode, if there is no next editable cell for the currently filled in word, then auto navigation will not point to the next cell.</li>
 				<li><b>Off</b> &ndash; Auto navigation is turned off.</li>
 			</ul>
 		</td>
@@ -255,92 +255,74 @@ It is possible to enter text into cells using the eKeyboard module.
         <th>Class name</th>
         <th>Description</th> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_container_blank</td>
         <td>Indicates the look of blank cells, except for their borders which are set using Properties.</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_container_letter</td>
         <td>Indicates the look of letter placeholder cells, except for their borders which are set using Properties.</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_letter input</td>
         <td>Indicates the look of input fields that are used to capture answers written by a user (in their default state).</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_invalid input</td>
         <td>Indicates the look of letter placeholder cells that are used to capture answers written by a user (if Check Answers has been selected and the cell content does not match the answer).</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_invalid input</td>
         <td>Indicates the look of input fields that are used to capture answers written by a user (if Check Answers has been selected and the cell content does not match the answer).</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_valid input</td>
         <td>Indicates the look of letter placeholder cells that are used to capture answers written bya  user (if Check Answers has been selected and the cell content matches the answer).</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_valid input</td>
         <td>Indicates the look of input fields that are used to capture answers written by a user (if Check Answers has been selected and the cell content matches the answer).</td> 
     </tr>
-
     <tr>
         <td>.crossword_container .cell_AxB</td>
         <td>Indicates the look of a particular cell where A is its horizontal position (counted from the left, the first cell is 0) and B is its vertical position (counted from the top, the first cell is 0).</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_AxB input</td>
         <td>The same as above but refers to the input field inside the cell.</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_column_X</td>
         <td>Indicates the look of cells in a particular column where X is its index (counted from the left, the first column is 0).</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_column_X input</td>
         <td>The same as above but refers to the input field inside the cells.</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_row_X</td>
-        <td>Indicates the look of cells in a particular row where X is its index (counted from the top left, the first row is 0)</td>
+        <td>Indicates the look of cells in a particular row where X is its index (counted from the top left, the first row is 0).</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_row_X input</td>
         <td>The same as above but refers to the input field inside the cells.</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_column_marked</td>
         <td>Indicates the look of cells in a marked column (please see the "Marked column index" property). Please combine it with other styles to limit the style to particular types of cells (for instance, ".crossword_container .cell_column_marked.cell_letter will change the look of letter cells in the marked column only).</td>
     </tr>
-
     <tr>
         <td>.crossword_container .cell_row_marked</td>
         <td>Indicates the look of cells in a marked row (please see the "Marked row index" property). Please combine it with other styles to limit the style to particular types of cells (for instance, ".crossword_container .cell_row_marked.cell_letter will change the look of letter cells in the marked row only).</td>
     </tr>
-
     <tr>
         <td>.crossword_container .word_number</td>
         <td>Indicates the look of a word number.</td> 
     </tr>
-
     <tr>
         <td>.crossword_cell_show-answers</td>
         <td>Indicates the look of cells in the show answers mode.</td> 
     </tr>
-
 </tbody>
 </table>
 
@@ -441,6 +423,7 @@ Algorithm rules/sequential steps of the algorithm:
 
 <b>Note:</b> The rules of the algorithm are checked from the first rule to the last. This means that rule 1 will be checked first, then rule 2, and so on. If any rule has all conditions satisfied, then the next rules are not checked.
 
+<b>Note:</b> If "Word numbers" property is set to horizontal or vertical, auto-navigation will ignore the algorithm and jump to the next possible horizontal/vertical answer if available.
 
 <b>Note:</b> If the auto-navigation mode does not allow chosen direction, then the navigation will not move cursor to the next cell. For example, if the auto-navigation mode is set to Simple and the direction analysis shows the <b>TabIndex direction</b>, then cursor will not be moved to the next cell.
 
