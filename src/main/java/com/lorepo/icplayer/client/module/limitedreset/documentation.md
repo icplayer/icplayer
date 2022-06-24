@@ -19,16 +19,23 @@ The Limited Reset module is based on the <a href="/doc/page/Check-and-Reset-butt
         <th>Description</th>
     </tr>
     <tr>
-        <td>Check text</td>
-        <td>Text displayed on the button.</td>
-    </tr>
-    <tr>
-        <td>Uncheck text</td>
-        <td>Text displayed on the button when it's selected.</td>
+        <td>Title</td>
+        <td>A title displayed inside the module.</td>
     </tr>
 	<tr>
         <td>Works with</td>
         <td>List of modules connected to the Limited Check module. Each line should consist of a separate module ID.</td>
+    </tr>
+    <tr>
+        <td>Reset only wrong answers</td>
+        <td>Resets only wrong answers.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: 
+            Disabled, 
+            Activity has been reset. <br /> 
+        This texts will be read by Text to Speech addon after a user performs an action.</td> 
     </tr>
 </table>
 
@@ -123,6 +130,5 @@ Limited Reset does not send any events.
 }
 </pre>
 
-
 ## Demo presentation
-[Demo presentation](/embed/5169063738212352"Demo presentation") contains examples of how to use this module.                      
+[Demo presentation](/embed/5169063738212352"Demo presentation") contains examples of how to use this module.
