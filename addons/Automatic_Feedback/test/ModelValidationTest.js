@@ -22,7 +22,8 @@ TestCase("Model validation", {
              ],
              IncorrectFeedback: [
                  {ActivityItem: '', Feedback: ''}
-             ]
+             ],
+             langAttribute: ""
          };
     },
 
@@ -39,6 +40,7 @@ TestCase("Model validation", {
 
         assertEquals({"correct":"","incorrect":"","empty":"","partial":""},validatedModel.defaultFeedback);
         assertEquals({}, validatedModel.itemFeedbacks);
+        assertEquals("", validatedModel.langTag);
     },
 
     'test given model with only default feedbacks when validation was called then return configuration with default feedbacks set': function () {

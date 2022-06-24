@@ -2309,6 +2309,7 @@ var ice_dictionary_en = {
     "Automatic_Feedback_property_display_mode": "Display mode",
     "Automatic_Feedback_property_display_feedback_buttons": "Display feedback buttons",
     "Automatic_Feedback_property_react_to": "React to",
+    "Automatic_Feedback_property_lang_attribute": "Lang attribute",
 	"Start_creating_table": "Start creating the TTS table",
 	"Finish_creating_table": "Finish creating the TTS table",
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
