@@ -16,7 +16,7 @@ TestCase("[Crossword] buildKeyboardController tests", {
 
         assertTrue(this.presenter.keyboardControllerObject !== null);
         assertTrue(this.presenter.getElementsForKeyboardNavigation.calledOnce);
-        assertEquals(this.presenter.keyboardControllerObject.keyboardNavigationElements, this.elements);
+        assertEquals(this.elements, this.presenter.keyboardControllerObject.keyboardNavigationElements);
     },
 
     'test given crossword when buildKeyboardController is called then keyboard controller have set as elements every crossword cell' : function () {
