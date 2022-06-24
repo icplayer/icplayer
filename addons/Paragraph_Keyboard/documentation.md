@@ -24,7 +24,6 @@ The Paragraph eKeyboard module allows a student to enter a free form text. It al
     <tr>
       <td>Editable placeholder</td>
       <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
-      </td>
     </tr>
     <tr>
       <td>Custom toolbar</td>

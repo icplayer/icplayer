@@ -19,10 +19,6 @@ Supported elements should be listed there, each in a new line.
       <th>Description</th>
     </tr>
     <tr>
-        <td>Is visible</td>
-        <td>When this option is selected, the addon is visible when the page is loaded.</td>
-    </tr>
-    <tr>
         <td>Is disabled</td>
         <td>Defines if the addon is disabled, which means that the user won't be able to interact with it.</td>
     </tr>
@@ -33,8 +29,18 @@ Supported elements should be listed there, each in a new line.
     <tr>
         <td>Works with</td>
         <td>Contains the list of components' ID's which are working with the specific Gradual Show Answer button. 
-        ID's should be written in a column, each placed in a new line.
-    </td>
+        ID's should be written in a column, each placed in a new line.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: 
+            One answer has been shown, 
+            All answers are hidden, 
+            No new answer to show, 
+            Page edition is blocked,
+            Page edition is not blocked,
+            Disabled. <br /> 
+        This texts will be read by Text to Speech addon after a user performs an action.</td> 
     </tr>
   </tbody>
 </table>
