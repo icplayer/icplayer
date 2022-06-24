@@ -22,6 +22,24 @@ function AddonFlashCards_create(){
         cardsFavourites: null
     };
 
+    let isWCAGOn = false;
+    presenter.speechTexts = {};
+    let KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS = "keyboard_navigation_active_element";
+
+    let DEFAULT_TTS_PHRASES = {
+        card: "Card",
+        outOf: "out of",
+        favourite: "Favourite",
+        audio: "Audio",
+        correct: "Correct",
+        wrong: "Wrong",
+        reset: "Reset",
+        selected: "Selected",
+        deselected: "Deselected",
+        cardHasBeenReset: "Card has been reset",
+        turned: "Turned"
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -44,6 +62,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.validateModel = function (model) {
+        presenter.setSpeechTexts(model['speechTexts']);
 		return {
 			isValid: true,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
@@ -55,11 +74,106 @@ function AddonFlashCards_create(){
             currentCard: presenter.configuration.currentCard,
             cardsScore: [],
             cardsFavourites: [],
-			addonID: model['ID']
+			addonID: model['ID'],
+			langTag: model['langAttribute']
 		}
 	};
 
+	presenter.upgradeModel = function (model) {
+	    return presenter.upgradeSpeechTexts(model);
+	}
+
+	presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+            upgradedModel["speechTexts"]["card"] = {card: ""};
+            upgradedModel["speechTexts"]["outOf"] = {outOf: ""};
+            upgradedModel["speechTexts"]["favourite"] = {favourite: ""};
+            upgradedModel["speechTexts"]["audio"] = {audio: ""};
+            upgradedModel["speechTexts"]["correct"] = {correct: ""};
+            upgradedModel["speechTexts"]["wrong"] = {wrong: ""};
+            upgradedModel["speechTexts"]["reset"] = {reset: ""};
+            upgradedModel["speechTexts"]["selected"] = {selected: ""};
+            upgradedModel["speechTexts"]["deselected"] = {deselected: ""};
+            upgradedModel["speechTexts"]["cardHasBeenReset"] = {cardHasBeenReset: ""};
+            upgradedModel["speechTexts"]["turned"] = {turned: ""};
+        }
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = ""
+        }
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+            var value = rawValue.trim();
+
+            if (value === undefined || value === null || value === '') {
+                return defaultValue;
+            }
+
+            return value;
+        }
+
+        presenter.setSpeechTexts = function(speechTexts) {
+            presenter.speechTexts = {
+                card: DEFAULT_TTS_PHRASES.card,
+                outOf: DEFAULT_TTS_PHRASES.outOf,
+                favourite: DEFAULT_TTS_PHRASES.favourite,
+                audio: DEFAULT_TTS_PHRASES.audio,
+                correct: DEFAULT_TTS_PHRASES.correct,
+                wrong: DEFAULT_TTS_PHRASES.wrong,
+                reset: DEFAULT_TTS_PHRASES.reset,
+                selected: DEFAULT_TTS_PHRASES.selected,
+                deselected: DEFAULT_TTS_PHRASES.deselected,
+                cardHasBeenReset: DEFAULT_TTS_PHRASES.cardHasBeenReset,
+                turned: DEFAULT_TTS_PHRASES.turned
+            };
+
+            if (!speechTexts || $.isEmptyObject(speechTexts)) {
+                return;
+            }
+            presenter.speechTexts = {
+                card: getSpeechTextProperty(
+                    speechTexts.card.card,
+                    presenter.speechTexts.card),
+                outOf: getSpeechTextProperty(
+                        speechTexts.outOf.outOf,
+                        presenter.speechTexts.outOf),
+                favourite: getSpeechTextProperty(
+                    speechTexts.favourite.favourite,
+                    presenter.speechTexts.favourite),
+                audio: getSpeechTextProperty(
+                    speechTexts.audio.audio,
+                    presenter.speechTexts.audio),
+                correct: getSpeechTextProperty(
+                    speechTexts.correct.correct,
+                    presenter.speechTexts.correct),
+                wrong: getSpeechTextProperty(
+                        speechTexts.wrong.wrong,
+                        presenter.speechTexts.wrong),
+                reset: getSpeechTextProperty(
+                    speechTexts.reset.reset,
+                    presenter.speechTexts.reset),
+                selected: getSpeechTextProperty(
+                    speechTexts.selected.selected,
+                    presenter.speechTexts.selected),
+                deselected: getSpeechTextProperty(
+                    speechTexts.deselected.deselected,
+                    presenter.speechTexts.deselected),
+                cardHasBeenReset: getSpeechTextProperty(
+                    speechTexts.cardHasBeenReset.cardHasBeenReset,
+                    presenter.speechTexts.cardHasBeenReset),
+                turned: getSpeechTextProperty(
+                    speechTexts.turned.turned,
+                    presenter.speechTexts.turned),
+            };
+        };
+
     presenter.init = function (view, model) {
+        model = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(model);
         presenter.configuration = validatedModel;
         presenter.isErrorMode = false;
@@ -71,6 +185,7 @@ function AddonFlashCards_create(){
 
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.flashcardsMain = $(presenter.$view.find(".flashcards-card").get(0));
         presenter.flashcardsPrev = presenter.$view.find(".flashcards-prev");
         presenter.flashcardsNext = presenter.$view.find(".flashcards-next");
         presenter.flashcardsButtonFavourite = presenter.$view.find(".flashcards-button-favourite");
@@ -243,6 +358,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.prevCard = function () {
+        presenter.removeActiveElementClass();
         if (presenter.state.currentCard>1){
             presenter.state.currentCard -= 1;
         }else if (presenter.state.noLoop == false){
@@ -252,6 +368,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.nextCard = function (disregardNoLoop) {
+        presenter.removeActiveElementClass();
         if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
         }else if (presenter.state.noLoop == false || disregardNoLoop){
@@ -506,6 +623,183 @@ function AddonFlashCards_create(){
         $(presenter.flashcardsNext).unbind();
         
     };
+
+    presenter.setWCAGStatus = function(isOn) {
+        isWCAGOn = isOn;
+    }
+
+    presenter.removeActiveElementClass = function() {
+        presenter.$view.find("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS).removeClass(KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS);
+    }
+
+    presenter.nextKeyboardElement = function() {
+        cycleKeyboardElement(true);
+    }
+
+    presenter.prevKeyboardElement = function() {
+        cycleKeyboardElement(false);
+    }
+
+    function cycleKeyboardElement(forward) {
+        let elementList = [presenter.flashcardsMain, presenter.flashcardsButtonFavourite];
+        let currentElementIndex = 0;
+        if (presenter.flashcardsMain.is('.flashcards-card-reversed')) {
+            elementList.push(presenter.flashcardsCardAudioButtonBack);
+            elementList.push(presenter.flashcardsButtonWrong);
+            elementList.push(presenter.flashcardsButtonReset);
+            elementList.push(presenter.flashcardsButtonCorrect);
+        } else {
+            elementList.push(presenter.flashcardsCardAudioButtonFront);
+        }
+
+        elementList = elementList.filter( function($el) {
+            return $el != null && $el.length > 0 && $el.is(":visible");
+        });
+
+        for (let i = 0; i < elementList.length; i++) {
+            if (elementList[i].is("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS)) currentElementIndex = i;
+        }
+
+        presenter.removeActiveElementClass();
+        if (forward) {
+            currentElementIndex += 1;
+            if (currentElementIndex >= elementList.length) currentElementIndex = elementList.length - 1;
+        } else {
+            currentElementIndex -= 1;
+            if (currentElementIndex < 0) currentElementIndex = 0;
+        }
+        elementList[currentElementIndex].addClass(KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS);
+
+    }
+
+    presenter.onSpace = function() {
+        let currentElement = presenter.$view.find("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS);
+        if (currentElement.length === 0 || currentElement.hasClass("flashcards-card")) {
+            presenter.removeActiveElementClass();
+            presenter.revertCard();
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.turned)]);
+        } else {
+            currentElement.click();
+            if (currentElement.hasClass('flashcards-button-reset')) {
+                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.cardHasBeenReset)]);
+            } else if (currentElement.hasClass('flashcards-button-correct')
+                || currentElement.hasClass('flashcards-button-wrong')) {
+                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected)]);
+            } else if (currentElement.hasClass('flashcards-button-favourite')) {
+                if (currentElement.hasClass('flashcards-button-selected')) {
+                    speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected)]);
+                } else {
+                    speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselected)]);
+                }
+            }
+        }
+    }
+
+    presenter.readSelected = function() {
+        let textVoices = [];
+        let currentElement = presenter.$view.find("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS);
+        if (currentElement.length === 0 || currentElement.hasClass("flashcards-card")) {
+            presenter.readCard();
+        } else {
+            if (currentElement.hasClass('flashcards-button-favourite')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.favourite));
+            } else if (currentElement.hasClass('flashcards-card-audio-button')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audio));
+            } else if (currentElement.hasClass('flashcards-button-wrong')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+            } else if (currentElement.hasClass('flashcards-button-favourite')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.favourite));
+            } else if (currentElement.hasClass('flashcards-button-correct')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+            } else if (currentElement.hasClass('flashcards-button-reset')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.reset));
+            }
+            if (currentElement.hasClass('flashcards-button-selected')) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+            }
+            speak(textVoices);
+        }
+    }
+
+    presenter.readCard = function() {
+        let $content = null;
+        if (presenter.flashcardsMain.is('.flashcards-card-reversed')) {
+            $content = presenter.flashcardsMain.find('.flashcards-card-contents-back');
+        } else {
+            $content = presenter.flashcardsMain.find('.flashcards-card-contents-front');
+        }
+
+        let textVoices = window.TTSUtils.getTextVoiceArrayFromElement($content, presenter.configuration.langTag);
+        speak(textVoices);
+    }
+
+    presenter.readCardNumber = function() {
+        let textVoices = [];
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.card));
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.state.currentCard + ''));
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.outOf));
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.state.totalCards + ''));
+        speak(textVoices);
+    }
+
+    presenter.keyboardController = function(keycode, isShift, event) {
+        event.preventDefault();
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    presenter.prevKeyboardElement();
+                } else {
+                    presenter.nextKeyboardElement();
+                }
+                presenter.readSelected();
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    presenter.removeActiveElementClass();
+                } else {
+                    presenter.readSelected();
+                }
+                break;
+            case 32: // SPACE
+                presenter.onSpace();
+                break;
+            case 38: // UP
+                presenter.prevCard();
+                presenter.readCardNumber();
+                break;
+            case 40: // DOWN
+                presenter.nextCard();
+                presenter.readCardNumber();
+                break;
+            case 37: // LEFT
+                presenter.prevCard();
+                presenter.readCardNumber();
+                break;
+            case 39: // RIGHT
+                presenter.nextCard();
+                presenter.readCardNumber();
+                break;
+            case 27: // ESC
+                presenter.removeActiveElementClass();
+                break;
+        }
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
 
     return presenter;
 };

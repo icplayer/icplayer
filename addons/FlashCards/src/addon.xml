@@ -13,5 +13,54 @@
         <property name="HidePrevNext" displayName="Hide Previous and Next Buttons" nameLabel="FlashCards_property_Hide_Previous_and_Next_Buttons" type="boolean"/>
         <property name="ShowButtons" displayName="Show Activity Buttons" nameLabel="FlashCards_property_Show_Activity_Buttons" type="boolean"/>
         <property name="IsActivity" displayName="Is Activity" nameLabel="FlashCards_property_Is_Activity" type="boolean"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="FlashCards_property_speech_texts" type="staticlist">
+
+            <property name="card" nameLabel="FlashCards_property_card" type="staticrow">
+                <property name="card" nameLabel="FlashCards_property_card" type="string"/>
+            </property>
+
+            <property name="outOf" nameLabel="FlashCards_property_outOf" type="staticrow">
+                <property name="outOf" nameLabel="FlashCards_property_outOf" type="string"/>
+            </property>
+
+            <property name="favourite" nameLabel="FlashCards_property_favourite" type="staticrow">
+                <property name="favourite" nameLabel="FlashCards_property_favourite" type="string"/>
+            </property>
+
+            <property name="audio" nameLabel="FlashCards_property_audio" type="staticrow">
+                <property name="audio" nameLabel="FlashCards_property_audio" type="string"/>
+            </property>
+
+            <property name="correct" nameLabel="FlashCards_property_correct" type="staticrow">
+                <property name="correct" nameLabel="FlashCards_property_correct" type="string"/>
+            </property>
+
+            <property name="wrong" nameLabel="FlashCards_property_wrong" type="staticrow">
+                <property name="wrong" nameLabel="FlashCards_property_wrong" type="string"/>
+            </property>
+
+            <property name="reset" nameLabel="FlashCards_property_reset" type="staticrow">
+                <property name="reset" nameLabel="FlashCards_property_reset" type="string"/>
+            </property>
+
+            <property name="selected" nameLabel="FlashCards_property_selected" type="staticrow">
+                <property name="selected" nameLabel="FlashCards_property_selected" type="string"/>
+            </property>
+
+            <property name="deselected" nameLabel="FlashCards_property_deselected" type="staticrow">
+                <property name="deselected" nameLabel="FlashCards_property_deselected" type="string"/>
+            </property>
+
+            <property name="cardHasBeenReset" nameLabel="FlashCards_property_cardHasBeenReset" type="staticrow">
+                <property name="cardHasBeenReset" nameLabel="FlashCards_property_cardHasBeenReset" type="string"/>
+            </property>
+
+            <property name="turned" nameLabel="FlashCards_property_turned" type="staticrow">
+                <property name="turned" nameLabel="FlashCards_property_turned" type="string"/>
+            </property>
+
+
+        </property>
     </model>
 </addon>
