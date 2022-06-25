@@ -6,8 +6,7 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.lorepo.icf.utils.JavaScriptUtils;
-import com.lorepo.icf.utils.KeyboarNavigationBasicDialog;
+import com.lorepo.icf.widgets.KeyboarNavigationBasicDialog;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
@@ -150,7 +149,7 @@ class ResetButton extends ExecutableButton {
 		return this.confInfo;
 	}
 
-	public boolean isDialogExist() {
+	public boolean isDialogOpen() {
 		return this.buttons.size() > 0;
 	}
 

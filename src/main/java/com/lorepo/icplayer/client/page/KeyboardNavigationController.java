@@ -10,7 +10,9 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.user.client.ui.ResetButton;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -20,6 +22,9 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.button.ButtonModule;
+import com.lorepo.icplayer.client.module.button.ButtonView;
+import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
 /*
 	Usage:
@@ -142,8 +147,29 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		}
 		this.selectCurrentModule();
 	}
+
+	private boolean isResetButton() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
+			try {
+				PresenterEntry presenterEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
+				IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
+				ButtonModule buttonModule = (ButtonModule) iPresenter.getModel();
+				ButtonType type = buttonModule.getType();
+				if (type != ButtonType.reset) return false;
+			
+				return buttonModule.getConfirmReset();
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		return false;
+	}
 	
 	private boolean isModuleButton() {
+		if (this.isResetButton()) {
+			return false;
+		}
+
 		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
 			return true;
 		}
@@ -373,7 +399,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || (isModuleButton() && !isModuleEnterable()) || !isModuleEnterable())) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton() || !isModuleEnterable())) {
 					if (moduleIsActivated) { // If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
 						moduleIsActivated = false;

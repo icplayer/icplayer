@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -151,12 +152,12 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		}
 		
 		Widget buttonWidget = this.getWidget();
-		if (buttonWidget instanceof ExecutableButton && isWCAGOn) {
+		if (buttonWidget instanceof ExecutableButton) {
 			if (this.isResetButton()) {
 				ResetButton resetButton = (ResetButton) buttonWidget;
 
 				if (resetButton.isConfirmationActive()) {
-					if (!resetButton.isDialogExist()) {
+					if (!resetButton.isDialogOpen()) {
 						((ExecutableButton) buttonWidget).execute();
 						speak(TextToSpeechVoice.create(resetButton.getTextFromDialog()));
 					}
@@ -178,10 +179,9 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void tab(KeyDownEvent event) {	
-		if (this.isResetButton()) {
+		if (this.isResetButton() && this.isDialogOpen()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton resetButton = (ResetButton) buttonWidget;
-			if (!resetButton.isDialogExist()) return;
 			resetButton.tab(event);
 
 			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
@@ -213,7 +213,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void escape(KeyDownEvent event) {
-		if (this.isResetButton()) {
+		if (this.isResetButton() && this.isDialogOpen()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton button = (ResetButton) buttonWidget;
 			button.clear();
@@ -228,10 +228,9 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
-		if (this.isResetButton()) {
+		if (this.isResetButton() && this.isDialogOpen()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton resetButton = (ResetButton) buttonWidget;
-			if (!resetButton.isDialogExist()) return;
 			resetButton.shiftTab(event);
 
 			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
@@ -244,6 +243,8 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 	
 	private void speak (TextToSpeechVoice t1) {
+		if (!isWCAGOn) return;
+
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(t1);
 		
@@ -290,11 +291,24 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public boolean isEnterable() {
-		return this.isResetButton();
+		if (this.isResetButton()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton resetButton = (ResetButton) buttonWidget;
+
+			return resetButton.isConfirmationActive();
+		}
+		return false;
 	}
 
-	private boolean isResetButton() {
+	public boolean isResetButton() {
 		ButtonType type = module.getType();
 		return type == ButtonType.reset;
+	}
+
+	private boolean isDialogOpen() {
+		Widget buttonWidget = this.getWidget();
+		ResetButton resetButton = (ResetButton) buttonWidget;
+
+		return resetButton.isDialogOpen();
 	}
 }
