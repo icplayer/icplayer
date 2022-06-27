@@ -23,5 +23,6 @@
 		<property name="Display" nameLabel="Automatic_Feedback_property_display_mode" type="{block,tooltips,popup}" />
 		<property name="DisplayFeedbackButtons" nameLabel="Automatic_Feedback_property_display_feedback_buttons" type="boolean" />
 		<property name="ReactTo" nameLabel="Automatic_Feedback_property_react_to" type="{Check,ValueChanged,Script}" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Automatic_Feedback_property_lang_attribute" type="string" />
 	</model>
 </addon>
