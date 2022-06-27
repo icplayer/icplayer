@@ -2073,7 +2073,7 @@ function AddonTextAudio_create() {
         return (presenter.configuration.isEnabled
             && this.selectedMode
             && $element.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)
-        )
+        );
     }
 
     TextAudioKeyboardController.prototype.switchElement = function (move) {
