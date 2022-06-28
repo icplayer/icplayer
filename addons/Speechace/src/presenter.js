@@ -21,24 +21,24 @@ function AddonSpeechace_create() {
     presenter.isFetchingScore = false;
 
     presenter.presenterLogic = function AddonSpeechace_presenterLogic (view, model, isPreview) {
-      presenter.$view = $(view);
-      presenter.view = view;
-      presenter.isPreview = isPreview;
+        presenter.$view = $(view);
+        presenter.view = view;
+        presenter.isPreview = isPreview;
 
-      const upgradedModel = presenter.upgradeModel(model);
-      presenter.configuration = presenter.validateModel(upgradedModel);
-      if (!presenter.configuration.isValid) {
+        const upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+        if (!presenter.configuration.isValid) {
             presenter.createErrorView(presenter.configuration.errorCode);
             return;
-      }
+        }
 
-      presenter.setIframe(view);
+        presenter.setIframe(view);
 
-      if (!presenter.isPreview) {
-          const iterations = presenter.isMauthor() ? 1 : 10;
-          presenter.runLogic(iterations);
-          presenter.registerEvents();
-      }
+        if (!presenter.isPreview) {
+            const iterations = presenter.isMauthor() ? 1 : 10;
+            presenter.runLogic(iterations);
+            presenter.registerEvents();
+        }
     };
 
     presenter.isMauthor = function AddonSpeechace_isMauthor () {
@@ -210,7 +210,7 @@ function AddonSpeechace_create() {
 
     presenter.handleMessageReceived = function AddonSpeechace_handleMessageReceived (event) {
         if (event.data === "speechaceActivityComplete") {
-                presenter.requestScore();
+            presenter.requestScore();
         }
     };
 
@@ -220,7 +220,7 @@ function AddonSpeechace_create() {
         }
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         window.removeEventListener("message", presenter.handleMessageReceived);
-    }
+    };
 
     presenter.getState = function AddonSpeechace_getState () {
         if (!presenter.configuration.isValid) return "";

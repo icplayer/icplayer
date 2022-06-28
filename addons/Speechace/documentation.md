@@ -28,18 +28,17 @@ Configuration of this addon requires passing proper data in setContextMetadata m
         <th>Command name</th>
         <th>Params</th>
         <th>Description</th>
-    </tr>
-    
-<tr>
+    </tr>    
+    <tr>
         <td>show</td>
         <td>---</td>
         <td>Shows the addon.</td>
     </tr>
-<tr>
+    <tr>
         <td>hide</td>
         <td>---</td>
         <td>Hides the addon.</td>
-</tr>
+    </tr>
 </tbody>
 </table>
 

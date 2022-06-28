@@ -47,6 +47,8 @@ TestCase("[Speechace] Test validateModel method", {
 
     'test given invalid courseId when validateModel then returns isValid false': function () {
         var model = {
+            Id: "Speechace_1",
+            "Is Visible": true,
             courseId: undefined
         };
 

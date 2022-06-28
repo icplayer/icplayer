@@ -195,16 +195,16 @@ public class AddonDescriptorFactory {
 	}
 
 	public void setSpeechaceEnabled(boolean isEnabled) {
-        setOptionalAddonEnabled(isEnabled, "Speechace", "activities_menu");
+	    setOptionalAddonEnabled(isEnabled, "Speechace", "activities_menu");
 	}
 
 	private void setOptionalAddonEnabled(boolean isEnabled, String addonName, String category) {
-	    if (isEnabled && !addonList.containsKey(addonName)) {
-			addDescriptor(addonName, category);
-		}
+        if (isEnabled && !addonList.containsKey(addonName)) {
+            addDescriptor(addonName, category);
+        }
 
-		if (!isEnabled && addonList.containsKey(addonName)) {
-		    addonList.remove(addonName);
-		}
+        if (!isEnabled && addonList.containsKey(addonName)) {
+            addonList.remove(addonName);
+        }
 	}
 }

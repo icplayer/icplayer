@@ -23,7 +23,7 @@ TestCase("[Speechace] Test runLogic method", {
 
         assertTrue(this.stubs.handleURLLogic.calledOnce);
         assertEquals(this.spies.runLogic.callCount, numberOfCalls + 1);
-        assertEquals(this.presenter.JWTsessionTokenURL, this.presenter.DEFAULTS.JWTsessionTokenURL);
+        assertEquals(this.presenter.JWTSessionTokenURL, this.presenter.DEFAULTS.JWTSessionTokenURL);
         assertEquals(this.presenter.speechaceCourseURL, this.presenter.DEFAULTS.speechaceCourseURL);
         assertEquals(this.presenter.collectionID, this.presenter.DEFAULTS.collectionId);
     },
@@ -40,7 +40,7 @@ TestCase("[Speechace] Test runLogic method", {
 
         assertTrue(this.stubs.handleURLLogic.calledOnce);
         assertEquals(this.spies.runLogic.callCount, numberOfCalls + 1);
-        assertEquals(this.presenter.JWTsessionTokenURL, this.presenter.DEFAULTS.JWTsessionTokenURL);
+        assertEquals(this.presenter.JWTSessionTokenURL, this.presenter.DEFAULTS.JWTSessionTokenURL);
         assertEquals(this.presenter.speechaceCourseURL, this.presenter.DEFAULTS.speechaceCourseURL);
         assertEquals(this.presenter.collectionID, this.presenter.DEFAULTS.collectionId);
     },
@@ -48,7 +48,7 @@ TestCase("[Speechace] Test runLogic method", {
     'test given contextMetadata with just JWT url when runLogic called then function called once and errorViewCreated': function () {
         var numberOfCalls = 3;
         var contextMetadata = {
-            JWTsessionTokenURL: "some/jwt/url"
+            JWTSessionTokenURL: "some/jwt/url"
         };
         this.presenter.playerController = {
             getContextMetadata: () => {return contextMetadata;}
@@ -58,11 +58,11 @@ TestCase("[Speechace] Test runLogic method", {
 
         this.clock.tick(500);
 
-        assertFalse(this.stubs.handleURLLogic.calledOnce);
+        assertFalse(this.stubs.handleURLLogic.called);
         assertTrue(this.stubs.createErrorView.calledOnce);
         assertTrue(this.spies.runLogic.calledOnce);
 
-        assertEquals(this.presenter.JWTsessionTokenURL, contextMetadata.JWTsessionTokenURL);
+        assertEquals(this.presenter.JWTSessionTokenURL, contextMetadata.JWTSessionTokenURL);
         assertEquals(this.presenter.speechaceCourseURL, "");
         assertEquals(this.presenter.collectionID, this.presenter.DEFAULTS.collectionId);
     },
@@ -80,11 +80,11 @@ TestCase("[Speechace] Test runLogic method", {
 
         this.clock.tick(500);
 
-        assertFalse(this.stubs.handleURLLogic.calledOnce);
+        assertFalse(this.stubs.handleURLLogic.called);
         assertTrue(this.stubs.createErrorView.calledOnce);
         assertTrue(this.spies.runLogic.calledOnce);
 
-        assertEquals(this.presenter.JWTsessionTokenURL, "");
+        assertEquals(this.presenter.JWTSessionTokenURL, "");
         assertEquals(this.presenter.speechaceCourseURL, contextMetadata.speechaceCourseURL);
         assertEquals(this.presenter.collectionID, this.presenter.DEFAULTS.collectionId);
     },
@@ -92,7 +92,7 @@ TestCase("[Speechace] Test runLogic method", {
     'test given contextMetadata with both mandatory URLs when runLogic called then function called once and successfully proceeded': function () {
         var numberOfCalls = 3;
         var contextMetadata = {
-            JWTsessionTokenURL: "some/jwt/url",
+            JWTSessionTokenURL: "some/jwt/url",
             speechaceCourseURL: "some/course/url"
         };
         this.presenter.playerController = {
@@ -104,10 +104,10 @@ TestCase("[Speechace] Test runLogic method", {
         this.clock.tick(500);
 
         assertTrue(this.stubs.handleURLLogic.calledOnce);
-        assertFalse(this.stubs.createErrorView.calledOnce);
+        assertFalse(this.stubs.createErrorView.called);
         assertTrue(this.spies.runLogic.calledOnce);
 
-        assertEquals(this.presenter.JWTsessionTokenURL, contextMetadata.JWTsessionTokenURL);
+        assertEquals(this.presenter.JWTSessionTokenURL, contextMetadata.JWTSessionTokenURL);
         assertEquals(this.presenter.speechaceCourseURL, contextMetadata.speechaceCourseURL);
         assertEquals(this.presenter.collectionID, this.presenter.DEFAULTS.collectionId);
     },
@@ -115,7 +115,7 @@ TestCase("[Speechace] Test runLogic method", {
     'test given contextMetadata with both mandatory URLs and additional collectionID when runLogic then function called once and successfully proceeded': function () {
         var numberOfCalls = 3;
         var contextMetadata = {
-            JWTsessionTokenURL: "some/jwt/url",
+            JWTSessionTokenURL: "some/jwt/url",
             speechaceCourseURL: "some/course/url",
             collectionID: "36918698"
         };
@@ -128,10 +128,10 @@ TestCase("[Speechace] Test runLogic method", {
         this.clock.tick(500);
 
         assertTrue(this.stubs.handleURLLogic.calledOnce);
-        assertFalse(this.stubs.createErrorView.calledOnce);
+        assertFalse(this.stubs.createErrorView.called);
         assertTrue(this.spies.runLogic.calledOnce);
 
-        assertEquals(this.presenter.JWTsessionTokenURL, contextMetadata.JWTsessionTokenURL);
+        assertEquals(this.presenter.JWTSessionTokenURL, contextMetadata.JWTSessionTokenURL);
         assertEquals(this.presenter.speechaceCourseURL, contextMetadata.speechaceCourseURL);
         assertEquals(this.presenter.collectionID, contextMetadata.collectionID);
     }
