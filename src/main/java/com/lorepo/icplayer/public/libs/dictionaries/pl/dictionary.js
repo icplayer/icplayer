@@ -1479,7 +1479,7 @@ var ice_dictionary_pl = {
 	"Text_Coloring_property_deselected": "Deselected",
 	"Text_Coloring_property_TextContent": "Text content",
 	"Text_Coloring_property_correct": "Correct",
-	"Text_Coloring_property_Incorrect": "Incorrect",
+	"Text_Coloring_property_Incorrect": "Wrong",
 	"Text_Coloring_property_lang_attribute": "Lang attribute",
 	"Text_Selection_info" : "Pozwala na zaznaczanie wybranych partii tekstu; działa w dwóch trybach – „Mark phrases to select”, w którym można zdefiniować poprawne i błędne odpowiedzi oraz „All selectable”, gdzie można określić tylko poprawne odpowiedzi, a wszystkie wyrażenia są gotowe do zaznaczenia.",
 	"Text_Selection_name" : "Zaznaczanie tekstu",
