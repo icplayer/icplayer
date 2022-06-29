@@ -266,10 +266,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += "<page layout='" + layout.toString() + "'";
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
 		xml += " isReportable='" + reportable + "'";
+		xml += " notAssignable='" + notAssignable + "'";
 		xml += " scoring='" + scoringType + "'";
 		xml += " version='" + Page.version + "'";
 		xml += " randomizeInPrint='" + randomizeInPrint + "'";
-		xml += " notAssignable='" + notAssignable + "'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
