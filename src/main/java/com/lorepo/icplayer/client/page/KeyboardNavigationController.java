@@ -155,9 +155,8 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
 				ButtonModule buttonModule = (ButtonModule) iPresenter.getModel();
 				ButtonType type = buttonModule.getType();
-				if (type != ButtonType.reset) return false;
-			
-				return buttonModule.getConfirmReset();
+				
+				return type == ButtonType.reset;
 			} catch (Exception e) {
 				return false;
 			}

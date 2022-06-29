@@ -121,8 +121,8 @@ class ResetButton extends ExecutableButton {
 	              }
 	        });
 
-			this.buttons.add(yesButton);
-			this.buttons.add(noButton);
+			buttons.add(yesButton);
+			buttons.add(noButton);
 
             dialogBox.setWidget(dialogHPanel);
             dialogBox.setPopupPosition(left, top);
@@ -141,7 +141,7 @@ class ResetButton extends ExecutableButton {
 	}
 
 	public String getTextFromButton() {
-		Button selectedButton = this.buttons.get(this.position);
+		Button selectedButton = buttons.get(position);
 		return selectedButton.getText();
 	}
 
@@ -150,44 +150,45 @@ class ResetButton extends ExecutableButton {
 	}
 
 	public boolean isDialogOpen() {
-		return this.buttons.size() > 0;
+		return buttons.size() > 0;
 	}
 
 	public void clear() {
-		this.buttons.clear();
+		buttons.clear();
+		position = -1;
 	}
 
 	public void enter (KeyDownEvent event, boolean isExiting) {
-		if (this.position == 0) {
-			this.buttons.get(0).click();
-		} else if (this.position == 1) {
-			this.buttons.get(1).click();
+		if (position == 0) {
+			buttons.get(0).click();
+		} else if (position == 1) {
+			buttons.get(1).click();
 		}
 	}
 
 	public void tab(KeyDownEvent event) {
-		this.position = this.position + 1;
+		position++;
 
-		if (this.position >= this.buttons.size()) {
-			this.position = 0;
+		if (position == buttons.size()) {
+			position = 0;
 		}
 
 		this.updateStyleForButtons();
 	}
 
 	public void shiftTab(KeyDownEvent event) {
-		this.position = this.position - 1;
+		position--;
 
-		if (this.position < 0) {
-			this.position = 1;
+		if (position < 0) {
+			position = 1;
 		}
 
 		this.updateStyleForButtons();
 	}
 
 	private void updateStyleForButtons() {
-		Button selectedButton = this.buttons.get(this.position);
-		for (Button button : this.buttons) {
+		Button selectedButton = buttons.get(position);
+		for (Button button : buttons) {
 			button.removeStyleName("ic_selected_module");
 		}
 

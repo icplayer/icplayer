@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -18,9 +17,8 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.module.IEnterable;
 
-public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, IEnterable {
+public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
 	private static final String DISABLED_STYLE = "disabled";
 	
 	private ButtonModule module;
@@ -213,7 +211,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void escape(KeyDownEvent event) {
-		if (this.isResetButton() && this.isDialogOpen()) {
+		if (this.isResetButton()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton button = (ResetButton) buttonWidget;
 			button.clear();
@@ -287,17 +285,6 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		} else {
 			super.setVisible(false);
 		}
-	}
-
-	@Override
-	public boolean isEnterable() {
-		if (this.isResetButton()) {
-			Widget buttonWidget = this.getWidget();
-			ResetButton resetButton = (ResetButton) buttonWidget;
-
-			return resetButton.isConfirmationActive();
-		}
-		return false;
 	}
 
 	public boolean isResetButton() {

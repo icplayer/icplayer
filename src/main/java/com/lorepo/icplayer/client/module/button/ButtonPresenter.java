@@ -274,6 +274,9 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 
 	@Override
 	public boolean isEnterable() {
-		return true;
+		if (model.getType() == ButtonType.reset) {
+			return model.getConfirmReset();
+		}
+		return false;
 	}
 }
