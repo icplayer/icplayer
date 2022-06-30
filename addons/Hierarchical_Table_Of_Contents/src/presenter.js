@@ -17,6 +17,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         CHAPTER: "hier_report-chapter",
         CHAPTER_EXPANDER: "treegrid-expander",
         CHAPTER_EXPANDER_EXPANDED: "treegrid-expander-expanded",
+        CHAPTER_EXPANDER_COLLAPSED: "treegrid-expander-collapsed",
     };
 
     presenter.DEFAULT_TTS_PHRASES = {
@@ -28,7 +29,6 @@ function AddonHierarchical_Table_Of_Contents_create() {
     };
 
     presenter.isFirstEnter = true;
-    presenter.keyNavIndex = 0;
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
@@ -352,13 +352,13 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
         checkIfChapterHasChildren(true);
 
+        presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.buildKeyboardController();
     };
 
     presenter.upgradeModel = function (model) {
         const upgradedLangTagModel = presenter.upgradeLangTag(model);
         const upgradedSpeechTextsModel = presenter.upgradeSpeechTexts(upgradedLangTagModel);
-        presenter.setSpeechTexts(upgradedSpeechTextsModel["speechTexts"]);
 
         return upgradedSpeechTextsModel;
     };
@@ -392,7 +392,9 @@ function AddonHierarchical_Table_Of_Contents_create() {
     };
 
     presenter.setSpeechTexts = function(speechTexts) {
-        presenter.speechTexts = presenter.DEFAULT_TTS_PHRASES;
+        presenter.speechTexts = {
+            ...presenter.DEFAULT_TTS_PHRASES
+        };
 
         if (!speechTexts || $.isEmptyObject(speechTexts)) {
             return;
@@ -432,7 +434,10 @@ function AddonHierarchical_Table_Of_Contents_create() {
         presenter.$view.find(".hier_report-chapter").each(function () {
             if($(this).next('tr[class*=treegrid-parent]').length == 0){
                 if(isDisplayOnlyChapters){
-                    $(this).find(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER}`).removeClass("treegrid-expander-collapsed").removeClass("treegrid-expander-expanded");
+                    $(this)
+                        .find(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER}`)
+                        .removeClass(`.${presenter.DEFAULT_TTS_PHRASES.CHAPTER_EXPANDER_COLLAPSED}`)
+                        .removeClass(`.${presenter.DEFAULT_TTS_PHRASES.CHAPTER_EXPANDER_EXPANDED}`);
                 }else{
                     $(this).remove();
                 }
@@ -508,38 +513,33 @@ function AddonHierarchical_Table_Of_Contents_create() {
     };
 
     HTocKeyboardController.prototype.moveToNextKeyNavElement = function () {
-        const nextIndex = presenter.getNextSelectableElementIndexOrNull();
+        const nextIndex = this.getNextSelectableElementIndexOrNull();
         if (nextIndex === null) return;
 
         this.switchElement(1);
-        presenter.keyNavIndex++;
 
         if (!presenter.isParentTableRowVisible(this.keyboardNavigationCurrentElement)) {
-            presenter.keyNavIndex = nextIndex;
             this.markCurrentElement(nextIndex);
         }
         centerElement(this.keyboardNavigationCurrentElement);
     };
 
     HTocKeyboardController.prototype.moveToPreviousKeyNavElement = function () {
-        const nextIndex = presenter.keyNavIndex - 1;
+        const nextIndex = this.keyboardNavigationCurrentElementIndex - 1;
         if (nextIndex < 0) return;
-
-        presenter.keyNavIndex--;
 
         this.switchElement(-1);
         if(!presenter.isParentTableRowVisible(this.keyboardNavigationCurrentElement)) {
-            this.previousElement();
+            this.moveToPreviousKeyNavElement();
         }
         centerElement(this.keyboardNavigationCurrentElement);
     }
 
-    presenter.getNextSelectableElementIndexOrNull = function () {
-        const elements = presenter.isTTS()
-            ? presenter.getElementsForTTS()
-            : presenter.getElementsForKeyboardNavigation();
+    HTocKeyboardController.prototype.getNextSelectableElementIndexOrNull = function () {
+        const elements = this.keyboardNavigationElements;
+        const nextElementIndex = this.keyboardNavigationCurrentElementIndex + 1;
 
-        for (let i = presenter.keyNavIndex + 1; i < elements.length; i++) {
+        for (let i = nextElementIndex; i < elements.length; i++) {
             if (presenter.isParentTableRowVisible(elements[i])) {
                 return i;
             }
@@ -554,9 +554,8 @@ function AddonHierarchical_Table_Of_Contents_create() {
     HTocKeyboardController.prototype.enter = function (event) {
         if (presenter.isFirstEnter) {
             if (presenter.isTTS()) {
-                KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+                this.setElements.call(this, presenter.getElementsForTTS());
             }
-            presenter.keyNavIndex = 0;
             presenter.isFirstEnter = false;
         }
         KeyboardController.prototype.enter.call(this, event);
@@ -626,7 +625,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const result = $(currentElement).hasClass("hier_report-header");
 
         return !result;
-    }
+    };
 
     HTocKeyboardController.prototype.getCurrentElement = function () {
         return this.getTarget(this.keyboardNavigationCurrentElement, false);
@@ -634,7 +633,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     HTocKeyboardController.prototype.exitWCAGMode = function () {
         presenter.isFirstEnter = true;
-        KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
         KeyboardController.prototype.exitWCAGMode.call(this);
         presenter.setWCAGStatus(false);
     };
@@ -643,10 +642,10 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const textVoiceObject = [];
 
         const titlePrefix = presenter.speechTexts.Title;
-        pushMessageToTextVoiceObject(textVoiceObject, titlePrefix);
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, titlePrefix);
 
         const titleText = $element[0].innerText;
-        pushMessageToTextVoiceObject(textVoiceObject, titleText, true);
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, titleText);
 
         return textVoiceObject;
     }
@@ -655,16 +654,16 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const textVoiceObject = [];
 
         const chapterPrefix = presenter.speechTexts.Chapter;
-        pushMessageToTextVoiceObject(textVoiceObject, chapterPrefix);
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, chapterPrefix);
 
         const chapterName = $element.find(".text-wrapper").text();
-        pushMessageToTextVoiceObject(textVoiceObject, chapterName, true);
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, chapterName);
 
         const expanderStatus = isChapterExpanderExpanded($element)
             ? presenter.speechTexts.Expanded
             : presenter.speechTexts.Collapsed;
 
-        pushMessageToTextVoiceObject(textVoiceObject, expanderStatus);
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, expanderStatus);
 
         return textVoiceObject;
     }
@@ -677,12 +676,12 @@ function AddonHierarchical_Table_Of_Contents_create() {
         return nameWithPrefix;
     }
 
+    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
 
-    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
-        if (usePresenterLangTag)
-            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
-        else
-            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
     }
 
     function centerElement(element){
@@ -696,11 +695,13 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
         pos=(pos+currentScroll)-(divHeight/2);
 
-         presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_CONTAINER}`).scrollTop(pos);
+        presenter.$view.find(`.${presenter.CSS_CLASSES.TABLE_CONTAINER}`).scrollTop(pos);
     }
 
     function isChapterExpanderExpanded ($element) {
-        return $element.find(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER}`).hasClass(presenter.CSS_CLASSES.CHAPTER_EXPANDER_EXPANDED)
+        return $element
+            .find(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER}`)
+            .hasClass(presenter.CSS_CLASSES.CHAPTER_EXPANDER_EXPANDED);
     }
 
     presenter.setWCAGStatus = function(isWCAGOn) {

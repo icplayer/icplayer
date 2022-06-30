@@ -49,7 +49,6 @@ TestCase("[Hierarchical Table Of Contents] Upgrade Model", {
     },
 
     "test given incomplete speech texts model when upgrading model then sets correct object to speech text": function () {
-
         const expectedModel = {
             speechTexts: {
                 Title: {Title: ""},
@@ -89,7 +88,8 @@ TestCase("[Hierarchical Table Of Contents] Upgrade Model", {
             }
         };
 
-        this.presenter.upgradeModel(inputModel);
+        const upgradedModel = this.presenter.upgradeModel(inputModel);
+        this.presenter.setSpeechTexts(upgradedModel["speechTexts"]);
 
         assertEquals(expectedSpeechTexts, this.presenter.speechTexts);
     },

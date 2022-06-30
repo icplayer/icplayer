@@ -17,13 +17,22 @@ The Hierarchical Table of Contents addon displays a presentation's table of cont
         <td>With this option selected, only chapters will be displayed.</td>
     </tr>
     <tr>
-          <td>Show pages</td>
-           <td><ul>
-<li><b>All</b> &ndash; All pages will be displayed</li>
-<li><b>Reportable</b> &ndash; Reportable pages will be displayed</li>
-<li><b>Not-Reportable</b>  Pages that are not reportable will be displayed</li>
-</ul>
-</td>
+        <td>Show pages</td>
+        <td>
+            <ul>
+                <li><b>All</b> &ndash; All pages will be displayed</li>
+                <li><b>Reportable</b> &ndash; Reportable pages will be displayed</li>
+                <li><b>Not-Reportable</b>  Pages that are not reportable will be displayed</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>Tag of the TTS language to be used for the addon content.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Specify custom TTS for main elements and actions of the addon.</td>
     </tr>
 </table>
 
