@@ -1,4 +1,4 @@
-TestCase('Paragraph Keyboard - commands test', {
+TestCase('[Paragraph Keyboard] Commands test', {
     setUp: function () {
         this.presenter = AddonParagraph_Keyboard_create();
         this.presenter.configuration = {
@@ -74,10 +74,71 @@ TestCase('Paragraph Keyboard - commands test', {
 
         assertEquals(result, text);
     },
+});
 
-    'test given text in the view when isAttempted was called then return True': function () {
+TestCase("[Paragraph Keyboard] isAttempted method", {
+    setUp: function () {
+        this.presenter = AddonParagraph_Keyboard_create();
+        this.presenter.configuration = {
+            ID: 'Paragraph-eKeyboard1',
+            isVisible: true,
+            isValid: true
+        };
+
+        this.presenter.editor = {
+            'getContent': sinon.stub()
+        }
+    },
+
+    'test given editor was not loaded and state is not set when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = false;
+        this.presenter.state = null;
+
         var result = this.presenter.isAttempted();
 
+        assertFalse(this.presenter.editor.getContent.called);
+        assertFalse(result);
+    },
+
+    'test given editor was not loaded and tinymceState has no text when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = false;
+        this.presenter.state = '{"tinymceState":"<p></p>"}';
+
+        var result = this.presenter.isAttempted();
+
+        assertFalse(this.presenter.editor.getContent.called);
+        assertFalse(result);
+    },
+
+    'test given editor was not loaded and tinymceState contains text when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = false;
+        this.presenter.state = '{"tinymceState":"<p>hello world</p>"}';
+
+        var result = this.presenter.isAttempted();
+
+        assertFalse(this.presenter.editor.getContent.called);
         assertTrue(result);
+    },
+
+    'test given editor was loaded and editor contains text when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.state = '{"tinymceState":"<p>hello world</p>"}';
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+
+        var result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.called);
+        assertTrue(result);
+    },
+
+    'test given editor was loaded and editor contains no text when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.state = '{"tinymceState":"<p>hello world</p>"}';
+        this.presenter.editor.getContent.returns('<p></p>');
+
+        var result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.called);
+        assertFalse(result);
     }
 });
