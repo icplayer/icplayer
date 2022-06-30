@@ -52,14 +52,14 @@ It's also important that audio files have <strong>constant bitrate</strong> beca
     <tr>
         <td>mp3</td>
         <td>
-            This property serves for uploading an audio file in mp3 format into the module. It's needed for Internet Explorer.
+            This property serves for uploading an audio file in mp3 format into the module.
             <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
         </td>
     </tr>
     <tr>
         <td>ogg</td>
         <td>
-            This property serves for uploading an audio file in ogg format into the module. It's needed for all common browsers (exclude Internet Explorer and Safari).
+            This property serves for uploading an audio file in ogg format into the module.
             <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
         </td>
     </tr>
@@ -74,7 +74,7 @@ It's also important that audio files have <strong>constant bitrate</strong> beca
     <tr>
         <td>Vocabulary mp3</td>
         <td>
-            This property serves for uploading an audio file in mp3 format into the module. It's needed for Internet Explorer.
+            This property serves for uploading an audio file in mp3 format into the module.
             Setting up this property is only needed when On Text Click Behavior is set to "Play the interval from vocabulary file".
             <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
         </td>
@@ -82,7 +82,7 @@ It's also important that audio files have <strong>constant bitrate</strong> beca
     <tr>
         <td>Vocabulary ogg</td>
         <td>
-            This property serves for uploading a vocabulary audio file in ogg format into the module. It's needed for all common browsers (exclude Internet Explorer and Safari).
+            This property serves for uploading a vocabulary audio file in ogg format into the module.
             Setting up this property is only needed when On Text Click Behavior is set to "Play the interval from vocabulary file".
             <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
         </td>
@@ -303,6 +303,26 @@ When audio playback is finished, TextAudio addon sends OnEnd event to Event Bus.
     <tr>
         <td>.wrapper-addon-textaudio  span.textelement[num]</td>
         <td>Where [num] is the element number counted from 0 on every slide. It is possible that there is more than one element with the same class number but they are always resposible for the same audio part.</td>
+    </tr>
+    <tr>
+        <td>.textaudio-play-pause-btn</td>
+        <td>Shared styles used for the play button and pause button.</td>
+    </tr>
+    <tr>
+        <td>.textaudio-play-btn</td>
+        <td>Styles for the play button.</td>
+    </tr>
+    <tr>
+        <td>.textaudio-pause-btn</td>
+        <td>Styles for the pause button.</td>
+    </tr>
+    <tr>
+        <td>.textaudio-stop-btn</td>
+        <td>Styles for the stop button.</td>
+    </tr>
+    <tr>
+        <td>.textaudio-playback-rate</td>
+        <td>Styles for the audio speed controller.</td>
     </tr>
 </table>
 
