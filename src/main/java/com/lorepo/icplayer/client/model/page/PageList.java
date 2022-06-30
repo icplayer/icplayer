@@ -316,8 +316,8 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		final int weight = isEmpty ? 1 : (int) Float.parseFloat(pageWeightAttribute);
 
 		boolean reportable = XMLUtils.getAttributeAsBoolean(node, "reportable", true);
-		boolean randomizeInPrint = XMLUtils.getAttributeAsBoolean(node, "randomizeInPrint", false);
 		boolean notAssignable = XMLUtils.getAttributeAsBoolean(node, "notAssignable", false);
+		boolean randomizeInPrint = XMLUtils.getAttributeAsBoolean(node, "randomizeInPrint", false);
 		Page page = new Page(name, href);
 		if (pageId != null && pageId.length() > 0 && !pageId.equals("null")) {
 			page.setId(pageId);
@@ -325,10 +325,10 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 		page.setPageWeight(weight);
 		page.setReportable(reportable);
+		page.setNotAssignable(notAssignable);
 		page.setPreview(preview);
 		page.setModulesMaxScore(moduleMaxScore);
 		page.setRandomizeInPrint(randomizeInPrint);
-		page.setNotAssignable(notAssignable);
 		return page;
 	}
 

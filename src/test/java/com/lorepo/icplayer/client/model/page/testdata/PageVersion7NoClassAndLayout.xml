@@ -2,8 +2,8 @@
 
 <page 
     name="Page" 
-    isReportable="true" scoring="percentage" 
-    version="7" randomizeInPrint="false" notAssignable="false"
+    isReportable="true" notAssignable="false" scoring="percentage"
+    version="7" randomizeInPrint="false" 
     header="" hasHeader="true" footer="" hasFooter="true"
   	layout="percentage">
 	<layouts>

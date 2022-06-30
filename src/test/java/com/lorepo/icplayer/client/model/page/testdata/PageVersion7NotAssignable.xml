@@ -2,8 +2,8 @@
 
 <page 
     layout="pixels" name="Page" 
-    isReportable="true" scoring="percentage" 
-    version="7" randomizeInPrint="false" notAssignable="true"
+    isReportable="true" notAssignable="true" scoring="percentage"
+    version="7" randomizeInPrint="false"
     header="" hasHeader="true" footer="" hasFooter="true">
 	<styles>
 		<styleClasses>

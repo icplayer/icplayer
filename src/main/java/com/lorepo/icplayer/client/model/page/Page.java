@@ -110,12 +110,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWidth();
 		addPropertyHeight();
 		addPropertyReportable();
+		addPropertyNotAssignable();
 		addPropertyPreview();
 		addPropertyScoreType();
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
 		addPropertyRandomizeInPrint();
-		addPropertyNotAssignable();
 	}
 
 	/**
