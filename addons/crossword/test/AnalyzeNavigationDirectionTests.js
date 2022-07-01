@@ -1,6 +1,6 @@
 function getCrosswordForNavigationTests () {
     return [
-        //0    1     2    3     4     5     6    7    8    9
+        //0A   1B    2C   3D    4E    5F    6G   7H    8I   9J
         [" ", "!G", " ", "O" , " " , "S" , " ", " " , " ", " "], // 0
         ["W", "I" , "E", "L" , "O" , "K" , "Ą", "T" , " ", " "], // 1
         [" ", "L" , " ", "Y" , " " , "W" , " ", " " , " ", " "], // 2

@@ -12,7 +12,7 @@ export class BaseKeyboardController extends KeyboardController {
         DOWNLOAD_BUTTON: "Download button",
         RESET_DIALOG: "Reset dialog",
         START_RECORDING: "Start recording",
-        STOP_RECORDING: "Stop recording",
+        STOP_RECORDING: "Recording stopped",
         DISABLED: "Disabled",
     };
 

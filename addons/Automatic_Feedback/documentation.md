@@ -43,6 +43,10 @@ Automatic Feedback displays feedback messages in various formats (such as as a t
         <td>ReactTo</td>
         <td>Specifies in response to what event should the feedback message be displayed.</td>
     </tr>
+    <tr>
+        <td>lang Attribute</td>
+        <td>Specifies the language used by the TTS while reading the feedback</td>
+    </tr>
 </table>
 
 ## Supported commands
@@ -58,6 +62,16 @@ Automatic Feedback displays feedback messages in various formats (such as as a t
          <td>item, type</td>
          <td>Displays the correct/incorrect/empty/partial feedback for the specified item. Type argument should be one of the following values: "correct", "incorrect", "empty", "partial". Item argument should be a number coresponding to the selected element. </td>
      </tr>
+    <tr>
+        <td>readFeedback</td>
+        <td>item, type</td>
+        <td>Reads the correct/incorrect/empty/partial feedback for the specified item using the TTS addon. Type argument should be one of the following values: "correct", "incorrect", "empty", "partial". Item argument should be a number coresponding to the selected element. </td>
+    </tr>
+    <tr>
+        <td>displayAndReadFeedback</td>
+        <td>item, type</td>
+        <td>Displays the correct/incorrect/empty/partial feedback for the specified item as well as reads it using the TTS addon. Type argument should be one of the following values: "correct", "incorrect", "empty", "partial". Item argument should be a number coresponding to the selected element. </td>
+    </tr>
      <tr>
          <td>isAllOK</td>
          <td>---</td>

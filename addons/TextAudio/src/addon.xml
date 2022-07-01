@@ -25,9 +25,8 @@
         <property name='isClickDisabled' displayName='Is Click Disabled' nameLabel='TextAudio_property_is_click_disabled' type='boolean' />
         <property name="showSlides" displayName="Show Slides" nameLabel='TextAudio_property_show_slides' type="{Show current slide, Show all slides}" />
         <property name="isDisabled" type="boolean" nameLabel="TextAudio_property_is_disabled"/>
-        <property name="langAttribute" type="string" nameLabel="TextAudio_property_lang_attribute"/>
         <property name="enablePlaybackSpeedControls" type="boolean" displayName="Enable playback speed controls" nameLabel="Enable_playback_speed_controls"/>
-
+        <property name="langAttribute" type="string" nameLabel="TextAudio_property_lang_attribute"/>
         <property name="speechTexts" displayName="Speech texts" nameLabel="TextAudio_property_speech_texts" type="staticlist">
             <property name="Play" nameLabel="TextAudio_play" type="staticrow">
                 <property name="Play" nameLabel="TextAudio_play" type="string"/>
@@ -37,6 +36,9 @@
             </property>
             <property name="Stop" nameLabel="TextAudio_stop" type="staticrow">
                 <property name="Stop" nameLabel="TextAudio_stop" type="string"/>
+            </property>
+            <property name="AudioSpeedController" nameLabel="TextAudio_audio_speed_controller" type="staticrow">
+                <property name="AudioSpeedController" nameLabel="TextAudio_audio_speed_controller" type="string"/>
             </property>
         </property>
     </model>

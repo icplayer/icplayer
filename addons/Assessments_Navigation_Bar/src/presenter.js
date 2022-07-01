@@ -693,8 +693,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
-        var $navigationButtonsFirst = $('<div></div>');
-        $navigationButtonsFirst.addClass("navigation-buttons-first");
+        const isFirstPage = presenter.currentPageIndex === 0;
+        const elementClass = isFirstPage ? "navigation-buttons-first inactive" : "navigation-buttons-first";
+
+        const $navigationButtonsFirst = $('<div></div>');
+        $navigationButtonsFirst.addClass(elementClass);
 
         this.navigationButtonLeft = new presenter.NavigationButtonLeft();
         $navigationButtonsFirst.append(this.navigationButtonLeft.getView());
@@ -704,8 +707,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsLast = function () {
-        var $navigationButtonsLast = $('<div></div>');
-        $navigationButtonsLast.addClass("navigation-buttons-last");
+        const isLastPage = presenter.currentPageIndex === presenter.configuration.numberOfPages - 1;
+        const elementClass = isLastPage ? "navigation-buttons-last inactive" : "navigation-buttons-last";
+
+        const $navigationButtonsLast = $('<div></div>');
+        $navigationButtonsLast.addClass(elementClass);
 
         this.navigationButtonRight = new presenter.NavigationButtonRight();
         $navigationButtonsLast.append(this.navigationButtonRight.getView());

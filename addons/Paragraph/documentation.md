@@ -21,7 +21,11 @@ The Paragraph module allows a student to enter a free form text. It also allows 
       <td>Hide toolbar</td>
       <td>Hides a toolbar and so extends the editable area space</td>
     </tr>
-<tr>
+    <tr>
+      <td>Editable placeholder</td>
+      <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
+    </tr>
+    <tr>
       <td>Custom toolbar</td>
       <td>Enables to define a custom toolbar. Below is a list of all available toolbar/menu controls that you can add to your Paragraph addon:<br><br>
 newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect bullist numlist outdent indent blockquote undo redo removeformat subscript superscript<br><br>
@@ -40,17 +44,20 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
     </td>
     </tr>
     <tr>
+      <td>Manual grading</td>
+      <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possible to be verified without previewing the lesson.</td>
+    </tr>
+    <tr>
+      <td>Title</td>
+      <td>The title of the Paragraph visible when the Assignment’s open activities are manually graded on mCourser. The title is visible above each Paragraph's preview, however, it is not visible in the lesson itself.</td>
+    </tr>
+    <tr>
       <td>Weight</td>
-      <td>Set the weight of the paragraph. It is a numeric value between 0 and 100.</td>
+      <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a natural number. The default Paragraph’s weight equals 1.</td>
     </tr>
     <tr>
-        <td>Speech texts</td>
-        <td>List of speech texts: bold, italic, underline, align left, align center, align right and justify. <br />
-This texts will be read by Text to Speech addon after a user performs an action.</td> 
-    </tr>
-    <tr>
-        <td>Lang attribute</td>
-        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
+      <td>Show answers</td>
+      <td>A list of correct answers. On Show Answers, all correct answers are displayed at the same time, each answer separated by a new line. On Gradual Show Answers, correct answers are displayed gradually, one after another, each time a Gradual Show Answers event is fired.</td>
     </tr>
 </table>
 
