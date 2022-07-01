@@ -1,7 +1,8 @@
+2022-06-23 Added support for audio speed controller in keyboard navigation and TTS in Text Audio addon
 2022-06-24 Added TTS support to Automatic Feedback
 2022-06-24 Added keyboard navigation and TTS to Limited Reset
 2022-06-24 Added keyboard navigation and TTS to Gradual Show Answer
-2022-06-23 Addedd keyboard navigation and TTS to External Link Button
+2022-06-23 Added keyboard navigation and TTS to External Link Button
 2022-06-23 Add Keyboard Navigation and TTS to Text Coloring addon
 2022-06-17 Added keyboard navigation and TTS to Audio Playlist
 2022-06-17 Fixed TTS in Text Gaps not reseting index after quitting Keyboard Navigation
