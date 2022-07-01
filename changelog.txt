@@ -1,3 +1,4 @@
+2022-07-01 New Addon Speechace
 2022-06-23 Added support for audio speed controller in keyboard navigation and TTS in Text Audio addon
 2022-06-24 Added TTS support to Automatic Feedback
 2022-06-24 Added keyboard navigation and TTS to Limited Reset

@@ -1189,6 +1189,8 @@ var ice_dictionary_bl = {
 	"Slideshow_property_presentation_duration": "Продължителност на презентацията",
 	"Slideshow_property_audiodescription": "Audiodescription",
 	"Slideshow_property_lang": "Lang attribute",
+	"Speechace_name": "Speechace",
+	"Speechace_course_id": "Course Key",
 	"Standard_Shapes_info": "Позволява ви да вмъкнете в презентацията някои основни фигури, напр. линия, квадрат, правоъгълник, кръг или елипса.",
 	"Standard_Shapes_name": "Стандартни фигури",
 	"Standard_Shapes_property_shape": "Фигура",
