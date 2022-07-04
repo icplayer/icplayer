@@ -157,6 +157,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Variable_Storage", "scripting_menu");
 		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
 		addDescriptor("Grid_Scene", "scripting_menu");
+		addDescriptor("Gap_Binder", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
 		addDescriptor("Text_To_Speech", "scripting_menu");
         addDescriptor("PseudoCode_Console", "scripting_menu");
