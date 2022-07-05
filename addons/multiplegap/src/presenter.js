@@ -35,7 +35,7 @@ function Addonmultiplegap_create(){
         TEXTS: 1,
         AUDIO: 2
     };
-    
+
     presenter.ERROR_CODES = {
         INVALID_ITEM_WIDTH: "Item width has to be greater than 0",
         INVALID_ITEM_HEIGHT: "Item height has to be greater than 0",
@@ -519,6 +519,19 @@ function Addonmultiplegap_create(){
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset(element)
         });
+        // Below is a fix to stop MathJax <nobr> tag from rendering twice on mobile iOS
+        // timeout is arbitrary, however, if it's too small, the fix does not work
+        if (MobileUtils.isSafariMobile(window.navigator.userAgent)) {
+            setTimeout(() => {
+                presenter.reprocessMathJax(presenter.getContainerElement());
+            }, 200);
+        }
+    };
+
+    presenter.reprocessMathJax = function (element) {
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Reprocess(element);
+        });
     };
 
     presenter.getAltText = function (id) {
@@ -623,7 +636,7 @@ function Addonmultiplegap_create(){
     presenter.getContainerHeight = function () {
         return presenter.$view.height();
     };
-    
+
     presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
         if(!presenter.isShowingAnswers()){
             if(!force && presenter.selectedItem == null) return;
@@ -634,125 +647,18 @@ function Addonmultiplegap_create(){
             }
         }
 
-        var child;
-        var placeholder;
-        if(presenter.isShowingAnswers()){
-            placeholder = $('<div class="placeholder placeholder-show-answers"></div>');
-        }else{
-            placeholder = $('<div class="placeholder"></div>');
-        }
+        const placeholder = presenter.createDraggablePlaceholderBase(item);
+        const child = presenter.createDraggableItem(item);
 
-        placeholder.css({
-            width: presenter.configuration.items.width + 'px',
-            height: presenter.configuration.items.height + 'px'
-        });
-
-        if (presenter.configuration.isTabindexEnabled) {
-            placeholder.attr("tabindex", "0");
-        }
-        
-        var positions = presenter.calculateElementPositions();
-        placeholder.css({
-            top: positions.top + 'px',
-            left: positions.left + 'px'
-        });
-        
         presenter.$view.find('.multiplegap_placeholders').append(placeholder);
+        placeholder.append(child);
 
-        switch(presenter.configuration.sourceType) {
-            case presenter.SOURCE_TYPES.IMAGES:
-                child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" lang="'+ presenter.getItemLangAttribute(item.item) +'" />');
-                child.attr('src', presenter.getImageURL(item));
-
-                if(presenter.configuration.stretchImages) {
-                    child.css({
-                        width: presenter.configuration.items.width + 'px',
-                        height: presenter.configuration.items.height + 'px'
-                    });
-                }
-                break;
-            
-            case presenter.SOURCE_TYPES.TEXTS:
-                child = $('<p class="contents"></p>');
-                child.html(presenter.parseItemValue(item.value));
-                break;
-
-            case presenter.SOURCE_TYPES.AUDIO:
-                child = createDraggableAudioItem(item.item);
-                break;
-        }
-        
-        placeholder
-          .attr({
-              draggableValue: item.value,
-              draggableItem: item.item,
-              draggableType: item.type
-          })
-          .append(child);
-        
         if (!isState) {
             presenter.updateLaTeX(child[0]);
         }
-        
-        var placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding,
-          placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right,
-          placeholderHorizontalPadding = placeholderPadding.top + placeholderPadding.bottom;
-        
-        switch(presenter.configuration.items.horizontalAlign) {
-            case 'left':
-                child.css({
-                    position: 'absolute',
-                    left: 0
-                });
-                break;
-            case 'center':
-                
-                switch(presenter.configuration.sourceType) {
-                    case presenter.SOURCE_TYPES.TEXTS:
-                        child.css({
-                            position: 'absolute',
-                            width: '100%',
-                            textAlign: 'center'
-                        });
-                        break;
-                    
-                    case presenter.SOURCE_TYPES.IMAGES:
-                        child.css({
-                            position: 'absolute',
-                            left: Math.round((presenter.configuration.items.width - placeholderHorizontalPadding - parseInt(child.css('width'))) / 2) + 'px'
-                        });
-                        break;
-                }
-                break;
-            case 'right':
-                child.css({
-                    position: 'absolute',
-                    right: 0
-                });
-                break;
-        }
-        
-        switch(presenter.configuration.items.horizontalAlign) {
-            case 'top':
-                child.css({
-                    position: 'absolute',
-                    top: 0
-                });
-                break;
-            case 'center':
-                child.css({
-                    position: 'absolute',
-                    top: Math.round((presenter.configuration.items.height - placeholderVerticalPadding - parseInt(child.css('height'))) / 2) + 'px'
-                });
-                break;
-            case 'bottom':
-                child.css({
-                    position: 'absolute',
-                    bottom: 0
-                });
-                break;
-        }
-        
+
+        presenter.positionDraggableItem(placeholder, child);
+
         handler = $('<div class="handler" style="color: rgba(0,0,0,0.0); font-size:1px">' + presenter.getAltText(item.item) + '</div>');
         
         // Workaround for IE bug: empty divs in IE are not clickable so let's
@@ -784,28 +690,71 @@ function Addonmultiplegap_create(){
         }
 
         if(isWCAGOn) {
-            var altText = "";
-            var langTag = "";
-            var voicesArray = [];
-            voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
-            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
-                voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
-            } else {
-                if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
-                    altText = child.attr('alt');
-                    langTag = child.attr('lang');
-                } else {
-                    altText = child.text();
-                    langTag = presenter.configuration.langTag;
-                }
-            }
-            voicesArray.push(getTextVoiceObject(altText,langTag));
-            presenter.speak(voicesArray);
+            presenter.handleDraggableItemTTS(child)
         }
 
     };
 
-    function createDraggableAudioItem (itemID) {
+    presenter.createDraggablePlaceholderBase = function(item) {
+        const placeholder = presenter.isShowingAnswers()
+            ? $('<div class="placeholder placeholder-show-answers"></div>')
+            : $('<div class="placeholder"></div>')
+
+        const positions = presenter.calculateElementPositions();
+        placeholder.css({
+            top: positions.top + 'px',
+            left: positions.left + 'px',
+            width: presenter.configuration.items.width + 'px',
+            height: presenter.configuration.items.height + 'px'
+        });
+
+        placeholder.attr({
+              draggableValue: item.value,
+              draggableItem: item.item,
+              draggableType: item.type
+          })
+
+        if (presenter.configuration.isTabindexEnabled) {
+            placeholder.attr("tabindex", "0");
+        }
+
+        return placeholder;
+    };
+
+    presenter.createDraggableItem = function(item) {
+        const sourceType = presenter.configuration.sourceType;
+        const draggableItemConstructorMap = {
+            [presenter.SOURCE_TYPES.TEXTS]: presenter.createDraggableTextItem,
+            [presenter.SOURCE_TYPES.IMAGES]: presenter.createDraggableImageItem,
+            [presenter.SOURCE_TYPES.AUDIO]: createDraggableAudioItem,
+        }
+
+        return draggableItemConstructorMap[sourceType](item);
+    };
+
+    presenter.createDraggableTextItem = function(item) {
+        const child = $('<p class="contents"></p>');
+        child.html(presenter.parseItemValue(item.value));
+
+        return child;
+    };
+
+    presenter.createDraggableImageItem = function(item) {
+        const child = $(`<img class="contents" alt="${presenter.getAltText(item.item)}" lang="${presenter.getItemLangAttribute(item.item)}" />`);
+        child.attr('src', presenter.getImageURL(item));
+
+        if(presenter.configuration.stretchImages) {
+            child.css({
+                width: presenter.configuration.items.width + 'px',
+                height: presenter.configuration.items.height + 'px'
+            });
+        }
+
+        return child;
+    };
+
+    function createDraggableAudioItem (item) {
+        const itemID = item.item
         var $el = $('<div></div>');
 
         var addonAndItemIds = itemID.split('-');
@@ -884,6 +833,78 @@ function Addonmultiplegap_create(){
             audioAddon.stop();
             audioAddon.jumpToID(itemID);
         })
+    }
+
+    presenter.positionDraggableItem = function(placeholder, item) {
+        presenter.applyDraggableItemHorizontalPositioning(placeholder, item);
+        presenter.applyDraggableItemVerticalPositioning(placeholder, item);
+    };
+
+    presenter.applyDraggableItemHorizontalPositioning = function(placeholder, item) {
+        const sourceType = presenter.configuration.sourceType;
+        const placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding;
+        const placeholderHorizontalPadding = placeholderPadding.top + placeholderPadding.bottom;
+        const horizontalAlignType = presenter.configuration.items.horizontalAlign;
+
+        const centerTypeStylesBasedOnSourceTypeMap = {
+            [presenter.SOURCE_TYPES.TEXTS]: { position: 'absolute', width: '100%', textAlign: 'center' },
+            [presenter.SOURCE_TYPES.IMAGES]: { position: 'absolute', left: Math.round((presenter.configuration.items.width - placeholderHorizontalPadding - parseInt(item.css('width'))) / 2) + 'px'},
+        }
+
+        switch(horizontalAlignType) {
+            case 'center':
+                item.css(centerTypeStylesBasedOnSourceTypeMap[sourceType])
+                break;
+            case 'right':
+            case 'left':
+                item.css({
+                    position: 'absolute',
+                    [horizontalAlignType]: 0
+                });
+                break;
+        }
+    }
+
+    presenter.applyDraggableItemVerticalPositioning = function(placeholder, item) {
+        const placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding;
+        const placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right;
+        const verticalAlignType = presenter.configuration.items.verticalAlign;
+
+        switch(verticalAlignType) {
+            case 'center':
+                item.css({
+                    position: 'absolute',
+                    top: Math.round((presenter.configuration.items.height - placeholderVerticalPadding - parseInt(item.css('height'))) / 2) + 'px'
+                });
+                break;
+            case 'top':
+            case 'bottom':
+                item.css({
+                    position: 'absolute',
+                    [verticalAlignType]: 0
+                });
+                break;
+        }
+    }
+
+    presenter.handleDraggableItemTTS = function(child) {
+        var altText = "";
+        var langTag = "";
+        var voicesArray = [];
+        voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
+        if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+            voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
+        } else {
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
+                altText = child.attr('alt');
+                langTag = child.attr('lang');
+            } else {
+                altText = child.text();
+                langTag = presenter.configuration.langTag;
+            }
+        }
+        voicesArray.push(getTextVoiceObject(altText,langTag));
+        presenter.speak(voicesArray);
     }
     
     function sendEvent(item, consumed) {
@@ -1341,7 +1362,7 @@ function Addonmultiplegap_create(){
         var parsedState = JSON.parse(state),
           upgradedState = presenter.upgradeState(parsedState);
 
-        for(var i = 0; i < upgradedState.placeholders.length; i++) {
+        for (let i = 0; i < upgradedState.placeholders.length; i++) {
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
         }
 
@@ -1352,11 +1373,11 @@ function Addonmultiplegap_create(){
         }
         
         presenter.pageLoaded.then(function() {
-            presenter.updateLaTeX(presenter.getContainerElement());
-            for (var i=0; i<presenter.placeholders2drag.length; i++) {
-                var placeholder = presenter.placeholders2drag[i];
+            for (let i=0; i<presenter.placeholders2drag.length; i++) {
+                const placeholder = presenter.placeholders2drag[i];
                 presenter.makePlaceholderDraggable(placeholder);
             }
+            presenter.updateLaTeX(presenter.getContainerElement());
         });
 
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
