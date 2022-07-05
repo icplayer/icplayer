@@ -2219,6 +2219,7 @@ var ice_dictionary_mx = {
     "skiplink_property_speech_texts": "Speech texts",
 	"FlashCards_name" : "Flash Cards",
     "FlashCards_info" : "In Flash Cards module you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode.",
+	"FlashCards_property_lang_attribute": "Lang attribute",
 	"FlashCards_property_speech_texts" : "Speech texts",
     "FlashCards_property_card" : "Card",
     "FlashCards_property_outOf" : "Out of",

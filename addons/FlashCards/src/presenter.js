@@ -64,26 +64,26 @@ function AddonFlashCards_create(){
     presenter.validateModel = function (model) {
         presenter.setSpeechTexts(model['speechTexts']);
 		return {
-			isValid: true,
-			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isValid: true,
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             noLoop: ModelValidationUtils.validateBoolean(model['NoLoop']),
-			Favourites: ModelValidationUtils.validateBoolean(model['Favourites']),
-			HidePrevNext: ModelValidationUtils.validateBoolean(model['HidePrevNext']),
+            Favourites: ModelValidationUtils.validateBoolean(model['Favourites']),
+            HidePrevNext: ModelValidationUtils.validateBoolean(model['HidePrevNext']),
             ShowButtons: ModelValidationUtils.validateBoolean(model['ShowButtons']),
-			IsActivity: ModelValidationUtils.validateBoolean(model["IsActivity"]),
+            IsActivity: ModelValidationUtils.validateBoolean(model["IsActivity"]),
             currentCard: presenter.configuration.currentCard,
             cardsScore: [],
             cardsFavourites: [],
-			addonID: model['ID'],
-			langTag: model['langAttribute']
+            addonID: model['ID'],
+            langTag: model['langAttribute']
 		}
 	};
 
 	presenter.upgradeModel = function (model) {
-	    return presenter.upgradeSpeechTexts(model);
+	    return presenter.upgradeAddTTS(model);
 	}
 
-	presenter.upgradeSpeechTexts = function (model) {
+	presenter.upgradeAddTTS = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
@@ -107,70 +107,60 @@ function AddonFlashCards_create(){
         return upgradedModel;
     };
 
-    function getSpeechTextProperty (rawValue, defaultValue) {
-            var value = rawValue.trim();
-
-            if (value === undefined || value === null || value === '') {
-                return defaultValue;
-            }
-
-            return value;
-        }
-
-        presenter.setSpeechTexts = function(speechTexts) {
-            presenter.speechTexts = {
-                card: DEFAULT_TTS_PHRASES.card,
-                outOf: DEFAULT_TTS_PHRASES.outOf,
-                favourite: DEFAULT_TTS_PHRASES.favourite,
-                audio: DEFAULT_TTS_PHRASES.audio,
-                correct: DEFAULT_TTS_PHRASES.correct,
-                wrong: DEFAULT_TTS_PHRASES.wrong,
-                reset: DEFAULT_TTS_PHRASES.reset,
-                selected: DEFAULT_TTS_PHRASES.selected,
-                deselected: DEFAULT_TTS_PHRASES.deselected,
-                cardHasBeenReset: DEFAULT_TTS_PHRASES.cardHasBeenReset,
-                turned: DEFAULT_TTS_PHRASES.turned
-            };
-
-            if (!speechTexts || $.isEmptyObject(speechTexts)) {
-                return;
-            }
-            presenter.speechTexts = {
-                card: getSpeechTextProperty(
-                    speechTexts.card.card,
-                    presenter.speechTexts.card),
-                outOf: getSpeechTextProperty(
-                        speechTexts.outOf.outOf,
-                        presenter.speechTexts.outOf),
-                favourite: getSpeechTextProperty(
-                    speechTexts.favourite.favourite,
-                    presenter.speechTexts.favourite),
-                audio: getSpeechTextProperty(
-                    speechTexts.audio.audio,
-                    presenter.speechTexts.audio),
-                correct: getSpeechTextProperty(
-                    speechTexts.correct.correct,
-                    presenter.speechTexts.correct),
-                wrong: getSpeechTextProperty(
-                        speechTexts.wrong.wrong,
-                        presenter.speechTexts.wrong),
-                reset: getSpeechTextProperty(
-                    speechTexts.reset.reset,
-                    presenter.speechTexts.reset),
-                selected: getSpeechTextProperty(
-                    speechTexts.selected.selected,
-                    presenter.speechTexts.selected),
-                deselected: getSpeechTextProperty(
-                    speechTexts.deselected.deselected,
-                    presenter.speechTexts.deselected),
-                cardHasBeenReset: getSpeechTextProperty(
-                    speechTexts.cardHasBeenReset.cardHasBeenReset,
-                    presenter.speechTexts.cardHasBeenReset),
-                turned: getSpeechTextProperty(
-                    speechTexts.turned.turned,
-                    presenter.speechTexts.turned),
-            };
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            card: DEFAULT_TTS_PHRASES.card,
+            outOf: DEFAULT_TTS_PHRASES.outOf,
+            favourite: DEFAULT_TTS_PHRASES.favourite,
+            audio: DEFAULT_TTS_PHRASES.audio,
+            correct: DEFAULT_TTS_PHRASES.correct,
+            wrong: DEFAULT_TTS_PHRASES.wrong,
+            reset: DEFAULT_TTS_PHRASES.reset,
+            selected: DEFAULT_TTS_PHRASES.selected,
+            deselected: DEFAULT_TTS_PHRASES.deselected,
+            cardHasBeenReset: DEFAULT_TTS_PHRASES.cardHasBeenReset,
+            turned: DEFAULT_TTS_PHRASES.turned
         };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+        presenter.speechTexts = {
+            card: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.card.card,
+                presenter.speechTexts.card),
+            outOf: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.outOf.outOf,
+                presenter.speechTexts.outOf),
+            favourite: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.favourite.favourite,
+                presenter.speechTexts.favourite),
+            audio: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.audio.audio,
+                presenter.speechTexts.audio),
+            correct: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.correct.correct,
+                presenter.speechTexts.correct),
+            wrong: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.wrong.wrong,
+                presenter.speechTexts.wrong),
+            reset: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.reset.reset,
+                presenter.speechTexts.reset),
+            selected: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.selected.selected,
+                presenter.speechTexts.selected),
+            deselected: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.deselected.deselected,
+                presenter.speechTexts.deselected),
+            cardHasBeenReset: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.cardHasBeenReset.cardHasBeenReset,
+                presenter.speechTexts.cardHasBeenReset),
+            turned: window.TTSUtils.getSpeechTextProperty(
+                speechTexts.turned.turned,
+                presenter.speechTexts.turned),
+        };
+    };
 
     presenter.init = function (view, model) {
         model = presenter.upgradeModel(model);
@@ -657,7 +647,10 @@ function AddonFlashCards_create(){
         });
 
         for (let i = 0; i < elementList.length; i++) {
-            if (elementList[i].is("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS)) currentElementIndex = i;
+            if (elementList[i].is("."+KEYBOARD_NAVIGATION_ACTIVE_ITEM_CLASS)) {
+                currentElementIndex = i;
+                break;
+            }
         }
 
         presenter.removeActiveElementClass();
