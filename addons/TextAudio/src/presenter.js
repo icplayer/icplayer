@@ -29,6 +29,9 @@ function AddonTextAudio_create() {
     presenter.slidesMade = false;
     presenter.keyboardControllerObject = null;
     presenter.isWCAGOn = false;
+    presenter.speechTexts = null;
+
+    presenter.PLAYBACK_RATE_LIST = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
     presenter.playbackRate = 1.0;
 
     var controls = {
@@ -64,6 +67,26 @@ function AddonTextAudio_create() {
         'VI01': 'At least one vocabulary audio file have to be set.',
         'VI02': 'Number of parts in Vocabulary intervals have to be equal to sum of times periods defined in Slides property',
         'VI03': 'Vocabulary time intervals are not set'
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        PLAY_BUTTON: "Play button",
+        PAUSE_BUTTON: "Pause button",
+        STOP_BUTTON: "Stop button",
+        AUDIO_SPEED_CONTROLLER: "Audio speed controller",
+    };
+
+    presenter.CSS_CLASSES = {
+        PLAY_BUTTON: "textaudio-play-btn",
+        PAUSE_BUTTON: "textaudio-pause-btn",
+        PLAY_PAUSE_BUTTON: "textaudio-play-pause-btn",
+        STOP_BUTTON: "textaudio-stop-btn",
+        AUDIO_SPEED_CONTROLLER: "textaudio-playback-rate",
+    };
+
+    presenter.OPERATION_TYPE = {
+        INCREASE: 'increase',
+        DECREASE: 'decrease'
     };
 
     function isModuleEnabledDecorator (expectedValue) {
@@ -188,31 +211,12 @@ function AddonTextAudio_create() {
         return upgradedModel;
     };
 
-    presenter.upgradeSpeechTexts = function (model) {
-         var upgradedModel = {};
-
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (!upgradedModel['speechTexts']) {
-            upgradedModel['speechTexts'] = {
-                Play: {Play: "play"},
-                Pause: {Pause: "pause"},
-                Stop: {Stop: "stop"},
-            };
-        }
-
-        if (!upgradedModel['langAttribute']) {
-            upgradedModel['langAttribute'] = '';
-        }
-
-        return upgradedModel;
-    }
-
     presenter.upgradeModel = function AddonTextAudio_upgradeModel (model) {
     	var upgradedModel = presenter.upgradeControls(model);
     	upgradedModel = presenter.upgradeIsDisabled(upgradedModel);
         upgradedModel = presenter.upgradeClickAction(upgradedModel);
         upgradedModel = presenter.upgradeEnablePlaybackSpeedControls(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -265,6 +269,68 @@ function AddonTextAudio_create() {
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] =  '';
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Play"]) {
+            upgradedModel["speechTexts"]["Play"] = {Play: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Pause"]) {
+            upgradedModel["speechTexts"]["Pause"] = {Pause: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Stop"]) {
+            upgradedModel["speechTexts"]["Stop"] = {Stop: ""};
+        }
+        if (!upgradedModel["speechTexts"]["AudioSpeedController"]) {
+            upgradedModel["speechTexts"]["AudioSpeedController"] = {AudioSpeedController: ""};
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.setSpeechTexts = function (speechTexts) {
+        presenter.speechTexts = {
+            Play: presenter.DEFAULT_TTS_PHRASES.PLAY_BUTTON,
+            Pause: presenter.DEFAULT_TTS_PHRASES.PAUSE_BUTTON,
+            Stop: presenter.DEFAULT_TTS_PHRASES.STOP_BUTTON,
+            AudioSpeedController: presenter.DEFAULT_TTS_PHRASES.AUDIO_SPEED_CONTROLLER,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Play: TTSUtils.getSpeechTextProperty(
+                speechTexts.Play.Play,
+                presenter.speechTexts.Play),
+            Pause: TTSUtils.getSpeechTextProperty(
+                speechTexts.Pause.Pause,
+                presenter.speechTexts.Pause),
+            Stop: TTSUtils.getSpeechTextProperty(
+                speechTexts.Stop.Stop,
+                presenter.speechTexts.Stop),
+            AudioSpeedController: TTSUtils.getSpeechTextProperty(
+                speechTexts.AudioSpeedController.AudioSpeedController,
+                presenter.speechTexts.AudioSpeedController),
+        };
     };
 
     presenter.getSlideNumber = function addonTextAudio_getSlideNumber () {
@@ -409,7 +475,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.playPauseCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_playPauseCallback () {
-        if (presenter.$playPauseBtn.hasClass('textaudio-pause-btn')) {
+        if (presenter.$playPauseBtn.hasClass(presenter.CSS_CLASSES.PAUSE_BUTTON)) {
             presenter.pause();
         }
         else {
@@ -799,14 +865,14 @@ function AddonTextAudio_create() {
             addClass('textaudioplayer');
 
         presenter.$playPauseBtn = $('<div>').
-            addClass('textaudio-play-pause-btn').
-            addClass('textaudio-play-btn').
+            addClass(presenter.CSS_CLASSES.PLAY_PAUSE_BUTTON).
+            addClass(presenter.CSS_CLASSES.PLAY_BUTTON).
             on('click', presenter.playPauseCallback);
 
         presenter.$customPlayer.append(presenter.$playPauseBtn);
 
         presenter.$stopBtn = $('<div>').
-            addClass('textaudio-stop-btn').
+            addClass(presenter.CSS_CLASSES.STOP_BUTTON).
             on('click', presenter.stop);
 
         presenter.$customPlayer.append(presenter.$stopBtn);
@@ -855,7 +921,7 @@ function AddonTextAudio_create() {
 
         if (presenter.configuration.enablePlaybackSpeedControls) {
             presenter.$playbackRateControls = $('<div>').
-                addClass('textaudio-playback-rate').
+                addClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER).
                 append(createPlaybackOptions());
             displayPlaybackOptions();
             presenter.$customPlayer.append(presenter.$playbackRateControls);
@@ -1251,6 +1317,7 @@ function AddonTextAudio_create() {
         presenter.slidesSpanElements = [];
 
         var upgradedModel = presenter.upgradeModel(model);
+        presenter.setSpeechTexts(upgradedModel["speechTexts"]);
         presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -1277,7 +1344,7 @@ function AddonTextAudio_create() {
 
             presenter.showLoadingArea(presenter.configuration.clickAction);
 
-            presenter.buildTextAudioKeyboardController()
+            presenter.buildKeyboardController();
         }
     };
 
@@ -1655,7 +1722,6 @@ function AddonTextAudio_create() {
             isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
             showSlides: model.showSlides,
             isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"]),
-            speechTexts: model.speechTexts,
             langAttribute: model.langAttribute,
             enablePlaybackSpeedControls: ModelValidationUtils.validateBoolean(model.enablePlaybackSpeedControls)
         };
@@ -1695,7 +1761,27 @@ function AddonTextAudio_create() {
         presenter.playbackRate = parsedValue;
         presenter.audio.playbackRate = parsedValue;
         displayPlaybackOptions();
-    }
+    };
+
+    presenter.changePlaybackRate = function (type) {
+        var index = presenter.PLAYBACK_RATE_LIST.indexOf(presenter.playbackRate);
+        var $select = presenter.$playbackRateControls.find('select');
+
+        switch (type) {
+            case presenter.OPERATION_TYPE.INCREASE:
+                if (index === (presenter.PLAYBACK_RATE_LIST.length - 1)) return;
+                index++;
+                break;
+            case presenter.OPERATION_TYPE.DECREASE:
+                if (index === 0) return;
+                index--;
+                break;
+        }
+
+        $select.val(presenter.PLAYBACK_RATE_LIST[index]);
+        presenter.playbackRate = presenter.PLAYBACK_RATE_LIST[index];
+        presenter.audio.playbackRate = presenter.playbackRate;
+    };
 
     presenter.play = isModuleEnabledDecorator(true)(function addonTextAudio_play () {
         presenter.startTimeMeasurement();
@@ -1705,8 +1791,8 @@ function AddonTextAudio_create() {
             presenter.audio.play();
             if (presenter.configuration.controls === controls.CUSTOM) {
                 presenter.$playPauseBtn.
-                    removeClass('textaudio-play-btn').
-                    addClass('textaudio-pause-btn');
+                    removeClass(presenter.CSS_CLASSES.PLAY_BUTTON).
+                    addClass(presenter.CSS_CLASSES.PAUSE_BUTTON);
             }
         }
     });
@@ -1715,8 +1801,8 @@ function AddonTextAudio_create() {
         if (presenter.configuration.controls === controls.CUSTOM && presenter.isLoaded) {
             presenter.stopClicked = true;
             presenter.$playPauseBtn.
-                addClass('textaudio-play-btn').
-                removeClass('textaudio-pause-btn');
+                addClass(presenter.CSS_CLASSES.PLAY_BUTTON).
+                removeClass(presenter.CSS_CLASSES.PAUSE_BUTTON);
             if (presenter.audio.paused) {
                 presenter.stopClicked = true;
                 presenter.audio.currentTime = 0;
@@ -1757,8 +1843,8 @@ function AddonTextAudio_create() {
             presenter.audio.pause();
             if (presenter.configuration.controls === controls.CUSTOM) {
                 presenter.$playPauseBtn.
-                    removeClass('textaudio-pause-btn').
-                    addClass('textaudio-play-btn');
+                    removeClass(presenter.CSS_CLASSES.PAUSE_BUTTON).
+                    addClass(presenter.CSS_CLASSES.PLAY_BUTTON);
             }
         }
     });
@@ -1791,8 +1877,6 @@ function AddonTextAudio_create() {
         presenter.hasBeenStarted = false;
         presenter.isPlaying = false;
         presenter.playedByClick = false;
-
-
 
         presenter.configuration.isVisible = presenter.isVisibleByDefault;
         if (presenter.configuration.isVisible) {
@@ -1876,7 +1960,7 @@ function AddonTextAudio_create() {
         presenter.isWCAGOn = isOn;
     };
 
-    presenter.getNewCurrentAudioKeyboardElements = function () {
+    presenter.getElementsForKeyboardNavigation = function () {
         var elements;
         switch (presenter.configuration.controls) {
             case controls.CUSTOM:
@@ -1884,6 +1968,9 @@ function AddonTextAudio_create() {
                     presenter.$playPauseBtn,
                     presenter.$stopBtn
                 ];
+                if (presenter.configuration.enablePlaybackSpeedControls) {
+                    elements.push(presenter.$playbackRateControls);
+                }
                 break;
             default:
                 elements = [];
@@ -1895,17 +1982,17 @@ function AddonTextAudio_create() {
                 return $(spanElement);
             }
         ));
-    }
+    };
 
     presenter.actualizeKeyboardControllerElements = function () {
         if (presenter.keyboardControllerObject) {
-            var elements = presenter.getNewCurrentAudioKeyboardElements();
+            var elements = presenter.getElementsForKeyboardNavigation();
             presenter.keyboardControllerObject.setElements(elements);
         }
-    }
+    };
 
-    presenter.buildTextAudioKeyboardController = function () {
-        var elements = presenter.getNewCurrentAudioKeyboardElements();
+    presenter.buildKeyboardController = function () {
+        var elements = presenter.getElementsForKeyboardNavigation();
         presenter.keyboardControllerObject = new TextAudioKeyboardController(elements, 1);
     }
 
@@ -1915,42 +2002,141 @@ function AddonTextAudio_create() {
 
     function TextAudioKeyboardController(elements, columnsCount) {
         KeyboardController.call(this, elements, columnsCount);
+        this.updateMapping();
+
+        // The 'selectedMode' variable is used to determine if a space has already been used on the current element.
+        // When the navigation element is changed this variable should take the value false.
+        this.selectedMode = false;
     }
 
     TextAudioKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     TextAudioKeyboardController.prototype.constructor = TextAudioKeyboardController;
 
+    TextAudioKeyboardController.prototype.updateMapping = function () {
+        this.mapping[window.KeyboardControllerKeys.ARROW_UP] = this.up;
+        this.mapping[window.KeyboardControllerKeys.ARROW_DOWN] = this.down;
+    };
+
+    TextAudioKeyboardController.prototype.getCurrentElement = function () {
+        return $(this.getTarget(this.keyboardNavigationCurrentElement, false));
+    };
+
     TextAudioKeyboardController.prototype.mark = function (element) {
-        window.KeyboardController.prototype.mark.call(this, element);
+        KeyboardController.prototype.mark.call(this, element);
 
-        var $element = this.getTarget(element, false);
-
-        if (presenter.isWCAGOn) {
-          presenter.speakCurrentElement($element);
-        }
+        var $element = this.getCurrentElement();
 
         $element[0].scrollIntoView();
+    };
+
+    TextAudioKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        if (presenter.isWCAGOn) {
+            this.speakCurrentElement();
+        }
+    };
+
+    TextAudioKeyboardController.prototype.select = function (event) {
+        if (presenter.configuration.isEnabled) {
+            this.selectedMode = true;
+        }
+        KeyboardController.prototype.select.call(this, event);
     }
 
-    presenter.speakCurrentElement = function ($element) {
-        var text;
-        if ($element.hasClass("textaudio-play-pause-btn")) {
-            var textToSpeak = presenter.isPlaying ?
-                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Pause']['Pause'], "Pause") :
-                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Play']['Play'], "Play");
-            text = TTSUtils.getTextVoiceObject(
-                textToSpeak,
-                presenter.configuration.langAttribute
-            );
-            presenter.speak([text]);
-        } else if ($element.hasClass("textaudio-stop-btn")) {
-            text = TTSUtils.getTextVoiceObject(
-                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Stop']['Stop'], "Stop"),
-                presenter.configuration.langAttribute
-            );
-            presenter.speak([text]);
+    TextAudioKeyboardController.prototype.up = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var $currentElement = this.getCurrentElement();
+        if (this.isElementActiveForAfterSelectionAction($currentElement)) {
+            presenter.changePlaybackRate(presenter.OPERATION_TYPE.INCREASE);
+        } else {
+            this.switchElement(-this.columnsCount);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.down = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        var $currentElement = this.getCurrentElement();
+        if (this.isElementActiveForAfterSelectionAction($currentElement)) {
+            presenter.changePlaybackRate(presenter.OPERATION_TYPE.DECREASE);
+        } else {
+            this.switchElement(this.columnsCount);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.isElementActiveForAfterSelectionAction = function ($element) {
+        return (presenter.configuration.isEnabled
+            && this.selectedMode
+            && $element.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)
+        );
+    }
+
+    TextAudioKeyboardController.prototype.switchElement = function (move) {
+        this.selectedMode = false;
+        KeyboardController.prototype.switchElement.call(this, move);
+        if (presenter.isWCAGOn) {
+            this.speakCurrentElement();
         }
     }
+
+    TextAudioKeyboardController.prototype.escape = function (event) {
+        presenter.pause();
+
+        if (!presenter.audio) {
+            presenter.audio.currentTime = 0;
+        }
+
+        KeyboardController.prototype.escape.call(this, event);
+    };
+
+    TextAudioKeyboardController.prototype.exitWCAGMode = function () {
+        this.selectedMode = false;
+        KeyboardController.prototype.exitWCAGMode.call(this);
+    };
+
+    TextAudioKeyboardController.prototype.speakCurrentElement = function () {
+        var $currentElement = this.getCurrentElement();
+
+        if ($currentElement.hasClass(presenter.CSS_CLASSES.PLAY_PAUSE_BUTTON)) {
+            this.speakForPlayPauseButton();
+        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.STOP_BUTTON)) {
+            this.speakForStopButton();
+        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)) {
+            this.speakForSpeedController();
+        }
+    };
+
+    TextAudioKeyboardController.prototype.speakForPlayPauseButton = function () {
+        const textToSpeak = presenter.isPlaying
+            ? presenter.speechTexts.Pause
+            : presenter.speechTexts.Play;
+        speakMessage(textToSpeak);
+    };
+
+    TextAudioKeyboardController.prototype.speakForStopButton = function () {
+        speakMessage(presenter.speechTexts.Stop);
+    };
+
+    TextAudioKeyboardController.prototype.speakForSpeedController = function () {
+        speakMessage(presenter.speechTexts.AudioSpeedController);
+    };
+
+    function speakMessage(message) {
+        var speechTextVoices = [TTSUtils.getTextVoiceObject(message)];
+        presenter.speak(speechTextVoices);
+    }
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
 
     presenter.getTextToSpeechOrNull = function AddonTextAudio_getTextToSpeechOrNull(playerController) {
         if (playerController) {
@@ -1959,14 +2145,6 @@ function AddonTextAudio_create() {
 
         return null;
     };
-
-    presenter.speak = function (data) {
-        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-
-        if (tts && presenter.isWCAGOn) {
-            tts.speak(data);
-        }
-    }
 
     return presenter;
 }
