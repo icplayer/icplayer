@@ -2015,7 +2015,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 if (mLibroChromium != undefined) {
                     mLibroChromium.notify(notifyInput);
                 } else {
-                    window.external.notify(notifyInput);
+                    if (typeof window.chrome != "undefined") {
+                        window.parent.postMessage("EdgeChromiumMessage=" + notifyInput);
+                    } else {
+                        window.external.notify(notifyInput);
+                    }
                 }
             } catch (e) {
                 // silent message
