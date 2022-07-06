@@ -74,12 +74,12 @@ TestCase("[Hierarchical Table Of Contents] Upgrade Model", {
     "test given incomplete speech texts model when setting speech text then sets correct custom values to speech text": function () {
 
         const expectedSpeechTexts = {
-                Title: this.presenter.DEFAULT_TTS_PHRASES.Title,
-                GoToPage: this.presenter.DEFAULT_TTS_PHRASES.GoToPage,
-                Chapter: "My chapter",
-                Expanded: "Expansion",
-                Collapsed: this.presenter.DEFAULT_TTS_PHRASES.Collapsed,
-              };
+            Title: this.presenter.DEFAULT_TTS_PHRASES.Title,
+            GoToPage: this.presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            Chapter: "My chapter",
+            Expanded: "Expansion",
+            Collapsed: this.presenter.DEFAULT_TTS_PHRASES.Collapsed,
+        };
 
         const inputModel = {
             speechTexts: {

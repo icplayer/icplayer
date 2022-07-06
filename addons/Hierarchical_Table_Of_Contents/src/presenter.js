@@ -436,8 +436,8 @@ function AddonHierarchical_Table_Of_Contents_create() {
                 if(isDisplayOnlyChapters){
                     $(this)
                         .find(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER}`)
-                        .removeClass(`.${presenter.DEFAULT_TTS_PHRASES.CHAPTER_EXPANDER_COLLAPSED}`)
-                        .removeClass(`.${presenter.DEFAULT_TTS_PHRASES.CHAPTER_EXPANDER_EXPANDED}`);
+                        .removeClass(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER_COLLAPSED}`)
+                        .removeClass(`.${presenter.CSS_CLASSES.CHAPTER_EXPANDER_EXPANDED}`);
                 }else{
                     $(this).remove();
                 }
@@ -462,7 +462,6 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     presenter.buildKeyboardController = function () {
         const keyNavElements = presenter.getElementsForKeyboardNavigation();
-        presenter.keyNavMaxIndex = keyNavElements.length - 1;
 
         presenter.keyboardControllerObject = new HTocKeyboardController(keyNavElements, 1);
         presenter.keyboardControllerObject.selectEnabled(true);
@@ -516,22 +515,17 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const nextIndex = this.getNextSelectableElementIndexOrNull();
         if (nextIndex === null) return;
 
-        this.switchElement(1);
+        this.markCurrentElement(nextIndex);
 
-        if (!presenter.isParentTableRowVisible(this.keyboardNavigationCurrentElement)) {
-            this.markCurrentElement(nextIndex);
-        }
         centerElement(this.keyboardNavigationCurrentElement);
     };
 
     HTocKeyboardController.prototype.moveToPreviousKeyNavElement = function () {
-        const nextIndex = this.keyboardNavigationCurrentElementIndex - 1;
-        if (nextIndex < 0) return;
+        const previousIndex = this.getPreviousSelectableElementIndexOrNull()
+        if (previousIndex === null) return;
 
-        this.switchElement(-1);
-        if(!presenter.isParentTableRowVisible(this.keyboardNavigationCurrentElement)) {
-            this.moveToPreviousKeyNavElement();
-        }
+        this.markCurrentElement(previousIndex);
+
         centerElement(this.keyboardNavigationCurrentElement);
     }
 
@@ -540,6 +534,18 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const nextElementIndex = this.keyboardNavigationCurrentElementIndex + 1;
 
         for (let i = nextElementIndex; i < elements.length; i++) {
+            if (presenter.isParentTableRowVisible(elements[i])) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    HTocKeyboardController.prototype.getPreviousSelectableElementIndexOrNull = function () {
+        const elements = this.keyboardNavigationElements;
+        const nextElementIndex = this.keyboardNavigationCurrentElementIndex - 1;
+
+        for (let i = nextElementIndex; i >= 0; i--) {
             if (presenter.isParentTableRowVisible(elements[i])) {
                 return i;
             }
@@ -589,12 +595,6 @@ function AddonHierarchical_Table_Of_Contents_create() {
         this.getTarget(clickableElement, true).click();
     };
 
-    HTocKeyboardController.prototype.switchElement = function (move) {
-        KeyboardController.prototype.switchElement.call(this, move);
-        if(this.isCurrentElementDisplayed()) {
-            this.readCurrentElement();
-        }
-    };
 
     HTocKeyboardController.prototype.markCurrentElement = function (nextIndex) {
         KeyboardController.prototype.markCurrentElement.call(this, nextIndex);
@@ -622,9 +622,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
 
     HTocKeyboardController.prototype.isCurrentElementSelectable = function () {
         const currentElement = this.getCurrentElement();
-        const result = $(currentElement).hasClass("hier_report-header");
-
-        return !result;
+        return !($(currentElement).hasClass("hier_report-header"));
     };
 
     HTocKeyboardController.prototype.getCurrentElement = function () {

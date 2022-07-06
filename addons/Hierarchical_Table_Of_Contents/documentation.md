@@ -32,7 +32,10 @@ The Hierarchical Table of Contents addon displays a presentation's table of cont
     </tr>
     <tr>
         <td>Speech texts</td>
-        <td>Specify custom TTS for main elements and actions of the addon.</td>
+        <td>
+            Specify custom TTS for main elements and actions of the addon.
+            List of speech texts: Title, Go to page, Chapter, Expanded, Collapsed.
+        </td>
     </tr>
 </table>
 
