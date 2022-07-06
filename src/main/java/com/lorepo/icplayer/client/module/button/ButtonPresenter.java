@@ -275,7 +275,8 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	@Override
 	public boolean isEnterable() {
 		if (model.getType() == ButtonType.reset) {
-			return model.getConfirmReset();
+			ButtonView buttonView = (ButtonView) view;
+			return model.getConfirmReset() && !buttonView.shouldSkipOpeninDialog();
 		}
 		return false;
 	}

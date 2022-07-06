@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.widgets.KeyboarNavigationBasicDialog;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -156,6 +157,10 @@ class ResetButton extends ExecutableButton {
 	public void clear() {
 		buttons.clear();
 		position = -1;
+	}
+
+	public int getSelectedPosition() {
+		return position;
 	}
 
 	public void enter (KeyDownEvent event, boolean isExiting) {

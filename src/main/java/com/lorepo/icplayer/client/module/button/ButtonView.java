@@ -27,6 +27,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private PageController pageController;
 	private boolean isWCAGOn = false;
 	private String originalDisplay = "";
+	private boolean skipDialogOpening = false;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -153,17 +154,24 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		if (buttonWidget instanceof ExecutableButton) {
 			if (this.isResetButton()) {
 				ResetButton resetButton = (ResetButton) buttonWidget;
+				skipDialogOpening = false;
 
 				if (resetButton.isConfirmationActive()) {
 					if (!resetButton.isDialogOpen()) {
 						((ExecutableButton) buttonWidget).execute();
 						speak(TextToSpeechVoice.create(resetButton.getTextFromDialog()));
+					} else {
+						final int selectedPosition = resetButton.getSelectedPosition();
+						resetButton.enter(event, isExiting);
+						speak(TextToSpeechVoice.create(getConfirmationText(selectedPosition)));
+						skipDialogOpening = true;
 					}
-					resetButton.enter(event, isExiting);
 				} else {
 					((ExecutableButton) buttonWidget).execute();
 					speak(TextToSpeechVoice.create(module.getResetSpeechTextItem(ButtonModule.RESET_BUTTON_RESET_INDEX)));
 				}
+			} else {
+				((ExecutableButton) buttonWidget).execute();
 			}
 		}
 	}
@@ -292,10 +300,23 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		return type == ButtonType.reset;
 	}
 
+	public boolean shouldSkipOpeninDialog() {
+		return skipDialogOpening;
+	}
+
 	private boolean isDialogOpen() {
 		Widget buttonWidget = this.getWidget();
 		ResetButton resetButton = (ResetButton) buttonWidget;
 
 		return resetButton.isDialogOpen();
+	}
+
+	private String getConfirmationText(int position) {
+		if (position == 0) {
+			return "Page has been reset";
+		} else if (position == 1) {
+			return "Page has not been reset";
+		}
+		return "";
 	}
 }
