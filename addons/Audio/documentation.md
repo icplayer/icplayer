@@ -1,4 +1,4 @@
-The Audio addon allows users to play sounds in their presentations. This addon works on all common browsers. For Internet Explorer 9 you have to use mp3 format, for others ogg format.
+The Audio addon allows users to play sounds in their presentations. This addon works on all common browsers.
 
 <div style="border:1px solid Tomato; padding:5px; margin-bottom:21px;">
 Note: It's recommended to use files with <a href="http://en.wikipedia.org/wiki/Bit_rate">bitrate</a> 64 kb/s or higher. Files with lower quality could have difficulties with reproduction.
@@ -12,13 +12,13 @@ Note: It's recommended to use files with <a href="http://en.wikipedia.org/wiki/B
     </tr>
     <tr>
         <td>ogg</td>
-        <td>This property serves for uploading an audio file in ogg format into the module. It's needed for all common browsers (exclude Internet Explorer and Safari).
+        <td>This property serves for uploading an audio file in ogg format into the module.
 
 *This property allows online resources. [Find out more &raquo;](/doc/page/Online-resources)*</td>
     </tr>
     <tr>
         <td>mp3</td>
-        <td>This property serves for uploading an audio file in mp3 format into the module. It's needed for Internet Explorer.
+        <td>This property serves for uploading an audio file in mp3 format into the module.
 
 *This property allows online resources. [Find out more &raquo;](/doc/page/Online-resources)*</td>
     </tr>

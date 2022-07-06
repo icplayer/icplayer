@@ -3,6 +3,7 @@ function AddonAutomatic_Feedback_create() {
 
     presenter.activityHandler = null;
     presenter.playerController = null;
+    presenter.textParser = null;
     presenter.isLoaded = false;
 
     var ERROR_MESSAGES = {
@@ -54,6 +55,7 @@ function AddonAutomatic_Feedback_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.initializeActivityTypeDict();
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
         if (!presenter.configuration.isValid) {
@@ -96,6 +98,21 @@ function AddonAutomatic_Feedback_create() {
         presenter.isLoaded = true;
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeLangAttribute(model);
+    }
+
+    presenter.upgradeLangAttribute = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function(model) {
 
         if (model["ActivityModuleID"].trim().length === 0) {
@@ -129,7 +146,8 @@ function AddonAutomatic_Feedback_create() {
             defaultFeedback: feedbacks.defaultFeedback,
             itemFeedbacks: feedbacks.itemFeedbacks,
             displayMode: displayMode,
-            reactTo: reactTo
+            reactTo: reactTo,
+            langTag: model["langAttribute"]
         }
     }
 
@@ -153,7 +171,11 @@ function AddonAutomatic_Feedback_create() {
             var feedbackModel = feedbackModelList[i];
             if (feedbackModel['Feedback'].trim() === 0) continue;
             if (feedbackModel['ActivityItem'].trim().length === 0) {
-                feedbacks.defaultFeedback[fieldName] = feedbackModel['Feedback'];
+                let feedback = feedbackModel['Feedback'];
+                if (presenter.textParser) {
+                    feedback = presenter.textParser.parse(feedback);
+                }
+                feedbacks.defaultFeedback[fieldName] = feedback;
             } else {
                 activityItems = feedbackModel['ActivityItem'].split(',');
                 for (var j = 0; j < activityItems.length; j++) {
@@ -181,7 +203,11 @@ function AddonAutomatic_Feedback_create() {
                         }
                         for (var k = r1; k < r2; k++) {
                             if (feedbacks.itemFeedbacks[k] === undefined) feedbacks.itemFeedbacks[k] = createEmptyFeedbackObject();
-                            feedbacks.itemFeedbacks[k][fieldName] = feedbackModel['Feedback'];
+                            let feedback = feedbackModel['Feedback'];
+                            if (presenter.textParser) {
+                                feedback = presenter.textParser.parse(feedback);
+                            }
+                            feedbacks.itemFeedbacks[k][fieldName] = feedback;
                         }
                     } else {
                         feedbacks.isValid = false;
@@ -227,6 +253,7 @@ function AddonAutomatic_Feedback_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.setEventBus = function (wrappedEventBus) {
@@ -460,11 +487,59 @@ function AddonAutomatic_Feedback_create() {
     presenter.executeCommand = function(name, params) {
         var commands = {
             'displayFeedback': presenter.displayFeedback,
+            'readFeedback': presenter.readFeedback,
+            'displayAndReadFeedback': presenter.displayAndReadFeedback,
             'clearFeedback': presenter.clearFeedback
         };
 
         Commands.dispatch(commands, name, params, presenter);
     };
+
+    presenter.displayAndReadFeedback = function(item, type) {
+        if (Array.isArray(item) && item.length == 2 && type === undefined) {
+            type = item[1];
+            item = item[0];
+        }
+        presenter.displayFeedback(item, type);
+        presenter.readFeedback(item, type);
+    }
+
+    presenter.readFeedback = function(item, type) {
+        if (Array.isArray(item) && item.length == 2 && type === undefined) {
+            type = item[1];
+            item = item[0];
+        }
+
+        if (["correct","incorrect","partial","empty"].indexOf(type) == -1) return;
+
+        var feedback = "";
+        if (item != null && presenter.configuration.itemFeedbacks[item] !== undefined) {
+            feedback = presenter.configuration.itemFeedbacks[item][type];
+        } else {
+            var feedbackObject = this.presenter.configuration.defaultFeedback;
+            feedback = feedbackObject[type];
+        }
+        let $wrapper = $('<div></div>');
+        $wrapper.html(feedback);
+        let speechTexts = window.TTSUtils.getTextVoiceArrayFromElement($wrapper, presenter.configuration.langTag);
+        speak(speechTexts);
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts) {
+            tts.speak(data);
+        }
+    }
 
     class AbstractActivity {
 
