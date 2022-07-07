@@ -667,11 +667,15 @@ function AddonHierarchical_Table_Of_Contents_create() {
     }
 
     function getHyperLinkTTS($element) {
-        const goToPagePrefix = presenter.speechTexts.GoToPage;
-        const pageName = $element[0].innerText;
-        const nameWithPrefix = `${goToPagePrefix} ${pageName}`;
+        const textVoiceObject = [];
 
-        return nameWithPrefix;
+        const goToPagePrefix = presenter.speechTexts.GoToPage;
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, goToPagePrefix);
+
+        const pageName = $element[0].innerText;
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, pageName);
+
+        return textVoiceObject;
     }
 
     function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
