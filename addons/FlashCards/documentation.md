@@ -46,8 +46,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     <tr>
         <td>Speech texts</td>
         <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
-    </tr>
-    
+    </tr>  
 </tbody>
 </table>
 
@@ -124,7 +123,6 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <td>value</td>
         <td>favourite/unfavourite</td>
     </tr>
-    
 </tbody>
 </table>
 
@@ -200,6 +198,5 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <td>.flashcards-button.flashcards-button-selected</td>
         <td>Activity mode grading button selected state</td>
     </tr>
-
 </tbody>
 </table>    

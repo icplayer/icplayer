@@ -1,5 +1,5 @@
 function AddonFlashCards_create(){
-			
+
     var presenter = function () {}
 
     presenter.configuration = {
@@ -11,7 +11,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.state = {
-	isVisible: false,
+    isVisible: false,
         currentCard: 1,
         totalCards: 1,
         noLoop: false,
@@ -56,14 +56,14 @@ function AddonFlashCards_create(){
         };
     };
 
-	presenter.triggerEvent = function (item, value, score) {
+    presenter.triggerEvent = function (item, value, score) {
         var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.validateModel = function (model) {
         presenter.setSpeechTexts(model['speechTexts']);
-		return {
+        return {
             isValid: true,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             noLoop: ModelValidationUtils.validateBoolean(model['NoLoop']),
@@ -76,14 +76,14 @@ function AddonFlashCards_create(){
             cardsFavourites: [],
             addonID: model['ID'],
             langTag: model['langAttribute']
-		}
-	};
+        }
+    };
 
-	presenter.upgradeModel = function (model) {
-	    return presenter.upgradeAddTTS(model);
-	}
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeAddTTS(model);
+    }
 
-	presenter.upgradeAddTTS = function (model) {
+    presenter.upgradeAddTTS = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
@@ -327,12 +327,12 @@ function AddonFlashCards_create(){
      };
     
     presenter.run = function (view, model) {
-		presenter.init(view, model);
-	};
+        presenter.init(view, model);
+    };
     
     presenter.createPreview = function (view, model) {
-		presenter.init(view, model);
-	};
+        presenter.init(view, model);
+    };
 
     presenter.revertCard = function () {
         presenter.isFrontPlaying = false;
@@ -572,19 +572,19 @@ function AddonFlashCards_create(){
     };
 
     presenter.executeCommand = function (name, params) {
-		var commands = {
-			'show': presenter.show,
-			'hide': presenter.hide,
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
             'nextCard': presenter.nextCard,
             'prevCard': presenter.prevCard,
-			'reset': presenter.reset,
+            'reset': presenter.reset,
             'resetFavourites': presenter.resetFavourites,
             'ShowOnlyFavourites': presenter.showOnlyFavourites,
             'ShowAllCards': presenter.showAllCards,
             'countFavourites': presenter.countFavourites
-		};
-		Commands.dispatch(commands, name, params, presenter);
-	};
+        };
+        Commands.dispatch(commands, name, params, presenter);
+    };
     
     presenter.getState = function () {
         return JSON.stringify({
@@ -700,8 +700,6 @@ function AddonFlashCards_create(){
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audio));
             } else if (currentElement.hasClass('flashcards-button-wrong')) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
-            } else if (currentElement.hasClass('flashcards-button-favourite')) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.favourite));
             } else if (currentElement.hasClass('flashcards-button-correct')) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
             } else if (currentElement.hasClass('flashcards-button-reset')) {
