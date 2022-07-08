@@ -546,8 +546,7 @@ public class PageTestCase {
 			IProperty property = page.getProperty(i);
 			if (property instanceof IBooleanProperty 
 				&& property.getName().compareToIgnoreCase("Not&nbsp;assignable") == 0) {
-				    property.setValue("true");
-				}
+				property.setValue("true");
 			}
 		}
 
