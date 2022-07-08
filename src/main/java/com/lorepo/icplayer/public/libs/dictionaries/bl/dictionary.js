@@ -330,6 +330,7 @@ var ice_dictionary_bl = {
 	"height" : "Височина",
 	"name" : "Име",
 	"is_reportable" : "Да може да се докладва",
+	"not_assignable" : "Not assignable",
 	"event_editor" : "Редактор на събития",
 	"html_editor" : "Редактор на HTML",
 	"string_list_editor" : "Редактор на списък с низове",

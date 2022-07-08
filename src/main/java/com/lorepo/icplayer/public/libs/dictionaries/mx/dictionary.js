@@ -330,6 +330,7 @@ var ice_dictionary_mx = {
 	"width": "Anchura",
 	"height": "Altura",
 	"is_reportable": "Enviar al Reporte",
+	"not_assignable" : "Not assignable",
 	"event_editor": "Editor de eventos",
 	"html_editor": "Editor HTML",
 	"string_list_editor": "Editor del listado de ítems",

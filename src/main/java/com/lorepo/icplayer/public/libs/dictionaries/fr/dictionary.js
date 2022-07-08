@@ -330,6 +330,7 @@ var ice_dictionary_fr = {
     "width" : "Largeur",
     "height" : "Hauteur",
     "is_reportable" : "Est&nbsp;comptabilisé",
+    "not_assignable" : "Not assignable",
     "event_editor" : "Editeur d'événement",
     "html_editor" : "Editeur HTML",
     "string_list_editor" : "Editeur des Listes de chaînes",

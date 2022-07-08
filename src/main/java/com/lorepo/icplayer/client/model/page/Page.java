@@ -52,7 +52,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "6";
+	public static final String version = "7";
 	
 	private String id;
 	private String name;
@@ -95,6 +95,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public PageHeightModifications heightModifications = new PageHeightModifications();
 	
 	private boolean randomizeInPrint = false;
+	private boolean notAssignable = false;
 
 	private String defaultLayoutID;
 
@@ -109,6 +110,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWidth();
 		addPropertyHeight();
 		addPropertyReportable();
+		addPropertyNotAssignable();
 		addPropertyPreview();
 		addPropertyScoreType();
 		addPropertyWeightScoreMode();
@@ -128,18 +130,25 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		page.getId = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getId()();
 		}
+
 		page.getName = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getName()();
 		}
+
 		page.getBaseURL = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getBaseURL()();
 		}
+
 		page.isReportable = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::isReportable()();
 		}
 		
 		page.getRandomizeInPrint = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getRandomizeInPrint()();
+		}
+
+		page.isNotAssignable = function() {
+			return x.@com.lorepo.icplayer.client.model.page.Page::isNotAssignable()();
 		}
 
         page.getPreview = function(){
@@ -157,7 +166,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesListAsJS()();
 		}
 
-
 		page.setAsReportable = function () {
 			x.@com.lorepo.icplayer.client.model.page.Page::setAsReportable()();
 		}
@@ -165,7 +173,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		page.setAsNonReportable = function () {
 			x.@com.lorepo.icplayer.client.model.page.Page::setAsNonReportable()();
 		}
-
 
 		page.getModules = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getModulesList()();
@@ -259,9 +266,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += "<page layout='" + layout.toString() + "'";
 		xml += " name='" + StringUtils.escapeXML(name) + "'";
 		xml += " isReportable='" + reportable + "'";
+		xml += " notAssignable='" + notAssignable + "'";
 		xml += " scoring='" + scoringType + "'";
-		xml += " version='" + Page.version +"'";
-		xml += " randomizeInPrint='" + randomizeInPrint +"'";
+		xml += " version='" + Page.version + "'";
+		xml += " randomizeInPrint='" + randomizeInPrint + "'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
@@ -552,6 +560,44 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			@Override
 			public String getDisplayName() {
 				return "Randomize in print";
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+	private void addPropertyNotAssignable() {
+
+		IBooleanProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != notAssignable) {
+					notAssignable = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return notAssignable ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+			    return DictionaryWrapper.get("not_assignable");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("not_assignable");
 			}
 
 			@Override
@@ -1226,5 +1272,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	
 	public boolean getRandomizeInPrint() {
 		return this.randomizeInPrint;
+	}
+
+	public void setNotAssignable(boolean value) {
+		this.notAssignable = value;
+	}
+
+	public boolean isNotAssignable() {
+		return this.notAssignable;
 	}
 }
