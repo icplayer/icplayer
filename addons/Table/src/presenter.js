@@ -1175,7 +1175,7 @@ function AddonTable_create() {
             value = value.replace(/\W/g, '');
         }
 
-        return value;
+        return value.trim();
     };
 
     presenter.GapUtils.prototype.isValueEmpty = function () {

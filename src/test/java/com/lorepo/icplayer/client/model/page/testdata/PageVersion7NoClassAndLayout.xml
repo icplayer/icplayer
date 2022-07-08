@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<page 
+    name="Page" 
+    isReportable="true" notAssignable="false" scoring="percentage"
+    version="7" randomizeInPrint="false" 
+    header="" hasHeader="true" footer="" hasFooter="true"
+  	layout="percentage">
+	<layouts>
+		<layout id="default" width="0" height="0" isDefault="true"/>
+	</layouts>
+	<modules>
+	    <imageModule id="Image1" isTabindexEnabled="false">
+			<layouts isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+					<relative type="LTWH">
+						<left relative="" property="left"/>
+						<top relative="" property="top"/>
+						<right relative="" property="right"/>
+						<bottom relative="" property="bottom"/>
+					</relative>
+					<absolute left="0" right="0" top="0" bottom="0" width="950" height="1225"/>
+				</layout>
+			</layouts>
+			<image src="/file/serve/4937597482696704" alt="" mode="stretch" printable="" animatedGifRefresh="false"/>
+		</imageModule>
+		
+		<textModule id="Text1" isTabindexEnabled="false">
+			<styles>
+				<styleClasses>
+					<styleClass value="text_first_page_title" layoutID="default"/>
+				</styleClasses>
+			</styles>
+			<layouts isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+					<relative type="LTWH">
+						<left relative="" property="left"/>
+						<top relative="" property="top"/>
+						<right relative="" property="right"/>
+						<bottom relative="" property="bottom"/>
+					</relative>
+					<absolute left="250" right="0" top="346" bottom="21" width="650" height="150"/>
+				</layout>
+			</layouts>
+			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" 
+			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isSection="false" isCaseSensitive="false" useNumericKeyboard="false"
+			     openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All" printable=""
+			     number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="" link="" allAnswersGapSizeCalculationStyle="true" isSplitInPrintBlocked="false"
+				ignoreDefaultPlaceholderWhenCheck="false">
+			</text>
+			</textModule>
+		
+		<textModule id="Text2" isTabindexEnabled="false">
+			<styles>
+				<styleClasses>
+					<styleClass value="text_first_page_title" layoutID="default"/>
+				</styleClasses>
+			</styles>
+			<layouts isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+					<relative type="LTWH">
+						<left relative="" property="left"/>
+						<top relative="" property="top"/>
+						<right relative="" property="right"/>
+						<bottom relative="" property="bottom"/>
+					</relative>
+				<absolute left="175" right="0" top="476" bottom="21" width="725" height="125"/>
+				</layout>
+			</layouts>
+			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" 
+			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isSection="false" isCaseSensitive="false" useNumericKeyboard="false"
+			    openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All" printable=""
+			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="" link="" allAnswersGapSizeCalculationStyle="true" isSplitInPrintBlocked="false"
+				ignoreDefaultPlaceholderWhenCheck="false">
+			</text>
+		</textModule>
+		
+		<buttonModule id="NextPage1" isTabindexEnabled="false">
+			<layouts isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+					<relative type="LTWH">
+						<left relative="" property="left"/>
+						<top relative="" property="top"/>
+						<right relative="" property="right"/>
+						<bottom relative="" property="bottom"/>
+					</relative>
+					<absolute left="365" right="0" top="505" bottom="0" width="220" height="220"/>
+				</layout>
+			</layouts>
+			<button onclick="" type="nextPage" text=""/>
+		</buttonModule>
+	</modules>
+	<groups/>
+	<editorRulers>
+		<vertical>475</vertical>
+		<vertical>0</vertical>
+	</editorRulers>
+	<page-weight value="1" mode="defaultWeight"/>
+</page>
