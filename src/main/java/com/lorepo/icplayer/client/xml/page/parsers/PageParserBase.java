@@ -192,10 +192,15 @@ public abstract class PageParserBase implements IPageParser{
 		
 		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
 		page = loadRandomizeInPrint(page, xml);
+		page = loadNotAssignable(page, xml);
 		return page;
 	}
 	
 	protected IPageBuilder loadRandomizeInPrint(IPageBuilder page, Element xml) {
+		return page;
+	}
+
+	protected IPageBuilder loadNotAssignable(IPageBuilder page, Element xml) {
 		return page;
 	}
 	
