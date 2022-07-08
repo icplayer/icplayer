@@ -330,6 +330,7 @@ var ice_dictionary_en = {
 	"height" : "Height",
 	"name" : "Name",
 	"is_reportable" : "Is&nbsp;reportable",
+	"not_assignable" : "Not assignable",
 	"event_editor" : "Event Editor",
 	"html_editor" : "HTML Editor",
 	"string_list_editor" : "String List Editor",
