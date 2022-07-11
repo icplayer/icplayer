@@ -163,7 +163,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 					} else {
 						final int selectedPosition = resetButton.getSelectedPosition();
 						resetButton.enter(event, isExiting);
-						speak(TextToSpeechVoice.create(getConfirmationText(selectedPosition)));
+						speak(TextToSpeechVoice.create(module.getResetSpeechTextItem(selectedPosition)));
 						skipDialogOpening = true;
 					}
 				} else {
@@ -309,14 +309,5 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		ResetButton resetButton = (ResetButton) buttonWidget;
 
 		return resetButton.isDialogOpen();
-	}
-
-	private String getConfirmationText(int position) {
-		if (position == 0) {
-			return "Page has been reset";
-		} else if (position == 1) {
-			return "Page has not been reset";
-		}
-		return "";
 	}
 }
