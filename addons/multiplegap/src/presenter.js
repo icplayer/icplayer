@@ -514,25 +514,13 @@ function Addonmultiplegap_create(){
 
         return imageSourceModule.getImageUrl();
     };
-    
+
     presenter.updateLaTeX = function (element) {
-        MathJax.CallBack.Queue().Push(function () {
+        MathJax.Hub.Queue(() => {
             MathJax.Hub.Typeset(element)
         });
-        // Below is a fix to stop MathJax <nobr> tag from rendering twice on mobile iOS
-        // timeout is arbitrary, however, if it's too small, the fix does not work
-        if (MobileUtils.isSafariMobile(window.navigator.userAgent)) {
-            setTimeout(() => {
-                presenter.reprocessMathJax(presenter.getContainerElement());
-            }, 200);
-        }
     };
 
-    presenter.reprocessMathJax = function (element) {
-        MathJax.CallBack.Queue().Push(function () {
-            MathJax.Hub.Reprocess(element);
-        });
-    };
 
     presenter.getAltText = function (id) {
         var imageSourceModule = presenter.playerController.getModule(id);
