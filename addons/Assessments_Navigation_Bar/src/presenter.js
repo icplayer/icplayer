@@ -695,8 +695,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
         const $navigationButtonsFirst = $('<div></div>');
-        const elementClass = "navigation-buttons-first";
-        $navigationButtonsFirst.addClass(elementClass);
+        $navigationButtonsFirst.addClass("navigation-buttons-first");
 
         this.navigationButtonLeft = new presenter.NavigationButtonLeft();
         $navigationButtonsFirst.append(this.navigationButtonLeft.getView());
@@ -707,8 +706,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.appendNavigationButtonsLast = function () {
         const $navigationButtonsLast = $('<div></div>');
-        const elementClass = "navigation-buttons-last";
-        $navigationButtonsLast.addClass(elementClass);
+        $navigationButtonsLast.addClass("navigation-buttons-last");
 
         this.navigationButtonRight = new presenter.NavigationButtonRight();
         $navigationButtonsLast.append(this.navigationButtonRight.getView());
