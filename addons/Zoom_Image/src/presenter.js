@@ -161,6 +161,7 @@ function AddonZoom_Image_create() {
     presenter.destroy = function () {
         if (presenter.isOpened) {
             presenter.removeOpenedDialog();
+            presenter.$image.dialog("close");
         }
         presenter.unbindEvents();
 
