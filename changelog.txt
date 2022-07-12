@@ -1,3 +1,4 @@
+2022-07-12 Fixed ANB not adding "inactive" class
 2022-07-08 Correct checking user answer in Table
 2022-07-05 Added TTS support to FlashCards
 2022-07-05 Added "Not assignable" property to page

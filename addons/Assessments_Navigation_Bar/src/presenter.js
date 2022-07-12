@@ -43,6 +43,7 @@ function AddonAssessments_Navigation_Bar_create(){
         TURN_FORWARD: "turn_forward",
         CURRENT_PAGE: "current_page",
         BOOKMARK: "bookmark",
+        INACTIVE: "inactive"
     };
 
     presenter.attemptedButtons = [];
@@ -693,10 +694,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
-        const isFirstPage = presenter.currentPageIndex === 0;
-        const elementClass = isFirstPage ? "navigation-buttons-first inactive" : "navigation-buttons-first";
-
         const $navigationButtonsFirst = $('<div></div>');
+        const elementClass = "navigation-buttons-first";
         $navigationButtonsFirst.addClass(elementClass);
 
         this.navigationButtonLeft = new presenter.NavigationButtonLeft();
@@ -707,10 +706,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsLast = function () {
-        const isLastPage = presenter.currentPageIndex === presenter.configuration.numberOfPages - 1;
-        const elementClass = isLastPage ? "navigation-buttons-last inactive" : "navigation-buttons-last";
-
         const $navigationButtonsLast = $('<div></div>');
+        const elementClass = "navigation-buttons-last";
         $navigationButtonsLast.addClass(elementClass);
 
         this.navigationButtonRight = new presenter.NavigationButtonRight();
