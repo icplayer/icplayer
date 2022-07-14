@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public static final int RESET_BUTTON_RESET_INDEX = 0;
+	public static final int RESET_BUTTON_SKIP_RESET_INDEX = 1;
 
 	public enum ButtonType {
 		standard,
@@ -85,7 +86,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 					if (type == ButtonType.reset) {
 						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetReset")));
-						this.resetSpeechTextItems.get(1).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetNotReset")));
+						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetSkipReset")));
 					}
 				}
 			}
@@ -132,7 +133,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 			button.setAttribute("confirmYesInfo", StringUtils.escapeXML(confirmYesInfo));
 			button.setAttribute("confirmNoInfo", StringUtils.escapeXML(confirmNoInfo));
 			button.setAttribute("resetReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).getText()));
-			button.setAttribute("resetNotReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(1).getText()));
+			button.setAttribute("resetSkipReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX).getText()));
 		}
 		if (type == ButtonType.prevPage) {
 			XMLUtils.setBooleanAttribute(button, "goToLastVisitedPage", this.goToLastVisitedPage);
@@ -799,7 +800,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 		if (text.isEmpty()) {
 			if (index == ButtonModule.RESET_BUTTON_RESET_INDEX) {
 				return "Page has been reset";
-			} else if (index == 1) {
+			} else if (index == ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX) {
 				return "Page has not been reset";
 			}
 			

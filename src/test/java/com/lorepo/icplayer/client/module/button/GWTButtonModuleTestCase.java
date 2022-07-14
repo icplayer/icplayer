@@ -87,7 +87,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLReset () {
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" resetOnlyWrong=\"false\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\" resetReset=\"&lt;&gt;11\" resetNotReset=\"&lt;&gt;12\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" resetOnlyWrong=\"false\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\" resetReset=\"&lt;&gt;11\" resetSkipReset=\"&lt;&gt;12\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.reset);
 
 		assertEquals(expected, module.toXML());
