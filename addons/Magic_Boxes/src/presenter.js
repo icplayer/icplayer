@@ -6,11 +6,16 @@ function AddonMagic_Boxes_create() {
     var goodSelectionIndexes = [];
     var correctAnswers = [];
 
-    var viewContainer;
     var gridContainerWrapper;
     var gridContainer;
     var playerController;
     var eventBus;
+    var maxScore;
+
+    presenter.isSelectionPossible = true;
+
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
 
     presenter.configuration = {
         rows: 0,
@@ -19,14 +24,29 @@ function AddonMagic_Boxes_create() {
         answers: []
     };
 
-    var maxScore;
-    presenter.isSelectionPossible = true;
-
     presenter.ERROR_MESSAGES = {
         COLUMNS : "Inconsistent column size. Each row has to have same number of elements!",
         ROWS : "Inconsistent row definition. Whitespaces, semicolons and commas aren't alowed in grid!",
         ANSWERS_NOT_PROVIDED : "Answers section is missing or empty!",
         GRID_NOT_PROVIDED : "Grid definition missing or empty!"
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        CELL: "Cell",
+        SELECTED: "Selected",
+        DESELECTED: "Deselected",
+        CORRECT: "Correct",
+        WRONG: "Wrong",
+    };
+
+    presenter.CSS_CLASSES = {
+        GRID_WRAPPER: "magicGridWrapper",
+        ELEMENT_WRAPPER: "selectable-element-wrapper",
+        ELEMENT: "selectable-element",
+        SELECTED: "selectable-element-selected",
+        CORRECT_SELECTED: "selectable-element-selected-correct",
+        WRONG_SELECTED: "selectable-element-selected-uncorrect",
+        SHOW_ANSWERS: "selectable-element-show-answers",
     };
 
     presenter.setPlayerController = function (controller) {
@@ -35,7 +55,7 @@ function AddonMagic_Boxes_create() {
 
     function showErrorMessage(errorMessage) {
         var errorContainer = '<p>' + errorMessage + '</p>';
-        viewContainer.html(errorContainer);
+        presenter.$view.html(errorContainer);
     }
 
     function reverseString(text) {
@@ -138,10 +158,10 @@ function AddonMagic_Boxes_create() {
         for(var row = 0; row < rows; row++) {
             for(var column = 0; column < columns; column++) {
                 var wrapperElement = $(document.createElement('div'));
-                wrapperElement.addClass('selectable-element-wrapper');
+                wrapperElement.addClass(presenter.CSS_CLASSES.ELEMENT_WRAPPER);
 
                 var selectableElement = $(document.createElement('div'));
-                selectableElement.addClass('selectable-element');
+                selectableElement.addClass(presenter.CSS_CLASSES.ELEMENT);
                 selectableElement.text(presenter.configuration.gridElements[row][column].toUpperCase());
 
                 wrapperElement.append(selectableElement);
@@ -152,10 +172,10 @@ function AddonMagic_Boxes_create() {
         var gridContainerWrapperDimensions = getElementDimensions(gridContainerWrapper);
         var gridContainerWrapperDistances = calculateInnerDistance(gridContainerWrapperDimensions);
 
-        var wrapperDimensions = getElementDimensions(gridContainerWrapper.find('.selectable-element-wrapper:first')[0]);
+        var wrapperDimensions = getElementDimensions(gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}:first`)[0]);
         var wrapperDistances = calculateInnerDistance(wrapperDimensions);
 
-        var elementDimensions = getElementDimensions(gridContainerWrapper.find('.selectable-element:first')[0]);
+        var elementDimensions = getElementDimensions(gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:first`)[0]);
         var elementDistances = calculateInnerDistance(elementDimensions);
 
         var wrapperWidth = parseInt((model.Width - gridContainerWrapperDistances.horizontal - (wrapperDistances.horizontal * columns)) / columns, 10);
@@ -180,7 +200,7 @@ function AddonMagic_Boxes_create() {
         if (MobileUtils.isEventSupported('touchstart')) {
             var selectedIndex = null;
 
-            viewContainer.find('.magicGrid').on('touchmove', function (e) {
+            presenter.$view.find('.magicGrid').on('touchmove', function (e) {
                 e.stopPropagation();
                 e.preventDefault();
 
@@ -190,26 +210,27 @@ function AddonMagic_Boxes_create() {
                 var index = $(element).parent().index();
                 var selectedRow = parseInt(index / columns, 10);
                 var selectedColumn = parseInt(index % columns, 10);
-                if(index != selectedIndex && $(element).parent().hasClass('selectable-element-wrapper')){
+                if(index != selectedIndex && $(element).parent().hasClass(presenter.CSS_CLASSES.ELEMENT_WRAPPER)){
                     selectionHandler(selectedRow, selectedColumn);
                     selectedIndex = index;
                 }
             });
         }else{
-            viewContainer.find('.magicGridWrapper').on('mousedown', function () {
+            var $magicWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}`);
+            $magicWrapper.on('mousedown', function () {
                 presenter.isMouseDown = true;
             });
 
-            viewContainer.find('.magicGridWrapper').on('mouseup', function () {
+            $magicWrapper.on('mouseup', function () {
                 presenter.isMouseDown = false;
             });
 
-            viewContainer.find('.magicGridWrapper').on('mouseleave', function () {
+            $magicWrapper.on('mouseleave', function () {
                 presenter.isMouseDown = false;
             });
         }
 
-        gridContainer.find(".selectable-element-wrapper").each(function() {
+        gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).each(function() {
             var index = $(this).index();
             var selectedRow = parseInt(index / columns, 10);
             var selectedColumn = parseInt(index % columns, 10);
@@ -217,7 +238,7 @@ function AddonMagic_Boxes_create() {
             $(this).width(wrapperWidth + horizontalGap / columns);
             $(this).height(wrapperHeight + verticalGap / rows);
 
-            var selectableElement = $(this).find('.selectable-element:first');
+            var selectableElement = $(this).find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
             selectableElement.width(elementWidth + horizontalGap / columns);
             selectableElement.height(elementHeight + verticalGap / rows);
             var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight;
@@ -288,7 +309,7 @@ function AddonMagic_Boxes_create() {
 
             var item = (row+1) +"-"+ (column+1);
             var index = row * presenter.configuration.columns + column;
-            var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+            var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
             var currentScore = presenter.getScore();
 
             var eventData = presenter.createEventData(item, element.text(), presenter.calculateScoreForEvent(prevScore, currentScore));
@@ -303,24 +324,24 @@ function AddonMagic_Boxes_create() {
 
     function applySelectionStyle(row, column) {
         var index = row * presenter.configuration.columns + column;
-        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+        var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
 
         if(gridSelection[row][column]) {// is selected
-            if(!element.hasClass('selectable-element-selected')) {
-                element.addClass('selectable-element-selected');
+            if(!element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+                element.addClass(presenter.CSS_CLASSES.SELECTED);
             }
         } else {
-            if(element.hasClass('selectable-element-selected')) {
-                element.removeClass('selectable-element-selected');
+            if(element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+                element.removeClass(presenter.CSS_CLASSES.SELECTED);
             }
         }
     }
 
     function applyAnswerStyles() {
         if(presenter.configuration.checkByWords){
-            gridContainerWrapper.find(".selectable-element").each(function(index) {
-                if($(this).hasClass('selectable-element-selected')){
-                    $(this).addClass('selectable-element-selected-uncorrect');
+            gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function(index) {
+                if($(this).hasClass(presenter.CSS_CLASSES.SELECTED)){
+                    $(this).addClass(presenter.CSS_CLASSES.WRONG_SELECTED);
                 }
             });
 
@@ -329,24 +350,24 @@ function AddonMagic_Boxes_create() {
                     var word = presenter.configuration.answers[i].toString();
                     for(var j=0; j < presenter.answerWords[word.toLowerCase()].column.length; j++){
                         var index = presenter.answerWords[word.toLowerCase()].row[j] * presenter.configuration.columns + presenter.answerWords[word.toLowerCase()].column[j];
-                        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
-                        element.removeClass('selectable-element-selected-uncorrect');
-                        element.addClass('selectable-element-selected-correct');
+                        var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
+                        element.removeClass(presenter.CSS_CLASSES.WRONG_SELECTED);
+                        element.addClass(presenter.CSS_CLASSES.CORRECT_SELECTED);
                     }
                 }
             }
         }else{
-            gridContainerWrapper.find(".selectable-element").each(function(index) {
-                if(!$(this).hasClass("selectable-element-selected")) {
+            gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function(index) {
+                if(!$(this).hasClass(presenter.CSS_CLASSES.SELECTED)) {
                     return true; // jQeury equivalent of continue
                 }
 
                 var className;
 
                 if(goodSelectionIndexes[index] != -1){
-                    className = 'selectable-element-selected-correct';
+                    className = presenter.CSS_CLASSES.CORRECT_SELECTED;
                 }else{
-                    className = 'selectable-element-selected-uncorrect';
+                    className = presenter.CSS_CLASSES.WRONG_SELECTED;
                 }
 
                 $(this).addClass(className);
@@ -357,12 +378,12 @@ function AddonMagic_Boxes_create() {
     function cleanAnswersStyles() {
         // Clearing correct/uncorrect styles which where set when user
         // pressed 'check answers' button.
-        gridContainerWrapper.find(".selectable-element").each(function() {
-            if($(this).hasClass('selectable-element-selected-correct')) {
-                $(this).removeClass('selectable-element-selected-correct');
+        gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function() {
+            if($(this).hasClass(presenter.CSS_CLASSES.CORRECT_SELECTED)) {
+                $(this).removeClass(presenter.CSS_CLASSES.CORRECT_SELECTED);
             }
-            if($(this).hasClass('selectable-element-selected-uncorrect')) {
-                $(this).removeClass('selectable-element-selected-uncorrect');
+            if($(this).hasClass(presenter.CSS_CLASSES.WRONG_SELECTED)) {
+                $(this).removeClass(presenter.CSS_CLASSES.WRONG_SELECTED);
             }
         });
     }
@@ -537,11 +558,14 @@ function AddonMagic_Boxes_create() {
 
     function presenterLogic(view, model, isPreview){
         presenter.answerWords = {};
-        viewContainer = $(view);
-        presenter.view = viewContainer;
-        gridContainerWrapper = viewContainer.find(".magicGridWrapper:first");
+        presenter.view = view;
+        presenter.$view = $(view);
+        gridContainerWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}:first`);
         gridContainer = gridContainerWrapper.find(".magicGrid:first");
-        presenter.configuration = presenter.validateModel(model);
+
+        let upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.setSpeechTexts(upgradedModel['speechTexts']);
 
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
@@ -570,18 +594,87 @@ function AddonMagic_Boxes_create() {
             if (isPreview) {
                 gridSelection = goodSelections;
                 presenter.setWorkMode();
+            } else {
+                presenter.buildKeyboardController();
             }
         }
     }
+
+    presenter.upgradeModel = function (model) {
+        let upgradedModel = presenter.upgradeLangTag(model);
+        return presenter.upgradeSpeechTexts(upgradedModel);
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        return presenter.upgradeAttribute(model, "langAttribute", '');
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        const upgradedModel = presenter.upgradeAttribute(model, "speechTexts", {});
+
+        const modelSpeechTexts = upgradedModel["speechTexts"];
+        const properties = ["Cell", "Selected", "Deselected", "Correct", "Wrong"];
+        properties.forEach(name => {
+            if (!modelSpeechTexts[name]) modelSpeechTexts[name] = {[name]: ""}
+        })
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeAttribute = function (model, attrName, defaultValue) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model[attrName] === undefined) {
+            upgradedModel[attrName] = defaultValue;
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Cell: presenter.DEFAULT_TTS_PHRASES.CELL,
+            Selected: presenter.DEFAULT_TTS_PHRASES.SELECTED,
+            Deselected: presenter.DEFAULT_TTS_PHRASES.DESELECTED,
+            Correct: presenter.DEFAULT_TTS_PHRASES.CORRECT,
+            Wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Cell: TTSUtils.getSpeechTextProperty(
+                speechTexts.Cell.Cell,
+                presenter.speechTexts.Cell),
+            Selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.Selected),
+            Deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.Deselected),
+            Correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.Correct),
+            Wrong: TTSUtils.getSpeechTextProperty(
+                speechTexts.Wrong.Wrong,
+                presenter.speechTexts.Wrong)
+        };
+    };
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
     };
 
     presenter.run = function(view, model) {
-        eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
         presenterLogic(view, model, false);
+    };
+
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
@@ -1003,7 +1096,8 @@ function AddonMagic_Boxes_create() {
             answers: answersValidationResult.answers,
             checkByWords: ModelValidationUtils.validateBoolean(model['CheckByWords']),
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"])
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            langTag: model['langAttribute']
         };
     };
 
@@ -1022,7 +1116,7 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.setVisibility = function (isVisible) {
-        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     presenter.hide = function () {
@@ -1070,12 +1164,12 @@ function AddonMagic_Boxes_create() {
     };
 
     function applyShowAnswerStyles() {
-        gridContainerWrapper.find(".selectable-element").each(function(index) {
+        gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function(index) {
 
             var className;
 
             if(goodSelectionIndexes[index] != -1){
-                className = 'selectable-element-show-answers';
+                className = presenter.CSS_CLASSES.SHOW_ANSWERS;
             }
 
             $(this).addClass(className);
@@ -1083,9 +1177,9 @@ function AddonMagic_Boxes_create() {
     }
 
     function cleanShowAnswersStyles() {
-        gridContainerWrapper.find(".selectable-element").each(function() {
-            if($(this).hasClass('selectable-element-show-answers')) {
-                $(this).removeClass('selectable-element-show-answers');
+        gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function() {
+            if($(this).hasClass(presenter.CSS_CLASSES.SHOW_ANSWERS)) {
+                $(this).removeClass(presenter.CSS_CLASSES.SHOW_ANSWERS);
             }
         });
     }
@@ -1103,11 +1197,11 @@ function AddonMagic_Boxes_create() {
 
     function checkIfSelected (row, column){
         var index = row * presenter.configuration.columns + column;
-        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+        var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
 
         if(gridSelection[row][column]) {// is selected
-            if(element.hasClass('selectable-element-selected')) {
-                element.removeClass('selectable-element-selected');
+            if(element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+                element.removeClass(presenter.CSS_CLASSES.SELECTED);
                 return true;
             }else{
                 return false;
@@ -1118,8 +1212,8 @@ function AddonMagic_Boxes_create() {
 
     function addClassToSelectedElement (row, column){
         var index = row * presenter.configuration.columns + column;
-        var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
-            element.addClass('selectable-element-selected');
+        var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
+            element.addClass(presenter.CSS_CLASSES.SELECTED);
     }
 
     presenter.showAnswers = function () {
@@ -1170,6 +1264,253 @@ function AddonMagic_Boxes_create() {
         presenter.isSelectionPossible = true;
 
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    function MagicBoxesKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+        this.updateMapping();
+    }
+
+    MagicBoxesKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    MagicBoxesKeyboardController.prototype.constructor = MagicBoxesKeyboardController;
+
+    presenter.buildKeyboardController = function () {
+        const keyNavElements = presenter.getElementsForKeyboardNavigation();
+        presenter.keyboardControllerObject = new MagicBoxesKeyboardController(
+            keyNavElements, presenter.configuration.columns
+        );
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`);
+    };
+
+    MagicBoxesKeyboardController.prototype.updateMapping = function () {
+        this.mapping[window.KeyboardControllerKeys.TAB] = this.nextTabElement;
+        this.shiftKeysMapping[window.KeyboardControllerKeys.TAB] = this.previousTabElement;
+    };
+
+    MagicBoxesKeyboardController.prototype.nextTabElement = function (event) {
+        KeyboardController.prototype.nextElement.call(this, event);
+    };
+
+    MagicBoxesKeyboardController.prototype.previousTabElement = function (event) {
+        KeyboardController.prototype.previousElement.call(this, event);
+    };
+
+    MagicBoxesKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        const newPositionIndex = this.calculateNewPositionIndexForHorizontalMove(1);
+        if (newPositionIndex !== undefined) {
+            this.markCurrentElement(newPositionIndex);
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        const newPositionIndex = this.calculateNewPositionIndexForHorizontalMove(-1);
+        if (newPositionIndex !== undefined) {
+            this.markCurrentElement(newPositionIndex);
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.nextRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        const newPositionIndex = this.calculateNewPositionIndexForVerticalMove(this.columnsCount);
+        if (newPositionIndex !== undefined) {
+            this.markCurrentElement(newPositionIndex);
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.previousRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        const newPositionIndex = this.calculateNewPositionIndexForVerticalMove(-this.columnsCount);
+        if (newPositionIndex !== undefined) {
+            this.markCurrentElement(newPositionIndex);
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.calculateNewPositionIndexForHorizontalMove = function (move) {
+        return this.calculateNewPositionIndexForMoveInOneAxis(move, true);
+    };
+
+    MagicBoxesKeyboardController.prototype.calculateNewPositionIndexForVerticalMove = function (move) {
+        return this.calculateNewPositionIndexForMoveInOneAxis(move, false);
+    };
+
+    MagicBoxesKeyboardController.prototype.calculateNewPositionIndexForMoveInOneAxis = function (move, isHorizontal = true) {
+        const oldPosition = this.calculatePosition();
+        const newPosition = this.calculatePosition(move);
+        const newPositionIndex = this.keyboardNavigationCurrentElementIndex + move;
+        if (move === 0
+            || (isHorizontal && newPosition.y !== oldPosition.y)
+            || (!isHorizontal && newPosition.x !== oldPosition.x)
+            || (newPositionIndex >= this.keyboardNavigationElementsLen)
+            || (newPositionIndex < 0)) {
+            return undefined;
+        }
+        return newPositionIndex;
+    };
+
+    MagicBoxesKeyboardController.prototype.calculatePosition = function (move = 0) {
+        const newIndex = this.keyboardNavigationCurrentElementIndex + move;
+        return {
+            x: newIndex % this.columnsCount,
+            y: Math.floor(newIndex / this.columnsCount)
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.markCurrentElement = function (new_position_index) {
+        KeyboardController.prototype.markCurrentElement.call(this, new_position_index);
+
+        if (presenter.isTTS()) {
+            this.readCurrentElement();
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.enter = function (event) {
+        const isFirstEnter = !this.keyboardNavigationActive;
+        KeyboardController.prototype.enter.call(this, event);
+
+        if (presenter.isTTS() && !isFirstEnter) {
+            this.readCurrentElement();
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.select = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (!this.isSelectEnabled || !presenter.isSelectionPossible) {
+            return;
+        }
+
+        const $currentSelectableElement = this.getCurrentSelectableElement();
+        const hadSelectedClass = $currentSelectableElement.hasClass(presenter.CSS_CLASSES.SELECTED);
+
+        this.selectAction();
+
+        const haveSelectedClass = $currentSelectableElement.hasClass(presenter.CSS_CLASSES.SELECTED);
+        const classChanged = hadSelectedClass !== haveSelectedClass;
+        if (classChanged) {
+            if (haveSelectedClass) {
+                readSelected();
+            } else {
+                readDeselected();
+            }
+        }
+    };
+
+    MagicBoxesKeyboardController.prototype.selectAction = function () {
+        const currentPosition = this.calculatePosition();
+        selectionHandler(currentPosition.y, currentPosition.x);
+    };
+
+    MagicBoxesKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    };
+
+    MagicBoxesKeyboardController.prototype.getCurrentSelectableElement = function () {
+        const $elementWrapper = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        return $elementWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
+    };
+
+    MagicBoxesKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    MagicBoxesKeyboardController.prototype.readCurrentElement = function () {
+        const $element = this.getCurrentSelectableElement();
+
+        let textVoices = window.TTSUtils.getTextVoiceArrayFromElement($element, presenter.configuration.langTag);
+        this.unshiftElementIndexTextVoice(textVoices);
+        this.addElementStateInfoTextVoices(textVoices, $element);
+
+        presenter.speak(textVoices);
+    };
+
+    MagicBoxesKeyboardController.prototype.unshiftElementIndexTextVoice = function (textVoices) {
+        const alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
+        const position = this.calculatePosition();
+        const message = presenter.speechTexts.Cell
+            + " " + alphabet[position.x % alphabet.length]
+            + " " + (position.y + 1);
+        textVoices.unshift(window.TTSUtils.getTextVoiceObject(message));
+    };
+
+    MagicBoxesKeyboardController.prototype.addElementStateInfoTextVoices = function (textVoices, $selectableElement) {
+        if ($selectableElement.hasClass(presenter.CSS_CLASSES.SELECTED)
+            || $selectableElement.hasClass(presenter.CSS_CLASSES.SHOW_ANSWERS)) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.Selected);
+        }
+
+        switch (true) {
+            case ($selectableElement.hasClass(presenter.CSS_CLASSES.CORRECT_SELECTED)):
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.Correct);
+                break;
+            case ($selectableElement.hasClass(presenter.CSS_CLASSES.WRONG_SELECTED)):
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.Wrong);
+                break;
+            default:
+                break;
+        }
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    MagicBoxesKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    function readSelected () {
+        let textVoices = [];
+        addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.Selected);
+        presenter.speak(textVoices);
+    }
+
+    function readDeselected () {
+        let textVoices = [];
+        addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.Deselected);
+        presenter.speak(textVoices);
+    }
+
+    function addTextVoiceWithLanguageFromLesson(textVoices, message) {
+        textVoices.push(window.TTSUtils.getTextVoiceObject(message));
+    }
+
+    presenter.isTTS = function () {
+        return presenter.isWCAGOn && presenter.getTextToSpeechOrNull(playerController);
+    };
+
+    presenter.speak = function(data) {
+        const tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
     };
 
     return presenter;

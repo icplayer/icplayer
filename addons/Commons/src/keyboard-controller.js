@@ -123,7 +123,7 @@
     };
 
     /**
-     Action when was called right arrow
+     Action when was called right arrow or tab
      @method nextElement
     */
     KeyboardController.prototype.nextElement = function (event) {
@@ -134,7 +134,7 @@
     };
 
     /**
-     Action when was called left arrow
+     Action when was called left arrow or combination shift + tab
      @method previousElement
     */
     KeyboardController.prototype.previousElement = function (event) {
