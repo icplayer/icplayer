@@ -915,7 +915,7 @@ var ice_dictionary_bl = {
 	"Magic_Boxes_name": "Магически кутии",
 	"Magic_Boxes_property_grid": "Решетка",
 	"Magic_Boxes_property_answers": "Отговори",
-    "Magic_Boxes_property_check_by_words" : "Провери по думи",
+	"Magic_Boxes_property_check_by_words" : "Провери по думи",
 	"Magic_Boxes_property_lang_attribute" : "Lang attribute",
 	"Magic_Boxes_property_speech_texts" : "Speech texts",
 	"Magic_Boxes_property_speech_text_cell" : "Cell",

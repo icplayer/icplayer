@@ -1041,7 +1041,7 @@ var ice_dictionary_pl = {
 	"Magic_Boxes_name" : "Wykreślanka",
 	"Magic_Boxes_property_grid": "Siatka",
 	"Magic_Boxes_property_answers": "Odpowiedzi",
-    "Magic_Boxes_property_check_by_words" : "Sprawdzaj według słów",
+	"Magic_Boxes_property_check_by_words" : "Sprawdzaj według słów",
 	"Magic_Boxes_property_lang_attribute" : "Lang attribute",
 	"Magic_Boxes_property_speech_texts" : "Speech texts",
 	"Magic_Boxes_property_speech_text_cell" : "Cell",

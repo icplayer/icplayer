@@ -928,7 +928,7 @@ var ice_dictionary_en = {
 	"Magic_Boxes_name": "Magic Boxes",
 	"Magic_Boxes_property_grid": "Grid",
 	"Magic_Boxes_property_answers": "Answers",
-    "Magic_Boxes_property_check_by_words" : "Check By Words",
+	"Magic_Boxes_property_check_by_words" : "Check By Words",
 	"Magic_Boxes_property_lang_attribute" : "Lang attribute",
 	"Magic_Boxes_property_speech_texts" : "Speech texts",
 	"Magic_Boxes_property_speech_text_cell" : "Cell",

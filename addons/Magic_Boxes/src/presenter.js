@@ -1419,13 +1419,13 @@ function AddonMagic_Boxes_create() {
         selectionHandler(currentPosition.y, currentPosition.x);
     };
 
-    MagicBoxesKeyboardController.prototype.getCurrentElement = function () {
-        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    MagicBoxesKeyboardController.prototype.getCurrentSelectableElement = function () {
+        const $elementWrapper = this.getCurrentElement();
+        return $elementWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
     };
 
-    MagicBoxesKeyboardController.prototype.getCurrentSelectableElement = function () {
-        const $elementWrapper = this.getTarget(this.keyboardNavigationCurrentElement, false);
-        return $elementWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
+    MagicBoxesKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
     };
 
     MagicBoxesKeyboardController.prototype.getTarget = function (element, willBeClicked) {

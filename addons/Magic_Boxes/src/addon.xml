@@ -2,8 +2,8 @@
 
 <addon id='Magic_Boxes' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
-		<property name='Grid' nameLabel="Magic_Boxes_property_grid" type='text' isLocalized="true" />
-		<property name='Answers' nameLabel="Magic_Boxes_property_answers" type='text' isLocalized="true" />
+        <property name='Grid' nameLabel="Magic_Boxes_property_grid" type='text' isLocalized="true" />
+        <property name='Answers' nameLabel="Magic_Boxes_property_answers" type='text' isLocalized="true" />
         <property name="CheckByWords" displayName="Check By Words" nameLabel="Magic_Boxes_property_check_by_words" type="boolean"/>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Magic_Boxes_property_lang_attribute" type="string" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Magic_Boxes_property_speech_texts" type="staticlist">
@@ -23,5 +23,5 @@
                 <property name="Wrong" nameLabel="Magic_Boxes_property_speech_text_wrong" type="string"/>
             </property>
         </property>
-	</model>
+    </model>
 </addon>

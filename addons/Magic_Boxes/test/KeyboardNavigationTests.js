@@ -4,7 +4,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
         this.presenter = new AddonMagic_Boxes_create();
 
         this.presenter.configuration = createMagicBoxesConfigurationForTests();
-        this.presenter.$view = $(buildMagicBoxesViewForTests(this.presenter.configuration));
+        this.presenter.$view = $(createMagicBoxesViewForTests(this.presenter.configuration));
         this.presenter.buildKeyboardController();
         this.keyboardControllerObject = this.presenter.keyboardControllerObject;
         this.activateTTSWithoutReading();
@@ -225,7 +225,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
         this.validateIsElementMarked(0, 1);
     },
 
-    // down arrow
+    // Down arrow
 
     'test given element when activated down arrow and possible movement then call read method': function () {
         this.markAndFocusElementWithPosition(2, 1);
@@ -259,7 +259,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
         this.validateIsElementMarked(2, 4);
     },
 
-    // up arrow
+    // Up arrow
 
     'test given element when activated up arrow and possible movement then call read method': function () {
         this.markAndFocusElementWithPosition(2, 1);

@@ -14,7 +14,7 @@ function createMagicBoxesConfigurationForTests () {
     };
 }
 
-function buildMagicBoxesViewForTests (configuration) {
+function createMagicBoxesViewForTests (configuration) {
     const rows = configuration.rows;
     const columns = configuration.columns;
 
@@ -55,7 +55,7 @@ TestCase("[Magic Boxes] Build KeyboardController tests", {
     },
 
     buildView: function() {
-        this.presenter.view = buildMagicBoxesViewForTests(this.presenter.configuration);
+        this.presenter.view = createMagicBoxesViewForTests(this.presenter.configuration);
         this.presenter.$view = $(this.presenter.view);
     },
 

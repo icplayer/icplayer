@@ -17,7 +17,7 @@ TestCase("[Magic Boxes] TTS tests", {
         this.stubs.getTextToSpeechOrNullStub.returns(this.tts);
         this.presenter.getTextToSpeechOrNull = this.stubs.getTextToSpeechOrNullStub;
 
-        this.presenter.$view = $(buildMagicBoxesViewForTests(this.presenter.configuration));
+        this.presenter.$view = $(createMagicBoxesViewForTests(this.presenter.configuration));
         this.presenter.buildKeyboardController();
         this.keyboardControllerObject = this.presenter.keyboardControllerObject;
         this.keyboardControllerObject.selectAction = this.stubs.selectActionStub;
@@ -31,7 +31,7 @@ TestCase("[Magic Boxes] TTS tests", {
         this.keyboardControllerObject.keyboardNavigationActive = true;
     },
 
-    validateAreEqualExpectedTextsToSpokenTexts: function (expectedTexts) {
+    validateIsAllSpokenTextsEqualsToExpectedTexts: function (expectedTexts) {
         const spokenText = this.getFirstReadText();
         assertTrue(this.tts.speak.calledOnce);
         assertEquals(expectedTexts.length, spokenText.length);
@@ -78,7 +78,7 @@ TestCase("[Magic Boxes] TTS tests", {
             "Cell A 1",
             "O",
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given selected element when calling read method then speak with correct TTS' : function() {
@@ -91,7 +91,7 @@ TestCase("[Magic Boxes] TTS tests", {
             "O",
             "Selected"
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given element in Show Answers state when calling read method then speak with correct TTS' : function() {
@@ -104,7 +104,7 @@ TestCase("[Magic Boxes] TTS tests", {
             "O",
             "Selected"
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given marked as correct element when calling read method then speak with correct TTS' : function() {
@@ -119,7 +119,7 @@ TestCase("[Magic Boxes] TTS tests", {
             "Selected",
             "Correct",
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given marked as wrong element when calling read method then speak with correct TTS' : function() {
@@ -134,7 +134,7 @@ TestCase("[Magic Boxes] TTS tests", {
             "Selected",
             "Wrong",
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given element and selection is not possible when activated space then do not speak' : function() {
@@ -153,7 +153,7 @@ TestCase("[Magic Boxes] TTS tests", {
         const expectedTexts = [
             "Selected",
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
     'test given selected selectable element when activated space then speak with correct TTS' : function() {
@@ -165,7 +165,7 @@ TestCase("[Magic Boxes] TTS tests", {
         const expectedTexts = [
             "Deselected",
         ]
-        this.validateAreEqualExpectedTextsToSpokenTexts(expectedTexts);
+        this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 });
 
