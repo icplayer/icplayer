@@ -6,15 +6,15 @@ function AddonCross_Lesson_create(){
 
     var crossLessonEventReceivedType = "crossLessonHasUserAccess:";
 
-    var errorCodes = {
+    const errorCodes = {
         "V_01": "Lesson ID is missing",
         "V_02": "Course ID is invalid",
         "V_03": "Type is invalid. Lesson type should be either 'lesson', 'ebook' or 'course'.",
         "V_04": "Access ids given but CheckAccess is not selected.",
-        "V_05": "Either CourseID is empty or incorrect values provided in AccessIDs field. Check documentation."
+        "V_05": "Incorrect values provided in AccessIDs field."
     };
 
-    var resourceTypes = {
+    const resourceTypes = {
         lesson: "lesson",
         ebook: "ebook",
         course: "course"
@@ -142,19 +142,26 @@ function AddonCross_Lesson_create(){
     };
 
     presenter.validateAccessIds = function AddonCross_Lesson_validateAccessIds (raw) {
-        raw = String(raw);
-        var ids = raw.split(",");
-        var initialLength = ids.length;
-        var onlyDigitsRegex = /^\d*$/;
+        const ids = presenter.transformAccessIdsToArray(raw);
+        const onlyDigitsRegex = /^\d*$/;
 
-        ids = ids.map(id => id.trim());
-        ids = ids.filter((id) => {return id.length > 0 && onlyDigitsRegex.test(id)});
+        const filteredIds = ids
+            .map(id => id.trim())
+            .filter((id) => (id.length > 0 && onlyDigitsRegex.test(id)));
 
-        if (initialLength !== ids.length) {
+        if (ids.length !== filteredIds.length) {
             return {isValid: false};
         }
 
-        return {isValid: true, value: ids};
+        return {isValid: true, value: filteredIds};
+    };
+
+    presenter.transformAccessIdsToArray = function (raw) {
+        let ids = String(raw).split(",");
+        if (ids.length === 1 && ids[0] === "") {
+            ids = [];
+        }
+        return ids;
     };
 
     presenter.createView = function (view) {
