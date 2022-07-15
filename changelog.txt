@@ -1,9 +1,15 @@
+2022-07-08 Correct checking user answer in Table
 2022-07-07 Fixed MathJax not rendering in editor
+2022-07-05 Added TTS support to FlashCards
+2022-07-05 Added "Not assignable" property to page
+2022-07-05 Added keyboard navigation to the Confirm dialog in Reset Button
 2022-07-01 New Addon Speechace
-2022-06-23 Added support for audio speed controller in keyboard navigation and TTS in Text Audio addon
+2022-06-28 Added Keyboard Navigation + TTS to Hierarchical Table Of Contents
+2022-06-24 Added support for audio speed controller in keyboard navigation and TTS in Text Audio addon
 2022-06-24 Added TTS support to Automatic Feedback
 2022-06-24 Added keyboard navigation and TTS to Limited Reset
 2022-06-24 Added keyboard navigation and TTS to Gradual Show Answer
+2022-06-23 Added support for audio speed controller in keyboard navigation and TTS in Text Audio addon
 2022-06-23 Added keyboard navigation and TTS to External Link Button
 2022-06-23 Add Keyboard Navigation and TTS to Text Coloring addon
 2022-06-17 Added keyboard navigation and TTS to Audio Playlist

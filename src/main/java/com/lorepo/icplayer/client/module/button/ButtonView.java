@@ -27,6 +27,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private PageController pageController;
 	private boolean isWCAGOn = false;
 	private String originalDisplay = "";
+	private boolean skipDialogOpening = false;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -151,13 +152,26 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof ExecutableButton) {
-			((ExecutableButton) buttonWidget).execute();
-			
-			if (isWCAGOn) {
-				ButtonType type = module.getType();
-				if (ButtonType.reset == type) {
+			if (this.isResetButton()) {
+				ResetButton resetButton = (ResetButton) buttonWidget;
+				skipDialogOpening = false;
+
+				if (resetButton.isConfirmationActive()) {
+					if (!resetButton.isDialogOpen()) {
+						((ExecutableButton) buttonWidget).execute();
+						speak(TextToSpeechVoice.create(resetButton.getTextFromDialog()));
+					} else {
+						final int selectedPosition = resetButton.getSelectedPosition();
+						resetButton.enter(event, isExiting);
+						speak(TextToSpeechVoice.create(getConfirmationText(selectedPosition)));
+						skipDialogOpening = true;
+					}
+				} else {
+					((ExecutableButton) buttonWidget).execute();
 					speak(TextToSpeechVoice.create(module.getResetSpeechTextItem(ButtonModule.RESET_BUTTON_RESET_INDEX)));
 				}
+			} else {
+				((ExecutableButton) buttonWidget).execute();
 			}
 		}
 	}
@@ -171,6 +185,13 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void tab(KeyDownEvent event) {	
+		if (this.isResetButton() && this.isDialogOpen()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton resetButton = (ResetButton) buttonWidget;
+			resetButton.tab(event);
+
+			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
+		}
 	}
 
 
@@ -197,8 +218,12 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void escape(KeyDownEvent event) {	
-		event.preventDefault(); 
+	public void escape(KeyDownEvent event) {
+		if (this.isResetButton()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton button = (ResetButton) buttonWidget;
+			button.clear();
+		}
 	}
 
 
@@ -209,7 +234,13 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
+		if (this.isResetButton() && this.isDialogOpen()) {
+			Widget buttonWidget = this.getWidget();
+			ResetButton resetButton = (ResetButton) buttonWidget;
+			resetButton.shiftTab(event);
 
+			speak(TextToSpeechVoice.create(resetButton.getTextFromButton()));
+		}
 	}
 
 	@Override
@@ -218,6 +249,8 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 	
 	private void speak (TextToSpeechVoice t1) {
+		if (!isWCAGOn) return;
+
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(t1);
 		
@@ -260,5 +293,30 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		} else {
 			super.setVisible(false);
 		}
+	}
+
+	public boolean isResetButton() {
+		ButtonType type = module.getType();
+		return type == ButtonType.reset;
+	}
+
+	public boolean shouldSkipOpeninDialog() {
+		return skipDialogOpening;
+	}
+
+	private boolean isDialogOpen() {
+		Widget buttonWidget = this.getWidget();
+		ResetButton resetButton = (ResetButton) buttonWidget;
+
+		return resetButton.isDialogOpen();
+	}
+
+	private String getConfirmationText(int position) {
+		if (position == 0) {
+			return "Page has been reset";
+		} else if (position == 1) {
+			return "Page has not been reset";
+		}
+		return "";
 	}
 }
