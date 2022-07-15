@@ -25,7 +25,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
         this.presenter.getTextToSpeechOrNull.restore();
     },
 
-    markAndFocusElementWithPosition: function (x, y) {
+    markElementWithPosition: function (x, y) {
         let newIndex = (this.keyboardControllerObject.columnsCount * y) + x;
         if (this.keyboardControllerObject.keyboardNavigationCurrentElement) {
             this.keyboardControllerObject.unmark(this.keyboardControllerObject.keyboardNavigationCurrentElement);
@@ -82,9 +82,9 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Enter
 
     'test given element when activated enter then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
-        activateTabEvent(this.presenter);
+        activateEnterEvent(this.presenter);
 
         this.validateIsReadCurrentElementCalledOnce();
     },
@@ -92,7 +92,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Tab
 
     'test given element when activated tab and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateTabEvent(this.presenter);
 
@@ -100,7 +100,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated tab and possible movement to right then mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateTabEvent(this.presenter);
 
@@ -108,7 +108,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated tab and possible movement to next row then mark next position': function () {
-        this.markAndFocusElementWithPosition(5, 1);
+        this.markElementWithPosition(5, 1);
 
         activateTabEvent(this.presenter);
 
@@ -116,7 +116,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated tab and possible movement to first row then mark next position': function () {
-        this.markAndFocusElementWithPosition(5, 4);
+        this.markElementWithPosition(5, 4);
 
         activateTabEvent(this.presenter);
 
@@ -126,7 +126,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Shift + Tab
 
     'test given element when activated combination shift + tab and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateShiftTabEvent(this.presenter);
 
@@ -134,7 +134,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated combination shift + tab and possible movement to left then mark previous position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateShiftTabEvent(this.presenter);
 
@@ -142,7 +142,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated combination shift + tab and possible movement to previous row then mark previous position': function () {
-        this.markAndFocusElementWithPosition(0, 1);
+        this.markElementWithPosition(0, 1);
 
         activateShiftTabEvent(this.presenter);
 
@@ -150,7 +150,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated combination shift + tab and possible movement to last row then mark previous position': function () {
-        this.markAndFocusElementWithPosition(0, 0);
+        this.markElementWithPosition(0, 0);
 
         activateShiftTabEvent(this.presenter);
 
@@ -160,7 +160,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Right arrow
 
     'test given element when activated right arrow and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateRightArrowEvent(this.presenter);
 
@@ -168,7 +168,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated right arrow and possible movement then mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateRightArrowEvent(this.presenter);
 
@@ -176,7 +176,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated right arrow and not possible movement then do not call read method': function () {
-        this.markAndFocusElementWithPosition(5, 0);
+        this.markElementWithPosition(5, 0);
 
         activateRightArrowEvent(this.presenter);
 
@@ -184,7 +184,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated right arrow and not possible movement then do not mark next position': function () {
-        this.markAndFocusElementWithPosition(5, 0);
+        this.markElementWithPosition(5, 0);
 
         activateRightArrowEvent(this.presenter);
 
@@ -194,7 +194,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Left arrow
 
     'test given element when activated left arrow and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateLeftArrowEvent(this.presenter);
 
@@ -202,7 +202,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated left arrow and possible movement then mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateLeftArrowEvent(this.presenter);
 
@@ -210,7 +210,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated left arrow and not possible movement then do not call read method': function () {
-        this.markAndFocusElementWithPosition(0, 1);
+        this.markElementWithPosition(0, 1);
 
         activateLeftArrowEvent(this.presenter);
 
@@ -218,7 +218,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated left arrow and not possible movement then do not mark next position': function () {
-        this.markAndFocusElementWithPosition(0, 1);
+        this.markElementWithPosition(0, 1);
 
         activateLeftArrowEvent(this.presenter);
 
@@ -228,7 +228,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Down arrow
 
     'test given element when activated down arrow and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateDownArrowEvent(this.presenter);
 
@@ -236,7 +236,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated down arrow and possible movement then mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateDownArrowEvent(this.presenter);
 
@@ -244,7 +244,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated down arrow and not possible movement then do not call read method': function () {
-        this.markAndFocusElementWithPosition(2, 4);
+        this.markElementWithPosition(2, 4);
 
         activateDownArrowEvent(this.presenter);
 
@@ -252,7 +252,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated down arrow and not possible movement then do not mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 4);
+        this.markElementWithPosition(2, 4);
 
         activateDownArrowEvent(this.presenter);
 
@@ -262,7 +262,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     // Up arrow
 
     'test given element when activated up arrow and possible movement then call read method': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateUpArrowEvent(this.presenter);
 
@@ -270,7 +270,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated up arrow and possible movement then mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 1);
+        this.markElementWithPosition(2, 1);
 
         activateUpArrowEvent(this.presenter);
 
@@ -278,7 +278,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated up arrow and not possible movement then do not call read method': function () {
-        this.markAndFocusElementWithPosition(2, 0);
+        this.markElementWithPosition(2, 0);
 
         activateUpArrowEvent(this.presenter);
 
@@ -286,7 +286,7 @@ TestCase("[Magic Boxes] Keyboard navigation tests", {
     },
 
     'test given element when activated up arrow and not possible movement then do not mark next position': function () {
-        this.markAndFocusElementWithPosition(2, 0);
+        this.markElementWithPosition(2, 0);
 
         activateUpArrowEvent(this.presenter);
 
