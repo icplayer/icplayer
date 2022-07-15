@@ -1,3 +1,4 @@
+2022-07-11 Added new property Page has not been reset to the Reset Button speech text
 2022-07-08 Correct checking user answer in Table
 2022-07-05 Fixed Multigap MathJax element doubling on iOS
 2022-07-05 Added TTS support to FlashCards
