@@ -357,6 +357,7 @@ var ice_dictionary_mx = {
 	"check_answers_button": "Comprobación de respuestas",
 	"reset_button": "Reiniciar",
 	"reset_button_reset" : "Page has been reset",
+	"reset_button_skip_reset" : "Page has not been reset",
 	"send_results_button": "Enviar resultados",
 	"open_popup_button": "Abrir ventana emergente",
 	"close_popup_button": "Cerrar ventana emergente",
