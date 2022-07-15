@@ -1320,7 +1320,7 @@ function AddonConnection_create() {
 
     presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
         var offset = element.offset();
-        var scale = playerController.getScaleInformation();
+        var scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
         var snapPoint = [0, 0];
 
         var elementWidth = element.outerWidth(true) * scale.scaleX;
@@ -1416,7 +1416,7 @@ function AddonConnection_create() {
         var from = presenter.getElementSnapPoint(line.from);
         var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
-        var scale = playerController.getScaleInformation();
+        var scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
 
         canvasOffset.left /= scale.scaleX;
         canvasOffset.top /= scale.scaleY;
