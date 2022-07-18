@@ -76,7 +76,9 @@ function AddonCross_Lesson_create(){
         }
 
         if (checkForAccess && model.AccessIDs.trim().length === 0) {
-            model.AccessIDs = validatedCourseId.value;
+            model.AccessIDs = validatedCourseId.value
+                ? validatedCourseId.value
+                : model.LessonID;
         }
 
         var validatedAccessIds = presenter.validateAccessIds(model.AccessIDs);
