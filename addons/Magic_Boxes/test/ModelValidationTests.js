@@ -1,4 +1,4 @@
-TestCase("Model validation test", {
+TestCase("[Magic Boxes] Model validation test", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },
@@ -77,5 +77,26 @@ TestCase("Model validation test", {
 
         assertTrue(validationResult.isError);
         assertEquals(this.presenter.ERROR_MESSAGES.ANSWERS_NOT_PROVIDED, validationResult.errorMessage);
-    }
+    },
+
+    'test given model with langTag when validateModel is called then set lang tag value correctly': function () {
+        var grid = "sofiaw\n"
+                 + "karuti\n"
+                 + "osloem\n"
+                 + "pwilno\n"
+                 + "jkrzym\n"
+                 + "ezudav";
+
+        var model = {
+            Grid: grid,
+            Answers: "Sofia, Skopje, Oslo\n"
+                   + "Ateny, Rzym, Wilno\n"
+                   + "Vaduz",
+            langAttribute: "en"
+        };
+
+        var actualValue = this.presenter.validateModel(model).langTag;
+
+        assertEquals("en", actualValue);
+    },
 });
