@@ -5,6 +5,9 @@ function AddonMagic_Boxes_create() {
     var goodSelections = [];
     var goodSelectionIndexes = [];
     var correctAnswers = [];
+    var GSALetterCounter = 0;
+    var usedGSAKeys = [];
+    
 
     var viewContainer;
     var gridContainerWrapper;
@@ -16,7 +19,7 @@ function AddonMagic_Boxes_create() {
         rows: 0,
         columns: 0,
         gridElements: [],
-        answers: []
+        answers: [],
     };
 
     var maxScore;
@@ -338,7 +341,7 @@ function AddonMagic_Boxes_create() {
         }else{
             gridContainerWrapper.find(".selectable-element").each(function(index) {
                 if(!$(this).hasClass("selectable-element-selected")) {
-                    return true; // jQeury equivalent of continue
+                    return true; // jQuery equivalent of continue
                 }
 
                 var className;
@@ -537,6 +540,7 @@ function AddonMagic_Boxes_create() {
 
     function presenterLogic(view, model, isPreview){
         presenter.answerWords = {};
+        presenter.GSAcorrectAnswerLocations = {};
         viewContainer = $(view);
         presenter.view = viewContainer;
         gridContainerWrapper = viewContainer.find(".magicGridWrapper:first");
@@ -548,6 +552,14 @@ function AddonMagic_Boxes_create() {
         if(presenter.configuration.answers){
             for(var i = 0; i< presenter.configuration.answers.length; i++){
                 presenter.answerWords[presenter.configuration.answers[i].toString().toLowerCase()] = {
+                    row : [],
+                    column : []
+                };
+            }
+        }
+        if(presenter.configuration.answers){
+            for(var i = 0; i< presenter.configuration.answers.length; i++){
+                presenter.GSAcorrectAnswerLocations[presenter.configuration.answers[i].toString().toLowerCase()] = {
                     row : [],
                     column : []
                 };
@@ -585,6 +597,8 @@ function AddonMagic_Boxes_create() {
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
+        eventBus.addEventListener('GradualShowAnswers', this);
+        eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.isWordInRow = function(grid, row, word) {
@@ -709,6 +723,12 @@ function AddonMagic_Boxes_create() {
                             presenter.answerWords[answer.toLowerCase()].row.push(r);
                             presenter.answerWords[answer.toLowerCase()].column.push(horizontalResult.positions[hr] + l);
                         }
+
+                        if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
+                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(r);
+                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(horizontalResult.positions[hr] + l);
+                        }
+
                         goodSelections.push({
                             row: r,
                             column: horizontalResult.positions[hr] + l
@@ -726,6 +746,12 @@ function AddonMagic_Boxes_create() {
                             presenter.answerWords[answer.toLowerCase()].row.push(verticalResult.positions[vr] + l);
                             presenter.answerWords[answer.toLowerCase()].column.push(c);
                         }
+
+                        if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
+                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(verticalResult.positions[vr] + l);
+                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(c);
+                        }
+
                         goodSelections.push({
                             row: verticalResult.positions[vr] + l,
                             column: c
@@ -742,6 +768,12 @@ function AddonMagic_Boxes_create() {
                         presenter.answerWords[answer.toLowerCase()].row.push(diagonalResult.positions[dr].row + l);
                         presenter.answerWords[answer.toLowerCase()].column.push(diagonalResult.positions[dr].column + l);
                     }
+
+                    if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
+                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(diagonalResult.positions[dr].row + l);
+                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(diagonalResult.positions[dr].column + l);
+                    }
+
                     goodSelections.push({
                         row: diagonalResult.positions[dr].row + l,
                         column: diagonalResult.positions[dr].column + l
@@ -757,6 +789,12 @@ function AddonMagic_Boxes_create() {
                         presenter.answerWords[answer.toLowerCase()].row.push(reverseDiagonalResult.positions[rdr].row + l);
                         presenter.answerWords[answer.toLowerCase()].column.push(reverseDiagonalResult.positions[rdr].column - l);
                     }
+                    
+                    if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
+                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(reverseDiagonalResult.positions[rdr].row + l);
+                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(reverseDiagonalResult.positions[rdr].column - l);
+                    }
+
                     goodSelections.push({
                         row: reverseDiagonalResult.positions[rdr].row + l,
                         column: reverseDiagonalResult.positions[rdr].column - l
@@ -1067,6 +1105,14 @@ function AddonMagic_Boxes_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+
+        if (eventName == "GradualShowAnswers") {
+            presenter.gradualShowAnswers();
+        }
+        
+        if (eventName == "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
+        }
     };
 
     function applyShowAnswerStyles() {
@@ -1116,15 +1162,26 @@ function AddonMagic_Boxes_create() {
         return false;
     }
 
-    function addClassToSelectedElement (row, column){
+    function addClassToSelecteElement (row, column){
         var index = row * presenter.configuration.columns + column;
         var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
             element.addClass('selectable-element-selected');
     }
 
-    presenter.showAnswers = function () {
-        presenter.isShowAnswersActive = true;
+    presenter.getActivitiesCount = function() {
+        if(presenter.configuration.checkByWords){
+            return presenter.configuration.answers.length;
+        } else {
+            goodSelectionIndexes = presenter.convertSelectionToIndexes(goodSelections, presenter.configuration.rows, presenter.configuration.columns);
+            var numberOfLetters = 0;
+            for (let i = 0; i < goodSelectionIndexes.length; i++) {
+                if (goodSelectionIndexes[i] == 1) numberOfLetters++;
+            }
+            return numberOfLetters;
+        }
+    }
 
+    presenter.saveUserSelectionBeforeShowAnswers = function () {
         presenter.isSelected = [];
         presenter.setWorkMode();
 
@@ -1142,6 +1199,11 @@ function AddonMagic_Boxes_create() {
                 }
             }
         }
+    }
+
+    presenter.showAnswers = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.saveUserSelectionBeforeShowAnswers();
 
         presenter.isSelectionPossible = false;
         var rows = presenter.configuration.rows;
@@ -1170,6 +1232,91 @@ function AddonMagic_Boxes_create() {
         presenter.isSelectionPossible = true;
 
         presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
+    };
+
+    presenter.gradualShowAnswers = function () {
+        if(!presenter.isGradualShowAnswersActive){
+            presenter.saveUserSelectionBeforeShowAnswers();
+        }
+
+        presenter.isShowAnswersActive = true;
+        presenter.isGradualShowAnswersActive = true;
+        presenter.isSelectionPossible = false;
+        
+
+        if (presenter.configuration.checkByWords){
+            presenter.showNextWord();
+        } else {
+            presenter.showNextLetter();
+        }
+    };
+
+    presenter.showNextWord = function () {
+        var columns = presenter.configuration.columns;
+
+        for (var key in presenter.GSAcorrectAnswerLocations){
+            if (usedGSAKeys.includes(key)) {
+                continue;
+            } else {
+                usedGSAKeys.push(key);
+            }
+            if (!presenter.GSAcorrectAnswerLocations.hasOwnProperty(key)) continue;
+            var answer = presenter.GSAcorrectAnswerLocations[key];
+
+            var row = answer["row"];
+            var column = answer["column"];
+
+            if (row.length != column.length) continue;
+            for (let i = 0; i < row.length; i++){
+                let index = row[i] * columns + column[i];
+                var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+                element.addClass('selectable-element-show-answers');
+            }
+            break;
+        }
+    };
+
+    presenter.showNextLetter = function () {
+        var columns = presenter.configuration.columns;
+
+        for (var key in presenter.GSAcorrectAnswerLocations){
+            if (usedGSAKeys.includes(key)) {
+                continue;
+            }
+            if (!presenter.GSAcorrectAnswerLocations.hasOwnProperty(key)) continue;
+            var answer = presenter.GSAcorrectAnswerLocations[key];
+
+            var row = answer["row"];
+            var column = answer["column"];
+
+            if (row.length != column.length) continue;
+            
+            var element;
+            do {
+                let index = row[GSALetterCounter] * columns + column[GSALetterCounter];
+                element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
+                GSALetterCounter++;
+            } while(element.hasClass("selectable-element-show-answers"));
+            element.addClass('selectable-element-show-answers');
+
+            if (GSALetterCounter == row.length) {
+                usedGSAKeys.push(key);
+                GSALetterCounter = 0;
+            }
+            break;
+        }
+    };
+
+    presenter.gradualHideAnswers = function () {
+        if (!presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        GSALetterCounter = 0;
+        usedGSAKeys = [];
+
+        presenter.hideAnswers();
     };
 
     return presenter;
