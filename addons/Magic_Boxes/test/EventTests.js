@@ -1,54 +1,55 @@
 TestCase("[Magic_Boxes] Events tests", {
     setUp: function() {
         this.presenter = AddonMagic_Boxes_create();
-        this.presenter.addonID = 'Magic_Boxes1';
-        this.presenter.isShowAnswersActive = false;
-        this.presenter.isGradualShowAnswersActive = false;
+        this.presenter.configuration = createMagicBoxesConfigurationForTests();
 
-        this.spies = {
-            showAnswers: sinon.spy(this.presenter, 'showAnswers'),
-            hideAnswers: sinon.spy(this.presenter, 'hideAnswers'),
-            gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers'),
-            gradualHideAnswers: sinon.spy(this.presenter, 'gradualHideAnswers')
+        this.presenter.addonID = 'Magic_Boxes1';
+
+        this.stubs = {
+            showAnswers: sinon.stub(this.presenter, 'showAnswers'),
+            hideAnswers: sinon.stub(this.presenter, 'hideAnswers'),
+            gradualShowAnswers: sinon.stub(this.presenter, 'gradualShowAnswers'),
+            gradualHideAnswers: sinon.stub(this.presenter, 'gradualHideAnswers')
         }
     },
 
-    'test showAnswers event calls the right method and sets isShowAnswersActive to true': function () {
+    tearDown: function () {
+        this.presenter.showAnswers.restore();
+        this.presenter.hideAnswers.restore();
+        this.presenter.gradualHideAnswers.restore();
+        this.presenter.gradualShowAnswers.restore();
+    },
+
+    'test showAnswers event calls the right method': function () {
         var eventName = "ShowAnswers";
 
         this.presenter.onEventReceived(eventName);
 
-        assertTrue(this.spies.showAnswers.called);
-        assertTrue(this.presenter.isShowAnswersActive);
+        assertTrue(this.stubs.showAnswers.calledOnce);
     },
 
-    'test hideAnswers event calls the right method and sets isShowAnswersActive to false': function () {
+    'test hideAnswers event calls the right method': function () {
         var eventName = "HideAnswers";
-        this.presenter.isShowAnswersActive = true;
 
         this.presenter.onEventReceived(eventName);
 
-        assertTrue(this.spies.showAnswers.called);
-        assertFalse(this.presenter.isShowAnswersActive);
+        assertTrue(this.stubs.hideAnswers.calledOnce);
     },
 
-    'test GSA event calls the right method and changes isGradualShowAnswersActive to true': function () {
+    'test GSA event calls the right method': function () {
         var eventName = "GradualShowAnswers";
 
         this.presenter.onEventReceived(eventName);
 
-        assertTrue(this.spies.gradualShowAnswers.called);
-        assertTrue(this.presenter.isGradualShowAnswersActive);
+        assertTrue(this.stubs.gradualShowAnswers.calledOnce);
     },
 
-    'test GHA event calls the right method and changes isGradualShowAnswersActive to false': function () {
-        this.presenter.isGradualShowAnswersActive = true;
+    'test GHA event calls the right method': function () {
         var eventName = "GradualHideAnswers";
 
         this.presenter.onEventReceived(eventName);
 
-        assertTrue(this.spies.gradualHideAnswers.called);
-        assertFalse(this.presenter.isGradualShowAnswersActive);
+        assertTrue(this.stubs.gradualHideAnswers.calledOnce);
     }
 
 });

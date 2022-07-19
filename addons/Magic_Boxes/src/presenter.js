@@ -68,7 +68,7 @@ function AddonMagic_Boxes_create() {
         return reversedText.join("");
     }
 
-    function initGridSelection() {
+    presenter.initGridSelection = function() {
         for(var row = 0; row < presenter.configuration.rows; row++) {
             gridSelection[row] = [];
             correctAnswers[row] = [];
@@ -381,7 +381,9 @@ function AddonMagic_Boxes_create() {
     function cleanAnswersStyles() {
         // Clearing correct/uncorrect styles which where set when user
         // pressed 'check answers' button.
+        console.log(presenter.CSS_CLASSES.CORRECT_SELECTED);
         gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}`).each(function() {
+            console.log(presenter.CSS_CLASSES.CORRECT_SELECTED);
             if($(this).hasClass(presenter.CSS_CLASSES.CORRECT_SELECTED)) {
                 $(this).removeClass(presenter.CSS_CLASSES.CORRECT_SELECTED);
             }
@@ -526,7 +528,7 @@ function AddonMagic_Boxes_create() {
         var row;
         var column;
 
-        initGridSelection();
+        presenter.initGridSelection();
 
         var serializeGridSelection, parsedState;
         if (state.indexOf("}") > -1 && state.indexOf("{") > -1){
@@ -564,7 +566,7 @@ function AddonMagic_Boxes_create() {
         presenter.view = view;
         presenter.$view = $(view);
         gridContainerWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}:first`);
-        gridContainer = gridContainerWrapper.find(".magicGrid:first");
+        gridContainer = presenter.$view.find(".magicGrid:first");
 
         let upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -592,7 +594,7 @@ function AddonMagic_Boxes_create() {
         if(presenter.configuration.isError) {
             showErrorMessage(presenter.configuration.errorMessage);
         } else {
-            initGridSelection();
+            presenter.initGridSelection();
             initGrid(model, isPreview);
             goodSelections = presenter.findGoodSelections(presenter.configuration.gridElements, presenter.configuration.answers);
 
