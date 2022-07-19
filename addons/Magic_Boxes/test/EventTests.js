@@ -1,8 +1,6 @@
 TestCase("[Magic_Boxes] Events tests", {
     setUp: function() {
         this.presenter = AddonMagic_Boxes_create();
-        this.presenter.configuration = createMagicBoxesConfigurationForTests();
-
         this.presenter.addonID = 'Magic_Boxes1';
 
         this.stubs = {

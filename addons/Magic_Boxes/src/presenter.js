@@ -561,6 +561,7 @@ function AddonMagic_Boxes_create() {
 
     function presenterLogic(view, model, isPreview){
         presenter.answerWords = {};
+        presenter.GSAcorrectAnswerLocations = {};
         presenter.view = view;
         presenter.$view = $(view);
         gridContainerWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}:first`);
