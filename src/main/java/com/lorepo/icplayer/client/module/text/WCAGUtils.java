@@ -263,7 +263,6 @@ public class WCAGUtils {
 				text = text.substring(endGapIndex);
 			}
 			text = TextParser.removeGapOptions(text);
-			text = text.replace(".", "");
 		}
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
 		return result;
