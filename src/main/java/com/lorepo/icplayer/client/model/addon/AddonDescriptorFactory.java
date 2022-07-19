@@ -50,6 +50,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Plot", "activities_menu");
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
+		addDescriptor("Speechace", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
 		addDescriptor("Text_Coloring", "activities_menu");
@@ -191,14 +192,20 @@ public class AddonDescriptorFactory {
 	}
 	
 	public void setWirisEnabled(boolean isEnabled) {
-		if (isEnabled) {
-			if (!addonList.containsKey("MathText")) {
-				addDescriptor("MathText", "activities_menu");
-			}
-		} else {
-			if (addonList.containsKey("MathText")) {
-				addonList.remove("MathText");
-			}
-		}
+		setOptionalAddonEnabled(isEnabled, "MathText", "activities_menu");
+	}
+
+	public void setSpeechaceEnabled(boolean isEnabled) {
+	    setOptionalAddonEnabled(isEnabled, "Speechace", "activities_menu");
+	}
+
+	private void setOptionalAddonEnabled(boolean isEnabled, String addonName, String category) {
+        if (isEnabled && !addonList.containsKey(addonName)) {
+            addDescriptor(addonName, category);
+        }
+
+        if (!isEnabled && addonList.containsKey(addonName)) {
+            addonList.remove(addonName);
+        }
 	}
 }

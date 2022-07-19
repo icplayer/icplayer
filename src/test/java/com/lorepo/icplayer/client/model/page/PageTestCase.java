@@ -509,5 +509,47 @@ public class PageTestCase {
 		
 		assertFalse(page.getRandomizeInPrint());
 	}
-	
+
+	@Test
+	public void testGivenNewPageIsAssignableByDefault(){
+		Page page = new Page("Page 1", "");
+
+		assertFalse(page.isNotAssignable());
+	}
+
+	@Test
+	public void testGivenPageWhenLoadPageFromXMLWithNotDefinedNotAssignablePropertyThenUseDefaultNotAssignableValue() throws Exception {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
+
+		Page page = new Page("Page 1", "");
+		assertFalse(page.isNotAssignable());
+
+		loadPage("testdata/page.xml", page);
+
+		assertFalse(page.isNotAssignable());
+	}
+
+	@Test
+	public void testGivenAssignableByDefaultPageWhenChangingPropertyNotAssignableToTrueThenValueChanged(){
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("not_assignable")).thenReturn("Not&nbsp;assignable");
+
+		Page page = new Page("Page 1", "");
+		assertFalse(page.isNotAssignable());
+
+		for (int i = 0; i < page.getPropertyCount(); i++){
+			IProperty property = page.getProperty(i);
+			if (property instanceof IBooleanProperty 
+				&& property.getName().compareToIgnoreCase("Not&nbsp;assignable") == 0) {
+				property.setValue("true");
+			}
+		}
+
+		assertTrue(page.isNotAssignable());
+	}
 }
