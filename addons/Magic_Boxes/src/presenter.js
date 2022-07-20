@@ -1256,7 +1256,7 @@ function AddonMagic_Boxes_create() {
         return false;
     }
 
-    function addClassToSelecteElement (row, column){
+    function addClassToSelectedElement (row, column){
         var index = row * presenter.configuration.columns + column;
         var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
             element.addClass(presenter.CSS_CLASSES.SELECTED);
