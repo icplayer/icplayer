@@ -47,6 +47,7 @@ public class GWTPageControllerTestCase extends GwtTest {
 		
 		Content contentMock = Mockito.mock(Content.class);
 		when(contentMock.getActualSemiResponsiveLayoutID()).thenReturn("default");
+		when(contentMock.getLayoutNameByID("default")).thenReturn("default");
 		when(contentMock.getActualSemiResponsiveLayouts()).thenReturn(pageLayouts);
 		
 		pageController.setContent(contentMock);

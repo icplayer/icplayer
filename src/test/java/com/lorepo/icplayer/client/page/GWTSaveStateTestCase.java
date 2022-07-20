@@ -40,6 +40,7 @@ public class GWTSaveStateTestCase extends GwtTest {
 		Set<PageLayout> pageLayouts = new HashSet<PageLayout>(Arrays.asList(PageLayout.createDefaultPageLayout()));
 		contentMock = Mockito.mock(Content.class);
 		when(contentMock.getActualSemiResponsiveLayoutID()).thenReturn("default");
+		when(contentMock.getLayoutNameByID("default")).thenReturn("default");
 		when(contentMock.getActualSemiResponsiveLayouts()).thenReturn(pageLayouts);
 	}
 	
