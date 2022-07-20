@@ -36,7 +36,7 @@ function AddonAutomatic_Feedback_create() {
     var AUTOMATIC_FEEDBACK_BUTTON_CLASS = "automatic_feedback_button";
     var REMAIN_OPEN_CLASS = "remain-open";
 
-    var ActivityTypeDict = null;
+    var activityTypeDict = null;
     presenter.initializeActivityTypeDict = function() {
         activityTypeDict = {
             "Default": DefaultActivity,
@@ -142,6 +142,7 @@ function AddonAutomatic_Feedback_create() {
             height: parseInt(model["Height"], 10),
             activityModuleID: model["ActivityModuleID"],
             activityType: activityType,
+            resetResponseOnPageChange: ModelValidationUtils.validateBoolean(model["ResetResponseOnPageChange"]),
             displayFeedbackButtons: ModelValidationUtils.validateBoolean(model["DisplayFeedbackButtons"]),
             defaultFeedback: feedbacks.defaultFeedback,
             itemFeedbacks: feedbacks.itemFeedbacks,
@@ -698,9 +699,11 @@ function AddonAutomatic_Feedback_create() {
 
         clearFeedback() {
             this.isActivated = false;
-            if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+            const displayMode = this.presenter.configuration.displayMode;
+
+            if (displayMode === DISPLAY_MODES.BLOCK) {
                 this.presenter.clearBlockFeedback();
-            } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+            } else if (displayMode === DISPLAY_MODES.POPUP) {
                 this.presenter.$popup.removeClass(REMAIN_OPEN_CLASS);
                 this.presenter.$popup.dialog('close');
                 if (this.presenter.configuration.displayFeedbackButtons) {
@@ -788,9 +791,9 @@ function AddonAutomatic_Feedback_create() {
 
         isWrapped = function () {
             if (!this.presenter.configuration.displayFeedbackButtons) return false;
-            if (this.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
+            if (this.presenter.configuration.displayMode === DISPLAY_MODES.BLOCK) {
                 return this.presenter.isBlockFeedbackWrapped();
-            } else if (this.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
+            } else if (this.presenter.configuration.displayMode === DISPLAY_MODES.POPUP) {
                 return !this.presenter.$popup.dialog('isOpen');
             } else {
                 if (this.$tooltip) {
@@ -803,26 +806,30 @@ function AddonAutomatic_Feedback_create() {
 
 
         setState = function (state) {
-            var self = this;
-            setTimeout(function() {
+            setTimeout(() => {
                 // without timeout there are issues with positioning of feedback buttons
-                var parsed = JSON.parse(state);
-                self.isActivated = parsed.isActivated;
-                self.lastFeedback = parsed.lastFeedback;
-                self.lastClass = parsed.lastClass;
-                if (parsed.isActivated) {
-                    self.displayFeedback(parsed.lastFeedback, parsed.lastClass);
+                const parsed = JSON.parse(state);
+                const displayMode = this.presenter.configuration.displayMode;
+                const isResetResponse = this.presenter.configuration.resetResponseOnPageChange;
+
+                this.isActivated = isResetResponse ? false : parsed.isActivated;
+                this.lastFeedback = parsed.lastFeedback;
+                this.lastClass = parsed.lastClass;
+
+                if (this.isActivated) {
+                    this.displayFeedback(parsed.lastFeedback, parsed.lastClass);
                 } else {
-                    self.clearFeedback();
+                    this.clearFeedback();
                 }
-                if (self.presenter.configuration.displayFeedbackButtons && !parsed.isWrapped) {
-                    if (self.presenter.configuration.displayMode == DISPLAY_MODES.BLOCK) {
-                        self.presenter.unwrapBlockFeedback();
-                    } else if (self.presenter.configuration.displayMode == DISPLAY_MODES.POPUP) {
-                        return !self.presenter.$popup.dialog('open');
+
+                if (this.presenter.configuration.displayFeedbackButtons && !parsed.isWrapped) {
+                    if (displayMode === DISPLAY_MODES.BLOCK) {
+                        this.presenter.unwrapBlockFeedback();
+                    } else if (displayMode === DISPLAY_MODES.POPUP) {
+                        return !this.presenter.$popup.dialog('open');
                     } else {
-                        if (self.$tooltip) {
-                            self.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
+                        if (this.$tooltip) {
+                            this.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
                         }
                     }
                 }
@@ -835,6 +842,9 @@ function AddonAutomatic_Feedback_create() {
 
         onDestroy() {
             this.clearTooltips();
+            if (this.$tooltip) {
+                this.$tooltip.remove();
+            }
         }
     }
 
