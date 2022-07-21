@@ -7,6 +7,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
     presenter.keyboardControllerObject = null;
 
     presenter.ERROR_MESSAGES = {
+        EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
     };
 
     presenter.CSS_CLASSES = {
@@ -252,6 +253,28 @@ function AddonHierarchical_Table_Of_Contents_create() {
     };
 
     presenter.validateModel = function (model) {
+        var expandDepth = returnCorrectObject(0);
+        if (model['expandDepth'].length > 0) {
+            expandDepth = ModelValidationUtils.validateInteger(model['expandDepth']);
+            if (!expandDepth.isValid) {
+                return returnErrorObject('EXPAND_DEPTH_NOT_NUMERIC');
+            }
+        }
+        var obj = {
+            ID: model.ID,
+            isValid: true,
+            width: parseInt(model["Width"], 10),
+            height: parseInt(model["Height"], 10),
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            labels: {
+                title: model['titleLabel']
+            },
+            displayOnlyChapters: ModelValidationUtils.validateBoolean(model.displayOnlyChapters),
+            expandDepth: expandDepth.value,
+            showPages: model.showPages,
+            langTag: model.langAttribute,
+        };
+        console.log(obj);
         return {
             ID: model.ID,
             isValid: true,
@@ -262,6 +285,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
                 title: model['titleLabel']
             },
             displayOnlyChapters: ModelValidationUtils.validateBoolean(model.displayOnlyChapters),
+            expandDepth: expandDepth.value,
             showPages: model.showPages,
             langTag: model.langAttribute,
         };
