@@ -174,6 +174,8 @@ public class PageController implements ITextToSpeechController, IPageController 
 			.concat("_")
 			.concat(pageName.replaceAll(" ", "_"));
 		
+		if (this.previousLayoutName.equals(actualLayoutName)) return;
+		
 		if (!this.contentModel.isOutstretchPageDictionaryEmpty() && this.contentModel.hasOutstretchPage(layoutKey)) {
 			OutstretchPageHeight parameter = contentModel.getOutstretchPage(layoutKey);
 			this.outstretchHeight(
