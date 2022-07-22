@@ -1,4 +1,4 @@
-TestCase("Finding good selections in grid", {
+TestCase("[Magic Boxes] Finding good selections in grid", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },

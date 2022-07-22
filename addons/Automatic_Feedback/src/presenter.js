@@ -329,12 +329,14 @@ function AddonAutomatic_Feedback_create() {
 
         var currentScrollTop = presenter.playerController.iframeScroll();
         presenter.$popup.dialog('open');
+        var topWindow = window;
         if (!presenter.playerController.isPlayerInCrossDomain()) {
-            $(top.window).scrollTop(currentScrollTop);
+            topWindow = top.window;
+            $(topWindow).scrollTop(currentScrollTop);
         }
 
         var dialogHeight = presenter.$popup.outerHeight();
-        var windowHeight = $(top.window).height();
+        var windowHeight = $(topWindow).height();
         var topPosition = parseInt(( windowHeight - dialogHeight) / 3, 10) + currentScrollTop;
         presenter.$popup.parent().css('top',topPosition+'px');
 

@@ -1,4 +1,4 @@
-TestCase("Score calculation", {
+TestCase("[Magic Boxes] Score calculation", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },
