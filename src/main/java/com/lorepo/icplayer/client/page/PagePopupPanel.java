@@ -261,14 +261,6 @@ public class PagePopupPanel extends DialogBox {
       return isValidInteger;
 	}
 	
-	private native int getTopWindowScroll()/*-{
-		return $wnd.$(top.window).scrollTop();
-	}-*/;
-	
-	private native void setTopWindowScroll(int scroll)/*-{
-		$wnd.$(top.window).scrollTop(scroll);
-	}-*/;
-	
 	private void compensateHeightBorder(){
 		int popupHeight = this.pageWidget.getOffsetHeight();
 		int borderHeight = this.getBorderHeight();
