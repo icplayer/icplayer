@@ -357,6 +357,7 @@ var ice_dictionary_pl = {
 	"check_answers_button" : "Sprawdź odpowiedzi",
 	"reset_button" : "Usuń wyniki",
 	"reset_button_reset" : "Page has been reset",
+	"reset_button_skip_reset" : "Page has not been reset",
 	"send_results_button" : "Wyślij wyniki",
 	"open_popup_button" : "Otwórz okno",
 	"close_popup_button" : "Zamknij okno",

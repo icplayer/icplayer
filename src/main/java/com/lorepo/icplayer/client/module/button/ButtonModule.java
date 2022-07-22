@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public static final int RESET_BUTTON_RESET_INDEX = 0;
+	public static final int RESET_BUTTON_SKIP_RESET_INDEX = 1;
 
 	public enum ButtonType {
 		standard,
@@ -85,6 +86,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 					if (type == ButtonType.reset) {
 						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetReset")));
+						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetSkipReset")));
 					}
 				}
 			}
@@ -131,6 +133,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 			button.setAttribute("confirmYesInfo", StringUtils.escapeXML(confirmYesInfo));
 			button.setAttribute("confirmNoInfo", StringUtils.escapeXML(confirmNoInfo));
 			button.setAttribute("resetReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).getText()));
+			button.setAttribute("resetSkipReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX).getText()));
 		}
 		if (type == ButtonType.prevPage) {
 			XMLUtils.setBooleanAttribute(button, "goToLastVisitedPage", this.goToLastVisitedPage);
@@ -761,6 +764,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 			@Override
 			public void addChildren(int count) {
 				resetSpeechTextItems.add(new SpeechTextsStaticListItem("reset","reset_button"));
+				resetSpeechTextItems.add(new SpeechTextsStaticListItem("skip_reset","reset_button"));
 			}
 
 			@Override
@@ -777,7 +781,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 			}
 
 		};
-		resetSpeechTextProperty.addChildren(1);
+		resetSpeechTextProperty.addChildren(2);
 	}
 	
 	private void addPropertyResetSpeechTexts(){
@@ -796,6 +800,8 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 		if (text.isEmpty()) {
 			if (index == ButtonModule.RESET_BUTTON_RESET_INDEX) {
 				return "Page has been reset";
+			} else if (index == ButtonModule.RESET_BUTTON_SKIP_RESET_INDEX) {
+				return "Page has not been reset";
 			}
 			
 			return "";

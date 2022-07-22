@@ -43,6 +43,7 @@ function AddonAssessments_Navigation_Bar_create(){
         TURN_FORWARD: "turn_forward",
         CURRENT_PAGE: "current_page",
         BOOKMARK: "bookmark",
+        INACTIVE: "inactive"
     };
 
     presenter.attemptedButtons = [];
@@ -121,9 +122,14 @@ function AddonAssessments_Navigation_Bar_create(){
          }
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
+        presenter.addEventListeners();
+    };
 
+    presenter.addEventListeners = function () {
         presenter.eventBus.addEventListener('PageLoaded', this);
         presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.changeToPage = function (index) {
@@ -693,11 +699,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
-        const isFirstPage = presenter.currentPageIndex === 0;
-        const elementClass = isFirstPage ? "navigation-buttons-first inactive" : "navigation-buttons-first";
-
         const $navigationButtonsFirst = $('<div></div>');
-        $navigationButtonsFirst.addClass(elementClass);
+        $navigationButtonsFirst.addClass("navigation-buttons-first");
 
         this.navigationButtonLeft = new presenter.NavigationButtonLeft();
         $navigationButtonsFirst.append(this.navigationButtonLeft.getView());
@@ -707,11 +710,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsLast = function () {
-        const isLastPage = presenter.currentPageIndex === presenter.configuration.numberOfPages - 1;
-        const elementClass = isLastPage ? "navigation-buttons-last inactive" : "navigation-buttons-last";
-
         const $navigationButtonsLast = $('<div></div>');
-        $navigationButtonsLast.addClass(elementClass);
+        $navigationButtonsLast.addClass("navigation-buttons-last");
 
         this.navigationButtonRight = new presenter.NavigationButtonRight();
         $navigationButtonsLast.append(this.navigationButtonRight.getView());
@@ -1672,20 +1672,9 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     function areAllModulesAttempted(modules) {
-        if(modules.length == 0){
-            return false;
-        }
+        if(modules.length === 0) return false;
 
-        var areAllAttempted = true;
-
-        $.each(modules, function() {
-            if (!this.isAttempted()) {
-                areAllAttempted = false;
-                return false; // break;
-            }
-        });
-
-        return areAllAttempted;
+        return modules.every(module => module.isAttempted());
     }
 
     presenter.areAllModulesAttempted = function () {
@@ -1697,24 +1686,30 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.onEventReceived = function(eventName, eventData) {
-        if (eventName == 'PageLoaded' && presenter.configuration.addClassAreAllAttempted) {
+        switch (eventName) {
+            case "PageLoaded":
+                if (presenter.configuration.addClassAreAllAttempted) {
+                    presenter.areAllModulesAttempted();
+                }
+                break;
+            case "ValueChanged":
+                presenter.handleValueChanged(eventData);
+                break;
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.handleValueChanged = function (eventData) {
+        if (presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
             presenter.areAllModulesAttempted();
         }
-
-        if (eventName == "ValueChanged" && presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
-            presenter.areAllModulesAttempted();
-        }
-
-        if (eventName == "ValueChanged" && eventData.item == "Lesson Reset") {
+        if (eventData.item === "Lesson Reset") {
             presenter.navigationManager.removeBookmarksFromButtons();
-        }
-
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
         }
     };
 

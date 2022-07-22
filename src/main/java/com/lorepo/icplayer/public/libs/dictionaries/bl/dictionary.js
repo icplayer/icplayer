@@ -357,6 +357,7 @@ var ice_dictionary_bl = {
 	"check_answers_button" : "Проверка на отговорите",
 	"reset_button" : "Нулирай",
 	"reset_button_reset" : "Страницата беше нулирана",
+	"reset_button_skip_reset" : "Page has not been reset",
 	"send_results_button" : "Изпрати резултати",
 	"open_popup_button" : "Отвори изскачащо меню",
 	"go_to_page_button" : "Отиди на страница",
