@@ -542,7 +542,9 @@ function AddonFile_Sender_create() {
             var presentationHeight = isMarginalPage ?  $('.ic_page').outerHeight() : $(presenter.$ICPage).outerHeight();
             var dialogWidth = $dialog.outerWidth();
             var dialogHeight = $dialog.outerHeight();
-            var windowHeight = $(top.window).height();
+            var topWindow = window;
+            if (presenter.playerController && !presenter.playerController.isPlayerInCrossDomain()) topWindow = top.window;
+            var windowHeight = $(topWindow).height();
             var scrollTop = currentScrollTop;
             var previewFrame = 0;
             var popupTop = 0;
@@ -563,7 +565,7 @@ function AddonFile_Sender_create() {
             if (isPopup) {
                 scrollTop = $(presenter.$ICPage).scrollTop();
                 popupTop =  presentationPosition.top;
-                if ($(top.window).scrollTop() > 0) presentationPosition.top = 0;
+                if ($(topWindow).scrollTop() > 0) presentationPosition.top = 0;
             }
             var visibleArea = presenter.estimateVisibleArea(presentationPosition.top, presentationHeight, scrollTop, windowHeight);
             var availableHeight = visibleArea.bottom - visibleArea.top;
@@ -607,7 +609,6 @@ function AddonFile_Sender_create() {
 
             // adjust top position if Player was embedded in iframe (i.e. EverTeach)
             if (window !== window.top) {
-                var iframe = window.parent.document.getElementsByTagName('iframe');
                 var iframeDialogHeight = parseInt($dialog.height(), 10);
                 iframeDialogHeight += DOMOperationsUtils.calculateOuterDistances(DOMOperationsUtils.getOuterDimensions($dialog)).vertical;
 

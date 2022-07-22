@@ -22,6 +22,14 @@ Of course it is possible to change the look of the grid, including the size and 
         <td>Check By Words</td>
         <td>When this option is selected, the module will be checking all answers by words, not by letters in the Check Errors mode.</td>
     </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>Allows you to set the langauge used to read the contents of the magic box via the TTS module.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
+    </tr>  
 </table>
 
 ## Supported commands
