@@ -1,4 +1,4 @@
-TestCase("Answers validation test", {
+TestCase("[Magic Boxes] Answers validation test", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },
