@@ -108,15 +108,15 @@ function AddonAutomatic_Feedback_create() {
         return upgradedModel;
     }
     
-    presenter.upgradeLangAttribute = function (model) {
-        if (model["langAttribute"] === undefined) {
-            model["langAttribute"] = "";
+    presenter.upgradeLangAttribute = function (upgradedModel) {
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] = "";
         }
     }
     
-    presenter.upgradeResetResponse = function (model) {
-        if (model["ResetResponseOnPageChange"] === undefined) {
-            model["ResetResponseOnPageChange"] = "False";
+    presenter.upgradeResetResponse = function (upgradedModel) {
+        if (upgradedModel["ResetResponseOnPageChange"] === undefined) {
+            upgradedModel["ResetResponseOnPageChange"] = "False";
         }
     }
 
