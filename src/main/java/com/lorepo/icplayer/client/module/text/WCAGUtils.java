@@ -151,6 +151,10 @@ public class WCAGUtils {
 	    return text.replace("\u00a0"," ");
 	}
 
+    private static String removeCommaAfterGap(String text) {
+        return text.startsWith(".") ? text.substring(1) : text;
+	}
+
 	private static int getGapEndIndex(String text, int gapIndex) {
 		int openBrackets = 0;
 		int closeBrackets = 0;
@@ -270,6 +274,7 @@ public class WCAGUtils {
 			}
 			text = TextParser.removeGapOptions(text);
 			text = convertWhitespaceToSpace(text);
+			text = removeCommaAfterGap(text);
 		}
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
 		return result;
