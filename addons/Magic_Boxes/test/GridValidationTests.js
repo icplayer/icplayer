@@ -1,4 +1,4 @@
-TestCase("Grid validation test", {
+TestCase("[Magic Boxes] Grid validation test", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },

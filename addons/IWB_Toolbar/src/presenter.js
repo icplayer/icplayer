@@ -1887,6 +1887,7 @@ function AddonIWB_Toolbar_create() {
         var difference = 0,
             lastScrollTop = 0,
             panelTop = 0;
+        if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) return;
 
         try {
             $(window.parent.document).scroll(function () {
@@ -3419,7 +3420,9 @@ function AddonIWB_Toolbar_create() {
          * addScrollHandler
          * **************************************************
          */
-        $(window.parent.document).unbind('scroll');
+         if (presenter.playerController && !presenter.playerController.isPlayerInCrossDomain()) {
+             $(window.parent.document).unbind('scroll');
+         }
 
         /***
          * ************************************************ 
