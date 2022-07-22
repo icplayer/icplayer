@@ -260,21 +260,6 @@ function AddonHierarchical_Table_Of_Contents_create() {
                 return returnErrorObject('EXPAND_DEPTH_NOT_NUMERIC');
             }
         }
-        var obj = {
-            ID: model.ID,
-            isValid: true,
-            width: parseInt(model["Width"], 10),
-            height: parseInt(model["Height"], 10),
-            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            labels: {
-                title: model['titleLabel']
-            },
-            displayOnlyChapters: ModelValidationUtils.validateBoolean(model.displayOnlyChapters),
-            expandDepth: expandDepth.value,
-            showPages: model.showPages,
-            langTag: model.langAttribute,
-        };
-        console.log(obj);
         return {
             ID: model.ID,
             isValid: true,
