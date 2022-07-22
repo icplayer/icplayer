@@ -99,19 +99,18 @@ function AddonAutomatic_Feedback_create() {
     }
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeLangAttribute(model);
-    }
-
-    presenter.upgradeLangAttribute = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (upgradedModel["langAttribute"] === undefined) {
             upgradedModel["langAttribute"] = "";
         }
+        if (upgradedModel["ResetResponseOnPageChange"] === undefined) {
+            upgradedModel["ResetResponseOnPageChange"] = false;
+        }
 
         return upgradedModel;
-    };
+    }
 
     presenter.validateModel = function(model) {
 
@@ -780,13 +779,23 @@ function AddonAutomatic_Feedback_create() {
         }
 
         getState = function () {
+            const isResetResponse = this.presenter.configuration.resetResponseOnPageChange;
+            if (isResetResponse) this.setDefaultState();
+
             var state = {
                 isActivated: this.isActivated,
                 lastFeedback: this.lastFeedback,
                 lastClass: this.lastClass,
                 isWrapped: this.isWrapped()
             };
+
             return JSON.stringify(state);
+        }
+
+        setDefaultState = function () {
+            this.isActivated = false;
+            this.lastFeedback = "";
+            this.lastClass = "";
         }
 
         isWrapped = function () {
@@ -810,9 +819,8 @@ function AddonAutomatic_Feedback_create() {
                 // without timeout there are issues with positioning of feedback buttons
                 const parsed = JSON.parse(state);
                 const displayMode = this.presenter.configuration.displayMode;
-                const isResetResponse = this.presenter.configuration.resetResponseOnPageChange;
 
-                this.isActivated = isResetResponse ? false : parsed.isActivated;
+                this.isActivated = parsed.isActivated;
                 this.lastFeedback = parsed.lastFeedback;
                 this.lastClass = parsed.lastClass;
 
@@ -827,10 +835,10 @@ function AddonAutomatic_Feedback_create() {
                         this.presenter.unwrapBlockFeedback();
                     } else if (displayMode === DISPLAY_MODES.POPUP) {
                         return !this.presenter.$popup.dialog('open');
-                    } else {
-                        if (this.$tooltip) {
-                            this.$tooltip.parent().find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS).click();
-                        }
+                    } else if (this.$tooltip) {
+                        this.$tooltip.parent()
+                            .find('.' + AUTOMATIC_FEEDBACK_BUTTON_CLASS)
+                            .click();
                     }
                 }
             }, 0);
