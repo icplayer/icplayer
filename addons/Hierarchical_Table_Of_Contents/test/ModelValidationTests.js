@@ -16,7 +16,7 @@ TestCase("[Hierarchical Table Of Contents] Model validation", {
         };
     },
 
-    'test depth of expand empty': function () {
+    'test given model with depth of expand empty when validating then sets depth of expand to 0': function () {
         this.model["expandDepth"] = "";
 
         var validationResult = this.presenter.validateModel(this.model);
@@ -25,7 +25,7 @@ TestCase("[Hierarchical Table Of Contents] Model validation", {
         assertEquals('0', validationResult.expandDepth);
     },
 
-    'test depth of expand correct': function () {
+    'test given model with depth of expand valid when validating then model has the correct value': function () {
         this.model["expandDepth"] = "1";
 
         var validationResult = this.presenter.validateModel(this.model);
@@ -34,7 +34,7 @@ TestCase("[Hierarchical Table Of Contents] Model validation", {
         assertEquals('1', validationResult.expandDepth);
     },
 
-    'test depth of expand not numeric': function () {
+    'test givem model with depth of expand not numeric when validating then an error code is returned': function () {
         this.model["expandDepth"] = "a";
 
         var validationResult = this.presenter.validateModel(this.model);

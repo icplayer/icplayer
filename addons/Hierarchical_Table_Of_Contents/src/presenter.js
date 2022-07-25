@@ -368,8 +368,9 @@ function AddonHierarchical_Table_Of_Contents_create() {
     presenter.upgradeModel = function (model) {
         const upgradedLangTagModel = presenter.upgradeLangTag(model);
         const upgradedSpeechTextsModel = presenter.upgradeSpeechTexts(upgradedLangTagModel);
+        const upgradedDepthOfExpandModel = presenter.upgradeDepthOfExpand(upgradedSpeechTextsModel);
 
-        return upgradedSpeechTextsModel;
+        return upgradedDepthOfExpandModel;
     };
 
     presenter.upgradeLangTag = function (model) {
@@ -396,6 +397,17 @@ function AddonHierarchical_Table_Of_Contents_create() {
         if (!modelSpeechTexts["Chapter"]) modelSpeechTexts["Chapter"] = {Chapter: ""};
         if (!modelSpeechTexts["Expanded"]) modelSpeechTexts["Expanded"] = {Expanded: ""};
         if (!modelSpeechTexts["Collapsed"]) modelSpeechTexts["Collapsed"] = {Collapsed: ""};
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeDepthOfExpand = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["expandDepth"] === undefined) {
+            upgradedModel["expandDepth"] =  '';
+        }
 
         return upgradedModel;
     };

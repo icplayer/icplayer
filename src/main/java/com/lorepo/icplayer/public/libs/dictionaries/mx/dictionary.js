@@ -1380,6 +1380,7 @@ var ice_dictionary_mx = {
 	"Table_Of_Contents_speech_text_pagination": "Pagination",
 	"Table_Of_Contents_speech_text_out_of": "Out Of",
 	"Table_Of_Contents_speech_text_selected": "Selected",
+	
 	"Table_cell": "Cell",
 	"text_identification_info": "Permite añadir la actividad de selección de varios elementos de texto a la presentación. Cada elemento funciona en modo individual.",
 	"text_identification_name": "Identificación del texto",
@@ -1963,6 +1964,7 @@ var ice_dictionary_mx = {
 	"Hierarchical_Table_Of_Contents_speech_text_chapter" : "Chapter",
 	"Hierarchical_Table_Of_Contents_speech_text_expanded" : "Expanded",
 	"Hierarchical_Table_Of_Contents_speech_text_collapsed" : "Collapsed",
+	"Hierarchical_Table_Of_Contents_property_expand_depth": "Depth of expand",
 	"Catch_info": "Simple Catch game with 3 levels",
 	"Catch_name": "Catch",
 	"Catch_property_items": "Items",

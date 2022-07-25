@@ -27,6 +27,12 @@ The Hierarchical Table of Contents addon displays a presentation's table of cont
         </td>
     </tr>
     <tr>
+        <td>Depth of Expand</td>
+        <td>
+            Defines the depth of expanding the initial nodes. If the value is not set, all nodes will be collapsed.
+        </td>
+    </tr>
+    <tr>
         <td>Lang attribute</td>
         <td>Tag of the TTS language to be used for the addon content.</td>
     </tr>
