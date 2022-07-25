@@ -1380,7 +1380,6 @@ var ice_dictionary_mx = {
 	"Table_Of_Contents_speech_text_pagination": "Pagination",
 	"Table_Of_Contents_speech_text_out_of": "Out Of",
 	"Table_Of_Contents_speech_text_selected": "Selected",
-	
 	"Table_cell": "Cell",
 	"text_identification_info": "Permite añadir la actividad de selección de varios elementos de texto a la presentación. Cada elemento funciona en modo individual.",
 	"text_identification_name": "Identificación del texto",

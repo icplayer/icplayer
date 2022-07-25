@@ -34,7 +34,7 @@ TestCase("[Hierarchical Table Of Contents] Model validation", {
         assertEquals('1', validationResult.expandDepth);
     },
 
-    'test givem model with depth of expand not numeric when validating then an error code is returned': function () {
+    'test given model with depth of expand not numeric when validating then an error code is returned': function () {
         this.model["expandDepth"] = "a";
 
         var validationResult = this.presenter.validateModel(this.model);

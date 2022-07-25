@@ -406,7 +406,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (upgradedModel["expandDepth"] === undefined) {
-            upgradedModel["expandDepth"] =  '';
+            upgradedModel["expandDepth"] = '';
         }
 
         return upgradedModel;
