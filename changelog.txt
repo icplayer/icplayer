@@ -1,3 +1,4 @@
+2022-07-26 Fixed Math hiding answers on getState call
 2022-07-19 Fixed direct cross-origin calls in several places in the app
 2022-07-15 Added TTS support to Magic Boxes
 2022-07-15 Changed Cross Lesson model validation to allow check only by LessonID
