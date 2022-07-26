@@ -150,7 +150,7 @@ function AddonDouble_State_Button_create(){
 
         $element.on('mousedown', (e) => mouseDownEventHandler(e));
         $element.on('click', (e) => clickEventHandler(e));
-		$element.on('mouseup', (e) => mouseUpEventHandler(e));
+        $element.on('mouseup', (e) => mouseUpEventHandler(e));
 
         $element.hover(
             function() {
