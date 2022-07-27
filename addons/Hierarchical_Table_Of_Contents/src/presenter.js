@@ -216,9 +216,9 @@ function AddonHierarchical_Table_Of_Contents_create() {
     }
 
     function expandTree(level) {
-        $('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
+        presenter.$view.find('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
             if ($(this).treegrid('getDepth') < level) {
-                $(this).treegrid('expand');
+                $(this).treegrid('expand'); 
             }
         });
     }
