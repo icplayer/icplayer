@@ -81,14 +81,14 @@ function AddonGap_Binder_create() {
     };
 
     presenter.validateModel = function (model) {
-        const someItemEmpty = isSomeItemFieldEmpty(model);
-        if (someItemEmpty) {
-            return { isError: true, errorCode: 'INVALID_NULL' };
-        }
-
         const oneItemInConfiguration = isOneItemInConfiguration(model);
         if (!oneItemInConfiguration) {
             return { isError: true, errorCode: 'INVALID_NUMBER_ITEMS' };
+        }
+
+        const someItemEmpty = isSomeItemFieldEmpty(model);
+        if (someItemEmpty) {
+            return { isError: true, errorCode: 'INVALID_NULL' };
         }
 
         const eachModuleOnCurrentPage = isEachModuleOnCurrentPage()
@@ -220,14 +220,18 @@ function AddonGap_Binder_create() {
         if (presenter.isShowAnswersActive) {
             return;
         }
-        presenter.isShowAnswersActive = true;
+
+        if (presenter.isErrorMode) {
+            handleWorkMode();
+        }
 
         handleShowAnswers();
     };
 
     function handleShowAnswers() {
-        savedGapsValues.length = 0;
+        presenter.isShowAnswersActive = true;
 
+        savedGapsValues.length = 0;
         let answerIndex = 0;
         presenter.modulesIDs.forEach(moduleID => {
             const moduleGaps = findModuleGaps(moduleID);
@@ -248,12 +252,17 @@ function AddonGap_Binder_create() {
         if (!presenter.isShowAnswersActive) {
             return;
         }
-        presenter.isShowAnswersActive = false;
+
+        if (presenter.isErrorMode) {
+            handleWorkMode();
+        }
 
         handleHideAnswers();
     };
 
     function handleHideAnswers() {
+        presenter.isShowAnswersActive = false;
+
         let answerIndex = 0;
         presenter.modulesIDs.forEach(moduleID => {
             const moduleGaps = findModuleGaps(moduleID);
@@ -294,16 +303,16 @@ function AddonGap_Binder_create() {
             return;
         }
 
-        presenter.isErrorMode = true;
-
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            handleHideAnswers();
         }
 
         handleShowErrorsMode();
     };
 
     function handleShowErrorsMode() {
+        presenter.isErrorMode = true;
+
         checkCorrectnessOfAnswers();
 
         presenter.validatedPages[presenter.currentPageIndex] = true;
@@ -332,28 +341,27 @@ function AddonGap_Binder_create() {
             || (gap.innerHTML == "" && gap.value != ""));
     }
 
+    presenter.reset = function () {
+        presenter.hideAnswers();
+        presenter.setWorkMode();
+    };
+
     presenter.setWorkMode = function () {
         if (!presenter.isErrorMode) {
             return;
         }
 
-        presenter.isErrorMode = false;
-
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            handleHideAnswers();
         }
 
         handleWorkMode();
     };
 
     function handleWorkMode() {
+        presenter.isErrorMode = false;
         enableAllGapsOfConnectedModules();
     }
-
-    presenter.reset = function () {
-        presenter.setWorkMode();
-        enableAllGapsOfConnectedModules();
-    };
 
     function enableAllGapsOfConnectedModules() {
         presenter.modulesIDs.forEach(moduleID => {
@@ -383,11 +391,15 @@ function AddonGap_Binder_create() {
         return emptyGapsNumber;
     }
 
-    function getMaxScore() {
+    presenter.getMaxScore = function () {
+        checkCorrectnessOfAnswers();
         return presenter.maxCorrectElementsNumber ? presenter.maxCorrectElementsNumber : 0;
     }
 
     presenter.getScore = function () {
+        if (presenter.isShowAnswersActive) {
+            handleHideAnswers();
+        }
         checkCorrectnessOfAnswers();
         return presenter.correctElementsNumber;
     };
@@ -448,7 +460,7 @@ function AddonGap_Binder_create() {
     };
 
     presenter.isAllOK = function () {
-        return getMaxScore() === presenter.getScore();
+        return presenter.getMaxScore() === presenter.getScore();
     };
 
     presenter.isOK = function (moduleIndex, gapIndex) {
@@ -467,7 +479,7 @@ function AddonGap_Binder_create() {
 
     presenter.isAttempted = function () {
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            handleHideAnswers();
         }
 
         return presenter.countItems() > 0;
@@ -548,7 +560,7 @@ function AddonGap_Binder_create() {
             presenter.eventBus.sendEvent('ValueChanged', eventData);
 
             if (presenter.isAllOK()) {
-                presenter.sendAllOKEvent();
+                sendAllOKEvent();
             }
         }
     }
