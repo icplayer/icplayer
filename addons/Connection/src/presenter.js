@@ -1591,15 +1591,13 @@ function AddonConnection_create() {
     }
 
     presenter.getActivitiesCount = function () {
-        var lineCounter = 0;
+        var counter = 0;
         for (var i = 0; i < presenter.elements.length; i++) {
-            lineCounter += presenter.elements[i].connects
-                .split(',')
-                .filter(function(element) {
-                    return element !== ""
-                }).length;
+            if(presenter.elements[i].connects !== "") {
+                counter++;
+            }
         }
-        return lineCounter;
+        return counter;
     }
 
     presenter.getState = function () {
