@@ -5,6 +5,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -1207,6 +1209,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapAnswer(ILjava/lang/String;)(gapId, answer);
 		}
 
+		presenter.setGapText = function(gapIndex, text) {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapText(ILjava/lang/String;)(gapIndex, text);
+		}
+
 		presenter.getGapValue = function(gapId) {
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapText(I)(gapId);
 		};
@@ -1390,6 +1396,47 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		isMathShowAnswersActive = false;
+	}
+
+	private void setGapText(int gapIndex, String text) {
+		if (view != null && gapIndex <= view.getChildrenCount()) {
+			String gapID = this.getGapID(gapIndex);
+			view.setValue(gapID, text);
+			view.refreshMath();
+			values.put(gapID, text);
+			fireItemConsumedEvent();
+		}
+	}
+
+	private String getGapID(int index) {
+		ArrayList<String> orderedGapsID = this.getOrderedGapsID();
+
+		if (orderedGapsID.size() < index) return "";
+
+		return orderedGapsID.get(index - 1);
+	}
+
+	private ArrayList<String> getOrderedGapsID() {
+		final String pattern = 	"id=\"(.*?)\"";
+        RegExp regExp = RegExp.compile(pattern);
+        MatchResult matchResult;
+		String HTML = view.getHTML();
+		ArrayList<String> gapsID = new ArrayList<String>();
+
+		while ((matchResult = regExp.exec(HTML)) != null) {
+            if (matchResult.getGroupCount() <= 0) {
+                return gapsID;
+            }
+
+            String group = matchResult.getGroup(0);
+            group = group
+				.replace("id=\"", "")
+				.replace("\"", "");
+			gapsID.add(group);
+			HTML = HTML.replaceFirst(pattern, "");
+        }
+
+		return gapsID;
 	}
 
 	private boolean isGapAttempted(int index) {
