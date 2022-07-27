@@ -30,6 +30,41 @@ TestCase("[Gap Binder] Model Validation", {
         assertFalse(configuration.isError);
     },
 
+    'test given model with to many items when validateModel is called return configuration with error and correct error code': function () {
+        this.model = {
+            Items: [
+                {
+                    Module: "Text1",
+                    Answers: "ans1\nans2\nans3"
+                },
+                {
+                    Module: "Text2",
+                    Answers: "ans1\nans2\nans3"
+                }
+            ]
+        };
+        this.presenter.setModulesIDs(this.model.Items);
+        this.presenter.setAnswers(this.model.Items);
+
+        let configuration = this.presenter.validateModel(this.model);
+
+        assertTrue(configuration.isError);
+        assertEquals('INVALID_NUMBER_ITEMS', configuration.errorCode);
+    },
+
+    'test given model with 0 items when validateModel is called return configuration with error and correct error code': function () {
+        this.model = {
+            Items: []
+        };
+        this.presenter.setModulesIDs(this.model.Items);
+        this.presenter.setAnswers(this.model.Items);
+
+        let configuration = this.presenter.validateModel(this.model);
+
+        assertTrue(configuration.isError);
+        assertEquals('INVALID_NUMBER_ITEMS', configuration.errorCode);
+    },
+
     'test given model with incorrect module when validateModel is called return configuration with error and correct error code': function () {
         this.presenter.modulesIDs = ["Text12"];
         this.model.Items[0].Module = "Text12";
