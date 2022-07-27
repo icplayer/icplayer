@@ -1,424 +1,489 @@
 function AddonGap_Binder_create() {
 
     var presenter = function () { }
-    presenter.gapsSize = [];
-    presenter.gapIndex = 0;
-    presenter.initialMarks = 0;
-    presenter.arrayModule = [];
-    presenter.arrayAnswers = [];
-    presenter.validatedPages = new Array();
-    let arrayCount = [];
-    let arrayIDCorrectAnswer = [];
-    let allIDText = [];
-    let copyOldValue = [];
-    presenter.CorrectElements = 0;
+
+    // addon's parsed configuration data
+    presenter.modulesIDs = [];
+    presenter.answers = [];
+
+    // addon's modes
+    presenter.isErrorMode = false;
+    presenter.isShowAnswersActive = false;
+
+    // addon's score variables
+    presenter.correctElementsNumber = 0;
+    presenter.maxCorrectElementsNumber = 0;
+    let usedAnswersIndex = [];
+    let gapsIDsWithCorrectAnswer = [];
+
+    presenter.validatedPages = [];
+    let savedGapsValues = [];
 
     presenter.ERROR_CODES = {
         INVALID_ID: "Provided module ID is incorrect.",
         INVALID_NUMBER_GAP: "The number of answers provided is incorrect.",
-        INVALID_NULL: "Value cannot be null"
+        INVALID_NUMBER_ITEMS: "Addon supports only one item in the configuration.",
+        INVALID_NULL: "Value cannot be null."
+    };
+
+    presenter.CSS_CLASSES = {
+        INVALID_CONFIGURATION: "gap_binder_invalid",
     };
 
     presenter.createPreview = function (view, model) {
-        presenter.$view = $(view);
-        presenter.model = model;
-        presenter.addAllModules(presenter.model.Items);
-        presenter.addAllGoodAnswer(presenter.model.Items);
-        setTimeout(() => {
-            presenter.configuration = presenter.validateModel(model);
-            $(view).removeClass("invalidInformationAddon")
-            if (presenter.configuration.isError) {
-                DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-                $(view).addClass("invalidInformationAddon")
-            }
-        }, 1250)
+        presenter.presenterLogic(view, model, true);
     };
+
     presenter.run = function (view, model) {
+        presenter.presenterLogic(view, model, false);
+    };
+
+    presenter.presenterLogic = function (view, model, isPreview) {
         presenter.model = model;
         presenter.addonID = model.ID;
         presenter.$view = $(view);
-        presenter.addAllModules(presenter.model.Items);
-        presenter.addAllGoodAnswer(presenter.model.Items);
-        handleClickActions(view);
-    }
+        presenter.setModulesIDs(presenter.model.Items);
+        presenter.setAnswers(presenter.model.Items);
 
-    presenter.addAllModules = function(Items) {
-        presenter.arrayModule.length = 0;
-        for (let i = 0; i < Items.length; i++) {
+        if (isPreview) {
+            setTimeout(() => {
+                presenter.configuration = presenter.validateModel(model);
+                $(view).removeClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
+                if (presenter.configuration.isError) {
+                    DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+                    $(view).addClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
+                }
+            }, 1250);
+        } else {
+            // handleClickActions();
+        }
+    };
 
-            const myArray = Items[i].Module.split(",");
-            myArray.forEach(el => {
-                el = el.trim();
-                presenter.arrayModule.push(el);
+    presenter.setModulesIDs = function(items) {
+        presenter.modulesIDs.length = 0;
+
+        items.forEach(item => {
+            const modulesIDs = item.Module.split(",");
+            modulesIDs.forEach(moduleID => {
+                moduleID = moduleID.trim();
+                presenter.modulesIDs.push(moduleID);
             })
+        });
+    };
+
+    presenter.setAnswers = function (items) {
+        presenter.answers.length = 0;
+
+        items.forEach(item => {
+            let answers = item.Answers.split('\n');
+            presenter.answers.push(...answers);
+        });
+    };
+
+    presenter.validateModel = function (model) {
+        const someItemEmpty = isSomeItemFieldEmpty(model);
+        if (someItemEmpty) {
+            return { isError: true, errorCode: 'INVALID_NULL' };
         }
+
+        const oneItemInConfiguration = isOneItemInConfiguration(model);
+        if (!oneItemInConfiguration) {
+            return { isError: true, errorCode: 'INVALID_NUMBER_ITEMS' };
+        }
+
+        const eachModuleOnCurrentPage = isEachModuleOnCurrentPage()
+        if (!eachModuleOnCurrentPage) {
+            return { isError: true, errorCode: 'INVALID_ID' };
+        }
+
+        const numberOfProvidedAnswersCorrect = isNumberOfProvidedAnswersCorrect();
+        if (!numberOfProvidedAnswersCorrect) {
+            return { isError: true, errorCode: 'INVALID_NUMBER_GAP' };
+        }
+
+        return {
+            isError: false,
+        }
+    };
+
+    function getGapsModulesIDs($gaps) {
+        let modulesIDs = [];
+
+        for (let i = 0; i < $gaps.length; i++) {
+            let parent = $gaps[i].closest('.ice_module');
+            if (parent == null) {
+                parent = $gaps[i].closest('.ic_text');
+            }
+
+            if (parent == null) {
+                parent = $gaps[i].closest('.addon_Table');
+            }
+
+            if (parent != null && $(parent).attr('id').length > 0) {
+                modulesIDs.push($(parent).attr('id'));
+            }
+        }
+        return [...new Set(modulesIDs)];
     }
 
-    presenter.addAllGoodAnswer = function (Items) {
-        presenter.arrayAnswers.length = 0;
+    function isSomeItemFieldEmpty(model) {
+        return model.Items.some(item => {
+            return ((!item.Module || item.Module.trim() == "")
+                || !item.Answers || item.Answers.trim() == "");
+        });
+    }
 
-        for (let i = 0; i < Items.length; i++) {
-            let answers = Items[i].Answers.split('\n');
-            presenter.arrayAnswers.push(answers);
+    function isOneItemInConfiguration(model) {
+        return model.Items.length === 1;
+    }
 
-        }
+    function isEachModuleOnCurrentPage() {
+        const $pageGaps = findCurrentPageGaps();
+        const pageModulesIDs = getGapsModulesIDs($pageGaps);
+
+        let countValidateElements = 0;
+        presenter.modulesIDs.forEach(configurationModuleID => {
+            for (let i = 0; i < pageModulesIDs.length; i++) {
+                if (configurationModuleID === pageModulesIDs[i]) {
+                    countValidateElements++;
+                }
+            }
+        })
+
+        return countValidateElements === presenter.modulesIDs.length;
+    }
+
+    function isNumberOfProvidedAnswersCorrect() {
+        let count = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            const $element = $('body').find(`#${moduleID}`);
+            const $elementGaps = findGaps($element);
+            const elementGaps = $elementGaps.toArray();
+            count += elementGaps.length;
+        });
+
+        return count === presenter.answers.length;
     }
 
     presenter.getModule = function (moduleID) {
         return presenter.playerController.getModule(moduleID);
     };
 
-
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        presenter.eventBus = controller.getEventBus();
-        presenter.currentIndex = controller.getCurrentPageIndex();
+        presenter.currentPageIndex = controller.getCurrentPageIndex();
+    };
+
+    presenter.setEventBus = function(eventBus) {
+        presenter.eventBus = eventBus;
 
         presenter.eventBus.addEventListener('ValueChanged', this);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('PageLoaded', this);
-
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
-
         }
 
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
-
-
     };
+
+    function findModuleGaps(moduleID, toArray = true) {
+        const module = getModule(moduleID);
+        const $moduleView = $(module.getView());
+        const $foundGaps = findGaps($moduleView);
+        if (toArray) {
+            return $foundGaps.toArray();
+        }
+        return $foundGaps;
+    }
+
+    function getModule(moduleID) {
+        return presenter.playerController.getModule(moduleID);
+    }
+
+    function findCurrentPageGaps() {
+        const $pageView = $('html');
+        return findGaps($pageView);
+    }
+
+    function findGaps($view) {
+        return $view.find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
+    }
+
     presenter.showAnswers = () => {
-        presenter.setWorkMode();
-        let numberAnswer = 0;
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-
-            let children = checkRealChildren(element);
-
-            for (let j = 0; j < children.length; j++) {
-                if (children[j].innerHTML != "") {
-                    copyOldValue.push(children[j].innerHTML)
-                } else {
-                    copyOldValue.push(children[j].value)
-                }
-                children[j].innerHTML = presenter.arrayAnswers[0][numberAnswer];
-                children[j].value = presenter.arrayAnswers[0][numberAnswer];
-                numberAnswer++;
-                let textModule = presenter.playerController.getModule(presenter.arrayModule[i]);
-                textModule.disableGap(j + 1);
-
-            }
+        if (presenter.isShowAnswersActive) {
+            return;
         }
+        presenter.isShowAnswersActive = true;
 
+        handleShowAnswers();
+    };
 
-    }
-    presenter.hideAnswers = () => {
-        let numberAnswer = 0;
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView())
-                .find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
-            let children = checkRealChildren(element);
-            for (let j = 0; j < children.length; j++) {
-                if (copyOldValue[numberAnswer] || copyOldValue[numberAnswer] == "") {
-                    children[j].innerHTML = `${copyOldValue[numberAnswer]}`;
-                    children[j].value = `${copyOldValue[numberAnswer]}`;
-                    numberAnswer++;
-                }
-                let textModule = presenter.playerController.getModule(presenter.arrayModule[i]);
-                textModule.enableGap(j + 1);
+    function handleShowAnswers() {
+        savedGapsValues.length = 0;
+
+        let answerIndex = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            const module = getModule(moduleID);
+
+            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
+                const gap = moduleGaps[gapIndex];
+                saveNextGapValue(gap);
+                loadCorrectAnswer(gap, answerIndex);
+                answerIndex++;
+
+                module.disableGap(gapIndex + 1);
             }
-        }
-        copyOldValue.length = 0;
-
-    }
-
-    function gapParent(gaps) {
-        let allID = [];
-
-        for (let i = 0; i < gaps.length; i++) {
-            let inputID = gaps[i].id;
-            let parent = gaps[i].closest('.ice_module');
-            if (parent == null) {
-                parent = gaps[i].closest('.ic_text');
-            }
-            if (parent == null) {
-                parent = gaps[i].closest('.addon_Table');
-            }
-            if (parent != null && $(parent).attr('id').length > 0) {
-                allID.push($(parent).attr('id'));
-            }
-
-        }
-        return allID;
-    }
-
-    presenter.validateModel = function (model) {
-        let gaps = $('html').find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-        let allID = [];
-        let presenterValidation;
-        allID = gapParent(gaps);
-        presenterValidation = validateParameters(allID, model);
-        return presenterValidation;
-    }
-
-    function validateParameters(allID, model) {
-        allIDText = allID.filter(function (item, pos) {
-            return allID.indexOf(item) == pos;
         });
-        let validatedNull = checkValidetedNull(model);
-        if (!validatedNull) {
-            return { isError: true, errorCode: 'INVALID_NULL' };
-        }
-        let validatedId = checkValidetedID(model, allIDText)
-        if (!validatedId) {
-            return { isError: true, errorCode: 'INVALID_ID' };
-        }
-        let validatedNumberGaps = checkValidetedNumberGaps(model, allIDText);
-        if (!validatedNumberGaps) {
-            return { isError: true, errorCode: 'INVALID_NUMBER_GAP' };
-        }
-         return {
-            isError: false
-        }
     }
 
-    function checkValidetedID(model, allIDText) {
-        let countValidateElements = 0;
-        for (let i = 0; i < model.Items.length; i++) {
-            for (let j = 0; j < allIDText.length; j++) {
-                for (let k = 0; k < presenter.arrayModule.length; k++) {
-                    if (presenter.arrayModule[k] == allIDText[j]) {
-                        countValidateElements++;
-                    }
-                }
+    presenter.hideAnswers = () => {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+        presenter.isShowAnswersActive = false;
+
+        handleHideAnswers();
+    };
+
+    function handleHideAnswers() {
+        let answerIndex = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            const module = getModule(moduleID);
+
+            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
+                const gap = moduleGaps[gapIndex];
+                loadSavedGapValue(gap, answerIndex);
+                answerIndex++;
+
+                module.enableGap(gapIndex + 1);
             }
-        }
-        return countValidateElements == presenter.arrayModule.length;
-
+        });
     }
 
-    function checkValidetedNumberGaps(model, allIDText) {
-        let count = 0;
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $('body').find(`#${allIDText[i]}`).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
-            let children = checkRealChildren(element);
-            count += children.length;
-        }
-        let arr = [];
-        presenter.arrayAnswers.forEach(el => el.forEach(podEl => arr.push(podEl)));
-        if (count !== arr.length) { return false };
-        return true;
+    function saveNextGapValue(gap) {
+        const valueToSave = {
+            innerHTML: gap.innerHTML,
+            value: gap.value
+        };
+        savedGapsValues.push(valueToSave);
     }
 
-    function checkValidetedNull(model) {
-        for (let i = 0; i < model.Items.length; i++) {
-            if (!model.Items[i].Module || model.Items[i].Module.trim() == "") {
-                return false;
-            }
-            if (!model.Items[i].Answers || model.Items[i].Answers.trim() == "") {
-                return false;
-            }
-        }
-        return true;
+    function loadCorrectAnswer(gap, index) {
+        const answer = presenter.answers[index];
+        gap.innerHTML = answer;
+        gap.value = answer;
     }
 
+    function loadSavedGapValue(gap, index) {
+        const valueToLoad = savedGapsValues[index];
+        gap.innerHTML = valueToLoad.innerHTML;
+        gap.value = valueToLoad.value;
+    }
 
     presenter.setShowErrorsMode = function () {
-        presenter.hideAnswers();
-        checkGoodAnswer();
-        presenter.validatedPages[presenter.currentIndex] = true;
+        if (presenter.isErrorMode) {
+            return;
+        }
 
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
-            let children = checkRealChildren(element);
-            for (let j = 0; j < children.length; j++) {
-                let textModule = presenter.playerController.getModule(presenter.arrayModule[i]);
-                if (children[j].innerHTML != "&nbsp;" && children[j].innerHTML != "") {
-                    textModule.markGapAsWrong(j + 1);
-                } else if (children[j].innerHTML == "" && children[j].value != "") {
-                    textModule.markGapAsWrong(j + 1);
+        presenter.isErrorMode = true;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        handleShowErrorsMode();
+    };
+
+    function handleShowErrorsMode() {
+        checkCorrectnessOfAnswers();
+
+        presenter.validatedPages[presenter.currentPageIndex] = true;
+
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            const module = getModule(moduleID);
+
+            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
+                const gapIndexInModule = gapIndex + 1;
+                const gap = moduleGaps[gapIndex];
+
+                if (gapsIDsWithCorrectAnswer.includes(gap.id)) {
+                    module.markGapAsCorrect(gapIndexInModule);
+                } else if (isGapNotEmpty(gap)) {
+                    module.markGapAsWrong(gapIndexInModule);
                 } else {
-                    textModule.markGapAsEmpty(j + 1);
-                }
-                for (let k = 0; k < arrayIDCorrectAnswer.length; k++) {
-                    if (children[j].id == arrayIDCorrectAnswer[k]) {
-                        textModule.markGapAsCorrect(j + 1);
-                    }
+                    module.markGapAsEmpty(gapIndexInModule);
                 }
             }
-        }
+        })
     }
 
+    function isGapNotEmpty(gap) {
+        return ((gap.innerHTML != "&nbsp;" && gap.innerHTML != "")
+            || (gap.innerHTML == "" && gap.value != ""));
+    }
 
     presenter.setWorkMode = function () {
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-            let textModule = presenter.playerController.getModule(presenter.arrayModule[i]);
-            textModule.enableAllGaps();
+        if (!presenter.isErrorMode) {
+            return;
         }
+
+        presenter.isErrorMode = false;
+
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        handleWorkMode();
+    };
+
+    function handleWorkMode() {
+        enableAllGapsOfConnectedModules();
     }
 
     presenter.reset = function () {
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-            let children = checkRealChildren(element);
-            let textModule = presenter.playerController.getModule(presenter.arrayModule[i]);
-            textModule.enableAllGaps();
-        }
+        presenter.setWorkMode();
+        enableAllGapsOfConnectedModules();
+    };
+
+    function enableAllGapsOfConnectedModules() {
+        presenter.modulesIDs.forEach(moduleID => {
+            const module = getModule(moduleID);
+            module.enableAllGaps();
+        });
     }
 
     presenter.getErrorCount = function () {
-
-        if (presenter.initialMarks == presenter.CorrectElements) {
+        if (presenter.correctElementsNumber === presenter.maxCorrectElementsNumber) {
             return 0;
-        } else {
-            let nullAnswers = nullElements();
-            return presenter.CorrectElements - presenter.initialMarks - nullAnswers;
         }
-    }
+        let emptyGapsNumber = getNumberOfEmptyGapsInSupportedModules();
+        return presenter.maxCorrectElementsNumber - presenter.correctElementsNumber - emptyGapsNumber;
+    };
 
-
-    function nullElements() {
-        let numberOfNullAnswers = 0;
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-            let children = checkRealChildren(element);
-            for (let j = 0; j < children.length; j++) {
-                if (children[j].innerHTML == "&nbsp;") {
-                    numberOfNullAnswers++;
-                } else if (children[j].value == "") {
-                    numberOfNullAnswers++;
+    function getNumberOfEmptyGapsInSupportedModules() {
+        let emptyGapsNumber = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            moduleGaps.forEach(gap => {
+                if (gap.value == "" || gap.innerHTML == "&nbsp;") {
+                    emptyGapsNumber++;
                 }
-            }
-        }
-        return numberOfNullAnswers;
+            });
+        });
+        return emptyGapsNumber;
     }
-    presenter.getMaxScore = function () {
-        return (presenter.CorrectElements) ? presenter.CorrectElements : 0
+
+    function getMaxScore() {
+        return presenter.maxCorrectElementsNumber ? presenter.maxCorrectElementsNumber : 0;
     }
 
     presenter.getScore = function () {
-        checkGoodAnswer();
-        return presenter.initialMarks;
-    }
+        checkCorrectnessOfAnswers();
+        return presenter.correctElementsNumber;
+    };
 
-    function checkRealChildren(element) {
-        let children = [];
-        for (let i = 0; i < element.length; i++) {
-            children.push(element[i]);
-        }
-        return children;
-    }
-
-    function checkGoodAnswer() {
-        presenter.initialMarks = 0;
-        arrayIDCorrectAnswer.length = 0;
-        let array = [];
-        presenter.arrayAnswers.forEach(el => array.push(el));
-        arrayCount.length = 0;
-        checkArrayToGoodAnswer(array);
-
-    }
-    function checkArrayToGoodAnswer(array) {
-        let arr = [];
-        if (array) {
-            array.forEach(el => el.forEach(podEl => arr.push(podEl)));
+    function checkCorrectnessOfAnswers() {
+        if (!presenter.answers || !presenter.modulesIDs) {
+            return;
         }
 
-        presenter.CorrectElements = 0;
-        presenter.initialMarks = 0;
-        arrayIDCorrectAnswer.length = 0;
+        presenter.maxCorrectElementsNumber = 0;
+        presenter.correctElementsNumber = 0;
 
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            $('body').find(".MathJax_Preview").each(() => $(this).style.display = "none");
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView()).find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
-            let children = checkRealChildren(element);
+        usedAnswersIndex.length = 0;
+        gapsIDsWithCorrectAnswer.length = 0;
 
-            arrayCount.length = 0;
-            if (children) {
-                for (let j = 0; j < children.length; j++) {
-                    if (array) {
-                        if (children[j].innerHTML == arr[j+presenter.CorrectElements]) {
-                            arrayCount.push(j+presenter.CorrectElements);
-                            presenter.initialMarks++;
-                            arrayIDCorrectAnswer.push(children[j].id);
-                        }
-                        if (children[j].value == arr[j+presenter.CorrectElements]) {
-                            if (!checkNumber(j+presenter.CorrectElements)) {
-                                arrayCount.push(j+presenter.CorrectElements);
-                                presenter.initialMarks++;
-                                arrayIDCorrectAnswer.push(children[j].id);
-                            }
-                        }
+        hideMathJaxElements();
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            if (!moduleGaps) {
+                return;
+            }
+
+            presenter.maxCorrectElementsNumber += moduleGaps.length;
+            moduleGaps.forEach(gap => {
+                const gapInnerHTML = gap.innerHTML;
+                const gapValue = gap.value;
+                for (let answerIndex = 0; answerIndex < presenter.answers.length; answerIndex++) {
+                    if (isAnswerUsed(answerIndex)) {
+                        continue;
+                    }
+
+                    const correctAnswer = presenter.answers[answerIndex];
+                    if (gapInnerHTML == correctAnswer || gapValue == correctAnswer) {
+                        presenter.correctElementsNumber++;
+                        usedAnswersIndex.push(answerIndex);
+                        gapsIDsWithCorrectAnswer.push(gap.id);
                     }
                 }
-                presenter.CorrectElements += children.length;
-            }
-        }
+            })
+        })
     }
 
-    function checkNumber(number) {
-        for (let i = 0; i < arrayCount.length; i++) {
-            if (number == arrayCount[i]) {
-                return 1;
-            }
-        }
-        return 0;
+    function hideMathJaxElements() {
+        $('body').find(".MathJax_Preview").each(() => $(this).style.display = "none");
     }
 
-
+    function isAnswerUsed(answerIndex) {
+        return usedAnswersIndex.some(usedIndex => usedIndex === answerIndex);
+    }
 
     presenter.createEventData = function (item, value, score) {
-        var eventData = {
+        return {
             'source': "" + presenter.addonID,
             'item': "" + item,
             'value': "" + value,
             'score': "" + score
         };
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.isAllOK = function () {
-        return presenter.getMaxScore() === presenter.getScore();
+        return getMaxScore() === presenter.getScore();
     };
 
-    presenter.isOK = function (id, item) {
-        if (presenter.arrayModule[id]) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[id]}`).getView())
-                .find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-            let children = checkRealChildren(element);
-            if (children) {
-                let idElement = children[item].id;
-                for (let j = 0; j < arrayIDCorrectAnswer.length; j++) {
-                    if (arrayIDCorrectAnswer[j] == idElement) {
-                        return 1;
-                    }
+    presenter.isOK = function (moduleIndex, gapIndex) {
+        checkCorrectnessOfAnswers();
+        if (presenter.modulesIDs[moduleIndex]) {
+            const moduleGaps = findModuleGaps(presenter.modulesIDs[moduleIndex]);
+            if (moduleGaps) {
+                const elementID = moduleGaps[gapIndex].id;
+                if (gapsIDsWithCorrectAnswer.includes(elementID)) {
+                    return 1;
                 }
             }
         }
         return 0;
     };
+
     presenter.isAttempted = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
         return presenter.countItems() > 0;
     };
+
     presenter.executeCommand = function (name, params) {
         var commands = {
             'isAllOK': presenter.isAllOK,
             'isOK': presenter.isOK,
             'isAttempted': presenter.isAttempted
-
         };
+
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.sendAllOKEvent = function () {
+    function sendAllOKEvent () {
         var eventData = {
             'source': presenter.addonID,
             'item': 'all',
@@ -427,88 +492,66 @@ function AddonGap_Binder_create() {
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    };
-
-
+    }
 
     presenter.countItems = function () {
-        let count = 0
-        for (let i = 0; i < presenter.arrayModule.length; i++) {
-            let element = $(presenter.playerController.getModule(`${presenter.arrayModule[i]}`).getView())
-                .find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-            let children = checkRealChildren(element);
-            for (let j = 0; j < children.length; j++) {
-                if (children[j].innerHTML != "&nbsp;" && children[j].innerHTML != "") {
-                    count++;
-                } else if (children[j].innerHTML == "" && children[j].value != "") {
+        let count = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            let moduleGaps = findModuleGaps(moduleID);
+            moduleGaps.forEach(gap => {
+                if (isGapNotEmpty(gap)) {
                     count++;
                 }
-            }
-        }
-        return count
+            });
+        });
+        return count;
+    };
+
+    function handleClickActions() {
+        const pageGaps = findCurrentPageGaps().toArray();
+
+        pageGaps.forEach(gap => {
+            gap.addEventListener('touchstart', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        });
+
+        pageGaps.forEach(gap => {
+            gap.addEventListener('touchend', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                clickLogic(gap);
+            });
+        });
+
+        pageGaps.forEach(gap => {
+            gap.addEventListener('click', (event) => {
+                event.stopPropagation();
+                clickLogic(gap);
+            });
+        });
     }
 
-    function handleClickActions(view) {
-            let elements = $('html').find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
+    function clickLogic(gap) {
+        if (!presenter.isShowAnswersActive) {
+            checkCorrectnessOfAnswers();
 
-            let arrayElements = [];
-            for (let i = 0; i < elements.length; i++) {
-                arrayElements.push(elements[i]);
+            const pageGaps = findCurrentPageGaps().toArray();
+
+            const elementIndex = pageGaps.indexOf(gap.id);
+            const item = elementIndex !== -1 ? elementIndex : '';
+            const score = gapsIDsWithCorrectAnswer.includes(gap.id) ? 1 : 0;
+            const value = '';
+
+            const eventData = presenter.createEventData(item, value, score);
+            presenter.eventBus.sendEvent('ValueChanged', eventData);
+
+            if (presenter.isAllOK()) {
+                presenter.sendAllOKEvent();
             }
-
-            arrayElements.forEach(element => {
-                element.addEventListener('touchstart', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                })
-            })
-            arrayElements.forEach(element => {
-                element.addEventListener('touchend', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    clickLogic(element);
-                })
-            })
-            arrayElements.forEach(element => {
-                element.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    clickLogic(element);
-                })
-            })
-
-    }
-    function clickLogic(element) {
-        presenter.hideAnswers();
-
-        let elements = $('html').find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty')
-
-        let arrayElements = []
-        for (let i = 0; i < elements.length; i++) {
-            arrayElements.push(elements[i]);
-        }
-
-        let item = '';
-        let value = '';
-        let score = 0;
-        for (let i = 0; i < arrayElements.length; i++) {
-            if (arrayElements[i].id == element.id) {
-                item = i;
-            }
-        }
-        checkArrayToGoodAnswer(presenter.arrayAnswers)
-        for (let j = 0; j < arrayIDCorrectAnswer.length; j++) {
-            if (arrayIDCorrectAnswer[j] == element.id) {
-                score = 1;
-            }
-        }
-        presenter.createEventData(item, value, score);
-
-        if (presenter.isAllOK()) {
-            presenter.sendAllOKEvent();
         }
     }
-
-
 
     return presenter;
 }
