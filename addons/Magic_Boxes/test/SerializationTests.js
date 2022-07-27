@@ -1,4 +1,4 @@
-TestCase("Serialization", {
+TestCase("[Magic Boxes] Serialization", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },

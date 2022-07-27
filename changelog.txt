@@ -1,3 +1,7 @@
+2022-07-19 Fixed direct cross-origin calls in several places in the app
+2022-07-15 Added TTS support to Magic Boxes
+2022-07-15 Changed Cross Lesson model validation to allow check only by LessonID
+2022-07-14 Fixed Assessment Navigation Bar not receiving Show/Hide answers event
 2022-07-12 Upgraded Zoom Image destroy to close module when changing layout
 2022-07-12 Fixed ANB not adding "inactive" class
 2022-07-11 Added new property Page has not been reset to the Reset Button speech text
