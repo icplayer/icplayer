@@ -332,6 +332,18 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		this.mainPageController.playTitle(area, id, "");
 	}
 
+	private void readNextSentence () {
+		this.mainPageController.saveNextSentences();
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, false, false, KeyCodes.KEY_ENTER), RootPanel.get());
+		this.mainPageController.readNextSentence();
+	}
+
+	private void readPrevSentence () {
+		this.mainPageController.saveNextSentences();
+		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, false, false, KeyCodes.KEY_ENTER), RootPanel.get());
+		this.mainPageController.readPrevSentence();
+	}
+
 	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
 		boolean isSpeechTextOn = this.isWCAGSupportOn && this.modeOn;
@@ -410,6 +422,20 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
+				}
+
+				if (modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_UP || event.getNativeKeyCode() == KeyCodes.KEY_LEFT)
+						&& event.isAltKeyDown() && moduleIsActivated && !isModuleButton()) {
+					event.preventDefault();
+					readPrevSentence();
+					return;
+				}
+
+				if (modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_DOWN || event.getNativeKeyCode() == KeyCodes.KEY_RIGHT)
+						&& event.isAltKeyDown() && moduleIsActivated && !isModuleButton()) {
+					event.preventDefault();
+					readNextSentence();
+					return;
 				}
 
 	            if (modeOn && moduleIsActivated) {

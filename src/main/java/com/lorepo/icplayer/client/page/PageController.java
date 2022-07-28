@@ -649,6 +649,18 @@ public class PageController implements ITextToSpeechController, IPageController 
 		TextToSpeechAPI.playPageTitle(this.getTextToSpeechAPIJavaScriptObject());
 	}
 
+	public void readNextSentence () {
+		TextToSpeechAPI.playNextSentence(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public void readPrevSentence () {
+		TextToSpeechAPI.playPrevSentence(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public void saveNextSentences () {
+		TextToSpeechAPI.saveNextSentences(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
 	public List<NavigationModuleIndentifier> getModulesOrder () {
 		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));
 	}
