@@ -1,3 +1,4 @@
+2022-07-28 Fixed XLIFF export not working with Hierarchical Lesson Report and Catch modules
 2022-07-19 Fixed direct cross-origin calls in several places in the app
 2022-07-15 Added TTS support to Magic Boxes
 2022-07-15 Changed Cross Lesson model validation to allow check only by LessonID
