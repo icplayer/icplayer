@@ -1157,6 +1157,7 @@ var ice_dictionary_en = {
 	"Puzzle_property_columns": "Columns",
 	"Puzzle_property_rows": "Rows",
 	"Puzzle_property_image": "Image",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info": "Allows users to perform various actions in presentations, such as changing other addons' states when the button is selected.",
 	"Single_State_Button_name": "Single State Button",
 	"Single_State_Button_property_title": "Title",

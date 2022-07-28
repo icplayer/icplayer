@@ -1270,6 +1270,7 @@ var ice_dictionary_pl = {
 	"Puzzle_property_columns" : "Kolumny",
 	"Puzzle_property_rows" : "Rzędy",
 	"Puzzle_property_image" : "Obraz",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info" : "Pozwala użytkownikom na wykonywanie różnych czynności w prezentacjach, jak np. zmiana stanu innych Addonów, gdy przycisk jest zaznaczony.",
 	"Single_State_Button_name" : "Przycisk jednostanowy",
 	"Single_State_Button_property_title": "Tytuł",

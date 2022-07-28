@@ -1144,6 +1144,7 @@ var ice_dictionary_bl = {
 	"Puzzle_property_columns": "Колони",
 	"Puzzle_property_rows": "Редове",
 	"Puzzle_property_image": "Изображение",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info": "Включването на бутона ви позволява да извършвате различни дейности в презентациите, като например да променяте състоянието на други плъгини.",
 	"Single_State_Button_name": "Бутон за еднакво състояние",
 	"Single_State_Button_property_title": "Заглавие",
