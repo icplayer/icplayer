@@ -1418,6 +1418,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private ArrayList<String> getOrderedGapsID() {
 		final String pattern = 	"id=\"(.*?)\"";
+		final String patternClass = "class=\"(.*?)\"";
         RegExp regExp = RegExp.compile(pattern);
         MatchResult matchResult;
 		String HTML = view.getHTML();
@@ -1429,14 +1430,34 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
             }
 
             String group = matchResult.getGroup(0);
+			String gapClass = getGapClass(HTML);
             group = group
 				.replace("id=\"", "")
 				.replace("\"", "");
-			gapsID.add(group);
-			HTML = HTML.replaceFirst(pattern, "");
+			
+			if (!gapClass.contains("pageLink")) gapsID.add(group);
+			
+			HTML = HTML
+				.replaceFirst(pattern, "")
+				.replaceFirst(patternClass, "");
         }
 
 		return gapsID;
+	}
+
+	private String getGapClass(String HTML) {
+		final String patternClass = "class=\"(.*?)\"";
+        RegExp regExp = RegExp.compile(patternClass);
+        MatchResult matchResult = regExp.exec(HTML);
+
+		if (matchResult == null || matchResult.getGroupCount() <= 0) return "";
+
+		String gapClass = matchResult.getGroup(0);
+        gapClass = gapClass
+			.replace("class=\"", "")
+			.replace("\"", "");
+
+		return gapClass;
 	}
 
 	private boolean isGapAttempted(int index) {
