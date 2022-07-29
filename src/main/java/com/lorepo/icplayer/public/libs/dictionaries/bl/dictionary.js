@@ -1954,6 +1954,7 @@ var ice_dictionary_bl = {
 	"Hierarchical_Table_Of_Contents_speech_text_chapter" : "Chapter",
 	"Hierarchical_Table_Of_Contents_speech_text_expanded" : "Expanded",
 	"Hierarchical_Table_Of_Contents_speech_text_collapsed" : "Collapsed",
+	"Hierarchical_Table_Of_Contents_property_expand_depth": "Depth of expand",
     "Catch_info": "Простичка игра за събиране на падащи предмети в три нива",
     "Catch_name": "Игра 'Събери'",
     "Catch_property_items": "Елементи",
