@@ -1001,8 +1001,10 @@ function AddonParagraph_create() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
-                if (presenter.isShowAnswersActive) presenter.hideAnswers();
+                const isShowAnswersActive = presenter.isShowAnswersActive;
+                if (isShowAnswersActive) presenter.hideAnswers();
                 tinymceState = presenter.editor.getContent({format : 'raw'});
+                if (isShowAnswersActive) presenter.showAnswers();
             }catch(err) {
                 return  presenter.state;
             }
