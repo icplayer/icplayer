@@ -43,7 +43,7 @@ public interface IPlayerServices {
 	public void setApplication(PlayerApp application);
 	public PlayerApp getApplication();
 	
-	public void outstretchHeight(int y, int height, boolean dontMoveModules);
+	public void outstretchHeight(int y, int height, boolean dontMoveModules, String layoutName);
 	public boolean isPlayerInCrossDomain();
 	public boolean isWCAGOn();
 	

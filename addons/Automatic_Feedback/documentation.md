@@ -32,6 +32,10 @@ Automatic Feedback displays feedback messages in various formats (such as as a t
         <td>Variable length list of elements containing two fields. ActivityItem specifies an element of the addon, as per the Correct Feedback property. Feedback specified what message should be displayed when the answer in the specified element is incomplete, but not incorrect.</td>
     </tr>
     <tr>
+        <td>Reset response on a page change</td>
+        <td>If set to true, after a page changes, module will set its state to default, resetting all feedback</td>
+    </tr>
+    <tr>
         <td>Display</td>
         <td>Specifies how the feedback message is to be displayed: within the Automatic feedback addons body ("block"), as a tooltip next to the element ("tooltip"), or as a popup ("popup")</td>
     </tr>
