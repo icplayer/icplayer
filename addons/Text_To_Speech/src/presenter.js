@@ -559,7 +559,7 @@ function AddonText_To_Speech_create() {
         let textVoices = [];
         for (let i = 0; i < texts.length; i++) {
             let speechText = texts[i];
-            let splitSpeechTexts = speechText.text.split(/[\.\!\?;]/g);
+            let splitSpeechTexts = speechText.text.split(/(.*?(?![0-9])[\.\!\?;](?![0-9]))/g);
             for (let j = 0; j < splitSpeechTexts.length; j++) {
                 if(splitSpeechTexts[j].trim().length > 0) {
                     textVoices.push(window.TTSUtils.getTextVoiceObject(splitSpeechTexts[j], speechText.lang));

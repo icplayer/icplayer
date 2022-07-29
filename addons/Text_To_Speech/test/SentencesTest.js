@@ -26,7 +26,7 @@ TestCase('Splitting text into sentences and reading them in correct order', {
 
         assertEquals(3, this.presenter.savedSentences.length);
         assertEquals('test hello world', this.presenter.savedSentences[0].text);
-        assertEquals('This is sentence', this.presenter.savedSentences[1].text);
+        assertEquals('This is sentence.', this.presenter.savedSentences[1].text);
         assertEquals('pl', this.presenter.savedSentences[1].lang);
         assertEquals(' This is also a sentence', this.presenter.savedSentences[2].text);
         assertEquals('pl', this.presenter.savedSentences[2].lang);
