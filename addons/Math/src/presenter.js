@@ -540,18 +540,21 @@ function AddonMath_create() {
         if(presenter.configuration.isError){
             return;
         }
+        const isShowAnswers = presenter.isShowAnswers;
+        if (isShowAnswers) presenter.toggleAnswers(false);
 
-        if (presenter.isShowAnswers) {
-            presenter.toggleAnswers(false);
+        const variables = presenter.configuration.variables,
+            emptyGaps = presenter.getEmptyGaps(variables);
+        if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) {
+            if (isShowAnswers) presenter.toggleAnswers(true);
+            return 0;
         }
 
-        var variables = presenter.configuration.variables,
-            emptyGaps = presenter.getEmptyGaps(variables);
-        if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
-
-        var separators = presenter.configuration.separators,
+        const separators = presenter.configuration.separators,
             expressions = presenter.configuration.expressions,
             evaluationResult = presenter.evaluateAllExpressions(expressions, variables, separators);
+
+        if (isShowAnswers) presenter.toggleAnswers(true);
         if (evaluationResult.isError) return;
 
         return evaluationResult.overall ? presenter.getMaxScore() : 0;

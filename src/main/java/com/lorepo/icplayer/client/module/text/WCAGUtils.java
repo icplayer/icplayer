@@ -145,6 +145,16 @@ public class WCAGUtils {
 		return text.replaceAll("<a[^>]*?href=\"(.*?)\"*?>(.*?)</a>", LINK_START + " $2 " + LINK_END);
 	}
 
+	private static String convertWhitespaceToSpace(String text) {
+//      	Whitespace with code \u00a0 (NO-BREAK SPACE) replaces normal space character when it is present before a new line.
+//      	This causes TTS to read too fast.
+	    	return text.replace("\u00a0"," ");
+	}
+
+	private static String removeCommaAfterGap(String text) {
+		return text.startsWith(".") ? text.substring(1) : text;
+	}
+
 	private static int getGapEndIndex(String text, int gapIndex) {
 		int openBrackets = 0;
 		int closeBrackets = 0;
@@ -263,7 +273,8 @@ public class WCAGUtils {
 				text = text.substring(endGapIndex);
 			}
 			text = TextParser.removeGapOptions(text);
-			text = text.replace(".", "");
+			text = convertWhitespaceToSpace(text);
+			text = removeCommaAfterGap(text);
 		}
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
 		return result;

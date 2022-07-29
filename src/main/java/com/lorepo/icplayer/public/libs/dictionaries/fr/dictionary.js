@@ -1963,6 +1963,7 @@ var ice_dictionary_fr = {
 	"Hierarchical_Table_Of_Contents_speech_text_chapter" : "Chapter",
 	"Hierarchical_Table_Of_Contents_speech_text_expanded" : "Expanded",
 	"Hierarchical_Table_Of_Contents_speech_text_collapsed" : "Collapsed",
+    "Hierarchical_Table_Of_Contents_property_expand_depth": "Depth of expand",
     "Catch_info": "Simple Catch game with 3 levels",
     "Catch_name": "Catch",
     "Catch_property_items": "Items",

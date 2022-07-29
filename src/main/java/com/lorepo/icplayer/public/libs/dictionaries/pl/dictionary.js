@@ -1962,6 +1962,7 @@ var ice_dictionary_pl = {
 	"Hierarchical_Table_Of_Contents_speech_text_chapter" : "Chapter",
 	"Hierarchical_Table_Of_Contents_speech_text_expanded" : "Expanded",
 	"Hierarchical_Table_Of_Contents_speech_text_collapsed" : "Collapsed",
+	"Hierarchical_Table_Of_Contents_property_expand_depth": "Depth of expand",
     "Catch_info": "Prosta gra łapanka z 3 poziomami trudności.",
     "Catch_name": "Gra Łapanka",
     "Catch_property_items": "Pozycje",

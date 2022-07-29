@@ -1,4 +1,9 @@
+2022-07-26 Fixed Math hiding answers on getState call
+2022-07-26 Fixed Paragraph hiding answers on getState call
+2022-07-25 Fixed Double State Button not calling events when placed in dynamic dom elements
+2022-07-21 Added Depth Of Expand property to Hierarchical Table Of Contents
 2022-07-20 Added ResetOnPageChange property to Automatic Feedback
+2022-07-19 Fixed Text TTS skipping commas when gap is present
 2022-07-19 Fixed direct cross-origin calls in several places in the app
 2022-07-15 Added TTS support to Magic Boxes
 2022-07-15 Changed Cross Lesson model validation to allow check only by LessonID
