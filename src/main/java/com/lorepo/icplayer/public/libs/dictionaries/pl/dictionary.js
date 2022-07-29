@@ -2314,6 +2314,7 @@ var ice_dictionary_pl = {
     "Automatic_Feedback_property_incorrect_feedback": "Incorrect feedback",
     "Automatic_Feedback_property_empty_feedback": "Empty feedback",
     "Automatic_Feedback_property_partial_feedback": "Partially correct feedback",
+    "Automatic_Feedback_property_reset_response_on_page_change": "Reset response on page change",
     "Automatic_Feedback_property_activity_item": "Activity item",
     "Automatic_Feedback_property_feedback": "Feedback",
     "Automatic_Feedback_property_display_mode": "Display mode",
