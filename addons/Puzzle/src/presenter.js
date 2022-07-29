@@ -703,6 +703,9 @@ function AddonPuzzle_create() {
         if (!presenter.isFullyLoaded()) {
             return presenter.previousErrors;
         }
+        if(presenter.configuration.isNotActivity) {
+            return 0;
+        }
 
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
@@ -724,6 +727,9 @@ function AddonPuzzle_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if(presenter.configuration.isNotActivity) {
+            return 0;
+        }
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -771,7 +777,8 @@ function AddonPuzzle_create() {
         eventBus = playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
-        presenter.configuration = presenter.validateModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.isPreview = false;
         InitPuzzleBoard()
 
@@ -794,7 +801,7 @@ function AddonPuzzle_create() {
 
     presenter.validateModel = function (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        var isActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity']));
+        var isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         LoadedPromise(this, {
             'image' : true
         });
@@ -806,7 +813,7 @@ function AddonPuzzle_create() {
             shouldCalcScore: false,
             columns: presenter.validatePuzzleDimension(model.Columns),
             rows: presenter.validatePuzzleDimension(model.Rows),
-            isNotActivity: !isActivity,
+            isNotActivity: isNotActivity,
             addonID: model.ID
         };
     };
@@ -828,7 +835,7 @@ function AddonPuzzle_create() {
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (upgradedModel['isNotActivity'] === undefined) {
-            upgradedModel['isNotActivity'] = false;
+            upgradedModel['isNotActivity'] = 'False';
         }
 
         return upgradedModel;
@@ -921,6 +928,9 @@ function AddonPuzzle_create() {
     }
 
     presenter.showAnswers = function () {
+        if(presenter.configuration.isNotActivity) {
+            return;
+        }
         presenter.isShowAnswersActive = true;
         presenter.saveBoard();
         presenter.setWorkMode();
