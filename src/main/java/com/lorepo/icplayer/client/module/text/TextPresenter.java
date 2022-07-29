@@ -1399,7 +1399,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void setGapText(int gapIndex, String text) {
-		if (view != null && gapIndex <= view.getChildrenCount()) {
+		if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
 			String gapID = this.getGapID(gapIndex);
 			view.setValue(gapID, text);
 			view.refreshMath();
