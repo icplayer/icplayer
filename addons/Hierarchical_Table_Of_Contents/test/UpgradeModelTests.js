@@ -94,4 +94,18 @@ TestCase("[Hierarchical Table Of Contents] Upgrade Model", {
         assertEquals(expectedSpeechTexts, this.presenter.speechTexts);
     },
 
+    "test given empty model when upgrading depth of expand then sets correct depth of expand": function () {
+        const upgradedModel = this.presenter.upgradeDepthOfExpand({});
+
+        assertNotUndefined(upgradedModel.expandDepth);
+        assertEquals(upgradedModel.expandDepth, "");
+    },
+
+    "test given model with custom expandDepth when upgrading model then sets custom expandDepth to DoE attribute": function () {
+        const expandDepth = "2";
+        const upgradedModel = this.presenter.upgradeDepthOfExpand({expandDepth: expandDepth});
+
+        assertEquals(upgradedModel.expandDepth, expandDepth);
+    },
+
 });

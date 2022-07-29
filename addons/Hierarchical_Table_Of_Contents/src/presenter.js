@@ -7,6 +7,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
     presenter.keyboardControllerObject = null;
 
     presenter.ERROR_MESSAGES = {
+        EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
     };
 
     presenter.CSS_CLASSES = {
@@ -215,9 +216,9 @@ function AddonHierarchical_Table_Of_Contents_create() {
     }
 
     function expandTree(level) {
-        $('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
+        presenter.$view.find('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
             if ($(this).treegrid('getDepth') < level) {
-                $(this).treegrid('expand');
+                $(this).treegrid('expand'); 
             }
         });
     }
@@ -252,6 +253,13 @@ function AddonHierarchical_Table_Of_Contents_create() {
     };
 
     presenter.validateModel = function (model) {
+        var expandDepth = returnCorrectObject(0);
+        if (model['expandDepth'].length > 0) {
+            expandDepth = ModelValidationUtils.validateInteger(model['expandDepth']);
+            if (!expandDepth.isValid) {
+                return returnErrorObject('EXPAND_DEPTH_NOT_NUMERIC');
+            }
+        }
         return {
             ID: model.ID,
             isValid: true,
@@ -262,6 +270,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
                 title: model['titleLabel']
             },
             displayOnlyChapters: ModelValidationUtils.validateBoolean(model.displayOnlyChapters),
+            expandDepth: expandDepth.value,
             showPages: model.showPages,
             langTag: model.langAttribute,
         };
@@ -359,8 +368,9 @@ function AddonHierarchical_Table_Of_Contents_create() {
     presenter.upgradeModel = function (model) {
         const upgradedLangTagModel = presenter.upgradeLangTag(model);
         const upgradedSpeechTextsModel = presenter.upgradeSpeechTexts(upgradedLangTagModel);
+        const upgradedDepthOfExpandModel = presenter.upgradeDepthOfExpand(upgradedSpeechTextsModel);
 
-        return upgradedSpeechTextsModel;
+        return upgradedDepthOfExpandModel;
     };
 
     presenter.upgradeLangTag = function (model) {
@@ -387,6 +397,17 @@ function AddonHierarchical_Table_Of_Contents_create() {
         if (!modelSpeechTexts["Chapter"]) modelSpeechTexts["Chapter"] = {Chapter: ""};
         if (!modelSpeechTexts["Expanded"]) modelSpeechTexts["Expanded"] = {Expanded: ""};
         if (!modelSpeechTexts["Collapsed"]) modelSpeechTexts["Collapsed"] = {Collapsed: ""};
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeDepthOfExpand = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["expandDepth"] === undefined) {
+            upgradedModel["expandDepth"] = '';
+        }
 
         return upgradedModel;
     };
