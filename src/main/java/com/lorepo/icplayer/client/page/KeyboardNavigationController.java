@@ -332,15 +332,20 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		this.mainPageController.playTitle(area, id, "");
 	}
 
+	private native void dispatchEnterEvent(Element el) /*-{
+		var e = new KeyboardEvent('keydown', {keyCode: 13, bubbles: true});
+		el.dispatchEvent(e);
+	}-*/;
+
 	private void readNextSentence () {
 		this.mainPageController.saveNextSentences();
-		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, false, false, KeyCodes.KEY_ENTER), RootPanel.get());
+		dispatchEnterEvent(RootPanel.get().getElement());
 		this.mainPageController.readNextSentence();
 	}
 
 	private void readPrevSentence () {
 		this.mainPageController.saveNextSentences();
-		DomEvent.fireNativeEvent(Document.get().createKeyDownEvent(false, false, false, false, KeyCodes.KEY_ENTER), RootPanel.get());
+		dispatchEnterEvent(RootPanel.get().getElement());
 		this.mainPageController.readPrevSentence();
 	}
 
@@ -386,7 +391,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-				
+
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
