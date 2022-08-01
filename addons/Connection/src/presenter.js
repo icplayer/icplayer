@@ -28,6 +28,7 @@ function AddonConnection_create() {
 
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
+    presenter.GSAcounter = 0;
     presenter.isCheckActive = false;
     presenter.initialState = null;
 
@@ -1574,7 +1575,11 @@ function AddonConnection_create() {
         presenter.lineStack.clear();
         presenter.redraw();
 
+        while(itemIndex < presenter.GSAcounter || !presenter.elementIsShowAnswersViable(itemIndex)) {
+            itemIndex++;
+        }
         presenter.addCorrectAnswersToLineStack(itemIndex + 1);
+        presenter.GSAcounter = itemIndex + 1;
 
         presenter.redrawShowAnswers();
         presenter.lineStack.clear();
@@ -1588,14 +1593,25 @@ function AddonConnection_create() {
         presenter.keyboardControllerObject.selectEnabled(true);
         presenter.redraw();
         isSelectionPossible = true;
+        presenter.GSAcounter = 0;
+    }
+
+    presenter.elementIsShowAnswersViable = function(index) {
+        var viableElement = false;
+        var connects = presenter.elements[index].connects;
+        for(var i = 0; i < connects.length; i++) {
+            if(connects[i] !== "" && $.inArray(connects[i], presenter.uniqueIDs) >= 0) {
+                viableElement = true;
+                break;
+            }
+        }
+        return viableElement;
     }
 
     presenter.getActivitiesCount = function () {
         var counter = 0;
         for (var i = 0; i < presenter.elements.length; i++) {
-            if(presenter.elements[i].connects !== "") {
-                counter++;
-            }
+            if (presenter.elementIsShowAnswersViable(i)) counter++;
         }
         return counter;
     }
