@@ -2071,7 +2071,6 @@ var ice_dictionary_fr = {
     "Footer_none": "None",
     "Footer_default": "Default",
     "Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
-    "header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
     "dont_generate_correct_order": "Don't generate correct order",
     "show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
     "alternative_text": "Alternative text",
