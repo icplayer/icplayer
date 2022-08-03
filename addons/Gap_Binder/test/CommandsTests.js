@@ -45,7 +45,7 @@ TestCase("[Gap Binder] Commands tests", {
         this.setGapValue(this.tableModule, 2, "");
     },
 
-    setValueToOneGap: function () {
+    resetAllGapsAndSetValueToOneOfThem: function () {
         this.setGapValue(this.textModule, 0, "");
         this.setGapValue(this.textModule, 1, "1");
         this.setGapValue(this.textModule, 2, "");
@@ -69,7 +69,7 @@ TestCase("[Gap Binder] Commands tests", {
         assertTrue(result);
     },
 
-    'test given addon with max score and addon in show answers mode when isAllOk is called then return true and do not disable show answers mode': function () {
+    'test given addon with max score and addon is in show answers mode when isAllOk is called then return true and do not disable show answers mode': function () {
         this.stubGetMaxScore(6);
         this.stubGetScore(6);
         this.presenter.showAnswers();
@@ -90,7 +90,7 @@ TestCase("[Gap Binder] Commands tests", {
         assertFalse(result);
     },
 
-    'test given addon with not max score and addon in show answers mode when isAllOk is called then return false and do not disable show answers mode': function () {
+    'test given addon with not max score and addon is in show answers mode when isAllOk is called then return false and do not disable show answers mode': function () {
         this.stubGetMaxScore(6);
         this.stubGetScore(5);
         this.presenter.showAnswers();
@@ -110,7 +110,7 @@ TestCase("[Gap Binder] Commands tests", {
         assertTrue(result);
     },
 
-    'test given gap with correct value and addon in show answers mode when isOK is called for this gap then return true and disable show answers mode': function () {
+    'test given gap with correct value and addon is in show answers mode when isOK is called for this gap then return true and disable show answers mode': function () {
         this.setGapValue(this.textModule, 0, "ans6");
         this.presenter.showAnswers();
         assertTrue(this.presenter.isShowAnswersActive);
@@ -129,7 +129,7 @@ TestCase("[Gap Binder] Commands tests", {
         assertFalse(result);
     },
 
-    'test given gap with wrong value and addon in show answers mode when isOK is called for this gap then return false and disable show answers mode': function () {
+    'test given gap with wrong value and addon is in show answers mode when isOK is called for this gap then return false and disable show answers mode': function () {
         this.setGapValue(this.textModule, 0, "wrong answer");
         this.presenter.showAnswers();
         assertTrue(this.presenter.isShowAnswersActive);
@@ -160,7 +160,7 @@ TestCase("[Gap Binder] Commands tests", {
     },
 
     'test given addon with filled one gap when isAttempted is called then return true': function () {
-        this.setValueToOneGap();
+        this.resetAllGapsAndSetValueToOneOfThem();
 
         const result = this.presenter.isAttempted();
 
@@ -168,7 +168,7 @@ TestCase("[Gap Binder] Commands tests", {
     },
 
     'test given addon in show answers mode with filled one gap when isAttempted is called then return true and disable show answers mode': function () {
-        this.setValueToOneGap();
+        this.resetAllGapsAndSetValueToOneOfThem();
         this.presenter.showAnswers();
         assertTrue(this.presenter.isShowAnswersActive);
 

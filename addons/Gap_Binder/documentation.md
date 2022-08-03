@@ -26,7 +26,7 @@ In the editor, set the order of the gap binder addon so that it is in front of t
     </tr>
     <tr>
         <td>Modules' IDs (Text or Table)</td>
-        <td>IDs of Text or Table modules it works with. Each identifier is separated by commas.</td>
+        <td>IDs of Text or Table modules it works with. Each identifier is separated by comma.</td>
     </tr>
     <tr>
         <td>Answers</td>
