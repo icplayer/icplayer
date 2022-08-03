@@ -146,7 +146,7 @@ public class PlayerApp {
 	}
 
 	public static native int getScreenHeight() /*-{
-		if ($wnd.isFrameInDifferentDomain) {
+		if (!$wnd.isFrameInDifferentDomain) {
 			var offsetIframe = $wnd.iframeSize.offsetTop;
 			return $wnd.parent.innerHeight - offsetIframe;
 		} else {
@@ -178,7 +178,7 @@ public class PlayerApp {
 
 			try {
 				var currentLocation = $wnd.location.href;
-				
+
 				$wnd.parent.$('iframe').each(function() {
 					if (this.contentWindow === $wnd) {
 						$wnd.playerIFrame = $wnd.$(this);
@@ -279,7 +279,9 @@ public class PlayerApp {
 			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe
 					- icFooterHeight;
 
-			$wnd.$(".ic_static_footer").css("top", sum + "px");
+			if (sum >= 0) {
+				$wnd.$(".ic_static_footer").css("top", sum + "px");
+			}
 
 			$wnd
 					.addEventListener(
