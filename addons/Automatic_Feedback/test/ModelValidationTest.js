@@ -3,28 +3,29 @@ TestCase("Model validation", {
         this.presenter = AddonAutomatic_Feedback_create();
         this.presenter.initializeActivityTypeDict();
         this.model = {
-             ID: "Automatic_Feedback1",
-             Height: "100",
-             Width: "100",
-             ActivityModuleID: "Text1",
-             ActivityType: "",
-             Display: "block",
-             DisplayFeedbackButtons: "False",
-             ReactTo: "Check",
-             CorrectFeedback: [
-                 {ActivityItem: '', Feedback: ''}
-             ],
-             PartialFeedback: [
-                 {ActivityItem: '', Feedback: ''}
-             ],
-             EmptyFeedback: [
-                 {ActivityItem: '', Feedback: ''}
-             ],
-             IncorrectFeedback: [
-                 {ActivityItem: '', Feedback: ''}
-             ],
-             langAttribute: ""
-         };
+            ID: "Automatic_Feedback1",
+            Height: "100",
+            Width: "100",
+            ActivityModuleID: "Text1",
+            ActivityType: "",
+            Display: "block",
+            DisplayFeedbackButtons: "False",
+            ResetResponseOnPageChange: "False",
+            ReactTo: "Check",
+            CorrectFeedback: [
+             {ActivityItem: '', Feedback: ''}
+            ],
+            PartialFeedback: [
+             {ActivityItem: '', Feedback: ''}
+            ],
+            EmptyFeedback: [
+             {ActivityItem: '', Feedback: ''}
+            ],
+            IncorrectFeedback: [
+             {ActivityItem: '', Feedback: ''}
+            ],
+            langAttribute: ""
+        };
     },
 
     'test given empty model when validation was called then return configuration with default values': function () {
@@ -34,6 +35,7 @@ TestCase("Model validation", {
         assertEquals("Text1", validatedModel.activityModuleID);
         assertEquals("Default", validatedModel.activityType);
         assertFalse(validatedModel.displayFeedbackButtons);
+        assertFalse(validatedModel.resetResponseOnPageChange);
         assertEquals("block", validatedModel.displayMode);
         assertEquals("Check", validatedModel.reactTo);
 
