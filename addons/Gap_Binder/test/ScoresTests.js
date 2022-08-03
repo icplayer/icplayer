@@ -101,20 +101,4 @@ TestCase("[Gap Binder] Scores tests", {
         assertEquals(3, errorsNumber);
         assertFalse(this.presenter.isShowAnswersActive);
     },
-
-    'test given addon in work mode when countItems is called then return number of filled in elements': function () {
-        const errorsNumber = this.presenter.countItems();
-
-        assertEquals(3, errorsNumber);
-    },
-
-    'test given addon in show answers mode when countItems is called then return number of filled in elements and disable show answers mode': function () {
-        this.presenter.showAnswers();
-        assertTrue(this.presenter.isShowAnswersActive);
-
-        const errorsNumber = this.presenter.countItems();
-
-        assertEquals(3, errorsNumber);
-        assertFalse(this.presenter.isShowAnswersActive);
-    },
 });

@@ -5,7 +5,7 @@ TestCase("[Gap Binder] Read Model Items tests", {
         this.model = {
             Items: [
                 {
-                    Module: "Text1, Text2,Text3",
+                    Modules: "Text1, Text2,Text3",
                     Answers: "ans1\nans2\nans3"
                 }
             ]
@@ -19,7 +19,7 @@ TestCase("[Gap Binder] Read Model Items tests", {
     },
 
     'test given model with duplicated modules IDS when readItems is called then remove duplicates': function () {
-        this.model.Items[0].Module = "Text1, Text2, Text1";
+        this.model.Items[0].Modules = "Text1, Text2, Text1";
 
         this.presenter.readModelItems(this.model.Items);
 

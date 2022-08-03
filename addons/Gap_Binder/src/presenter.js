@@ -120,7 +120,7 @@ function AddonGap_Binder_create() {
 
     function isSomeItemFieldEmpty(model) {
         return model.Items.some(item => {
-            return ((!item.Module || item.Module.trim() == "")
+            return ((!item.Modules || item.Modules.trim() == "")
                 || !item.Answers || item.Answers.trim() == "");
         });
     }
@@ -371,6 +371,9 @@ function AddonGap_Binder_create() {
     };
 
     presenter.getMaxScore = function () {
+        if (!presenter.playerController) {
+            return presenter.answers.length;
+        }
         checkCorrectnessOfAnswers();
         return scoreData.maxCorrectElementsNumber;
     }
@@ -474,7 +477,7 @@ function AddonGap_Binder_create() {
             handleHideAnswers();
         }
 
-        return presenter.countItems() > 0;
+        return countFilledInItems() > 0;
     };
 
     presenter.executeCommand = function (name, params) {
@@ -491,13 +494,6 @@ function AddonGap_Binder_create() {
         const eventData = presenter.createEventData("all", "", "");
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
-
-    presenter.countItems = function () {
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
-        return countFilledInItems();
-    };
 
     function countEmptyItems() {
         return countItems(true);
