@@ -2330,6 +2330,6 @@ var ice_dictionary_pl = {
 	"Gap_Binder_name": "Gap Binder",
 	"Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
 	"Gap_Binder_property_items": "Items",
-	"Gap_Binder_property_module": "ID Text (or Table)",
+	"Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
 	"Gap_Binder_property_answers": "Answers"
 };

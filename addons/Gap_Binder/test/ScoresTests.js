@@ -2,7 +2,7 @@ function createMixedModelForGapBinderTests() {
     return {
         Items: [
             {
-                Module: "Text1, Table1",
+                Modules: "Text1, Table1",
                 Answers: "ans1\nans2\nans3\nans4\nans5\nans6"
             }
         ]

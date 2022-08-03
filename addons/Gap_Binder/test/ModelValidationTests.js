@@ -9,7 +9,7 @@ TestCase("[Gap Binder] Model Validation tests", {
         this.model = {
             Items: [
                 {
-                    Module: "Text1",
+                    Modules: "Text1",
                     Answers: "ans1\nans2\nans3"
                 }
             ]
@@ -33,11 +33,11 @@ TestCase("[Gap Binder] Model Validation tests", {
         this.model = {
             Items: [
                 {
-                    Module: "Text1",
+                    Modules: "Text1",
                     Answers: "ans1\nans2\nans3"
                 },
                 {
-                    Module: "Text2",
+                    Modules: "Text2",
                     Answers: "ans1\nans2\nans3"
                 }
             ]
@@ -62,9 +62,9 @@ TestCase("[Gap Binder] Model Validation tests", {
         assertEquals('INVALID_NUMBER_ITEMS', configuration.errorCode);
     },
 
-    'test given model with incorrect module when validateModel is called then return configuration with error and correct error code': function () {
+    'test given model with incorrect modules when validateModel is called then return configuration with error and correct error code': function () {
         this.presenter.modulesIDs = ["Text12"];
-        this.model.Items[0].Module = "Text12";
+        this.model.Items[0].Modules = "Text12";
 
         let configuration = this.presenter.validateModel(this.model);
 
@@ -72,9 +72,9 @@ TestCase("[Gap Binder] Model Validation tests", {
         assertEquals('INVALID_ID', configuration.errorCode);
     },
 
-    'test given model with empty module when validateModel is called then return configuration with error and correct error code': function () {
+    'test given model with empty modules when validateModel is called then return configuration with error and correct error code': function () {
         this.presenter.modulesIDs = [""];
-        this.model.Items[0].Module = "";
+        this.model.Items[0].Modules = "";
 
         let configuration = this.presenter.validateModel(this.model);
 

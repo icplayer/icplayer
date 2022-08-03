@@ -69,14 +69,14 @@ function AddonGap_Binder_create() {
         let newModules = [];
 
         items.forEach(item => {
-            const modulesIDs = item.Module.split(",");
+            const modulesIDs = item.Modules.split(",");
             modulesIDs.forEach(moduleID => {
                 moduleID = moduleID.trim();
                 newModules.push(moduleID);
             })
         });
 
-        presenter.modulesIDs =  [...new Set(newModules)];
+        presenter.modulesIDs = [...new Set(newModules)];
     }
 
     function setAnswers(items) {
