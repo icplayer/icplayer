@@ -1,5 +1,20 @@
 ## Description
-##### Addon works with the text and table module. Reads the contents of the gap from the text (and table) module it works with and verifies them. In check errors mode, assign the appropriate classes to the gaps in the text and table modules. In show answers mode, inserts the declared values into the gaps from the text and table module.
+
+Addon works with the text and table module. Reads the contents of the gap from the text (and table) module it works with and verifies them. In check errors mode, assign the appropriate classes to the gaps in the text and table modules. In show answers mode, inserts the declared values into the gaps from the text and table module.
+
+## Requirements
+
+If the requirements are not fulfilled, the gap binder addon may not work properly with other modules.
+
+### Setting properties of co-working modules
+
+In order for the addon to work properly it is required to:
+* for co-working Table addons check the "Is not an activity" property.
+* for co-working Text modules uncheck the "Is activity" property.
+
+### Setting the order co-working modules
+
+In the editor, set the order of the gap binder addon so that it is in front of the co-working modules.
 
 ## Properties
 
@@ -49,33 +64,62 @@
 
 ## Events
 
+The module does not block or modify the events sent by the modules specified in the configuration. If a change is made in the co-working module, the event of the co-working module and the event of the gap binder will be sent. The event of the co-working module sends information according to its own unchanged configuration.
+
+### Value Changed event
+
 <table border='1'>
 <tbody>
     <tr>
-        <th>Field name</th>
+        <th>Event name</th>
+        <th>Params</th>
         <th>Description</th>
     </tr>
     <tr>
         <td>ValueChanged</td>
         <td>
-            Source: AddonID (gap binder)<br>
-            Item: gap_number (according to the order defined in the gap binder)<br>
-            Value: gap content<br>
-            Score: 1 if correct, 0 if incorrect</td>
+            <ul>
+                <li>Source - module ID (gap binder)</li>
+                <li>Item - gap number (according to the order defined in the gap binder)</li>
+                <li>Value - gap content</li>
+                <li>Source - "1" if correct, "0" if incorrect</li>
+            </ul>
+        </td>
+        <td>
+            Sent by interaction when a user changes state (enters new text, etc.)
+        </td>
+    </tr>
+</tbody>
+</table>
+
+### All OK event
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Event name</th>
+        <th>Params</th>
+        <th>Description</th>
     </tr>
     <tr>
         <td>ValueChanged</td>
         <td>
-            Source:AddonID (gap binder)<br>
-            Item:all<br>
-            Value:-<br>
-            Score:-<br>
+            <ul>
+                <li>Source - module ID (gap binder)</li>
+                <li>Item - "all"</li>
+                <li>Value - empty string ("")</li>
+                <li>Source - empty string ("")</li>
+            </ul>
+        </td>
+        <td>
+            Sent by interaction when a user changes state and the score of the module is 100%
         </td>
     </tr>
 </tbody>
 </table>
 
 ## CSS Classes
+
 <table border='1'>
     <tr>
         <th>Class name</th>

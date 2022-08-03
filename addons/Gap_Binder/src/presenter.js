@@ -10,14 +10,17 @@ function AddonGap_Binder_create() {
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
 
-    // addon's score variables
-    presenter.correctElementsNumber = 0;
-    presenter.maxCorrectElementsNumber = 0;
-    let usedAnswersIndex = [];
-    let gapsIDsWithCorrectAnswer = [];
+    const SUPPORTED_MODULES_TYPES = ["Text", "table"];
+
+    let scoreData = {
+        correctElementsNumber: 0,
+        maxCorrectElementsNumber: 0,
+        usedAnswersIndex: [],
+        gapsIDsWithCorrectAnswer: [],
+    }
+    let savedGapsValues = [];
 
     presenter.validatedPages = [];
-    let savedGapsValues = [];
 
     presenter.ERROR_CODES = {
         INVALID_ID: "Provided module ID is incorrect.",
@@ -32,53 +35,58 @@ function AddonGap_Binder_create() {
 
     presenter.createPreview = function (view, model) {
         presenter.presenterLogic(view, model, true);
+
+        setTimeout(() => {
+            presenter.configuration = presenter.validateModel(model);
+            $(view).removeClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
+            if (presenter.configuration.isError) {
+                DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+                $(view).addClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
+            }
+        }, 1250);
     };
 
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model, false);
+
+        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
-        presenter.model = model;
         presenter.addonID = model.ID;
+        presenter.view = view;
         presenter.$view = $(view);
-        presenter.setModulesIDs(presenter.model.Items);
-        presenter.setAnswers(presenter.model.Items);
-
-        if (isPreview) {
-            setTimeout(() => {
-                presenter.configuration = presenter.validateModel(model);
-                $(view).removeClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
-                if (presenter.configuration.isError) {
-                    DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-                    $(view).addClass(presenter.CSS_CLASSES.INVALID_CONFIGURATION);
-                }
-            }, 1250);
-        } else {
-            // handleClickActions();
-        }
+        presenter.readModelItems(model.Items);
     };
 
-    presenter.setModulesIDs = function(items) {
+    presenter.readModelItems = function (items) {
+        setModulesIDs(items);
+        setAnswers(items);
+    };
+
+    function setModulesIDs(items) {
         presenter.modulesIDs.length = 0;
+        let newModules = [];
 
         items.forEach(item => {
             const modulesIDs = item.Module.split(",");
             modulesIDs.forEach(moduleID => {
                 moduleID = moduleID.trim();
-                presenter.modulesIDs.push(moduleID);
+                newModules.push(moduleID);
             })
         });
-    };
 
-    presenter.setAnswers = function (items) {
+        presenter.modulesIDs =  [...new Set(newModules)];
+    }
+
+    function setAnswers(items) {
         presenter.answers.length = 0;
 
         items.forEach(item => {
             let answers = item.Answers.split('\n');
             presenter.answers.push(...answers);
         });
-    };
+    }
 
     presenter.validateModel = function (model) {
         const oneItemInConfiguration = isOneItemInConfiguration(model);
@@ -106,6 +114,31 @@ function AddonGap_Binder_create() {
         }
     };
 
+    function isOneItemInConfiguration(model) {
+        return model.Items.length === 1;
+    }
+
+    function isSomeItemFieldEmpty(model) {
+        return model.Items.some(item => {
+            return ((!item.Module || item.Module.trim() == "")
+                || !item.Answers || item.Answers.trim() == "");
+        });
+    }
+
+    function isEachModuleOnCurrentPage() {
+        const $pageGaps = findCurrentPageGaps();
+        const pageModulesIDs = getGapsModulesIDs($pageGaps);
+
+        let foundModulesNumber = 0;
+        presenter.modulesIDs.forEach(configurationModuleID => {
+            if (pageModulesIDs.includes(configurationModuleID)) {
+                foundModulesNumber++;
+            }
+        });
+
+        return foundModulesNumber === presenter.modulesIDs.length;
+    }
+
     function getGapsModulesIDs($gaps) {
         let modulesIDs = [];
 
@@ -126,33 +159,6 @@ function AddonGap_Binder_create() {
         return [...new Set(modulesIDs)];
     }
 
-    function isSomeItemFieldEmpty(model) {
-        return model.Items.some(item => {
-            return ((!item.Module || item.Module.trim() == "")
-                || !item.Answers || item.Answers.trim() == "");
-        });
-    }
-
-    function isOneItemInConfiguration(model) {
-        return model.Items.length === 1;
-    }
-
-    function isEachModuleOnCurrentPage() {
-        const $pageGaps = findCurrentPageGaps();
-        const pageModulesIDs = getGapsModulesIDs($pageGaps);
-
-        let countValidateElements = 0;
-        presenter.modulesIDs.forEach(configurationModuleID => {
-            for (let i = 0; i < pageModulesIDs.length; i++) {
-                if (configurationModuleID === pageModulesIDs[i]) {
-                    countValidateElements++;
-                }
-            }
-        })
-
-        return countValidateElements === presenter.modulesIDs.length;
-    }
-
     function isNumberOfProvidedAnswersCorrect() {
         let count = 0;
         presenter.modulesIDs.forEach(moduleID => {
@@ -164,10 +170,6 @@ function AddonGap_Binder_create() {
 
         return count === presenter.answers.length;
     }
-
-    presenter.getModule = function (moduleID) {
-        return presenter.playerController.getModule(moduleID);
-    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -191,30 +193,11 @@ function AddonGap_Binder_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
-    };
 
-    function findModuleGaps(moduleID, toArray = true) {
-        const module = getModule(moduleID);
-        const $moduleView = $(module.getView());
-        const $foundGaps = findGaps($moduleView);
-        if (toArray) {
-            return $foundGaps.toArray();
+        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive) {
+            handleValueChangedEvent(eventData);
         }
-        return $foundGaps;
-    }
-
-    function getModule(moduleID) {
-        return presenter.playerController.getModule(moduleID);
-    }
-
-    function findCurrentPageGaps() {
-        const $pageView = $('html');
-        return findGaps($pageView);
-    }
-
-    function findGaps($view) {
-        return $view.find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
-    }
+    };
 
     presenter.showAnswers = () => {
         if (presenter.isShowAnswersActive) {
@@ -281,7 +264,8 @@ function AddonGap_Binder_create() {
     function saveNextGapValue(gap) {
         const valueToSave = {
             innerHTML: gap.innerHTML,
-            value: gap.value
+            value: gap.value,
+            id: gap.id,
         };
         savedGapsValues.push(valueToSave);
     }
@@ -325,9 +309,9 @@ function AddonGap_Binder_create() {
                 const gapIndexInModule = gapIndex + 1;
                 const gap = moduleGaps[gapIndex];
 
-                if (gapsIDsWithCorrectAnswer.includes(gap.id)) {
+                if (isCorrectAnswerInGap(gap.id)) {
                     module.markGapAsCorrect(gapIndexInModule);
-                } else if (isGapNotEmpty(gap)) {
+                } else if (!isGapEmpty(gap)) {
                     module.markGapAsWrong(gapIndexInModule);
                 } else {
                     module.markGapAsEmpty(gapIndexInModule);
@@ -336,12 +320,15 @@ function AddonGap_Binder_create() {
         })
     }
 
-    function isGapNotEmpty(gap) {
-        return ((gap.innerHTML != "&nbsp;" && gap.innerHTML != "")
-            || (gap.innerHTML == "" && gap.value != ""));
+    function isGapEmpty(gap) {
+        return ((!gap.innerHTML && !gap.value)
+            || (gap.innerHTML === "&nbsp;" && !gap.value)
+            || (gap.innerHTML === "" && !gap.value)
+        );
     }
 
     presenter.reset = function () {
+        resetScoreData();
         presenter.hideAnswers();
         presenter.setWorkMode();
     };
@@ -371,29 +358,21 @@ function AddonGap_Binder_create() {
     }
 
     presenter.getErrorCount = function () {
-        if (presenter.correctElementsNumber === presenter.maxCorrectElementsNumber) {
+        if (presenter.isShowAnswersActive) {
+            handleHideAnswers();
+        }
+
+        checkCorrectnessOfAnswers();
+        if (scoreData.correctElementsNumber === scoreData.maxCorrectElementsNumber) {
             return 0;
         }
-        let emptyGapsNumber = getNumberOfEmptyGapsInSupportedModules();
-        return presenter.maxCorrectElementsNumber - presenter.correctElementsNumber - emptyGapsNumber;
+        const emptyGapsNumber = countEmptyItems();
+        return scoreData.maxCorrectElementsNumber - scoreData.correctElementsNumber - emptyGapsNumber;
     };
-
-    function getNumberOfEmptyGapsInSupportedModules() {
-        let emptyGapsNumber = 0;
-        presenter.modulesIDs.forEach(moduleID => {
-            const moduleGaps = findModuleGaps(moduleID);
-            moduleGaps.forEach(gap => {
-                if (gap.value == "" || gap.innerHTML == "&nbsp;") {
-                    emptyGapsNumber++;
-                }
-            });
-        });
-        return emptyGapsNumber;
-    }
 
     presenter.getMaxScore = function () {
         checkCorrectnessOfAnswers();
-        return presenter.maxCorrectElementsNumber ? presenter.maxCorrectElementsNumber : 0;
+        return scoreData.maxCorrectElementsNumber;
     }
 
     presenter.getScore = function () {
@@ -401,7 +380,7 @@ function AddonGap_Binder_create() {
             handleHideAnswers();
         }
         checkCorrectnessOfAnswers();
-        return presenter.correctElementsNumber;
+        return scoreData.correctElementsNumber;
     };
 
     function checkCorrectnessOfAnswers() {
@@ -409,37 +388,40 @@ function AddonGap_Binder_create() {
             return;
         }
 
-        presenter.maxCorrectElementsNumber = 0;
-        presenter.correctElementsNumber = 0;
-
-        usedAnswersIndex.length = 0;
-        gapsIDsWithCorrectAnswer.length = 0;
+        resetScoreData();
 
         hideMathJaxElements();
-        presenter.modulesIDs.forEach(moduleID => {
-            const moduleGaps = findModuleGaps(moduleID);
-            if (!moduleGaps) {
-                return;
-            }
+        presenter.modulesIDs.forEach(checkCorrectnessOfAnswersInModule);
+    }
 
-            presenter.maxCorrectElementsNumber += moduleGaps.length;
-            moduleGaps.forEach(gap => {
-                const gapInnerHTML = gap.innerHTML;
-                const gapValue = gap.value;
-                for (let answerIndex = 0; answerIndex < presenter.answers.length; answerIndex++) {
-                    if (isAnswerUsed(answerIndex)) {
-                        continue;
-                    }
+    function checkCorrectnessOfAnswersInModule(moduleID) {
+        const moduleGaps = findModuleGaps(moduleID);
+        if (!moduleGaps) {
+            return;
+        }
 
-                    const correctAnswer = presenter.answers[answerIndex];
-                    if (gapInnerHTML == correctAnswer || gapValue == correctAnswer) {
-                        presenter.correctElementsNumber++;
-                        usedAnswersIndex.push(answerIndex);
-                        gapsIDsWithCorrectAnswer.push(gap.id);
-                    }
+        scoreData.maxCorrectElementsNumber += moduleGaps.length;
+        moduleGaps.forEach(gap => {
+            for (let answerIndex = 0; answerIndex < presenter.answers.length; answerIndex++) {
+                if (isAnswerUsed(answerIndex)) {
+                    continue;
                 }
-            })
-        })
+
+                const correctAnswer = presenter.answers[answerIndex];
+                if (gap.innerHTML == correctAnswer || gap.value == correctAnswer) {
+                    scoreData.correctElementsNumber++;
+                    scoreData.usedAnswersIndex.push(answerIndex);
+                    scoreData.gapsIDsWithCorrectAnswer.push(gap.id);
+                }
+            }
+        });
+    }
+
+    function resetScoreData() {
+        scoreData.maxCorrectElementsNumber = 0;
+        scoreData.correctElementsNumber = 0;
+        scoreData.usedAnswersIndex.length = 0;
+        scoreData.gapsIDsWithCorrectAnswer.length = 0;
     }
 
     function hideMathJaxElements() {
@@ -447,7 +429,11 @@ function AddonGap_Binder_create() {
     }
 
     function isAnswerUsed(answerIndex) {
-        return usedAnswersIndex.some(usedIndex => usedIndex === answerIndex);
+        return scoreData.usedAnswersIndex.includes(answerIndex);
+    }
+
+    function isCorrectAnswerInGap(gapID) {
+        return scoreData.gapsIDsWithCorrectAnswer.includes(gapID);
     }
 
     presenter.createEventData = function (item, value, score) {
@@ -464,17 +450,23 @@ function AddonGap_Binder_create() {
     };
 
     presenter.isOK = function (moduleIndex, gapIndex) {
+        const trueModuleIndex = moduleIndex - 1;
+        const trueGapIndex = gapIndex - 1;
+
+        if (presenter.isShowAnswersActive) {
+            handleHideAnswers();
+        }
         checkCorrectnessOfAnswers();
-        if (presenter.modulesIDs[moduleIndex]) {
-            const moduleGaps = findModuleGaps(presenter.modulesIDs[moduleIndex]);
+        if (presenter.modulesIDs[trueModuleIndex]) {
+            const moduleGaps = findModuleGaps(presenter.modulesIDs[trueModuleIndex]);
             if (moduleGaps) {
-                const elementID = moduleGaps[gapIndex].id;
-                if (gapsIDsWithCorrectAnswer.includes(elementID)) {
-                    return 1;
+                const elementID = moduleGaps[trueGapIndex].id;
+                if (isCorrectAnswerInGap(elementID)) {
+                    return true;
                 }
             }
         }
-        return 0;
+        return false;
     };
 
     presenter.isAttempted = function () {
@@ -495,75 +487,135 @@ function AddonGap_Binder_create() {
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    function sendAllOKEvent () {
-        var eventData = {
-            'source': presenter.addonID,
-            'item': 'all',
-            'value': '',
-            'score': ''
-        };
-
+    presenter.sendAllOKEvent = function () {
+        const eventData = presenter.createEventData("all", "", "");
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
 
     presenter.countItems = function () {
+        if (presenter.isShowAnswersActive) {
+            handleHideAnswers();
+        }
+        return countFilledInItems();
+    };
+
+    function countEmptyItems() {
+        return countItems(true);
+    }
+
+    function countFilledInItems() {
+        return countItems(false);
+    }
+
+    function countItems(forEmptyGaps) {
         let count = 0;
         presenter.modulesIDs.forEach(moduleID => {
-            let moduleGaps = findModuleGaps(moduleID);
+            const moduleGaps = findModuleGaps(moduleID);
             moduleGaps.forEach(gap => {
-                if (isGapNotEmpty(gap)) {
+                const gapEmpty = isGapEmpty(gap);
+                if ((forEmptyGaps && gapEmpty) || (!forEmptyGaps && !gapEmpty)) {
                     count++;
                 }
             });
         });
         return count;
-    };
-
-    function handleClickActions() {
-        const pageGaps = findCurrentPageGaps().toArray();
-
-        pageGaps.forEach(gap => {
-            gap.addEventListener('touchstart', (event) => {
-                event.stopPropagation();
-                event.preventDefault();
-            });
-        });
-
-        pageGaps.forEach(gap => {
-            gap.addEventListener('touchend', (event) => {
-                event.stopPropagation();
-                event.preventDefault();
-                clickLogic(gap);
-            });
-        });
-
-        pageGaps.forEach(gap => {
-            gap.addEventListener('click', (event) => {
-                event.stopPropagation();
-                clickLogic(gap);
-            });
-        });
     }
 
-    function clickLogic(gap) {
-        if (!presenter.isShowAnswersActive) {
+    function handleValueChangedEvent (eventData) {
+        const moduleType = eventData.moduleType;
+        if (moduleType && SUPPORTED_MODULES_TYPES.includes(moduleType)) {
             checkCorrectnessOfAnswers();
 
-            const pageGaps = findCurrentPageGaps().toArray();
+            const gapData = findGapThatSentValueChangedEvent(eventData);
+            if (!gapData.gap || gapData.relativeIndex === -1) {
+                return;
+            }
 
-            const elementIndex = pageGaps.indexOf(gap.id);
-            const item = elementIndex !== -1 ? elementIndex : '';
-            const score = gapsIDsWithCorrectAnswer.includes(gap.id) ? 1 : 0;
-            const value = '';
+            const item = gapData.relativeIndex !== -1 ? gapData.relativeIndex : '';
+            const score = isCorrectAnswerInGap(gapData.gap.id) ? 1 : 0;
+            const value = eventData.value ? eventData.value : '';
 
-            const eventData = presenter.createEventData(item, value, score);
-            presenter.eventBus.sendEvent('ValueChanged', eventData);
+            const newEventData = presenter.createEventData(item, value, score);
+            presenter.eventBus.sendEvent('ValueChanged', newEventData);
 
             if (presenter.isAllOK()) {
-                sendAllOKEvent();
+                presenter.sendAllOKEvent();
             }
         }
     }
+
+    function findGapThatSentValueChangedEvent(eventData) {
+        const notFoundResponse = {
+            gap: undefined,
+            relativeIndex: -1,
+        }
+
+        if (eventData.source === undefined || eventData.item === undefined) {
+            return notFoundResponse;
+        }
+
+        const moduleIndex = presenter.modulesIDs.findIndex(moduleID => moduleID === eventData.source);
+        if (moduleIndex === -1) {
+            return notFoundResponse;
+        }
+
+        const foundGaps = findModuleGaps(eventData.source);
+        const itemIndex = parseInt(eventData.item, 10) - 1;
+        if (itemIndex < 0 || itemIndex >= foundGaps.length) {
+            return notFoundResponse;
+        }
+
+        let relativeIndex = 1;
+        for (let i = 0, moduleGaps; i < moduleIndex; i++) {
+            moduleGaps = findModuleGaps(presenter.modulesIDs[i]);
+            relativeIndex += moduleGaps.length;
+        }
+        relativeIndex += itemIndex;
+
+        return {
+            gap: foundGaps[itemIndex],
+            relativeIndex,
+        };
+    }
+
+    function findModuleGaps(moduleID, toArray = true) {
+        const module = getModule(moduleID);
+        const $moduleView = $(module.getView());
+        const $foundGaps = findGaps($moduleView);
+        if (toArray) {
+            return $foundGaps.toArray();
+        }
+        return $foundGaps;
+    }
+
+    function getModule(moduleID) {
+        return presenter.playerController.getModule(moduleID);
+    }
+
+    function findCurrentPageGaps() {
+        const $pageView = $('html');
+        return findGaps($pageView);
+    }
+
+    function findGaps($view) {
+        return $view.find('.ic_gap, .gapFilled, .ic_gap-empty, .ic_filled_gap,  .ic_draggableGapFilled, .ic_draggableGapEmpty');
+    }
+
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.hideAnswers();
+        presenter.setWorkMode();
+    };
+
+    presenter.getState = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    };
 
     return presenter;
 }

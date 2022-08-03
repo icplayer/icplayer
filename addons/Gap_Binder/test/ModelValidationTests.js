@@ -1,4 +1,4 @@
-TestCase("[Gap Binder] Model Validation", {
+TestCase("[Gap Binder] Model Validation tests", {
     setUp: function () {
         this.presenter = AddonGap_Binder_create();
         this.$testHTML = $('<div>'+
@@ -14,8 +14,7 @@ TestCase("[Gap Binder] Model Validation", {
                 }
             ]
         };
-        this.presenter.setModulesIDs(this.model.Items);
-        this.presenter.setAnswers(this.model.Items);
+        this.presenter.readModelItems(this.model.Items);
 
         $('body').append(this.$testHTML);
     },
@@ -24,13 +23,13 @@ TestCase("[Gap Binder] Model Validation", {
         this.$testHTML.remove();
     },
 
-    'test given correct model when validateModel is called return configuration without error': function () {
+    'test given correct model when validateModel is called then return configuration without error': function () {
         let configuration = this.presenter.validateModel(this.model);
 
         assertFalse(configuration.isError);
     },
 
-    'test given model with to many items when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with to many items when validateModel is called then return configuration with error and correct error code': function () {
         this.model = {
             Items: [
                 {
@@ -43,8 +42,7 @@ TestCase("[Gap Binder] Model Validation", {
                 }
             ]
         };
-        this.presenter.setModulesIDs(this.model.Items);
-        this.presenter.setAnswers(this.model.Items);
+        this.presenter.readModelItems(this.model.Items);
 
         let configuration = this.presenter.validateModel(this.model);
 
@@ -52,12 +50,11 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_NUMBER_ITEMS', configuration.errorCode);
     },
 
-    'test given model with 0 items when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with 0 items when validateModel is called then return configuration with error and correct error code': function () {
         this.model = {
             Items: []
         };
-        this.presenter.setModulesIDs(this.model.Items);
-        this.presenter.setAnswers(this.model.Items);
+        this.presenter.readModelItems(this.model.Items);
 
         let configuration = this.presenter.validateModel(this.model);
 
@@ -65,7 +62,7 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_NUMBER_ITEMS', configuration.errorCode);
     },
 
-    'test given model with incorrect module when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with incorrect module when validateModel is called then return configuration with error and correct error code': function () {
         this.presenter.modulesIDs = ["Text12"];
         this.model.Items[0].Module = "Text12";
 
@@ -75,7 +72,7 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_ID', configuration.errorCode);
     },
 
-    'test given model with empty module when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with empty module when validateModel is called then return configuration with error and correct error code': function () {
         this.presenter.modulesIDs = [""];
         this.model.Items[0].Module = "";
 
@@ -85,7 +82,7 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_NULL', configuration.errorCode);
     },
 
-    'test given model with empty Answers when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with empty Answers when validateModel is called then return configuration with error and correct error code': function () {
         this.model.Items[0].Answers = "";
 
         let configuration = this.presenter.validateModel(this.model);
@@ -94,9 +91,9 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_NULL', configuration.errorCode);
     },
 
-    'test given model with too many values in Answers when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with too many values in Answers when validateModel is called then return configuration with error and correct error code': function () {
         this.model.Items[0].Answers = "ans1\nans2\nans3\nans4";
-        this.presenter.setAnswers(this.model.Items);
+        this.presenter.readModelItems(this.model.Items);
 
         let configuration = this.presenter.validateModel(this.model);
 
@@ -104,9 +101,9 @@ TestCase("[Gap Binder] Model Validation", {
         assertEquals('INVALID_NUMBER_GAP', configuration.errorCode);
     },
 
-    'test given model with too few values in Answers when validateModel is called return configuration with error and correct error code': function () {
+    'test given model with too few values in Answers when validateModel is called then return configuration with error and correct error code': function () {
         this.model.Items[0].Answers = "ans1\nans2";
-        this.presenter.setAnswers(this.model.Items);
+        this.presenter.readModelItems(this.model.Items);
 
         let configuration = this.presenter.validateModel(this.model);
 

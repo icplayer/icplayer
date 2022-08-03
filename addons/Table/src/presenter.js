@@ -1093,6 +1093,14 @@ function AddonTable_create() {
             presenter.isShowAnswersActive = true;
             presenter.isSetShowErrorsMode = false;
             presenter.renderMathJax();
+        } else {
+            if (presenter.isSetShowErrorsMode) {
+				presenter.setWorkMode();
+
+				if (isConnectedWithMath) {
+					presenter.disableAllGaps();
+				}
+			}
         }
     };
 
@@ -1103,7 +1111,7 @@ function AddonTable_create() {
 
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             presenter.gapsContainer.hideAnswers();
-            if(isConnectedWithMath){
+            if (isConnectedWithMath){
                 presenter.gapsContainer.unlockAllGaps();
             }
             presenter.isShowAnswersActive = false;
