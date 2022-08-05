@@ -1144,6 +1144,7 @@ var ice_dictionary_bl = {
 	"Puzzle_property_columns": "Колони",
 	"Puzzle_property_rows": "Редове",
 	"Puzzle_property_image": "Изображение",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info": "Включването на бутона ви позволява да извършвате различни дейности в презентациите, като например да променяте състоянието на други плъгини.",
 	"Single_State_Button_name": "Бутон за еднакво състояние",
 	"Single_State_Button_property_title": "Заглавие",
@@ -1954,6 +1955,7 @@ var ice_dictionary_bl = {
 	"Hierarchical_Table_Of_Contents_speech_text_chapter" : "Chapter",
 	"Hierarchical_Table_Of_Contents_speech_text_expanded" : "Expanded",
 	"Hierarchical_Table_Of_Contents_speech_text_collapsed" : "Collapsed",
+	"Hierarchical_Table_Of_Contents_property_expand_depth": "Depth of expand",
     "Catch_info": "Простичка игра за събиране на падащи предмети в три нива",
     "Catch_name": "Игра 'Събери'",
     "Catch_property_items": "Елементи",
@@ -2333,6 +2335,7 @@ var ice_dictionary_bl = {
     "Automatic_Feedback_property_incorrect_feedback": "Incorrect feedback",
     "Automatic_Feedback_property_empty_feedback": "Empty feedback",
     "Automatic_Feedback_property_partial_feedback": "Partially correct feedback",
+    "Automatic_Feedback_property_reset_response_on_page_change": "Reset response on page change",
     "Automatic_Feedback_property_activity_item": "Activity item",
     "Automatic_Feedback_property_feedback": "Feedback",
     "Automatic_Feedback_property_display_mode": "Display mode",
@@ -2344,5 +2347,10 @@ var ice_dictionary_bl = {
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
 	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
 	"Finish_updating_lesson_addons": "Finish updating the text speech",
-	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured",
+	"Gap_Binder_name": "Gap Binder",
+	"Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
+	"Gap_Binder_property_items": "Items",
+	"Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
+	"Gap_Binder_property_answers": "Answers"
 };
