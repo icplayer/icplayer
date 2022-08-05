@@ -1,4 +1,8 @@
-2022-07-27 Added new method setGapText to the Text module
+2022-08-05 Added new method setGapText to the Text module
+2022-08-05 Fixed Paragraph not hiding editable placeholder content
+2022-08-05 Fixed XLIFF export not working with Hierarchical Lesson Report and Catch modules
+2022-08-05 Added option of reading individual sentences with TTS
+2022-08-03 Added gap binder addon
 2022-07-26 Fixed Math hiding answers on getState call
 2022-07-26 Fixed Paragraph hiding answers on getState call
 2022-07-25 Fixed Double State Button not calling events when placed in dynamic dom elements
