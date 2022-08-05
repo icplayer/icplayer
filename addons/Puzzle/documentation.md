@@ -24,6 +24,10 @@ A Puzzle module allows you to insert a puzzle game into a presentation. It is en
         <td>Rows</td>
         <td>Number of rows. Required for Addon to work</td>
     </tr>
+    <tr>
+        <td>Is Not Activity</td>
+        <td>Defines if the addon is NOT an activity, which means that it won't be taken into consideration when checking correctness.</td>
+    </tr>
 </table>
 
 ## Supported commands

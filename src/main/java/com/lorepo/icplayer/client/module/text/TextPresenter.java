@@ -5,6 +5,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -352,7 +354,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-		        view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
+				view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
 		resetAudio();
 		this.view.setShowErrorsMode();
@@ -390,17 +392,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		state.put("isVisible", Boolean.toString(isVisible));
 
 		if (JSONUtils.toJSONString(view.getDroppedElements()) != null) {
-    		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
+			state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 		}
 
-        HashMap<String, String> hasBeenAccessed = new HashMap<String, String>();
+		HashMap<String, String> hasBeenAccessed = new HashMap<String, String>();
 		for (int i=0; i < view.getChildrenCount(); i++) {
-		    if (view.getChild(i) instanceof GapWidget) {
-                GapWidget gw = (GapWidget) view.getChild(i);
-                if (gw.hasGapBeenAccessed()) {
-                    hasBeenAccessed.put(gw.getId(), "true");
-                }
-		    }
+			if (view.getChild(i) instanceof GapWidget) {
+				GapWidget gw = (GapWidget) view.getChild(i);
+				if (gw.hasGapBeenAccessed()) {
+					hasBeenAccessed.put(gw.getId(), "true");
+				}
+			}
 		}
 		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
@@ -461,13 +463,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (state.containsKey("droppedElements")){
 			droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
 			if(droppedElements != null){
-	            for (String key: droppedElements.keySet()) {
-	                String value = droppedElements.get(key);
-	                if (value != null) {
-	                    view.setDroppedElements(key, value);
-	                }
-	            }
-	        }
+				for (String key: droppedElements.keySet()) {
+					String value = droppedElements.get(key);
+					if (value != null) {
+						view.setDroppedElements(key, value);
+					}
+				}
+			}
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
@@ -478,16 +480,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.hide();
 		}
 
-        HashMap<String, String> hasBeenAccessed = null;
+		HashMap<String, String> hasBeenAccessed = null;
 		if (state.containsKey("hasBeenAccessed")) {
-		    hasBeenAccessed = JSONUtils.decodeHashMap(state.get("hasBeenAccessed"));
+			hasBeenAccessed = JSONUtils.decodeHashMap(state.get("hasBeenAccessed"));
 			if(hasBeenAccessed != null){
-			    for (String key: hasBeenAccessed.keySet()) {
-			        String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
-			        GapWidget gw = getGapWidgetFromGapId(newKey);
-			        gw.markGapAsAccessed();
-                    restoreGapVisitedState(newKey);
-			    }
+				for (String key: hasBeenAccessed.keySet()) {
+					String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+					GapWidget gw = getGapWidgetFromGapId(newKey);
+					gw.markGapAsAccessed();
+					restoreGapVisitedState(newKey);
+				}
 			}
 		}
 	}
@@ -640,7 +642,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return values.get(id) == null ? "" : values.get(id).trim();
 	}
 
-     private String getElementText(GapInfo gap) {
+	 private String getElementText(GapInfo gap) {
 		String userAnswer =  getElementText(gap.getId());
 		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
 			userAnswer = gap.getPlaceHolder();
@@ -747,7 +749,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			@Override
 			public void onGapFocused(String gapId, Element element) {
-                markGapAsAccessed(gapId);
+				markGapAsAccessed(gapId);
 				gapFocused(gapId, element);
 			}
 
@@ -901,7 +903,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		view.refreshGapMath(gapId);
-    }
+	}
 
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);
@@ -923,10 +925,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	protected void markGapAsAccessed(String gapId) {
-        GapWidget gw = getGapWidgetFromGapId(gapId);
-        if (!gw.hasGapBeenAccessed()) {
-            gw.markGapAsAccessed();
-        }
+		GapWidget gw = getGapWidgetFromGapId(gapId);
+		if (!gw.hasGapBeenAccessed()) {
+			gw.markGapAsAccessed();
+		}
 	}
 
 	private native String replaceNumbersOnly(String value) /*-{
@@ -989,18 +991,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void restoreGapVisitedState(String gapId) {
 	   InputElement input = DOM.getElementById(gapId).cast();
 	   String enteredValue = input.getValue();
-       GapInfo gap = getGapInfoById(gapId);
-       String placeholder = gap.getPlaceHolder();
+	   GapInfo gap = getGapInfoById(gapId);
+	   String placeholder = gap.getPlaceHolder();
 
-       if (!enteredValue.equals(placeholder)) {
-           return;
-       }
+	   if (!enteredValue.equals(placeholder)) {
+		   return;
+	   }
 
 	   if (module.ignoreDefaultPlaceholderWhenCheck()) {
 		   input.setValue(placeholder);
-       } else {
-           input.setValue("");
-       }
+	   } else {
+		   input.setValue("");
+	   }
 	}
 
 	private GapInfo getGapInfoById(String gapId) {
@@ -1207,6 +1209,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapAnswer(ILjava/lang/String;)(gapId, answer);
 		}
 
+		presenter.setGapText = function(gapIndex, text) {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapText(ILjava/lang/String;)(gapIndex, text);
+		}
+
 		presenter.getGapValue = function(gapId) {
 			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getGapText(I)(gapId);
 		};
@@ -1390,6 +1396,68 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		isMathShowAnswersActive = false;
+	}
+
+	private void setGapText(int gapIndex, String text) {
+		if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
+			String gapID = this.getGapID(gapIndex);
+			view.setValue(gapID, text);
+			view.refreshMath();
+			values.put(gapID, text);
+			fireItemConsumedEvent();
+		}
+	}
+
+	private String getGapID(int index) {
+		ArrayList<String> orderedGapsID = this.getOrderedGapsID();
+
+		if (orderedGapsID.size() < index) return "";
+
+		return orderedGapsID.get(index - 1);
+	}
+
+	private ArrayList<String> getOrderedGapsID() {
+		final String pattern = 	"id=\"(.*?)\"";
+		final String patternClass = "class=\"(.*?)\"";
+		RegExp regExp = RegExp.compile(pattern);
+		MatchResult matchResult;
+		String HTML = view.getHTML();
+		ArrayList<String> gapsID = new ArrayList<String>();
+
+		while ((matchResult = regExp.exec(HTML)) != null) {
+			if (matchResult.getGroupCount() <= 0) {
+				return gapsID;
+			}
+
+			String group = matchResult.getGroup(0);
+			String gapClass = getGapClass(HTML);
+			group = group
+				.replace("id=\"", "")
+				.replace("\"", "");
+			
+			if (!gapClass.contains("pageLink")) gapsID.add(group);
+			
+			HTML = HTML
+				.replaceFirst(pattern, "")
+				.replaceFirst(patternClass, "");
+		}
+
+		return gapsID;
+	}
+
+	private String getGapClass(String HTML) {
+		final String patternClass = "class=\"(.*?)\"";
+		RegExp regExp = RegExp.compile(patternClass);
+		MatchResult matchResult = regExp.exec(HTML);
+
+		if (matchResult == null || matchResult.getGroupCount() <= 0) return "";
+
+		String gapClass = matchResult.getGroup(0);
+		gapClass = gapClass
+			.replace("class=\"", "")
+			.replace("\"", "");
+
+		return gapClass;
 	}
 
 	private boolean isGapAttempted(int index) {
@@ -1608,23 +1676,23 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private GapWidget getGapWidgetFromGapId(String gapId) {
-	    GapWidget gw = null;
-	    for (int i=0; i < view.getChildrenCount(); i++) {
-	        TextElementDisplay child = view.getChild(i);
-            if (gapId.equalsIgnoreCase(child.getId()) && child instanceof GapWidget ) {
-	            gw = (GapWidget) view.getChild(i);
-	            break;
-	        }
-	    }
+		GapWidget gw = null;
+		for (int i=0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			if (gapId.equalsIgnoreCase(child.getId()) && child instanceof GapWidget ) {
+				gw = (GapWidget) view.getChild(i);
+				break;
+			}
+		}
 
-        return gw;
+		return gw;
 	}
 
 	private boolean isGapCheckable(GapInfo gap) {
-	    GapWidget gw = getGapWidgetFromGapId(gap.getId());
-	    if (gw == null) {
-	        return true;
-	    }
-	    return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+		GapWidget gw = getGapWidgetFromGapId(gap.getId());
+		if (gw == null) {
+			return true;
+		}
+		return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
 	}
 }
