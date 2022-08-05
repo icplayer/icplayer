@@ -184,23 +184,26 @@ function AddonParagraph_create() {
         }
     }
 
-    presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
-        presenter.disableEdit();
-        $(elements).each(function () {
-            let paragraph = $(this)[0];
-            presenter.cachedAnswer.push(paragraph.innerHTML);
-            paragraph.innerHTML = "";
-        });
-    };
+    presenter.showAnswers = function () {
+        if (presenter.isShowAnswersActive) return;
 
-    presenter.showAnswers = function (index) {
-        if (presenter.isShowAnswersActive) { return; }
-
-        var elements = presenter.getParagraphs();
+        const elements = presenter.getParagraphs();
         presenter.initializeShowAnswers(elements);
 
         elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
         presenter.isShowAnswersActive = true;
+    };
+
+    presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
+        presenter.disableEdit();
+        presenter.cacheAnswersAndClearParagraphs(elements);
+    };
+
+    presenter.cacheAnswersAndClearParagraphs = function (elements) {
+        $(elements).each((index, element) => {
+            presenter.cachedAnswer.push(element.innerHTML);
+            element.innerHTML = "";
+        })
     };
 
     function combineAnswers(answersArray) {
@@ -215,7 +218,7 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
-        var elements = presenter.getParagraphs();
+        const elements = presenter.getParagraphs();
 
         presenter.enableEdit();
         presenter.isShowAnswersActive = false;
@@ -236,7 +239,7 @@ function AddonParagraph_create() {
         presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) { return; }
 
-        var elements = presenter.getParagraphs();
+        const elements = presenter.getParagraphs();
         if (!presenter.isGradualShowAnswersActive) {
             presenter.initializeShowAnswers(elements);
             presenter.isGradualShowAnswersActive = true;
@@ -262,11 +265,11 @@ function AddonParagraph_create() {
     };
 
     presenter.getParagraphs = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper"),
-            iframe = paragraph.find("iframe"),
-            body = $(iframe).contents().find("#tinymce");
+        const $paragraph = presenter.$view.find(".paragraph-wrapper"),
+            $iframe = $paragraph.find("iframe"),
+            $iframeBody = $iframe.contents().find("#tinymce");
 
-        return body.find("p");
+        return $iframeBody.children();
     }
 
     presenter.run = function AddonParagraph_run(view, model) {
@@ -1001,8 +1004,10 @@ function AddonParagraph_create() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
-                if (presenter.isShowAnswersActive) presenter.hideAnswers();
+                const isShowAnswersActive = presenter.isShowAnswersActive;
+                if (isShowAnswersActive) presenter.hideAnswers();
                 tinymceState = presenter.editor.getContent({format : 'raw'});
+                if (isShowAnswersActive) presenter.showAnswers();
             }catch(err) {
                 return  presenter.state;
             }

@@ -65,6 +65,36 @@ public class TextToSpeechAPI {
 	}
 }-*/;
 
+	public static native void playNextSentence (JavaScriptObject obj) /*-{
+		try {
+			if (obj && obj.readNextSavedSentence) {
+				obj.readNextSavedSentence();
+			}
+		} catch(err) {
+			alert("[TextToSpeech1] Exception in playNextSentence(): \n" + err);
+		}
+	}-*/;
+
+	public static native void playPrevSentence (JavaScriptObject obj) /*-{
+		try {
+			if (obj && obj.readPrevSavedSentence) {
+				obj.readPrevSavedSentence();
+			}
+		} catch(err) {
+			alert("[TextToSpeech1] Exception in playPrevSentence(): \n" + err);
+		}
+	}-*/;
+
+	public static native void saveNextSentences (JavaScriptObject obj) /*-{
+		try {
+			if (obj && obj.setSaveNextSentences) {
+				obj.setSaveNextSentences(true);
+			}
+		} catch(err) {
+			alert("[TextToSpeech1] Exception in saveNextSentences(): \n" + err);
+		}
+	}-*/;
+
 	public static native JsArrayString getModulesOrder (JavaScriptObject obj) /*-{
 		try {
 			if (obj && obj.getModulesOrder) {
