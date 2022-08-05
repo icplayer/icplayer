@@ -20,6 +20,7 @@
 			<property name="ActivityItem" nameLabel="Automatic_Feedback_property_activity_item" type="string" />
 			<property name="Feedback" nameLabel="Automatic_Feedback_property_feedback" type="html" />
 		</property>
+		<property name="ResetResponseOnPageChange" nameLabel="Automatic_Feedback_property_reset_response_on_page_change" type="boolean" />
 		<property name="Display" nameLabel="Automatic_Feedback_property_display_mode" type="{block,tooltips,popup}" />
 		<property name="DisplayFeedbackButtons" nameLabel="Automatic_Feedback_property_display_feedback_buttons" type="boolean" />
 		<property name="ReactTo" nameLabel="Automatic_Feedback_property_react_to" type="{Check,ValueChanged,Script}" />

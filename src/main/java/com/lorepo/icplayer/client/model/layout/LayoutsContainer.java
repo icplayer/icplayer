@@ -94,6 +94,16 @@ public class LayoutsContainer {
 		return "";
 	}
 
+	public String getLayoutNameByID(String layoutID) {
+		for(PageLayout pageLayout : this.layoutsMap.values()) {
+			if (pageLayout.getID().equals(layoutID)) {
+				return pageLayout.getName();
+			}
+		}
+		
+		return "";
+	}
+
 	public JavaScriptObject toJS() {
 		JavaScriptObject hashmap = JavaScriptUtils.createJSObject();
 		for(PageLayout pageLayout : this.layoutsMap.values()) {

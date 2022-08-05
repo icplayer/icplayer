@@ -146,13 +146,13 @@ function AddonDouble_State_Button_create(){
     }
 
     function handleMouseActions() {
-        var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+        const $element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
-        element.on('mousedown', mouseDownEventHandler);
-        element.on('click', clickEventHandler);
-		element.on('mouseup', mouseUpEventHandler);
+        $element.on('mousedown', (e) => mouseDownEventHandler(e));
+        $element.on('click', (e) => clickEventHandler(e));
+        $element.on('mouseup', (e) => mouseUpEventHandler(e));
 
-        element.hover(
+        $element.hover(
             function() {
                 $(this).removeClass(CSS_CLASSESToString());
                 $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED_MOUSE_HOVER : CSS_CLASSES.MOUSE_HOVER);

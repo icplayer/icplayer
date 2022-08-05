@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Gap_Binder' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Items" nameLabel="Gap_Binder_property_items" type='list'>
+            <property name="Modules" nameLabel="Gap_Binder_property_modules" type="string" />
+            <property name="Answers" nameLabel="Gap_Binder_property_answers" type="text" isLocalized="true" />
+        </property>
+    </model>
+</addon>
