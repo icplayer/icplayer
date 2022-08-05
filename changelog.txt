@@ -1,3 +1,4 @@
+2022-08-05 Fixed Paragraph not hiding editable placeholder content
 2022-08-05 Fixed XLIFF export not working with Hierarchical Lesson Report and Catch modules
 2022-08-05 Added option of reading individual sentences with TTS
 2022-08-03 Added gap binder addon
