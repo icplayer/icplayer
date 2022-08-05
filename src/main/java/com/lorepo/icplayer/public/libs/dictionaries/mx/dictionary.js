@@ -2327,5 +2327,10 @@ var ice_dictionary_mx = {
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
 	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
 	"Finish_updating_lesson_addons": "Finish updating the text speech",
-	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured",
+	"Gap_Binder_name": "Gap Binder",
+	"Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
+	"Gap_Binder_property_items": "Items",
+	"Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
+	"Gap_Binder_property_answers": "Answers"
 };

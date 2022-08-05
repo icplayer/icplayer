@@ -1,3 +1,4 @@
+2022-08-03 Added gap binder addon
 2022-07-26 Fixed Math hiding answers on getState call
 2022-07-26 Fixed Paragraph hiding answers on getState call
 2022-07-25 Fixed Double State Button not calling events when placed in dynamic dom elements
