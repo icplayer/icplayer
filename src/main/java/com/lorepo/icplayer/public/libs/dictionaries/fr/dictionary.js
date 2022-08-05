@@ -1271,6 +1271,7 @@ var ice_dictionary_fr = {
     "Puzzle_property_columns": "Colonnes",
     "Puzzle_property_rows": "Lignes",
     "Puzzle_property_image": "Image",
+    "Puzzle_property_is_not_activity": "Is Not Activity",
     "Single_State_Button_info": "Permet aux utilisateurs d'effectuer différentes actions dans les présentations, comme modifier l'état de certains modules externes quand le bouton est sélectionné.",
     "Single_State_Button_name": "Bouton à un état",
     "Single_State_Button_property_title": "Titre",

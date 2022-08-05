@@ -1271,6 +1271,7 @@ var ice_dictionary_mx = {
 	"Puzzle_property_columns": "Columnas",
 	"Puzzle_property_rows": "Filas",
 	"Puzzle_property_image": "Imagen",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info": "Permite a los usuarios realizar varias acciones, como cambiar los estados de otros addons al pulsar el botón.",
 	"Single_State_Button_name": "Botón simple",
 	"Single_State_Button_property_title": "Título",
