@@ -8,6 +8,7 @@ TestCase("[Paragraph] getState method", {
             }
         };
         this.presenter.hideAnswers = sinon.spy();
+        this.presenter.showAnswers = sinon.spy();
         this.stubs = {
             getContent: sinon.stub(this.presenter.editor, 'getContent')
         };
@@ -31,6 +32,14 @@ TestCase("[Paragraph] getState method", {
         this.presenter.getState();
 
         sinon.assert.calledOnce(this.presenter.hideAnswers);
+    },
+
+    'test given presenter with showAnswers active when getState called then showAnswers should be called': function () {
+        this.presenter.isShowAnswersActive = true;
+
+        this.presenter.getState();
+
+        sinon.assert.calledOnce(this.presenter.showAnswers);
     },
 
     'test getState for incomplete editor': function () {

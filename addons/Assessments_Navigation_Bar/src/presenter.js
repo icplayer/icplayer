@@ -122,9 +122,14 @@ function AddonAssessments_Navigation_Bar_create(){
          }
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
+        presenter.addEventListeners();
+    };
 
+    presenter.addEventListeners = function () {
         presenter.eventBus.addEventListener('PageLoaded', this);
         presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.changeToPage = function (index) {
@@ -1667,20 +1672,9 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     function areAllModulesAttempted(modules) {
-        if(modules.length == 0){
-            return false;
-        }
+        if(modules.length === 0) return false;
 
-        var areAllAttempted = true;
-
-        $.each(modules, function() {
-            if (!this.isAttempted()) {
-                areAllAttempted = false;
-                return false; // break;
-            }
-        });
-
-        return areAllAttempted;
+        return modules.every(module => module.isAttempted());
     }
 
     presenter.areAllModulesAttempted = function () {
@@ -1692,24 +1686,30 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.onEventReceived = function(eventName, eventData) {
-        if (eventName == 'PageLoaded' && presenter.configuration.addClassAreAllAttempted) {
+        switch (eventName) {
+            case "PageLoaded":
+                if (presenter.configuration.addClassAreAllAttempted) {
+                    presenter.areAllModulesAttempted();
+                }
+                break;
+            case "ValueChanged":
+                presenter.handleValueChanged(eventData);
+                break;
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.handleValueChanged = function (eventData) {
+        if (presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
             presenter.areAllModulesAttempted();
         }
-
-        if (eventName == "ValueChanged" && presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
-            presenter.areAllModulesAttempted();
-        }
-
-        if (eventName == "ValueChanged" && eventData.item == "Lesson Reset") {
+        if (eventData.item === "Lesson Reset") {
             presenter.navigationManager.removeBookmarksFromButtons();
-        }
-
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
         }
     };
 

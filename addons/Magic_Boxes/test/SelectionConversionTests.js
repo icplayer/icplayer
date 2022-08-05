@@ -1,4 +1,4 @@
-TestCase("Selection to array conversion", {
+TestCase("[Magic Boxes] Selection to array conversion", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },
