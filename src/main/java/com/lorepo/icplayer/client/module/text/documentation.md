@@ -1,4 +1,5 @@
 ## Description
+
 A text module enables to insert different parts of text into a presentation, including a type of task called "gap". A text gap consists of three activity types:
 
 * a **drop-down** gap which enables to choose answers from a drop-down menu,
@@ -46,6 +47,11 @@ It is possible to put definitions inside the Text module. To do it, use \\def{my
 It is possible to enter text into gaps using the eKeyboard module. 
 
 [See the documentation of eKeyboard module &raquo;](/doc/page/eKeyboard "eKeyboard")
+
+## Audio
+The text module also allows inserting simple audio controls. They add the possibility of playing and stopping a sound. Though there may be more than one audio in the text module, only one sound can be played simultaneously.  
+To add an audio control, use "Insert Audio" button on the toolbar of the text editor.  
+Adding the audio control is also possible using \audio{URL} syntax, where URL is the URL of the audio resource.
 
 
 ## Gap editor
@@ -107,6 +113,10 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
         <td>When this property is checked it means that letter case is important while giving answers.
         </td> 
     </tr>
+	<tr>
+       <td>Use numeric keyboard</td>
+        <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td> 
+	</tr>
     <tr>
         <td>Text</td>
         <td>This property serves for inserting text into a module. Here it is also possible to define different types of gaps together with the required answers.
@@ -179,6 +189,11 @@ This texts will be read by Text to Speech addon after a user performs an action.
         <td>getGapText</td>
         <td>index - 1-based index of gap in text</td> 
         <td>Returns gap text entered by user</td> 
+    </tr>
+    <tr>
+        <td>setGapText</td>
+        <td>index - 1-based index of gap in text</td> 
+        <td>Changes the text inside the gap</td> 
     </tr>
     <tr>
         <td>markGapAsCorrect</td>
