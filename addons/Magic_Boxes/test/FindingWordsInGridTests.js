@@ -1,4 +1,4 @@
-TestCase("Finding words in grid rows", {
+TestCase("[Magic Boxes] Finding words in grid rows", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
     },

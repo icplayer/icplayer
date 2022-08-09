@@ -165,7 +165,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-	public void outstretchHeight(int y, int height, boolean dontChangeModules) {
+	public void outstretchHeight(int y, int height, boolean dontChangeModules, String layoutName) {
 		// TODO Auto-generated method stub
 		
 	}

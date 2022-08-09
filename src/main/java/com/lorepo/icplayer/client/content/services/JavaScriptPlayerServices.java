@@ -204,11 +204,14 @@ public class JavaScriptPlayerServices {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::closePopup()();
 			};
 			
-			commands.outstretchHeight = function (y, height, dontMoveModules) {
+			commands.outstretchHeight = function (y, height, dontMoveModules, layoutName) {
 				if (dontMoveModules === undefined) {
 					dontMoveModules = false;
 				}
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(IILjava/lang/Boolean;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules));
+				if (layoutName === undefined) {
+					layoutName = "";
+				}
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::outstretchHeight(IILjava/lang/Boolean;Ljava/lang/String;)(y, height, @java.lang.Boolean::valueOf(Z)(dontMoveModules), layoutName);
 			};
 
 			commands.changeHeaderVisibility = function (isVisible) {
@@ -569,8 +572,8 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().closePopup();
 	}
 	
-	private void outstretchHeight(int y, int height, Boolean dontMoveModules) {
-		this.playerServices.outstretchHeight(y, height, dontMoveModules.booleanValue());
+	private void outstretchHeight(int y, int height, Boolean dontMoveModules, String layoutName) {
+		this.playerServices.outstretchHeight(y, height, dontMoveModules.booleanValue(), layoutName);
 	}
 	
 	private String getContentType(String href){

@@ -1093,6 +1093,14 @@ function AddonTable_create() {
             presenter.isShowAnswersActive = true;
             presenter.isSetShowErrorsMode = false;
             presenter.renderMathJax();
+        } else {
+            if (presenter.isSetShowErrorsMode) {
+                presenter.setWorkMode();
+                
+                if (isConnectedWithMath) {
+                    presenter.disableAllGaps();
+                }
+            }
         }
     };
 
@@ -1103,7 +1111,7 @@ function AddonTable_create() {
 
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             presenter.gapsContainer.hideAnswers();
-            if(isConnectedWithMath){
+            if (isConnectedWithMath){
                 presenter.gapsContainer.unlockAllGaps();
             }
             presenter.isShowAnswersActive = false;
@@ -1175,7 +1183,7 @@ function AddonTable_create() {
             value = value.replace(/\W/g, '');
         }
 
-        return value;
+        return value.trim();
     };
 
     presenter.GapUtils.prototype.isValueEmpty = function () {
