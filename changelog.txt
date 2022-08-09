@@ -1,4 +1,7 @@
 2022-08-09 Updated setGapText method to fix indexation
+2022-08-05 Removed static editor notification
+2022-08-05 Fixed getActivitiesCount method in Connection
+2022-08-05 Added IsNotActivity property to Puzzle
 2022-08-05 Added new method setGapText to the Text module
 2022-08-05 Fixed Paragraph not hiding editable placeholder content
 2022-08-05 Fixed XLIFF export not working with Hierarchical Lesson Report and Catch modules
