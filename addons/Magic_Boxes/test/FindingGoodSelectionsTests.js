@@ -147,7 +147,6 @@ TestCase("[Magic Boxes] Finding good selections in grid", {
             [true,  true,  false, true,  false],
             [true,  true,  true,  true,  false]
         ], answers = ["abc", "kr", "rs", "int", "plh"];
-        this.presenter.GSAcorrectAnswerLocations = new Array();
         for (var i in answers) {
             let ans = answers[i];
             this.presenter.GSAcorrectAnswerLocations[ans] = {
