@@ -7,6 +7,8 @@ function AddonMagic_Boxes_create() {
     var correctAnswers = [];
     var GSALetterCounter = 0;
     var usedGSAKeys = [];
+    presenter.answerWords = {};
+    presenter.GSAcorrectAnswerLocations = {};
     
 
     var gridContainerWrapper;
@@ -559,9 +561,20 @@ function AddonMagic_Boxes_create() {
         }
     };
 
+    presenter.initializeCorrectAnswerLocations = function () {
+        for(var i = 0; i< presenter.configuration.answers.length; i++){
+            presenter.answerWords[presenter.configuration.answers[i].toString().toLowerCase()] = {
+                row : [],
+                column : []
+            };
+            presenter.GSAcorrectAnswerLocations[presenter.configuration.answers[i].toString().toLowerCase()] = {
+                row : [],
+                column : []
+            };
+        }
+    };
+
     function presenterLogic(view, model, isPreview){
-        presenter.answerWords = {};
-        presenter.GSAcorrectAnswerLocations = {};
         presenter.view = view;
         presenter.$view = $(view);
         gridContainerWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}:first`);
@@ -574,20 +587,7 @@ function AddonMagic_Boxes_create() {
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         if(presenter.configuration.answers){
-            for(var i = 0; i< presenter.configuration.answers.length; i++){
-                presenter.answerWords[presenter.configuration.answers[i].toString().toLowerCase()] = {
-                    row : [],
-                    column : []
-                };
-            }
-        }
-        if(presenter.configuration.answers){
-            for(var i = 0; i< presenter.configuration.answers.length; i++){
-                presenter.GSAcorrectAnswerLocations[presenter.configuration.answers[i].toString().toLowerCase()] = {
-                    row : [],
-                    column : []
-                };
-            }
+            presenter.initializeCorrectAnswerLocations();
         }
 
         if(presenter.configuration.isError) {
@@ -805,95 +805,12 @@ function AddonMagic_Boxes_create() {
         var l;
 
         for (var i = 0; i < answers.length; i++) {
-            var answer = answers[i].toString();
+            var answer = answers[i].toString().toLowerCase();
 
-            // Horizontal words
-            for (var r = 0; r < grid.length; r++) {
-                var horizontalResult = presenter.isWordInRow(grid, r, answer);
-                for (var hr = 0; hr < horizontalResult.positions.length; hr++) {
-                    for (l = 0; l < answer.length; l++) {
-                        if(presenter.configuration.checkByWords){
-                            presenter.answerWords[answer.toLowerCase()].row.push(r);
-                            presenter.answerWords[answer.toLowerCase()].column.push(horizontalResult.positions[hr] + l);
-                        }
-
-                        if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
-                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(r);
-                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(horizontalResult.positions[hr] + l);
-                        }
-
-                        goodSelections.push({
-                            row: r,
-                            column: horizontalResult.positions[hr] + l
-                        });
-                    }
-                }
-            }
-
-            // Vertical words
-            for (var c = 0; c < grid[0].length; c++) {
-                var verticalResult = presenter.isWordInColumn(grid, c, answer);
-                for (var vr = 0; vr < verticalResult.positions.length; vr++) {
-                    for (l = 0; l < answer.length; l++) {
-                        if(presenter.configuration.checkByWords){
-                            presenter.answerWords[answer.toLowerCase()].row.push(verticalResult.positions[vr] + l);
-                            presenter.answerWords[answer.toLowerCase()].column.push(c);
-                        }
-
-                        if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
-                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(verticalResult.positions[vr] + l);
-                            presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(c);
-                        }
-
-                        goodSelections.push({
-                            row: verticalResult.positions[vr] + l,
-                            column: c
-                        });
-                    }
-                }
-            }
-
-            // Diagonal words
-            var diagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.NORMAL);
-            for (var dr = 0; dr < diagonalResult.positions.length; dr++) {
-                for (l = 0; l < answer.length; l++) {
-                    if(presenter.configuration.checkByWords){
-                        presenter.answerWords[answer.toLowerCase()].row.push(diagonalResult.positions[dr].row + l);
-                        presenter.answerWords[answer.toLowerCase()].column.push(diagonalResult.positions[dr].column + l);
-                    }
-
-                    if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
-                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(diagonalResult.positions[dr].row + l);
-                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(diagonalResult.positions[dr].column + l);
-                    }
-
-                    goodSelections.push({
-                        row: diagonalResult.positions[dr].row + l,
-                        column: diagonalResult.positions[dr].column + l
-                    });
-                }
-            }
-
-            // Reverse diagonal words
-            var reverseDiagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.REVERSED);
-            for (var rdr = 0; rdr < reverseDiagonalResult.positions.length; rdr++) {
-                for (l = 0; l < answer.length; l++) {
-                    if(presenter.configuration.checkByWords){
-                        presenter.answerWords[answer.toLowerCase()].row.push(reverseDiagonalResult.positions[rdr].row + l);
-                        presenter.answerWords[answer.toLowerCase()].column.push(reverseDiagonalResult.positions[rdr].column - l);
-                    }
-                    
-                    if(typeof(presenter.GSAcorrectAnswerLocations) !== 'undefined'){
-                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].row.push(reverseDiagonalResult.positions[rdr].row + l);
-                        presenter.GSAcorrectAnswerLocations[answer.toLowerCase()].column.push(reverseDiagonalResult.positions[rdr].column - l);
-                    }
-
-                    goodSelections.push({
-                        row: reverseDiagonalResult.positions[rdr].row + l,
-                        column: reverseDiagonalResult.positions[rdr].column - l
-                    });
-                }
-            }
+            goodSelections = presenter.findGoodHorizontalSelections(grid, answer, goodSelections);
+            goodSelections = presenter.findGoodVerticalSelections(grid, answer, goodSelections);
+            goodSelections = presenter.findGoodDiagonalSelections(grid, answer, goodSelections);
+            goodSelections = presenter.findGoodReverseDiagonalSelections(grid, answer, goodSelections);
         }
 
         var rows = grid.length;
@@ -901,6 +818,94 @@ function AddonMagic_Boxes_create() {
 
         return presenter.convertSelectionToArray(goodSelections, rows, columns);
     };
+
+    presenter.findGoodHorizontalSelections = function (grid, answer, goodSelections) {
+        for (var r = 0; r < grid.length; r++) {
+            var horizontalResult = presenter.isWordInRow(grid, r, answer);
+            for (var hr = 0; hr < horizontalResult.positions.length; hr++) {
+                for (l = 0; l < answer.length; l++) {
+                    if(presenter.configuration.checkByWords){
+                        presenter.answerWords[answer].row.push(r);
+                        presenter.answerWords[answer].column.push(horizontalResult.positions[hr] + l);
+                    }
+                    
+                    presenter.GSAcorrectAnswerLocations[answer].row.push(r);
+                    presenter.GSAcorrectAnswerLocations[answer].column.push(horizontalResult.positions[hr] + l);
+
+                    goodSelections.push({
+                        row: r,
+                        column: horizontalResult.positions[hr] + l
+                    });
+                }
+            }
+        }
+        return goodSelections;
+    }
+
+    presenter.findGoodVerticalSelections = function (grid, answer, goodSelections) {
+        for (var c = 0; c < grid[0].length; c++) {
+            var verticalResult = presenter.isWordInColumn(grid, c, answer);
+            for (var vr = 0; vr < verticalResult.positions.length; vr++) {
+                for (l = 0; l < answer.length; l++) {
+                    if(presenter.configuration.checkByWords){
+                        presenter.answerWords[answer].row.push(verticalResult.positions[vr] + l);
+                        presenter.answerWords[answer].column.push(c);
+                    }
+
+                    presenter.GSAcorrectAnswerLocations[answer].row.push(verticalResult.positions[vr] + l);
+                    presenter.GSAcorrectAnswerLocations[answer].column.push(c);
+
+                    goodSelections.push({
+                        row: verticalResult.positions[vr] + l,
+                        column: c
+                    });
+                }
+            }
+        }
+        return goodSelections;
+    }
+
+    presenter.findGoodDiagonalSelections = function (grid, answer, goodSelections) {
+        var diagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.NORMAL);
+        for (var dr = 0; dr < diagonalResult.positions.length; dr++) {
+            for (l = 0; l < answer.length; l++) {
+                if(presenter.configuration.checkByWords){
+                    presenter.answerWords[answer].row.push(diagonalResult.positions[dr].row + l);
+                    presenter.answerWords[answer].column.push(diagonalResult.positions[dr].column + l);
+                }
+
+                presenter.GSAcorrectAnswerLocations[answer].row.push(diagonalResult.positions[dr].row + l);
+                presenter.GSAcorrectAnswerLocations[answer].column.push(diagonalResult.positions[dr].column + l);
+
+                goodSelections.push({
+                    row: diagonalResult.positions[dr].row + l,
+                    column: diagonalResult.positions[dr].column + l
+                });
+            }
+        }
+        return goodSelections;
+    }
+
+    presenter.findGoodReverseDiagonalSelections = function (grid, answer, goodSelections) {
+        var reverseDiagonalResult = presenter.isWordOnDiagonals(grid, answer, presenter.DIAGONALS.REVERSED);
+        for (var rdr = 0; rdr < reverseDiagonalResult.positions.length; rdr++) {
+            for (l = 0; l < answer.length; l++) {
+                if(presenter.configuration.checkByWords){
+                    presenter.answerWords[answer].row.push(reverseDiagonalResult.positions[rdr].row + l);
+                    presenter.answerWords[answer].column.push(reverseDiagonalResult.positions[rdr].column - l);
+                }
+                    
+                presenter.GSAcorrectAnswerLocations[answer].row.push(reverseDiagonalResult.positions[rdr].row + l);
+                presenter.GSAcorrectAnswerLocations[answer].column.push(reverseDiagonalResult.positions[rdr].column - l);
+
+                goodSelections.push({
+                    row: reverseDiagonalResult.positions[rdr].row + l,
+                    column: reverseDiagonalResult.positions[rdr].column - l
+                });
+            }
+        }
+        return goodSelections;
+    }
 
     presenter.countScoreForWords = function () {
         var score = 0;
@@ -1192,19 +1197,19 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
+        if (eventName === "ShowAnswers") {
             presenter.showAnswers();
         }
 
-        if (eventName == "HideAnswers") {
+        if (eventName === "HideAnswers") {
             presenter.hideAnswers();
         }
 
-        if (eventName == "GradualShowAnswers") {
+        if (eventName === "GradualShowAnswers") {
             presenter.gradualShowAnswers();
         }
         
-        if (eventName == "GradualHideAnswers") {
+        if (eventName === "GradualHideAnswers") {
             presenter.gradualHideAnswers();
         }
     };
@@ -1267,7 +1272,7 @@ function AddonMagic_Boxes_create() {
             return presenter.configuration.answers.length;
         } else {
             goodSelectionIndexes = presenter.convertSelectionToIndexes(goodSelections, presenter.configuration.rows, presenter.configuration.columns);
-            var numberOfLetters = 0;
+            let numberOfLetters = 0;
             for (let i = 0; i < goodSelectionIndexes.length; i++) {
                 if (goodSelectionIndexes[i] == 1) numberOfLetters++;
             }
@@ -1337,68 +1342,52 @@ function AddonMagic_Boxes_create() {
         presenter.isShowAnswersActive = true;
         presenter.isGradualShowAnswersActive = true;
         presenter.isSelectionPossible = false;
-        
 
-        if (presenter.configuration.checkByWords){
-            presenter.showNextWord();
-        } else {
-            presenter.showNextLetter();
-        }
-    };
-
-    presenter.showNextWord = function () {
-        var columns = presenter.configuration.columns;
-
-        for (var key in presenter.GSAcorrectAnswerLocations){
+        for(var key in presenter.GSAcorrectAnswerLocations) {
             if (usedGSAKeys.includes(key)) {
                 continue;
-            } else {
+            } else if (presenter.configuration.checkByWords) {
                 usedGSAKeys.push(key);
             }
             if (!presenter.GSAcorrectAnswerLocations.hasOwnProperty(key)) continue;
-            var answer = presenter.GSAcorrectAnswerLocations[key];
 
-            var row = answer["row"];
-            var column = answer["column"];
-
-            if (row.length != column.length) continue;
-            for (let i = 0; i < row.length; i++){
-                let index = row[i] * columns + column[i];
-                var element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
-                element.addClass('selectable-element-show-answers');
-            }
-            break;
-        }
-    };
-
-    presenter.showNextLetter = function () {
-        var columns = presenter.configuration.columns;
-
-        for (var key in presenter.GSAcorrectAnswerLocations){
-            if (usedGSAKeys.includes(key)) {
-                continue;
-            }
-            if (!presenter.GSAcorrectAnswerLocations.hasOwnProperty(key)) continue;
-            var answer = presenter.GSAcorrectAnswerLocations[key];
-
-            var row = answer["row"];
-            var column = answer["column"];
-
-            if (row.length != column.length) continue;
+            let answer = presenter.GSAcorrectAnswerLocations[key];
+            let row = answer["row"];
+            let column = answer["column"];
+            if (row.length !== column.length) continue;
             
-            var element;
-            do {
-                let index = row[GSALetterCounter] * columns + column[GSALetterCounter];
-                element = gridContainerWrapper.find(".selectable-element:eq(" + index + ")");
-                GSALetterCounter++;
-            } while(element.hasClass("selectable-element-show-answers"));
-            element.addClass('selectable-element-show-answers');
+            presenter.configuration.checkByWords
+                    ? presenter.showNextWord(row, column)
+                    : presenter.showNextLetter(key, row, column);
 
-            if (GSALetterCounter == row.length) {
-                usedGSAKeys.push(key);
-                GSALetterCounter = 0;
-            }
             break;
+        }
+    };
+
+    presenter.showNextWord = function (row, column) {
+        const columns = presenter.configuration.columns;
+
+        for (let i = 0; i < row.length; i++){
+            let index = row[i] * columns + column[i];
+            let element = gridContainerWrapper.find(`.selectable-element:eq(${index})`);
+            element.addClass('selectable-element-show-answers');
+        }
+    };
+
+    presenter.showNextLetter = function (key, row, column) { 
+        const columns = presenter.configuration.columns;
+
+        var element;
+        do {
+            let index = row[GSALetterCounter] * columns + column[GSALetterCounter];
+            element = gridContainerWrapper.find(`.selectable-element:eq(${index})`);
+            GSALetterCounter++;
+        } while(element.hasClass("selectable-element-show-answers"));
+        element.addClass('selectable-element-show-answers');
+
+        if (GSALetterCounter === row.length) {
+            usedGSAKeys.push(key);
+            GSALetterCounter = 0;
         }
     };
 

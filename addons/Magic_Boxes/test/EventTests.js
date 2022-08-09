@@ -18,7 +18,7 @@ TestCase("[Magic_Boxes] Events tests", {
         this.presenter.gradualShowAnswers.restore();
     },
 
-    'test showAnswers event calls the right method': function () {
+    'test given showAnswers event then the right method is called': function () {
         var eventName = "ShowAnswers";
 
         this.presenter.onEventReceived(eventName);
@@ -26,7 +26,7 @@ TestCase("[Magic_Boxes] Events tests", {
         assertTrue(this.stubs.showAnswers.calledOnce);
     },
 
-    'test hideAnswers event calls the right method': function () {
+    'test given hideAnswers event then the right method is called': function () {
         var eventName = "HideAnswers";
 
         this.presenter.onEventReceived(eventName);
@@ -34,7 +34,7 @@ TestCase("[Magic_Boxes] Events tests", {
         assertTrue(this.stubs.hideAnswers.calledOnce);
     },
 
-    'test GSA event calls the right method': function () {
+    'test given GSA event then the right method is called': function () {
         var eventName = "GradualShowAnswers";
 
         this.presenter.onEventReceived(eventName);
@@ -42,7 +42,7 @@ TestCase("[Magic_Boxes] Events tests", {
         assertTrue(this.stubs.gradualShowAnswers.calledOnce);
     },
 
-    'test GHA event calls the right method': function () {
+    'test given GHA event then the right method is called': function () {
         var eventName = "GradualHideAnswers";
 
         this.presenter.onEventReceived(eventName);
