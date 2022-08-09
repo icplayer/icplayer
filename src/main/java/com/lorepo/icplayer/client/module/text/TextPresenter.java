@@ -1398,14 +1398,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isMathShowAnswersActive = false;
 	}
 
-  private void setGapText(int gapIndex, String text) {
-    if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
-      TextElementDisplay gap = view.getChild(gapIndex-1);
-      String gapID = gap.getId();
-      view.setValue(gapID, text);
-      view.refreshMath();
-      values.put(gapID, text);
-      fireItemConsumedEvent();
+	private void setGapText(int gapIndex, String text) {
+		if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
+			TextElementDisplay gap = view.getChild(gapIndex-1);
+			String gapID = gap.getId();
+			view.setValue(gapID, text);
+			view.refreshMath();
+			values.put(gapID, text);
+			fireItemConsumedEvent();
 		}
 	}
 
