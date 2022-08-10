@@ -4262,7 +4262,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _enableEventsHandling() {
             var _this7 = this;
 
-            var self = this;
             this.mediaNode.onloadstart = function () {
                 return _this7.onStartLoadingCallback();
             };
@@ -4276,11 +4275,15 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 return _this7._onPausedCallback();
             };
 
-            if (this._isMobileSafari() || this._isIosMlibro()) this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };else this.mediaNode.oncanplay = function () {
-                return _this7.onEndLoadingCallback();
-            };
+            if (this._isMobileSafari() || this._isIOSMlibro() || true) {
+                this.mediaNode.onloadedmetadata = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            } else {
+                this.mediaNode.oncanplay = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            }
         }
     }, {
         key: "_disableEventsHandling",
@@ -4323,9 +4326,10 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
         }
     }, {
-        key: "_isIosMlibro",
-        value: function _isIosMlibro() {
-            return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
+        key: "_isIOSMlibro",
+        value: function _isIOSMlibro() {
+            var browser = window.DevicesUtils.getBrowserVersion().toLowerCase();
+            return this.isMlibro && (window.MobileUtils.isSafariMobile(navigator.userAgent) || !!browser.match(/iPhone|iPad|iPod/i) && browser.indexOf("applewebkit") > -1);
         }
     }, {
         key: "_isNotOnlineResources",

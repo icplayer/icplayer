@@ -131,18 +131,16 @@ export class BasePlayer extends Player {
     }
 
     _enableEventsHandling() {
-        const self = this;
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobileSafari() || this._isIosMlibro())
-            this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };
-        else
+        if (this._isMobileSafari() || this._isIOSMlibro() || true) {
+            this.mediaNode.onloadedmetadata = () => this.onEndLoadingCallback();
+        } else  {
             this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
+        }
     }
 
     _disableEventsHandling() {
@@ -178,8 +176,13 @@ export class BasePlayer extends Player {
         return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
-    _isIosMlibro() {
-        return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
+    _isIOSMlibro() {
+        let browser = window.DevicesUtils.getBrowserVersion().toLowerCase();
+        return this.isMlibro
+            && (window.MobileUtils.isSafariMobile(navigator.userAgent)
+                || (!!browser.match(/iPhone|iPad|iPod/i)
+                    && browser.indexOf("applewebkit") > -1)
+            );
     }
 
     _isNotOnlineResources(source) {
