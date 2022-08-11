@@ -13,7 +13,6 @@
 
 div.addon-audio-playlist-controls {
     padding: 10px 25px;
-    height: 40px;
     position: relative;
     border: 1px solid black;
     border-radius: 30px;
@@ -38,7 +37,6 @@ button.audio-playlist-control-btn {
     cursor: pointer;
     border: 0;
     background-color: white;
-
 }
 
 button.audio-playlist-next-btn {
