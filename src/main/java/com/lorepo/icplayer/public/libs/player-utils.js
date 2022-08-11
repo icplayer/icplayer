@@ -78,7 +78,6 @@
                     paginatedResults[count] = {
                         "page_number": (i + 1),
                         "page_name": page.getName(),
-                        "page_id": page.getId(),
                         "score": Math.round(pageScaledScore * 100) / 100,
                         "absolute_score": score['score'],
                         "max_score": score['maxScore'],
