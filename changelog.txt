@@ -1,4 +1,3 @@
-2022-08-10 Added page_id to paginated score
 2022-08-05 Removed static editor notification
 2022-08-05 Fixed getActivitiesCount method in Connection
 2022-08-05 Added IsNotActivity property to Puzzle
