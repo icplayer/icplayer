@@ -1144,6 +1144,7 @@ var ice_dictionary_bl = {
 	"Puzzle_property_columns": "Колони",
 	"Puzzle_property_rows": "Редове",
 	"Puzzle_property_image": "Изображение",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info": "Включването на бутона ви позволява да извършвате различни дейности в презентациите, като например да променяте състоянието на други плъгини.",
 	"Single_State_Button_name": "Бутон за еднакво състояние",
 	"Single_State_Button_property_title": "Заглавие",
@@ -2074,7 +2075,6 @@ var ice_dictionary_bl = {
 	"Footer_none": "Без",
 	"Footer_default": "По подразбиране",
     "Cant_add_page_from_template": "Една от страниците на шаблона не успя да се зареди. Импортирането на шаблона е прекъснато.",
-	"header_footer_notification": "Нова функция! Сега можете да избирате различни горен или долен колонтитул <br/> за всяка страница на урока. След като поставите допълнителните горен или долен колонтитул <br/> в Commons, просто изберете подходяща настройка от Настройки на страницата.",
 	"dont_generate_correct_order": "Не генерирай правилната последователност",
 	"show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"alternative_text": "Алтернативен текст",
@@ -2346,5 +2346,10 @@ var ice_dictionary_bl = {
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
 	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
 	"Finish_updating_lesson_addons": "Finish updating the text speech",
-	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured",
+	"Gap_Binder_name": "Gap Binder",
+	"Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
+	"Gap_Binder_property_items": "Items",
+	"Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
+	"Gap_Binder_property_answers": "Answers"
 };

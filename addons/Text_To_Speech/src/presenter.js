@@ -17,6 +17,10 @@ function AddonText_To_Speech_create() {
 
     var presenter = function () {};
 
+    presenter.savedSentences = [];
+    presenter.savedSentencesIndex = -1;
+    presenter.saveNextSentences = false;
+
     presenter.messagesQueue = [];
 
     presenter.ERROR_CODES = {
@@ -442,6 +446,11 @@ function AddonText_To_Speech_create() {
     presenter.speakWithCallback = function (texts, callback) {
 
         texts = presenter.parseAltTexts(texts);
+        presenter.saveSentences(texts);
+        presenter.readText(texts, callback);
+    };
+
+    presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
@@ -543,6 +552,68 @@ function AddonText_To_Speech_create() {
             };
         });
     };
+
+    presenter.saveSentences = function(texts) {
+        if (!presenter.saveNextSentences) return;
+        presenter.saveNextSentences = false;
+        let textVoices = [];
+        for (let i = 0; i < texts.length; i++) {
+            let speechText = texts[i];
+            let splitSpeechTexts = speechText.text.split(/(.*?(?![0-9])[\.\!\?;](?![0-9]))/g);
+            for (let j = 0; j < splitSpeechTexts.length; j++) {
+                if(splitSpeechTexts[j].trim().length > 0) {
+                    textVoices.push(window.TTSUtils.getTextVoiceObject(splitSpeechTexts[j], speechText.lang));
+                }
+            }
+        }
+        if (!presenter.compareSentences(presenter.savedSentences, textVoices)) {
+            presenter.savedSentences = textVoices;
+            presenter.savedSentencesIndex = -1;
+        }
+    }
+
+    presenter.clearSavedSentences = function() {
+        presenter.savedSentences = [];
+        presenter.savedSentencesIndex = -1;
+        presenter.saveNextSentences = false;
+    }
+
+    presenter.setSaveNextSentences = function(value) {
+        presenter.saveNextSentences = value;
+    }
+
+    presenter.readNextSavedSentence = function() {
+        if (presenter.savedSentences.length == 0) {
+            presenter.savedSentencesIndex = -1;
+            return;
+        }
+        presenter.savedSentencesIndex += 1;
+        if (presenter.savedSentencesIndex >= presenter.savedSentences.length) presenter.savedSentencesIndex = presenter.savedSentences.length - 1;
+        presenter.readCurrentSavedSentence();
+    }
+
+    presenter.readPrevSavedSentence = function() {
+        if (presenter.savedSentences.length == 0) {
+            presenter.savedSentencesIndex = -1;
+            return;
+        }
+        presenter.savedSentencesIndex -= 1;
+        if (presenter.savedSentencesIndex < 0) presenter.savedSentencesIndex = 0;
+        presenter.readCurrentSavedSentence();
+    }
+
+    presenter.readCurrentSavedSentence = function() {
+        presenter.readText([presenter.savedSentences[presenter.savedSentencesIndex]], null);
+    }
+
+    presenter.compareSentences = function(sentences1, sentences2) {
+        if (sentences1.length != sentences2.length) return false;
+        for (var i = 0; i < sentences1.length; i++) {
+            if (sentences1[i].lang != sentences2[i].lang) return false;
+            if (sentences1[i].text != sentences2[i].text) return false;
+        }
+        return true;
+    }
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");

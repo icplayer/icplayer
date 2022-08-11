@@ -1271,6 +1271,7 @@ var ice_dictionary_fr = {
     "Puzzle_property_columns": "Colonnes",
     "Puzzle_property_rows": "Lignes",
     "Puzzle_property_image": "Image",
+    "Puzzle_property_is_not_activity": "Is Not Activity",
     "Single_State_Button_info": "Permet aux utilisateurs d'effectuer différentes actions dans les présentations, comme modifier l'état de certains modules externes quand le bouton est sélectionné.",
     "Single_State_Button_name": "Bouton à un état",
     "Single_State_Button_property_title": "Titre",
@@ -2071,7 +2072,6 @@ var ice_dictionary_fr = {
     "Footer_none": "None",
     "Footer_default": "Default",
     "Cant_add_page_from_template": "One of the pages from the template couldn't be loaded. Importing the template aborted.",
-    "header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
     "dont_generate_correct_order": "Don't generate correct order",
     "show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
     "alternative_text": "Alternative text",
@@ -2327,5 +2327,10 @@ var ice_dictionary_fr = {
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
 	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
 	"Finish_updating_lesson_addons": "Finish updating the text speech",
-	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured",
+    "Gap_Binder_name": "Gap Binder",
+    "Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
+    "Gap_Binder_property_items": "Items",
+    "Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
+    "Gap_Binder_property_answers": "Answers"
 };

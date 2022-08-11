@@ -1270,6 +1270,7 @@ var ice_dictionary_pl = {
 	"Puzzle_property_columns" : "Kolumny",
 	"Puzzle_property_rows" : "Rzędy",
 	"Puzzle_property_image" : "Obraz",
+	"Puzzle_property_is_not_activity": "Is Not Activity",
 	"Single_State_Button_info" : "Pozwala użytkownikom na wykonywanie różnych czynności w prezentacjach, jak np. zmiana stanu innych Addonów, gdy przycisk jest zaznaczony.",
 	"Single_State_Button_name" : "Przycisk jednostanowy",
 	"Single_State_Button_property_title": "Tytuł",
@@ -2026,7 +2027,6 @@ var ice_dictionary_pl = {
 	"Footer_none": "Brak",
 	"Footer_default": "Domyślny",
 	"Cant_add_page_from_template": "Jedna ze stron w szablonie nie mogła zostać wgrana. Import szablonu został przerwany.",
-	"header_footer_notification": "Nowa funkcja! Teraz można zdefiniować i wybrać inny nagłówek i stopkę <br/>dla każdej strony w lekcji. Po ustawieniu dodatkowych stron nagłówka/stopki w sekcji <br/>Wspólne, wystarczy zaznaczyć odpowiednią opcję we właściwościach strony.",
 	"Shooting_Range_info": "Addon ten pozwala na zaznaczenie (ustrzelenie) odpowiednich wartości, które przesuwają się na ekranie w określonym czasie.",
 	"Shooting_Range_name": "Strzelnica",
 	"Shooting_Range_property_definitions": "Definicje",
@@ -2326,5 +2326,10 @@ var ice_dictionary_pl = {
 	"Finish_creating_table_with_errors": "Finish creating the TTS table. Some errors have occured",
 	"Start_updating_lesson_addons": "Start updating the text speech each addons form the lesson",
 	"Finish_updating_lesson_addons": "Finish updating the text speech",
-	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured"
+	"Finish_updating_lesson_addons_with_errors": "Finish updating the text speech. Some errors have occured",
+	"Gap_Binder_name": "Gap Binder",
+	"Gap_Binder_info": "Gap Binder verifies the contents of the gaps in addons it's coupled with, marking them appropriately in check answers mode and displaying correct answers in show answers mode",
+	"Gap_Binder_property_items": "Items",
+	"Gap_Binder_property_modules": "Modules' IDs (Text or Table)",
+	"Gap_Binder_property_answers": "Answers"
 };
