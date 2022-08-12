@@ -1,4 +1,5 @@
-2022-08-11 Fixed the CSS class in AudioPlaylist breaking the appearance of addon
+2022-08-12 Fixed the CSS class in AudioPlaylist and MediaRecorder breaking the appearance of addon
+2022-08-11 Added GSA support to Magic Boxes
 2022-08-05 Removed static editor notification
 2022-08-05 Fixed getActivitiesCount method in Connection
 2022-08-05 Added IsNotActivity property to Puzzle
