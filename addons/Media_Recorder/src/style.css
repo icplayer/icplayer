@@ -13,7 +13,7 @@
 
 .media-recorder-wrapper .media-recorder-interface-wrapper {
     width: 300px;
-    height: 40px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     background-color: #EBEFF0;
