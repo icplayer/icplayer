@@ -1806,7 +1806,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var _this3 = this;
 
             this.mediaState.setRecording();
-            // this.player.startStreaming(stream);
             if (!this.model.disableRecording) {
                 this.recorder.startRecording(stream);
                 this.timer.reset();
