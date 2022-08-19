@@ -1,3 +1,4 @@
+2022-08-19 Fixed keyboard navigation throught link gaps
 2022-08-19 Updated setGapText method to fix indexation
 2022-08-19 Fixed not sending the "start" event the first time a recording is played in Media Recorder
 2022-08-19 Fixed displaying answers in Figure Drawing
