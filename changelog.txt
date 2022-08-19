@@ -1,3 +1,4 @@
+2022-08-19 Fixed not sending the "start" event the first time a recording is played in Media Recorder
 2022-08-19 Fixed displaying answers in Figure Drawing
 2022-08-18 Fixed bug with audio not playing properly on IOS WebView in Media Recorder
 2022-08-11 Added GSA support to Magic Boxes

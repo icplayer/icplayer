@@ -73,25 +73,6 @@ export class BasePlayer extends Player {
         });
     }
 
-    startStreaming(stream) {
-        this._disableEventsHandling();
-        setSrcObject(stream, this.mediaNode);
-        this.mediaNode.muted = true;
-        this.mediaNode.play();
-    }
-
-    stopStreaming() {
-        // for some reason Edge doesn't send pause event in stopPlaying
-        // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-        // same as above but with mLibro on android
-        if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
-            this.stopNextStopEvent = true;
-        }
-
-        this.stopPlaying();
-        this._enableEventsHandling();
-    }
-
     reset() {
         this._disableEventsHandling();
         this.mediaNode.src = "";
@@ -201,11 +182,7 @@ export class BasePlayer extends Player {
     }
 
     _onPausedCallback() {
-        if (this.stopNextStopEvent) {
-            this.stopNextStopEvent = false;
-        } else {
-            this._sendEventCallback('stop');
-        }
+        this._sendEventCallback('stop');
     }
 
     _sendEventCallback(value) {
