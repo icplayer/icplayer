@@ -1,4 +1,8 @@
-2022-08-17 Fixed keyboard navigation throught link gaps
+2022-08-19 Fixed keyboard navigation throught link gaps
+2022-08-19 Updated setGapText method to fix indexation
+2022-08-19 Fixed not sending the "start" event the first time a recording is played in Media Recorder
+2022-08-19 Fixed displaying answers in Figure Drawing
+2022-08-18 Fixed bug with audio not playing properly on IOS WebView in Media Recorder
 2022-08-11 Added GSA support to Magic Boxes
 2022-08-11 Fixed the CSS class in AudioPlaylist breaking the appearance of addon
 2022-08-05 Removed static editor notification
