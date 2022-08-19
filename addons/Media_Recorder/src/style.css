@@ -1,3 +1,7 @@
+.addon_Media_Recorder {
+    box-sizing: content-box;
+}
+
 .media-recorder-wrapper {
     position: absolute;
     width: auto;
