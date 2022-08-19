@@ -4235,7 +4235,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _enableEventsHandling() {
             var _this7 = this;
 
-            var self = this;
             this.mediaNode.onloadstart = function () {
                 return _this7.onStartLoadingCallback();
             };
@@ -4249,11 +4248,15 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 return _this7._onPausedCallback();
             };
 
-            if (this._isMobileSafari() || this._isIosMlibro()) this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };else this.mediaNode.oncanplay = function () {
-                return _this7.onEndLoadingCallback();
-            };
+            if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+                this.mediaNode.onloadedmetadata = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            } else {
+                this.mediaNode.oncanplay = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            }
         }
     }, {
         key: "_disableEventsHandling",
@@ -4289,6 +4292,17 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 playerMock.currentTime = 24 * 60 * 60; // fake big time
                 playerMock.volume = 0;
             });
+        }
+    }, {
+        key: "_isIOSWebViewUsingAppleWebKit",
+        value: function _isIOSWebViewUsingAppleWebKit() {
+            var userAgent = window.navigator.userAgent.toLowerCase(),
+                safari = /safari/.test(userAgent),
+                ios = /iphone|ipod|ipad/.test(userAgent),
+                appleWebKit = /applewebkit/.test(userAgent);
+            var webView = ios && !safari;
+
+            return webView && appleWebKit;
         }
     }, {
         key: "_isMobileSafari",

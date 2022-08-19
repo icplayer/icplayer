@@ -112,18 +112,16 @@ export class BasePlayer extends Player {
     }
 
     _enableEventsHandling() {
-        const self = this;
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobileSafari() || this._isIosMlibro())
-            this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };
-        else
+        if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+            this.mediaNode.onloadedmetadata = () => this.onEndLoadingCallback();
+        } else  {
             this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
+        }
     }
 
     _disableEventsHandling() {
@@ -153,6 +151,16 @@ export class BasePlayer extends Player {
                 playerMock.volume = 0;
             }
         )
+    }
+
+    _isIOSWebViewUsingAppleWebKit() {
+        const userAgent = window.navigator.userAgent.toLowerCase(),
+            safari = /safari/.test( userAgent ),
+            ios = /iphone|ipod|ipad/.test( userAgent ),
+            appleWebKit = /applewebkit/.test( userAgent );
+        const webView = ios && !safari;
+
+        return webView && appleWebKit;
     }
 
     _isMobileSafari() {
