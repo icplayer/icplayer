@@ -57,7 +57,7 @@ public class AssetsService implements IAssetsService {
 		Map<String, FileAsset> addedLibraries = new HashMap<String, FileAsset>();
 		for (IAsset asset : assets) {
 			String fileName = asset.getFileName();
-			if (fileName.endsWith(".min.js.txt")) {
+			if (fileName.endsWith(".min.js")) {
 				FileAsset fileAsset = new FileAsset(asset.getHref());
 				addedLibraries.put(fileName, fileAsset);
 			}
