@@ -253,7 +253,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
-	    this.previousSemiResponsiveLayoutID = this.semiResponsiveLayoutID;
+		this.previousSemiResponsiveLayoutID = this.semiResponsiveLayoutID;
 		this.semiResponsiveLayoutID = newLayoutID;
 	}
 

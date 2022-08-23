@@ -116,7 +116,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void setPage(Page page) {
-	    if (playerServiceImpl != null) {
+		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
 
@@ -140,51 +140,51 @@ public class PageController implements ITextToSpeechController, IPageController 
 		if (gradualShowAnswersService != null) {
 			gradualShowAnswersService.refreshCurrentPagePresenters();
 		}
-
-        if (this.isCurrentPageLayoutChanged()) {
-            this.removePreviousLayoutPageOutstretch();
-            this.addCurrentLayoutPageOutstretch();
+		
+		if (this.isCurrentPageLayoutChanged()) {
+			this.removePreviousLayoutPageOutstretch();
+			this.addCurrentLayoutPageOutstretch();
 		}
 	}
-
+	
 	private void removePreviousLayoutPageOutstretch() {
-	    String previousLayoutName = this.getCurrentPagePreviousLayoutName();
-        String layoutKey = this.getCurrentPageLayoutKey(previousLayoutName);
-
-        if (previousLayoutName.isEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
-		    return;
+		String previousLayoutName = this.getCurrentPagePreviousLayoutName();
+		String layoutKey = this.getCurrentPageLayoutKey(previousLayoutName);
+		
+		if (previousLayoutName.isEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
+			return;
 		}
-
-        OutstretchPageHeight parameter = this.contentModel.getOutstretchPage(layoutKey);
-        if (parameter.isOn()) {
-            this.outstretchHeight(
-                parameter.getStartingStretchPoint(),
-                -parameter.getValueOfStretching(),
-                parameter.shouldMoveModels(),
-                ""
-            );
-            parameter.setOff();
-        }
+		
+		OutstretchPageHeight parameter = this.contentModel.getOutstretchPage(layoutKey);
+		if (parameter.isOn()) {
+			this.outstretchHeight(
+				parameter.getStartingStretchPoint(),
+				-parameter.getValueOfStretching(),
+				parameter.shouldMoveModels(),
+				""
+			);
+			parameter.setOff();
+		}
 	}
-
+	
 	private void addCurrentLayoutPageOutstretch() {
 		String currentLayoutName = this.getCurrentPageCurrentLayoutName();
-        String layoutKey = this.getCurrentPageLayoutKey(currentLayoutName);
+		String layoutKey = this.getCurrentPageLayoutKey(currentLayoutName);
 
-        if (this.contentModel.isOutstretchPageDictionaryEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
-            return;
+		if (this.contentModel.isOutstretchPageDictionaryEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
+			return;
 		}
-
+		
 		OutstretchPageHeight parameter = contentModel.getOutstretchPage(layoutKey);
-        if (parameter.isOff()) {
-            this.outstretchHeight(
-                parameter.getStartingStretchPoint(),
-                parameter.getValueOfStretching(),
-                parameter.shouldMoveModels(),
-                ""
-            );
-            parameter.setOn();
-        }
+		if (parameter.isOff()) {
+			this.outstretchHeight(
+				parameter.getStartingStretchPoint(),
+				parameter.getValueOfStretching(),
+				parameter.shouldMoveModels(),
+				""
+			);
+			parameter.setOn();
+		}
 	}
 
 	public void sendResizeEvent() {
@@ -656,15 +656,15 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 	public void outstretchHeight(int y, int height, boolean dontMoveModules, String layoutName) {
 		String currentLayoutName = this.getCurrentPageCurrentLayoutName();
-
-        boolean succeededCommand = false;
+		
+		boolean succeededCommand = false;
 		if (currentLayoutName.equals(layoutName) || layoutName.isEmpty()) {
-		    this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
+			this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
 			this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 			this.playerController.fireOutstretchHeightEvent();
 			succeededCommand = true;
 		}
-
+		
 		this.updateOutstretchDictionary(y, height, dontMoveModules, succeededCommand, layoutName);
 	}
 
@@ -678,37 +678,37 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 		return false;
 	}
-
+	
 	private boolean isCurrentPageLayoutChanged() {
-	    return !this.getCurrentPageCurrentLayoutID().equals(this.getCurrentPagePreviousLayoutID());
+		return !this.getCurrentPageCurrentLayoutID().equals(this.getCurrentPagePreviousLayoutID());
 	}
-
+	
 	private String getCurrentPageCurrentLayoutName() {
 		String layoutID = this.getCurrentPageCurrentLayoutID();
 		return this.contentModel.getLayoutNameByID(layoutID);
 	}
-
+	
 	private String getCurrentPageCurrentLayoutID() {
 		return currentPage.getSemiResponsiveLayoutID();
 	}
-
+	
 	private String getCurrentPagePreviousLayoutName() {
 		String layoutID = this.getCurrentPagePreviousLayoutID();
 		if (layoutID.isEmpty()) {
-		    return null;
+			return null;
 		}
 		return this.contentModel.getLayoutNameByID(layoutID);
 	}
-
+	
 	private String getCurrentPagePreviousLayoutID() {
 		return currentPage.getPreviousSemiResponsiveLayoutID();
 	}
-
+	
 	private String getCurrentPageLayoutKey(String layoutName) {
 		String layoutKey = layoutName
 			.concat("_")
 			.concat(this.currentPage.getName().replaceAll(" ", "_"));
-        return layoutKey;
+		return layoutKey;
 	}
 
 	private void updateOutstretchDictionary(int y, int height, boolean dontMoveModules, boolean isOn, String layoutName) {
