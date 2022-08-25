@@ -254,13 +254,11 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public void load(Element node, String baseURL, String version) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSemiResponsiveLayoutID(String semiResponsiveLayoutID) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
