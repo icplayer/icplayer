@@ -1353,6 +1353,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "reset",
         value: function reset() {
             this.deactivate();
+            if (this.model.isResetRemovesRecording) {
+                this.resetRecording();
+            }
             this.activate();
             this.setVisibility(this.model["Is Visible"]);
             this._setEnableState(!this.model.isDisabled);
@@ -1360,6 +1363,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "resetRecording",
         value: function resetRecording() {
+            this.recordButton.reset();
             this.player.reset();
             this.addonState.reset();
             this.timer.reset();
@@ -1734,9 +1738,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.defaultRecordingPlayButton.onStopPlaying = function () {
                 if (_this2.player.hasRecording) {
-                    _this2.timer.setDuration(_this2.player.duration);
                     _this2.mediaState.setLoaded();
-                } else _this2.mediaState.setLoadedDefaultRecording();
+                    _this2.timer.setDuration(_this2.player.duration);
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
 
                 _this2.defaultRecordingPlayer.stopPlaying();
                 _this2.timer.stopCountdown();
@@ -1787,7 +1793,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.defaultRecordingPlayer.onEndLoading = function () {
-                if (_this2.player.hasRecording) _this2.mediaState.setLoaded();else _this2.mediaState.setLoadedDefaultRecording();
+                console.log("MediaState - " + _this2.mediaState._value);
+                if (_this2.player.hasRecording) {
+                    _this2.mediaState.setLoaded();
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
                 _this2.loader.hide();
             };
 
@@ -1860,28 +1871,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
-        key: "_stopRecordButton",
-        value: function _stopRecordButton() {
-            if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
-            } else {
-                this.recordButton.forceClick();
-            }
-        }
-    }, {
         key: "_stopActions",
         value: function _stopActions() {
             if (this.mediaState.isRecording()) {
-                this._stopRecordButton();
+                this.recordButton.forceClick();
             }
             if (this.mediaState.isPlaying()) {
                 this.playButton.forceClick();
             }
             if (this.mediaState.isPlayingDefaultRecording()) {
                 this.defaultRecordingPlayButton.forceClick();
-            }
-            if (this.model.isResetRemovesRecording) {
-                this.resetRecording();
             }
             if (this.mediaState.isLoaded()) {
                 this.timer.setTime(0);
@@ -4133,10 +4132,13 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             var _this2 = this;
 
             this.mediaNode.src = source;
+            this.hasRecording = true;
             this._getDuration().then(function (duration) {
                 _this2.onDurationChangeCallback(duration);
                 _this2.duration = duration;
                 _this2.hasRecording = true;
+            }).catch(function (e) {
+                _this2.hasRecording = false;
             });
         }
     }, {

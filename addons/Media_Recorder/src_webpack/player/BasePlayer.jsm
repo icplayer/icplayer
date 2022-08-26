@@ -22,11 +22,14 @@ export class BasePlayer extends Player {
 
     setRecording(source) {
         this.mediaNode.src = source;
+        this.hasRecording = true;
         this._getDuration()
             .then(duration => {
                 this.onDurationChangeCallback(duration);
                 this.duration = duration;
                 this.hasRecording = true;
+            }).catch(e => {
+                this.hasRecording = false
             });
     }
 

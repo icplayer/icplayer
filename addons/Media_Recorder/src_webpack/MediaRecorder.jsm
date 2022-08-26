@@ -203,12 +203,16 @@ export class MediaRecorder {
 
     reset() {
         this.deactivate();
+        if (this.model.isResetRemovesRecording) {
+            this.resetRecording();
+        }
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
         this._setEnableState(!this.model.isDisabled);
     }
 
     resetRecording() {
+        this.recordButton.reset();
         this.player.reset();
         this.addonState.reset();
         this.timer.reset();
@@ -566,10 +570,11 @@ export class MediaRecorder {
 
         this.defaultRecordingPlayButton.onStopPlaying = () => {
             if (this.player.hasRecording) {
-                this.timer.setDuration(this.player.duration);
                 this.mediaState.setLoaded();
-            } else
+                this.timer.setDuration(this.player.duration);
+            } else {
                 this.mediaState.setLoadedDefaultRecording();
+            }
 
             this.defaultRecordingPlayer.stopPlaying();
             this.timer.stopCountdown();
@@ -614,10 +619,11 @@ export class MediaRecorder {
         };
 
         this.defaultRecordingPlayer.onEndLoading = () => {
-            if (this.player.hasRecording)
+            if (this.player.hasRecording) {
                 this.mediaState.setLoaded();
-            else
+            } else {
                 this.mediaState.setLoadedDefaultRecording();
+            }
             this.loader.hide();
         };
 
@@ -677,26 +683,16 @@ export class MediaRecorder {
         }
     }
 
-    _stopRecordButton() {
-        if (this.model.isResetRemovesRecording) {
-            this.recordButton.reset();
-        } else {
-            this.recordButton.forceClick();
-        }
-    }
 
     _stopActions() {
         if (this.mediaState.isRecording()) {
-            this._stopRecordButton();
+            this.recordButton.forceClick();
         }
         if (this.mediaState.isPlaying()) {
             this.playButton.forceClick();
         }
         if (this.mediaState.isPlayingDefaultRecording()) {
             this.defaultRecordingPlayButton.forceClick();
-        }
-        if (this.model.isResetRemovesRecording) {
-            this.resetRecording();
         }
         if (this.mediaState.isLoaded()) {
             this.timer.setTime(0);
