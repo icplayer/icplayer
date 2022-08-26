@@ -1618,7 +1618,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     if (_this2.enableAnalyser) {
                         _this2.mediaAnalyserService.closeAnalyzing();
                     }
-                    _this2.player.stopStreaming();
                     if (!_this2.model.disableRecording) {
                         _this2.recorder.stopRecording().then(function (blob) {
                             _this2.addonState.setRecordingBlob(blob);
@@ -1649,7 +1648,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 if (_this2.enableAnalyser) {
                     _this2.mediaAnalyserService.closeAnalyzing();
                 }
-                _this2.player.stopStreaming();
                 _this2.recorder.stopRecording();
                 _this2.resourcesProvider.destroy();
             };
@@ -1818,7 +1816,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var _this3 = this;
 
             this.mediaState.setRecording();
-            this.player.startStreaming(stream);
             if (!this.model.disableRecording) {
                 this.recorder.startRecording(stream);
                 this.timer.reset();
@@ -3860,12 +3857,11 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
     }
 
     _createClass(AudioRecorder, [{
-        key: "_getOptions",
+        key: '_getOptions',
         value: function _getOptions() {
             var isEdge = DevicesUtils.isEdge();
-            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
 
-            var options = {
+            return {
                 type: 'audio',
                 mimeType: 'audio/wav',
                 numberOfAudioChannels: isEdge ? 1 : 2,
@@ -3874,8 +3870,6 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
                 disableLogs: true,
                 recorderType: RecordRTC.StereoAudioRecorder
             };
-
-            return options;
         }
     }]);
 
@@ -4194,27 +4188,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             });
         }
     }, {
-        key: "startStreaming",
-        value: function startStreaming(stream) {
-            this._disableEventsHandling();
-            setSrcObject(stream, this.mediaNode);
-            this.mediaNode.muted = true;
-            this.mediaNode.play();
-        }
-    }, {
-        key: "stopStreaming",
-        value: function stopStreaming() {
-            // for some reason Edge doesn't send pause event in stopPlaying
-            // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-            // same as above but with mLibro on android
-            if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
-                this.stopNextStopEvent = true;
-            }
-
-            this.stopPlaying();
-            this._enableEventsHandling();
-        }
-    }, {
         key: "reset",
         value: function reset() {
             this._disableEventsHandling();
@@ -4262,7 +4235,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _enableEventsHandling() {
             var _this7 = this;
 
-            var self = this;
             this.mediaNode.onloadstart = function () {
                 return _this7.onStartLoadingCallback();
             };
@@ -4276,11 +4248,15 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 return _this7._onPausedCallback();
             };
 
-            if (this._isMobileSafari() || this._isIosMlibro()) this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };else this.mediaNode.oncanplay = function () {
-                return _this7.onEndLoadingCallback();
-            };
+            if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+                this.mediaNode.onloadedmetadata = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            } else {
+                this.mediaNode.oncanplay = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            }
         }
     }, {
         key: "_disableEventsHandling",
@@ -4318,6 +4294,17 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             });
         }
     }, {
+        key: "_isIOSWebViewUsingAppleWebKit",
+        value: function _isIOSWebViewUsingAppleWebKit() {
+            var userAgent = window.navigator.userAgent.toLowerCase(),
+                safari = /safari/.test(userAgent),
+                ios = /iphone|ipod|ipad/.test(userAgent),
+                appleWebKit = /applewebkit/.test(userAgent);
+            var webView = ios && !safari;
+
+            return webView && appleWebKit;
+        }
+    }, {
         key: "_isMobileSafari",
         value: function _isMobileSafari() {
             return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
@@ -4340,11 +4327,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_onPausedCallback",
         value: function _onPausedCallback() {
-            if (this.stopNextStopEvent) {
-                this.stopNextStopEvent = false;
-            } else {
-                this._sendEventCallback('stop');
-            }
+            this._sendEventCallback('stop');
         }
     }, {
         key: "_sendEventCallback",

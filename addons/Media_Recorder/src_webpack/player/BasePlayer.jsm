@@ -75,25 +75,6 @@ export class BasePlayer extends Player {
         });
     }
 
-    startStreaming(stream) {
-        this._disableEventsHandling();
-        setSrcObject(stream, this.mediaNode);
-        this.mediaNode.muted = true;
-        this.mediaNode.play();
-    }
-
-    stopStreaming() {
-        // for some reason Edge doesn't send pause event in stopPlaying
-        // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-        // same as above but with mLibro on android
-        if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
-            this.stopNextStopEvent = true;
-        }
-
-        this.stopPlaying();
-        this._enableEventsHandling();
-    }
-
     reset() {
         this._disableEventsHandling();
         this.mediaNode.src = "";
@@ -133,18 +114,16 @@ export class BasePlayer extends Player {
     }
 
     _enableEventsHandling() {
-        const self = this;
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobileSafari() || this._isIosMlibro())
-            this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };
-        else
+        if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+            this.mediaNode.onloadedmetadata = () => this.onEndLoadingCallback();
+        } else  {
             this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
+        }
     }
 
     _disableEventsHandling() {
@@ -176,6 +155,16 @@ export class BasePlayer extends Player {
         )
     }
 
+    _isIOSWebViewUsingAppleWebKit() {
+        const userAgent = window.navigator.userAgent.toLowerCase(),
+            safari = /safari/.test( userAgent ),
+            ios = /iphone|ipod|ipad/.test( userAgent ),
+            appleWebKit = /applewebkit/.test( userAgent );
+        const webView = ios && !safari;
+
+        return webView && appleWebKit;
+    }
+
     _isMobileSafari() {
         return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
@@ -195,11 +184,7 @@ export class BasePlayer extends Player {
     }
 
     _onPausedCallback() {
-        if (this.stopNextStopEvent) {
-            this.stopNextStopEvent = false;
-        } else {
-            this._sendEventCallback('stop');
-        }
+        this._sendEventCallback('stop');
     }
 
     _sendEventCallback(value) {
