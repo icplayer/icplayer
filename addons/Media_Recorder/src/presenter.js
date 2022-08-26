@@ -1793,7 +1793,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.defaultRecordingPlayer.onEndLoading = function () {
-                console.log("MediaState - " + _this2.mediaState._value);
                 if (_this2.player.hasRecording) {
                     _this2.mediaState.setLoaded();
                 } else {
@@ -4136,7 +4135,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             this._getDuration().then(function (duration) {
                 _this2.onDurationChangeCallback(duration);
                 _this2.duration = duration;
-                _this2.hasRecording = true;
             }).catch(function (e) {
                 _this2.hasRecording = false;
             });

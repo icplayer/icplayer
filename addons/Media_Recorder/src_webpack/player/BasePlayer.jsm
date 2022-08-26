@@ -27,7 +27,6 @@ export class BasePlayer extends Player {
             .then(duration => {
                 this.onDurationChangeCallback(duration);
                 this.duration = duration;
-                this.hasRecording = true;
             }).catch(e => {
                 this.hasRecording = false
             });
