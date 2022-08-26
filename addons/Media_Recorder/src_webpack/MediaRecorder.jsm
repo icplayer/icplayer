@@ -452,7 +452,6 @@ export class MediaRecorder {
                 if (this.enableAnalyser) {
                     this.mediaAnalyserService.closeAnalyzing();
                 }
-                this.player.stopStreaming();
                 if (!this.model.disableRecording) {
                     this.recorder.stopRecording()
                         .then(blob => {
@@ -485,7 +484,6 @@ export class MediaRecorder {
             if (this.enableAnalyser) {
                 this.mediaAnalyserService.closeAnalyzing();
             }
-            this.player.stopStreaming();
             this.recorder.stopRecording();
             this.resourcesProvider.destroy();
         };
@@ -635,7 +633,6 @@ export class MediaRecorder {
 
     _handleRecording(stream) {
         this.mediaState.setRecording();
-        this.player.startStreaming(stream);
         if (!this.model.disableRecording) {
             this.recorder.startRecording(stream);
             this.timer.reset();

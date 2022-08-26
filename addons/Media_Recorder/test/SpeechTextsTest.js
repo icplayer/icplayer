@@ -18,7 +18,7 @@ TestCase("[Media Recorder] Text to speech test - speech texts", {
             DownloadButton: "Download button",
             ResetDialog: "Reset dialog",
             StartRecording: "Start recording",
-            StopRecording: "Stop recording",
+            StopRecording: "Recording stopped",
             Disabled: "Disabled",
         };
     },
