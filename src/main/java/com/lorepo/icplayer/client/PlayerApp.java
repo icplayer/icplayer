@@ -17,7 +17,7 @@ import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
-import com.lorepo.icplayer.client.model.asset.FileAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -595,8 +595,8 @@ public class PlayerApp {
 	}
 
 	private void loadAttachedLibraries() {
-		Map<String, FileAsset> externalLibraries = playerController.getAssetsService().getAttachedLibraries();
-		for (FileAsset libraryAsset : externalLibraries.values()) {
+		Map<String, ScriptAsset> externalLibraries = playerController.getAssetsService().getAttachedLibraries();
+		for (ScriptAsset libraryAsset : externalLibraries.values()) {
 			DOMInjector.injectLibrary(
 				libraryAsset.getHref(),
 				libraryAsset.getFileName()

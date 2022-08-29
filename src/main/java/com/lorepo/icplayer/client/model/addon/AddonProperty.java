@@ -113,7 +113,7 @@ public class AddonProperty {
 					property.load(element);
 					childProperties.add(property);
 				}
-			}	
+			}
 		}
 	}
 
