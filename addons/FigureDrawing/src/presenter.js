@@ -5,6 +5,7 @@ function AddonFigureDrawing_create(){
     presenter.isStarted = false;
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
+    presenter.wasShowAnswersActive = false;
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -1011,6 +1012,7 @@ function AddonFigureDrawing_create(){
 
     presenter.getErrorCount = function(){
         var errorCounter = 0, i, lineCounter, color;
+        presenter.wasShowAnswersActive = presenter.isShowAnswersActive;
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (presenter.activity && !presenter.error && presenter.isStarted) {
             errorCounter = presenter.$view.find('.line').not('.nonremovable').length;
@@ -1033,16 +1035,20 @@ function AddonFigureDrawing_create(){
                 }
             }
         }
+        if(presenter.wasShowAnswersActive) presenter.showAnswers();
         return errorCounter;
     }
     presenter.getMaxScore = function(){
+        var maxScore = 0;
+        presenter.wasShowAnswersActive = presenter.isShowAnswersActive;
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (presenter.activity && !presenter.error && presenter.coloring)
-            return (presenter.AnswerLines.length + presenter.answersColors.length)
+            maxScore = presenter.AnswerLines.length + presenter.answersColors.length;
         else if (presenter.activity && !presenter.error)
-            return (presenter.AnswerLines.length)
-        else
-            return 0;
+            maxScore = presenter.AnswerLines.length;
+
+        if(presenter.wasShowAnswersActive) presenter.showAnswers();
+        return maxScore;
     }
     presenter.getScore = function(){
         if (presenter.activity && !presenter.error && presenter.isStarted) {
