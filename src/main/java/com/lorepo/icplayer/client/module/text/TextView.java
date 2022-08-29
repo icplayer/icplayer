@@ -36,6 +36,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
 	private int activeGapIndex = -1;
+	private int activeNavigationGapIndex = -1; //to distinct the active index of navigation text elements (includes links)
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
@@ -518,6 +519,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void handleWCAGExit() {
         this.removeNavigationElementSelections();
         activeGapIndex = -1;
+        activeNavigationGapIndex = -1;
         activeGap = null;
         moduleHasFocus = false;
 	}
@@ -559,7 +561,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 		
 		this.removeNavigationElementSelections();
-		int nextGapIndex = goNext ? activeGapIndex + 1 : activeGapIndex - 1;
+		int nextGapIndex = goNext ? activeNavigationGapIndex + 1 : activeNavigationGapIndex - 1;
 
 		if (nextGapIndex >= size) {
 			nextGapIndex = size - 1;
@@ -571,10 +573,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		NavigationTextElement activeElement = navigationTextElements.get(nextGapIndex);
-		if (!(activeElement instanceof LinkWidget)) {
-			if (goNext && !hasAchievedMaximum) {
+		if (goNext && !hasAchievedMaximum) {
+			activeNavigationGapIndex++;
+			if (!(activeElement instanceof LinkWidget)) {
 				focusOnNextGap();
-			} else if (!goNext && activeGapIndex > 0) {
+			}
+			
+		} else if (!goNext && activeNavigationGapIndex > 0) {
+			activeNavigationGapIndex--;
+			if (!(activeElement instanceof LinkWidget)) {
 				focusOnPrevGap();
 			}
 		}

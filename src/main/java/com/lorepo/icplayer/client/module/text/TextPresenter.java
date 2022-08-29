@@ -1400,64 +1400,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private void setGapText(int gapIndex, String text) {
 		if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
-			String gapID = this.getGapID(gapIndex);
+			TextElementDisplay gap = view.getChild(gapIndex-1);
+			String gapID = gap.getId();
 			view.setValue(gapID, text);
 			view.refreshMath();
 			values.put(gapID, text);
 			fireItemConsumedEvent();
 		}
-	}
-
-	private String getGapID(int index) {
-		ArrayList<String> orderedGapsID = this.getOrderedGapsID();
-
-		if (orderedGapsID.size() < index) return "";
-
-		return orderedGapsID.get(index - 1);
-	}
-
-	private ArrayList<String> getOrderedGapsID() {
-		final String pattern = 	"id=\"(.*?)\"";
-		final String patternClass = "class=\"(.*?)\"";
-		RegExp regExp = RegExp.compile(pattern);
-		MatchResult matchResult;
-		String HTML = view.getHTML();
-		ArrayList<String> gapsID = new ArrayList<String>();
-
-		while ((matchResult = regExp.exec(HTML)) != null) {
-			if (matchResult.getGroupCount() <= 0) {
-				return gapsID;
-			}
-
-			String group = matchResult.getGroup(0);
-			String gapClass = getGapClass(HTML);
-			group = group
-				.replace("id=\"", "")
-				.replace("\"", "");
-			
-			if (!gapClass.contains("pageLink")) gapsID.add(group);
-			
-			HTML = HTML
-				.replaceFirst(pattern, "")
-				.replaceFirst(patternClass, "");
-		}
-
-		return gapsID;
-	}
-
-	private String getGapClass(String HTML) {
-		final String patternClass = "class=\"(.*?)\"";
-		RegExp regExp = RegExp.compile(patternClass);
-		MatchResult matchResult = regExp.exec(HTML);
-
-		if (matchResult == null || matchResult.getGroupCount() <= 0) return "";
-
-		String gapClass = matchResult.getGroup(0);
-		gapClass = gapClass
-			.replace("class=\"", "")
-			.replace("\"", "");
-
-		return gapClass;
 	}
 
 	private boolean isGapAttempted(int index) {
