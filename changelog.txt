@@ -1,3 +1,4 @@
+2022-08-29 Fixed recording problem in recorder when M1 processor is used
 2022-08-11 Added GSA support to Magic Boxes
 2022-08-11 Fixed the CSS class in AudioPlaylist breaking the appearance of addon
 2022-08-05 Removed static editor notification
