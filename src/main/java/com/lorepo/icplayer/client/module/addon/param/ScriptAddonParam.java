@@ -4,7 +4,7 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IScriptProperty;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class ScriptAddonParam extends FileAddonParam {
+public class ScriptAddonParam extends StringAddonParam {
 
 	public ScriptAddonParam(AddonModel parent, String type) {
 		super(parent, type);

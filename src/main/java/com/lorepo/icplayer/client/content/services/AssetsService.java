@@ -57,8 +57,8 @@ public class AssetsService implements IAssetsService {
 		Map<String, ScriptAsset> addedLibraries = new HashMap<String, ScriptAsset>();
 		for (IAsset asset : assets) {
 			String fileName = asset.getFileName();
-			String contentType = asset.getContentType();
-			if (contentType.equals("script") && fileName.endsWith(".js")) {
+			String type = asset.getType();
+			if (type.equals("script") && fileName.endsWith(".js")) {
 				ScriptAsset fileAsset = new ScriptAsset(asset.getHref());
 				addedLibraries.put(fileName, fileAsset);
 			}
