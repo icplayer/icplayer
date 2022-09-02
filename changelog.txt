@@ -1,4 +1,6 @@
-2022-08-30 Fixed reading text separator in gap text.
+2022-09-02 Fixed reading text separator in gap text.
+2022-09-02 Fixed Media Recorder deleting recordings on check answers and play blocking in certain conditions
+2022-08-29 Added page_id to paginated score
 2022-08-25 Fixed outstretchHeight command not working properly with layout argument
 2022-08-19 Fixed keyboard navigation throught link gaps
 2022-08-19 Updated setGapText method to fix indexation
