@@ -152,7 +152,10 @@ public class WCAGUtils {
 	}
 
 	private static String removeCommaAfterGap(String text) {
-		return text.startsWith(".") ? text.substring(1) : text;
+		if (text.startsWith(".") || text.startsWith(",")) {
+			return text.substring(1);
+		}
+		return text;
 	}
 
 	private static int getGapEndIndex(String text, int gapIndex) {
