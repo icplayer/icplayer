@@ -14,6 +14,7 @@ public class AddonProperty {
 	private String name;
 	private String displayName;
 	private String type;
+	private String value;
 	private boolean isLocalized = false;
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
 	private boolean isDefault = false;
@@ -26,7 +27,6 @@ public class AddonProperty {
 		this.type = type;
 	}
 	
-
 	public String getName(){
 		return name;
 	}
@@ -38,8 +38,15 @@ public class AddonProperty {
 	public String getType(){
 		return type;
 	}
+		
+	public String getValue(){
+		return value;
+	}
 
-	
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 	public boolean isLocalized() {
 		return isLocalized;
 	}
@@ -58,7 +65,7 @@ public class AddonProperty {
 		childProperties.clear();
 		name = XMLUtils.getAttributeAsString(rootElement, "name");
 		displayName = AddonPropertyUtils.loadDisplayNameFromXML(rootElement);
-
+		value = XMLUtils.getAttributeAsString(rootElement, "value");
 		type = XMLUtils.getAttributeAsString(rootElement, "type");
 		isLocalized = XMLUtils.getAttributeAsBoolean(rootElement, "isLocalized", false);
 
@@ -131,6 +138,9 @@ public class AddonProperty {
 				xml += property.toXML();
 			}
 			xml += "</property>";
+		} else if (value != null) {
+			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + 
+			"' isLocalized='" + isLocalized + "' isDefault='" + isDefault + "' value='" + value + "'/>";
 		}
 		else{
 			xml = "<property name='" + encodedName + "' displayName='" + encodedDisplayName + "' type='" + encodedType + 
