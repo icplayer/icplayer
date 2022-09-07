@@ -652,8 +652,8 @@ public class Content implements IContentBuilder, IContent {
 		return dictionary.toString();
 	}
 
-	public void addOutstretchPage(int y, int height, boolean dontMoveModules, String layoutName) {
-		this.outstretchPageDictionary.put(layoutName, new OutstretchPageHeight(y, height, dontMoveModules));
+	public void addOutstretchPage(int y, int height, boolean dontMoveModules, boolean isOn, String layoutName) {
+		this.outstretchPageDictionary.put(layoutName, new OutstretchPageHeight(y, height, dontMoveModules, isOn));
 	}
 
 	public boolean hasOutstretchPage(String layoutName) {
@@ -663,6 +663,7 @@ public class Content implements IContentBuilder, IContent {
 	public OutstretchPageHeight getOutstretchPage(String layoutName) {
 		return this.outstretchPageDictionary.get(layoutName);
 	}
+
 	public boolean isOutstretchPageDictionaryEmpty() {
 		return this.outstretchPageDictionary.isEmpty();
 	}
