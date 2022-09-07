@@ -70,7 +70,6 @@ public class PageController implements ITextToSpeechController, IPageController 
 	private boolean isReadingOn = false;
 	private Content contentModel;
 	private GradualShowAnswersService gradualShowAnswersService;
-	private String previousLayoutName = "";
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
@@ -141,49 +140,50 @@ public class PageController implements ITextToSpeechController, IPageController 
 		if (gradualShowAnswersService != null) {
 			gradualShowAnswersService.refreshCurrentPagePresenters();
 		}
-
-		this.removePreviousPageOutstretch(page.getName());
-		this.addPageOutstretch(page.getName());
+		
+		if (this.isCurrentPageLayoutChanged()) {
+			this.removePreviousLayoutPageOutstretch();
+			this.addCurrentLayoutPageOutstretch();
+		}
 	}
-
-	private void removePreviousPageOutstretch(String pageName) {
-		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
-		String actualLayoutName = this.contentModel.getLayoutNameByID(layoutID);
-
-		if (this.previousLayoutName.isEmpty() || (this.previousLayoutName == actualLayoutName)) return;
-
-		String formerLayoutKey = this.previousLayoutName
-			.concat("_")
-			.concat(pageName.replaceAll(" ", "_"));
-
-		if (this.contentModel.hasOutstretchPage(formerLayoutKey)) {
-			OutstretchPageHeight parameter = contentModel.getOutstretchPage(formerLayoutKey);
+	
+	private void removePreviousLayoutPageOutstretch() {
+		String previousLayoutName = this.getCurrentPagePreviousLayoutName();
+		String layoutKey = this.getCurrentPageLayoutKey(previousLayoutName);
+		
+		if (previousLayoutName.isEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
+			return;
+		}
+		
+		OutstretchPageHeight parameter = this.contentModel.getOutstretchPage(layoutKey);
+		if (parameter.isOn()) {
 			this.outstretchHeight(
 				parameter.getStartingStretchPoint(),
 				-parameter.getValueOfStretching(),
 				parameter.shouldMoveModels(),
 				""
 			);
+			parameter.setOff();
 		}
 	}
+	
+	private void addCurrentLayoutPageOutstretch() {
+		String currentLayoutName = this.getCurrentPageCurrentLayoutName();
+		String layoutKey = this.getCurrentPageLayoutKey(currentLayoutName);
 
-	private void addPageOutstretch(String pageName) {
-		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
-		String actualLayoutName = this.contentModel.getLayoutNameByID(layoutID);
-		String layoutKey = actualLayoutName
-			.concat("_")
-			.concat(pageName.replaceAll(" ", "_"));
+		if (this.contentModel.isOutstretchPageDictionaryEmpty() || !this.contentModel.hasOutstretchPage(layoutKey)) {
+			return;
+		}
 		
-		if (this.previousLayoutName.equals(actualLayoutName)) return;
-		
-		if (!this.contentModel.isOutstretchPageDictionaryEmpty() && this.contentModel.hasOutstretchPage(layoutKey)) {
-			OutstretchPageHeight parameter = contentModel.getOutstretchPage(layoutKey);
+		OutstretchPageHeight parameter = contentModel.getOutstretchPage(layoutKey);
+		if (parameter.isOff()) {
 			this.outstretchHeight(
 				parameter.getStartingStretchPoint(),
 				parameter.getValueOfStretching(),
 				parameter.shouldMoveModels(),
 				""
 			);
+			parameter.setOn();
 		}
 	}
 
@@ -655,19 +655,21 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void outstretchHeight(int y, int height, boolean dontMoveModules, String layoutName) {
-		String actualLayoutName = this.getActualLayoutName();
-		this.updateOutstretchDictionary(y, height, dontMoveModules, layoutName);
-
-		if (actualLayoutName.equals(layoutName) || layoutName.isEmpty()) {
+		String currentLayoutName = this.getCurrentPageCurrentLayoutName();
+		
+		boolean succeededCommand = false;
+		if (currentLayoutName.equals(layoutName) || layoutName.isEmpty()) {
 			this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
 			this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 			this.playerController.fireOutstretchHeightEvent();
-			this.previousLayoutName = actualLayoutName;
+			succeededCommand = true;
 		}
+		
+		this.updateOutstretchDictionary(y, height, dontMoveModules, succeededCommand, layoutName);
 	}
 
 	private boolean hasOppositeValue(int height, String layoutName) {
-		String layoutKey = this.getLayoutKey(layoutName);
+		String layoutKey = this.getCurrentPageLayoutKey(layoutName);
 		
 		if (!this.contentModel.isOutstretchPageDictionaryEmpty() && this.contentModel.hasOutstretchPage(layoutKey)) {
 			OutstretchPageHeight parameter = contentModel.getOutstretchPage(layoutKey);
@@ -676,28 +678,47 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 		return false;
 	}
-
-	private String getActualLayoutName() {
-		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
+	
+	private boolean isCurrentPageLayoutChanged() {
+		return !this.getCurrentPageCurrentLayoutID().equals(this.getCurrentPagePreviousLayoutID());
+	}
+	
+	private String getCurrentPageCurrentLayoutName() {
+		String layoutID = this.getCurrentPageCurrentLayoutID();
 		return this.contentModel.getLayoutNameByID(layoutID);
 	}
-
-	private String getLayoutKey(String layoutName) {
+	
+	private String getCurrentPageCurrentLayoutID() {
+		return currentPage.getSemiResponsiveLayoutID();
+	}
+	
+	private String getCurrentPagePreviousLayoutName() {
+		String layoutID = this.getCurrentPagePreviousLayoutID();
+		if (layoutID.isEmpty()) {
+			return null;
+		}
+		return this.contentModel.getLayoutNameByID(layoutID);
+	}
+	
+	private String getCurrentPagePreviousLayoutID() {
+		return currentPage.getPreviousSemiResponsiveLayoutID();
+	}
+	
+	private String getCurrentPageLayoutKey(String layoutName) {
 		String layoutKey = layoutName
 			.concat("_")
 			.concat(this.currentPage.getName().replaceAll(" ", "_"));
-		
-			return layoutKey;
+		return layoutKey;
 	}
 
-	private void updateOutstretchDictionary(int y, int height, boolean dontMoveModules, String layoutName) {
+	private void updateOutstretchDictionary(int y, int height, boolean dontMoveModules, boolean isOn, String layoutName) {
 		if (layoutName.isEmpty()) return;
 		
-		String layoutKey = this.getLayoutKey(layoutName);
+		String layoutKey = this.getCurrentPageLayoutKey(layoutName);
 		if (this.hasOppositeValue(height, layoutName)) {
 			this.contentModel.deleteOutstretchPage(layoutKey);
 		} else {
-			this.contentModel.addOutstretchPage(y, height, dontMoveModules, layoutKey);
+			this.contentModel.addOutstretchPage(y, height, dontMoveModules, isOn, layoutKey);
 		}
 	}
 
