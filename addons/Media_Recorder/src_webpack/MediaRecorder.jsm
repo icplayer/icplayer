@@ -21,6 +21,7 @@ import {AddonViewService} from "./view/AddonViewService.jsm";
 import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
 import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
 import {AudioPlayer} from "./player/AudioPlayer.jsm";
+import {DefaultAudioPlayer} from "./player/DefaultAudioPlayer.jsm";
 import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButton.jsm";
 import {DefaultKeyboardController} from "./keyboard_navigation/DefaultKeyboardController.jsm";
 import {ExtendedKeyboardController} from "./keyboard_navigation/ExtendedKeyboardController.jsm";
@@ -307,7 +308,7 @@ export class MediaRecorder {
         this.recorder = new AudioRecorder();
         this.player = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.player.setIsMlibro(this.isMlibro);
-        this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
+        this.defaultRecordingPlayer = new DefaultAudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
         if (this.playerController)
             this._loadEventBus();
@@ -473,6 +474,7 @@ export class MediaRecorder {
             if (this.model.disableRecording) {
                 this.mediaState.setLoaded();
             }
+            this.defaultRecordingPlayer.setDoneRecordingStatus();
         };
 
 
@@ -508,6 +510,7 @@ export class MediaRecorder {
                     this.keyboardControllerObject.markRecordingButton();
                     this.keyboardControllerObject.readCurrentElement();
                 }
+                this.defaultRecordingPlayer.setNotStartedRecordingStatus();
             }
             this.resetDialog.onDeny = () => {
                 this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
@@ -707,6 +710,7 @@ export class MediaRecorder {
             MediaState: MediaState,
             Timer: Timer,
             AudioPlayer: AudioPlayer,
+            DefaultAudioPlayer: DefaultAudioPlayer,
             DownloadButton: DownloadButton,
             SoundIntensity: SoundIntensity
         }
