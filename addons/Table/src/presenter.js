@@ -1072,7 +1072,7 @@ function AddonTable_create() {
             presenter.showAnswers();
         } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
-        } else if (eventName === "ItemSelected") {
+        } else if (eventName === "ItemSelected" && presenter.configuration.isVisible) {
             presenter.lastDraggedItem = eventData;
         } else if (eventName === "GradualShowAnswers") {
             if (!presenter.isGradualShowAnswersActive) {
@@ -1893,7 +1893,7 @@ function AddonTable_create() {
     presenter.ValueChangeObserver = function () {};
 
     presenter.ValueChangeObserver.prototype.notify = function (data) {
-        presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
+        if(presenter.configuration.isVisible) presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
 
         if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
