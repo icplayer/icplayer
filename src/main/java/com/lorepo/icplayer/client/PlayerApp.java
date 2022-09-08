@@ -595,8 +595,8 @@ public class PlayerApp {
 	}
 
 	private void loadAttachedLibraries() {
-		Map<String, ScriptAsset> externalLibraries = playerController.getAssetsService().getAttachedLibraries();
-		for (ScriptAsset libraryAsset : externalLibraries.values()) {
+		Map<String, ScriptAsset> attachedLibraries = playerController.getAssetsService().getAttachedLibraries();
+		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
 			DOMInjector.injectLibrary(
 				libraryAsset.getHref(),
 				libraryAsset.getFileName()
