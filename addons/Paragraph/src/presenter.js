@@ -164,10 +164,6 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.getActivitiesCount = function () {
-        return 1;
-    }
-
     presenter.enableEdit = function () {
         let paragraph = presenter.$view.find(".paragraph-wrapper");
 
@@ -1280,7 +1276,13 @@ function AddonParagraph_create() {
     };
 
     presenter.getActivitiesCount = function Paragraph_getActivitiesCount () {
-        return presenter.configuration.modelAnswer.length;
+        let answersCount = 0;
+        presenter.configuration.modelAnswer.forEach(answer => {
+            if (answer.Text.replace("<br>", "") !== "") {
+                answersCount++;
+            }
+        });
+        return answersCount;
     };
 
     return presenter;
