@@ -3960,10 +3960,15 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     _createClass(BaseRecorder, [{
         key: "startRecording",
         value: function startRecording(stream) {
+            var _this2 = this;
+
             this._clearRecorder();
+            var audioContext = AudioContextSingleton.getOrCreate();
             this.recorder = RecordRTC(stream, this._getOptions());
-            this.recorder.startRecording();
-            this._onStartRecordingCallback();
+            audioContext.resume().then(function () {
+                _this2.recorder.startRecording();
+                _this2._onStartRecordingCallback();
+            });
         }
     }, {
         key: "stopRecording",
