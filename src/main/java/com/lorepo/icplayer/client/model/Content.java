@@ -124,7 +124,7 @@ public class Content implements IContentBuilder, IContent {
 		}
 	}
 
-	public void addScriptAsset(ScriptAsset asset){
+	public void addAsset(ScriptAsset asset){
 		if (!isAssetHrefValid(asset)) return;
 
 		boolean foundURL = false;
