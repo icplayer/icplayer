@@ -510,6 +510,41 @@ function AddonAudio_create(){
         audio.addEventListener('click', AddonAudio_onAudioClick, false);
         audio.addEventListener('playing', AddonAudio_onAudioPlaying, false);
         audio.addEventListener('pause', AddonAudio_onAudioPause, false);
+
+        if (isMobileIOS()) {
+            AddonAudio_attachEventListenersForIOS(audio);
+        }
+    }
+
+    function AddonAudio_attachEventListenersForIOS(audio) {
+        if (presenter.configuration.forceLoadAudio) {
+            audio.addEventListener('progress', presenter.AddonAudio_onLoadedMetadataCallback, { once: true });
+        }
+    }
+
+    function AddonAudio_removeEventListeners(audio) {
+        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
+        presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+        presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
+        presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
+        presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
+        presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
+        presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
+        presenter.audio.removeEventListener('pause', AddonAudio_onAudioPause, false);
+
+        if (isMobileIOS()) {
+            AddonAudio_removeEventListenersForIOS(audio);
+        }
+    }
+
+    function AddonAudio_removeEventListenersForIOS(audio) {
+        if (presenter.configuration.forceLoadAudio) {
+            audio.removeEventListener('progress', presenter.AddonAudio_onLoadedMetadataCallback, { once: true });
+        }
+    }
+
+    function isMobileIOS() {
+        return window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     function AddonAudio_onAudioEnded () {
@@ -549,6 +584,8 @@ function AddonAudio_create(){
         var canPlayOgg = false;
         var audio = presenter.audio;
 
+        AddonAudio_attachEventListeners(audio);
+
         if(audio.canPlayType) {
             canPlayMp3 = audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
             canPlayOgg = audio.canPlayType && "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
@@ -571,8 +608,6 @@ function AddonAudio_create(){
         }
 
         $(audio).load();
-
-        AddonAudio_attachEventListeners(audio);
     }
 
     presenter.run = function AddonAudio_run (view, model){
@@ -616,14 +651,7 @@ function AddonAudio_create(){
 
         presenter.playerController = null;
 
-        presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
-        presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
-        presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
-        presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
-        presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
-        presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
-        presenter.audio.removeEventListener('pause', AddonAudio_onAudioPause, false);
+        AddonAudio_removeEventListeners(presenter.audio);
         presenter.audio.setAttribute('src', '');
         presenter.audio.load();
         presenter.audio = null;
