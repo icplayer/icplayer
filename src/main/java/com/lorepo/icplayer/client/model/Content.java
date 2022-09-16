@@ -15,6 +15,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.metadata.IMetadata;
 import com.lorepo.icplayer.client.metadata.Metadata;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -107,18 +108,8 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public void addAsset(IAsset asset){
-
-		String href = asset.getHref();
-
-		if(href == null){
-			return;
-		}
-
-		String escaped = StringUtils.escapeHTML(href);
-		if(escaped.compareTo(href) != 0){
-			return;
-		}
-
+		if (!isAssetHrefValid(asset)) return;
+		
 		boolean foundURL = false;
 
 		for(IAsset a : assets){
@@ -128,10 +119,44 @@ public class Content implements IContentBuilder, IContent {
 			}
 		}
 
-		if(	!foundURL){
-
+		if(!foundURL){
 			assets.add(asset);
 		}
+	}
+
+	public void addAsset(ScriptAsset asset){
+		if (!isAssetHrefValid(asset)) return;
+
+		boolean foundURL = false;
+
+		for(int i = 0; i < assets.size(); i++) {
+			IAsset a = assets.get(i);
+			if(a.getHref().compareTo(asset.getHref()) == 0){
+				foundURL = true;
+				if (a.getType() != "script") {
+					asset.setContentType(a.getContentType());
+					asset.setFileName(a.getFileName());
+					asset.setTitle(a.getTitle());
+					asset.setOrderNumber(a.getOrderNumber());
+					assets.set(i, asset);
+				}
+				break;
+			}
+		}
+
+		if(!foundURL){
+			assets.add(asset);
+		}
+	}
+
+	private boolean isAssetHrefValid(IAsset asset) {
+		String href = asset.getHref();
+		if(href == null) return false;
+
+		String escaped = StringUtils.escapeHTML(href);
+		if(escaped.compareTo(href) != 0) return false;
+		
+		return true;
 	}
 
 	public void setPagesSubsetMap(ArrayList<Integer> mapping) {
