@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -565,47 +565,6 @@ var SoundIntensity = exports.SoundIntensity = function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.AudioPlayer = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _BasePlayer2 = __webpack_require__(45);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
-    _inherits(AudioPlayer, _BasePlayer);
-
-    function AudioPlayer($view, isMlibro) {
-        _classCallCheck(this, AudioPlayer);
-
-        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view, isMlibro));
-
-        _this.mediaNode.style.display = "hidden";
-        return _this;
-    }
-
-    _createClass(AudioPlayer, [{
-        key: "_createMediaNode",
-        value: function _createMediaNode() {
-            return document.createElement("audio");
-        }
-    }]);
-
-    return AudioPlayer;
-}(_BasePlayer2.BasePlayer);
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 exports.BaseKeyboardController = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -978,6 +937,7 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
 }(KeyboardController);
 
 /***/ }),
+/* 7 */,
 /* 8 */,
 /* 9 */,
 /* 10 */,
@@ -986,11 +946,10 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
 /* 13 */,
 /* 14 */,
 /* 15 */,
-/* 16 */,
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _MediaRecorder = __webpack_require__(18);
+var _MediaRecorder = __webpack_require__(17);
 
 function AddonMedia_Recorder_create() {
 
@@ -1142,7 +1101,7 @@ function AddonMedia_Recorder_create() {
 window.AddonMedia_Recorder_create = AddonMedia_Recorder_create;
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1152,59 +1111,57 @@ exports.MediaRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _validateModel = __webpack_require__(19);
+var _validateModel = __webpack_require__(18);
 
-var _ActivationState = __webpack_require__(21);
+var _ActivationState = __webpack_require__(20);
 
-var _MediaState = __webpack_require__(22);
+var _MediaState = __webpack_require__(21);
 
-var _Errors = __webpack_require__(23);
+var _Errors = __webpack_require__(22);
 
-var _PlayButton = __webpack_require__(24);
+var _PlayButton = __webpack_require__(23);
 
 var _RecordButton = __webpack_require__(3);
 
-var _ResetButton = __webpack_require__(25);
+var _ResetButton = __webpack_require__(24);
 
-var _ResetDialog = __webpack_require__(26);
+var _ResetDialog = __webpack_require__(25);
 
-var _DownloadButton = __webpack_require__(27);
+var _DownloadButton = __webpack_require__(26);
 
-var _Timer = __webpack_require__(28);
+var _Timer = __webpack_require__(27);
 
-var _ProgressBar = __webpack_require__(29);
+var _ProgressBar = __webpack_require__(28);
 
-var _AddonState = __webpack_require__(30);
+var _AddonState = __webpack_require__(29);
 
-var _RecordingTimeLimiter = __webpack_require__(31);
+var _RecordingTimeLimiter = __webpack_require__(30);
 
 var _SoundIntensity = __webpack_require__(5);
 
-var _DottedSoundIntensity = __webpack_require__(32);
+var _DottedSoundIntensity = __webpack_require__(31);
 
-var _MediaAnalyserService = __webpack_require__(33);
+var _MediaAnalyserService = __webpack_require__(32);
 
-var _AudioLoader = __webpack_require__(35);
+var _AudioLoader = __webpack_require__(34);
 
-var _SoundEffect = __webpack_require__(37);
+var _SoundEffect = __webpack_require__(36);
 
-var _RecordButtonSoundEffect = __webpack_require__(38);
+var _RecordButtonSoundEffect = __webpack_require__(37);
 
-var _AddonViewService = __webpack_require__(39);
+var _AddonViewService = __webpack_require__(38);
 
-var _AudioResourcesProvider = __webpack_require__(40);
+var _AudioResourcesProvider = __webpack_require__(39);
 
-var _AudioRecorder = __webpack_require__(42);
+var _AudioRecorder = __webpack_require__(41);
 
-var _AudioPlayer = __webpack_require__(6);
+var _AudioPlayer = __webpack_require__(44);
 
-var _DefaultAudioPlayer = __webpack_require__(47);
+var _DefaultRecordingPlayButton = __webpack_require__(47);
 
-var _DefaultRecordingPlayButton = __webpack_require__(48);
+var _DefaultKeyboardController = __webpack_require__(48);
 
-var _DefaultKeyboardController = __webpack_require__(49);
-
-var _ExtendedKeyboardController = __webpack_require__(50);
+var _ExtendedKeyboardController = __webpack_require__(49);
 
 var _CssClasses = __webpack_require__(0);
 
@@ -1510,7 +1467,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.recorder = new _AudioRecorder.AudioRecorder();
             this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.player.setIsMlibro(this.isMlibro);
-            this.defaultRecordingPlayer = new _DefaultAudioPlayer.DefaultAudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
+            this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
             if (this.playerController) this._loadEventBus();
         }
@@ -1681,7 +1638,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 if (_this2.model.disableRecording) {
                     _this2.mediaState.setLoaded();
                 }
-                _this2.defaultRecordingPlayer.setDoneRecordingStatus();
             };
 
             this.recordButton.onReset = function () {
@@ -1716,7 +1672,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                         _this2.keyboardControllerObject.markRecordingButton();
                         _this2.keyboardControllerObject.readCurrentElement();
                     }
-                    _this2.defaultRecordingPlayer.setNotStartedRecordingStatus();
                 };
                 this.resetDialog.onDeny = function () {
                     _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
@@ -1940,7 +1895,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 MediaState: _MediaState.MediaState,
                 Timer: _Timer.Timer,
                 AudioPlayer: _AudioPlayer.AudioPlayer,
-                DefaultAudioPlayer: _DefaultAudioPlayer.DefaultAudioPlayer,
                 DownloadButton: _DownloadButton.DownloadButton,
                 SoundIntensity: _SoundIntensity.SoundIntensity
             };
@@ -2297,7 +2251,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
 }();
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2305,7 +2259,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateModel = validateModel;
 
-var _DefaultValues = __webpack_require__(20);
+var _DefaultValues = __webpack_require__(19);
 
 function validateModel(model) {
     var modelValidator = new ModelValidator();
@@ -2334,7 +2288,7 @@ function validateModel(model) {
 }
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2346,7 +2300,7 @@ var DefaultValues = exports.DefaultValues = {
 };
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2401,7 +2355,7 @@ var ActivationState = exports.ActivationState = function () {
 }();
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2533,7 +2487,7 @@ var MediaState = exports.MediaState = function () {
 }();
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2549,7 +2503,7 @@ var Errors = exports.Errors = {
 };
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2625,7 +2579,7 @@ var PlayButton = exports.PlayButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2670,7 +2624,7 @@ var ResetButton = exports.ResetButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2742,7 +2696,7 @@ var ResetDialog = exports.ResetDialog = function () {
 }();
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2840,7 +2794,7 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2990,7 +2944,7 @@ var Timer = exports.Timer = function () {
 }();
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3084,7 +3038,7 @@ var ProgressBar = exports.ProgressBar = function () {
 }();
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3200,7 +3154,7 @@ var AddonState = exports.AddonState = function () {
 }();
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3265,7 +3219,7 @@ var RecordingTimeLimiter = exports.RecordingTimeLimiter = function () {
 }();
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3318,7 +3272,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
 }(_SoundIntensity2.SoundIntensity);
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3328,7 +3282,7 @@ exports.MediaAnalyserService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _AnalyserProvider = __webpack_require__(34);
+var _AnalyserProvider = __webpack_require__(33);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3396,7 +3350,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
 }();
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3431,7 +3385,7 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
 }();
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3441,7 +3395,7 @@ exports.AudioLoader = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Loader2 = __webpack_require__(36);
+var _Loader2 = __webpack_require__(35);
 
 var _CssClasses = __webpack_require__(0);
 
@@ -3476,7 +3430,7 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
 }(_Loader2.Loader);
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3518,7 +3472,7 @@ var Loader = exports.Loader = function () {
 }();
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3607,7 +3561,7 @@ var SoundEffect = exports.SoundEffect = function () {
 }();
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3724,7 +3678,7 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
 }(_RecordButton2.RecordButton);
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3771,7 +3725,7 @@ var AddonViewService = exports.AddonViewService = function () {
 }();
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3781,7 +3735,7 @@ exports.AudioResourcesProvider = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ResourcesProvider2 = __webpack_require__(41);
+var _ResourcesProvider2 = __webpack_require__(40);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3813,7 +3767,7 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
 }(_ResourcesProvider2.ResourcesProvider);
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3875,7 +3829,7 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
 }();
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3885,7 +3839,7 @@ exports.AudioRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseRecorder2 = __webpack_require__(43);
+var _BaseRecorder2 = __webpack_require__(42);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3923,7 +3877,7 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 }(_BaseRecorder2.BaseRecorder);
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3933,7 +3887,7 @@ exports.BaseRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Recorder2 = __webpack_require__(44);
+var _Recorder2 = __webpack_require__(43);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4043,7 +3997,7 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
 }(_Recorder2.Recorder);
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -4085,6 +4039,47 @@ var Recorder = exports.Recorder = function () {
 
     return Recorder;
 }();
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.AudioPlayer = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _BasePlayer2 = __webpack_require__(45);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
+    _inherits(AudioPlayer, _BasePlayer);
+
+    function AudioPlayer($view, isMlibro) {
+        _classCallCheck(this, AudioPlayer);
+
+        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view, isMlibro));
+
+        _this.mediaNode.style.display = "hidden";
+        return _this;
+    }
+
+    _createClass(AudioPlayer, [{
+        key: "_createMediaNode",
+        value: function _createMediaNode() {
+            return document.createElement("audio");
+        }
+    }]);
+
+    return AudioPlayer;
+}(_BasePlayer2.BasePlayer);
 
 /***/ }),
 /* 45 */
@@ -4505,70 +4500,6 @@ var Player = exports.Player = function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.DefaultAudioPlayer = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _AudioPlayer2 = __webpack_require__(6);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var DefaultAudioPlayer = exports.DefaultAudioPlayer = function (_AudioPlayer) {
-    _inherits(DefaultAudioPlayer, _AudioPlayer);
-
-    function DefaultAudioPlayer($view, isMlibro) {
-        _classCallCheck(this, DefaultAudioPlayer);
-
-        var _this = _possibleConstructorReturn(this, (DefaultAudioPlayer.__proto__ || Object.getPrototypeOf(DefaultAudioPlayer)).call(this, $view, isMlibro));
-
-        _this.doneRecording = false;
-        return _this;
-    }
-
-    _createClass(DefaultAudioPlayer, [{
-        key: "setNotStartedRecordingStatus",
-        value: function setNotStartedRecordingStatus() {
-            this.doneRecording = false;
-        }
-    }, {
-        key: "setDoneRecordingStatus",
-        value: function setDoneRecordingStatus() {
-            this.doneRecording = true;
-        }
-    }, {
-        key: "stopPlaying",
-        value: function stopPlaying() {
-            var _this2 = this;
-
-            return new Promise(function (resolve) {
-                _this2.mediaNode.pause();
-                if (_this2._isMobileSafari() && !_this2.doneRecording) {
-                    _this2.mediaNode.load();
-                } else {
-                    _this2.mediaNode.currentTime = 0;
-                }
-                if (_this2.onTimeUpdateCallback) {
-                    _this2._disableTimerEventsHandling();
-                }
-                resolve();
-            });
-        }
-    }]);
-
-    return DefaultAudioPlayer;
-}(_AudioPlayer2.AudioPlayer);
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 exports.DefaultRecordingPlayButton = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4641,7 +4572,7 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 }(_Button2.Button);
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -4651,7 +4582,7 @@ exports.DefaultKeyboardController = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseKeyboardController = __webpack_require__(7);
+var _BaseKeyboardController = __webpack_require__(6);
 
 var _CssClasses = __webpack_require__(0);
 
@@ -4717,7 +4648,7 @@ var DefaultKeyboardController = exports.DefaultKeyboardController = function (_B
 }(_BaseKeyboardController.BaseKeyboardController);
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -4729,7 +4660,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _BaseKeyboardController = __webpack_require__(7);
+var _BaseKeyboardController = __webpack_require__(6);
 
 var _CssClasses = __webpack_require__(0);
 
