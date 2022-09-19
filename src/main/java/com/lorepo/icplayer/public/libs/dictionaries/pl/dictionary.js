@@ -416,6 +416,7 @@ var ice_dictionary_pl = {
 	"ordering_gradually_score": "Punktacja stopniowana",
 	"ordering_disable_dragging": "Disable dragging",
 	"ordering_item_starting_position": "Pozycja startowa",
+	"ordering_disable_axis_lock": "Disable axis lock",
 	"page_progress_module" : "Wynik strony",
     "Page_progress_property_works_with" : "Współpracuje z",
 	"real_time_calculation_property" : "Oblicz w czasie rzeczywistym",
