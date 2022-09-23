@@ -78,6 +78,8 @@ function AddonLesson_Progress_create(){
         var model = presenter.playerController.getPresentation();
         var scoreService = presenter.playerController.getScore();
         var sumOfProgress = 0.0,
+            sumOfScaledScore = 0.0,
+            sumOfWeights = 0.0,
             sumOfMistakes = 0.0,
             sumOfErrors = 0.0,
             sumOfChecks = 0.0,
@@ -89,10 +91,16 @@ function AddonLesson_Progress_create(){
             if(page.isReportable()){
                 count += 1;
                 var score = scoreService.getPageScoreById(page.getId());
+                var _weight = page.getPageWeight();
+                var weight =  !_weight && _weight !== 0 ? 1 : _weight;
+                var scaledScore = 0.0;
                 if (score['maxScore'] > 0) {
-                    var percentageScore = (score['score']*100.0) / score['maxScore'];
-                    sumOfProgress += percentageScore;
+                    scaledScore = score['score'] / score['maxScore'];
+                } else {
+                    scaledScore = page.isVisited() ? 1 : 0;
                 }
+                sumOfScaledScore += scaledScore * weight;
+                sumOfWeights += weight;
 
                 sumOfMistakes += score['mistakeCount'];
                 sumOfErrors += score['errorCount'];
@@ -101,7 +109,9 @@ function AddonLesson_Progress_create(){
             }
         }
 
-        var progress = count !== 0 ? sumOfProgress / count : 0;
+        sumOfProgress = Math.round((sumOfScaledScore / sumOfWeights) * 100);
+
+        var progress = count !== 0 ? sumOfProgress : 0;
         return {
             progress: parseInt(progress, 10),
             sumOfMaxScore: scoreService.getMaxScore(),
@@ -114,7 +124,6 @@ function AddonLesson_Progress_create(){
 
     presenter.setShowErrorsMode = function(){
         var lessonScore = getLessonScore();
-
         if (presenter.configuration.showProgressBar) {
             presenter.$progressBar.css('width', lessonScore.progress + '%');
             presenter.$progressText.html(lessonScore.progress + '%');
