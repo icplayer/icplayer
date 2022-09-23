@@ -26,6 +26,7 @@ function Addoncrossword_create(){
     presenter.markedColumnIndex = 0;
     presenter.markedRowIndex = 0;
     presenter.maxTabIndex = 0;
+    presenter.areUserAnswersSaved = false;
 
     var enableMoveToNextField = false;
 
@@ -1649,6 +1650,7 @@ function Addoncrossword_create(){
 
     presenter.showAnswers = function () {
         if (presenter.isWordNumbersCorrect()) {
+            presenter.saveUserAnswers();
             if (presenter.isShowAnswersActive) {
                 presenter.hideAnswers();
             }
@@ -1656,7 +1658,6 @@ function Addoncrossword_create(){
             presenter.setWorkMode();
             presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
 
-            presenter.saveUserAnswers();
             presenter.replaceUserAnswersByModelAnswers();
         }
     };
@@ -1667,6 +1668,7 @@ function Addoncrossword_create(){
             presenter.isShowAnswersActive = false;
             presenter.isGradualShowAnswersActive = false;
             if (!presenter.userAnswers) {
+                presenter.areUserAnswersSaved = false;
                 return;
             }
 
@@ -1692,8 +1694,10 @@ function Addoncrossword_create(){
     }
 
     presenter.saveUserAnswers = function () {
-        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
+        if (presenter.areUserAnswersSaved) return;
 
+        presenter.areUserAnswersSaved = true;
+        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
         presenter.userAnswers = new Array(presenter.rowCount);
         for (let row = 0; row < presenter.rowCount; row++) {
             presenter.userAnswers[row] = new Array(presenter.columnCount);
@@ -1724,6 +1728,7 @@ function Addoncrossword_create(){
                 }
             }
         }
+        presenter.areUserAnswersSaved = false;
     }
 
 
