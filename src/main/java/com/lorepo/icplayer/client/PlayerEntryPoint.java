@@ -251,7 +251,7 @@ public class PlayerEntryPoint implements EntryPoint {
 	    this.theApplication
 			.getPlayerServices()
 			.getEventBusService()
-			.sendValueChangedEvent("", "layout", "", value, "");
+			.sendValueChangedEvent("", "ChangeLayout", "", value, "");
 	}
 
 	private static native void fireCallback(JavaScriptObject callback) /*-{
