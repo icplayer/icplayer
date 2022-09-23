@@ -65,7 +65,19 @@ public class PrintableContentParser {
 		
 		public final native String getTailHtml() /*-{return this.tail;}-*/;
 	}
-	
+
+	private class SplitPageResult {
+		public String htmlToAdd;
+		public String printablePageHTML;
+		public String nonSplittablePageHTML;
+
+		public SplitPageResult(String htmlToAdd, String printablePageHTML, String nonSplittablePageHTML) {
+			this.htmlToAdd = htmlToAdd;
+			this.printablePageHTML = printablePageHTML;
+			this.nonSplittablePageHTML = nonSplittablePageHTML;
+		}
+	}
+
 	public interface PrintableHtmlTemplates extends SafeHtmlTemplates {
 		@Template("<tr class=\"printable_header single_column_print\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
 	    SafeHtml pageHeader(int height, SafeHtml content);
@@ -317,7 +329,7 @@ public class PrintableContentParser {
 		};
 	}
 	
-	private String parsePage(Page page, boolean randomizeModules, boolean showAnswers ) {
+	private String parsePage(Page page, boolean randomizeModules, boolean showAnswers) {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
@@ -446,9 +458,7 @@ public class PrintableContentParser {
 		List<String> pageHTMLs = generatePageHTMLs(sourcePages);
 		String result = "";
 		for(String pageHTML: pageHTMLs) {
-			result += "<div class='page'>";
 			result += pageHTML;
-			result += "</div>";
 		}
 		preloadPageHTMLs(this, result);
 	};
@@ -499,10 +509,73 @@ public class PrintableContentParser {
 		}
 		List<String> parsedPages = new ArrayList<String>();
 		for (Page page: pages) {
-			parsedPages.add(parsePage(page, randomizeModules, showAnswers));
+			String result = "<div class='page";
+			result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
+			result += parsePage(page, randomizeModules, showAnswers);
+			result += "</div>";
+			parsedPages.add(result);
+		}
+		return parsedPages;
+	}
+
+	private boolean isStartOfPage(String html) {
+		return html.contains("class=\"page\"");
+	}
+
+	private boolean isStartOfUnsplittablePage(String html) {
+		return !html.contains("class=\"page splittable");
+	}
+
+	private boolean isHTMLBiggerThanA4(String html) {
+		int a4Height = getA4HeightInPixels(10);
+		int a4Width = getA4WidthInPixels(10);
+		return getHTMLHeight(applyHeaderAndFooter(html, false), a4Width) > a4Height;
+	};
+
+	private SplitPageResult splitAccumulatedHTMLmarkRestNonSplittable(String printablePageHTML, String nonSplittablePageHTML) {
+		int pageMaxHeight = getA4HeightInPixels(10);
+		int pageWidth = getA4WidthInPixels(10);
+		String htmlToAdd = "";
+
+		if (printablePageHTML.length() > 0) {
+			htmlToAdd += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
+			printablePageHTML = "";
+			if (isHTMLBiggerThanA4(nonSplittablePageHTML)) {
+				SplitResult splitPageOutput = splitPageModules(this, nonSplittablePageHTML, pageWidth, pageMaxHeight);
+				htmlToAdd += splitPageOutput.getHeadHtml();
+				nonSplittablePageHTML = splitPageOutput.getTailHtml();
+			}
+		} else {
+			SplitResult splitPageOutput = splitPageModules(this, nonSplittablePageHTML, pageWidth, pageMaxHeight);
+			htmlToAdd += splitPageOutput.getHeadHtml();
+			nonSplittablePageHTML = splitPageOutput.getTailHtml();
 		}
 
-		return parsedPages;
+		return new SplitPageResult(htmlToAdd, printablePageHTML, nonSplittablePageHTML);
+	}
+
+	private SplitPageResult splitAccumulatedHTMLmarkRestSplittable(String printablePageHTML, String nonSplittablePageHTML) {
+		int pageMaxHeight = getA4HeightInPixels(10);
+		int pageWidth = getA4WidthInPixels(10);
+		String htmlToAdd = "";
+		
+		if (printablePageHTML.length() > 0) {
+			htmlToAdd += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
+			printablePageHTML = "";
+			if (isHTMLBiggerThanA4(nonSplittablePageHTML)) {
+				SplitResult splitPageOutput = splitPageModules(this, nonSplittablePageHTML, pageWidth, pageMaxHeight);
+				htmlToAdd += splitPageOutput.getHeadHtml();			
+				printablePageHTML = splitPageOutput.getTailHtml();
+				nonSplittablePageHTML = "";
+			}
+		} else {
+			SplitResult splitPageOutput = splitPageModules(this, nonSplittablePageHTML, pageWidth, pageMaxHeight);
+			htmlToAdd += splitPageOutput.getHeadHtml();
+			printablePageHTML = splitPageOutput.getTailHtml();
+			nonSplittablePageHTML = "";
+		}
+
+		return new SplitPageResult(htmlToAdd, printablePageHTML, nonSplittablePageHTML);
 	}
 
 	private String paginatePageHTMLs(List<String> pageHTMLs) {
@@ -510,17 +583,52 @@ public class PrintableContentParser {
 		contentHeight = pageMaxHeight - footerHeight - headerHeight;
 		int pageWidth = getA4WidthInPixels(10);
 		String printablePageHTML = "";
+		String nonSplittablePageHTML = "";
 		boolean twoColumnPrintOriginalValue = enableTwoColumnPrint;
 
 		String result = "<div class='printable_lesson'>";
 		boolean firstPage = true;
 		for (String wrappedPageHTML: pageHTMLs) {
 			String pageHTML = unwrapHTML(wrappedPageHTML);
-			String newPrintablePageHTML = printablePageHTML + pageHTML;
 			if (firstPage && enableTwoColumnPrint) { // First mauthor page is always in single column
 				enableTwoColumnPrint = false;
 			}
-			if (getHTMLHeight(applyHeaderAndFooter(newPrintablePageHTML, false), pageWidth) > pageMaxHeight) {
+
+			if (isStartOfPage(wrappedPageHTML)) {
+				if (nonSplittablePageHTML.length() > 0) {
+					if (isHTMLBiggerThanA4(nonSplittablePageHTML + printablePageHTML)) {
+						SplitPageResult splitPageResult = splitAccumulatedHTMLmarkRestSplittable(printablePageHTML, nonSplittablePageHTML);
+						result += splitPageResult.htmlToAdd;
+						printablePageHTML = splitPageResult.printablePageHTML;
+						nonSplittablePageHTML = splitPageResult.nonSplittablePageHTML;
+					} else {
+						printablePageHTML += nonSplittablePageHTML;
+						nonSplittablePageHTML = "";		
+					}
+				}
+				if (isStartOfUnsplittablePage(wrappedPageHTML)) {
+					nonSplittablePageHTML = pageHTML;
+					if (isHTMLBiggerThanA4(nonSplittablePageHTML + printablePageHTML)) {
+						SplitPageResult splitPageResult = splitAccumulatedHTMLmarkRestNonSplittable(printablePageHTML, nonSplittablePageHTML);
+						result += splitPageResult.htmlToAdd;
+						printablePageHTML = splitPageResult.printablePageHTML;
+						nonSplittablePageHTML = splitPageResult.nonSplittablePageHTML;
+					}
+					continue;
+				}
+			} else if (nonSplittablePageHTML.length() > 0) {
+				nonSplittablePageHTML += pageHTML;
+				if (isHTMLBiggerThanA4(nonSplittablePageHTML + printablePageHTML)) {
+					SplitPageResult splitPageResult = splitAccumulatedHTMLmarkRestNonSplittable(printablePageHTML, nonSplittablePageHTML);
+					result += splitPageResult.htmlToAdd;
+					printablePageHTML = splitPageResult.printablePageHTML;
+					nonSplittablePageHTML = splitPageResult.nonSplittablePageHTML;
+				}
+				continue;
+			}
+
+			String newPrintablePageHTML = printablePageHTML + pageHTML;
+			if (isHTMLBiggerThanA4(newPrintablePageHTML)) {
 				SplitResult splitPageOutput = splitPageModules(this, newPrintablePageHTML, pageWidth, pageMaxHeight);
 				result += splitPageOutput.getHeadHtml();
 				if (firstPage) {
@@ -539,8 +647,12 @@ public class PrintableContentParser {
 				firstPage = false;
 			}
 		}
+
 		if (printablePageHTML.length() > 0) {
 			result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
+		}
+		if (nonSplittablePageHTML.length() > 0) {
+			result += wrapPrintablePage(nonSplittablePageHTML, pageWidth, pageMaxHeight);
 		}
 
 		result += "</div>";
