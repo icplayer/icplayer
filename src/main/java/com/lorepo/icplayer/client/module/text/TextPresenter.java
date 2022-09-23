@@ -1491,7 +1491,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-	private boolean isActivity() {
+	@Override
+	public boolean isActivity() {
 		return module.isActivity();
 	}
 

@@ -1,9 +1,12 @@
-2022-09-19 Added disable axis lock property to the Ordering module
+2022-09-23 Added disable axis lock property to the Ordering module
+2022-09-23 Added GSA ignoring addons with is activity set  to false
+2022-09-15 Added value attribute in AddonProperty
 2022-09-08 Fixed bug where it was possible to insert one draggable element into gaps in multiple Table addons
 2022-09-05 Fixed displaying of model answer in the Crossword
 2022-09-02 Fixed GSA functionality for empty model answers in the Paragraph
 2022-09-02 Fixed reading text separator in gap text.
 2022-09-02 Fixed Media Recorder deleting recordings on check answers and play blocking in certain conditions
+2022-08-31 Added external library injection support
 2022-08-29 Added page_id to paginated score
 2022-08-29 Fixed recording problem in recorder when M1 processor is used
 2022-08-25 Fixed outstretchHeight command not working properly with layout argument
