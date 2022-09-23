@@ -653,4 +653,20 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 		return addonScoreWithMetadata.getScoreWithMetadata();
 	}
+
+	@Override
+	public boolean isActivity() {
+		for (IProperty property: model.getProperties()) {
+			String propertyName = property.getName().toLowerCase();
+			if ((propertyName.startsWith("is") || propertyName.startsWith("not")) && propertyName.endsWith("activity")) {
+				boolean value = Boolean.parseBoolean(property.getValue());
+				if (propertyName.indexOf("not") != 0) {
+					return !value;
+				} else {
+					return value;
+				}
+			}
+		}
+		return true;
+	}
 }
