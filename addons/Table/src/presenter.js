@@ -297,6 +297,7 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+        presenter.eventBus.addEventListener('ItemConsumed', this);
         presenter.eventBus.addEventListener('GradualShowAnswers', this);
         presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
@@ -1068,6 +1069,9 @@ function AddonTable_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        console.log("[TABLE] NOWY EVENT");
+        console.log(eventName);
+        console.log(eventData);
         if (eventName === "ShowAnswers") {
             presenter.showAnswers();
         } else if (eventName === "HideAnswers") {
@@ -1084,6 +1088,11 @@ function AddonTable_create() {
             }
         } else if (eventName === "GradualHideAnswers") {
             presenter.gradualHideAnswers();
+        } else if (eventName === "ItemConsumed" && presenter.configuration.isVisible) {
+            if (presenter.lastDraggedItem.value !== undefined && eventData.value == presenter.lastDraggedItem.value
+                && presenter.lastDraggedItem.item !== undefined && eventData.item == presenter.lastDraggedItem.item) {
+                presenter.lastDraggedItem = {};
+            }
         }
     };
 

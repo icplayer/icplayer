@@ -14,9 +14,12 @@ export class BaseRecorder extends Recorder {
 
     startRecording(stream) {
         this._clearRecorder();
+        const audioContext = AudioContextSingleton.getOrCreate();
         this.recorder = RecordRTC(stream, this._getOptions());
-        this.recorder.startRecording();
-        this._onStartRecordingCallback();
+        audioContext.resume().then(() => {
+            this.recorder.startRecording();
+            this._onStartRecordingCallback();
+        });
     }
 
     stopRecording() {
