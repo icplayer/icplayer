@@ -138,8 +138,31 @@ public class WCAGUtils {
 		JavaScriptUtils.log(html);
 		Element wrapper = DOM.createElement("div");
 		wrapper.setInnerHTML(html);
-		NodeList<Element> ols = wrapper.getElementsByTagName("ol");
-		for	(int i = 0; i < ols.getLength(); i++) {
+		NodeList<Element> lis = wrapper.getElementsByTagName("li");
+		for	(int i = 0; i < lis.getLength(); i++) {
+			Element selectedLI = lis.getItem(i);
+			Element currentElement = selectedLI;
+			int index = 0;
+			while (currentElement != null) {
+				if (currentElement.getTagName().toLowerCase().equals("li")) {
+					JavaScriptUtils.log("LI");
+					index += 1;
+					if (selectedLI.hasAttribute("value")) {
+						try {
+							index += Integer.parseInt(selectedLI.getAttribute("value")) - 1;
+							//selectedLI.setInnerHTML(". " + String.valueOf(count + value) + ". " + currentElement.getInnerHTML());
+							continue;
+						} catch (NumberFormatException e) {
+						}
+					}
+				}
+				currentElement = currentElement.getPreviousSiblingElement();
+			}
+			selectedLI.setInnerHTML(". " + String.valueOf(index) + ". " + currentElement.getInnerHTML());
+			selectedLI.setAttribute("value", String.valueOf(index));
+		}
+
+		/*for	(int i = 0; i < ols.getLength(); i++) {
 			JavaScriptUtils.log("ol element");
 			Node olNode = ols.getItem(i);
 			int index = 0;
@@ -158,7 +181,7 @@ public class WCAGUtils {
 					}
 				}
 			}
-		}
+		}*/
 		JavaScriptUtils.log(wrapper.getInnerHTML());
 		return wrapper.getInnerHTML();
 	}
