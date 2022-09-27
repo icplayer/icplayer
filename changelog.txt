@@ -1,3 +1,4 @@
+2022-09-27 Added getView() to Ordering module
 2022-09-02 Fixed GSA functionality for empty model answers in the Paragraph
 2022-09-02 Fixed reading text separator in gap text.
 2022-09-02 Fixed Media Recorder deleting recordings on check answers and play blocking in certain conditions
