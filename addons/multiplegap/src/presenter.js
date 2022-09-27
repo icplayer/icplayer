@@ -410,9 +410,6 @@ function Addonmultiplegap_create(){
     
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
-            console.log("[MULTIPLEGAP] NOWY EVENT");
-            console.log(eventName);
-            console.log(eventData);
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
             
             if (eventName === "ItemConsumed") {

@@ -870,11 +870,13 @@ function AddonTable_create() {
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.enableAllGaps();
     };
 
     presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.disableAllGaps();
     };
 
     presenter.getGapText = function (gapIndex) {
@@ -1069,9 +1071,6 @@ function AddonTable_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        console.log("[TABLE] NOWY EVENT");
-        console.log(eventName);
-        console.log(eventData);
         if (eventName === "ShowAnswers") {
             presenter.showAnswers();
         } else if (eventName === "HideAnswers") {
@@ -1902,7 +1901,7 @@ function AddonTable_create() {
     presenter.ValueChangeObserver = function () {};
 
     presenter.ValueChangeObserver.prototype.notify = function (data) {
-        if(presenter.configuration.isVisible) presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
+        presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
 
         if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
