@@ -18,6 +18,8 @@ public class AddonParamFactory {
 			return new EventAddonParam(parent, type);
 		} else if(lowerCaseType.compareTo("file") == 0) {
 			return new FileAddonParam(parent, type);
+		} else if (lowerCaseType.compareTo("script") == 0) {
+			return new ScriptAddonParam(parent, type);
 		} else if(lowerCaseType.compareTo("html") == 0) {
 			return new HTMLAddonParam(parent, type);
 		} else if(lowerCaseType.compareTo("image") == 0) {

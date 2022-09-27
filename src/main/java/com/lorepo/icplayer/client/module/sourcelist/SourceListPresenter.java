@@ -630,4 +630,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
 		this.items = JSONUtils.decodeSet(decodedState.get("items"));
 	}
+
+	@Override
+	public boolean isActivity() {
+		return true;
+	}
 }

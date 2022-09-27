@@ -521,7 +521,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return "";
 	}
 
-	private boolean isActivity () {
+	@Override
+	public boolean isActivity () {
 		return module.isActivity();
 	}
 

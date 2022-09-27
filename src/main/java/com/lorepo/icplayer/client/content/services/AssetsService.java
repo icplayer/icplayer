@@ -1,10 +1,12 @@
 package com.lorepo.icplayer.client.content.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 import com.lorepo.icplayer.client.model.IAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -50,4 +52,18 @@ public class AssetsService implements IAssetsService {
 
 		return JavaScriptUtils.createHashMap(map);
 	}
+
+	public Map<String, ScriptAsset> getAttachedLibraries() {
+		Map<String, ScriptAsset> attachedLibraries = new HashMap<String, ScriptAsset>();
+		for (IAsset asset : assets) {
+			String type = asset.getType();
+			if (type.equals("script")) {
+				String fileName = asset.getFileName().isEmpty() ? asset.getHref() : asset.getFileName();
+				ScriptAsset fileAsset = new ScriptAsset(asset.getHref());
+				attachedLibraries.put(fileName, fileAsset);
+			}
+		}
+
+		return attachedLibraries;
+	} 
 }

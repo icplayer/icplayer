@@ -566,7 +566,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		setState(value);
 	}
 
-	private boolean isActivity() {
+	@Override
+	public boolean isActivity() {
 		return model.isActivity();
 	}
 
