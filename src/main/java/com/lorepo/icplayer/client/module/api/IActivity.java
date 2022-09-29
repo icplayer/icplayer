@@ -12,4 +12,6 @@ public interface IActivity {
 	public int getMaxScore();
 
 	public int getScore();
+
+	public boolean isActivity();
 }

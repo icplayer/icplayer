@@ -39,6 +39,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 
 	private boolean isVertical = true;
+	private boolean disableAxisLock = false;
 	private final int maxScore = 1;
 	private final ArrayList<OrderingItem> items = new ArrayList<OrderingItem>();
 	private IListProperty itemsProperty;
@@ -78,6 +79,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyLangAttribute();
 		addPropertyPrintable();
 		addPropertyIsSplitInPrintBlocked();
+		addPropertyDisableAxisLock();
 	}
 
 	public void validate() {
@@ -173,6 +175,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 			printableValue = XMLUtils.getAttributeAsString(ordering, "printable");
 			isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(ordering, "isSplitInPrintBlocked");
+			disableAxisLock = XMLUtils.getAttributeAsBoolean(ordering, "disableAxisLock");
 			
 		}
 
@@ -280,6 +283,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		ordering.setAttribute("wrong", this.speechTextItems.get(4).getText());
 		ordering.setAttribute("printable", printableValue);
 		XMLUtils.setBooleanAttribute(ordering, "isSplitInPrintBlocked", isSplitInPrintBlocked);
+		XMLUtils.setBooleanAttribute(ordering, "disableAxisLock", disableAxisLock);
 		
 		orderingModule.appendChild(ordering);
 
@@ -1048,6 +1052,47 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public boolean isSplitInPrintBlocked() {
 		return isSplitInPrintBlocked;
 	}
+
+	private void addPropertyDisableAxisLock() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != disableAxisLock) {
+					disableAxisLock = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return disableAxisLock ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("ordering_disable_axis_lock");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("ordering_disable_axis_lock");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean isAxisLockDisabled() { return disableAxisLock; }
 
 	@Override
 	public void setPrintableState(String state) {

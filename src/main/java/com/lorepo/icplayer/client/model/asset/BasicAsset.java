@@ -33,6 +33,10 @@ public class BasicAsset implements IAsset{
 		return href;
 	}
 
+	@Override
+	public String getType() {
+		return type;
+	}
 
 	@Override
 	public String toXML() {
