@@ -1071,27 +1071,40 @@ function AddonTable_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        } else if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        } else if (eventName === "ItemSelected" && presenter.configuration.isVisible) {
-            presenter.lastDraggedItem = eventData;
-        } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
-            }
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (!presenter.isGradualShowAnswersActive) {
+                    presenter.isGradualShowAnswersActive = true;
+                }
+                if (eventData.moduleID === presenter.configuration.addonID) {
+                    presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
+            case "ItemSelected":
+                if(presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = eventData;
+                }
+                break;
+            case "ItemConsumed":
+                const isEqualToDraggedValue = presenter.lastDraggedItem.value && eventData.value === presenter.lastDraggedItem.value
+                const isEqualToDraggedItem = presenter.lastDraggedItem.item && eventData.item === presenter.lastDraggedItem.item
 
-            if (eventData.moduleID === presenter.configuration.addonID) {
-                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
-            }
-        } else if (eventName === "GradualHideAnswers") {
-            presenter.gradualHideAnswers();
-        } else if (eventName === "ItemConsumed" && presenter.configuration.isVisible) {
-            if (presenter.lastDraggedItem.value !== undefined && eventData.value == presenter.lastDraggedItem.value
-                && presenter.lastDraggedItem.item !== undefined && eventData.item == presenter.lastDraggedItem.item) {
-                presenter.lastDraggedItem = {};
-            }
+                if (isEqualToDraggedValue  && isEqualToDraggedItem && presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = {};
+                }
+                break;
+            default:
+                break;
+            
         }
     };
 
