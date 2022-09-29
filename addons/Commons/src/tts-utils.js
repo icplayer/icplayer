@@ -18,6 +18,7 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
+            console.log("getTextVoiceArrayFromElement3");
             var $clone = $element.clone();
 
             $clone = this._prepareAltTexts($clone);
@@ -33,6 +34,7 @@
         },
 
         getTextVoiceArrayFromElementWithGaps: function($element, presenterLangTag, speechTextsModel) {
+            console.log("getTextVoiceArrayFromElementWithGaps5");
             var $clone = $('<div></div>').append($element.clone());
 
 
@@ -59,6 +61,7 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
+            $clone = this._prepareLists($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
 
@@ -193,6 +196,36 @@
                 $('<span>' + breakText + '</span>').insertBefore($(this));
                 $('<span>' + breakText + '</span>').insertAfter($(this));
                 $('<span>' + altText + '</span>').insertAfter($(this));
+            });
+
+            return $clone;
+        },
+
+        _prepareLists: function($clone) {
+            console.log("_prepareLists3");
+            $clone.find('li').each(function(){
+                console.log(this);
+                /*var index = 0;
+                var currentElement = this;
+                while (currentElement != null) {
+                    console.log("element");
+                    if (currentElement.nodeName.toLowerCase().equals("li")) {
+                        index += 1;
+                        console.log("li");
+                        if (currentElement.hasAttribute("value")) {
+                            var value = currentElement.getAttribute("value");
+                            console.log("has value");
+                            if (!isNaN(value) {
+                                index += parseInt(value) - 1;
+                                console.log(index);
+                                break;
+                            }
+                        }
+                    }
+                    currentElement = currentElement.getPreviousSiblingElement();
+                }
+                this.innerHTML = ". " + index + ": " + this.innerHTML;
+                this.setAttribute("value", index);*/
             });
 
             return $clone;

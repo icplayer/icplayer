@@ -8,7 +8,6 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -134,8 +133,6 @@ public class WCAGUtils {
 	}
 
 	private static String addListNumbers(String html) {
-		JavaScriptUtils.log("addListNumbers");
-		JavaScriptUtils.log(html);
 		Element wrapper = DOM.createElement("div");
 		wrapper.setInnerHTML(html);
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
@@ -145,74 +142,20 @@ public class WCAGUtils {
 			int index = 0;
 			while (currentElement != null) {
 				if (currentElement.getTagName().toLowerCase().equals("li")) {
-					JavaScriptUtils.log("LI");
 					index += 1;
-					if (selectedLI.hasAttribute("value")) {
+					if (currentElement.hasAttribute("value")) {
 						try {
-							index += Integer.parseInt(selectedLI.getAttribute("value")) - 1;
-							//selectedLI.setInnerHTML(". " + String.valueOf(count + value) + ". " + currentElement.getInnerHTML());
-							continue;
+							index += Integer.parseInt(currentElement.getAttribute("value")) - 1;
+							break;
 						} catch (NumberFormatException e) {
 						}
 					}
 				}
 				currentElement = currentElement.getPreviousSiblingElement();
 			}
-			selectedLI.setInnerHTML(". " + String.valueOf(index) + ". " + currentElement.getInnerHTML());
+			selectedLI.setInnerHTML(". " + String.valueOf(index) + ": " + selectedLI.getInnerHTML());
 			selectedLI.setAttribute("value", String.valueOf(index));
 		}
-
-		/*for	(int i = 0; i < ols.getLength(); i++) {
-			JavaScriptUtils.log("ol element");
-			Node olNode = ols.getItem(i);
-			int index = 0;
-			for (int j = 0; j < olNode.getChildCount(); j++) {
-				JavaScriptUtils.log("ol child");
-				Node child =olNode.getChild(j);
-				if (child instanceof Element) {
-					JavaScriptUtils.log("ol child element");
-					Element element = (Element) child;
-					JavaScriptUtils.log(element.getTagName());
-					if(element.getTagName().toLowerCase().equals("li")) {
-						JavaScriptUtils.log("is li");
-						index += 1;
-						element.setInnerHTML(". "+String.valueOf(index)+". "+element.getInnerHTML());
-						JavaScriptUtils.log(index);
-					}
-				}
-			}
-		}*/
-		JavaScriptUtils.log(wrapper.getInnerHTML());
-		return wrapper.getInnerHTML();
-	}
-
-	private static String addListNumbers2(String html) {
-		JavaScriptUtils.log("addListNumbers");
-		JavaScriptUtils.log(html);
-		Element wrapper = DOM.createElement("div");
-		wrapper.setInnerHTML(html);
-		NodeList<Element> ols = wrapper.getElementsByTagName("li");
-		for	(int i = 0; i < ols.getLength(); i++) {
-			JavaScriptUtils.log("ol element");
-			Node olNode = ols.getItem(i);
-			int index = 0;
-			for (int j = 0; j < olNode.getChildCount(); j++) {
-				JavaScriptUtils.log("ol child");
-				Node child =olNode.getChild(j);
-				if (child instanceof Element) {
-					JavaScriptUtils.log("ol child element");
-					Element element = (Element) child;
-					JavaScriptUtils.log(element.getTagName());
-					if(element.getTagName().toLowerCase().equals("li")) {
-						JavaScriptUtils.log("is li");
-						index += 1;
-						element.setInnerHTML(". "+String.valueOf(index)+". "+element.getInnerHTML());
-						JavaScriptUtils.log(index);
-					}
-				}
-			}
-		}
-		JavaScriptUtils.log(wrapper.getInnerHTML());
 		return wrapper.getInnerHTML();
 	}
 
