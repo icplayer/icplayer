@@ -345,18 +345,21 @@ public class PrintableContentParser {
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			IModuleModel model = modules.get(i);
+			Group modelGroup = null;
 			if (model.hasGroup()) {
-				Group modelGroup = null;
 				for (Group group: page.getGroupedModules()) {
 					if (group.contains(model)) {
 						modelGroup = group;
 					}
 				}
-				if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
-					parsedGroups.add(modelGroup);
-					pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));
+				if (modelGroup != null) {
+					if (!parsedGroups.contains(modelGroup)) {
+						parsedGroups.add(modelGroup);
+						pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));	
+					}
 				}
-			}else if (model instanceof IPrintableModuleModel) {
+			}
+			if (modelGroup == null && model instanceof IPrintableModuleModel) {
 				IPrintableModuleModel printable = (IPrintableModuleModel) model;
 				if (printable.getPrintableMode() != PrintableMode.NO) {
 					pagePrintables.add(printable);
@@ -687,13 +690,11 @@ public class PrintableContentParser {
 		generatePrintableHTMLForPages(pages);
 	}
 
-	private void createContentInformation (
-			Content contentModel, ArrayList<Integer> pageSubset) {
+	private void createContentInformation (Content contentModel, ArrayList<Integer> pageSubset) {
 		this.contentInformation.clear();
 		IChapter tableOfContents = contentModel.getTableOfContents();
 
-		updateContentInformation(
-				tableOfContents, pageSubset, 0, null);
+		updateContentInformation(tableOfContents, pageSubset, 0, null);
 	}
 
 	private int updateContentInformation (
