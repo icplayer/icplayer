@@ -352,11 +352,9 @@ public class PrintableContentParser {
 						modelGroup = group;
 					}
 				}
-				if (modelGroup != null) {
-					if (!parsedGroups.contains(modelGroup)) {
-						parsedGroups.add(modelGroup);
-						pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));	
-					}
+				if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
+					parsedGroups.add(modelGroup);
+					pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));	
 				}
 			}
 			if (modelGroup == null && model instanceof IPrintableModuleModel) {
