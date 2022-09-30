@@ -520,7 +520,7 @@ public class PrintableContentParser {
 	}
 
 	private boolean isStartOfPage(String html) {
-		return html.contains("class=\"page\"");
+		return html.contains("class=\"page");
 	}
 
 	private boolean isStartOfUnsplittablePage(String html) {
@@ -649,11 +649,13 @@ public class PrintableContentParser {
 			}
 		}
 
-		if (printablePageHTML.length() > 0) {
-			result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
-		}
-		if (nonSplittablePageHTML.length() > 0) {
-			result += wrapPrintablePage(nonSplittablePageHTML, pageWidth, pageMaxHeight);
+		String rest = printablePageHTML + nonSplittablePageHTML;
+		if (isHTMLBiggerThanA4(rest)) {
+			SplitPageResult splitPageResult = splitAccumulatedHTMLmarkRestSplittable(printablePageHTML, nonSplittablePageHTML);
+			result += splitPageResult.htmlToAdd;
+			result += wrapPrintablePage(splitPageResult.printablePageHTML , pageWidth, pageMaxHeight);
+		} else {
+			result += wrapPrintablePage(printablePageHTML + nonSplittablePageHTML, pageWidth, pageMaxHeight);
 		}
 
 		result += "</div>";
