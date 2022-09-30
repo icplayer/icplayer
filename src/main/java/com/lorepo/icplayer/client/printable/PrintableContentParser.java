@@ -354,7 +354,7 @@ public class PrintableContentParser {
 				}
 				if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
 					parsedGroups.add(modelGroup);
-					pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));	
+					pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));
 				}
 			}
 			if (modelGroup == null && model instanceof IPrintableModuleModel) {
