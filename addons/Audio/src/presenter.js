@@ -7,6 +7,8 @@ function AddonAudio_create(){
     var currentTimeAlreadySent;
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var audioIsLoaded = false;
+    var fetchedAudioData;
+    var isReadyToReplay = true;
 
     presenter.playbackRate = 1.0;
     var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -103,6 +105,10 @@ function AddonAudio_create(){
     function addonAudio_formatTime (seconds) {
         return StringUtils.timeFormat(seconds);
     }
+
+    presenter.AddonAudio_onProgressedCallback = function () {
+        deferredSyncQueue.resolve();
+    };
 
     presenter.AddonAudio_onLoadedMetadataCallback = function () {
         var duration = parseInt(presenter.audio.duration, 10);
@@ -518,7 +524,7 @@ function AddonAudio_create(){
 
     function AddonAudio_attachEventListenersForIOS(audio) {
         if (presenter.configuration.forceLoadAudio) {
-            audio.addEventListener('progress', presenter.AddonAudio_onLoadedMetadataCallback, { once: true });
+            audio.addEventListener('progress', presenter.AddonAudio_onProgressedCallback, { once: true });
         }
     }
 
@@ -539,7 +545,7 @@ function AddonAudio_create(){
 
     function AddonAudio_removeEventListenersForIOS(audio) {
         if (presenter.configuration.forceLoadAudio) {
-            audio.removeEventListener('progress', presenter.AddonAudio_onLoadedMetadataCallback, { once: true });
+            audio.removeEventListener('progress', presenter.AddonAudio_onProgressedCallback, { once: true });
         }
     }
 
@@ -573,8 +579,8 @@ function AddonAudio_create(){
 
     presenter.loadAudioDataFromRequest = function (event) {
         if (event.currentTarget.status == 200) {
-            var audioData = event.currentTarget.response;
-            presenter.audio.src = URL.createObjectURL(audioData);
+            fetchedAudioData = event.currentTarget.response;
+            presenter.audio.src = URL.createObjectURL(fetchedAudioData);
             audioIsLoaded = true;
         }
     };
@@ -652,6 +658,9 @@ function AddonAudio_create(){
         presenter.playerController = null;
 
         AddonAudio_removeEventListeners(presenter.audio);
+        if (presenter.configuration.forceLoadAudio && audioIsLoaded) {
+            URL.revokeObjectURL(presenter.audio.src);
+        }
         presenter.audio.setAttribute('src', '');
         presenter.audio.load();
         presenter.audio = null;
@@ -745,6 +754,9 @@ function AddonAudio_create(){
     presenter.play = deferredSyncQueue.decorate(function() {
         if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
+            if (!isReadyToReplay) {
+                prepareToReplay();
+            }
             presenter.audio.play();
             if (presenter.configuration.isHtmlPlayer) {
                 presenter.$playPauseBtn.
@@ -768,9 +780,24 @@ function AddonAudio_create(){
         }
     });
 
+    function prepareToReplay() {
+        if (isMobileIOS()) {
+            prepareToReplayOnMobileIOS()
+        }
+        isReadyToReplay = true;
+    }
+
+    function prepareToReplayOnMobileIOS() {
+        if (presenter.configuration.forceLoadAudio) {
+            URL.revokeObjectURL(presenter.audio.src);
+            presenter.audio.src = URL.createObjectURL(fetchedAudioData);
+        }
+    }
+
     presenter.stop = deferredSyncQueue.decorate(function AddonAudio_stop () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
+            isReadyToReplay = false;
             presenter.pause();
             presenter.audio.currentTime = 0;
         }
