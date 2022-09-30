@@ -5,6 +5,9 @@ TestCase("[Table] Get selected item", {
             name: "testData",
             type: "a;lksjdjf"
         };
+        this.presenter.configuration = {
+            isVisible: true
+        };
     },
 
     'test should return event data received from last received ItemSelected event': function () {
