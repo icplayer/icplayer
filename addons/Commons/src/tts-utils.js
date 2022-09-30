@@ -18,11 +18,12 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
-            console.log("getTextVoiceArrayFromElement3");
+            console.log("getTextVoiceArrayFromElement2");
             var $clone = $element.clone();
 
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
+            $clone = this._prepareLists($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
             var TextVoiceArray = [];
@@ -34,7 +35,7 @@
         },
 
         getTextVoiceArrayFromElementWithGaps: function($element, presenterLangTag, speechTextsModel) {
-            console.log("getTextVoiceArrayFromElementWithGaps5");
+            console.log("getTextVoiceArrayFromElementWithGaps2");
             var $clone = $('<div></div>').append($element.clone());
 
 
@@ -202,30 +203,24 @@
         },
 
         _prepareLists: function($clone) {
-            console.log("_prepareLists3");
-            $clone.find('li').each(function(){
-                console.log(this);
-                /*var index = 0;
+            $clone.find('ol > li').each(function(){
+                var index = 0;
                 var currentElement = this;
                 while (currentElement != null) {
-                    console.log("element");
-                    if (currentElement.nodeName.toLowerCase().equals("li")) {
+                    if (currentElement.nodeName && currentElement.nodeName.toLowerCase()  == "li") {
                         index += 1;
-                        console.log("li");
                         if (currentElement.hasAttribute("value")) {
                             var value = currentElement.getAttribute("value");
-                            console.log("has value");
-                            if (!isNaN(value) {
+                            if (!isNaN(value)) {
                                 index += parseInt(value) - 1;
-                                console.log(index);
                                 break;
                             }
                         }
                     }
-                    currentElement = currentElement.getPreviousSiblingElement();
+                    currentElement = currentElement.previousSibling;
                 }
                 this.innerHTML = ". " + index + ": " + this.innerHTML;
-                this.setAttribute("value", index);*/
+                this.setAttribute("value", index);
             });
 
             return $clone;
