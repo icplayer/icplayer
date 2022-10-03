@@ -138,6 +138,7 @@ public class WCAGUtils {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
 		for	(int i = 0; i < lis.getLength(); i++) {
 			Element selectedLI = lis.getItem(i);
+			if(selectedLI.getParentElement().getTagName().toLowerCase().equals("ul")) continue;
 			Element currentElement = selectedLI;
 			int index = 0;
 			while (currentElement != null) {

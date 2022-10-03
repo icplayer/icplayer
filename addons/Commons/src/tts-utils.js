@@ -18,7 +18,6 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
-            console.log("getTextVoiceArrayFromElement2");
             var $clone = $element.clone();
 
             $clone = this._prepareAltTexts($clone);
@@ -35,7 +34,6 @@
         },
 
         getTextVoiceArrayFromElementWithGaps: function($element, presenterLangTag, speechTextsModel) {
-            console.log("getTextVoiceArrayFromElementWithGaps2");
             var $clone = $('<div></div>').append($element.clone());
 
 
