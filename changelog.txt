@@ -1,3 +1,4 @@
+2022-10-05 Added methods for accessing correct/incorrect/partial/empty feedbacks to the Automatic Feedback addon
 2022-09-27 Fixed bug where Table would steal events from other addons when it was hidden
 2022-09-27 Added getView() to Ordering module
 2022-09-23 Added disable axis lock property to the Ordering module
