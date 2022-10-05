@@ -119,10 +119,6 @@ public class PageHeightModifications {
 	private void addToModificationsMap(int y, int height, Boolean dontMoveModules, String layoutName) {
 		this.modifications.add(new ListEntry(height, y, dontMoveModules.booleanValue(), layoutName));
 	}
-
-	private void addToModificationsMap(int y, int height, Boolean dontMoveModules) {
-		this.modifications.add(new ListEntry(height, y, dontMoveModules.booleanValue()));
-	}
 	
 	private native JavaScriptObject parse(PageHeightModifications x, String jsonText) /*-{
 		var data = JSON.parse(jsonText);
