@@ -101,6 +101,9 @@ TestCase("[Table] [Value Change Observer] Notify", {
 
     'test should send ValueChanged event by event bus with provided data by getEventData': function () {
         this.stubs.getEventData.returns(this.expectedData);
+        this.presenter.configuration = {
+            isVisible: true
+        };
 
         this.valueChangeObserver.notify({});
 
