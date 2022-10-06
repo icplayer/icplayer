@@ -1,3 +1,4 @@
+2022-10-06 Fixed tts not reading numbers of ordered lists
 2022-10-06 Fixed functionality of "Force Load Audio" in Audio on IOS
 2022-10-06 Added new page property to block page splitting in print
 2022-09-27 Fixed bug where Table would steal events from other addons when it was hidden
