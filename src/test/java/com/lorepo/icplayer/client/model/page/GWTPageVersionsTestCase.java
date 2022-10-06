@@ -38,7 +38,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	private int pageWeight = 1;
 	private boolean randomizeInPrint = true;
 	private boolean notAssignable = false;
-	private boolean isSplitIntPrintBlocked = false;
+	private boolean isSplitInPrintBlocked = false;
 	
 	private String getFromFile(String path) throws IOException {
 		InputStream xmlStream = getClass().getResourceAsStream(path);
@@ -212,7 +212,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 
 		assertEquals(this.randomizeInPrint, this.page.getRandomizeInPrint());
 		assertEquals(this.notAssignable, this.page.isNotAssignable());
-		assertEquals(this.isSplitIntPrintBlocked, this.page.isSplitIntPrintBlocked());
+		assertEquals(this.isSplitInPrintBlocked, this.page.isSplitInPrintBlocked());
 	}
 
 	@Test
@@ -540,7 +540,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 
 	@Test
 	public void updatingVersion6Page() throws IOException, SAXException {
-		String expectedXML = getFromFile("testdata/PageVersion7.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion6.xml");
 
 		String result = page.toXML();
@@ -592,6 +592,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	public void pageVersion8IsSplitInPrintBlocked() throws SAXException, IOException {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion8IsSplitInPrintBlocked.xml");
 
-		assertTrue(this.page.isSplitIntPrintBlocked());
+		assertTrue(this.page.isSplitInPrintBlocked());
 	}
 }
