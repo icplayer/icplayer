@@ -1,3 +1,4 @@
+2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element 
 2022-10-06 Fixed downloading zip package for Android mLibro app
 2022-10-06 Fixed tts not reading numbers of ordered lists
 2022-10-06 Fixed functionality of "Force Load Audio" in Audio on IOS
