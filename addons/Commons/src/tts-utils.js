@@ -22,6 +22,7 @@
 
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
+            $clone = this._prepareLists($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
             var TextVoiceArray = [];
@@ -59,6 +60,7 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
+            $clone = this._prepareLists($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
 
@@ -193,6 +195,30 @@
                 $('<span>' + breakText + '</span>').insertBefore($(this));
                 $('<span>' + breakText + '</span>').insertAfter($(this));
                 $('<span>' + altText + '</span>').insertAfter($(this));
+            });
+
+            return $clone;
+        },
+
+        _prepareLists: function($clone) {
+            $clone.find('ol > li').each(function(){
+                var index = 0;
+                var currentElement = this;
+                while (currentElement != null) {
+                    if (currentElement.nodeName && currentElement.nodeName.toLowerCase()  == "li") {
+                        index += 1;
+                        if (currentElement.hasAttribute("value")) {
+                            var value = currentElement.getAttribute("value");
+                            if (!isNaN(value)) {
+                                index += parseInt(value) - 1;
+                                break;
+                            }
+                        }
+                    }
+                    currentElement = currentElement.previousSibling;
+                }
+                this.innerHTML = ". " + index + ": " + this.innerHTML;
+                this.setAttribute("value", index);
             });
 
             return $clone;
