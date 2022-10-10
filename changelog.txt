@@ -1,4 +1,4 @@
-2022-10-10 Removed self-increasing text on IOS
+2022-10-10 Fixed bug with self-increasing text on IOS
 2022-10-10 Added Enlarge Button to header in present view
 2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element 
 2022-10-06 Fixed downloading zip package for Android mLibro app
