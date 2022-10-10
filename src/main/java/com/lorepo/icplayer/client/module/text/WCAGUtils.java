@@ -3,6 +3,10 @@ package com.lorepo.icplayer.client.module.text;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
@@ -128,9 +132,38 @@ public class WCAGUtils {
 	    return text.replaceAll("</li>", ", </li>");
 	}
 
+	private static String addListNumbers(String html) {
+		Element wrapper = DOM.createElement("div");
+		wrapper.setInnerHTML(html);
+		NodeList<Element> lis = wrapper.getElementsByTagName("li");
+		for	(int i = 0; i < lis.getLength(); i++) {
+			Element selectedLI = lis.getItem(i);
+			if(selectedLI.getParentElement().getTagName().toLowerCase().equals("ul")) continue;
+			Element currentElement = selectedLI;
+			int index = 0;
+			while (currentElement != null) {
+				if (currentElement.getTagName().toLowerCase().equals("li")) {
+					index += 1;
+					if (currentElement.hasAttribute("value")) {
+						try {
+							index += Integer.parseInt(currentElement.getAttribute("value")) - 1;
+							break;
+						} catch (NumberFormatException e) {
+						}
+					}
+				}
+				currentElement = currentElement.getPreviousSiblingElement();
+			}
+			selectedLI.setInnerHTML(". " + String.valueOf(index) + ": " + selectedLI.getInnerHTML());
+			selectedLI.setAttribute("value", String.valueOf(index));
+		}
+		return wrapper.getInnerHTML();
+	}
+
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
 		text = addSpacesToListTags(text);
+		text = addListNumbers(text);
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();

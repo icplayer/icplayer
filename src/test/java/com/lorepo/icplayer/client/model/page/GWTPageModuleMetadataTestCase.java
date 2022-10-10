@@ -24,7 +24,7 @@ import com.lorepo.icplayer.client.module.addon.AddonModel;
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageModuleMetadataTestCase extends GwtTest {
 	
-	final String  PAGE_MODULES_METADATA_PATH = "testdata/metadata/PageVersion7.xml";
+	final String  PAGE_MODULES_METADATA_PATH = "testdata/metadata/PageVersion8.xml";
 	
 	@Before
 	public void setUp() {
