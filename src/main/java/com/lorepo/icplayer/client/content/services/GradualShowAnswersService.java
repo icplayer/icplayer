@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -122,6 +123,10 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         List<IPresenter> pagePresenters = this.pageController.getPresenters();
         if (pagePresenters != null) {
             for (IPresenter presenter : pagePresenters) {
+                if (presenter instanceof IActivity) {
+                    boolean isActivity = ((IActivity)presenter).isActivity();
+                    if (!isActivity) continue;
+                }
                 if (presenter instanceof IGradualShowAnswersPresenter) {
                     presenters.add((IGradualShowAnswersPresenter) presenter);
                     presenterActivitiesCountUsed.put(presenter.getModel().getId(), 0);

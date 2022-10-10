@@ -552,4 +552,47 @@ public class PageTestCase {
 
 		assertTrue(page.isNotAssignable());
 	}
+
+	@Test
+	public void testGivenNewPageIsSplitInPrintBlockedByDefault(){
+		Page page = new Page("Page 1", "");
+
+		assertFalse(page.isSplitInPrintBlocked());
+	}
+
+	@Test
+	public void testGivenPageWhenLoadPageFromXMLWithNotDefinedIsSplitInPrintPropertyThenUseDefaultIsSplitInPropertyValue() throws Exception {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
+
+		Page page = new Page("Page 1", "");
+		assertFalse(page.isSplitInPrintBlocked());
+
+		loadPage("testdata/page.xml", page);
+
+		assertFalse(page.isSplitInPrintBlocked());
+	}
+
+	@Test
+	public void testGivenIsSplitInPrintBlockedByDefaultPageWhenChangingPropertyIsSplitInPrintBlockedToTrueThenValueChanged(){
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("printable_block_split_label")).thenReturn("Block&nbsp;splitting&nbsp;in&nbsp;print");
+
+		Page page = new Page("Page 1", "");
+		assertFalse(page.isSplitInPrintBlocked());
+
+		for (int i = 0; i < page.getPropertyCount(); i++){
+			IProperty property = page.getProperty(i);
+			if (property instanceof IBooleanProperty
+				&& property.getName().compareToIgnoreCase("Block&nbsp;splitting&nbsp;in&nbsp;print") == 0) {
+				property.setValue("true");
+			}
+		}
+
+		assertTrue(page.isSplitInPrintBlocked());
+	}
 }

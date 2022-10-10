@@ -416,6 +416,7 @@ var ice_dictionary_bl = {
 	"ordering_gradually_score": "Оценяй постепенно",
 	"ordering_disable_dragging": "Изключи влачене",
 	"ordering_item_starting_position": "Стартова позиция",
+	"ordering_disable_axis_lock": "Disable axis lock",
 	"page_progress_module" : "Напредък по страницата",
     "Page_progress_property_works_with" : "Работи с",
 	"real_time_calculation_property" : "Изчисляване в реално време",

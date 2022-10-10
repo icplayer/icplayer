@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v3;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v4;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v5;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v6;
+import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v7;
 
 public class PageFactory extends XMLVersionAwareFactory {
 	
@@ -30,6 +31,7 @@ public class PageFactory extends XMLVersionAwareFactory {
 		this.addParser(new PageParser_v4());
 		this.addParser(new PageParser_v5());
 		this.addParser(new PageParser_v6());
+		this.addParser(new PageParser_v7());
 		
 		if (defaultLayoutID != null) {
 			setDefaultLayoutID(defaultLayoutID);

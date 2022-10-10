@@ -76,12 +76,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	public JavaScriptObject getAsJavaScript() {
 		if (jsObject == null) {
-			jsObject = initJSObject(this, module.isVertical());
+			jsObject = initJSObject(this, module.isVertical(), module.isAxisLockDisabled());
 		}
 		return jsObject;
 	}
 
-	private native JavaScriptObject initJSObject(OrderingView x, boolean isVertical) /*-{
+	private native JavaScriptObject initJSObject(OrderingView x, boolean isVertical, boolean disableAxisLock) /*-{
 		var view = function(){};
 		view.markStart = function(startIndex) {
 			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markStart(I)(startIndex);
@@ -93,6 +93,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			return x.@com.lorepo.icplayer.client.module.ordering.OrderingView::markChange(I)(endIndex);
 		}
 		view.axis = isVertical ? "y" : "x";
+		view.disableAxisLock = disableAxisLock;
 
 		return view;
 	}-*/;
@@ -164,7 +165,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		var forceHide = false;
 		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
 		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
-		
+
 		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
@@ -185,9 +186,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		    return navigator.appName == 'Microsoft Internet Explorer' || (navigator.appName == "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
 		}
 
+		var axis = false;
+		if (!jsObject.disableAxisLock) {
+			axis = jsObject.axis;
+		}
+
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
-			axis: jsObject.axis,
+			axis: axis,
 			helper : 'clone',
 			tolerance: "pointer",
 			cursorAt: { left: 5 },
@@ -252,14 +258,21 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                     newTop = ui.position.top / scale.Y;
                 }
 
-				if (jsObject.axis == "y") {
+				if (jsObject.disableAxisLock) {
 					ui.helper.css({
+						left: newLeft,
 						top: newTop
 					});
 				} else {
-					ui.helper.css({
-						left: newLeft
-					});
+					if (jsObject.axis == "y") {
+						ui.helper.css({
+							top: newTop
+						});
+					} else {
+						ui.helper.css({
+							left: newLeft
+						});
+					}
 				}
 			},
 			stop: function(event, ui) {

@@ -55,12 +55,17 @@ function AddonExternal_Link_Button_create() {
         presenter.$ahref = $ahref;
         $ahref.attr('href',presenter.configuration.URI);
 
-        if (presenter.configuration.targetType == 'Blank'){
-            $ahref.attr('target','_blank');
-        } else if (presenter.configuration.targetType == 'Top') {
-            $ahref.attr('target','_top');
-        } else {
-            $ahref.attr('target','_blank');
+        switch(true) {
+            case (presenter.configuration.targetType == 'Blank'):
+            case window.navigator.userAgent.toLowerCase().includes('android'):
+                $ahref.attr('target','_blank');
+                break;
+            case (presenter.configuration.targetType == 'Top'):
+                $ahref.attr('target','_top');
+                break;
+            default:
+                $ahref.attr('target','_blank');
+                break;
         }
 
         $ahref.click(function (event) { event.stopPropagation(); });
