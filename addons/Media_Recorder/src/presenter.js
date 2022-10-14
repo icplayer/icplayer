@@ -3703,6 +3703,7 @@ var AddonViewService = exports.AddonViewService = function () {
         key: 'setVisibility',
         value: function setVisibility(isVisible) {
             this.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+            this.$view.parent().css('visibility', isVisible ? 'visible' : 'hidden');
         }
     }, {
         key: 'activate',
@@ -4146,8 +4147,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             return new Promise(function (resolve) {
                 _this3.mediaNode.muted = false;
                 if (_this3.onTimeUpdateCallback) {
-                    _this3.mediaNode.addEventListener('timeupdate', _this3.onTimeUpdateCallback);
-                    _this3.mediaNode.addEventListener('ended', _this3.onTimeUpdateCallback);
+                    _this3._enableTimerEventsHandling();
                 }
                 if (_this3._isNotOnlineResources(_this3.mediaNode.src)) resolve(_this3.mediaNode);
                 _this3.mediaNode.play();
@@ -4162,11 +4162,22 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 _this4.mediaNode.pause();
                 _this4.mediaNode.currentTime = 0;
                 if (_this4.onTimeUpdateCallback) {
-                    _this4.mediaNode.removeEventListener('timeupdate', _this4.onTimeUpdateCallback);
-                    _this4.mediaNode.removeEventListener('ended', _this4.onTimeUpdateCallback);
+                    _this4._disableTimerEventsHandling();
                 }
                 resolve();
             });
+        }
+    }, {
+        key: "_enableTimerEventsHandling",
+        value: function _enableTimerEventsHandling() {
+            this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+        }
+    }, {
+        key: "_disableTimerEventsHandling",
+        value: function _disableTimerEventsHandling() {
+            this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
         }
     }, {
         key: "pausePlaying",
