@@ -170,16 +170,20 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		String addonName = "Addon" + getAddonId() + "_create";
 		JavaScriptObject jsModel = createJsModel(this);
-		String className = this.getStyleClass();
 		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
-		String result = getPrintableHTML(addonName, jsModel, printController, printableState, printableAsyncID, printableAsyncCallback, showAnswers);
+		String result = getPrintableHTML(this, addonName, jsModel, printController, printableState, printableAsyncID, printableAsyncCallback, showAnswers);
 		if (result == null || result.length() == 0) return null;
-		result = PrintableContentParser.addClassToPrintableModule(result, className, !isSplitInPrintBlocked());
+		result = addClassToPrinatableModule(result);
 		return result;
 	}
+
+	private String addClassToPrinatableModule(String html) {
+		String className = this.getStyleClass();
+		return PrintableContentParser.addClassToPrintableModule(html, className, !isSplitInPrintBlocked());
+	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller,
+	private native String getPrintableHTML(AddonModel x, String addonName, JavaScriptObject model, JavaScriptObject controller,
 										   String state, String asyncID, PrintableContentParser.ParsedListener
 												   parsedCallbackObject, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
@@ -197,6 +201,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 
 		if (presenter.hasOwnProperty("setPrintableAsyncCallback") && parsedCallbackObject != null) {
 			var asyncCallback = function (result) {
+				result = x.@com.lorepo.icplayer.client.module.addon.AddonModel::addClassToPrinatableModule(Ljava/lang/String;)(result);
 				parsedCallbackObject.@com.lorepo.icplayer.client.printable.PrintableContentParser.ParsedListener::onParsed(Ljava/lang/String;)(result);
 			}
 			presenter.setPrintableAsyncCallback(asyncID, asyncCallback);

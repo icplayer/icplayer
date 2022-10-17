@@ -1,3 +1,4 @@
+2022-10-17 Fixed no printable_module-className classes assigned to asynchronously loaded addons in print
 2022-10-10 Added Enlarge Button to header in present view
 2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element 
 2022-10-06 Fixed downloading zip package for Android mLibro app
