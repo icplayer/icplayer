@@ -1030,9 +1030,37 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		return groupedModules;
 	}
 
+	public int getPageIndex() {
+		return playerServices.getCurrentPageIndex();
+	}
+
 	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
-		rulers.put("verticals", verticals);
-		rulers.put("horizontals", horizontals);
+		if (!rulers.isEmpty()) {
+			List<Ruler> currentVerticalRulers = rulers.get("verticals");
+			List<Ruler> currentHorizontalRulers = rulers.get("horizontals");
+
+			for(Ruler ruler : verticals) {
+				if (!isRulerInCollection(currentVerticalRulers, ruler)) currentVerticalRulers.add(ruler);
+			}
+
+			for(Ruler ruler : horizontals) {
+				if (!isRulerInCollection(currentHorizontalRulers, ruler)) currentHorizontalRulers.add(ruler);
+			}
+			
+			rulers.put("verticals", currentVerticalRulers);
+			rulers.put("horizontals", currentHorizontalRulers);
+		} else {
+			rulers.put("verticals", verticals);
+			rulers.put("horizontals", horizontals);
+		}
+	}
+
+	private boolean isRulerInCollection(List<Ruler> rulers, Ruler newRuler) {
+		for(Ruler ruler : rulers) {
+			if (ruler.getPosition() == newRuler.getPosition()) return true;
+		}
+
+		return false;
 	}
 
 	public List<Ruler> getRulersByType(String type) {
