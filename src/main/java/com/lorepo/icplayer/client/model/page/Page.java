@@ -52,7 +52,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "7";
+	public static final String version = "8";
 	
 	private String id;
 	private String name;
@@ -96,6 +96,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public PageHeightModifications heightModifications = new PageHeightModifications();
 	
 	private boolean randomizeInPrint = false;
+	private boolean isSplitInPrintBlocked = false;
 	private boolean notAssignable = false;
 
 	private String defaultLayoutID;
@@ -117,6 +118,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
 		addPropertyRandomizeInPrint();
+		addPropertyIsSplitInPrintBlocked();
 	}
 
 	/**
@@ -146,6 +148,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		
 		page.getRandomizeInPrint = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getRandomizeInPrint()();
+		}
+
+		page.isSplitInPrintBlocked = function() {
+			return x.@com.lorepo.icplayer.client.model.page.Page::isSplitInPrintBlocked()();
 		}
 
 		page.isNotAssignable = function() {
@@ -272,6 +278,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += " scoring='" + scoringType + "'";
 		xml += " version='" + Page.version + "'";
 		xml += " randomizeInPrint='" + randomizeInPrint + "'";
+		xml += " isSplitInPrintBlocked='" + isSplitInPrintBlocked + "'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
@@ -572,6 +579,45 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 		addProperty(property);
 	}
+
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IBooleanProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
 
 	private void addPropertyNotAssignable() {
 
@@ -1306,6 +1352,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	
 	public boolean getRandomizeInPrint() {
 		return this.randomizeInPrint;
+	}
+
+	public boolean isSplitInPrintBlocked() {
+		return this.isSplitInPrintBlocked;
+	}
+
+	public void setSplitInPrintBlocked(boolean value) {
+		this.isSplitInPrintBlocked = value;
 	}
 
 	public void setNotAssignable(boolean value) {
