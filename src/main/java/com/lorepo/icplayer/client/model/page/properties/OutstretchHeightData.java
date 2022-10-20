@@ -5,10 +5,12 @@ public class OutstretchHeightData {
 	public int y;
 	public int height;
 	public boolean dontMoveModules;
+	public String layoutName;
 	
-	public OutstretchHeightData(int y, int height, boolean dontMoveModules) {
+	public OutstretchHeightData(int y, int height, boolean dontMoveModules, String layoutName) {
 		this.y = y;
 		this.height = height;
 		this.dontMoveModules = dontMoveModules;
+		this.layoutName = layoutName;
 	}
 }

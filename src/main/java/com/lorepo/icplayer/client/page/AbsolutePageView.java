@@ -183,26 +183,35 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		}
 		
 		if (difference > 0 && !isRestore) {
-			int height = this.height + difference + calculateStaticHeaderFooterHeight();
-			this.height = this.height + difference;
-			this.setHeight(height + "px");
+			this.changeHeightConsideringStaticHeaderFooterHeight(difference);
 			this.createPageDimensions();
 			if (PlayerApp.isStaticFooter()) {
 				setProperFotterPosition();
 			}
 		} else if (difference < 0 && !isRestore) {
-			if (PlayerApp.isStaticHeader() || PlayerApp.isStaticFooter()) {
-				setProperPageHeight(difference);
-			}
-			if(!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
-				int height = this.height + difference + calculateStaticHeaderFooterHeight();
-				this.height = this.height + difference;
-				this.setHeight(height + "px");
-			}else{
+			if (!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
+			    this.changeHeightConsideringStaticHeaderFooterHeight(difference);
+			} else {
 				setHeight(this.height + difference);
 			}
 		} else {
 			setHeight(this.height + difference);
 		}
+
+		if (!isRestore && (PlayerApp.isStaticHeader() || PlayerApp.isStaticFooter())) {
+			setProperPageHeight(difference);
+			int newPagePanelHeight = this.height + calculateStaticHeaderFooterHeight();
+			setPagePanelHeight(newPagePanelHeight);
+		}
+	}
+
+	private void changeHeightConsideringStaticHeaderFooterHeight(int difference) {
+		int height = this.height + difference + calculateStaticHeaderFooterHeight();
+		this.height = this.height + difference;
+		this.setHeight(height + "px");
+	}
+
+	private void setPagePanelHeight(int height) {
+		this.getParent().setHeight(height + "px");
 	}
 }
