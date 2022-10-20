@@ -1856,10 +1856,16 @@ function AddonText_Coloring_create() {
             }
         });
 
+        text = presenter.removeHardSpacesFromText(text);
+
         tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
 
         return tts;
     };
+
+    presenter.removeHardSpacesFromText = function AddonText_Coloring_removeHardSpacesFromText (text) {
+        return text.replaceAll('&nbsp', ' ');
+    }
 
     presenter.getTTSForWord = function AddonText_Coloring_getTTSForWord (element, word) {
         const tts = [TTSUtils.getTextVoiceObject(word, presenter.configuration.langTag)];
