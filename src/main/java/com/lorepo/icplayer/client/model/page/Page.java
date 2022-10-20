@@ -1082,16 +1082,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
 		if (!rulers.isEmpty()) {
-			List<Ruler> currentVerticalRulers = rulers.get("verticals");
-			List<Ruler> currentHorizontalRulers = rulers.get("horizontals");
+			List<Ruler> currentVerticalRulers = this.getRulersFromOtherLayouts("verticals");
+			List<Ruler> currentHorizontalRulers = this.getRulersFromOtherLayouts("horizontals");
 
-			for(Ruler ruler : verticals) {
-				if (!isRulerInCollection(currentVerticalRulers, ruler)) currentVerticalRulers.add(ruler);
-			}
-
-			for(Ruler ruler : horizontals) {
-				if (!isRulerInCollection(currentHorizontalRulers, ruler)) currentHorizontalRulers.add(ruler);
-			}
+			currentHorizontalRulers.addAll(horizontals);
+			currentVerticalRulers.addAll(verticals);
 			
 			rulers.put("verticals", currentVerticalRulers);
 			rulers.put("horizontals", currentHorizontalRulers);
@@ -1099,6 +1094,29 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			rulers.put("verticals", verticals);
 			rulers.put("horizontals", horizontals);
 		}
+	}
+
+	private List<Ruler> getRulersFromOtherLayouts(String rulerType) {
+		String layoutID = this.getSemiResponsiveLayoutID();
+		if (rulerType.equals("verticals")) {
+			List<Ruler> verticalRulers = rulers.get("verticals");
+			for(int i = 0; i<verticalRulers.size(); i++) {
+				if (verticalRulers.get(i).getLayoutID() == layoutID) {
+					verticalRulers.remove(i);
+				}
+			}
+
+			return verticalRulers;
+		}
+
+		List<Ruler> horizontalRulers = rulers.get("horizontals");
+		for(int i = 0; i<horizontalRulers.size(); i++) {
+			if (horizontalRulers.get(i).getLayoutID() == layoutID) {
+				horizontalRulers.remove(i);
+			}
+		}
+
+		return horizontalRulers;
 	}
 
 	private boolean isRulerInCollection(List<Ruler> rulers, Ruler newRuler) {
