@@ -1380,7 +1380,7 @@ function Addonmultiplegap_create(){
         if (itemsToCount !== null && itemsToCount !== undefined) {
             countItems = itemsToCount;
         } else {
-            countItems = presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging').length;
+            countItems = presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
         }
         
         return countItems;
