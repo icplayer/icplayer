@@ -1152,7 +1152,7 @@ function AddonText_Selection_create() {
         }
 
         const allSelected = presenter.$view.find('.text_selection').find('.selected');
-        var numberSelected = [];
+        const numberSelected = [];
 
         for (let i = 0; i < allSelected.length; i++) {
             numberSelected.push($(allSelected[i]).attr('number'));
