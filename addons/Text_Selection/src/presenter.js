@@ -1143,18 +1143,22 @@ function AddonText_Selection_create() {
     };
 
     presenter.getState = function () {
+        let returnToShowAnswers = false;
         if (presenter.isShowAnswers) {
             presenter.hideAnswers();
+            returnToShowAnswers = true;
         } else if (presenter.isGradualShowAnswersActive) {
             presenter.gradualHideAnswers();
         }
 
-        var allSelected = presenter.$view.find('.text_selection').find('.selected');
+        const allSelected = presenter.$view.find('.text_selection').find('.selected');
         var numberSelected = [];
 
-        for (var i = 0; i < allSelected.length; i++) {
+        for (let i = 0; i < allSelected.length; i++) {
             numberSelected.push($(allSelected[i]).attr('number'));
         }
+
+        if (returnToShowAnswers) presenter.showAnswers();
 
         return JSON.stringify({
             numbers: numberSelected,
