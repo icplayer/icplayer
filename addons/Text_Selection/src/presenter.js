@@ -14,6 +14,7 @@ function AddonText_Selection_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.activeGradualShowAnswersItems = [];
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -1134,6 +1135,7 @@ function AddonText_Selection_create() {
             presenter.hideAnswers();
         }
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.selected_elements = null;
 
         presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
@@ -1144,11 +1146,13 @@ function AddonText_Selection_create() {
 
     presenter.getState = function () {
         let returnToShowAnswers = false;
+        let returnToGradualShowAnswers = false;
         if (presenter.isShowAnswers) {
             presenter.hideAnswers();
             returnToShowAnswers = true;
         } else if (presenter.isGradualShowAnswersActive) {
             presenter.gradualHideAnswers();
+            returnToGradualShowAnswers = true;
         }
 
         const allSelected = presenter.$view.find('.text_selection').find('.selected');
@@ -1159,6 +1163,7 @@ function AddonText_Selection_create() {
         }
 
         if (returnToShowAnswers) presenter.showAnswers();
+        if (returnToGradualShowAnswers) presenter.restoreGradualShowAnswers();
 
         return JSON.stringify({
             numbers: numberSelected,
@@ -1355,6 +1360,7 @@ function AddonText_Selection_create() {
 
         presenter.turnOnEventListeners();
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.isShowAnswers = false;
         presenter.restoreSelection();
     };
@@ -1382,6 +1388,7 @@ function AddonText_Selection_create() {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
             }
         } else if (eventName === "GradualHideAnswers") {
+            presenter.activeGradualShowAnswersItems = [];
             presenter.gradualHideAnswers();
         }
     };
@@ -1959,14 +1966,23 @@ function AddonText_Selection_create() {
             presenter.saveAndRemoveSelection();
             presenter.isGradualShowAnswersActive = true;
         }
+        presenter.activeGradualShowAnswersItems.push(item);
         presenter.showCorrectAnswer(item);
     };
+
+   presenter.restoreGradualShowAnswers = function () {
+       if (!presenter.activeGradualShowAnswersItems.length) return;
+        presenter.saveAndRemoveSelection();
+        presenter.isGradualShowAnswersActive = true;
+        for (const item in presenter.activeGradualShowAnswersItems) {
+            presenter.showCorrectAnswer(item);
+       }
+   }
 
     presenter.gradualHideAnswers = function () {
         presenter.isGradualShowAnswersActive = false;
         presenter.turnOnEventListeners();
         presenter.restoreSelection();
-
     };
 
     return presenter;
