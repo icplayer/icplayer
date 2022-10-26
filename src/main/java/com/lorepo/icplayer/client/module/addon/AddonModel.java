@@ -18,6 +18,7 @@ import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
+import com.lorepo.icf.properties.IScriptProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
@@ -356,6 +357,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		if(	property instanceof IAudioProperty || 
 			property instanceof IImageProperty ||
 			property instanceof IVideoProperty ||
+			property instanceof IScriptProperty ||
 			property instanceof IFileProperty)
 		{
 			value = URLUtils.resolveURL(this.getBaseURL(), value);
