@@ -36,14 +36,13 @@
     </tr>
     <tr>
         <td>Mode</td>
-        <td>Play mode. Setting the mode to Bounce plays the animation in an indefinite cycle, forwards and then backwards.
-        </td>
+        <td>Play mode. Setting the mode to Bounce plays the animation in an indefinite cycle, forwards and then backwards.</td>
     </tr>
     <tr>
         <td>Speed</td>
         <td>Animation speed. 
-
-Set this parameter to any positive number.</td>
+            Set this parameter to any positive number.
+        </td>
     </tr>
     <tr>
         <td>Intermission [ms]</td>
@@ -71,7 +70,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Controls</td>
-        <td>When set to true, displays player controls</td>
+        <td>When set to true, displays player controls.</td>
     </tr>
     <tr>
         <td>Play in succession</td>
@@ -169,17 +168,17 @@ Set this parameter to any positive number.</td>
     <tr>
         <td>jumpTo</td>
         <td>animationIndex</td>
-        <td>Jumps to animation with specified index. Animation index should be from 1 to n, where n is the number of configured animation files. Providing a animation number out of this range will have no effect</td>
+        <td>Jumps to animation with specified index. Animation index should be from 1 to n, where n is the number of configured animation files. Providing a animation number out of this range will have no effect.</td>
     </tr>
     <tr>
         <td>next</td>
         <td>---</td>
-        <td>Jumps to next animation. If the last animation is currently displayed this command will have no effect</td>
+        <td>Jumps to next animation. If the last animation is currently displayed this command will have no effect.</td>
     </tr>
     <tr>
         <td>previous</td>
         <td>---</td>
-        <td>Jumps to previous animation. If the first animation is currently displayed this command will have no effect</td>
+        <td>Jumps to previous animation. If the first animation is currently displayed this command will have no effect.</td>
     </tr>
 </tbody>
 </table>
@@ -219,7 +218,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -242,7 +241,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -266,7 +265,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -290,7 +289,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -313,7 +312,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -336,7 +335,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -359,7 +358,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -382,7 +381,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -405,7 +404,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -428,7 +427,7 @@ Set this parameter to any positive number.</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>Number animation from list. Animation number should be from 1 to n</td>
+        <td>Number animation from list. Animation number should be from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -452,6 +451,14 @@ Set this parameter to any positive number.</td>
     <tr>
         <td>.lottie-player-invalid-configuration</td>
         <td>Addon's invalid configuration</td>
+    </tr>
+    <tr>
+        <td>.lottie-player-visible-animation</td>
+        <td>Indicates the style that applies to currently displayed animation</td>
+    </tr>
+    <tr>
+        <td>.lottie-player-invisible-animation</td>
+        <td>Indicates the style that applies to not displayed animations</td>
     </tr>
     <tr>
         <td>lottie-player::part(keyboard_navigation_active_element)</td>

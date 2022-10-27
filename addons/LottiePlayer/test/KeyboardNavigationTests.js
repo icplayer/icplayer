@@ -5,10 +5,6 @@ TestCase("[LottiePlayer] Keyboard navigation tests", {
 
         this.presenter.configuration = createSimpleLottiePLayerConfigurationForTests();
         this.buildView();
-        this.presenter.animationsElements = this.presenter.view.querySelectorAll("lottie-player");
-        this.presenter.buildKeyboardController();
-        this.keyboardControllerObject = this.presenter.keyboardControllerObject;
-        this.keyboardControllerObject.setElements(this.presenter.getElementsForKeyboardNavigation());
         this.activateTTSWithoutReading();
 
         this.tts = {
@@ -26,6 +22,10 @@ TestCase("[LottiePlayer] Keyboard navigation tests", {
     buildView: function() {
         this.presenter.view = createLottiePlayerViewForTests(this.presenter.configuration);
         this.presenter.$view = $(this.presenter.view);
+        this.presenter.animationsElements = this.presenter.view.querySelectorAll("lottie-player");
+        this.presenter.buildKeyboardController();
+        this.keyboardControllerObject = this.presenter.keyboardControllerObject;
+        this.keyboardControllerObject.setElements(this.presenter.getElementsForKeyboardNavigation());
     },
 
     markElement: function (index) {

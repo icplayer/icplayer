@@ -159,7 +159,6 @@ TestCase("[LottiePlayer] Reload KeyboardController elements tests", {
         this.presenter = new AddonLottiePlayer_create();
 
         this.presenter.configuration = createSimpleLottiePLayerConfigurationForTests();
-        this.presenter.currentAnimationIndex = 0;
     },
 
     buildViewAndControler: function() {

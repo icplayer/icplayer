@@ -32,10 +32,6 @@ TestCase("[LottiePlayer] TTS tests", {
         this.presenter.$view = $(this.presenter.view);
     },
 
-    getKeyboardControllerElement: function (index) {
-        return $(this.presenter.keyboardControllerObject.keyboardNavigationElements[index]);
-    },
-
     setAnimationIsPaused: function (animationIndex = 0, isPaused = true) {
         this.presenter.animationsElements[animationIndex].getLottie = () => ({
             isPaused: isPaused
@@ -68,14 +64,6 @@ TestCase("[LottiePlayer] TTS tests", {
         this.keyboardControllerObject.keyboardNavigationCurrentElementIndex = index;
         this.keyboardControllerObject.keyboardNavigationCurrentElement = this.keyboardControllerObject.keyboardNavigationElements[index];
         this.keyboardControllerObject.mark(this.keyboardControllerObject.keyboardNavigationCurrentElement);
-    },
-
-    setStateOfLottieAsPlaying: function (animationIndex) {
-        setLottiePLayerAnimationIsPaused(this.presenter.animationsElements[animationIndex], false);
-    },
-
-    setStateOfLottieAsNotPlaying: function (animationIndex) {
-        setLottiePLayerAnimationIsPaused(this.presenter.animationsElements[animationIndex], true);
     },
 
     // Read enter action method
