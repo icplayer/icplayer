@@ -1972,6 +1972,9 @@ function AddonText_Selection_create() {
 
    presenter.restoreGradualShowAnswers = function () {
        if (!presenter.activeGradualShowAnswersItems.length) return;
+       if (presenter.configuration.areEventListenersOn) {
+                presenter.turnOffEventListeners();
+            }
         presenter.saveAndRemoveSelection();
         presenter.isGradualShowAnswersActive = true;
         for (const item in presenter.activeGradualShowAnswersItems) {
