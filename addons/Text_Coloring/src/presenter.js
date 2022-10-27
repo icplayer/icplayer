@@ -1747,7 +1747,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getDefaultElementsStringForKeyboardNavigation = function AddonText_Coloring_getDefaultElementsStringForKeyboardNavigation () {
-        return ".text-coloring-color-button, .text-coloring-eraser-button, .text-coloring-selectable-word";
+        if (presenter.configuration.showSetEraserButtonMode) {
+            return ".text-coloring-color-button, .text-coloring-eraser-button, .text-coloring-selectable-word";
+        } else {
+            return ".text-coloring-color-button, .text-coloring-selectable-word";
+        }
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
