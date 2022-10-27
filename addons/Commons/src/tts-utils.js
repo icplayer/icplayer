@@ -23,6 +23,7 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
             var TextVoiceArray = [];
@@ -61,6 +62,7 @@
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
 
@@ -221,6 +223,30 @@
                 this.setAttribute("value", index);
             });
 
+            return $clone;
+        },
+
+        _addEndingSpace: function($clone) {
+            function endsWithPunctuation(text) {
+                var punc = ".,;?!";
+                for (var i = 0; i < punc.length; i++) {
+                    if (text.trim().endsWith(punc[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            $clone.find('div').each(function(){
+                originalHTML = this.innerHTML;
+                if (this.previousSibling != null && this.previousSibling.nodeType == 3 && !endsWithPunctuation(this.previousSibling.wholeText)) {
+                    originalHTML = ". " + originalHTML;
+                }
+                if (!endsWithPunctuation(this.innerText)) {
+                    originalHTML = originalHTML + ".";
+                }
+                originalHTML = originalHTML + "<span> </span>";
+                this.innerHTML = originalHTML;
+            });
             return $clone;
         },
 

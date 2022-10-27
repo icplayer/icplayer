@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Text;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -132,9 +133,14 @@ public class WCAGUtils {
 	    return text.replaceAll("</li>", ", </li>");
 	}
 
-	private static String addListNumbers(String html) {
+	private static String parseElement(String html) {
 		Element wrapper = DOM.createElement("div");
 		wrapper.setInnerHTML(html);
+
+		return wrapper.getInnerHTML();
+	}
+
+	private static void addListNumbers(Element wrapper) {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
 		for	(int i = 0; i < lis.getLength(); i++) {
 			Element selectedLI = lis.getItem(i);
@@ -157,13 +163,50 @@ public class WCAGUtils {
 			selectedLI.setInnerHTML(". " + String.valueOf(index) + ": " + selectedLI.getInnerHTML());
 			selectedLI.setAttribute("value", String.valueOf(index));
 		}
-		return wrapper.getInnerHTML();
+	}
+
+	private static void addEndingSpace(Element wrapper) {
+		NodeList<Element> divs = wrapper.getElementsByTagName("div");
+		for	(int i = 0; i < divs.getLength(); i++) {
+			Element div = divs.getItem(i);
+			if (div.getPreviousSibling() != null) {
+				Node prev = div.getPreviousSibling();
+				String originalHTML = div.getInnerHTML();
+				if (prev.getNodeType() == Node.TEXT_NODE) {
+					String previousText = ((Text)prev).getData();
+					if (!endsWithPunctuation(previousText)) {
+						originalHTML = ". " + originalHTML;
+					}
+				}
+
+				if (!endsWithPunctuation(div.getInnerText())) {
+					originalHTML = originalHTML + ".";
+				}
+				originalHTML += "<span> </span>";
+				div.setInnerHTML(originalHTML);
+			}
+		}
+	}
+
+	private static boolean endsWithPunctuation(String text) {
+		String punc = ".,;?!";
+		for (int i = 0; i < punc.length(); i++) {
+			if (text.trim().endsWith(punc.substring(i, i+1))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
 		text = addSpacesToListTags(text);
-		text = addListNumbers(text);
+
+		Element wrapper = DOM.createElement("div");
+		wrapper.setInnerHTML(text);
+		addListNumbers(wrapper);
+		addEndingSpace(wrapper);
+		text = wrapper.getInnerHTML();
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
