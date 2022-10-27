@@ -1,6 +1,6 @@
 ## Description
 
-#### LottiePlayer allows for easy embedding and playing Lottie animations and the Lottie-based Telegram Sticker (tgs) animations in lessons.
+##### LottiePlayer allows for easy embedding and playing Lottie animations and the Lottie-based Telegram Sticker (tgs) animations in lessons.
 
 ## Properties
 
@@ -185,7 +185,7 @@
 
 ## Events
 
-#### LottiePlayer addon sends ValueChanged type events to Event Bus when either user selects it.
+##### LottiePlayer addon sends ValueChanged type events to Event Bus when either user selects it.
 
 <table border='1'>
 <tbody>
@@ -208,7 +208,7 @@
 </tbody>
 </table>
 
-#### The load event occurs when the animation load.
+##### The load event occurs when the animation load.
 
 <table border='1'>
 <tbody>
@@ -231,7 +231,7 @@
 </tbody>
 </table>
 
-#### The error event occurs when  animation source cannot be parsed, fails to load or has format errors.
+##### The error event occurs when  animation source cannot be parsed, fails to load or has format errors.
 
 <table border='1'>
 <tbody>
@@ -254,8 +254,7 @@
 </tbody>
 </table>
 
-
-#### The ready event occurs when animation data is loaded and player is ready.
+##### The ready event occurs when animation data is loaded and player is ready.
 
 <table border='1'>
 <tbody>
@@ -279,7 +278,7 @@
 </table>
 
 
-#### The play event occurs when animation starts playing.
+##### The play event occurs when animation starts playing.
 
 <table border='1'>
 <tbody>
@@ -302,7 +301,7 @@
 </tbody>
 </table>
 
-#### The pause event occurs when animation paused.
+##### The pause event occurs when animation paused.
 
 <table border='1'>
 <tbody>
@@ -325,7 +324,7 @@
 </tbody>
 </table>
 
-#### The stop event occurs when animation stopped.
+##### The stop event occurs when animation stopped.
 
 <table border='1'>
 <tbody>
@@ -348,7 +347,7 @@
 </tbody>
 </table>
 
-#### The freeze event occurs when animation is paused due to player being invisible.
+##### The freeze event occurs when animation is paused due to player being invisible.
 
 <table border='1'>
 <tbody>
@@ -371,7 +370,7 @@
 </tbody>
 </table>
 
-#### The loop event occurs when animation loop is completed.
+##### The loop event occurs when animation loop is completed.
 
 <table border='1'>
 <tbody>
@@ -394,7 +393,7 @@
 </tbody>
 </table>
 
-#### The complete event occurs when animation is complete (all loops completed).
+##### The complete event occurs when animation is complete (all loops completed).
 
 <table border='1'>
 <tbody>
@@ -417,7 +416,7 @@
 </tbody>
 </table>
 
-#### The frame event occurs when a new frame is entered.
+##### The frame event occurs when a new frame is entered.
 
 <table border='1'>
 <tbody>
