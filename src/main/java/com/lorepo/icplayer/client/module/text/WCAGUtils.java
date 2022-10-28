@@ -133,13 +133,6 @@ public class WCAGUtils {
 	    return text.replaceAll("</li>", ", </li>");
 	}
 
-	private static String parseElement(String html) {
-		Element wrapper = DOM.createElement("div");
-		wrapper.setInnerHTML(html);
-
-		return wrapper.getInnerHTML();
-	}
-
 	private static void addListNumbers(Element wrapper) {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
 		for	(int i = 0; i < lis.getLength(); i++) {
