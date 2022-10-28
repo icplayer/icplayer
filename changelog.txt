@@ -1,4 +1,11 @@
-2022-10-17 Fixed no printable_module-className classes assigned to asynchronously loaded addons in print
+2022-10-28 Fixed no printable_module-className classes assigned to asynchronously loaded addons in print
+2022-10-28 Fixed Lesson Progress and PlayerUtils returning a different scaled score
+2022-10-28 Fixed calculating total score in the Hierarchical Lesson Report
+2022-10-25 Fixed Text Selection quitting from show answers on getState
+2022-10-20 Fixed multiplegap countItem sometimes returning wrong value
+2022-10-20 Fixed bug with self-increasing text on IOS
+2022-10-20 Fixed outstretchHeight command not working properly with static header
+2022-10-14 Added methods for accessing correct/incorrect/partial/empty feedbacks to the Automatic Feedback addon
 2022-10-10 Added Enlarge Button to header in present view
 2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element 
 2022-10-06 Fixed downloading zip package for Android mLibro app
