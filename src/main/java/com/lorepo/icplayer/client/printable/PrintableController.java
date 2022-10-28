@@ -53,6 +53,10 @@ public class PrintableController {
 	public String getPageName() {
 		return page.getName();
 	}
+
+	public boolean isSplitInPrintBlocked() {
+		return page.isSplitInPrintBlocked();
+	}
 	
 	private native JavaScriptObject initJSObject(PrintableController x) /*-{
 		var controller = function() {};

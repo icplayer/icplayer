@@ -35,9 +35,7 @@ TestCase("[Media Recorder] Activation Test", {
             isPlayingDefaultRecording: sinon.stub(),
         };
         this.mediaRecorder.resetRecording = sinon.stub();
-        this.mediaRecorder.model = {
-            isResetRemovesRecording: sinon.stub()
-        };
+        this.mediaRecorder.model = {};
         this.mediaRecorder.timer = {
             setTime: sinon.stub()
         };
@@ -95,11 +93,4 @@ TestCase("[Media Recorder] Activation Test", {
         assertTrue(this.mediaRecorder.playButton.forceClick.calledOnce);
         assertTrue(this.mediaRecorder.recordButton.forceClick.notCalled);
     },
-
-    "test reset recording is triggered when deactivate addon and isResetRemovesRecording true": function () {
-        this.mediaRecorder.model.isResetRemovesRecording.returns(true);
-        this.mediaRecorder.deactivate();
-
-        assertTrue(this.mediaRecorder.resetRecording.calledOnce);
-    }
 });

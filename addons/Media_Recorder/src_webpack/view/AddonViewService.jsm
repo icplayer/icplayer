@@ -8,6 +8,7 @@ export class AddonViewService {
 
     setVisibility(isVisible){
         this.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+        this.$view.parent().css('visibility', isVisible ? 'visible' : 'hidden');
     }
 
     activate() {
