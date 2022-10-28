@@ -1,3 +1,4 @@
+2022-10-28 Fixed calculating total score in the Hierarchical Lesson Report
 2022-10-25 Fixed Text Selection quitting from show answers on getState
 2022-10-20 Fixed multiplegap countItem sometimes returning wrong value
 2022-10-20 Fixed bug with self-increasing text on IOS
