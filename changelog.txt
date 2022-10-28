@@ -1,3 +1,4 @@
+2022-10-28 Fixed grad show answers in the PointsLines
 2022-10-20 Fixed multiplegap countItem sometimes returning wrong value
 2022-10-20 Fixed bug with self-increasing text on IOS
 2022-10-20 Fixed outstretchHeight command not working properly with static header
