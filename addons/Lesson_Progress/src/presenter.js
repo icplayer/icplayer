@@ -74,47 +74,64 @@ function AddonLesson_Progress_create(){
         runLogic(view, model, false);
     };
 
-    function getLessonScore(){
-        var model = presenter.playerController.getPresentation();
+    function getLessonScore() {
+        var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
+            sumOfMaxScore = 0.0,
+            sumOfScaledScore = 0.0,
+            sumOfMistakes = 0,
+            sumOfWeights = 0,
+            pageScaledScore = 0,
+            count = 0, i, page, score,
+            paginatedResults = [];
+        var presentation = presenter.playerController.getPresentation();
         var scoreService = presenter.playerController.getScore();
-        var sumOfProgress = 0.0,
-            sumOfMistakes = 0.0,
-            sumOfErrors = 0.0,
-            sumOfChecks = 0.0,
-            sumOfScores = 0.0,
-            count = 0;
 
-        for(var i = 0; i < model.getPageCount(); i++){
-            var page = model.getPage(i);
-            if(page.isReportable()){
-                count += 1;
-                var score = scoreService.getPageScoreById(page.getId());
-                if (score['maxScore'] > 0) {
-                    var percentageScore = (score['score']*100.0) / score['maxScore'];
-                    sumOfProgress += percentageScore;
+        for (var i = 0; i < presentation.getPageCount(); i++) {
+            var page = presentation.getPage(i);
+
+            if (page.isReportable()) {
+                score = scoreService.getPageScoreById(page.getId());
+
+                if (score['maxScore']) {
+                    pageScaledScore = score['score'] / score['maxScore'];
+                } else {
+                    pageScaledScore = page.isVisited() ? 1 : 0;
                 }
 
-                sumOfMistakes += score['mistakeCount'];
-                sumOfErrors += score['errorCount'];
-                sumOfChecks += score['checkCount'];
-                sumOfScores += score['score'];
+                var _weight = page.getPageWeight();
+                var weight =  !_weight && _weight !== 0 ? 1 : _weight;
+                sumOfScaledScore += pageScaledScore * weight;
+                sumOfScore += score.score;
+                sumOfErrors += score.errorCount;
+                sumOfChecks += score.checkCount;
+                sumOfMaxScore += score.maxScore;
+                sumOfMistakes += score.mistakeCount;
+                sumOfWeights += weight;
+                count += 1;
             }
         }
 
-        var progress = count !== 0 ? sumOfProgress / count : 0;
+        var scaledScore = 0;
+        if (count > 0) {
+            if (sumOfWeights) {
+                scaledScore = Math.round((sumOfScaledScore / sumOfWeights) * 100);
+            } else {
+                scaledScore = 1;
+            }
+        }
+
         return {
-            progress: parseInt(progress, 10),
-            sumOfMaxScore: scoreService.getMaxScore(),
-            sumOfMistakes: sumOfMistakes,
-            sumOfErrors: sumOfErrors,
-            sumOfChecks: sumOfChecks,
-            sumOfScores: sumOfScores
-        };
+           progress: parseInt(scaledScore, 10),
+           sumOfMaxScore: scoreService.getMaxScore(),
+           sumOfMistakes: sumOfMistakes,
+           sumOfErrors: sumOfErrors,
+           sumOfChecks: sumOfChecks,
+           sumOfScores: sumOfScore
+       };
     }
 
     presenter.setShowErrorsMode = function(){
         var lessonScore = getLessonScore();
-
         if (presenter.configuration.showProgressBar) {
             presenter.$progressBar.css('width', lessonScore.progress + '%');
             presenter.$progressText.html(lessonScore.progress + '%');
