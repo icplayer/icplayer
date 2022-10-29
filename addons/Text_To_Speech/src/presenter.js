@@ -458,12 +458,12 @@ function AddonText_To_Speech_create() {
     * @param texts
     * @return
     **/
-	presenter.amplifyABeforeColon = function (texts) {
+    presenter.amplifyABeforeColon = function (texts) {
         const regex = /([Aa][\s]*?):/;
         for (let i = 0; i < texts.length; i++) {
             texts[i].text = texts[i].text.replace(regex, "$1,");
         }
-	}
+    }
 
     function isChrome () {
         const isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
