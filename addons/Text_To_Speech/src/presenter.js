@@ -447,8 +447,30 @@ function AddonText_To_Speech_create() {
 
         texts = presenter.parseAltTexts(texts);
         presenter.saveSentences(texts);
+        if (isChrome()) {
+            presenter.amplifyABeforeColon(texts);
+        }
         presenter.readText(texts, callback);
     };
+
+    /**
+    * Amplify the letter 'A' or 'a' before colon
+    * @param texts
+    * @return
+    **/
+	presenter.amplifyABeforeColon = function (texts) {
+        const regex = /([Aa][\s]*?):/;
+        for (let i = 0; i < texts.length; i++) {
+            texts[i].text = texts[i].text.replace(regex, "$1,");
+        }
+	}
+
+    function isChrome () {
+        const isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
+        const isOpera = !!window.opera || navigator.userAgent.indexOf('OPR/') !== -1;
+        const isSafari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+        return (!isOpera && !isEdge && !!navigator.webkitGetUserMedia) || isElectron() || isSafari;
+    }
 
     presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);

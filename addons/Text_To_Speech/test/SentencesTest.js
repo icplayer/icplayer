@@ -1,4 +1,4 @@
-TestCase('Splitting text into sentences and reading them in correct order', {
+TestCase('[Text_To_Speech] Splitting text into sentences and reading them in correct order tests', {
     setUp: function () {
         this.presenter = AddonText_To_Speech_create();
 
@@ -163,6 +163,4 @@ TestCase('Splitting text into sentences and reading them in correct order', {
         assertEquals("test hello world", calls[0].args[0][0].text);
         assertEquals(0, this.presenter.savedSentencesIndex);
     }
-
-
 });
