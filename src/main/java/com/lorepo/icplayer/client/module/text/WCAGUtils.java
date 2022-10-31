@@ -129,8 +129,8 @@ public class WCAGUtils {
 	}
 
 	public static String addSpacesToListTags (String text) {
-		// list elements with alt text containing a dot at the end makes the TTS read out the extra comma unnecessarily.
-		String regexPattern = "(?<!\\alt{ |\\.\\s?})</li>";
+            // list elements with alt text containing a dot at the end makes the TTS read out the extra comma unnecessarily.
+	    String regexPattern = "(?<!\\alt{ |\\.\\s?})</li>";
 	    return text.replaceAll(regexPattern, ", </li>");
 	}
 
