@@ -1,3 +1,4 @@
+2022-10-31 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
 2022-10-20 Fixed multiplegap countItem sometimes returning wrong value
 2022-10-20 Fixed bug with self-increasing text on IOS
 2022-10-20 Fixed outstretchHeight command not working properly with static header
