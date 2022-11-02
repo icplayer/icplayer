@@ -61,10 +61,7 @@ function AddonLottiePlayer_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-    };
-
-    presenter.setEventBus = function (eventBus) {
-        presenter.eventBus = eventBus;
+        presenter.eventBus = presenter.playerController.getEventBus();
     };
 
     presenter.createPreview = function (view, model) {
@@ -728,9 +725,15 @@ function AddonLottiePlayer_create() {
     function getCurrentAnimationsFrames () {
         let currentFrames = [];
         presenter.animationsElements.forEach(animationElement =>  {
-            currentFrames.push(animationElement.getLottie().currentFrame);
+            if (isAnimationPlayerDOMCreated(animationElement)) {
+                currentFrames.push(animationElement.getLottie().currentFrame);
+            }
         })
         return currentFrames;
+    }
+
+    function isAnimationPlayerDOMCreated(animationElement) {
+        return animationElement.shadowRoot && animationElement.shadowRoot.childNodes && animationElement.shadowRoot.childNodes[2];
     }
 
     presenter.setState = function (state) {
