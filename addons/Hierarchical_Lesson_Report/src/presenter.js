@@ -267,7 +267,7 @@ function AddonHierarchical_Lesson_Report_create() {
             return 0;
         }
 
-        return Math.floor((lessonScore.scaledScore / lessonScore.pageCount) * 100) / 100;
+        return Math.round((lessonScore.scaledScore / lessonScore.pageCount) * 100) / 100;
     };
 
     function addPageScoreFooterCell($cell, lessonScore, isInPrintableMode) {

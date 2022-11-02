@@ -1,3 +1,7 @@
+2022-10-28 Fixed no printable_module-className classes assigned to asynchronously loaded addons in print
+2022-10-28 Fixed Lesson Progress and PlayerUtils returning a different scaled score
+2022-10-28 Fixed calculating total score in the Hierarchical Lesson Report
+2022-10-25 Fixed Text Selection quitting from show answers on getState
 2022-10-20 Fixed multiplegap countItem sometimes returning wrong value
 2022-10-20 Fixed bug with self-increasing text on IOS
 2022-10-20 Fixed outstretchHeight command not working properly with static header
