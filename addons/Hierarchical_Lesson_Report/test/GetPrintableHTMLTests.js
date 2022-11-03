@@ -449,7 +449,7 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
           generateExpectedChapterWithoutChildrenRow(2, null, "Chapter 2", 0),
           generateExpectedPageRow(3, null, "Page 2", true, 0, "50%", 0, 4, 1, 1, 2)
         ]
-        const expectedHTML = generateExpectedHTML(rows, "41%", 1, 5, 3, 2, 5);
+        const expectedHTML = generateExpectedHTML(rows, "42%", 1, 5, 3, 2, 5);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -466,7 +466,7 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
           generateExpectedPageRow(2, 1, "Page 1.1", false, 1, "0%", 2, 3, 2, 0, 2),
           generateExpectedPageRow(3, 1, "Page 1.2", true, 1, "50%", 0, 4, 1, 1, 2)
         ]
-        const expectedHTML = generateExpectedHTML(rows, "27%", 3, 8, 5, 2, 7);
+        const expectedHTML = generateExpectedHTML(rows, "28%", 3, 8, 5, 2, 7);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 

@@ -153,6 +153,7 @@ function AddonGradual_Show_Answer_create() {
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.addonID = model.ID;
         presenter.view = view;
+        presenter.$view = $(view);
 
         const upgradedModel = presenter.upgradeModel(model);
         const validatedModel = presenter.validateModel(upgradedModel);
@@ -223,14 +224,18 @@ function AddonGradual_Show_Answer_create() {
     }
 
     presenter.show = function () {
-        presenter.viewElements.button.style.visibility = 'visible';
-        presenter.state.isVisible = true;
+        presenter.setVisibility(true);
     }
 
     presenter.hide = function () {
-        presenter.viewElements.button.style.visibility = 'hidden';
-        presenter.state.isVisible = false;
+        presenter.setVisibility(false);
     }
+
+    presenter.setVisibility = function (isVisible) {
+        presenter.configuration.isVisible = isVisible;
+        presenter.state.isVisible = isVisible;
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
 
     presenter.disable = function () {
         presenter.state.isDisabled = true;

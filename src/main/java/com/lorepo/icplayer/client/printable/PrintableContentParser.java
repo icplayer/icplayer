@@ -748,8 +748,11 @@ public class PrintableContentParser {
 	public static String addClassToPrintableModule(String printableHTML, String className, boolean isSplittable) {
 		Element element = (new HTML(printableHTML)).getElement().getFirstChildElement();
 		element.addClassName("printable_module");
-		if (className.length() > 0) {
-			element.addClassName("printable_module-" + className);
+		String[] classNames = className.split(" ");
+		for (String name: classNames) {
+			if (name.trim().length() > 0) {
+				element.addClassName("printable_module-" + name);
+			}
 		}
 		if (isSplittable) {
 			element.addClassName(SPLITTABLE_CLASS_NAME);
