@@ -1196,21 +1196,23 @@ function AddonMagic_Boxes_create() {
         };
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        }
+    presenter.onEventReceived = function (eventName, data) {
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
 
-        if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        }
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
 
-        if (eventName === "GradualShowAnswers") {
-            presenter.gradualShowAnswers();
-        }
-        
-        if (eventName === "GradualHideAnswers") {
-            presenter.gradualHideAnswers();
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(data);
+                break;
+
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
@@ -1334,7 +1336,9 @@ function AddonMagic_Boxes_create() {
         presenter.isGradualShowAnswersActive = false;
     };
 
-    presenter.gradualShowAnswers = function () {
+    presenter.gradualShowAnswers = function (data) {
+        if(data.moduleID !== presenter.addonID) return;
+
         if(!presenter.isGradualShowAnswersActive){
             presenter.saveUserSelectionBeforeShowAnswers();
         }
@@ -1343,7 +1347,7 @@ function AddonMagic_Boxes_create() {
         presenter.isGradualShowAnswersActive = true;
         presenter.isSelectionPossible = false;
 
-        for(var key in presenter.GSAcorrectAnswerLocations) {
+        for(const key in presenter.GSAcorrectAnswerLocations) {
             if (usedGSAKeys.includes(key)) {
                 continue;
             } else if (presenter.configuration.checkByWords) {
@@ -1351,9 +1355,9 @@ function AddonMagic_Boxes_create() {
             }
             if (!presenter.GSAcorrectAnswerLocations.hasOwnProperty(key)) continue;
 
-            let answer = presenter.GSAcorrectAnswerLocations[key];
-            let row = answer["row"];
-            let column = answer["column"];
+            const answer = presenter.GSAcorrectAnswerLocations[key];
+            const row = answer["row"];
+            const column = answer["column"];
             if (row.length !== column.length) continue;
             
             presenter.configuration.checkByWords

@@ -661,7 +661,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			String propertyName = property.getName().toLowerCase();
 			if ((propertyName.startsWith("is") || propertyName.startsWith("not")) && propertyName.endsWith("activity")) {
 				boolean value = Boolean.parseBoolean(property.getValue());
-				if (propertyName.indexOf("not") != 0) {
+				if (propertyName.contains("not")) {
 					return !value;
 				} else {
 					return value;
