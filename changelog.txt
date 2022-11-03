@@ -1,4 +1,7 @@
-2022-11-02 Fixed hidden GSA button showing up on keyboard navigation bug
+2022-11-03 Fixed hidden GSA button showing up on keyboard navigation bug
+2022-11-03 Fixed gradual show answers in the Magic Boxes
+2022-11-03 Fixed absence of reading A with a colon in TTS
+2022-11-03 Fixed grad show answers in the PointsLines
 2022-10-28 Fixed no printable_module-className classes assigned to asynchronously loaded addons in print
 2022-10-28 Fixed Lesson Progress and PlayerUtils returning a different scaled score
 2022-10-28 Fixed calculating total score in the Hierarchical Lesson Report

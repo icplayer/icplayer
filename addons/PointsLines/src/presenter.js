@@ -172,7 +172,11 @@ function AddonPointsLines_create() {
     };
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+        presenter.eventBus = controller.getEventBus();
+        const events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (const event of events) {
+            presenter.eventBus.addEventListener(event, this);
+        }
     };
     presenter.createEventData = function(line, state, score) {
         return {
@@ -738,10 +742,6 @@ function AddonPointsLines_create() {
                     presenter.doClick(i);
                 }
             });
-            var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-            for (var i = 0; i < events.length; i++) {
-                presenter.eventBus.addEventListener(events[i], this);
-            }
         }
     };
 
