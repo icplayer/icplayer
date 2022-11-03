@@ -39,13 +39,13 @@ TestCase("[Hierarchical Lesson Report] Score calculation", {
 
     'test multiple pages - rounding check': function () {
         this.presenter.lessonScore = {
-            pageCount: 11,
-            scaledScore: 4.5
+            pageCount: 4,
+            scaledScore: 3.75
         };
 
         var scaledScore = this.presenter.calculateLessonScaledScore();
 
-        assertEquals(0.4, scaledScore);
+        assertEquals(0.94, scaledScore);
     },
 
     'test no pages when addon in printable state': function () {
@@ -92,7 +92,7 @@ TestCase("[Hierarchical Lesson Report] Score calculation", {
 
         var scaledScore = this.presenter.calculateLessonScaledScore();
 
-        assertEquals(0.4, scaledScore);
+        assertEquals(0.41, scaledScore);
     }
 
 });
