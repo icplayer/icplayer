@@ -1,3 +1,4 @@
+2022-11-03 Added support for eraser mode in Text Coloring's keyboard controller
 2022-11-03 Fixed hidden GSA button showing up on keyboard navigation bug
 2022-11-03 Fixed gradual show answers in the Magic Boxes
 2022-11-03 Fixed absence of reading A with a colon in TTS
