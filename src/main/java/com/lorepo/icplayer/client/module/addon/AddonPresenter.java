@@ -18,6 +18,7 @@ import com.lorepo.icf.properties.IEditableSelectProperty;
 import com.lorepo.icf.properties.IFileProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IImageProperty;
+import com.lorepo.icf.properties.IScriptProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
