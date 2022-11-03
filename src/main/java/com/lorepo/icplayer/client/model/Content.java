@@ -680,26 +680,6 @@ public class Content implements IContentBuilder, IContent {
 
 		return dictionary.toString();
 	}
-  
-	public void addOutstretchPage(int y, int height, boolean dontMoveModules, boolean isOn, String layoutName) {
-		this.outstretchPageDictionary.put(layoutName, new OutstretchPageHeight(y, height, dontMoveModules, isOn));
-	}
-
-	public boolean hasOutstretchPage(String layoutName) {
-		return this.outstretchPageDictionary.containsKey(layoutName);
-	}
-
-	public OutstretchPageHeight getOutstretchPage(String layoutName) {
-		return this.outstretchPageDictionary.get(layoutName);
-	}
-
-	public boolean isOutstretchPageDictionaryEmpty() {
-		return this.outstretchPageDictionary.isEmpty();
-	}
-
-	public void deleteOutstretchPage(String layoutName) {
-		this.outstretchPageDictionary.remove(layoutName);
-	}
 
 	public void setDefaultGridSize() {
 		int defaultGridSize;
