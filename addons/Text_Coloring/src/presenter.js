@@ -1846,7 +1846,8 @@ function AddonText_Coloring_create() {
         let text = "";
 
         presenter.configuration.filteredTokens.forEach((token) => {
-            text += token.value + " ";
+            let tokenContent = $("<p>" + token.value + "<\p>")[0].textContent;
+            text += tokenContent + " ";
             const tokenElement = presenter.getWordTokenByIndex(token.index);
             if (!tokenElement.length) {
                 return;
