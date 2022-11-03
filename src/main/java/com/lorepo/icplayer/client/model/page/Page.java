@@ -92,7 +92,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private int pageWeight = 1;
 	private int pageCustomWeight = 1;
 	private String semiResponsiveLayoutID = "default";
-	private String previousSemiResponsiveLayoutID = null;
 	public PageHeightModifications heightModifications = new PageHeightModifications();
 	
 	private boolean randomizeInPrint = false;
@@ -259,7 +258,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
-		this.previousSemiResponsiveLayoutID = this.semiResponsiveLayoutID;
 		this.semiResponsiveLayoutID = newLayoutID;
 	}
 
@@ -1100,7 +1098,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		String layoutID = this.getSemiResponsiveLayoutID();
 		List<Ruler> horizontalRulers = new ArrayList<Ruler>();
 
-		for(Ruler ruler : rulers.get("horizontal")) {
+		for(Ruler ruler : rulers.get("horizontals")) {
 			if (ruler.getLayoutID() != layoutID) {
 				horizontalRulers.add(ruler);
 			}
@@ -1113,25 +1111,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		String layoutID = this.getSemiResponsiveLayoutID();
 		List<Ruler> verticalRulers = new ArrayList<Ruler>();
 
-		for(Ruler ruler : rulers.get("vertical")) {
+		for(Ruler ruler : rulers.get("verticals")) {
 			if (ruler.getLayoutID() != layoutID) {
 				verticalRulers.add(ruler);
 			}
 		}
 
 		return verticalRulers;
-	}
-
-	private boolean isRulerInCollection(List<Ruler> rulers, Ruler newRuler) {
-		for(Ruler ruler : rulers) {
-			if (ruler.getPosition() == newRuler.getPosition()) return true;
-		}
-
-		return false;
-	}
-
-	public List<Ruler> getRulersByType(String type) {
-		return rulers.get(type);
 	}
 
 	public HashMap<String, List<Ruler>> getRulers() {
@@ -1220,10 +1206,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public String getSemiResponsiveLayoutID() {
 		return this.semiResponsiveLayoutID;
-	}
-
-	public String getPreviousSemiResponsiveLayoutID() {
-		return this.previousSemiResponsiveLayoutID;
 	}
 
 	@Override
