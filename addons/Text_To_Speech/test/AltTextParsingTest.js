@@ -1,4 +1,4 @@
-TestCase('Parsing alternative texts', {
+TestCase('[Text_To_Speech] Parsing alternative texts tests', {
     setUp: function () {
         this.presenter = AddonText_To_Speech_create();
 
@@ -24,7 +24,6 @@ TestCase('Parsing alternative texts', {
         assertEquals('test world test2 world2 test3', textVoices[1].text);
         assertEquals('pl', textVoices[1].lang);
         assertEquals('test world3 test4', textVoices[2].text);
-
     },
 
     'test altText with lang tag': function () {
@@ -51,10 +50,9 @@ TestCase('Parsing alternative texts', {
         assertEquals({text:' after',lang:'en'}, textVoices[10]);
         assertEquals({text:'before ',lang:'en'}, textVoices[11]);
         assertEquals({text:'world5',lang:'de'}, textVoices[12]);
-
     },
 
-        'test altText with and without lang tag mixed together': function () {
+    'test altText with and without lang tag mixed together': function () {
         function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
         var textVoices = [];
         textVoices.push(getTextVoiceObject('\\alt{hello3|world3}[lang de] \\alt{hello|world} test2',''));
@@ -67,7 +65,5 @@ TestCase('Parsing alternative texts', {
         assertEquals({text:'world5',lang:'de'}, textVoices[2]);
         assertEquals({text:'world2',lang:'pl'}, textVoices[3]);
         assertEquals({text:'world4',lang:'en'}, textVoices[4]);
-
     }
-
 });
