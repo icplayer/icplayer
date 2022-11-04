@@ -128,11 +128,6 @@ public class WCAGUtils {
 		return result;	
 	}
 
-	public static String addSpacesToListTags (String text) {
-            // list elements with alt text containing a dot at the end makes the TTS read out the extra comma unnecessarily.
-	    String regexPattern = "(?<!\\alt{ |\\.\\s?})</li>";
-	    return text.replaceAll(regexPattern, ", </li>");
-	}
 
 	private static String addListNumbers(String html) {
 		Element wrapper = DOM.createElement("div");
@@ -164,6 +159,7 @@ public class WCAGUtils {
 
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
+        text = removeSpaceAfterAltTextDot(text);
 		text = addSpacesToListTags(text);
 		text = addListNumbers(text);
 
@@ -178,6 +174,17 @@ public class WCAGUtils {
 		}
 
 		return text.replaceAll("<a[^>]*?href=\"(.*?)\"*?>(.*?)</a>", LINK_START + " $2 " + LINK_END);
+	}
+
+    public static String removeSpaceAfterAltTextDot(String text) {
+        // Chrome implementation of TTS reads the dot if a space is present after it
+        return text.replaceAll("\\\\alt\\{ \\|\\. \\}</li>", "\\\\alt{ |.}</li>");
+    }
+
+	public static String addSpacesToListTags (String text) {
+        // list elements with alt text containing a dot at the end makes the TTS read out the extra comma unnecessarily.
+        String regexPattern = "(?<!\\alt{ |\\.})</li>";
+        return text.replaceAll(regexPattern, ", </li>");
 	}
 
 	private static String convertWhitespaceToSpace(String text) {
