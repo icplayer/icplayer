@@ -1390,10 +1390,10 @@ function AddonText_Coloring_create() {
     presenter.setEraserMode = function () {
         if (!presenter.configuration.eraserMode) {
             presenter.disableColoringMode();
-            presenter.setEraserButtonAsActive();
             presenter.connectWordTokensHandlers();
             presenter.toggleEraserMode();
         }
+        presenter.setEraserButtonAsActive();
     };
 
     presenter.setColor = function (colorID) {
@@ -1747,7 +1747,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getDefaultElementsStringForKeyboardNavigation = function AddonText_Coloring_getDefaultElementsStringForKeyboardNavigation () {
-        return ".text-coloring-color-button, .text-coloring-selectable-word";
+        if (presenter.configuration.showSetEraserButtonMode) {
+            return ".text-coloring-color-button, .text-coloring-eraser-button, .text-coloring-selectable-word";
+        } else {
+            return ".text-coloring-color-button, .text-coloring-selectable-word";
+        }
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
@@ -1804,7 +1808,7 @@ function AddonText_Coloring_create() {
     presenter.speakOnElementSelection = function AddonText_Coloring_speakOnElementSelection () {
         const element = presenter.keyboardControllerObject.getTarget(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
         let text = ""
-        if (element.hasClass(presenter.defaults.css.colorButton)) {
+        if (element.hasClass(presenter.defaults.css.colorButton) || element.hasClass(presenter.defaults.css.eraserButton)) {
             text = presenter.speechTexts.selected;
         } else if (element.hasClass(presenter.defaults.css.selectableWord)) {
             const color = presenter.getColorObjectOrNoneFromElementClass(element);
@@ -1821,7 +1825,7 @@ function AddonText_Coloring_create() {
         let text = "";
         const elementContent = element[0].textContent;
 
-        if (element.hasClass(presenter.defaults.css.colorButton)) {
+        if (element.hasClass(presenter.defaults.css.colorButton) || element.hasClass(presenter.defaults.css.eraserButton)) {
             text = presenter.getTTSForColorButton(element, elementContent);
         } else if (element[0].className.includes("text-coloring-tokens-container")) {
             text = presenter.getTTSForContent();
@@ -1842,7 +1846,8 @@ function AddonText_Coloring_create() {
         let text = "";
 
         presenter.configuration.filteredTokens.forEach((token) => {
-            text += token.value + " ";
+            let tokenContent = $("<p>" + token.value + "<\p>")[0].textContent;
+            text += tokenContent + " ";
             const tokenElement = presenter.getWordTokenByIndex(token.index);
             if (!tokenElement.length) {
                 return;

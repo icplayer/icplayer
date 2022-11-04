@@ -118,6 +118,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("IWB_Toolbar", "media_menu");
 		addDescriptor("Layered_Image", "media_menu");
 		addDescriptor("Line", "media_menu");
+		addDescriptor("LottiePlayer", "media_menu");
 		addDescriptor("MultiAudio", "media_menu");
 		addDescriptor("Shape_Tracing", "media_menu");
 		addDescriptor("Slideshow", "media_menu");
