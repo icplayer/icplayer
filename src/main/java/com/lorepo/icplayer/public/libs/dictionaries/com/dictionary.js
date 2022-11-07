@@ -1805,6 +1805,7 @@ var ice_dictionary_en = {
 	"eKeyboard_info": "eKeyboard is a virtual keyboard displayed right after clicking on the input/textarea the module works with.",
 	"eKeyboard_name": "eKeyboard",
 	"eKeyboard_property_work_with": "Work With",
+	"eKeyboard_property_works_with_all": "Works with all",
 	"eKeyboard_property_layout_type": "Layout Type",
 	"eKeyboard_property_custom_layout": "Custom Layout",
 	"eKeyboard_property_position_my": "Position My",

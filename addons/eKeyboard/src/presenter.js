@@ -15,6 +15,13 @@ function AddoneKeyboard_create(){
     var movedInput = false;
     var escClicked = false;
 
+    presenter.ERROR_CODES = {
+        'E01' : 'The position is wrong. See documentation for more details.',
+        'E02' : 'Module ID not found.',
+        'E03' : 'The module you provided has no getView method implemented.',
+        'E04' : 'Max Characters must be a digit or empty string (unlimited).'
+    };
+
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -34,6 +41,9 @@ function AddoneKeyboard_create(){
             'shift': ['\u00c0 \u00c8 \u00c9 \u00cc \u00d2 \u00d9 {shift}'] \
         }"
     };
+
+    function getErrorObject (ec) { return { isError: true, errorCode: ec }; }
+    function getCorrectObject(val) { return { isError: false, value: val }; }
 
     function touchStartDecorator(func, element) {
         $(element).on('click', function (ev) {
@@ -90,61 +100,51 @@ function AddoneKeyboard_create(){
         return rawType.toLowerCase();
     };
 
+    presenter.validateWorkWith = function (workWithModules) {
+        const workWithViews = [];
+        for (let i = 0; i < workWithModules.length; i++) {
+            const module = presenter.playerController.getModule(workWithModules[i]);
+            if (module) {
+                if (module.getView && module.getView()) {
+                    workWithViews.push(module.getView());
+                }
+            } else {
+                return getErrorObject("E02");
+            }
+        }
+
+        return workWithViews;
+    }
+
     presenter.validateMaxCharacters = function(rawMaxCharacters) {
         if (rawMaxCharacters.length == 0) {
-            return {
-                'isError' : false,
-                'value' : false
-            };
+            return getCorrectObject(false);
         }
 
         if ( !(/\d+/.test(rawMaxCharacters)) ) {
-            return {
-                'isError' : true,
-                'errorCode' : 'E04'
-            }
+            return getErrorObject("E04");
         }
 
-        return {
-            'isError' : false,
-            'value' : parseInt(rawMaxCharacters, 10)
-        };
-    };
-
-    presenter.ERROR_CODES = {
-        'E01' : 'The position is wrong. See documentation for more details.',
-        'E02' : 'Module ID not found.',
-        'E03' : 'The module you provided has no getView method implemented.',
-        'E04' : 'Max Characters must be a digit or empty string (unlimited).'
+        return getCorrectObject(parseInt(rawMaxCharacters, 10));
     };
 
     presenter.validatePosition = function(rawPosition, isMy) {
-        if (rawPosition.length == 0) {
-            return {
-                isError: false,
-                value: isMy ? 'left center' : 'right center'
-            }
+        if (!rawPosition.length) {
+            return getCorrectObject(isMy ? 'left center' : 'right center');
         }
 
         var possibilitiesOnTheLeft = ['left', 'center', 'right'],
             possibilitiesOnTheRight = ['top', 'center', 'bottom'],
             splitted = rawPosition.split(' ');
 
-        if (splitted.length == 2
-            && possibilitiesOnTheLeft.indexOf(splitted[0]) >= 0
-            && possibilitiesOnTheRight.indexOf(splitted[1]) >= 0
-            ) {
-
-            return {
-                isError: false,
-                value: rawPosition
-            }
-
+        if (
+            splitted.length === 2 &&
+            possibilitiesOnTheLeft.indexOf(splitted[0]) >= 0 &&
+            possibilitiesOnTheRight.indexOf(splitted[1]) >= 0
+        ) {
+            return getCorrectObject(rawPosition);
         } else {
-            return {
-                isError: true,
-                errorCode: 'E01'
-            }
+            return getErrorObject("E01")
         }
     };
 
@@ -195,70 +195,32 @@ function AddoneKeyboard_create(){
         runLogic(view, model, true);
     };
 
+    presenter.upgradeModel = function AddoneKeyboard_upgradeModel(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["worksWithAll"]) {
+            upgradedModel["worksWithAll"] = "False";
+        }
+        if (!upgradedModel['customDisplay']) {
+            upgradedModel['customDisplay'] = "";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.validateModel = function(model, isPreview) {
-        var workWithModules = Helpers.splitLines(model['workWith']),
+        const worksWithAll = ModelValidationUtils.validateBoolean(model.worksWithAll);
+        let workWithModules = worksWithAll ? presenter.getAllPageModulesIds() : Helpers.splitLines(model['workWith']),
             workWithViews = [],
             layoutType = presenter.validateType(model['layoutType']),
             customLayout = model['customLayout'],
             maxCharacters = presenter.validateMaxCharacters(model['maxCharacters']),
             positionMy = presenter.validatePosition(model['positionMy'], true),
-            positionAt = presenter.validatePosition(model['positionAt'], false),
-            workWithIsValid = true,
-            workWithErrorCode = '',
-            customDisplay = model['customDisplay'];
+            positionAt = presenter.validatePosition(model['positionAt'], false);
 
         if (!isPreview) {
-            $.each(workWithModules, function() {
-                var module = presenter.playerController.getModule(this.toString()),
-                    moduleNotFound = false,
-                    getViewNotImplemented = false;
-
-                if (module) {
-                    if ( module.getView() ) {
-                        workWithViews.push( module.getView() );
-                    } else {
-                        getViewNotImplemented = true;
-                        return false;
-                    }
-                } else {
-                    moduleNotFound = true;
-                    return false;
-                }
-
-                if (getViewNotImplemented || moduleNotFound) {
-                    workWithIsValid = false;
-                    workWithErrorCode = moduleNotFound ? 'E02' : 'E03';
-                    return false;
-                }
-            });
-        }
-
-        if (!workWithIsValid) {
-            return {
-                'isError' : true,
-                'errorCode' : workWithErrorCode
-            }
-        }
-
-        if (maxCharacters.isError) {
-            return {
-                'isError' : true,
-                'errorCode' : maxCharacters.errorCode
-            }
-        }
-
-        if (positionMy.isError) {
-            return {
-                'isError' : true,
-                'errorCode' : positionMy.errorCode
-            }
-        }
-
-        if (positionAt.isError) {
-            return {
-                'isError' : true,
-                'errorCode' : positionAt.errorCode
-            }
+            workWithViews = presenter.validateWorkWith(workWithModules);
         }
 
         if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType] != undefined) {
@@ -266,25 +228,35 @@ function AddoneKeyboard_create(){
             layoutType = 'custom';
         }
 
-        if (typeof(customDisplay) == 'undefined') {
-            customDisplay = '';
-        }
+        if (maxCharacters.isError) return maxCharacters;
+        if (positionMy.isError) return positionMy;
+        if (positionAt.isError) return positionAt;
+        if (workWithViews.isError) return workWithViews;
+
         return {
             'ID': model["ID"],
             'isError' : false,
-            'workWithViews' : workWithViews,
-            'layoutType' : layoutType,
-            'customLayout' : customLayout,
-            'positionAt' : positionAt,
-            'positionMy' : positionMy,
+            workWithViews,
+            worksWithAll,
+            layoutType,
+            customLayout,
+            positionAt,
+            positionMy,
+            'customDisplay' : model['customDisplay'],
             'maxCharacters' : maxCharacters.value,
             'offset' : presenter.validateOffsetData(positionMy.value, positionAt.value),
             'openOnFocus' : !ModelValidationUtils.validateBoolean(model['noOpenOnFocus']),
             'lockInput' : ModelValidationUtils.validateBoolean(model['lockStandardKeyboardInput']),
-            'customDisplay' : customDisplay,
             'showCloseButton': ModelValidationUtils.validateBoolean(model['showCloseButton'])
         }
     };
+
+    presenter.getAllPageModulesIds = function () {
+        const currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        const allModulesIds = presenter.playerController.getPresentation().getPage(currentPageIndex).getModulesAsJS();
+
+        return allModulesIds;
+    }
 
     presenter.removeEventListeners = function () {
         presenter.configuration.$inputs.each(function (index, element) {
@@ -339,13 +311,14 @@ function AddoneKeyboard_create(){
         });
 
         $.when(presenter.pageLoaded, mathJaxProcessEnded).then(function() {
-            presenter.configuration = presenter.validateModel(model, isPreview);
-            presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input').not('.ic_text_audio_button');
-
+            const upgradedModel = presenter.upgradeModel(model);
+            presenter.configuration = presenter.validateModel(upgradedModel, isPreview);
             if (presenter.configuration.isError) {
                 DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
                 return;
             }
+            presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input').not('.ic_text_audio_button');
+
 
             if (!isPreview) {
                 if (presenter.configuration.customLayout.length > 0) {

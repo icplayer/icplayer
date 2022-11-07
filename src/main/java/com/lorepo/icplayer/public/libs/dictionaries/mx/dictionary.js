@@ -1797,6 +1797,7 @@ var ice_dictionary_mx = {
 	"eKeyboard_info": "eKeyboard es un teclado virtual que aparece al dar clic en el área del texto definido anteriormente en Propiedades.",
 	"eKeyboard_name": "Teclado virtual",
 	"eKeyboard_property_work_with": "Trabajar con",
+	"eKeyboard_property_works_with_all": "Works with all",
 	"eKeyboard_property_layout_type": "Disposición del teclado",
 	"eKeyboard_property_custom_layout": "Disposición del teclado personalizada",
 	"eKeyboard_property_position_my": "Posición relativa My (addon/texto)",

@@ -1797,6 +1797,7 @@ var ice_dictionary_fr = {
     "eKeyboard_info": "Clavier de caractères spéciaux est un clavier virtuel permettant d'intégrer des caractères spéciaux dans des modules auxquels il est lié.",
     "eKeyboard_name": "Clavier de caractères spéciaux",
     "eKeyboard_property_work_with": "Fonctionne avec",
+    "eKeyboard_property_works_with_all": "Works with all",
     "eKeyboard_property_layout_type": "Type d'aspect",
     "eKeyboard_property_custom_layout": "Personnaliser l'aspect",
     "eKeyboard_property_position_my": "Position My",
