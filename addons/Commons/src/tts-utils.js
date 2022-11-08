@@ -228,9 +228,10 @@
 
         _addEndingSpace: function($clone) {
             function endsWithPunctuation(text) {
+                var trimmedText = text.replaceAll("\u00A0", " ").trim();
                 var punc = ".,;?!";
                 for (var i = 0; i < punc.length; i++) {
-                    if (text.trim().endsWith(punc[i])) {
+                    if (trimmedText.endsWith(punc[i])) {
                         return true;
                     }
                 }
@@ -239,12 +240,12 @@
             $clone.find('div').each(function(){
                 originalHTML = this.innerHTML;
                 if (this.previousSibling != null && this.previousSibling.nodeType == 3 && !endsWithPunctuation(this.previousSibling.wholeText)) {
-                    originalHTML = ". " + originalHTML;
+                    originalHTML = ".\u00A0" + originalHTML;
                 }
-                if (!endsWithPunctuation(this.innerText)) {
-                    originalHTML = originalHTML + ".";
+                if (this.lastChild != null && this.lastChild.nodeType == 3 && !endsWithPunctuation(this.innerText)) {
+                    originalHTML = originalHTML + ".\u00A0";
                 }
-                originalHTML = originalHTML + "<span> </span>";
+                originalHTML = originalHTML + "\u00A0";
                 this.innerHTML = originalHTML;
             });
             return $clone;

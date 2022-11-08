@@ -9,6 +9,7 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Text;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -162,29 +163,32 @@ public class WCAGUtils {
 		NodeList<Element> divs = wrapper.getElementsByTagName("div");
 		for	(int i = 0; i < divs.getLength(); i++) {
 			Element div = divs.getItem(i);
+			String originalHTML = div.getInnerHTML();
 			if (div.getPreviousSibling() != null) {
 				Node prev = div.getPreviousSibling();
-				String originalHTML = div.getInnerHTML();
 				if (prev.getNodeType() == Node.TEXT_NODE) {
 					String previousText = ((Text)prev).getData();
 					if (!endsWithPunctuation(previousText)) {
-						originalHTML = ". " + originalHTML;
+						originalHTML = ".\u00A0" + originalHTML;
 					}
 				}
-
-				if (!endsWithPunctuation(div.getInnerText())) {
-					originalHTML = originalHTML + ".";
-				}
-				originalHTML += "<span> </span>";
-				div.setInnerHTML(originalHTML);
 			}
+			if (div.getLastChild() != null) {
+				Node lastChild = div.getLastChild();
+				if (lastChild.getNodeType() == Node.TEXT_NODE && !endsWithPunctuation(originalHTML)) {
+					originalHTML = originalHTML + ".\u00A0";
+				}
+			}
+			originalHTML += "\u00A0";
+			div.setInnerHTML(originalHTML);
 		}
 	}
 
 	private static boolean endsWithPunctuation(String text) {
+		String trimmedText = text.replaceAll("\\u00A0", " ").trim();
 		String punc = ".,;?!";
 		for (int i = 0; i < punc.length(); i++) {
-			if (text.trim().endsWith(punc.substring(i, i+1))) {
+			if (trimmedText.endsWith(punc.substring(i, i+1))) {
 				return true;
 			}
 		}
