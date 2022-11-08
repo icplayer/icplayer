@@ -177,6 +177,7 @@
 
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
+                replaceText = replaceText.replace(/\. $/, ".");
                 var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
                     replaceText = '\\alt{ |' + replaceText + '}' + '[lang ' + langTag + ']';
