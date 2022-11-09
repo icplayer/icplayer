@@ -100,7 +100,7 @@ function AddoneKeyboard_create(){
         return rawType.toLowerCase();
     };
 
-    presenter.validateWorkWith = function (workWithModules) {
+    presenter.validateWorkWith = function (workWithModules, worksWithAll) {
         const workWithViews = [];
         for (let i = 0; i < workWithModules.length; i++) {
             const module = presenter.playerController.getModule(workWithModules[i]);
@@ -108,7 +108,7 @@ function AddoneKeyboard_create(){
                 if (module.getView && module.getView()) {
                     workWithViews.push(module.getView());
                 }
-            } else {
+            } else if (!worksWithAll) {
                 return getErrorObject("E02");
             }
         }
@@ -220,7 +220,7 @@ function AddoneKeyboard_create(){
             positionAt = presenter.validatePosition(model['positionAt'], false);
 
         if (!isPreview) {
-            workWithViews = presenter.validateWorkWith(workWithModules);
+            workWithViews = presenter.validateWorkWith(workWithModules, worksWithAll);
         }
 
         if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType] != undefined) {
