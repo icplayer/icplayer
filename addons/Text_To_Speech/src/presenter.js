@@ -388,7 +388,7 @@ function AddonText_To_Speech_create() {
     function splitByPunctuationSigns(text) {
         let splitIndexes = findPunctuationSignsIndexes(text);
         protectTimeSyntaxInText(text, splitIndexes)
-        return softSplitTextUsingSplitIndexes(text, splitIndexes);
+        return softSplitText(text, splitIndexes);
     }
 
     function findPunctuationSignsIndexes(text) {
@@ -404,22 +404,22 @@ function AddonText_To_Speech_create() {
     function protectAMAndPMSyntaxInText(text, splitIndexes) {
         const regexp = /(at[\s]+[\d]{1,2}[\s]+)([ap].[m].)/g;
         let matches = text.matchAll(regexp);
-        protectBreakingIndexes(matches, splitIndexes);
+        filterSplittingIndexes(matches, splitIndexes);
     }
 
     function protectDigitHourSyntaxInText(text, splitIndexes) {
         const regexp = /([\s]+)([\d]{1,2}:[\d]{2})/g;
         let matches = text.matchAll(regexp);
-        protectBreakingIndexes(matches, splitIndexes);
+        filterSplittingIndexes(matches, splitIndexes);
     }
 
     /**
-    * Unmark indexes as breaking points base on second groups of matches
-    * @param matches - RegExp matches, where second group is text protected from breaking
+    * Leaves the indexes that are not between the range of the matches' second group
+    * @param matches - RegExp matches, where second group is text protected from splitting
     * @param splitIndexes - list of indexes (breaking points) to soft split* text
     * @return undefined
     **/
-    function protectBreakingIndexes(matches, splitIndexes) {
+    function filterSplittingIndexes(matches, splitIndexes) {
         for (const match of matches) {
             const startIndex = match.index + match[1].length;
             const endIndex = startIndex + match[2].length - 1;
@@ -439,7 +439,7 @@ function AddonText_To_Speech_create() {
     * @param splitIndexes - list of indexes (breaking points) to soft split* text
     * @return split text
     **/
-    function softSplitTextUsingSplitIndexes(text, splitIndexes) {
+    function softSplitText(text, splitIndexes) {
         splitIndexes.unshift(-1);
         splitIndexes.push(text.length - 1);
         splitIndexes.forEach((value, index) => splitIndexes[index] = value + 1);
