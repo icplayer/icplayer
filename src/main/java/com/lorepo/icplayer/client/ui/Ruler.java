@@ -4,6 +4,7 @@ public class Ruler {
 
 	private int position;
 	private String type;
+	private String layoutID = "";
 
 	public Ruler() {}
 
@@ -12,8 +13,17 @@ public class Ruler {
 		this.position = position;
 	}
 
+	public Ruler(String type, int position, String layoutID) {
+		this.type = type;
+		this.position = position;
+		this.layoutID = layoutID;
+	}
+
 	public String toXML() {
-		return "<" + type +">" + position + "</"+ type +">";
+		if (layoutID.isEmpty()) {
+			return "<" + type +">" + position + "</"+ type +">";
+		}
+		return "<" + type +">" + position + " " + layoutID + "</"+ type +">";
 	}
 
 	public String getType() {
@@ -24,11 +34,19 @@ public class Ruler {
 		return position;
 	}
 
+	public String getLayoutID() {
+		return this.layoutID;
+	}
+
 	public void setPosition(int position) {
 		this.position = position;
 	}
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public void setLayoutID(String layoutID) {
+		this.layoutID = layoutID;
 	}
 }

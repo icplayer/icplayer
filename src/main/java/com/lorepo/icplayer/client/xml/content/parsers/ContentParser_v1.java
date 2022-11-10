@@ -120,6 +120,8 @@ public class ContentParser_v1 extends ContentParserBase {
 					pageLayout = this.parseLayoutStyle(pageLayout, child);
 				} else if (nodeName.compareTo("deviceOrientation") == 0) {
 					pageLayout = this.parseDeviceOrientation(pageLayout, child);
+				} else if (nodeName.compareTo("gridSize") == 0) {
+					pageLayout = this.parseGridSize(pageLayout, child);
 				}
 			}
 		}
@@ -149,6 +151,14 @@ public class ContentParser_v1 extends ContentParserBase {
 		
 		pageLayout.setThreshold(width);
 		
+		return pageLayout;
+	}
+
+	private PageLayout parseGridSize(PageLayout pageLayout, Element gridSizeNode) {
+		int gridSize = XMLUtils.getAttributeAsInt(gridSizeNode, "value");
+
+		pageLayout.setGridSize(gridSize);
+
 		return pageLayout;
 	}
 }
