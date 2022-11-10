@@ -386,17 +386,81 @@ function AddonText_To_Speech_create() {
     };
 
     function splitByPunctuationSigns(text) {
-        return text.split(/[.,:;!?\/\\()]/);
+        let splitIndexes = findPunctuationSignsIndexes(text);
+        protectTimeSyntaxInText(text, splitIndexes)
+        return softSplitTextUsingSplitIndexes(text, splitIndexes);
+    }
+
+    function findPunctuationSignsIndexes(text) {
+        const regexp = /[.,:;!?\/\\()]/g;
+        return Array.from(text.matchAll(regexp)).map(x => x.index);
+    }
+
+    function protectTimeSyntaxInText(text, splitIndexes) {
+        protectAMAndPMSyntaxInText(text, splitIndexes);
+        protectDigitHourSyntaxInText(text, splitIndexes);
+    }
+
+    function protectAMAndPMSyntaxInText(text, splitIndexes) {
+        const regexp = /(at[\s]+[\d]{1,2}[\s]+)([ap].[m].)/g;
+        let matches = text.matchAll(regexp);
+        protectBreakingIndexes(matches, splitIndexes);
+    }
+
+    function protectDigitHourSyntaxInText(text, splitIndexes) {
+        const regexp = /([\s]+)([\d]{1,2}[:.][\d]{2})/g;
+        let matches = text.matchAll(regexp);
+        protectBreakingIndexes(matches, splitIndexes);
+    }
+
+    /**
+    * Unmark indexes as breaking points base on second groups of matches
+    * @param matches - RegExp matches, where second group is text protected from breaking
+    * @param splitIndexes - list of indexes (breaking points) to soft split* text
+    * @return undefined
+    **/
+    function protectBreakingIndexes(matches, splitIndexes) {
+        for (const match of matches) {
+            const startIndex = match.index + match[1].length;
+            const endIndex = startIndex + match[2].length - 1;
+            for (let i = 0; i < splitIndexes.length; i++) {
+                if (startIndex <= splitIndexes[i] && splitIndexes[i] <= endIndex) {
+                    splitIndexes.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    }
+
+    /**
+    * Soft split text using given indexes.
+    * This split does not remove splitting indexes character but gives to previous split text.
+    * @param text - Text to soft split
+    * @param splitIndexes - list of indexes (breaking points) to soft split* text
+    * @return split text
+    **/
+    function softSplitTextUsingSplitIndexes(text, splitIndexes) {
+        splitIndexes.unshift(-1);
+        splitIndexes.push(text.length - 1);
+        splitIndexes.forEach((value, index) => splitIndexes[index] = value + 1);
+        let splitText = [];
+        for (let i = 1; i < splitIndexes.length; i++) {
+            splitText.push(text.slice(splitIndexes[i-1], splitIndexes[i]));
+        }
+        if (splitText[splitText.length-1].trim().length === 0) {
+            splitText.pop();
+        }
+        return splitText;
     }
 
     // creates an array of utterances from a single text that exceeds max utterance length and has no natural break points
     function splitLongSentence (sentence, lang) {
-        var newTexts = [];
-        var sentenceLen = sentence.trim().length;
-        var maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
-        var workString = '';
-        var words = sentence.split(/\s/);
-        for (var k = 0; k < words.length; k++) {
+        let newTexts = [];
+        let sentenceLen = sentence.trim().length;
+        let maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
+        let workString = '';
+        let words = sentence.split(/\s/);
+        for (let k = 0; k < words.length; k++) {
             workString += words[k] + ' ';
             if (workString.length > maxSplitLen) {
                 newTexts.push({
@@ -415,36 +479,38 @@ function AddonText_To_Speech_create() {
 
     // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
     presenter.splitLongTexts = function (texts) {
-        var newTexts = [];
-        for (var i = 0; i < texts.length; i++) {
-            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0) {
-                if (texts[i].text.trim().length > presenter.maxUtteranceLength) {
-                    var sentences = splitByPunctuationSigns(texts[i].text);
-                    for (var j = 0; j < sentences.length; j++) {
-                        var sentenceLen = sentences[j].trim().length;
-                        if (sentenceLen > 0) {
-                            if (sentenceLen < presenter.maxUtteranceLength) {
-                                newTexts.push({
-                                    text: sentences[j],
-                                    lang: texts[i].lang
-                                });
-                            } else {
-                                var splitSentences = splitLongSentence(sentences[j], texts[i].lang);
-                                newTexts = newTexts.concat(splitSentences);
-                            }
-                        }
-                    }
-                } else {
-                    newTexts.push(texts[i]);
-                }
+        let newTexts = [];
+        texts.forEach(text => {
+            if (text === null || text === undefined || text.text.trim().length === 0) {
+                return;
             }
-        }
+
+            if (text.text.trim().length > presenter.maxUtteranceLength) {
+                let sentences = splitByPunctuationSigns(text.text);
+                sentences.forEach((sentence) => {
+                    const sentenceLen = sentence.trim().length;
+                    if (sentenceLen === 0) {
+                        return;
+                    }
+
+                    if (sentenceLen < presenter.maxUtteranceLength) {
+                        newTexts.push({
+                            text: sentence,
+                            lang: text.lang
+                        });
+                    } else {
+                        let splitSentences = splitLongSentence(sentence, text.lang);
+                        newTexts = newTexts.concat(splitSentences);
+                    }
+                })
+            } else {
+                newTexts.push(text);
+            }
+        })
         return newTexts;
     }
 
-
     presenter.speakWithCallback = function (texts, callback) {
-
         texts = presenter.parseAltTexts(texts);
         presenter.saveSentences(texts);
         if (isChrome()) {
