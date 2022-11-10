@@ -1,3 +1,4 @@
+2022-11-10 Fixed support for only one audio type in slideshow addon
 2022-11-10 Added grid size and rulers position separation
 2022-11-07 Added worksWithAll property to eKeyboard
 2022-11-03 Fixed bug with reading whole HTML elements instead of their content in TTS for Text Coloring
