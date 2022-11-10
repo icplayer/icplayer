@@ -106,7 +106,8 @@ TestCase('[Text_To_Speech] Splitting texts that exceed length limit tests', {
             "On my favourite day I get up \nat 7:00 and listen to music.",
             "I meet my friends and we \nwalk to school.",
             "We often talk about our plans for the weekend.",
-            "Lessons ends at 8.15,",
+            "Lessons ends at 8.",
+            "15,",
             "with Music,",
             "then Art – my favourite subjects!",
         ]

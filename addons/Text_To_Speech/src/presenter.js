@@ -408,7 +408,7 @@ function AddonText_To_Speech_create() {
     }
 
     function protectDigitHourSyntaxInText(text, splitIndexes) {
-        const regexp = /([\s]+)([\d]{1,2}[:.][\d]{2})/g;
+        const regexp = /([\s]+)([\d]{1,2}:[\d]{2})/g;
         let matches = text.matchAll(regexp);
         protectBreakingIndexes(matches, splitIndexes);
     }
