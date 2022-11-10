@@ -1796,6 +1796,7 @@ var ice_dictionary_pl = {
 	"eKeyboard_info" : "Wirtualna klawiatura, która pojawia się na ekranie po zaznaczeniu obszaru tekstowego współpracującego z Addonem.",
 	"eKeyboard_name" : "e-Klawiatura",
 	"eKeyboard_property_work_with": "Działa z",
+	"eKeyboard_property_works_with_all": "Works with all",
 	"eKeyboard_property_layout_type": "Typ układu",
 	"eKeyboard_property_custom_layout": "Układ domyślny",
 	"eKeyboard_property_position_my": "Pozycja \"My\"",

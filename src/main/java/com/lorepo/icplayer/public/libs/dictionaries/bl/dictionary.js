@@ -1792,6 +1792,7 @@ var ice_dictionary_bl = {
 	"eKeyboard_info": "е-клавиатура е виртуална клавиатура, която се показва след натискане на поле за въвеждане на текст.",
 	"eKeyboard_name": "е-клавиатура",
 	"eKeyboard_property_work_with": "Работи с",
+	"eKeyboard_property_works_with_all": "Works with all",
 	"eKeyboard_property_layout_type": "Оформление",
 	"eKeyboard_property_custom_layout": "Оформление по избор",
 	"eKeyboard_property_position_my": "Позиция на плъгина",

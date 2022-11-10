@@ -3,6 +3,7 @@
 <addon id='eKeyboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
         <property name="workWith" displayName="Work With" nameLabel="eKeyboard_property_work_with" type="text" />
+        <property name="worksWithAll" displayName="Works With All" nameLabel="eKeyboard_property_works_with_all" type="boolean" />
         <property name="layoutType" displayName="Layout Type" nameLabel="eKeyboard_property_layout_type"
                   type="{Numeric, French (Special Characters), German (Special Characters), Italian (Special Characters), Spanish (Special Characters), Custom}" />
         <property name="customLayout" displayName="Custom Layout" nameLabel="eKeyboard_property_custom_layout" type="text" isLocalized="true" />
