@@ -62,6 +62,7 @@ public abstract class ContentParserBase implements IContentParser {
 					content.setStyles(this.parseStyles(child));
 				} else if(name.compareTo("layouts") == 0) {
 					content = this.parseLayouts(content, child);
+					content.setDefaultGridSize();
 				}
 				else if(name.compareTo("pages") == 0){
 					this.parsePages(content, child, this.pagesSubset);
