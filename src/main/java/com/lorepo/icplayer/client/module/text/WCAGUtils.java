@@ -9,6 +9,7 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -161,6 +162,7 @@ public class WCAGUtils {
 		text = updateLinks(text);
 		text = removeSpaceAfterAltTextDot(text);
 		text = addSpacesToListTags(text);
+        text = removeSpaceBetweenEndOfLineAndAltDot(text);
 		text = addListNumbers(text);
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
@@ -177,14 +179,19 @@ public class WCAGUtils {
 	}
 
 	public static String removeSpaceAfterAltTextDot(String text) {
-		// Chrome implementation of TTS reads the dot if a space is present after it
-		return text.replaceAll("\\\\alt\\{ \\|\\. \\}</li>", "\\\\alt{ |.}</li>");
+		// Chrome implementation of TTS unnecessarily reads the dot if a space is present after it, so the space must be removed
+		return text.replaceAll("\\\\alt\\{(\\s|&nbsp;)\\|\\.(\\s|&nbsp;)\\}(\\s|&nbsp;)*</li>", "\\\\alt{ |.}</li>");
 	}
 
 	public static String addSpacesToListTags (String text) {
-		// list elements with alt text containing a dot at the end makes the TTS read out the extra comma unnecessarily.
-		String regexPattern = "(?<!\\alt{ |\\.})</li>";
+        // When the extra comma is added to elements containing an alt text with a dot at the end, the comma is read out unnecessarily, so we filter them out
+		String regexPattern = "(?<!\\alt{(\\s|&nbsp;)|\\.})</li>";
 		return text.replaceAll(regexPattern, ", </li>");
+	}
+
+    public static String removeSpaceBetweenEndOfLineAndAltDot(String text) {
+        // When a space is present between end of a sentence and alt text with a dot, the extra comma is read out loud unnecessarily, so we remove the space char
+        return text.replaceAll("\\.\\s\\\\alt\\{(\\s|&nbsp;)\\|\\.}", ".\\\\alt{ |.}");
 	}
 
 	private static String convertWhitespaceToSpace(String text) {
