@@ -21,7 +21,8 @@ function AddonSlideshow_create() {
     presenter.ERROR_CODES = {
         'A_01': "At least one audio format file must be uploaded!",
         'A_02': "Your browser does not support HTML5 audio or none of Addon media types!",
-        'A_03': "No audio media was loaded!",
+        'A_03': "Your browser does not support MP3 media type. Please try to use file in OGG format.",
+        'A_04': "Your browser does not support OGG media type. Please try to use file in MP3 format.",
         'S_01': "Each slide must have Image property set properly!",
         'S_02': "Slide start time in not in proper format ('MM:SS')!",
         'S_03': "Slide start times should be consecutive!",
@@ -32,7 +33,7 @@ function AddonSlideshow_create() {
         'T_05': "Top position value is invalid!",
         'T_06': "Left position value is invalid!",
         'T_07': "If more than one text is set, each one of them have to be set properly!",
-        'N_01': "If 'no audio' is checked, presentation duration must be a positive number"
+        'N_01': "If 'no audio' is checked, presentation duration must be a positive number."
     };
 
     presenter.TIME_LINE_TASK = {
@@ -158,6 +159,12 @@ function AddonSlideshow_create() {
             return { isError: true, errorCode: "A_02" };
         }
 
+        if (presenter.configuration.audio.MP3 && !buzz.isMP3Supported() && buzz.isOGGSupported() && !presenter.configuration.audio.OGG) {
+            return { isError: true, errorCode: "A_03" };
+        } else if (presenter.configuration.audio.OGG && !buzz.isOGGSupported() && buzz.isMP3Supported() && !presenter.configuration.audio.MP3) {
+            return { isError: true, errorCode: "A_04" };
+        }
+
         if (!isPreview) {
             showLoadingScreen("Loading audio file...");
         }
@@ -165,18 +172,15 @@ function AddonSlideshow_create() {
         buzz.defaults.autoplay = false;
         buzz.defaults.loop = false;
 
-        if (buzz.isMP3Supported() && presenter.configuration.audio.MP3) {
+        if (presenter.configuration.audio.MP3 && buzz.isMP3Supported()) {
             presenter.configuration.buzzAudio = new buzz.sound([
                 presenter.configuration.audio.MP3
             ]);
-        } else if (buzz.isOGGSupported() && presenter.configuration.audio.OGG) {
+        } else if (presenter.configuration.audio.OGG && buzz.isOGGSupported()) {
             presenter.configuration.buzzAudio = new buzz.sound([
                 presenter.configuration.audio.OGG
             ]);
         }
-
-        if (presenter.configuration.audio.MP3 === "" || presenter.configuration.audio.OGG === "")
-            return { isError: true, errorCode: "A_03" };
 
         presenter.configuration.buzzAudio.bind("error", function () {
             var errorMessage = "Error occurred while loading/playing audio.";
