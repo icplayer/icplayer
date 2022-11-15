@@ -161,7 +161,7 @@ public class WCAGUtils {
 		text = updateLinks(text);
 		text = removeSpaceAfterAltTextDot(text);
 		text = addSpacesToListTags(text);
-        text = removeSpaceBetweenEndOfLineAndAltDot(text);
+		text = removeSpaceBetweenEndOfLineAndAltDot(text);
 		text = addListNumbers(text);
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
@@ -188,9 +188,9 @@ public class WCAGUtils {
 		return text.replaceAll(regexPattern, ", </li>");
 	}
 
-    public static String removeSpaceBetweenEndOfLineAndAltDot(String text) {
+	public static String removeSpaceBetweenEndOfLineAndAltDot(String text) {
         // When a space is present between end of a sentence and alt text with a dot, the extra comma is read out loud unnecessarily, so we remove the space char
-        return text.replaceAll("\\.(\\s|&nbsp;)\\\\alt\\{(\\s|&nbsp;)\\|\\.}", ".\\\\alt{ |.}");
+		return text.replaceAll("\\.(\\s|&nbsp;)\\\\alt\\{(\\s|&nbsp;)\\|\\.}", ".\\\\alt{ |.}");
 	}
 
 	private static String convertWhitespaceToSpace(String text) {
