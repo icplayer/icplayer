@@ -9,7 +9,6 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Text;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -25,6 +24,7 @@ public class WCAGUtils {
 	public final static String BREAK_TEXT = "&&break&&";
 	final static String LINK_START = "start-link";
 	final static String LINK_END = "end-link";
+	final static String NON_BREAKING_SPACE = "\u00A0";
 	
 	private static int getMinPositiveNumber (int n1, int n2, int n3, int n4, int n5) {
 		boolean overwritten = false;
@@ -169,22 +169,23 @@ public class WCAGUtils {
 				if (prev.getNodeType() == Node.TEXT_NODE) {
 					String previousText = ((Text)prev).getData();
 					if (!endsWithPunctuation(previousText)) {
-						originalHTML = ".\u00A0" + originalHTML;
+						originalHTML = "." + NON_BREAKING_SPACE + originalHTML;
 					}
 				}
 			}
 			if (div.getLastChild() != null) {
 				Node lastChild = div.getLastChild();
 				if (lastChild.getNodeType() == Node.TEXT_NODE && !endsWithPunctuation(originalHTML)) {
-					originalHTML = originalHTML + ".\u00A0";
+					originalHTML = originalHTML + "." + NON_BREAKING_SPACE;
 				}
 			}
-			originalHTML += "\u00A0";
+			originalHTML += NON_BREAKING_SPACE;
 			div.setInnerHTML(originalHTML);
 		}
 	}
 
 	private static boolean endsWithPunctuation(String text) {
+		// regex replaces all non-breaking spaces with regular spaces
 		String trimmedText = text.replaceAll("\\u00A0", " ").trim();
 		String punc = ".,;?!";
 		for (int i = 0; i < punc.length(); i++) {

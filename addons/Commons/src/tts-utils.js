@@ -8,7 +8,9 @@
             dropdown: '&&dropdown&&',
             correct: '&&correct&&',
             wrong: '&&wrong&&',
-            empty: '&&empty&&'
+            empty: '&&empty&&',
+            nonBreakingSpace: '\u00A0',
+            textNodeId: 3
         },
 
         GENDER: {
@@ -227,8 +229,13 @@
         },
 
         _addEndingSpace: function($clone) {
+            var self = this;
+            function isTextNode(node) {
+                return node != null && node.nodeType == self.statics.textNodeId;
+            }
+
             function endsWithPunctuation(text) {
-                var trimmedText = text.replaceAll("\u00A0", " ").trim();
+                var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").trim();
                 var punc = ".,;?!";
                 for (var i = 0; i < punc.length; i++) {
                     if (trimmedText.endsWith(punc[i])) {
@@ -239,13 +246,13 @@
             }
             $clone.find('div').each(function(){
                 originalHTML = this.innerHTML;
-                if (this.previousSibling != null && this.previousSibling.nodeType == 3 && !endsWithPunctuation(this.previousSibling.wholeText)) {
-                    originalHTML = ".\u00A0" + originalHTML;
+                if (isTextNode(this.previousSibling) && !endsWithPunctuation(this.previousSibling.wholeText)) {
+                    originalHTML = "." + self.statics.nonBreakingSpace + originalHTML;
                 }
-                if (this.lastChild != null && this.lastChild.nodeType == 3 && !endsWithPunctuation(this.innerText)) {
-                    originalHTML = originalHTML + ".\u00A0";
+                if (isTextNode(this.lastChild) != null && !endsWithPunctuation(this.innerText)) {
+                    originalHTML = originalHTML + "." + self.statics.nonBreakingSpace;
                 }
-                originalHTML = originalHTML + "\u00A0";
+                originalHTML = originalHTML + self.statics.nonBreakingSpace;
                 this.innerHTML = originalHTML;
             });
             return $clone;
