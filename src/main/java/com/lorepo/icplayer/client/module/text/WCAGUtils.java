@@ -9,7 +9,6 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -185,7 +184,7 @@ public class WCAGUtils {
 
 	public static String addSpacesToListTags (String text) {
         // When the extra comma is added to elements containing an alt text with a dot at the end, the comma is read out unnecessarily, so we filter them out
-		String regexPattern = "(?<!\\alt{(\\s|&nbsp;)|\\.})</li>";
+		String regexPattern = "(?<!\\alt\\{(\\s|&nbsp;)|\\.})</li>";
 		return text.replaceAll(regexPattern, ", </li>");
 	}
 
