@@ -1,4 +1,6 @@
-2022-11-03 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
+2022-11-15 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
+2022-11-10 Added grid size and rulers position separation
+2022-11-07 Added worksWithAll property to eKeyboard
 2022-11-03 Fixed bug with reading whole HTML elements instead of their content in TTS for Text Coloring
 2022-11-03 Added LottiePlayer module
 2022-11-03 Added support for eraser mode in Text Coloring's keyboard controller

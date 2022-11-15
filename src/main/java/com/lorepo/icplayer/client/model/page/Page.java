@@ -1074,13 +1074,50 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		return groupedModules;
 	}
 
-	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
-		rulers.put("verticals", verticals);
-		rulers.put("horizontals", horizontals);
+	public int getPageIndex() {
+		return playerServices.getCurrentPageIndex();
 	}
 
-	public List<Ruler> getRulersByType(String type) {
-		return rulers.get(type);
+	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
+		if (!rulers.isEmpty()) {
+			List<Ruler> currentVerticalRulers = this.getVerticalRulersFromOtherLayouts();
+			List<Ruler> currentHorizontalRulers = this.getHorizontalRulersFromOtherLayouts();
+
+			currentHorizontalRulers.addAll(horizontals);
+			currentVerticalRulers.addAll(verticals);
+			
+			rulers.put("verticals", currentVerticalRulers);
+			rulers.put("horizontals", currentHorizontalRulers);
+		} else {
+			rulers.put("verticals", verticals);
+			rulers.put("horizontals", horizontals);
+		}
+	}
+
+	private List<Ruler> getHorizontalRulersFromOtherLayouts() {
+		String layoutID = this.getSemiResponsiveLayoutID();
+		List<Ruler> horizontalRulers = new ArrayList<Ruler>();
+
+		for(Ruler ruler : rulers.get("horizontals")) {
+			if (ruler.getLayoutID() != layoutID) {
+				horizontalRulers.add(ruler);
+			}
+		}
+
+		return horizontalRulers;
+	}
+
+	private List<Ruler> getVerticalRulersFromOtherLayouts() {
+		String layoutID = this.getSemiResponsiveLayoutID();
+		List<Ruler> verticalRulers = new ArrayList<Ruler>();
+
+		for(Ruler ruler : rulers.get("verticals")) {
+			if (ruler.getLayoutID() != layoutID) {
+				verticalRulers.add(ruler);
+			}
+		}
+
+		return verticalRulers;
 	}
 
 	public HashMap<String, List<Ruler>> getRulers() {
