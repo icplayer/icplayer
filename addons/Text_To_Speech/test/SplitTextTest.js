@@ -46,9 +46,8 @@ TestCase('[Text_To_Speech] Splitting texts that exceed length limit tests', {
         textVoices = this.presenter.splitLongTexts(textVoices);
 
         assertEquals(marks.length * 2, textVoices.length);
-        for (let i = 0; i < marks.length; i++) {
-            assertEquals(testValue + marks[i], textVoices[i*2].text);
-            assertEquals(testValue, textVoices[i*2 + 1].text);
+        for (var i = 0; i < marks.length * 2; i++) {
+            assertEquals(testValue, textVoices[i].text);
             assertEquals('en', textVoices[i].lang);
         }
     },
@@ -80,12 +79,12 @@ TestCase('[Text_To_Speech] Splitting texts that exceed length limit tests', {
         textVoices = this.presenter.splitLongTexts(textVoices);
 
         const expectedTexts = [
-            "On my favourite day I get up \nat 7 a.m. and listen to music.",
-            "I meet my friends and we \nwalk to school.",
-            "We often talk about our plans for the weekend.",
-            "Lessons ends at 9 p.m.,",
-            "with Music,",
-            "then Art – my favourite subjects!",
+            "On my favourite day I get up \nat 7 a.m. and listen to music",
+            "I meet my friends and we \nwalk to school",
+            "We often talk about our plans for the weekend",
+            "Lessons ends at 9 p.m.",
+            "with Music",
+            "then Art – my favourite subjects",
         ]
         assertEquals(expectedTexts.length, textVoices.length);
         this.validateTextVoicesTexts(expectedTexts, textVoices);
@@ -103,13 +102,13 @@ TestCase('[Text_To_Speech] Splitting texts that exceed length limit tests', {
         textVoices = this.presenter.splitLongTexts(textVoices);
 
         const expectedTexts = [
-            "On my favourite day I get up \nat 7:00 and listen to music.",
-            "I meet my friends and we \nwalk to school.",
-            "We often talk about our plans for the weekend.",
-            "Lessons ends at 8.",
-            "15,",
-            "with Music,",
-            "then Art – my favourite subjects!",
+            "On my favourite day I get up \nat 7:00 and listen to music",
+            "I meet my friends and we \nwalk to school",
+            "We often talk about our plans for the weekend",
+            "Lessons ends at 8",
+            "15",
+            "with Music",
+            "then Art – my favourite subjects",
         ]
         assertEquals(expectedTexts.length, textVoices.length);
         this.validateTextVoicesTexts(expectedTexts, textVoices);

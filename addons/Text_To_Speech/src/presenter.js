@@ -388,7 +388,7 @@ function AddonText_To_Speech_create() {
     function splitByPunctuationSigns(text) {
         let splitIndexes = findPunctuationSignsIndexes(text);
         protectTimeSyntaxInText(text, splitIndexes)
-        return softSplitText(text, splitIndexes);
+        return splitByIndexes(text, splitIndexes);
     }
 
     function findPunctuationSignsIndexes(text) {
@@ -414,9 +414,9 @@ function AddonText_To_Speech_create() {
     }
 
     /**
-    * Leaves the indexes that are not between the range of the matches' second group
-    * @param matches - RegExp matches, where second group is text protected from splitting
-    * @param splitIndexes - list of indexes (breaking points) to soft split* text
+    * Leaves the indexes that are not between the range of the matches' second groups
+    * @param matches - RegExp matches, where second groups are texts protected from splitting
+    * @param splitIndexes - List of indexes (breaking points) to split text
     * @return undefined
     **/
     function filterSplittingIndexes(matches, splitIndexes) {
@@ -433,21 +433,19 @@ function AddonText_To_Speech_create() {
     }
 
     /**
-    * Soft split text using given indexes.
-    * This split does not remove splitting indexes character but gives to previous split text.
-    * @param text - Text to soft split
-    * @param splitIndexes - list of indexes (breaking points) to soft split* text
+    * Split text using given indexes.
+    * @param text - Text to split
+    * @param splitIndexes - List of indexes (breaking points) to split text
     * @return split text
     **/
-    function softSplitText(text, splitIndexes) {
+    function splitByIndexes(text, splitIndexes) {
         splitIndexes.unshift(-1);
-        splitIndexes.push(text.length - 1);
-        splitIndexes.forEach((value, index) => splitIndexes[index] = value + 1);
+        splitIndexes.push(text.length);
         let splitText = [];
         for (let i = 1; i < splitIndexes.length; i++) {
-            splitText.push(text.slice(splitIndexes[i-1], splitIndexes[i]));
+            splitText.push(text.slice(splitIndexes[i-1] + 1, splitIndexes[i]));
         }
-        if (splitText[splitText.length-1].trim().length === 0) {
+        if (splitText[splitText.length - 1].trim().length === 0) {
             splitText.pop();
         }
         return splitText;
