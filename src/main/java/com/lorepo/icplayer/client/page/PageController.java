@@ -212,11 +212,11 @@ public class PageController implements ITextToSpeechController, IPageController 
 			GroupPresenter groupPresenter = findGroupPresenter(module); 
 			
 			if (groupPresenter != null) {
-                if (!groupPresenter.hasView()) {
-                    GroupView groupView = moduleFactory.createView(groupPresenter.getGroup());
-                    pageView.addGroupView(groupView);
-                    groupPresenter.addView(groupView);
-                }
+				if (!groupPresenter.hasView()) {
+					GroupView groupView = moduleFactory.createView(groupPresenter.getGroup());
+					pageView.addGroupView(groupView);
+					groupPresenter.addView(groupView);
+				}
 
 				if (groupPresenter.getGroup().isDiv()) {
 				    pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
