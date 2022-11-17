@@ -235,7 +235,7 @@
             }
 
             function endsWithPunctuation(text) {
-                var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").trim();
+                var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").replaceAll("&nbsp;", " ").trim();
                 var punc = ".,;?!";
                 for (var i = 0; i < punc.length; i++) {
                     if (trimmedText.endsWith(punc[i])) {

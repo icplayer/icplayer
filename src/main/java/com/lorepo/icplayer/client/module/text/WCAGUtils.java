@@ -186,7 +186,7 @@ public class WCAGUtils {
 
 	private static boolean endsWithPunctuation(String text) {
 		// regex replaces all non-breaking spaces with regular spaces
-		String trimmedText = text.replaceAll("\\u00A0", " ").trim();
+		String trimmedText = text.replaceAll("\\u00A0", " ").replaceAll("&nbsp;", " ").trim();
 		String punc = ".,;?!";
 		for (int i = 0; i < punc.length(); i++) {
 			if (trimmedText.endsWith(punc.substring(i, i+1))) {
