@@ -160,27 +160,30 @@ public class WCAGUtils {
 	}
 
 	private static void addEndingSpace(Element wrapper) {
-		NodeList<Element> divs = wrapper.getElementsByTagName("div");
-		for	(int i = 0; i < divs.getLength(); i++) {
-			Element div = divs.getItem(i);
-			String originalHTML = div.getInnerHTML();
-			if (div.getPreviousSibling() != null) {
-				Node prev = div.getPreviousSibling();
-				if (prev.getNodeType() == Node.TEXT_NODE) {
-					String previousText = ((Text)prev).getData();
-					if (!endsWithPunctuation(previousText)) {
-						originalHTML = "." + NON_BREAKING_SPACE + originalHTML;
+		String[] tags = {"div", "p"};
+		for (String tag: tags) {
+			NodeList<Element> elements = wrapper.getElementsByTagName(tag);
+			for (int i = 0; i < elements.getLength(); i++) {
+				Element div = elements.getItem(i);
+				String originalHTML = div.getInnerHTML();
+				if (div.getPreviousSibling() != null) {
+					Node prev = div.getPreviousSibling();
+					if (prev.getNodeType() == Node.TEXT_NODE) {
+						String previousText = ((Text) prev).getData();
+						if (!endsWithPunctuation(previousText)) {
+							originalHTML = "." + NON_BREAKING_SPACE + originalHTML;
+						}
 					}
 				}
-			}
-			if (div.getLastChild() != null) {
-				Node lastChild = div.getLastChild();
-				if (lastChild.getNodeType() == Node.TEXT_NODE && !endsWithPunctuation(originalHTML)) {
-					originalHTML = originalHTML + "." + NON_BREAKING_SPACE;
+				if (div.getLastChild() != null) {
+					Node lastChild = div.getLastChild();
+					if (lastChild.getNodeType() == Node.TEXT_NODE && !endsWithPunctuation(originalHTML)) {
+						originalHTML = originalHTML + "." + NON_BREAKING_SPACE;
+					}
 				}
+				originalHTML += NON_BREAKING_SPACE;
+				div.setInnerHTML(originalHTML);
 			}
-			originalHTML += NON_BREAKING_SPACE;
-			div.setInnerHTML(originalHTML);
 		}
 	}
 
@@ -188,6 +191,7 @@ public class WCAGUtils {
 		// regex replaces all non-breaking spaces with regular spaces
 		String trimmedText = text.replaceAll("\\u00A0", " ").replaceAll("&nbsp;", " ").trim();
 		String punc = ".,;?!";
+		if (trimmedText.length() == 0) return true; //text node with only white spaces should be ignored
 		for (int i = 0; i < punc.length(); i++) {
 			if (trimmedText.endsWith(punc.substring(i, i+1))) {
 				return true;
