@@ -20,7 +20,7 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
-            var $clone = $element.clone();
+            var $clone = $('<div></div>').append($element.clone());
 
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
@@ -236,6 +236,7 @@
 
             function endsWithPunctuation(text) {
                 var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").replaceAll("&nbsp;", " ").trim();
+                if (trimmedText.length === 0) return true; //text node with only white spaces should be ignored
                 var punc = ".,;?!";
                 for (var i = 0; i < punc.length; i++) {
                     if (trimmedText.endsWith(punc[i])) {
@@ -244,12 +245,12 @@
                 }
                 return false;
             }
-            $clone.find('div').each(function(){
+            $clone.find('div, p').each(function(){
                 originalHTML = this.innerHTML;
                 if (isTextNode(this.previousSibling) && !endsWithPunctuation(this.previousSibling.wholeText)) {
                     originalHTML = "." + self.statics.nonBreakingSpace + originalHTML;
                 }
-                if (isTextNode(this.lastChild) != null && !endsWithPunctuation(this.innerText)) {
+                if (isTextNode(this.lastChild) && !endsWithPunctuation(this.innerText)) {
                     originalHTML = originalHTML + "." + self.statics.nonBreakingSpace;
                 }
                 originalHTML = originalHTML + self.statics.nonBreakingSpace;
