@@ -575,7 +575,8 @@ function AddonText_To_Speech_create() {
         });
     };
 
-    presenter.removeUnnecessaryPunctuation = function (texts) {
+    presenter.removeUnnecessaryPunctuation = function (texts) { 
+        // Extra commas and dots have to be removed from the text, because in certain cases TTS indexes them as separate sentences
         return texts.map(text => ({
             ...text,
             text: text.text
