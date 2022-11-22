@@ -1,3 +1,4 @@
+2022-11-22 Secured Text Selection addon against xss attacks
 2022-11-14 Fixed support for only one audio type in slideshow addon
 2022-11-10 Added grid size and rulers position separation
 2022-11-07 Added worksWithAll property to eKeyboard
