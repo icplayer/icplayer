@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.xml.page.parsers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
@@ -106,8 +107,13 @@ public abstract class PageParserBase implements IPageParser{
 			Element rulerNode = (Element) rulersNodes.item(i);
 			Ruler ruler = new Ruler();
 
+			List<String> rulerProperties = Arrays.asList(rulerNode.getFirstChild().getNodeValue().split(" ", -1));
 			ruler.setType(type);
-			ruler.setPosition((int) Double.parseDouble(rulerNode.getFirstChild().getNodeValue()));
+			ruler.setPosition((int) Double.parseDouble(rulerProperties.get(0)));
+
+			if (rulerProperties.size() > 1) {
+				ruler.setLayoutID(rulerProperties.get(1));
+			}
 
 			rulers.add(ruler);
 		}
@@ -192,11 +198,16 @@ public abstract class PageParserBase implements IPageParser{
 		
 		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
 		page = loadRandomizeInPrint(page, xml);
+		page = loadIsSplitInPrintBlocked(page, xml);
 		page = loadNotAssignable(page, xml);
 		return page;
 	}
 	
 	protected IPageBuilder loadRandomizeInPrint(IPageBuilder page, Element xml) {
+		return page;
+	}
+
+	protected IPageBuilder loadIsSplitInPrintBlocked(IPageBuilder page, Element xml) {
 		return page;
 	}
 

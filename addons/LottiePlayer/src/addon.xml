@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id="LottiePlayer" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property name="Items" nameLabel="LottiePlayer_property_items" type="list" isDefault="true">
+            <property name="AnimationJSON" nameLabel="LottiePlayer_property_animation_json" type="file"/>
+            <property name="Loop" nameLabel="LottiePlayer_property_loop" type="boolean"/>
+            <property name="LoopsNumber" nameLabel="LottiePlayer_property_loops_number" type="int"/>
+            <property name="Autoplay" nameLabel="LottiePlayer_property_autoplay" type="boolean"/>
+            <property name="Direction" nameLabel="LottiePlayer_property_direction" type="{Forward,Backward}"/>
+            <property name="Mode" nameLabel="LottiePlayer_property_mode" type="{Normal,Bounce}"/>
+            <property name="Speed" nameLabel="LottiePlayer_property_speed" type="number"/>
+            <property name="Intermission" nameLabel="LottiePlayer_property_intermission_ms" type="int"/>
+            <property name="Background" nameLabel="LottiePlayer_property_background" type="string"/>
+            <property name="AlternativeText" nameLabel="LottiePlayer_property_alternative_text" type="text"/>
+            <property name="PreviewAlternativeText" nameLabel="LottiePlayer_property_preview_alternative_text" type="text"/>
+        </property>
+        <property name="Controls" nameLabel="LottiePlayer_property_controls" type="boolean"/>
+        <property name="PlayInSuccession" nameLabel="LottiePlayer_property_play_in_succession" type="boolean"/>
+        <property name="LoopSuccession" nameLabel="LottiePlayer_property_loop_succession" type="boolean"/>
+        <property name="SendEventOnEveryFrame" nameLabel="LottiePlayer_property_send_event_on_every_frame" type="boolean"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="LottiePlayer_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="LottiePlayer_property_speech_texts" type="staticlist">
+            <property name="PlayButton" nameLabel="LottiePlayer_property_speech_text_play_button" type="staticrow">
+                <property name="PlayButton" nameLabel="LottiePlayer_property_speech_text_play_button" type="string"/>
+            </property>
+            <property name="PauseButton" nameLabel="LottiePlayer_property_speech_text_pause_button" type="staticrow">
+                <property name="PauseButton" nameLabel="LottiePlayer_property_speech_text_pause_button" type="string"/>
+            </property>
+            <property name="StopButton" nameLabel="LottiePlayer_property_speech_text_stop_button" type="staticrow">
+                <property name="StopButton" nameLabel="LottiePlayer_property_speech_text_stop_button" type="string"/>
+            </property>
+            <property name="LoopButton" nameLabel="LottiePlayer_property_speech_text_loop_button" type="staticrow">
+                <property name="LoopButton" nameLabel="LottiePlayer_property_speech_text_loop_button" type="string"/>
+            </property>
+            <property name="Paused" nameLabel="LottiePlayer_property_speech_text_paused" type="staticrow">
+                <property name="Paused" nameLabel="LottiePlayer_property_speech_text_paused" type="string"/>
+            </property>
+            <property name="Stopped" nameLabel="LottiePlayer_property_speech_text_stopped" type="staticrow">
+                <property name="Stopped" nameLabel="LottiePlayer_property_speech_text_stopped" type="string"/>
+            </property>
+        </property>
+        <property name="{library}" nameLabel="LottiePlayer_property_library" type="script" value="//www.mauthor.com/file/serve/4732428471631872"/>
+    </model>
+</addon>

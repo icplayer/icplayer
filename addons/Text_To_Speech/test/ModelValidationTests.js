@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Text_To_Speech] Model validation tests", {
     setUp: function () {
         this.presenter = AddonText_To_Speech_create();
 

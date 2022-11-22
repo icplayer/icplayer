@@ -1,4 +1,4 @@
-TestCase('Splitting texts that exceed length limit', {
+TestCase('[Text_To_Speech] Splitting texts that exceed length limit tests', {
     setUp: function () {
         this.presenter = AddonText_To_Speech_create();
 
@@ -63,6 +63,4 @@ TestCase('Splitting texts that exceed length limit', {
         assertEquals(testValue2, textVoices[1].text.trim());
         assertEquals('en', textVoices[1].lang);
     },
-
-
 });

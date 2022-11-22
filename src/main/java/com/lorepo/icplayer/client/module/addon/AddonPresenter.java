@@ -18,6 +18,7 @@ import com.lorepo.icf.properties.IEditableSelectProperty;
 import com.lorepo.icf.properties.IFileProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IImageProperty;
+import com.lorepo.icf.properties.IScriptProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
@@ -652,5 +653,21 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		AddonScoreWithMetadata addonScoreWithMetadata = new AddonScoreWithMetadata(model, jsObject);
 
 		return addonScoreWithMetadata.getScoreWithMetadata();
+	}
+
+	@Override
+	public boolean isActivity() {
+		for (IProperty property: model.getProperties()) {
+			String propertyName = property.getName().toLowerCase();
+			if ((propertyName.startsWith("is") || propertyName.startsWith("not")) && propertyName.endsWith("activity")) {
+				boolean value = Boolean.parseBoolean(property.getValue());
+				if (propertyName.contains("not")) {
+					return !value;
+				} else {
+					return value;
+				}
+			}
+		}
+		return true;
 	}
 }

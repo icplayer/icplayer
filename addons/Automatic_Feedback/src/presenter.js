@@ -494,12 +494,48 @@ function AddonAutomatic_Feedback_create() {
         presenter.activityHandler.clearFeedback();
     }
 
+    presenter.getCorrectFeedbacks = function() {
+        return getFeedbackValues("correct");
+    }
+
+    presenter.getIncorrectFeedbacks = function() {
+        return getFeedbackValues("incorrect");
+    }
+
+    presenter.getEmptyFeedbacks = function() {
+        return getFeedbackValues("empty");
+    }
+
+    presenter.getPartiallyCorrectFeedbacks = function() {
+        return getFeedbackValues("partial");
+    }
+
+    function getFeedbackValues (type) {
+        let result = {};
+        if (presenter.configuration.defaultFeedback[type].length > 0) {
+            result["default"] = presenter.configuration.defaultFeedback[type];
+        }
+        let itemIDs = Object.keys(presenter.configuration.itemFeedbacks);
+        for (let i = 0; i < itemIDs.length; i++) {
+            let itemID = itemIDs[i];
+            let item = presenter.configuration.itemFeedbacks[itemID];
+            if (item[type].length > 0) {
+                result[itemID] = item[type];
+            }
+        }
+        return result;
+    }
+
     presenter.executeCommand = function(name, params) {
         var commands = {
             'displayFeedback': presenter.displayFeedback,
             'readFeedback': presenter.readFeedback,
             'displayAndReadFeedback': presenter.displayAndReadFeedback,
-            'clearFeedback': presenter.clearFeedback
+            'clearFeedback': presenter.clearFeedback,
+            'getCorrectFeedbacks': presenter.getCorrectFeedbacks,
+            'getIncorrectFeedbacks': presenter.getIncorrectFeedbacks,
+            'getPartiallyCorrectFeedbacks': presenter.getPartiallyCorrectFeedbacks,
+            'getEmptyFeedbacks': presenter.getEmptyFeedbacks
         };
 
         Commands.dispatch(commands, name, params, presenter);
