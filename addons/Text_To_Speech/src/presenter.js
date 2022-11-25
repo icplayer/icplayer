@@ -686,8 +686,19 @@ function AddonText_To_Speech_create() {
         });
     };
 
+    presenter.removeUnnecessaryPunctuation = function (texts) { 
+        // Extra commas and dots have to be removed from the text, because in certain cases TTS indexes them as separate sentences
+        return texts.map(text => ({
+            ...text,
+            text: text.text
+                .replaceAll(/(((\.|,)\s)+|(\.|,)+)/g, ". ")
+                .replaceAll(/\. (\d):/g, "$1:")
+        }));
+    }
+
     presenter.saveSentences = function(texts) {
         if (!presenter.saveNextSentences) return;
+        texts = presenter.removeUnnecessaryPunctuation(texts);
         presenter.saveNextSentences = false;
         let textVoices = [];
         for (let i = 0; i < texts.length; i++) {
@@ -719,7 +730,9 @@ function AddonText_To_Speech_create() {
             return;
         }
         presenter.savedSentencesIndex += 1;
-        if (presenter.savedSentencesIndex >= presenter.savedSentences.length) presenter.savedSentencesIndex = presenter.savedSentences.length - 1;
+        if (presenter.savedSentencesIndex >= presenter.savedSentences.length) {
+            presenter.savedSentencesIndex = presenter.savedSentences.length - 1;
+        }
         presenter.readCurrentSavedSentence();
     }
 
