@@ -422,7 +422,8 @@ function AddonTable_create() {
 
     presenter.parseDefinitionLinks = function () {
         $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            $(element).html(presenter.textParser.parse($(element).html()));
+            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
+            $(element).html(sanitizedLink);
         });
 
         presenter.textParser.connectLinks(presenter.$view);
