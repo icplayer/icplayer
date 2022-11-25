@@ -130,9 +130,6 @@ public class WCAGUtils {
 		return result;	
 	}
 
-	public static String addSpacesToListTags (String text) {
-	    return text.replaceAll("</li>", ", </li>");
-	}
 
 	private static void addListNumbers(Element wrapper) {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
@@ -202,7 +199,9 @@ public class WCAGUtils {
 
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
+		text = removeSpaceAfterAltTextDot(text);
 		text = addSpacesToListTags(text);
+		text = removeSpaceBetweenEndOfLineAndAltDot(text);
 
 		Element wrapper = DOM.createElement("div");
 		wrapper.setInnerHTML(text);
@@ -221,6 +220,22 @@ public class WCAGUtils {
 		}
 
 		return text.replaceAll("<a[^>]*?href=\"(.*?)\"*?>(.*?)</a>", LINK_START + " $2 " + LINK_END);
+	}
+
+	public static String removeSpaceAfterAltTextDot(String text) {
+		// Chrome implementation of TTS unnecessarily reads the dot if a space is present after it, so the space must be removed
+		return text.replaceAll("\\\\alt\\{(\\s|&nbsp;)\\|\\.(\\s|&nbsp;)\\}(\\s|&nbsp;)*</li>", "\\\\alt{ |.}</li>");
+	}
+
+	public static String addSpacesToListTags (String text) {
+        // When the extra comma is added to elements containing an alt text with a dot at the end, the comma is read out unnecessarily, so we filter them out
+		String regexPattern = "(?<!\\alt\\{(\\s|&nbsp;)|\\.})</li>";
+		return text.replaceAll(regexPattern, ", </li>");
+	}
+
+	public static String removeSpaceBetweenEndOfLineAndAltDot(String text) {
+        // When a space is present between end of a sentence and alt text with a dot, the extra comma is read out loud unnecessarily, so we remove the space char
+		return text.replaceAll("\\.(\\s|&nbsp;)\\\\alt\\{(\\s|&nbsp;)\\|\\.}", ".\\\\alt{ |.}");
 	}
 
 	private static String convertWhitespaceToSpace(String text) {
