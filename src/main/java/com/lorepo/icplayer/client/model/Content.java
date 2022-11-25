@@ -247,6 +247,7 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += "</styles>";
 
+		// Layouts
 		Document xmlDocument = XMLParser.createDocument();
 		Element layouts = xmlDocument.createElement("layouts");
 		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
@@ -567,6 +568,10 @@ public class Content implements IContentBuilder, IContent {
 		return setsLayouts;
 	}
 
+	public PageLayout getActualSemiResponsiveLayout() {
+		return this.layoutsContainer.getActualLayout();
+	}
+
 	public String getDefaultSemiResponsiveLayoutID() {
 		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
 	}
@@ -675,4 +680,21 @@ public class Content implements IContentBuilder, IContent {
 
 		return dictionary.toString();
 	}
+
+	public void setDefaultGridSize() {
+		int defaultGridSize;
+		try {
+			defaultGridSize = Integer.valueOf(this.metadata.getValue("gridSize"));
+		} catch (Exception e) {
+			defaultGridSize = 25;
+		}
+
+		for(PageLayout layout : this.getLayouts().values()) {
+			int gridSize = layout.getGridSize();
+			if (gridSize == 0) {
+				layout.setGridSize(defaultGridSize);
+			}
+		}
+	}
+
 }

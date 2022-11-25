@@ -1,4 +1,7 @@
-2022-11-03 Fixed no break in tts at the end of a line of text.
+2022-11-25 Fixed no break in tts at the end of a line of text.
+2022-11-14 Fixed support for only one audio type in slideshow addon
+2022-11-10 Added grid size and rulers position separation
+2022-11-07 Added worksWithAll property to eKeyboard
 2022-11-03 Fixed bug with reading whole HTML elements instead of their content in TTS for Text Coloring
 2022-11-03 Added LottiePlayer module
 2022-11-03 Added support for eraser mode in Text Coloring's keyboard controller
