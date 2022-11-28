@@ -132,7 +132,7 @@ public class Content implements IContentBuilder, IContent {
 			IAsset a = assets.get(i);
 			if(a.getHref().compareTo(asset.getHref()) == 0){
 				foundURL = true;
-				if (a.getType() != "script") {
+				if (a.getType() != asset.getType()) {
 					asset.setContentType(a.getContentType());
 					asset.setFileName(a.getFileName());
 					asset.setTitle(a.getTitle());
