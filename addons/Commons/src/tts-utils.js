@@ -177,11 +177,12 @@
 
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
+                var sanitizedText = window.xssUtils.sanitize(replaceText);
                 var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
-                    replaceText = '\\alt{ |' + replaceText + '}' + '[lang ' + langTag + ']';
+                    sanitizedText = '\\alt{ |' + sanitizedText + '}' + '[lang ' + langTag + ']';
                 }
-                $(this).append(replaceText);
+                $(this).append(sanitizedText);
             });
 
             return $clone;
