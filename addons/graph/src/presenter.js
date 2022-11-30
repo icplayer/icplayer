@@ -1792,9 +1792,7 @@ function Addongraph_create(){
         const graphAnswers = presenter.$view.find(".graph_value_container");
         presenter.isGradualShowAnswersActive = true;
 
-        while (itemIndex < presenter.GSAcounter) {
-            itemIndex++;
-        }
+        itemIndex = itemIndex < presenter.GSAcounter ? presenter.GSAcounter : itemIndex;
 
         presenter.setCurrentState();
         presenter.addAnswerToGraph(itemIndex, $(graphAnswers[itemIndex]));
@@ -1841,17 +1839,15 @@ function Addongraph_create(){
                 height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
                 top: ''
             });
-            $columnContainer.addClass('graph_column_container_show_answers');
-            valueContainer.addClass('graph_show_answers');
-        } else if (currentValue < 0) {
+        } else {
             valueContainer.css({
                 height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
                 top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                 bottom: ''
             });
-            $columnContainer.addClass('graph_column_container_show_answers');
-            valueContainer.addClass('graph_show_answers');
         }
+        $columnContainer.addClass('graph_column_container_show_answers');
+        valueContainer.addClass('graph_show_answers');
     }
 
     presenter.removeAnswerFromGraph = function (index, element) {
@@ -1865,17 +1861,15 @@ function Addongraph_create(){
                 height: parseFloat(currentValue / presenter.absoluteRange) * 100 + '%',
                 top: ''
             });
-            $columnContainer.removeClass('graph_column_container_show_answers');
-            valueContainer.removeClass('graph_show_answers');
         } else if (currentValue < 0) {
             valueContainer.css({
                 height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
                 top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                 bottom: ''
             });
-            $columnContainer.removeClass('graph_column_container_show_answers');
-            valueContainer.removeClass('graph_show_answers');
         }
+        $columnContainer.removeClass('graph_column_container_show_answers');
+        valueContainer.removeClass('graph_show_answers');
     }
 
     return presenter;
