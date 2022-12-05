@@ -599,7 +599,8 @@ public class PlayerApp {
 		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
 			DOMInjector.injectLibrary(
 				libraryAsset.getHref(),
-				libraryAsset.getFileName()
+				libraryAsset.getFileName(),
+				libraryAsset.isModule()
 			);
 		}
 	}

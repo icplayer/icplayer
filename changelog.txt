@@ -1,4 +1,8 @@
-2022-11-21 Fixed functionality to auto set in correct order groups' modules in view
+2022-12-05 Fixed functionality to auto set in correct order groups' modules in view
+2022-11-28 Added ModuleScript property
+2022-11-25 Removed pause while reading syntax about time for TTS
+2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
+2022-11-25 Fixed no break in tts at the end of a line of text.
 2022-11-14 Fixed support for only one audio type in slideshow addon
 2022-11-10 Added grid size and rulers position separation
 2022-11-07 Added worksWithAll property to eKeyboard
@@ -28,6 +32,7 @@
 2022-09-23 Added disable axis lock property to the Ordering module
 2022-09-23 Added GSA ignoring addons with is activity set  to false
 2022-09-15 Added value attribute in AddonProperty
+2022-09-09 Added xss prevention and secured Wiris addon against xss attacks
 2022-09-08 Fixed bug where it was possible to insert one draggable element into gaps in multiple Table addons
 2022-09-05 Fixed displaying of model answer in the Crossword
 2022-09-02 Fixed GSA functionality for empty model answers in the Paragraph

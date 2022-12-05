@@ -20,6 +20,8 @@ public class AddonParamFactory {
 			return new FileAddonParam(parent, type);
 		} else if (lowerCaseType.compareTo("script") == 0) {
 			return new ScriptAddonParam(parent, type);
+		} else if (lowerCaseType.compareTo("module-script") == 0) {
+			return new ModuleScriptAddonParam(parent, type);
 		} else if(lowerCaseType.compareTo("html") == 0) {
 			return new HTMLAddonParam(parent, type);
 		} else if(lowerCaseType.compareTo("image") == 0) {
