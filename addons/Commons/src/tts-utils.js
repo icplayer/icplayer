@@ -25,7 +25,6 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareLists($clone);
-            $clone = this._removeSpaceBetweenEndOfLineAndAltDot($clone);
             $clone = this._addEndingSpace($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
@@ -65,7 +64,6 @@
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
             $clone = this._prepareLists($clone);
-            $clone = this._removeSpaceBetweenEndOfLineAndAltDot($clone);
             $clone = this._addEndingSpace($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
@@ -178,17 +176,11 @@
             return n;
         },
 
-        _removeSpaceBetweenEndOfLineAndAltDot: function ($clone) {
-            var newHtml = $clone.html().replaceAll(/\.\s<span aria-label="\./g, ".<span aria-label=\".");
-            $clone.html(newHtml);
-            return $clone;
-        },
-
         _prepareAltTexts: function($clone) {
             $clone.find('[aria-hidden="true"]').remove();
+
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
-                replaceText = replaceText.replace(/\.\s$/, ".");
                 var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
                     replaceText = '\\alt{ |' + replaceText + '}' + '[lang ' + langTag + ']';
