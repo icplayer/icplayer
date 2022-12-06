@@ -1,4 +1,4 @@
-2022-12-05 Fixed functionality to auto set in correct order groups' modules in view
+2022-12-06 Fixed functionality to auto set in correct order groups' modules in view
 2022-11-28 Added ModuleScript property
 2022-11-25 Removed pause while reading syntax about time for TTS
 2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  

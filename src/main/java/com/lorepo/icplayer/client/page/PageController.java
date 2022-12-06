@@ -219,7 +219,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 				}
 
 				if (groupPresenter.getGroup().isDiv()) {
-				    pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
+					pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
 				} else {
 					pageView.addModuleView(moduleView, module);
 				}
