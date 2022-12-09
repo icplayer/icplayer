@@ -23,6 +23,10 @@ public class LayoutsContainer {
 		return this.actualLayoutID;
 	}
 
+	public PageLayout getActualLayout() {
+		return this.layoutsMap.get(this.getActualSemiResponsiveLayoutID());
+	}
+
 	public void removeFromLayoutsStyle(CssStyle styleToDelete, HashMap<String, CssStyle> styles) {
 		String defaultCssStyle = "";
 		

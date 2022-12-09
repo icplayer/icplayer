@@ -386,65 +386,176 @@ function AddonText_To_Speech_create() {
     };
 
     function splitByPunctuationSigns(text) {
-        return text.split(/[.,:;!?\/\\()]/);
+        let splitIndexes = findPunctuationSignsIndexes(text);
+        return splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes);
+    }
+
+    function findPunctuationSignsIndexes(text) {
+        const regexp = /[.,:;!?\/\\()]/g;
+        return Array.from(text.matchAll(regexp)).map(x => x.index);
+    }
+
+    function splitByEndOfSentenceSigns(text) {
+        let splitIndexes = findEndOfSentenceSignsIndexes(text);
+        return splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes);
+    }
+
+    function findEndOfSentenceSignsIndexes(text) {
+        const regexp = /[.?!;]/g;
+        return Array.from(text.matchAll(regexp)).map(x => x.index);
+    }
+
+    function protectTimeSyntaxInText(text, splitIndexes) {
+        protectAMAndPMSyntaxInText(text, splitIndexes);
+        protectDigitHourSyntaxInText(text, splitIndexes);
+    }
+
+    function protectAMAndPMSyntaxInText(text, splitIndexes) {
+        const regexp = /(at[\s]+[\d]{1,2}[\s]+)([ap].[m].)/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    function protectDigitHourSyntaxInText(text, splitIndexes) {
+        const regexp = /([\s]+)([\d]{1,2}:[\d]{2})/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    function protectNumberSyntaxInText(text, splitIndexes) {
+        const regexp = /()([0-9]*[.!?;][0-9])/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    /**
+    * Leaves the indexes that are not between the range of the matches' second groups
+    * @param matches - RegExp matches, where second groups are texts protected from splitting
+    * @param splitIndexes - List of indexes (breaking points) to split text
+    * @return undefined
+    **/
+    function filterSplittingIndexes(matches, splitIndexes) {
+        for (const match of matches) {
+            const startIndex = match.index + match[1].length;
+            const endIndex = startIndex + match[2].length - 1;
+            for (let i = 0; i < splitIndexes.length; i++) {
+                if (startIndex <= splitIndexes[i] && splitIndexes[i] <= endIndex) {
+                    splitIndexes.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    }
+
+    /**
+    * Split text considering protected syntax using given indexes.
+    * @param text - Text to split
+    * @param splitIndexes - List of indexes (breaking points) to split text. A breakpoint will have no effect when referring to a protected syntax.
+    * @return split text
+    **/
+    function splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes) {
+        protectTimeSyntaxInText(text, splitIndexes);
+        protectNumberSyntaxInText(text, splitIndexes);
+        return splitByIndexes(text, splitIndexes);
+    }
+
+    /**
+    * Split text using given indexes.
+    * @param text - Text to split
+    * @param splitIndexes - List of indexes (breaking points) to split text
+    * @return split text
+    **/
+    function splitByIndexes(text, splitIndexes) {
+        splitIndexes.unshift(-1);
+        splitIndexes.push(text.length);
+        let splitText = [];
+        for (let i = 1; i < splitIndexes.length; i++) {
+            let textFragment = text.slice(splitIndexes[i-1] + 1, splitIndexes[i]);
+            if (textFragment.trim().length > 0) {
+                splitText.push(textFragment);
+            }
+        }
+        return splitText;
+    }
+
+    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
+    presenter.splitLongTexts = function (texts) {
+        let finalSplitTexts = [];
+        texts.forEach(text => {
+            if (text === null || text === undefined) {
+                return;
+            }
+
+            const textLen = text.text.trim().length;
+            if (textLen === 0) {
+                return;
+            }
+
+            if (textLen < presenter.maxUtteranceLength) {
+                finalSplitTexts.push(text);
+            } else {
+                let textFragments = splitLongText(text.text, text.lang);
+                finalSplitTexts = finalSplitTexts.concat(textFragments);
+            }
+        })
+        return finalSplitTexts;
+    }
+    
+    function splitLongText(text, lang) {
+        return minSplitHandler(text, lang, splitByEndOfSentenceSigns, splitLongSentence);
+    }
+
+    function splitLongSentence (sentence, lang) {
+        return minSplitHandler(sentence, lang, splitByPunctuationSigns, splitLongSentenceByMaxUtterances);
+    }
+    
+    function minSplitHandler (text, lang, currentSplitFunc, nextSplitFunc) {
+        let finalSplitTexts = [];
+        let splitTexts = currentSplitFunc(text);
+        splitTexts.forEach((splitText) => {
+            const textLength = splitText.trim().length;
+            if (textLength === 0) {
+                return;
+            }
+
+            if (textLength < presenter.maxUtteranceLength) {
+                finalSplitTexts.push({
+                    text: splitText,
+                    lang: lang
+                });
+            } else {
+                let textFragments = nextSplitFunc(splitText, lang);
+                finalSplitTexts = finalSplitTexts.concat(textFragments);
+            }
+        })
+        return finalSplitTexts;
     }
 
     // creates an array of utterances from a single text that exceeds max utterance length and has no natural break points
-    function splitLongSentence (sentence, lang) {
-        var newTexts = [];
-        var sentenceLen = sentence.trim().length;
-        var maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
-        var workString = '';
-        var words = sentence.split(/\s/);
-        for (var k = 0; k < words.length; k++) {
+    function splitLongSentenceByMaxUtterances (sentence, lang) {
+        let finalSplitTexts = [];
+        let sentenceLen = sentence.trim().length;
+        let maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
+        let workString = '';
+        let words = sentence.split(/\s/);
+        for (let k = 0; k < words.length; k++) {
             workString += words[k] + ' ';
             if (workString.length > maxSplitLen) {
-                newTexts.push({
+                finalSplitTexts.push({
                     text: workString,
                     lang: lang
                 });
                 workString = '';
             }
         }
-        newTexts.push({
+        finalSplitTexts.push({
             text: workString,
             lang: lang
         });
-        return newTexts;
+        return finalSplitTexts;
     }
-
-    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
-    presenter.splitLongTexts = function (texts) {
-        var newTexts = [];
-        for (var i = 0; i < texts.length; i++) {
-            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0) {
-                if (texts[i].text.trim().length > presenter.maxUtteranceLength) {
-                    var sentences = splitByPunctuationSigns(texts[i].text);
-                    for (var j = 0; j < sentences.length; j++) {
-                        var sentenceLen = sentences[j].trim().length;
-                        if (sentenceLen > 0) {
-                            if (sentenceLen < presenter.maxUtteranceLength) {
-                                newTexts.push({
-                                    text: sentences[j],
-                                    lang: texts[i].lang
-                                });
-                            } else {
-                                var splitSentences = splitLongSentence(sentences[j], texts[i].lang);
-                                newTexts = newTexts.concat(splitSentences);
-                            }
-                        }
-                    }
-                } else {
-                    newTexts.push(texts[i]);
-                }
-            }
-        }
-        return newTexts;
-    }
-
 
     presenter.speakWithCallback = function (texts, callback) {
-
         texts = presenter.parseAltTexts(texts);
         presenter.saveSentences(texts);
         if (isChrome()) {
@@ -581,11 +692,9 @@ function AddonText_To_Speech_create() {
         let textVoices = [];
         for (let i = 0; i < texts.length; i++) {
             let speechText = texts[i];
-            let splitSpeechTexts = speechText.text.split(/(.*?(?![0-9])[\.\!\?;](?![0-9]))/g);
+            let splitSpeechTexts = splitLongText(speechText.text, speechText.lang);
             for (let j = 0; j < splitSpeechTexts.length; j++) {
-                if(splitSpeechTexts[j].trim().length > 0) {
-                    textVoices.push(window.TTSUtils.getTextVoiceObject(splitSpeechTexts[j], speechText.lang));
-                }
+                textVoices.push(window.TTSUtils.getTextVoiceObject(splitSpeechTexts[j].text, speechText.lang));
             }
         }
         if (!presenter.compareSentences(presenter.savedSentences, textVoices)) {
