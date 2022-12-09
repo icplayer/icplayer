@@ -466,6 +466,7 @@ function AddonPointsLines_create() {
     };
 
     presenter.initiate = function(view, model) {
+        presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
         presenter.addonID = model.ID;
@@ -1379,15 +1380,7 @@ function AddonPointsLines_create() {
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
         }
 
-        let connectedPointsIndexes = [];
-        let connections = presenter.currentLines[currentPointIndex];
-        for (let i = 0; i < currentPointIndex; i++) {
-            connections[i] = presenter.currentLines[i][currentPointIndex];
-        }
-        connections.forEach((value, index) => {
-            if (!value) return;
-            connectedPointsIndexes.push(index);
-        })
+        const connectedPointsIndexes = getConnectedPointsIndexes(currentPointIndex);
         if (connectedPointsIndexes.length !== 0) {
             textVoices.push(this.createTextVoiceWithLanguageFromLesson(presenter.speechTexts.connectedTo));
             connectedPointsIndexes.forEach(pointIndex => {
@@ -1405,6 +1398,39 @@ function AddonPointsLines_create() {
         }
         presenter.speak(textVoices);
     };
+    
+    function getConnectedPointsIndexes (rootPointIndex) {
+        let connectedPointsIndexes = [];
+        if (presenter.isShowingAnswers()) {
+            const linesForShowAnswers = presenter.view.querySelectorAll(`.line-show-answer`);
+            const attribute1Name = `point1`;
+            const attribute2Name = `point2`;
+            linesForShowAnswers.forEach(line => {
+                let attribute1Value = parseInt(line.getAttribute(attribute1Name), 10);
+                if (attribute1Value === rootPointIndex) {
+                    let attribute2Value = parseInt(line.getAttribute(attribute2Name), 10);
+                    connectedPointsIndexes.push(attribute2Value);
+                } else {
+                    let attribute2Value = parseInt(line.getAttribute(attribute2Name), 10);
+                    if (attribute2Value === rootPointIndex) {
+                        connectedPointsIndexes.push(attribute1Value);
+                    }
+                }
+            })
+            connectedPointsIndexes = [...new Set(connectedPointsIndexes)];
+        } else {
+            let connections = presenter.currentLines[rootPointIndex];
+            for (let i = 0; i < rootPointIndex; i++) {
+                connections[i] = presenter.currentLines[i][rootPointIndex];
+            }
+            connections.forEach((value, index) => {
+                if (!value) return;
+                connectedPointsIndexes.push(index);
+            })
+        }
+        connectedPointsIndexes.sort();
+        return connectedPointsIndexes;
+    }
 
     PointsLinesKeyboardController.prototype.readSelected = function () {
         if (!presenter.isTTS()) {
