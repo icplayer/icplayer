@@ -270,18 +270,13 @@ function AddonPrint_Report_create(){
 
     presenter.showReport = function addonPrint_Report_showReport () {
         var data = presenter.getPagesData(),
-            reportHtml = presenter.prepareReportHtml(data),
+            $reportHtml = presenter.prepareReportHtml(data),
             reportWindow = window.open();
 
         $(reportWindow.document).ready(function addonPrint_Report_onReportWindowReady () {
-            try {
-                $(reportWindow.document.body).html(reportHtml);
-            } catch (e) { // workaround for IE
-                reportWindow.document.body.innerHTML = reportHtml.prop('outerHTML');
-            }
-
+            $(reportWindow.document.body).html($reportHtml);
             reportWindow = null;
-            reportHtml = null;
+            $reportHtml = null;
         });
     };
 

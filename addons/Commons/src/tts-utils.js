@@ -8,7 +8,9 @@
             dropdown: '&&dropdown&&',
             correct: '&&correct&&',
             wrong: '&&wrong&&',
-            empty: '&&empty&&'
+            empty: '&&empty&&',
+            nonBreakingSpace: '\u00A0',
+            textNodeId: 3
         },
 
         GENDER: {
@@ -18,11 +20,12 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
-            var $clone = $element.clone();
+            var $clone = $('<div></div>').append($element.clone());
 
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
             var TextVoiceArray = [];
@@ -61,6 +64,7 @@
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
 
@@ -222,6 +226,37 @@
                 this.setAttribute("value", index);
             });
 
+            return $clone;
+        },
+
+        _addEndingSpace: function($clone) {
+            var self = this;
+            function isTextNode(node) {
+                return node != null && node.nodeType == self.statics.textNodeId;
+            }
+
+            function endsWithPunctuation(text) {
+                var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").replaceAll("&nbsp;", " ").trim();
+                if (trimmedText.length === 0) return true; //text node with only white spaces should be ignored
+                var punc = ".,;?!";
+                for (var i = 0; i < punc.length; i++) {
+                    if (trimmedText.endsWith(punc[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            $clone.find('div, p').each(function(){
+                originalHTML = this.innerHTML;
+                if (isTextNode(this.previousSibling) && !endsWithPunctuation(this.previousSibling.wholeText)) {
+                    originalHTML = "." + self.statics.nonBreakingSpace + originalHTML;
+                }
+                if (isTextNode(this.lastChild) && !endsWithPunctuation(this.innerText)) {
+                    originalHTML = originalHTML + "." + self.statics.nonBreakingSpace;
+                }
+                originalHTML = originalHTML + self.statics.nonBreakingSpace;
+                this.innerHTML = originalHTML;
+            });
             return $clone;
         },
 
