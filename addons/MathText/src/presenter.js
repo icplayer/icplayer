@@ -68,7 +68,8 @@ function AddonMathText_create() {
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                 if (xmlhttp.status === 200) {
-                    $(presenter.wrapper).html(xmlhttp.response);
+                    var sanitizedResponse = window.xssUtils.sanitize(xmlhttp.response);
+                    $(presenter.wrapper).html(sanitizedResponse);
                 } else {
                     $(presenter.wrapper).html(presenter.WIRIS_DISABLED_MESSAGE);
                 }

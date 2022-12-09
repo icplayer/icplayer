@@ -82,9 +82,10 @@ function Addonfeedback_create() {
     };
 
     function getTextVoiceArrayFromText(text) {
-        var el = document.createElement('div');
-        el.innerHTML = text;
-        var $el = $(el);
+        const el = document.createElement('div');
+        el.innerHTML = window.xssUtils.sanitize(text);
+        const $el = $(el);
+
         return window.TTSUtils.getTextVoiceArrayFromElement($el,presenter.configuration.langTag);
     }
 
