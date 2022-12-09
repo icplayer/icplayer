@@ -1,3 +1,4 @@
+2022-12-08 Fixed script and module-script asset getting relative urls when not appropriate
 2022-11-28 Added ModuleScript property
 2022-11-25 Removed pause while reading syntax about time for TTS
 2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
