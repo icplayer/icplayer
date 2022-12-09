@@ -39,18 +39,6 @@ TestCase("[Commons - TTS Utils] getTextVoiceArrayFromElement method", {
         assertEquals({text:'hello world 4\\alt{ |hello world 3}[lang pl]',lang:'de'},voicesArray[0]);
     },
 
-    'test given a sentence with a dot in alt text when processing text then remove space between sentence comma and alt text': function() {
-        var $input = $("<li>A text with alt comma. <span aria-label='.'></span></li>");
-
-        var $clone = $input.clone();
-        $clone = window.TTSUtils._prepareAltTexts($clone);
-        $clone = window.TTSUtils._prepareImages($clone);
-        $clone = window.TTSUtils._prepareLists($clone);
-        var result = window.TTSUtils._removeSpaceBetweenEndOfLineAndAltDot($clone);
-
-        assertEquals('A text with alt comma.<span aria-label=".">.</span>', result.html());
-    },
-
     'test image without alt handling': function() {
         var $input = $("<span> hello <img href='123.jpg'/> world</span>");
         var langTag = "en";
