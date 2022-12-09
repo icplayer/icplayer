@@ -4,8 +4,8 @@ function AddonPointsLines_create() {
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
     presenter.answersNumber = 0;
-    presenter.altTexts = [];
 
+    presenter.altTexts = [];
     presenter.langTag = '';
     presenter.isWCAGOn = false;
     presenter.speechTexts = null;
