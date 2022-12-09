@@ -1,3 +1,4 @@
+2022-12-09 Fixed failing to get correct scroll value in some contexts
 2022-12-09 Fixed XSS vulnerabilities in Table and tts-utils
 2022-12-09 Fixed XSS vulnerabilities in some addons
 2022-12-08 Fixed script and module-script asset getting relative urls when not appropriate

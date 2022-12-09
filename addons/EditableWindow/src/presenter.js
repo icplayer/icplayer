@@ -906,6 +906,9 @@ function AddonEditableWindow_create() {
         var availableWidth = presenter.getAvailableWidth();
 
         var scrollY = presenter.temporaryState.scrollTop;
+        if (scrollY == 0 && presenter.configuration.playerController) {
+            scrollY = presenter.configuration.playerController.iframeScroll();
+        }
 
         var topOffset = scrollY + 25;
         var leftOffset = (availableWidth - width) / 2;
