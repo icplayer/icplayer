@@ -670,7 +670,14 @@ public class PlayerController implements IPlayerController {
 	}
 	
 	private native int getScrollTop() /*-{
-		return $wnd.window.top.pageYOffset;
+		var scrollTop = $wnd.window.top.pageYOffset;
+		if (scrollTop === 0) {
+			var contentView = $wnd.document.getElementById('content-view');
+			if (contentView != null && contentView.scrollTop) {
+				scrollTop = contentView.scrollTop;
+			}
+		};
+		return scrollTop;
 	}-*/;
 
 	public void setIframeScroll (int scroll) {
