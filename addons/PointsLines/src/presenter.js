@@ -188,6 +188,7 @@ function AddonPointsLines_create() {
             presenter.hide();
         }
     };
+    
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
@@ -615,7 +616,7 @@ function AddonPointsLines_create() {
         }
 
         return upgradedModel;
-    }
+    };
 
     presenter.upgradeAlternativeTexts = function (model) {
         let upgradedModel = {};
@@ -626,7 +627,7 @@ function AddonPointsLines_create() {
         }
 
         return upgradedModel;
-    }
+    };
 
     presenter.upgradeLangTag = function (model) {
         let upgradedModel = {};
@@ -637,7 +638,7 @@ function AddonPointsLines_create() {
         }
 
         return upgradedModel;
-    }
+    };
 
     presenter.upgradeSpeechText = function (model) {
         let upgradedModel = {};
@@ -660,7 +661,7 @@ function AddonPointsLines_create() {
         });
 
         return upgradedModel;
-    }
+    };
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
@@ -1292,7 +1293,7 @@ function AddonPointsLines_create() {
 
     presenter.isShowingAnswers = function () {
         return presenter.isGradualShowAnswersActive || presenter.isShowAnswersActive;
-    }
+    };
 
     presenter.setWCAGStatus = function(isWCAGOn) {
         presenter.isWCAGOn = isWCAGOn;
@@ -1364,7 +1365,7 @@ function AddonPointsLines_create() {
     PointsLinesKeyboardController.prototype.enter = function (event) {
         KeyboardController.prototype.enter.call(this, event);
         this.readCurrentElement();
-    }
+    };
 
     PointsLinesKeyboardController.prototype.readCurrentElement = function () {
         if (!presenter.isTTS()) {
