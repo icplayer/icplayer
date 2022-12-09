@@ -881,7 +881,8 @@ function Addoncrossword_create(){
                             cell.addClass('cell_word_begin_vertical');
 
                         if(!presenter.disableAutomaticWordNumbering) {
-                            var wordNumber = $('<div class="word_number"></div>').html(wordNumberCounter++);
+                            const sanitizedText = window.xssUtils.sanitize(wordNumberCounter++);
+                            const wordNumber = $('<div class="word_number"></div>').html(sanitizedText);
 
                             cell.append(wordNumber);
                         }
