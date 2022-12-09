@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Text;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -23,6 +24,7 @@ public class WCAGUtils {
 	public final static String BREAK_TEXT = "&&break&&";
 	final static String LINK_START = "start-link";
 	final static String LINK_END = "end-link";
+	final static String NON_BREAKING_SPACE = "\u00A0";
 	
 	private static int getMinPositiveNumber (int n1, int n2, int n3, int n4, int n5) {
 		boolean overwritten = false;
@@ -132,9 +134,7 @@ public class WCAGUtils {
 	    return text.replaceAll("</li>", ", </li>");
 	}
 
-	private static String addListNumbers(String html) {
-		Element wrapper = DOM.createElement("div");
-		wrapper.setInnerHTML(html);
+	private static void addListNumbers(Element wrapper) {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
 		for	(int i = 0; i < lis.getLength(); i++) {
 			Element selectedLI = lis.getItem(i);
@@ -157,13 +157,58 @@ public class WCAGUtils {
 			selectedLI.setInnerHTML(". " + String.valueOf(index) + ": " + selectedLI.getInnerHTML());
 			selectedLI.setAttribute("value", String.valueOf(index));
 		}
-		return wrapper.getInnerHTML();
+	}
+
+	private static void addEndingSpace(Element wrapper) {
+		String[] tags = {"div", "p"};
+		for (String tag: tags) {
+			NodeList<Element> elements = wrapper.getElementsByTagName(tag);
+			for (int i = 0; i < elements.getLength(); i++) {
+				Element div = elements.getItem(i);
+				String originalHTML = div.getInnerHTML();
+				if (div.getPreviousSibling() != null) {
+					Node prev = div.getPreviousSibling();
+					if (prev.getNodeType() == Node.TEXT_NODE) {
+						String previousText = ((Text) prev).getData();
+						if (!endsWithPunctuation(previousText)) {
+							originalHTML = "." + NON_BREAKING_SPACE + originalHTML;
+						}
+					}
+				}
+				if (div.getLastChild() != null) {
+					Node lastChild = div.getLastChild();
+					if (lastChild.getNodeType() == Node.TEXT_NODE && !endsWithPunctuation(originalHTML)) {
+						originalHTML = originalHTML + "." + NON_BREAKING_SPACE;
+					}
+				}
+				originalHTML += NON_BREAKING_SPACE;
+				div.setInnerHTML(originalHTML);
+			}
+		}
+	}
+
+	private static boolean endsWithPunctuation(String text) {
+		// regex replaces all non-breaking spaces with regular spaces
+		String trimmedText = text.replaceAll("\\u00A0", " ").replaceAll("&nbsp;", " ").trim();
+		String punc = ".,;?!";
+		if (trimmedText.length() == 0) return true; //text node with only white spaces should be ignored
+		for (int i = 0; i < punc.length(); i++) {
+			if (trimmedText.endsWith(punc.substring(i, i+1))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static String getCleanText (String text) {
 		text = updateLinks(text);
 		text = addSpacesToListTags(text);
-		text = addListNumbers(text);
+
+		Element wrapper = DOM.createElement("div");
+		wrapper.setInnerHTML(text);
+		addListNumbers(wrapper);
+		addEndingSpace(wrapper);
+		text = wrapper.getInnerHTML();
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();

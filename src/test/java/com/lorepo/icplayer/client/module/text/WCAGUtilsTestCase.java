@@ -12,7 +12,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 	@Test
 	public void properHTMLTest() {
 		String html = "<div> test-string <b>test-string2</b> <br/> </div>";
-		String expected = "test-string test-string2";
+		String expected = "test-string test-string2 .";
 		
 		String result = WCAGUtils.getCleanText(html);
 		assertEquals(expected, result);
@@ -21,7 +21,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 	@Test
 	public void testWithLessThanSign() {
 		String html = "<div> test-string < test-string2 </div>";
-		String expected = "test-string < test-string2";
+		String expected = "test-string < test-string2 .";
 		
 		String result = WCAGUtils.getCleanText(html);
 		assertEquals(expected, result);
@@ -39,7 +39,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 	@Test
 	public void testWithGap() {
 		String html = "<div> \\gap{test} </div>";
-		String expected = "\\gap{test}";
+		String expected = "\\gap{test} .";
 		
 		String result = WCAGUtils.getCleanText(html);
 		assertEquals(expected, result);

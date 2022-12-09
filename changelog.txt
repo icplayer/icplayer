@@ -1,4 +1,9 @@
-2022-11-25 Fixed XSS vulnerabilities in some addons
+2022-12-09 Fixed XSS vulnerabilities in some addons
+2022-12-08 Fixed script and module-script asset getting relative urls when not appropriate
+2022-11-28 Added ModuleScript property
+2022-11-25 Removed pause while reading syntax about time for TTS
+2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
+2022-11-25 Fixed no break in tts at the end of a line of text.
 2022-11-14 Fixed support for only one audio type in slideshow addon
 2022-11-10 Added grid size and rulers position separation
 2022-11-07 Added worksWithAll property to eKeyboard

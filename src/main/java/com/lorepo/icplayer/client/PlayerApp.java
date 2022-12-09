@@ -596,10 +596,12 @@ public class PlayerApp {
 
 	private void loadAttachedLibraries() {
 		Map<String, ScriptAsset> attachedLibraries = playerController.getAssetsService().getAttachedLibraries();
+		String baseUrl = contentModel.getBaseUrl();
 		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
 			DOMInjector.injectLibrary(
-				libraryAsset.getHref(),
-				libraryAsset.getFileName()
+				URLUtils.resolveURL(baseUrl, libraryAsset.getHref()),
+				libraryAsset.getFileName(),
+				libraryAsset.isModule()
 			);
 		}
 	}
