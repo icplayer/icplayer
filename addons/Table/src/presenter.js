@@ -133,7 +133,7 @@ function AddonTable_create() {
             $(presenter.$view).find('input').each(function () {
                 $(this).replaceWith(
                     generateMathGap(
-                        $(this).attr('id'),
+                        window.xssUtils.sanitize($(this).attr('id')),
                         presenter.configuration.gapWidth.value
                     )
                 );
