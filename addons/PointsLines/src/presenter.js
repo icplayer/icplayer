@@ -708,7 +708,7 @@ function AddonPointsLines_create() {
     presenter.run = function(view, model) {
         model = presenter.upgradeModel(model);
         presenter.initiate(view, model);
-        presenter.setSpeechTexts(model["SpeechTexts"]);
+        presenter.setSpeechTexts(model["speechTexts"]);
         if (!presenter.error) {
             var $div = presenter.$view.find('.pointslines');
             var Width = $div.width();

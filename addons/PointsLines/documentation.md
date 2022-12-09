@@ -78,7 +78,7 @@ The Addon supports both click & click and drag & drop operating methods. You may
             <br>Point A
             <br>
             <br>Point C
-            <br>will be read as
+            <br>will be read as:
             <br>Point A
             <br>Point 1
             <br>Point C

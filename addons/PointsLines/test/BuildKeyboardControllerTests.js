@@ -16,7 +16,7 @@ function setUpPointsLinesForTests (presenter) {
 
     // Translation of table:
     // Point 1 cannot connect to Point 5 and Point 6
-    // Point 2 cannot connect to Point 5 and Point 6
+    // Point 4 cannot connect to Point 5 and Point 6
     presenter.blockedLines = [
         [0, 0, 0, 0, 1, 1],
         [null, 0, 0, 0, 0, 0],
@@ -96,11 +96,11 @@ TestCase("[PointsLines] Build KeyboardController tests", {
         this.presenter.getElementsForKeyboardNavigation = sinon.stub();
         this.presenter.getElementsForKeyboardNavigation.returns(elements);
 
-        assertTrue(this.presenter.keyboardControllerObject === null);
+        assertNull(this.presenter.keyboardControllerObject);
 
         this.presenter.buildKeyboardController();
 
-        assertTrue(this.presenter.keyboardControllerObject !== null);
+        assertNotNull(this.presenter.keyboardControllerObject);
         assertTrue(this.presenter.getElementsForKeyboardNavigation.calledOnce);
         assertEquals(elements, this.presenter.keyboardControllerObject.keyboardNavigationElements);
     },
