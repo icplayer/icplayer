@@ -133,7 +133,7 @@ function AddonTable_create() {
             $(presenter.$view).find('input').each(function () {
                 $(this).replaceWith(
                     generateMathGap(
-                        $(this).attr('id'),
+                        window.xssUtils.sanitize($(this).attr('id')),
                         presenter.configuration.gapWidth.value
                     )
                 );
@@ -422,7 +422,8 @@ function AddonTable_create() {
 
     presenter.parseDefinitionLinks = function () {
         $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            $(element).html(presenter.textParser.parse($(element).html()));
+            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
+            $(element).html(sanitizedLink);
         });
 
         presenter.textParser.connectLinks(presenter.$view);
