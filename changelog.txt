@@ -1,3 +1,4 @@
+2022-12-12 Fixed the "CorrectWord" event not always firing in crossword
 2022-12-09 Added GSA to the Graph addon
 2022-12-09 Fixed failing to get correct scroll value in some contexts
 2022-12-09 Fixed XSS vulnerabilities in Table and tts-utils

@@ -362,8 +362,11 @@ function Addoncrossword_create(){
         }
         if (isOk) {
             var result = presenter.validateWord(pos);
-            if (result.valid) {
-                presenter.sendCorrectWordEvent(result.word, result.item);
+            if (result.horizontalResult) {
+                presenter.sendCorrectWordEvent(result.horizontalResult.word, result.horizontalResult.item);
+            }
+            if (result.verticalResult) {
+                presenter.sendCorrectWordEvent(result.verticalResult.word, result.verticalResult.item);
             }
         }
     };
@@ -1570,11 +1573,11 @@ function Addoncrossword_create(){
     presenter.validateWord = function validateWord(pos) {
         var max_x = pos.x;
         var max_y = pos.y;
-        var i, k, result = {
+        var i, k, horizontalResult = {
             word: '',
             item: 0,
-            valid : false
         };
+        var verticalResult = {...horizontalResult};
 
         if (presenter.wordNumbersHorizontal) {
             for (i = 0; i <= max_x; i++) {
@@ -1586,12 +1589,12 @@ function Addoncrossword_create(){
                         break;
                     }
                     if(presenter.crossword[max_y][k] !== presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
-                        result.word = '';
+                        horizontalResult.word = '';
                         break;
                     }
-                    result.word += presenter.crossword[max_y][k];
+                    horizontalResult.word += presenter.crossword[max_y][k];
                 }
-                result.item = presenter.$view.find('.cell_' + max_y + 'x' + i +' .word_number').text();
+                horizontalResult.item = presenter.$view.find('.cell_' + max_y + 'x' + i +' .word_number').text();
                 break;
             }
         }
@@ -1606,21 +1609,20 @@ function Addoncrossword_create(){
                         break;
                     }
                     if(presenter.crossword[k][max_x] !== presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
-                        result.word = '';
+                        verticalResult.word = '';
                         break;
                     }
-                    result.word += presenter.crossword[k][max_x];
+                    verticalResult.word += presenter.crossword[k][max_x];
                 }
-                result.item = presenter.$view.find('.cell_' + i + 'x' + max_x +' .word_number').text();
+                verticalResult.item = presenter.$view.find('.cell_' + i + 'x' + max_x +' .word_number').text();
                 break;
             }
         }
 
-        if (result.word !== '' ) {
-            result.valid = true;
+        return {
+            verticalResult: verticalResult.word !== '' ? verticalResult : null,
+            horizontalResult: horizontalResult.word !== '' ? horizontalResult : null,
         }
-
-        return result
     };
 
     presenter.getActivitiesCount = function() {
