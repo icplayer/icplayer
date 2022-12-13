@@ -191,9 +191,7 @@ function AddonTextAudio_create() {
 
     presenter.markItem = function AddonTextAudio_markItem (selectionId) {
         var selector = 'span[data-selectionid="[NUMBER]"]'.replace('[NUMBER]', selectionId);
-        var selected = presenter.$view.find('.textaudio-text').find(selector);
-        selected.addClass('active');
-        selected.find('*').addClass('active');
+        presenter.$view.find('.textaudio-text').find(selector).addClass('active');
     };
 
     presenter.removeMarkFromItems = function AddonTextAudio_removeMarkFromItems () {
@@ -691,6 +689,7 @@ function AddonTextAudio_create() {
                 presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
             }
         }
+        presenter.addHoverHandlers();
     };
 
     presenter.changeSlideFromData = function AddonTextAudio_changeSlideFromData (slide_data) {
@@ -727,12 +726,11 @@ function AddonTextAudio_create() {
                 presenter.highlightSelection(textWrapper, slide_data.selection_id);
             }
         }
+        presenter.addHoverHandlers();
     };
 
     presenter.addHoverHandlers = function AddonTextAudio_addHoverHandlers () {
-        console.log("addhoverhandlers");
         var textElements = presenter.$view.find("span[class^='textelement']");
-        console.log(textElements.length);
         textElements.on('mouseover', function(){
             var index = this.getAttribute('data-selectionid');
             presenter.$view.find("span.textelement" + index).addClass("hover");
@@ -769,7 +767,6 @@ function AddonTextAudio_create() {
 
         presenter.previousSelectionId = slide_data.selection_id;
         presenter.changeSlideFromData(slide_data);
-        presenter.addHoverHandlers();
     };
 
     presenter.progressMouseDownCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_progressMouseDownCallback (event) {
@@ -1436,7 +1433,6 @@ function AddonTextAudio_create() {
         var elemNumber = 0;
         var resultHTML = "";
 
-        //text = presenter.escapeFontTags(text);
         HTMLParser(text, {
             start: function (tag, attrs, unary) {
                 resultHTML += "<" + tag;
@@ -1463,51 +1459,9 @@ function AddonTextAudio_create() {
                 }
             }
         });
-        //resultHTML = presenter.unescapeFontTags(resultHTML);
 
         return resultHTML;
     };
-
-    var escapedElements = {};
-    presenter.escapeFontTags = function AddonTextAudio_escapeFontTags (text) {
-        escapedElements = {};
-        var resultHTML = "";
-        var tagIndex = 0;
-        var escapingTagNames = ['font', 'i', 'b'];
-
-        HTMLParser(text, {
-            start: function (tag, attrs, unary) {
-                var elementHTML = "";
-                elementHTML += "<" + tag;
-                for (var i=0; i<attrs.length; i++) {
-                    elementHTML += " " + attrs[i].name + '="' + attrs[i].escaped + '"';
-                }
-                elementHTML += (unary ? "/" : "") + ">";
-                if (escapingTagNames.indexOf(tag.toLowerCase()) === -1) {
-                    resultHTML += elementHTML;
-                } else {
-                    var escapedText = "$$TEXT_AUDIO_ESCAPED_ELEMENT_"+tagIndex+"$$";
-                    tagIndex += 1;
-                    resultHTML += escapedText;
-                    escapedElements[escapedText] = elementHTML;
-                }
-            },
-            end: function (tag) {
-                resultHTML += "</" + tag + ">";
-            },
-            chars: function (text) {resultHTML += text;}
-        });
-        return resultHTML;
-    }
-
-    presenter.unescapeFontTags = function AddonTextAudio_unescapeFontTags (text) {
-        var keys = Object.keys(escapedElements);
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            text = text.replace(key, escapedElements[key]);
-        }
-        return text;
-    }
 
     presenter.handleSlides = function AddonTextAudio_handleSlides (slides) {
         const newSlides = [];
@@ -1579,10 +1533,7 @@ function AddonTextAudio_create() {
         for (var i=0; i<slides.length; i++) {
             var slide = slides[i];
             var slide_texts = slide.Text.split('||');
-            console.log("slide texts");
-            console.log(slide_texts);
             var parsed_slide_texts = presenter.parseSlideText(slide.Text);
-            console.log(parsed_slide_texts);
             var slide_times = slide.Times.split('\n');
             var slide_intervals = [];
             var posAndDims;
@@ -1650,8 +1601,7 @@ function AddonTextAudio_create() {
 
         presenter.slidesLengths = [];
         presenter.totalNumberOfParts = interval;
-        console.log("validated Slides");
-        console.log(validationResult);
+
         return validationResult;
     };
 
@@ -1973,8 +1923,6 @@ function AddonTextAudio_create() {
     });
 
     presenter.clearSelection = function addonTextAudio_clearSelection () {
-        var activeItems = presenter.$view.find('.textaudio-text span.active');
-        activeItems.find('*').removeClass('active');
         presenter.$view.find('.textaudio-text span.active').removeClass('active');
     };
 
