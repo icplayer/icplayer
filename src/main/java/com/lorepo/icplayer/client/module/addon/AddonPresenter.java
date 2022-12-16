@@ -190,7 +190,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getErrorCount != undefined){
-				return obj.getErrorCount();
+				var result = obj.getErrorCount();
+				if (result === undefined) return 0;
+				return result;
+
 			}
 		}
 		catch(err){
@@ -210,7 +213,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getMaxScore != undefined){
-				return obj.getMaxScore();
+				var result = obj.getMaxScore();
+				if (result === undefined) return 0;
+				return result;
 			}
 		}
 		catch(err){
@@ -231,6 +236,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		try{
 			if(obj.getScore != undefined){
 				return obj.getScore();
+				var result = obj.getScore();
+				if (result === undefined) return 0;
+				return result;
 			}
 		}
 		catch(err){
@@ -376,6 +384,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		try{
 			if(obj.getState != undefined){
 				return obj.getState();
+				var result = obj.getState();
+				if (result === undefined) return "";
+				return result;
 			}
 		}
 		catch(err){
