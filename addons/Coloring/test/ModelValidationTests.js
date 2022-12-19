@@ -1,8 +1,10 @@
 TestCase("[Coloring] Model validation", {
     setUp: function () {
         this.presenter = AddonColoring_create();
+        this.presenter.speechTexts = this.presenter.DEFAULT_TTS_PHRASES;
         this.model = {
-            'Areas' : '55; 150; 255 200 255 255',
+            'Areas' : '55; 150; 255 200 255 255; Area',
+            'colors' : [{ 'colorRGBA': '255 200 255 255', 'speechText': "Test" }],
             'Width' : '500',
             'Height' : '500',
             'Tolerance' : '50',
@@ -22,6 +24,11 @@ TestCase("[Coloring] Model validation", {
         var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(false, validated.isError);
         assertEquals([255, 200, 255, 255], validated.areas[0].colorToFill);
+    },
+
+    'test given proper areas with text to speech when validating then no error is present' : function() {
+        const validated = this.presenter.validateModel(this.model, this.isPreview);
+        assertEquals(false, validated.isError);
     },
 
     'test validate areas too few arguments' : function() {
@@ -78,7 +85,7 @@ TestCase("[Coloring] Model validation", {
 TestCase("[Coloring] Transparent areas validation", {
     setUp: function () {
         this.presenter = AddonColoring_create();
-
+        this.presenter.speechTexts = this.presenter.DEFAULT_TTS_PHRASES;
     },
 
     'test detecting proper transparent areas': function () {
@@ -92,51 +99,58 @@ TestCase("[Coloring] Transparent areas validation", {
         };
         var isPreview = false;
         var expectedData = [
-            {isError: false, x: 55, y: 150, colorToFill: [255, 200, 255, 255], type: this.presenter.AREA_TYPE.NORMAL},
-            {isError: false, x: 200, y: 300, colorToFill: [-1, -1, -1, -1], type: this.presenter.AREA_TYPE.TRANSPARENT},
-            {isError: false, x: 150, y: 300, colorToFill: [-1, -1, -1, -1], type: this.presenter.AREA_TYPE.TRANSPARENT},
-            {isError: false, x: 500, y: 50, colorToFill: [50, 30, 40, 60], type: this.presenter.AREA_TYPE.NORMAL}
+            {x:55, y:150,type: 0, colorToFill: [255,200,255,255], isError: false, isValid: true},
+            {x:200, y:300, type: 1, colorToFill: [-1,-1,-1,-1], isError: false, isValid: true},
+            {x:150, y:300, type: 1, colorToFill: [-1,-1,-1,-1], isError: false, isValid: true},
+            {x:500, y:50,type: 0, colorToFill: [50,30,40,60], isError: false, isValid: true}
         ];
 
         var validatedAreas = this.presenter.validateAreas(model.Areas, isPreview, model.Width, model.Height);
 
         assertFalse(validatedAreas.isError);
         assertTrue(validatedAreas.isValid);
-        assertEquals(4, validatedAreas.items.length);
-        assertEquals(expectedData, validatedAreas.items);
+        assertEquals(4, validatedAreas.value.length);
+        expectedData.forEach((element, i) => {
+            assertEquals(element.type, validatedAreas.value[i].type);
+        })
     }
 });
 
 TestCase("[Coloring] Parsing transparent area validation", {
     setUp: function () {
         this.presenter = AddonColoring_create();
+        this.presenter.speechTexts = this.presenter.DEFAULT_TTS_PHRASES;
     },
 
-    'test parsing valid input': function () {
-        var splittedAreaArray = ["200", "300", "transparent"];
-        var expectedArea = {
+    'test given valid area with optional TTS when validating then all is OK': function () {
+        const splittedAreaArray = ["200", "300", "transparent", "Hello"];
+        const expectedArea = {
             isError: false,
             x: 200,
             y: 300,
             colorToFill: [-1, -1, -1, -1],
-            type: this.presenter.AREA_TYPE.TRANSPARENT
+            type: this.presenter.AREA_TYPE.TRANSPARENT,
+            speechText: "Hello",
         };
 
-        var parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+        const parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
 
         assertFalse(parsingResult.isError);
         assertEquals(expectedArea, parsingResult);
+    },
 
-        splittedAreaArray = ["133", "522", "transparent"];
-        expectedArea = {
+    'test given valid area without optional TTS when validating then all is OK': function () {
+        const splittedAreaArray = ["133", "522", "transparent"];
+        const expectedArea = {
             isError: false,
             x: 133,
             y: 522,
             colorToFill: [-1, -1, -1, -1],
-            type: this.presenter.AREA_TYPE.TRANSPARENT
+            type: this.presenter.AREA_TYPE.TRANSPARENT,
+            speechText: this.presenter.speechTexts.Area,
         };
 
-        parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
+        const parsingResult = this.presenter.parseTransparentArea(splittedAreaArray);
         assertFalse(parsingResult.isError);
         assertEquals(expectedArea, parsingResult);
     },
@@ -173,6 +187,26 @@ TestCase("[Coloring] Parsing transparent area validation", {
         assertTrue(parsingResult.isError);
         assertFalse(parsingResult.isValid);
         assertEquals('A01', parsingResult.errorCode);
-    }
+    },
+
+    'test given invalid color RGBA in colors prop when validating then return error code': function () {
+        const model = { colors: [{ colorRGBA: "255 255 255", speechText: "ABC" }] }
+
+        const validatedColors = this.presenter.validateColors(model['colors']);
+
+        assertEquals("E01", validatedColors[0].errorCode);
+    },
+
+    'test given valid color prop when validating then all colors are saved': function () {
+        const model = { colors: [{ colorRGBA: "255 255 255 255", speechText: "ABC" }, { colorRGBA: "166 166 166 255", speechText: "DEF" }] }
+
+        const expected =  [
+            { colorRGBA:[255,255,255,255], speechText: "ABC" },
+            { colorRGBA: [166,166,166,255], speechText: "DEF" }
+        ];
+        const validatedColors = this.presenter.validateColors(model.colors);
+
+        assertEquals(expected, validatedColors);
+    },
 
 });
