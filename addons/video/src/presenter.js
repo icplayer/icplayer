@@ -1587,14 +1587,15 @@ function Addonvideo_create() {
      * @return reference do newly created element
      */
     function createCaptionElement(caption, isAudioDescription) {
-        var captionElement = document.createElement('div');
+        const captionElement = document.createElement('div');
 
         $(captionElement).addClass('captions');
         if(isAudioDescription) {
             $(captionElement).addClass('audio-description');
         }
         $(captionElement).addClass(caption.cssClass);
-        $(captionElement).html(window.TTSUtils.parsePreviewAltText(caption.text));
+        const sanitizedText = window.xssUtils.sanitize(caption.text);
+        $(captionElement).html(window.TTSUtils.parsePreviewAltText(sanitizedText));
         $(captionElement).css({
             top: caption.top,
             left: caption.left
