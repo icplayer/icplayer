@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -52,6 +53,8 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 		view.clear();
 		int total = 0;
 		int counter = 0;
+		float totalScaledScore = 0;
+		float totalWeight = 0;
 		
 		for(int i = 0; i < contentModel.getPageCount(); i++){
 			
@@ -68,6 +71,19 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 					totalErrors += pageScore.getErrorCount();
 					totalMistakes += pageScore.getMistakeCount();
 					total += pageScore.getPercentageScore();
+					float scaledScore = pageScore.getScaledScore();
+					int weight = pageScore.getWeight();
+					if (page instanceof Page) {
+						Page pageInstance = (Page) page;
+						if (weight == 0) {
+							weight = pageInstance.getPageWeight();
+						}
+						if (pageScore.getMaxScore() == 0) {
+							scaledScore = pageInstance.isVisited() ? 1 : 0;
+						}
+					}
+					totalScaledScore += scaledScore * weight;
+					totalWeight += weight;
 				}
 				else{
 					view.addRow(page.getName());
@@ -75,7 +91,8 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 			}
 		}
 		
-		totalScore = counter > 0? total/counter: 0;
+		totalScore = 1;
+		if (totalWeight > 0) totalScore = Math.round((totalScaledScore / totalWeight) * 100);
 		
 		view.addSummaryRow(totalScore, totalChecks, totalErrors, totalMistakes);
 		
