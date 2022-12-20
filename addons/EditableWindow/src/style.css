@@ -34,7 +34,7 @@ div.addon-editable-window-container-full-screen {
 }
 
 div.addon-editable-buttons-menu {
-    z-index: 3;
+    z-index: 203;
     position: fixed;
 }
 
@@ -51,7 +51,7 @@ div.addon-editable-buttons-menu {
     border: none;
     outline: none;
     cursor: pointer;
-    z-index: 1;
+    z-index: 201;
 }
 
 button.addon-editable-full-screen-button {
@@ -66,7 +66,7 @@ button.addon-editable-full-screen-button {
     border: none;
     outline: none;
     cursor: pointer;
-    z-index: 1;
+    z-index: 201;
     background-repeat: no-repeat;
 }
 
@@ -87,7 +87,7 @@ button.addon-editable-close-full-screen-button {
     border: none;
     background: url('resources/reset-button.png') no-repeat center;
     background-size: 11px 11px;
-    z-index: 1;
+    z-index: 201;
     cursor: pointer;
 }
 
@@ -136,7 +136,7 @@ button.addon-editable-close-full-screen-button {
     width: 100%;
     top: 45%;
     position: absolute;
-    z-index: 5;
+    z-index: 205;
     color: white;
     text-align: center;
     display: none;
