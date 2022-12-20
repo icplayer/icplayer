@@ -1,5 +1,6 @@
 2022-12-13 Added hover class to TextAudio to help with styling
 2022-12-09 Added GSA to the Graph addon
+2022-12-09 Added TTS support to PointsLines
 2022-12-09 Fixed failing to get correct scroll value in some contexts
 2022-12-09 Fixed XSS vulnerabilities in Table and tts-utils
 2022-12-09 Fixed XSS vulnerabilities in some addons
