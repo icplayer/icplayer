@@ -1,13 +1,16 @@
-2022-12-09 Added TTS support to PointsLines
+2022-12-13 Added hover class to TextAudio to help with styling
 2022-12-09 Added GSA to the Graph addon
+2022-12-09 Added TTS support to PointsLines
 2022-12-09 Fixed failing to get correct scroll value in some contexts
 2022-12-09 Fixed XSS vulnerabilities in Table and tts-utils
 2022-12-09 Fixed XSS vulnerabilities in some addons
 2022-12-08 Fixed script and module-script asset getting relative urls when not appropriate
+2022-12-06 Fixed functionality to auto set in correct order groups' modules in view
 2022-11-28 Added ModuleScript property
 2022-11-25 Removed pause while reading syntax about time for TTS
 2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
 2022-11-25 Fixed no break in tts at the end of a line of text.
+2022-11-22 Secured Text Selection addon against xss attacks
 2022-11-14 Fixed support for only one audio type in slideshow addon
 2022-11-10 Added grid size and rulers position separation
 2022-11-07 Added worksWithAll property to eKeyboard
