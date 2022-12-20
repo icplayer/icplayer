@@ -23,7 +23,7 @@ function AddonColoring_create(){
     presenter.imageHasBeenLoaded = false;
     presenter.keyboardControllerObject = null;
     presenter.colorSpeechTextMap = {};
-    presenter.blockTTSExit = false;
+    presenter.isTTSExitBlocked = false;
     presenter.initialState = null;
     presenter.isCanvasInitiated = false;
 
@@ -1567,8 +1567,8 @@ function AddonColoring_create(){
     }
 
     presenter.isDeactivationBlocked = function() {
-        if (presenter.blockTTSExit) {
-            presenter.blockTTSExit = false;
+        if (presenter.isTTSExitBlocked) {
+            presenter.isTTSExitBlocked = false;
             return true;
         }
         return false;
@@ -1706,7 +1706,7 @@ function AddonColoring_create(){
             event.preventDefault();
         }
         if (this.isColorSelectActive) {
-            presenter.blockTTSExit = true;
+            presenter.isTTSExitBlocked = true;
             this.switchElementsToAreas();
             this.isColorSelectActive = false;
             this.readCurrentElement();
