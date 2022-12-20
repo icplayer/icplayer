@@ -26,6 +26,7 @@ function AddonColoring_create(){
     presenter.isTTSExitBlocked = false;
     presenter.initialState = null;
     presenter.isCanvasInitiated = false;
+    presenter.defaultColorRGBA = [255, 100, 100, 255];
 
     presenter.AREA_TYPE = {
         NORMAL: 0,
@@ -405,7 +406,7 @@ function AddonColoring_create(){
 
         const validatedDefaultFillingColor = model['DefaultFillingColor'].toString().length
             ? presenter.validateColor(model['DefaultFillingColor'])
-            : getCorrectObject([255, 100, 100, 255]);
+            : getCorrectObject(presenter.defaultColorRGBA);
         if (validatedDefaultFillingColor.isError) return validatedDefaultFillingColor;
 
         const validatedColors = presenter.validateColors(model['colors']);
@@ -537,7 +538,7 @@ function AddonColoring_create(){
         return colorsModel.map(colorObject => {
             const colorValidation = colorObject.colorRGBA?.length
                 ? presenter.validateColor(colorObject.colorRGBA)
-                : getCorrectObject([255, 100, 100, 255]);
+                : getCorrectObject(presenter.defaultColorRGBA);
             const speechText = colorObject.speechText?.length
                 ? colorObject.speechText
                 : presenter.DEFAULT_TTS_PHRASES.defaultColorName;
