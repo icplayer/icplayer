@@ -689,6 +689,7 @@ function AddonTextAudio_create() {
                 presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
             }
         }
+        presenter.addHoverHandlers();
     };
 
     presenter.changeSlideFromData = function AddonTextAudio_changeSlideFromData (slide_data) {
@@ -725,7 +726,20 @@ function AddonTextAudio_create() {
                 presenter.highlightSelection(textWrapper, slide_data.selection_id);
             }
         }
+        presenter.addHoverHandlers();
     };
+
+    presenter.addHoverHandlers = function AddonTextAudio_addHoverHandlers () {
+        var textElements = presenter.$view.find("span[class^='textelement']");
+        textElements.on('mouseover', function(){
+            var index = this.getAttribute('data-selectionid');
+            presenter.$view.find("span.textelement" + index).addClass("hover");
+        });
+        textElements.on('mouseout', function(){
+            var index = this.getAttribute('data-selectionid');
+            presenter.$view.find("span.textelement" + index).removeClass("hover");
+        });
+    }
 
     presenter.changeSlide = function AddonTextAudio_changeSlide (currentTime) {
         currentTime = Math.round(currentTime * presenter.fps);
