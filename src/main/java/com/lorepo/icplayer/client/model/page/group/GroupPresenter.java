@@ -64,10 +64,6 @@ public class GroupPresenter implements IPresenter, IStateful{
 		
 	}
 
-	public boolean hasView() {
-	    return this.view != null;
-	}
-
 	@Override
 	public IModuleModel getModel() {
 		// TODO Auto-generated method stub
