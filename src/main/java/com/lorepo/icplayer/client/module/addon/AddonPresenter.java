@@ -235,7 +235,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getScore != undefined){
-				return obj.getScore();
 				var result = obj.getScore();
 				if (result === undefined) return 0;
 				return result;
@@ -383,7 +382,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native String getState(JavaScriptObject obj, String addonId) /*-{
 		try{
 			if(obj.getState != undefined){
-				return obj.getState();
 				var result = obj.getState();
 				if (result === undefined) return "";
 				return result;
