@@ -5,7 +5,8 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - empty state", {
         this.printableController = {
             isPreview: sinon.stub(),
             getContentInformation: sinon.stub(),
-            getScore: sinon.stub()
+            getScore: sinon.stub(),
+            getPageWeight: sinon.stub(),
         };
 
         this.printableController.isPreview.returns(false);

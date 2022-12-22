@@ -1609,6 +1609,7 @@ var ice_dictionary_pl = {
 	"Hierarchical_Lesson_Report_property_score_speech_text": "Wynik",
 	"Hierarchical_Lesson_Report_property_out_of_speech_text": "Z",
 	"Hierarchical_Lesson_Report_property_total_speech_text": "Łącznie",
+	"Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean": "Use weighted arithmetic mean",
 	"ConnectingDots_info" : "Pozwala na utworzenie ćwiczenia, w którym użytkownik ma za zadanie połączenie kropek (punktów) i uformowanie z nich linii. Addon daje możliwość dodania obrazu jako tła.",
 	"ConnectingDots_name" : "Łączenie punktów",
 	"ConnectingDots_property_dots": "Współrzędne punktów",
