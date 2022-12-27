@@ -35,12 +35,12 @@ function AddonColoring_create(){
     };
 
     presenter.DEFAULT_TTS_PHRASES = {
-        area: "area",
-        color: "color",
-        selected: "selected",
-        correct: "correct",
-        incorrect: "incorrect",
-        defaultColorName: "teal"
+        area: "Area",
+        color: "Color",
+        selected: "Selected",
+        correct: "Correct",
+        incorrect: "Incorrect",
+        defaultColorName: "Teal"
     };
 
     presenter.errorCodes = {
@@ -118,7 +118,7 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-        if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+        if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
             var eventData = presenter.createEventData(item, value, score);
             presenter.eventBus.sendEvent('ValueChanged', eventData);
 
@@ -219,7 +219,7 @@ function AddonColoring_create(){
         }
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) || isRemovingWrongColor) {
-            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+            if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.fillColor,
@@ -276,7 +276,7 @@ function AddonColoring_create(){
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+            if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.configuration.currentFillingColor,
@@ -974,7 +974,7 @@ function AddonColoring_create(){
                 }
             });
         }
-        presenter.setShowErrorsModeActive = true;
+        presenter.isShowErrorsModeActive = true;
     };
 
     function displayIcon(area, isWrong) {
@@ -999,7 +999,7 @@ function AddonColoring_create(){
 
     presenter.setWorkMode = function(){
         presenter.$view.find('.icon-container').remove();
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
     };
 
     presenter.clearCanvas = function() {
@@ -1018,11 +1018,12 @@ function AddonColoring_create(){
         } else {
             presenter.clearCanvas();
         }
-
+        presenter.removeAreaMark();
+        presenter.removeColorList();
         presenter.$view.find('.icon-container').remove();
         presenter.isColored = false;
         presenter.isShowAnswersActive = false;
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
 
@@ -1466,7 +1467,7 @@ function AddonColoring_create(){
     };
 
     presenter.activateShowAnswersMode = function () {
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
 
         presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
@@ -1578,6 +1579,7 @@ function AddonColoring_create(){
     ColoringKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     ColoringKeyboardController.prototype.isColorSelectActive = false;
     ColoringKeyboardController.prototype.lastAreaElement = null;
+    ColoringKeyboardController.prototype.colorElementsMap = {};
     ColoringKeyboardController.prototype.lastAreaElementIndex = null;
     ColoringKeyboardController.prototype.constructor = ColoringKeyboardController;
 
@@ -1603,8 +1605,20 @@ function AddonColoring_create(){
         return presenter.configuration.colors;
     };
 
-    ColoringKeyboardController.prototype.mark = function (element) {};
-    ColoringKeyboardController.prototype.unmark = function (element) {};
+    ColoringKeyboardController.prototype.mark = function (element) {
+        if (!this.isColorSelectActive) return;
+        const $colorElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText];
+        if ($colorElement) {
+            $colorElement.addClass('keyboard_navigation_active_element');
+        }
+    };
+    ColoringKeyboardController.prototype.unmark = function (element) {
+        if (!this.isColorSelectActive) return;
+        const $colorElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText];
+        if ($colorElement) {
+            $colorElement.removeClass('keyboard_navigation_active_element');
+        }
+    };
 
     ColoringKeyboardController.prototype.nextElement = function (event) {
         if (event) event.preventDefault();
@@ -1626,6 +1640,7 @@ function AddonColoring_create(){
 
     ColoringKeyboardController.prototype.switchElement = function (move) {
         KeyboardController.prototype.switchElement.call(this, move);
+        if (!this.isColorSelectActive) presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
         this.readCurrentElement();
     };
 
@@ -1633,10 +1648,15 @@ function AddonColoring_create(){
         if (presenter.isFirstEnter) {
             if (presenter.isTTS()) {
                 this.setElements.call(this, presenter.getElementsForTTS());
+            } else {
+                this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
             }
             presenter.isFirstEnter = false;
         }
         KeyboardController.prototype.enter.call(this, event);
+        if (!this.isColorSelectActive) {
+            presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
+        }
         this.readCurrentElement();
     };
 
@@ -1644,8 +1664,10 @@ function AddonColoring_create(){
         if (event) event.preventDefault();
         if (!this.isSelectEnabled) return;
         if (presenter.isShowAnswersActive) return;
+        if (presenter.isShowErrorsModeActive) return;
 
         if (this.isColorSelectActive) {
+            presenter.removeColorList();
             this.colorAreaWithSelectedColor();
             this.readSelectedColor();
             this.switchElementsToAreas();
@@ -1653,8 +1675,32 @@ function AddonColoring_create(){
             this.switchElementsToColors();
             presenter.speak(presenter.speechTexts.selected);
         }
-        this.isColorSelectActive = !this.isColorSelectActive;
     };
+
+    presenter.markAreaWithCircle = function ({ x, y }) {
+        presenter.removeAreaMark();
+        const $mark = $("<span></span>");
+        $mark.addClass("coloring-circle-mark");
+        $mark.css({
+            'top' : y + 20,
+            'left' : x + 20,
+        });
+        const coloringWrapper = presenter.$view.find('.coloring-wrapper');
+        coloringWrapper.append($mark);
+        presenter.$areaMark = $mark;
+    }
+
+    presenter.removeAreaMark = function () {
+        if (presenter.$areaMark) {
+            presenter.$areaMark.remove();
+        }
+    }
+
+    presenter.removeColorList = function () {
+      if (presenter.$colorList) {
+          presenter.$colorList.remove();
+      }
+    }
 
     ColoringKeyboardController.prototype.colorAreaWithSelectedColor = function () {
             const previousColor = presenter.configuration.currentFillingColor;
@@ -1672,13 +1718,41 @@ function AddonColoring_create(){
     }
 
     ColoringKeyboardController.prototype.switchElementsToAreas = function () {
+        this.isColorSelectActive = false;
         this.setElements(presenter.getElementsForTTS());
         KeyboardController.prototype.switchElement.call(this, this.lastAreaElementIndex);
     }
 
+    ColoringKeyboardController.prototype.createColorListForKeyNav = function () {
+        const $colorList = $("<span></span>");
+        $colorList.addClass("coloring-color-list");
+        $colorList.css({
+            'top': this.lastAreaElement.y,
+            'left': this.lastAreaElement.x,
+        });
+        this.populateColorListWithColors($colorList);
+        const coloringWrapper = presenter.$view.find('.coloring-wrapper');
+        coloringWrapper.append($colorList);
+        presenter.$colorList = $colorList;
+    }
+
+    ColoringKeyboardController.prototype.populateColorListWithColors = function ($colorList) {
+        const colors = presenter.configuration.colors;
+
+        colors.forEach(color => {
+            const $color = $("<div></div>");
+            $color.addClass("coloring-color-list-element");
+            $color.text(color.speechText);
+            $colorList.append($color);
+            this.colorElementsMap[color.speechText] = $color;
+        });
+    }
+
     ColoringKeyboardController.prototype.switchElementsToColors = function () {
+        this.isColorSelectActive = true;
         this.lastAreaElement = this.keyboardNavigationCurrentElement;
         this.lastAreaElementIndex = this.keyboardNavigationCurrentElementIndex;
+        this.createColorListForKeyNav();
         const colors = presenter.getAvailableColorsForKeyboardNavigation();
         this.setElements(colors);
     }
@@ -1709,7 +1783,7 @@ function AddonColoring_create(){
         if (this.isColorSelectActive) {
             presenter.isTTSExitBlocked = true;
             this.switchElementsToAreas();
-            this.isColorSelectActive = false;
+            presenter.removeColorList();
             this.readCurrentElement();
         } else {
             this.exitWCAGMode();
@@ -1717,6 +1791,8 @@ function AddonColoring_create(){
     };
 
     ColoringKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.removeAreaMark();
+        presenter.removeColorList();
         this.isColorSelectActive = false;
         presenter.isFirstEnter = true;
         this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
@@ -1747,6 +1823,13 @@ function AddonColoring_create(){
         if (colorText) {
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
             pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            if (presenter.isShowErrorsModeActive) {
+                if (isCorrect(this.keyboardNavigationCurrentElement)) {
+                    pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.correct);
+                } else {
+                    pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.incorrect);
+                }
+            }
         }
 
         return textVoiceObject;

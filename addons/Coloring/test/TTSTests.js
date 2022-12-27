@@ -30,6 +30,9 @@ TestCase("[Coloring] TTS Tests", {
 
         this.presenter.buildKeyboardController();
         this.keyboardControllerObject = this.presenter.keyboardControllerObject;
+        this.keyboardControllerObject.keyboardNavigationCurrentElement = this.presenter.configuration.areas[0];
+        this.keyboardControllerObject.createColorListForKeyNav = () => {};
+        this.keyboardControllerObject.readCurrentElement = () => {};
 
         this.presenter.setSpeechTexts();
         this.activateTTSWithoutReading();
@@ -61,7 +64,7 @@ TestCase("[Coloring] TTS Tests", {
         assertTrue(this.presenter.floodFill.calledOnce);
     },
 
-    'test given keyboard controller when coloring area then previous color is restored': function () {
+    'test given keyboard controller when coloring an area then previous color is restored': function () {
         this.presenter.defaultColor = "255";
 
         this.keyboardControllerObject.switchElementsToColors();
