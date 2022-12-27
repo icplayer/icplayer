@@ -1558,8 +1558,10 @@ function AddonText_Selection_create() {
     };
 
     presenter.getWordsTextVoices = function($element) {
-        var $clone = $element.clone();
-        $clone.find('.selectable').each(function(){
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
+
+        $($sanitizedElement).find('.selectable').each(function(){
             var $this = $(this);
 
             if ($this.hasClass('selected')) {
@@ -1574,7 +1576,7 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
@@ -1595,10 +1597,12 @@ function AddonText_Selection_create() {
     };
 
     presenter.getPhrasesTextVoices = function($element) {
-        var $clone = $element.clone();
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
 
-        $clone.find('.selectable').each(function(index){
+        $sanitizedElement.find('.selectable').each(function(index){
             var $this = $(this);
+
             $this.html(SPLIT + PHRASE + ' ' + (index+1) + SPLIT + $this.html() + SPLIT + PHRASE_END + SPLIT );
 
             if ($this.hasClass('selected')) {
@@ -1613,7 +1617,7 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
@@ -1647,7 +1651,6 @@ function AddonText_Selection_create() {
     }
 
     presenter.getSectionsTextVoices = function($element) {
-
         var $clone = $element.clone();
 
         $clone.find('.selectable').each(function(){
