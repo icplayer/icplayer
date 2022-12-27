@@ -134,22 +134,6 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - empty state", {
         assertTrue(isResetPrintableStateMode(this.presenter));
     },
 
-    'test getPrintableHTML when only nested chapters': function () {
-        updateGCIStubForTestWhenOnlyNestedChapters(this.printableController);
-
-        const rows = [
-          generateExpectedChapterWithoutChildrenRow(0, null, "Chapter 1", 0),
-          generateExpectedChapterWithoutChildrenRow(1, 0, "Chapter 2", 1),
-          generateExpectedChapterWithoutChildrenRow(2, 1, "Chapter 3", 2)
-        ]
-        const expectedHTML = generateExpectedHTML(rows);
-
-        this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
-
-        assertEquals(expectedHTML, this.printableHTML);
-        assertTrue(isResetPrintableStateMode(this.presenter));
-    },
-
     'test getPrintableHTML when not nested lessons and chapters': function () {
         updateGCIStubForTestWhenNotNestedLessonsAndChapters(this.printableController);
 
@@ -416,22 +400,6 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
           generateExpectedChapterWithoutChildrenRow(0, null, "Chapter 1", 0),
           generateExpectedChapterWithoutChildrenRow(1, null, "Chapter 2", 0),
           generateExpectedChapterWithoutChildrenRow(2, null, "Chapter 3", 0)
-        ]
-        const expectedHTML = generateExpectedHTML(rows);
-
-        this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
-
-        assertEquals(expectedHTML, this.printableHTML);
-        assertTrue(isResetPrintableStateMode(this.presenter));
-    },
-
-    'test getPrintableHTML when only nested chapters': function () {
-        updateGCIStubForTestWhenOnlyNestedChapters(this.printableController);
-
-        const rows = [
-          generateExpectedChapterWithoutChildrenRow(0, null, "Chapter 1", 0),
-          generateExpectedChapterWithoutChildrenRow(1, 0, "Chapter 2", 1),
-          generateExpectedChapterWithoutChildrenRow(2, 1, "Chapter 3", 2)
         ]
         const expectedHTML = generateExpectedHTML(rows);
 
