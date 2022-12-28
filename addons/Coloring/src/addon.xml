@@ -6,8 +6,8 @@
         <property name="Areas" displayName="Areas" nameLabel="Coloring_property_areas" type="text" />
         <property name="DefaultFillingColor" displayName="Default Filling Color" nameLabel="Coloring_property_default_filling_color" type="string" />
         <property name="colors" displayName="Colors" nameLabel="Coloring_property_colors" type="list">
-		<property name="colorRGBA" displayName="Color RGBA" nameLabel="Coloring_property_color" type="string" />
-                <property name="speechText" displayName="Description" nameLabel="Coloring_property_description" type="string" isLocalized="true"/>
+            <property name="speechText" displayName="Description" nameLabel="Coloring_property_description" type="string" isLocalized="true"/>
+            <property name="colorRGBA" displayName="Color RGBA" nameLabel="Coloring_property_color" type="string" />
         </property>
         <property name="Tolerance" displayName="Tolerance" nameLabel="Coloring_property_tolerance" type="string" />
         <property name="isNotActivity" displayName="Is Not Activity" nameLabel="Coloring_property_is_not_activity" type="boolean" />
@@ -16,21 +16,21 @@
         <property name="colorCorrect" displayName="Color correct" nameLabel="Coloring_property_color_correct" type="boolean" />
         <property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Coloring_property_speech_texts" type="staticlist">
-        <property name="Area" nameLabel="Coloring_speech_text_area" type="staticrow">
-                <property name="Area" nameLabel="Coloring_speech_text_area" type="string"/>
-        </property>
-        <property name="Color" nameLabel="Coloring_speech_text_color" type="staticrow">
-                <property name="Color" nameLabel="Coloring_speech_text_color" type="string"/>
-        </property>
-        <property name="Selected" nameLabel="Coloring_speech_text_selected" type="staticrow">
-                <property name="Selected" nameLabel="Coloring_speech_text_selected" type="string"/>
-        </property>
-        <property name="Correct" nameLabel="Coloring_speech_text_correct" type="staticrow">
-                <property name="Correct" nameLabel="Coloring_speech_text_correct" type="string"/>
-        </property>
-        <property name="Incorrect" nameLabel="Coloring_speech_text_incorrect" type="staticrow">
-                <property name="Incorrect" nameLabel="Coloring_speech_text_incorrect" type="string"/>
-        </property>
+            <property name="Area" nameLabel="Coloring_speech_text_area" type="staticrow">
+                    <property name="Area" nameLabel="Coloring_speech_text_area" type="string"/>
+            </property>
+            <property name="Color" nameLabel="Coloring_speech_text_color" type="staticrow">
+                    <property name="Color" nameLabel="Coloring_speech_text_color" type="string"/>
+            </property>
+            <property name="Selected" nameLabel="Coloring_speech_text_selected" type="staticrow">
+                    <property name="Selected" nameLabel="Coloring_speech_text_selected" type="string"/>
+            </property>
+            <property name="Correct" nameLabel="Coloring_speech_text_correct" type="staticrow">
+                    <property name="Correct" nameLabel="Coloring_speech_text_correct" type="string"/>
+            </property>
+            <property name="Incorrect" nameLabel="Coloring_speech_text_incorrect" type="staticrow">
+                    <property name="Incorrect" nameLabel="Coloring_speech_text_incorrect" type="string"/>
+            </property>
         </property>
         <property displayName="Lang attribute" name="langAttribute" nameLabel="Coloring_property_lang_attribute" type="string"/>
     </model>

@@ -38,8 +38,6 @@ TestCase("[Coloring] TTS Tests", {
         this.activateTTSWithoutReading();
     },
 
-
-
     'test given keyboard controller in area selection when selecting an area then key nav elements switch to colors': function () {
         assertEquals(this.presenter.configuration.areas, this.keyboardControllerObject.keyboardNavigationElements);
 
@@ -75,7 +73,7 @@ TestCase("[Coloring] TTS Tests", {
 
     'test given valid colors when getting area TTS then area color is read': function () {
         this.keyboardControllerObject.select();
-        const color = this.keyboardControllerObject.getCurrentAreaColor();
+        const color = this.keyboardControllerObject.getCurrentAreaColorSpeechText();
 
         assertEquals(this.presenter.colorSpeechTextMap["255 255 255 255"], color)
     },

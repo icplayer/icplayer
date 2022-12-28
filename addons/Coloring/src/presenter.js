@@ -49,6 +49,7 @@ function AddonColoring_create(){
         'E03': 'Areas are configured wrong. It should be in "x; y; color; optional TTS description" format. See documentation for more details.',
         'E04': 'Areas x & y values have to be smaller than Width and Height properties.',
         'E05': 'Tolerance value must be between 0 - 100',
+        'E06': 'Areas are configured wrong. Color has an invalid value, or TTS description is not properly separated. See documentation for more details',
         'A01': "Areas x & y values have to be integer values between 0 - 255."
     };
 
@@ -332,7 +333,7 @@ function AddonColoring_create(){
     };
 
     presenter.upgradeModel = function(model) {
-        let upgradedModel = upgradeModelAddProperties(model);
+        let upgradedModel = presenter.upgradeShowAllAnswersInGradualShowAnswersMode(model);
         upgradedModel = presenter.upgradeColors(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
@@ -340,13 +341,9 @@ function AddonColoring_create(){
         return upgradedModel;
     };
 
-    function upgradeModelAddProperties(model) {
+    presenter.upgradeShowAllAnswersInGradualShowAnswersMode = function AddonColoring_upgradeShowAllAnswersInGradualShowAnswersMode (model) {
         const upgradedModel = {};
         $.extend(true, upgradedModel, model);
-
-        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
-            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
-        }
 
         if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
             upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
@@ -474,7 +471,7 @@ function AddonColoring_create(){
             }
 
             const validatedColor = presenter.validateColor(trimmedArray[2]);
-            if (validatedColor.isError) return getErrorObject(validatedColor.errorCode);
+            if (validatedColor.isError) return getErrorObject("E06");
 
             area.colorToFill = validatedColor.value;
             area.isError = false;
@@ -513,7 +510,7 @@ function AddonColoring_create(){
         const splitted = spaceSeparatedColor.split(' '),
             validatedColors = [];
 
-        if (splitted.length < 4) {
+        if (splitted.length !== 4) {
             return getErrorObject('E01');
         }
 
@@ -1597,10 +1594,6 @@ function AddonColoring_create(){
         return presenter.configuration.areas ? presenter.configuration.areas : [];
     };
 
-    presenter.getElementsForTTS = function() {
-        return presenter.getElementsForKeyboardNavigation();
-    };
-
     presenter.getAvailableColorsForKeyboardNavigation = function() {
         return presenter.configuration.colors;
     };
@@ -1619,6 +1612,14 @@ function AddonColoring_create(){
             $colorElement.removeClass('keyboard_navigation_active_element');
         }
     };
+
+    ColoringKeyboardController.prototype.nextRow = function (event) {
+        this.nextElement(event);
+    }
+
+    ColoringKeyboardController.prototype.previousRow = function (event) {
+        this.previousElement(event);
+    }
 
     ColoringKeyboardController.prototype.nextElement = function (event) {
         if (event) event.preventDefault();
@@ -1646,11 +1647,7 @@ function AddonColoring_create(){
 
     ColoringKeyboardController.prototype.enter = function (event) {
         if (presenter.isFirstEnter) {
-            if (presenter.isTTS()) {
-                this.setElements.call(this, presenter.getElementsForTTS());
-            } else {
-                this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
-            }
+            this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
             presenter.isFirstEnter = false;
         }
         KeyboardController.prototype.enter.call(this, event);
@@ -1719,7 +1716,7 @@ function AddonColoring_create(){
 
     ColoringKeyboardController.prototype.switchElementsToAreas = function () {
         this.isColorSelectActive = false;
-        this.setElements(presenter.getElementsForTTS());
+        this.setElements(presenter.getElementsForKeyboardNavigation());
         KeyboardController.prototype.switchElement.call(this, this.lastAreaElementIndex);
     }
 
@@ -1819,7 +1816,7 @@ function AddonColoring_create(){
 
         pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, areaText);
 
-        const colorText = this.getCurrentAreaColor();
+        const colorText = this.getCurrentAreaColorSpeechText();
         if (colorText) {
             pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
             pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
@@ -1835,7 +1832,7 @@ function AddonColoring_create(){
         return textVoiceObject;
     }
 
-    ColoringKeyboardController.prototype.getCurrentAreaColor = function() {
+    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function() {
         const colorArray = presenter.getColorAtPoint(
             this.keyboardNavigationCurrentElement.x,
             this.keyboardNavigationCurrentElement.y

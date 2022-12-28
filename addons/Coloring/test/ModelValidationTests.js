@@ -17,7 +17,14 @@ TestCase("[Coloring] Model validation", {
         this.model.Areas = '55; 150; 255 200 255';
         var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(true, validated.isError);
-        assertEquals('E01', validated.errorCode);
+        assertEquals('E06', validated.errorCode);
+    },
+
+    'test given invalid TTS separation in areas when validating then proper error is displayed' : function() {
+        this.model.Areas = '55; 150; 255 200 255, Head';
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
+        assertEquals(true, validated.isError);
+        assertEquals('E06', validated.errorCode);
     },
 
     'test validate areas proper color format' : function() {
