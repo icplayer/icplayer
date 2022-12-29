@@ -157,12 +157,12 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 		}
 	}
 
-    @Test
+	@Test
 	public void isIdUniqueWhenIdExistsOnModule() throws SAXException, IOException {
 		loadPage("testdata/modulesAndGroups2.xml");
 		String groupName = "Audio1";
 
-        assertFalse(page.getGroupedModules().get(0).isIDUnique(groupName));
+		assertFalse(page.getGroupedModules().get(0).isIDUnique(groupName));
 	}
 
 	@Test
