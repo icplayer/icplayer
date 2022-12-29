@@ -87,7 +87,7 @@ function AddonEditableWindow_create() {
         presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
         presenter.jQueryElementsCache.$container = $view.find(presenter.cssClasses.container.getSelector());
         presenter.jQueryElementsCache.$fixedContainer = $view.find(presenter.cssClasses.fixedContainer.getSelector());
-        presenter.jQueryElementsCache.$view =$view;
+        presenter.jQueryElementsCache.$view = $view;
     };
 
     presenter.run = function (view, model) {
@@ -431,7 +431,7 @@ function AddonEditableWindow_create() {
         presenter.createTinyMceAsync(textareaId, height, width);
 
         presenter.fillActiveTinyMce(presenter.configuration.model.textEditor, function (content) {
-            tinymce.get(textareaId).getBody().innerHTML = content;
+            setTextAreaInnerHTML(textareaId, content);
 
             presenter.configuration.iframeContent = content;
             $view.find(".addon-editable-reset-button").click(function () {
@@ -830,8 +830,8 @@ function AddonEditableWindow_create() {
             }
         }
 
-        var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
-        tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+        var newContent = documentContent.getElementsByTagName("body")[0].innerHTML;
+        setTextAreaInnerHTML(textareaId, newContent);
 
         presenter.getStyles();
 
@@ -840,6 +840,10 @@ function AddonEditableWindow_create() {
 
         presenter.configuration.isTinyMceFilled = true;
     };
+
+    function setTextAreaInnerHTML(textareaId, content) {
+        tinymce.get(textareaId).getBody().innerHTML = presenter.textParser.parse(content);
+    }
 
     presenter.getStyles = function() {
         var indexUrl = presenter.configuration.model.indexFile;
@@ -1026,6 +1030,8 @@ function AddonEditableWindow_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.configuration.playerController = controller;
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+
         presenter.configuration.eventBus = presenter.configuration.playerController.getEventBus();
         presenter.configuration.eventBus.addEventListener('ValueChanged', this);
         presenter.configuration.eventBus.addEventListener('ScrollEvent', this);
@@ -1421,8 +1427,7 @@ function AddonEditableWindow_create() {
             const key = presenter.getTTSKeyBasedOnColor(element);
             text = presenter.speechTexts[key];
         } else if(element.hasClass("mce-edit-area")) {
-            const contentToRead = presenter.getContentToRead();
-            text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.model.langAttribute)];
+            text = presenter.getContentToRead();
         } else if(element.hasClass("addon-editable-reset-button")) {
             text = presenter.speechTexts.reset;
         } else if(element[0].nodeName === "AUDIO") {
@@ -1437,15 +1442,10 @@ function AddonEditableWindow_create() {
     //images are temporarily replaced with it's alt text wrapped in paragraph in purpose to getContent with text- this allows to avoid manual parsing HTML
     //after all, originalContent is being restored to editor
     presenter.getContentToRead = function EditableWindow_getContentToRead () {
-        const originalContent = presenter.configuration.editor.getContent();
-        const img = presenter.speechTexts.image;
-
-        let contentWithoutImages = presenter.configuration.editor.getContent().replace(/<img .*?alt="(.*?)".*?>/gm, `<p>${img} $1</p>`);
-        presenter.configuration.editor.setContent(contentWithoutImages);
-        let contentToRead = presenter.configuration.editor.getContent({format : 'text'});
-        presenter.configuration.editor.setContent(originalContent);
-
-        return contentToRead;
+        const rawHTMLContent = presenter.configuration.editor.getContent({format : 'raw'});
+        const regex = /<img .*?alt="(.*?)".*?>/gm;
+        const contentWithoutImages = rawHTMLContent.replace(regex, `<p>${presenter.speechTexts.image} $1</p>`);
+        return window.TTSUtils.getTextVoiceArrayFromElement($(contentWithoutImages), presenter.configuration.model.langAttribute);
     };
 
     presenter.getTTSKeyBasedOnColor = function EditableWindow_getTTSKeyBasedOnColor (element) {

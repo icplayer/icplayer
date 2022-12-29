@@ -3,6 +3,24 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         this.presenter = getConfiguredPresenter();
     },
 
+    validateVoiceObjects: function (expected, result) {
+        assertEquals(expected.length, result.length);
+        expected.forEach((expectedVoiceObject, index) => {
+            const resultedVoiceObject = result[index];
+            assertEquals(expectedVoiceObject.text, resultedVoiceObject.text);
+        })
+    },
+
+    setUpFakeEditor: function (content) {
+        const fakeEditor = {
+            content: "",
+            getContent: function (param) {return this.content;},
+            setContent: function (newContent, param) {this.content = newContent;}
+        };
+        this.presenter.configuration.editor = fakeEditor;
+        this.presenter.configuration.editor.setContent(content);
+    },
+
     "test given editable window when setUp then wrapper has outline and box-shadow equals to none important": function () {
         const element = $($(this.presenter.configuration.view).find(".addon_EditableWindow").context);
         const styles = element.attr("style").split("; ");
@@ -296,20 +314,35 @@ TestCase("[Editable Window] Keyboard Navigation test", {
     },
 
     "test given content with image when getContentToRead then image replaced with alt text": function () {
-        const fakeEditor = {
-            content: "",
-            getContent: function (param) {return this.content;},
-            setContent: function (newContent) {this.content = newContent;}
-        };
-        this.presenter.configuration.editor = fakeEditor;
         this.presenter.speechTexts.image = "Image"
-        const rawContent = `Hello some text with <img src="sample.jpg" alt="Sample image"/> just text`;
-        this.presenter.configuration.editor.setContent(rawContent);
-        const expected = `Hello some text with <p>Image Sample image</p> just text`;
+        const rawContent = '<div>Text before image <img src="sample.jpg" alt="Alt text for image"> Text after image</div>';
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text": "Text before image Image Alt text for image Text after image."}];
 
         const result = this.presenter.getContentToRead();
 
-        assertEquals(expected, result);
+        this.validateVoiceObjects(expected, result);
+    },
+
+    "test given content with texts when getContentToRead then texts replaced with alt texts": function () {
+        const rawContent = `<div><span aria-label="Alt text"><span aria-hidden="true">Text before image </span></span><img src="sample.jpg"><span aria-label="Alt text 2"><span aria-hidden="true"> Text after image</span></span></div>`;
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text":"Alt textAlt text 2"}];
+
+        const result = this.presenter.getContentToRead();
+
+        this.validateVoiceObjects(expected, result);
+    },
+
+    "test given content with texts and image when getContentToRead then texts and image replaced with alt texts": function () {
+        this.presenter.speechTexts.image = "Image"
+        const rawContent = `<div><span aria-label="Alt text"><span aria-hidden="true">Text before image </span></span><img src="sample.jpg" alt="Alt text for image"><span aria-label="Alt text 2"><span aria-hidden="true"> Text after image</span></span></div>`;
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text":"Alt textImage Alt text for imageAlt text 2"}];
+
+        const result = this.presenter.getContentToRead();
+
+        this.validateVoiceObjects(expected, result);
     },
 
     "test given open full screen element when readCurrentElement then read 'Open fullscreen'": function () {
@@ -405,15 +438,15 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         const readElementSpy = sinon.spy(this.presenter.keyboardControllerObject, "readCurrentElement");
         const speakStub = sinon.stub();
         this.presenter.speak = speakStub;
-        const expectedText = "Hello world";
+        const expectedVoiceObject = [{ lang: "en-EN", text: "Hello world" }];
         const getContentToReadStub = sinon.stub(presenter, "getContentToRead");
-        getContentToReadStub.callsFake(function () {return expectedText;});
+        getContentToReadStub.callsFake(function () {return expectedVoiceObject;});
 
         this.presenter.keyboardControllerObject.readCurrentElement();
 
         sinon.assert.callCount(readElementSpy, 1);
         sinon.assert.callCount(speakStub, 1);
-        sinon.assert.calledWith(speakStub, [{ lang: "en-EN", text: expectedText }]);
+        sinon.assert.calledWith(speakStub, expectedVoiceObject);
     },
 
     "test given reset element when readCurrentElement then read 'reset'": function () {

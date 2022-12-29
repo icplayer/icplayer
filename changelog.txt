@@ -1,3 +1,4 @@
+2022-12-28 Expanded support for alternative texts in editable window
 2022-12-19 Added documentation to Adaptive Next and Lesson Score Counter addons
 2022-12-13 Added hover class to TextAudio to help with styling
 2022-12-12 Fixed the "CorrectWord" event not always firing in crossword
