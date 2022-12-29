@@ -102,6 +102,44 @@ public class PageTestCase {
 		assertNotNull(moduleModel);
 	}
 
+    @Test
+	public void setModuleIdWithIdUsedByGroup() throws Exception {
+		Page page = new Page("AddonPage", "");
+		loadPage("testdata/modulesAndGroups.xml", page);
+
+        String nameUsedByGroup = "Group1";
+        IProperty idProperty = null;
+
+        IModuleModel module = page.getModules().get(0);
+        for (IProperty property : module.getProperties()) {
+            if (property.getName().equals("ID")) {
+                property.setValue(nameUsedByGroup);
+                idProperty = property;
+            }
+        }
+
+        assertFalse(idProperty.getValue() == nameUsedByGroup);
+	}
+
+    @Test
+	public void setModuleIdWithUniqueId() throws Exception {
+		Page page = new Page("AddonPage", "");
+		loadPage("testdata/modulesAndGroups.xml", page);
+
+        String uniqueId = "uniqueId";
+        IProperty idProperty = null;
+        
+        IModuleModel module = page.getModules().get(0);
+        for (IProperty property : module.getProperties()) {
+            if (property.getName().equals("ID")) {
+                property.setValue(uniqueId);
+                idProperty = property;
+            }
+        }
+
+        assertTrue(idProperty.getValue() == uniqueId);
+	}
+
 	@Test
 	public void setNameSendEvent() throws Exception {
 

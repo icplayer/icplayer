@@ -14,7 +14,7 @@ import com.lorepo.icplayer.client.module.api.INameValidator;
 public class ModuleList extends ArrayList<IModuleModel> {
 
 	private List<IModuleListListener>	listeners = new ArrayList<IModuleListListener>();
-	
+	private INameValidator groupIdValidator;
 	
 	public void addListener(IModuleListListener	l){
 		listeners.add(l);
@@ -95,10 +95,18 @@ public class ModuleList extends ArrayList<IModuleModel> {
 
 		module.addNameValidator(new INameValidator() {
 			public boolean canChangeName(String newName) {
-				return (!newName.isEmpty() && getModuleById(newName) == null);
+				return (
+                    !newName.isEmpty()
+                    && getModuleById(newName) == null
+                    && groupIdValidator.canChangeName(newName)
+                );
 			}
 		});
 	}
+
+    public void addGroupIdValidator(INameValidator nameValidator) {
+        this.groupIdValidator = nameValidator;
+    }
 	
 	public void bringToFrontModule(IModuleModel module) {
 

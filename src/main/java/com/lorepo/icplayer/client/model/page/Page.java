@@ -27,6 +27,7 @@ import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
@@ -118,6 +119,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWeightScoreValue();
 		addPropertyRandomizeInPrint();
 		addPropertyIsSplitInPrintBlocked();
+        addGroupIdValidatorToModules();
 	}
 
 	/**
@@ -693,6 +695,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
 	}
+
+    private void addGroupIdValidatorToModules() {
+        this.modules.addGroupIdValidator(new INameValidator() {
+			public boolean canChangeName(String newName) {
+				return (getGroupById(newName) == null);
+			}
+		});
+    }
 	
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		return this.semiResponsiveStyles;
