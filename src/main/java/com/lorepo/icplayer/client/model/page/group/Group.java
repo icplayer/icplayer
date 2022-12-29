@@ -132,9 +132,9 @@ public class Group extends GroupPropertyProvider {
 			}
 		}
 
-        if (page.getModules().getModuleById(newId) != null) {
-            return false;
-        }
+		if (page.getModules().getModuleById(newId) != null) {
+			return false;
+		}
 
 		return true;
 	}
