@@ -96,17 +96,17 @@ public class ModuleList extends ArrayList<IModuleModel> {
 		module.addNameValidator(new INameValidator() {
 			public boolean canChangeName(String newName) {
 				return (
-                    !newName.isEmpty()
-                    && getModuleById(newName) == null
-                    && groupIdValidator.canChangeName(newName)
-                );
+					!newName.isEmpty()
+					&& getModuleById(newName) == null
+					&& groupIdValidator.canChangeName(newName)
+				);
 			}
 		});
 	}
 
-    public void addGroupIdValidator(INameValidator nameValidator) {
-        this.groupIdValidator = nameValidator;
-    }
+	public void addGroupIdValidator(INameValidator nameValidator) {
+		this.groupIdValidator = nameValidator;
+	}
 	
 	public void bringToFrontModule(IModuleModel module) {
 
