@@ -119,7 +119,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWeightScoreValue();
 		addPropertyRandomizeInPrint();
 		addPropertyIsSplitInPrintBlocked();
-        addGroupIdValidatorToModules();
+		addGroupIdValidatorToModules();
 	}
 
 	/**
@@ -696,13 +696,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		styleListener = listener;
 	}
 
-    private void addGroupIdValidatorToModules() {
-        this.modules.addGroupIdValidator(new INameValidator() {
+	private void addGroupIdValidatorToModules() {
+		this.modules.addGroupIdValidator(new INameValidator() {
 			public boolean canChangeName(String newName) {
 				return (getGroupById(newName) == null);
 			}
 		});
-    }
+	}
 	
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		return this.semiResponsiveStyles;
