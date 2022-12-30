@@ -1445,7 +1445,8 @@ function AddonEditableWindow_create() {
         const rawHTMLContent = presenter.configuration.editor.getContent({format : 'raw'});
         const regex = /<img .*?alt="(.*?)".*?>/gm;
         const contentWithoutImages = rawHTMLContent.replace(regex, `<p>${presenter.speechTexts.image} $1</p>`);
-        return window.TTSUtils.getTextVoiceArrayFromElement($(contentWithoutImages), presenter.configuration.model.langAttribute);
+        const sanitizedContent = window.xssUtils.sanitize(contentWithoutImages);
+        return window.TTSUtils.getTextVoiceArrayFromElement($(sanitizedContent), presenter.configuration.model.langAttribute);
     };
 
     presenter.getTTSKeyBasedOnColor = function EditableWindow_getTTSKeyBasedOnColor (element) {
