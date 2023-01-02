@@ -40,7 +40,7 @@ function AddonColoring_create(){
         selected: "Selected",
         correct: "Correct",
         incorrect: "Incorrect",
-        defaultColorName: "Teal"
+        emptyColorName: "Undefined"
     };
 
     presenter.errorCodes = {
@@ -532,20 +532,20 @@ function AddonColoring_create(){
     };
 
     presenter.validateColors = function (colorsModel) {
-        return colorsModel.map(colorObject => {
-            const colorValidation = colorObject.colorRGBA?.length
-                ? presenter.validateColor(colorObject.colorRGBA)
-                : getCorrectObject(presenter.defaultColorRGBA);
-            const speechText = colorObject.speechText?.length
-                ? colorObject.speechText
-                : presenter.DEFAULT_TTS_PHRASES.defaultColorName;
-            return colorValidation.isError
-                ? colorValidation
-                : {
-                    speechText,
-                    colorRGBA: colorValidation.value
-                }
-        });
+        return colorsModel
+            .filter(colorObject => colorObject?.colorRGBA.length)
+            .map(colorObject => {
+                const colorValidation = presenter.validateColor(colorObject.colorRGBA)
+                const speechText = colorObject.speechText?.length
+                    ? colorObject.speechText
+                    : presenter.DEFAULT_TTS_PHRASES.emptyColorName;
+                return colorValidation.isError
+                    ? colorValidation
+                    : {
+                        speechText,
+                        colorRGBA: colorValidation.value
+                    }
+            });
     }
 
     function runLogic(view, model, isPreview) {
@@ -1582,11 +1582,13 @@ function AddonColoring_create(){
 
 
     presenter.buildKeyboardController = function AddonColoring_buildKeyboardController () {
+        if (!presenter.configuration.colors?.length) return;
         const elements = presenter.getElementsForKeyboardNavigation();
         presenter.keyboardControllerObject = new ColoringKeyboardController(elements, 1);
     };
 
     presenter.keyboardController = function AddonColoring_keyboardController (keycode, isShiftKeyDown, event) {
+        if (!presenter.keyboardControllerObject) return;
         presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
@@ -1670,7 +1672,7 @@ function AddonColoring_create(){
             this.switchElementsToAreas();
         } else {
             this.switchElementsToColors();
-            presenter.speak(presenter.speechTexts.selected);
+            this.readCurrentElement();
         }
     };
 
