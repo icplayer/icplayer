@@ -820,15 +820,21 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		String name;
 
 		for(int i = 1; i < 100; i++) {
-
 			name = baseName + i;
-			if (modules.getModuleById(name) == null) {
+            if (isIDUnique(name)) {
 				return name;
 			}
 		}
 
 		return baseName + "_new";
 	}
+
+    private boolean isIDUnique(String id) {
+        return (
+            modules.getModuleById(id) == null 
+            && getGroupById(id) == null
+        );
+    }
 
 	public void outstreachHeight(int position, int amount) {
 

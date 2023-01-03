@@ -140,6 +140,17 @@ public class PageTestCase {
 		assertTrue(idProperty.getValue() == uniqueId);
 	}
 
+    @Test
+	public void isIDUnique() throws Exception {
+		Page page = new Page("AddonPage", "");
+		loadPage("testdata/modulesAndGroups.xml", page);
+
+		String expectedID = "Group5";
+        String createdAddonID = page.createUniquemoduleId("Group");
+		
+        assertTrue(createdAddonID.equals(expectedID));
+	}
+
 	@Test
 	public void setNameSendEvent() throws Exception {
 
