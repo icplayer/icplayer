@@ -9,6 +9,8 @@ function AddonGap_Binder_create() {
     // addon's modes
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
+    presenter.GSACounter = 0;
 
     const SUPPORTED_MODULES_TYPES = ["Text", "table"];
 
@@ -58,6 +60,22 @@ function AddonGap_Binder_create() {
         presenter.$view = $(view);
         presenter.readModelItems(model.Items);
     };
+
+    presenter.getActivitiesCount = function () {
+        return presenter.getGapsNumber();
+    }
+
+    presenter.getGapsNumber = function () {
+        let gapsCounter = 0;
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+
+            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
+                gapsCounter++;
+            }
+        });
+        return gapsCounter;
+    }
 
     presenter.readModelItems = function (items) {
         setModulesIDs(items);
@@ -177,25 +195,35 @@ function AddonGap_Binder_create() {
     };
 
     presenter.setEventBus = function(eventBus) {
+        const eventsName = ['ValueChanged', 'PageLoaded', 'ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
         presenter.eventBus = eventBus;
 
-        presenter.eventBus.addEventListener('ValueChanged', this);
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-        presenter.eventBus.addEventListener('PageLoaded', this);
+        eventsName.forEach(eventName => {
+            presenter.eventBus.addEventListener(eventName, this);
+        });
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
+        switch (eventName) {
+            case 'ShowAnswers':
+                presenter.showAnswers();
+                break;
 
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
-        }
+            case 'HideAnswers':
+                presenter.hideAnswers();
+                break;
 
-        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive) {
-            handleValueChangedEvent(eventData);
+            case 'ValueChanged':
+                if (!presenter.isShowAnswersActive) handleValueChangedEvent(eventData);
+                break;
+
+            case 'GradualShowAnswers':
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case 'GradualHideAnswers':
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
@@ -259,6 +287,45 @@ function AddonGap_Binder_create() {
                 module.enableGap(gapIndex + 1);
             }
         });
+    }
+
+    presenter.gradualShowAnswers = function (eventData) {
+        if (eventData.moduleID !== presenter.addonID) return;
+        if (presenter.isErrorMode) handleWorkMode();
+        if (!presenter.isGradualShowAnswersActive) presenter.isGradualShowAnswersActive = true;
+
+        presenter.modulesIDs.forEach(moduleID => {
+            const moduleGaps = findModuleGaps(moduleID);
+            const module = getModule(moduleID);
+
+            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
+
+                if (gapIndex === presenter.GSACounter) {
+                    const gap = moduleGaps[gapIndex];
+                    saveNextGapValue(gap);
+                    loadCorrectAnswer(gap, gapIndex);
+                }
+
+                module.disableGap(gapIndex + 1);
+            }
+        });
+        presenter.updateGSACounter(eventData);
+    }
+
+    presenter.gradualHideAnswers = function () {
+        if (!presenter.isGradualShowAnswersActive) return;
+
+        presenter.isGradualShowAnswersActive = false;
+        presenter.GSACounter = 0;
+        handleHideAnswers();
+    }
+
+    presenter.updateGSACounter = function (eventData) {
+        let itemIndex = parseInt(eventData.item, 10)
+        while(itemIndex < presenter.GSAcounter) {
+            itemIndex++;
+        }
+        presenter.GSACounter = itemIndex + 1;
     }
 
     function saveNextGapValue(gap) {
@@ -330,7 +397,9 @@ function AddonGap_Binder_create() {
     presenter.reset = function () {
         resetScoreData();
         presenter.hideAnswers();
+        presenter.gradualHideAnswers();
         presenter.setWorkMode();
+        presenter.GSACounter = 0;
     };
 
     presenter.setWorkMode = function () {

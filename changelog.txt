@@ -1,3 +1,4 @@
+2023-01-04 Added Gradual Show Answers to Gap Binder
 2022-12-19 Added documentation to Adaptive Next and Lesson Score Counter addons
 2022-12-13 Added hover class to TextAudio to help with styling
 2022-12-12 Fixed the "CorrectWord" event not always firing in crossword
