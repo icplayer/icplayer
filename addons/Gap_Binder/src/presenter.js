@@ -304,9 +304,8 @@ function AddonGap_Binder_create() {
                     const gap = moduleGaps[gapIndex];
                     saveNextGapValue(gap);
                     loadCorrectAnswer(gap, gapIndex);
+                    module.disableGap(gapIndex + 1);
                 }
-
-                module.disableGap(gapIndex + 1);
             }
         });
         presenter.updateGSACounter(eventData);
@@ -354,12 +353,21 @@ function AddonGap_Binder_create() {
             return;
         }
 
+        handleShownAnswers();
+
+        handleShowErrorsMode();
+    };
+
+    function handleShownAnswers() {
         if (presenter.isShowAnswersActive) {
             handleHideAnswers();
         }
 
-        handleShowErrorsMode();
-    };
+        if (presenter.isGradualShowAnswersActive) {
+            presenter.isGradualShowAnswersActive = false;
+            handleHideAnswers();
+        }
+    }
 
     function handleShowErrorsMode() {
         presenter.isErrorMode = true;
@@ -407,9 +415,7 @@ function AddonGap_Binder_create() {
             return;
         }
 
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
+        handleShownAnswers();
 
         handleWorkMode();
     };
@@ -427,9 +433,7 @@ function AddonGap_Binder_create() {
     }
 
     presenter.getErrorCount = function () {
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
+        handleShownAnswers();
 
         checkCorrectnessOfAnswers();
         if (scoreData.correctElementsNumber === scoreData.maxCorrectElementsNumber) {
@@ -448,9 +452,8 @@ function AddonGap_Binder_create() {
     }
 
     presenter.getScore = function () {
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
+        handleShownAnswers();
+
         checkCorrectnessOfAnswers();
         return scoreData.correctElementsNumber;
     };
@@ -525,9 +528,8 @@ function AddonGap_Binder_create() {
         const trueModuleIndex = moduleIndex - 1;
         const trueGapIndex = gapIndex - 1;
 
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
+        handleShownAnswers();
+
         checkCorrectnessOfAnswers();
         if (presenter.modulesIDs[trueModuleIndex]) {
             const moduleGaps = findModuleGaps(presenter.modulesIDs[trueModuleIndex]);
@@ -542,9 +544,7 @@ function AddonGap_Binder_create() {
     };
 
     presenter.isAttempted = function () {
-        if (presenter.isShowAnswersActive) {
-            handleHideAnswers();
-        }
+        handleShownAnswers();
 
         return countFilledInItems() > 0;
     };
@@ -677,9 +677,7 @@ function AddonGap_Binder_create() {
     };
 
     presenter.getState = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        handleShownAnswers();
     };
 
     return presenter;
