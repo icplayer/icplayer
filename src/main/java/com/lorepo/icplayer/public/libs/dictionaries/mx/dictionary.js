@@ -1609,6 +1609,7 @@ var ice_dictionary_mx = {
 	"Hierarchical_Lesson_Report_property_score_speech_text": "Score",
 	"Hierarchical_Lesson_Report_property_out_of_speech_text": "Out of",
 	"Hierarchical_Lesson_Report_property_total_speech_text": "Total",
+	"Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean": "Use weighted arithmetic mean",
 	"ConnectingDots_info": "Permite hacer un rompecabezas que contiene una secuencia de puntos numerados que al estar seleccionados forman una línea que conecta los puntos. El addon se puede utilizar con éxito como una actividad interactiva o una simulación. Hay la posibilidad de poner una imagen de fondo.",
     "Hierarchical_Lesson_Report_property_enable_pages": "Mostrar páginas",
 	"ConnectingDots_name": "Conectando puntos",
