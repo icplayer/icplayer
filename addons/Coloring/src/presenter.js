@@ -953,7 +953,7 @@ function AddonColoring_create(){
         presenter.configuration.isErase = false;
     };
 
-    presenter.setShowErrorsMode = function(){
+    presenter.activateErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -973,7 +973,25 @@ function AddonColoring_create(){
                 }
             });
         }
+
         presenter.isShowErrorsModeActive = true;
+    }
+
+    function waitForElement(callback, timeout = 5000) {
+        const startTime = Date.now();
+
+        let interval = setInterval(() => {
+            if (!$.isEmptyObject(presenter.canvas)) {
+                clearInterval(interval);
+                callback();
+            } else if (Date.now() - startTime > timeout) {
+                clearInterval(interval);
+            }
+        }, 100);
+    }
+
+    presenter.setShowErrorsMode = function(){
+        waitForElement(presenter.activateErrorsMode)
     };
 
     function displayIcon(area, isWrong) {
