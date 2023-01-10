@@ -653,6 +653,46 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         assertEquals(expectedHTML, this.printableHTML);
         assertTrue(isResetPrintableStateMode(this.presenter));
     },
+
+    'test getPrintableHTML when weighted pages and disable page in nested chapters': function () {
+        updateGCIStubForTestWithWeightedPagesInNestedChapters(this.printableController);
+        this.model["isWeightedArithmeticMean"] = "True";
+        this.model["scoredisabled"] = "5";
+
+        const rows = [
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "30%", 2, 7, 3, 1, 4),
+            generateExpectedChapterRow(1, 0, "Chapter 1.1", 1, "30%", 2, 7, 3, 1, 4),
+            generateExpectedPageRow(2,  1, "Page 1.1.1", false,  2, "0%", 2, 3, 2, 0, 2),
+            generateExpectedPageRow(3,  1, "Page 1.1.2", true, 2, "50%", 0, 4, 1, 1, 2),
+            generateExpectedDisabledPageRow(4,  1, "Page 1.1.3", false,  2),
+        ]
+        const expectedHTML = generateExpectedHTML(rows, "30%", 2, 7, 3, 1, 4);
+
+        this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
+
+        assertEquals(expectedHTML, this.printableHTML);
+        assertTrue(isResetPrintableStateMode(this.presenter));
+    },
+
+    'test getPrintableHTML when weighted pages and disable chapter in nested chapters': function () {
+        updateGCIStubForTestWithWeightedPagesInNestedChapters(this.printableController);
+        this.model["isWeightedArithmeticMean"] = "True";
+        this.model["scoredisabled"] = "2";
+
+        const rows = [
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "21%", 5, 12, 6, 1, 7),
+            generateExpectedDisabledChapterRow(1, 0, "Chapter 1.1", true, 1),
+            generateExpectedPageRow(2,  1, "Page 1.1.1", false,  2, "0%", 2, 3, 2, 0, 2),
+            generateExpectedPageRow(3,  1, "Page 1.1.2", true, 2, "50%", 0, 4, 1, 1, 2),
+            generateExpectedPageRow(4,  1, "Page 1.1.3", false,  2, "0%", 3, 5, 3, 0, 3),
+        ]
+        const expectedHTML = generateExpectedHTML(rows, "21%", 5, 12, 6, 1, 7);
+
+        this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
+
+        assertEquals(expectedHTML, this.printableHTML);
+        assertTrue(isResetPrintableStateMode(this.presenter));
+    },
 });
 
 function generateModel() {
@@ -896,6 +936,16 @@ function updateGCIStubForTestWithWeightedPagesAndNotReportablePageInChapter(prin
         generatePageForContentInformation("1", "0", "Page 1.1"),
         generatePageForContentInformation("2", "0", "Page 1.2", false),
         generatePageForContentInformation("3", "0", "Page 1.3"),
+    ]);
+}
+
+function updateGCIStubForTestWithWeightedPagesInNestedChapters(printableController) {
+    printableController.getContentInformation.returns([
+        generateChapterForContentInformation("0", null, "Chapter 1"),
+        generateChapterForContentInformation("1", "0", "Chapter 1.1"),
+        generatePageForContentInformation("2", "1", "Page 1.1.1"),
+        generatePageForContentInformation("3", "1", "Page 1.1.2"),
+        generatePageForContentInformation("4", "1", "Page 1.1.3"),
     ]);
 }
 

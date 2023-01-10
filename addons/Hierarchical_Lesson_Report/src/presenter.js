@@ -808,7 +808,7 @@ function AddonHierarchical_Lesson_Report_create() {
                 pageScore = getScoreByPageIdForScoreCell(nodeRepresentation.getId());
             }
 
-            if (isScoringInPageEnabled(currentNodeAbsoluteIndex)) {
+            if (isScoringInPageEnabled(currentNodeAbsoluteIndex) || nodeRepresentation.isChapter()) {
                 updateChapterScore(chapterScore, pageScore, nodeRepresentation.getId(), nodeRepresentation.isChapter());
             }
         }
