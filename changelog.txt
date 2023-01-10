@@ -1,3 +1,4 @@
+2023-01-10 Fixed incorrect score calculation in chapters when disable score on pages property is used
 2022-12-27 Added functionality to use weighted arithmetic mean in Hierarchical lesson report addon
 2022-12-19 Added documentation to Adaptive Next and Lesson Score Counter addons
 2022-12-13 Added hover class to TextAudio to help with styling
