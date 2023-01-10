@@ -11,6 +11,38 @@
     outline: none;
 }
 
+.coloring-circle-mark {
+    background-color: transparent;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border: 1mm solid lightblue;
+    position : absolute;
+}
+
+.coloring-color-list {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    background-color: white;
+    box-shadow: 0px 0.2px 0px 0.2px grey;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    position : absolute;
+}
+
+.coloring-color-list-element {
+    display: flex;
+    min-width: 80px;
+    padding: 5px;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    background-color: white;
+    box-shadow: 0px 0.2px 0px 0.2px grey;
+}
+
 .coloring-wrapper .coloring-container {
     display: table-cell;
     vertical-align: middle;
