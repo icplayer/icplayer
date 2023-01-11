@@ -1,3 +1,4 @@
+2023-01-11 Fixed bug with running event handler after removing Editable Window addon
 2023-01-09 Fixed player not handling empty getState, getScore, getMaxScore, getErrorsCount methods in addons
 2023-01-09 Expanded support for alternative texts in editable window
 2023-01-09 Added functionality to use weighted arithmetic mean in Hierarchical lesson report addon
