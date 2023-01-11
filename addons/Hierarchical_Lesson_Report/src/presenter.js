@@ -1658,7 +1658,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     NodeRepresentation.prototype.toString = function () {
-        console.log(
+        return (
             `[id: "${this.getId()}", ` +
             `name: "${this.getName()}", ` +
             `type: "${this.type}", ` +
@@ -1666,7 +1666,7 @@ function AddonHierarchical_Lesson_Report_create() {
             `isVisited: ${this.isVisited()}, ` +
             `isChapter: ${this.isChapter()}, ` +
             `size: ${this.size()}]`
-        )
+        );
     }
 
     function createDeepNodeRepresentationOfContentInformation(contentInformation, nodeRepresentation) {
