@@ -17,7 +17,13 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private List<IGradualShowAnswersPresenter> presenters;
     private Map<String, Boolean> presenterDisabledState;
     private Map<String, Integer> presenterActivitiesCountUsed;
-
+	public static final List<String> modules_ignored_by_GSA = Arrays.asList(
+	    "TextAudio",
+        "Media_Recorder",
+        "Single_State_Button",
+        "Double_State_Button",
+        "Gradual_Show_Answer"
+    );
 
     public GradualShowAnswersService(IPageController pageController) {
         this.pageController = pageController;
@@ -107,7 +113,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private void disablePresenters() {
         for (IPresenter presenter : this.pageController.getPresenters()) {
             // remember the state of presenters, so it can be restored when the mode is switched off
-            if (presenter.getModel().getModuleTypeName() == "Gradual_Show_Answer")
+            if (modules_ignored_by_GSA.contains(presenter.getModel().getModuleTypeName())) 
                 continue;
             presenterDisabledState.put(presenter.getModel().getId(), presenter.isDisabled());
 
