@@ -1248,7 +1248,7 @@ function AddonEditableWindow_create() {
      */
     presenter.selectAsActive = function (className) {
         const view = presenter.configuration.view;
-		const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
+        const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
 
         view.classList.add(className);
         if (className === presenter.cssClasses.selectedModule.getName()) {
@@ -1260,7 +1260,7 @@ function AddonEditableWindow_create() {
         if (className === presenter.cssClasses.activeModule.getName()) {
             windowWrapper.classList.add(presenter.cssClasses.activeModuleFake.getName());
         }
-	}
+    }
 
     /**
      * Method to deselect or deactivate module.
@@ -1270,7 +1270,7 @@ function AddonEditableWindow_create() {
      *
      * @return undefined
      */
-	presenter.deselectAsActive = function (className) {
+    presenter.deselectAsActive = function (className) {
         const view = presenter.configuration.view;
         const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
 
@@ -1284,7 +1284,7 @@ function AddonEditableWindow_create() {
         if (className === presenter.cssClasses.activeModule.getName()) {
             windowWrapper.classList.remove(presenter.cssClasses.activeModuleFake.getName());
         }
-	}
+    }
 
     presenter.getElementsForKeyboardNavigation = function EditableWindow_getElementsForKeyboardNavigation() {
         let fullscreenElement = $(presenter.configuration.view).find(".addon-editable-full-screen-button");
