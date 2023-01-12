@@ -69,10 +69,7 @@ function AddonGap_Binder_create() {
         let gapsCounter = 0;
         presenter.modulesIDs.forEach(moduleID => {
             const moduleGaps = findModuleGaps(moduleID);
-
-            for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
-                gapsCounter++;
-            }
+            gapsCounter += moduleGaps.length ? moduleGaps.length : 0;
         });
         return gapsCounter;
     }
