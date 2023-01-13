@@ -230,6 +230,32 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
         var validationResult = this.presenter.validateModel(this.model);
 
         assertTrue(validationResult.isValid);
-    }
+    },
 
+    'test is weighted arithmetic mean empty': function () {
+        this.model["isWeightedArithmeticMean"] = "";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(false, validationResult.isWeightedArithmeticMean);
+    },
+
+    'test is weighted arithmetic mean checked': function () {
+        this.model["isWeightedArithmeticMean"] = "True";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(true, validationResult.isWeightedArithmeticMean);
+    },
+
+    'test is weighted arithmetic mean not checked': function () {
+        this.model["isWeightedArithmeticMean"] = "False";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(false, validationResult.isWeightedArithmeticMean);
+    },
 });

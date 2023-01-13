@@ -112,6 +112,7 @@ public class PageScore {
 		data.put("checkCount", Integer.toString(checkCount));
 		data.put("errorCount", Integer.toString(errorCount));
 		data.put("mistakeCount", Integer.toString(mistakeCount));
+		data.put("weight", Integer.toString(weight));
 		return JSONUtils.toJSONString(data);
 	}
 
