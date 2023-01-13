@@ -1,4 +1,4 @@
-TestCase("Element Type Tests", {
+TestCase("[Writing Calculations] Element Type Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
     },

@@ -1,3 +1,4 @@
+2023-01-13 Added support for more than one digit inside the gap in Writing calculation addon
 2023-01-12 Fixed inability to drag a Source List item from Text when formatting is used
 2023-01-11 Added Gradual Show Answers to Gap Binder
 2023-01-11 Fixed bug with running event handler after removing Editable Window addon
