@@ -635,6 +635,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return false;
 	}-*/;
 
+	public boolean isEnabledInGSAMode() {
+		return this.isEnabledInGSAMode(this.getAsJavaScript());
+	}
+
+	public native boolean isEnabledInGSAMode (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isEnabledInGSAMode')) {
+			return obj.isEnabledInGSAMode();
+		};
+		return false;
+	}-*/;
+
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
