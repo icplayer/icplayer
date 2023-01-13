@@ -256,6 +256,10 @@ function AddonSingle_State_Button_create() {
         presenter.configuration.isVisible = false;
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return presenter.configuration.enableInShowAnswersMode;
+    }
+
     presenter.reset = function() {
         presenter.setWorkMode();
 
