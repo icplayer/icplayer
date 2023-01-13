@@ -466,20 +466,44 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	@Override
 	public void selectAsActive(String className) {
+		boolean wasExecuted = selectAsActiveInPresenter(jsObject, className);
+		if (wasExecuted) {
+		    return;
+		}
 		this.view.getElement().addClassName(className);
-		
+
 		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().focus();
 		}
 	}
 
+	private native boolean selectAsActiveInPresenter( JavaScriptObject presenter, String className ) /*-{
+		if (presenter !== null && presenter.selectAsActive !== undefined){
+			presenter.selectAsActive(className);
+			return true;
+		}
+		return false;
+	}-*/;
+
 	@Override
 	public void deselectAsActive(String className) {
+		boolean wasExecuted = deselectAsActiveInPresenter(jsObject, className);
+		if (wasExecuted) {
+		    return;
+		}
 		this.view.getElement().removeClassName(className);
 		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().blur();
 		}
 	}
+
+	private native boolean deselectAsActiveInPresenter( JavaScriptObject presenter, String className ) /*-{
+		if (presenter !== null && presenter.deselectAsActive !== undefined){
+			presenter.deselectAsActive(className);
+			return true;
+		}
+		return false;
+	}-*/;
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
@@ -607,6 +631,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{
 		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isDeactivationBlocked')) {
 			return obj.isDeactivationBlocked();
+		};
+		return false;
+	}-*/;
+
+	public boolean isEnabledInGSAMode() {
+		return this.isEnabledInGSAMode(this.getAsJavaScript());
+	}
+
+	public native boolean isEnabledInGSAMode (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isEnabledInGSAMode')) {
+			return obj.isEnabledInGSAMode();
 		};
 		return false;
 	}-*/;

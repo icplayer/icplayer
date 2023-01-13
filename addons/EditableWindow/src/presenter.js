@@ -990,12 +990,12 @@ function AddonEditableWindow_create() {
 
     presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
         const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
-        if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
+        if ($element.hasClass(presenter.cssClasses.selectedModule.getName()) || $element.hasClass(presenter.cssClasses.activeModule.getName())) {
             presenter.dispatchEscapeKeydownEvent();
             presenter.dispatchShiftTabKeydownEvent();
-            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-            $(realElement[0]).removeClass("selected_module_fake");
-            $(realElement[0]).removeClass("active_module_fake");
+            const realElement = $(presenter.configuration.view).find(presenter.cssClasses.wrapper.getSelector());
+            $(realElement[0]).removeClass(presenter.cssClasses.selectedModuleFake.getName());
+            $(realElement[0]).removeClass(presenter.cssClasses.activeModuleFake.getName());
         }
     };
 
@@ -1212,7 +1212,11 @@ function AddonEditableWindow_create() {
         openFullScreenButton: new presenter.CssClass("addon-editable-open-full-screen-button"),
         closeFullScreenButton: new presenter.CssClass("addon-editable-close-full-screen-button"),
         wrapper: new presenter.CssClass("addon-editable-window-wrapper"),
-        buttonMenu: new presenter.CssClass("addon-editable-buttons-menu")
+        buttonMenu: new presenter.CssClass("addon-editable-buttons-menu"),
+        selectedModule: new presenter.CssClass("ic_selected_module"),
+        activeModule: new presenter.CssClass("ic_active_module"),
+        selectedModuleFake: new presenter.CssClass("selected_module_fake"),
+        activeModuleFake: new presenter.CssClass("active_module_fake"),
     };
 
     function EditableWindowKeyboardController (elements, columnsCount) {
@@ -1232,27 +1236,55 @@ function AddonEditableWindow_create() {
         var oldStyles = $element.attr("style") || "";
         var newStyles = oldStyles + " outline: none !important; box-shadow: none !important";
         $element.attr('style', newStyles);
-
-        document.addEventListener('keydown', keydownCallback);
-
-        function keydownCallback(e) {
-            const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-            const $element = $(element.context);
-            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-
-            if ($element.hasClass("ic_selected_module")) {
-                $(realElement[0]).addClass("selected_module_fake");
-            } else {
-                $(realElement[0]).removeClass("selected_module_fake");
-            }
-
-            if($element.hasClass("ic_active_module")) {
-                $(realElement[0]).addClass("active_module_fake");
-            } else {
-                $(realElement[0]).removeClass("active_module_fake");
-            }
-        };
     };
+
+    /**
+     * Method to select or activate module.
+     * This method is executed by class KeyboardNavigationController.
+     *
+     * @param className CSS class name to add to the view
+     *
+     * @return undefined
+     */
+    presenter.selectAsActive = function (className) {
+        const view = presenter.configuration.view;
+        const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
+
+        view.classList.add(className);
+        if (className === presenter.cssClasses.selectedModule.getName()) {
+            windowWrapper.classList.add(presenter.cssClasses.selectedModuleFake.getName());
+            if (!presenter.isWCAGOn) {
+                windowWrapper.focus();
+            }
+        }
+        if (className === presenter.cssClasses.activeModule.getName()) {
+            windowWrapper.classList.add(presenter.cssClasses.activeModuleFake.getName());
+        }
+    }
+
+    /**
+     * Method to deselect or deactivate module.
+     * This method is executed by class KeyboardNavigationController.
+     *
+     * @param className CSS class name to remove from the view
+     *
+     * @return undefined
+     */
+    presenter.deselectAsActive = function (className) {
+        const view = presenter.configuration.view;
+        const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
+
+        view.classList.remove(className);
+        if (className === presenter.cssClasses.selectedModule.getName()) {
+            windowWrapper.classList.remove(presenter.cssClasses.selectedModuleFake.getName());
+            if (!presenter.isWCAGOn) {
+                windowWrapper.blur();
+            }
+        }
+        if (className === presenter.cssClasses.activeModule.getName()) {
+            windowWrapper.classList.remove(presenter.cssClasses.activeModuleFake.getName());
+        }
+    }
 
     presenter.getElementsForKeyboardNavigation = function EditableWindow_getElementsForKeyboardNavigation() {
         let fullscreenElement = $(presenter.configuration.view).find(".addon-editable-full-screen-button");

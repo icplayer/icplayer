@@ -21,6 +21,42 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         this.presenter.configuration.editor.setContent(content);
     },
 
+    imitateSelectingByKeyboardNavigation: function () {
+        this.presenter.selectAsActive("ic_selected_module");
+    },
+
+    imitateActivationByKeyboardNavigation: function () {
+        this.presenter.selectAsActive("ic_active_module");
+    },
+
+    imitateDeselectingByKeyboardNavigation: function () {
+        this.presenter.deselectAsActive("ic_selected_module");
+    },
+
+    imitateDeactivationByKeyboardNavigation: function () {
+        this.presenter.deselectAsActive("ic_active_module");
+    },
+
+    validateIsModuleSelected: function ($view, $windowWrapper) {
+        assertTrue($view.hasClass("ic_selected_module"));
+        assertTrue($windowWrapper.hasClass("selected_module_fake"));
+    },
+
+    validateIsModuleDeselected: function ($view, $windowWrapper) {
+        assertFalse($view.hasClass("ic_selected_module"));
+        assertFalse($windowWrapper.hasClass("selected_module_fake"));
+    },
+
+    validateIsModuleActivated: function ($view, $windowWrapper) {
+        assertTrue($view.hasClass("ic_active_module"));
+        assertTrue($windowWrapper.hasClass("active_module_fake"));
+    },
+
+    validateIsModuleDeactivated: function ($view, $windowWrapper) {
+        assertFalse($view.hasClass("ic_active_module"));
+        assertFalse($windowWrapper.hasClass("active_module_fake"));
+    },
+
     "test given editable window when setUp then wrapper has outline and box-shadow equals to none important": function () {
         const element = $($(this.presenter.configuration.view).find(".addon_EditableWindow").context);
         const styles = element.attr("style").split("; ");
@@ -32,62 +68,48 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         assertEquals(boxShadow, expectedValue);
     },
 
-    "test given not selected module when trigger keydown event then no class added to wrapper": function () {
-      const event = new Event('keydown');
-      document.dispatchEvent(event);
+    "test given deselected module when selecting by keyboard navigation then class selected_module_fake added to wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
 
-      const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
+        this.imitateSelectingByKeyboardNavigation();
 
-      assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-      assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
-    "test given selected module when trigger keydown event then class selected_module_fake added to wrapper": function () {
-        const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-        const $element = $(element.context);
-        $element.addClass("ic_selected_module");
+    "test given selected and deactivated module when activating by keyboard navigation then class active_module_fake added to wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateActivationByKeyboardNavigation();
 
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        assertTrue($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleActivated($view, $windowWrapper);
     },
 
-    "test given deselected module and wrapper with fake class when trigger keydown event then class selected_module_fake removed from wrapper": function () {
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        $(realElement[0]).addClass("selected_module_fake")
+    "test given selected and active module when deactivating by keyboard navigation then class active_module_fake removed from wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
+        this.imitateActivationByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateDeactivationByKeyboardNavigation();
 
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
-    "test given active module when trigger keydown event then class active_module_fake added to wrapper": function () {
-        const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-        const $element = $(element.context);
-        $element.addClass("ic_active_module");
+    "test given selected and deactivated module when deselecting by keyboard navigation then class selected_module_fake removed from wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateDeselectingByKeyboardNavigation();
 
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertTrue($(realElement[0]).hasClass("active_module_fake"));
-    },
-
-    "test given deactivated module and wrapper with fake class when trigger keydown event then class active_module_fake removed from wrapper": function () {
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        $(realElement[0]).addClass("active_module_fake")
-
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
-
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleDeselected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
     "test given basic view with tinymce when getElementsForKeyboardNavigation then return X elements": function () {
