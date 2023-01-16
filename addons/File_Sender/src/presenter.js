@@ -116,7 +116,6 @@ function AddonFile_Sender_create() {
     presenter.loadContext = function(iterationsLeft) {
         //return true if context was loaded and false if it was not
         var context = presenter.playerController.getContextMetadata();
-        console.log(context);
         if (context != null) {
             if ("teachers" in context) {
                 presenter.teachers = context["teachers"];
@@ -128,7 +127,6 @@ function AddonFile_Sender_create() {
                 presenter.fileDownloadEndpointUrl = context["fileDownloadEndpointUrl"];
             }
             if (context["fileSenderPickRecipientAvailable"] == false) {
-                console.log("wysylamy do wszystkich");
                 presenter.fileSenderPickRecipientAvailable = false;
             }
             if (presenter.fileEndpointUrl.length > 0
@@ -170,7 +168,6 @@ function AddonFile_Sender_create() {
     }
 
     presenter.fireSendFileEvent = function(fileID, targetID) {
-        console.log("wyslano do " + targetID);
         if (presenter.playerController && !presenter.configuration.disableSendButton) {
             var fileType = LessonSendFileType.FILE; //FILE
             if (presenter.configuration.sourceType == SOURCE_TYPES.PARAGRAPH) {
@@ -302,7 +299,6 @@ function AddonFile_Sender_create() {
     }
 
     presenter.setSentFile = function(fileName, fileId) {
-        console.log("ustawiono id pliku na: " + fileName + " " + fileId);
         presenter.sentFileName = fileName;
         presenter.sentFileId = fileId;
         var fileUrl = presenter.fileDownloadEndpointUrl + fileId;
