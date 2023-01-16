@@ -1,4 +1,4 @@
-TestCase("[Hierarchical Lesson Report] Model upgrading", {
+TestCase("[Hierarchical Lesson Report] Upgrade model - alternativePageTitles", {
     setUp: function () {
         this.presenter = AddonHierarchical_Lesson_Report_create();
 
@@ -48,4 +48,46 @@ TestCase("[Hierarchical Lesson Report] Model upgrading", {
 
         assertEquals(expectedValue, this.model['alternativePageTitles']);
     }
+});
+
+TestCase("[Hierarchical Lesson Report] Upgrade model - isWeightedArithmeticMean", {
+    setUp: function () {
+        this.presenter = AddonHierarchical_Lesson_Report_create();
+
+        this.model = {
+            "ID" : "Hierarchical_Lesson_Report1",
+            "Is Visible": "True",
+            checks: "True",
+            checksLabel: "",
+            errors: "True",
+            errorsLabel: "",
+            expandDepth: "",
+            mistakes: "True",
+            mistakesLabel: "",
+            results: "True",
+            resultsLabel: "",
+            titleLabel: "",
+            total: "True",
+            totalLabel: "",
+            classes: "",
+            showpagescore: "True",
+            showmaxscorefield: "True",
+            scoredisabled: "1;2"
+        };
+    },
+
+    "test given model without set isWeightedArithmeticMean when upgradeModel is called then isWeightedArithmeticMean is added with default value": function () {
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["isWeightedArithmeticMean"]);
+        assertEquals("False", upgradedModel["isWeightedArithmeticMean"]);
+    },
+
+    "test given model with set isWeightedArithmeticMean when upgradeModel is called then isWeightedArithmeticMean value remains unchanged": function () {
+        this.model["isWeightedArithmeticMean"] = "True";
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["isWeightedArithmeticMean"]);
+        assertEquals("True", upgradedModel["isWeightedArithmeticMean"]);
+    },
 });

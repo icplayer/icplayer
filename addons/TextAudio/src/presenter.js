@@ -1878,6 +1878,10 @@ function AddonTextAudio_create() {
         presenter.hideAddon();
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return true
+    }
+
     presenter.reset = function addonTextAudio_reset () {
         presenter.disabledTime = 0;
         if (presenter.isEnabledByDefault) {

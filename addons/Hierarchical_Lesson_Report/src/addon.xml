@@ -68,5 +68,6 @@
             </property>
         </property>
         <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
+        <property name='isWeightedArithmeticMean' displayName="Use weighted arithmetic mean" nameLabel="Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean" type="boolean" />
     </model>
 </addon>

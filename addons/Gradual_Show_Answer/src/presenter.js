@@ -269,6 +269,10 @@ function AddonGradual_Show_Answer_create() {
         }
     }
 
+    presenter.isEnabledInGSAMode = function () {
+        return true;
+    }
+
     presenter.reset = function () {
         if (presenter.configuration.isDisabled) {
             presenter.disable();

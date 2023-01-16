@@ -3,6 +3,60 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         this.presenter = getConfiguredPresenter();
     },
 
+    validateVoiceObjects: function (expected, result) {
+        assertEquals(expected.length, result.length);
+        expected.forEach((expectedVoiceObject, index) => {
+            const resultedVoiceObject = result[index];
+            assertEquals(expectedVoiceObject.text, resultedVoiceObject.text);
+        })
+    },
+
+    setUpFakeEditor: function (content) {
+        const fakeEditor = {
+            content: "",
+            getContent: function (param) {return this.content;},
+            setContent: function (newContent, param) {this.content = newContent;}
+        };
+        this.presenter.configuration.editor = fakeEditor;
+        this.presenter.configuration.editor.setContent(content);
+    },
+
+    imitateSelectingByKeyboardNavigation: function () {
+        this.presenter.selectAsActive("ic_selected_module");
+    },
+
+    imitateActivationByKeyboardNavigation: function () {
+        this.presenter.selectAsActive("ic_active_module");
+    },
+
+    imitateDeselectingByKeyboardNavigation: function () {
+        this.presenter.deselectAsActive("ic_selected_module");
+    },
+
+    imitateDeactivationByKeyboardNavigation: function () {
+        this.presenter.deselectAsActive("ic_active_module");
+    },
+
+    validateIsModuleSelected: function ($view, $windowWrapper) {
+        assertTrue($view.hasClass("ic_selected_module"));
+        assertTrue($windowWrapper.hasClass("selected_module_fake"));
+    },
+
+    validateIsModuleDeselected: function ($view, $windowWrapper) {
+        assertFalse($view.hasClass("ic_selected_module"));
+        assertFalse($windowWrapper.hasClass("selected_module_fake"));
+    },
+
+    validateIsModuleActivated: function ($view, $windowWrapper) {
+        assertTrue($view.hasClass("ic_active_module"));
+        assertTrue($windowWrapper.hasClass("active_module_fake"));
+    },
+
+    validateIsModuleDeactivated: function ($view, $windowWrapper) {
+        assertFalse($view.hasClass("ic_active_module"));
+        assertFalse($windowWrapper.hasClass("active_module_fake"));
+    },
+
     "test given editable window when setUp then wrapper has outline and box-shadow equals to none important": function () {
         const element = $($(this.presenter.configuration.view).find(".addon_EditableWindow").context);
         const styles = element.attr("style").split("; ");
@@ -14,62 +68,48 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         assertEquals(boxShadow, expectedValue);
     },
 
-    "test given not selected module when trigger keydown event then no class added to wrapper": function () {
-      const event = new Event('keydown');
-      document.dispatchEvent(event);
+    "test given deselected module when selecting by keyboard navigation then class selected_module_fake added to wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
 
-      const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
+        this.imitateSelectingByKeyboardNavigation();
 
-      assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-      assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
-    "test given selected module when trigger keydown event then class selected_module_fake added to wrapper": function () {
-        const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-        const $element = $(element.context);
-        $element.addClass("ic_selected_module");
+    "test given selected and deactivated module when activating by keyboard navigation then class active_module_fake added to wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateActivationByKeyboardNavigation();
 
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        assertTrue($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleActivated($view, $windowWrapper);
     },
 
-    "test given deselected module and wrapper with fake class when trigger keydown event then class selected_module_fake removed from wrapper": function () {
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        $(realElement[0]).addClass("selected_module_fake")
+    "test given selected and active module when deactivating by keyboard navigation then class active_module_fake removed from wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
+        this.imitateActivationByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateDeactivationByKeyboardNavigation();
 
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleSelected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
-    "test given active module when trigger keydown event then class active_module_fake added to wrapper": function () {
-        const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-        const $element = $(element.context);
-        $element.addClass("ic_active_module");
+    "test given selected and deactivated module when deselecting by keyboard navigation then class selected_module_fake removed from wrapper": function () {
+        const $view = $(this.presenter.configuration.view);
+        const $windowWrapper = $($view.find(this.presenter.cssClasses.wrapper.getSelector()));
+        this.imitateSelectingByKeyboardNavigation();
 
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
+        this.imitateDeselectingByKeyboardNavigation();
 
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertTrue($(realElement[0]).hasClass("active_module_fake"));
-    },
-
-    "test given deactivated module and wrapper with fake class when trigger keydown event then class active_module_fake removed from wrapper": function () {
-        const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-        $(realElement[0]).addClass("active_module_fake")
-
-        const event = new Event('keydown');
-        document.dispatchEvent(event);
-
-        assertFalse($(realElement[0]).hasClass("selected_module_fake"));
-        assertFalse($(realElement[0]).hasClass("active_module_fake"));
+        this.validateIsModuleDeselected($view, $windowWrapper);
+        this.validateIsModuleDeactivated($view, $windowWrapper);
     },
 
     "test given basic view with tinymce when getElementsForKeyboardNavigation then return X elements": function () {
@@ -296,20 +336,35 @@ TestCase("[Editable Window] Keyboard Navigation test", {
     },
 
     "test given content with image when getContentToRead then image replaced with alt text": function () {
-        const fakeEditor = {
-            content: "",
-            getContent: function (param) {return this.content;},
-            setContent: function (newContent) {this.content = newContent;}
-        };
-        this.presenter.configuration.editor = fakeEditor;
         this.presenter.speechTexts.image = "Image"
-        const rawContent = `Hello some text with <img src="sample.jpg" alt="Sample image"/> just text`;
-        this.presenter.configuration.editor.setContent(rawContent);
-        const expected = `Hello some text with <p>Image Sample image</p> just text`;
+        const rawContent = '<div>Text before image <img src="sample.jpg" alt="Alt text for image"> Text after image</div>';
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text": "Text before image Image Alt text for image Text after image."}];
 
         const result = this.presenter.getContentToRead();
 
-        assertEquals(expected, result);
+        this.validateVoiceObjects(expected, result);
+    },
+
+    "test given content with texts when getContentToRead then texts replaced with alt texts": function () {
+        const rawContent = `<div><span aria-label="Alt text"><span aria-hidden="true">Text before image </span></span><img src="sample.jpg"><span aria-label="Alt text 2"><span aria-hidden="true"> Text after image</span></span></div>`;
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text":"Alt textAlt text 2"}];
+
+        const result = this.presenter.getContentToRead();
+
+        this.validateVoiceObjects(expected, result);
+    },
+
+    "test given content with texts and image when getContentToRead then texts and image replaced with alt texts": function () {
+        this.presenter.speechTexts.image = "Image"
+        const rawContent = `<div><span aria-label="Alt text"><span aria-hidden="true">Text before image </span></span><img src="sample.jpg" alt="Alt text for image"><span aria-label="Alt text 2"><span aria-hidden="true"> Text after image</span></span></div>`;
+        this.setUpFakeEditor(rawContent);
+        const expected = [{"text":"Alt textImage Alt text for imageAlt text 2"}];
+
+        const result = this.presenter.getContentToRead();
+
+        this.validateVoiceObjects(expected, result);
     },
 
     "test given open full screen element when readCurrentElement then read 'Open fullscreen'": function () {
@@ -405,15 +460,15 @@ TestCase("[Editable Window] Keyboard Navigation test", {
         const readElementSpy = sinon.spy(this.presenter.keyboardControllerObject, "readCurrentElement");
         const speakStub = sinon.stub();
         this.presenter.speak = speakStub;
-        const expectedText = "Hello world";
+        const expectedVoiceObject = [{ lang: "en-EN", text: "Hello world" }];
         const getContentToReadStub = sinon.stub(presenter, "getContentToRead");
-        getContentToReadStub.callsFake(function () {return expectedText;});
+        getContentToReadStub.callsFake(function () {return expectedVoiceObject;});
 
         this.presenter.keyboardControllerObject.readCurrentElement();
 
         sinon.assert.callCount(readElementSpy, 1);
         sinon.assert.callCount(speakStub, 1);
-        sinon.assert.calledWith(speakStub, [{ lang: "en-EN", text: expectedText }]);
+        sinon.assert.calledWith(speakStub, expectedVoiceObject);
     },
 
     "test given reset element when readCurrentElement then read 'reset'": function () {
