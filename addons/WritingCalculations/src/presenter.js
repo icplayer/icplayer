@@ -430,7 +430,7 @@ function AddonWritingCalculations_create() {
         if (element.length < 2) {
             return false;
         }
-        if (element[0] !== '[' && element[element.length - 1] !== ']') {
+        if (element[0] !== '[' || element[element.length - 1] !== ']') {
             return false;
         }
 
@@ -461,7 +461,7 @@ function AddonWritingCalculations_create() {
             return false;
         }
         value = value.toString().trim();
-        const commonTestsResult = isNotANumberCommonTests(value);
+        const commonTestsResult = isNaNCommonTests(value);
         if (commonTestsResult === false) {
             return false;
         }
@@ -478,7 +478,7 @@ function AddonWritingCalculations_create() {
             return false;
         }
         value = value.toString().trim();
-        const commonTestsResult = isNotANumberCommonTests(value);
+        const commonTestsResult = isNaNCommonTests(value);
         if (commonTestsResult === false) {
             return false;
         }
@@ -513,7 +513,7 @@ function AddonWritingCalculations_create() {
         return true;
     };
 
-    function isNotANumberCommonTests (value) {
+    function isNaNCommonTests (value) {
         value = value.trim();
         return !(ModelValidationUtils.isStringEmpty(value)
             || isStartsWithPlus(value)
