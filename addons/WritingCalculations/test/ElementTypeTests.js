@@ -3,18 +3,56 @@ TestCase("[Writing Calculations] Element Type Tests", {
         this.presenter = AddonWritingCalculations_create();
     },
 
-    'test isInteger positive and negative': function() {
+    'test isInteger positive': function() {
         // Given
-        var integerElement = "3";
-        var stringElement = "Karol";
+        const positiveValues = ["0", "5", "9", "-1", "11", "-12", 1, -12, 0];
 
         // When
-        var positiveResult = this.presenter.isInteger(integerElement);
-        var negativeResult = this.presenter.isInteger(stringElement);
+        positiveValues.forEach((value) => {
+            const positiveResult = this.presenter.isInteger(value);
 
-        // Then
-        assertTrue(positiveResult);
-        assertFalse(negativeResult);
+            // Then
+            assertTrue(positiveResult);
+        })
+    },
+
+    'test isInteger negative': function() {
+        // Given
+        const negativeValues = ["1.1", ".", "-0", "N", "e", "-", 11.1]
+
+        // When
+        negativeValues.forEach((value) => {
+            const negativeResult = this.presenter.isInteger(value);
+
+            // Then
+            assertFalse(negativeResult);
+        })
+    },
+
+    'test isIntegerOrFloat positive': function() {
+        // Given
+        const positiveValues = ["-12,6", "0", "5", "9", "-1", "11", "-12", "1.1", "-0.12", "1,2", 11, 11.1];
+
+        // When
+        positiveValues.forEach((value) => {
+            const positiveResult = this.presenter.isIntegerOrFloat(value);
+
+            // Then
+            assertTrue(positiveResult);
+        })
+    },
+
+    'test isIntegerOrFloat negative': function() {
+        // Given
+        const negativeValues = [".", "-0", "00", "N", "e", ".1", "-1.1.1", "00.", "-00,6", "1,1.1,1", "-"];
+
+        // When
+        negativeValues.forEach((value) => {
+            const negativeResult = this.presenter.isIntegerOrFloat(value);
+
+            // Then
+            assertFalse(negativeResult);
+        })
     },
 
     'test isSymbol positive and negative' : function() {

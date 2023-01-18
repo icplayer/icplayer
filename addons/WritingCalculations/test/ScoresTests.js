@@ -2,8 +2,8 @@ TestCase("[Writing Calculations] Scores Methods Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
         this.presenter.correctAnswersList = [
-            {"rowIndex" : 0, "cellIndex" : 0, "value" : 3},
-            {"rowIndex" : 1, "cellIndex" : 1, "value" : 5}
+            {"rowIndex" : 1, "cellIndex" : 1, "value" : "3"},
+            {"rowIndex" : 2, "cellIndex" : 2, "value" : "5"}
         ];
     },
 
