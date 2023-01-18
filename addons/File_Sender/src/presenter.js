@@ -305,8 +305,7 @@ function AddonFile_Sender_create() {
 
     presenter.sendFileToAllTeachers = function() {
         presenter.teachers.forEach(teacher => {
-            teacherid = teacher["id"];
-            presenter.sendFile(teacherid);
+            presenter.sendFile(teacher["id"]);
         });
     }
 
