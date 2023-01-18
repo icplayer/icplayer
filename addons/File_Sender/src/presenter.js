@@ -278,10 +278,7 @@ function AddonFile_Sender_create() {
         if (presenter.configuration.sourceType == SOURCE_TYPES.FILE) {
             if (presenter.sentFileId != -1) {
                 if (!presenter.fileSenderPickRecipientAvailable) {
-                    presenter.teachers.forEach(teacher => {
-                        teacherid = teacher["id"];
-                        presenter.fireSendFileEvent(presenter.sentFileId, teacherid);
-                    });
+                    presenter.sendFileToAllTeachers();
                 } else {
                     presenter.showTargetDialog();
                 }
@@ -289,13 +286,28 @@ function AddonFile_Sender_create() {
         } else if (presenter.configuration.sourceType == SOURCE_TYPES.MEDIA_RECORDER) {
             var module = presenter.getMediaRecorderModule();
             if (module != null && !module.isEmpty()) {
-                presenter.showTargetDialog();
+                if (!presenter.fileSenderPickRecipientAvailable) {
+                    presenter.sendFileToAllTeachers();
+                } else {
+                    presenter.showTargetDialog();
+                }
             }
         } else {
             if (presenter.getParagraphModule() != null) {
-                presenter.showTargetDialog();
+                if (!presenter.fileSenderPickRecipientAvailable) {
+                    presenter.sendFileToAllTeachers();
+                } else {
+                    presenter.showTargetDialog();
+                }
             }
         }
+    }
+
+    presenter.sendFileToAllTeachers = function() {
+        presenter.teachers.forEach(teacher => {
+            teacherid = teacher["id"];
+            presenter.sendFile(teacherid);
+        });
     }
 
     presenter.setSentFile = function(fileName, fileId) {
