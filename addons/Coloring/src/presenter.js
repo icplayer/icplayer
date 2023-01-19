@@ -1754,6 +1754,18 @@ function AddonColoring_create(){
                 presenter.configuration.tolerance
             );
             presenter.configuration.currentFillingColor = previousColor;
+            this.sendColoredEvent(colorString);
+    }
+
+    ColoringKeyboardController.prototype.sendColoredEvent = function (colorString) {
+            setTimeout(() =>{
+                // Without timeout there are issues on Firefox if event handling takes too long
+                presenter.sendEvent(
+                    [this.lastAreaElement.x, this.lastAreaElement.y],
+                    colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA) ? 0 : 1,
+                    isCorrect(this.lastAreaElement) ? 1 : 0
+                );
+            }, 0);
     }
 
     ColoringKeyboardController.prototype.switchElementsToAreas = function () {
