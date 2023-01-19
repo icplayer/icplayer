@@ -1758,11 +1758,12 @@ function AddonColoring_create(){
     }
 
     ColoringKeyboardController.prototype.sendColoredEvent = function (colorString) {
+            const isColorWhite = colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
             setTimeout(() =>{
                 // Without timeout there are issues on Firefox if event handling takes too long
                 presenter.sendEvent(
                     [this.lastAreaElement.x, this.lastAreaElement.y],
-                    colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA) ? 0 : 1,
+                    isColorWhite ? 0 : 1,
                     isCorrect(this.lastAreaElement) ? 1 : 0
                 );
             }, 0);
