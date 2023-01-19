@@ -78,6 +78,20 @@ TestCase("[Coloring] TTS Tests", {
         assertEquals(this.presenter.colorSpeechTextMap["255 255 255 255"], color)
     },
 
+    'test given colors not empty when adding eraser then eraser is added to colors': function () {
+        this.presenter.addEraserToColors();
+
+        assertEquals(3, this.presenter.configuration.colors.length)
+    },
+
+    'test given empty colors when adding eraser then eraser is not added to colors': function () {
+        this.presenter.configuration.colors = [];
+
+        this.presenter.addEraserToColors();
+
+        assertEquals(0, this.presenter.configuration.colors.length)
+    },
+
     activateTTSWithoutReading: function() {
         this.presenter.setWCAGStatus(true);
         this.keyboardControllerObject.keyboardNavigationActive = true;
