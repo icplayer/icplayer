@@ -440,8 +440,7 @@ function AddonWritingCalculations_create() {
         }
 
         const content = element.slice(1, element.length - 1);
-        return !!(presenter.multisigns
-            && (presenter.isDot(content) || presenter.isIntegerOrFloat(content)));
+        return (presenter.isDot(content) || presenter.isIntegerOrFloat(content));
     };
 
     presenter.isEmptySpace = function(element) {
@@ -803,17 +802,6 @@ function AddonWritingCalculations_create() {
         return this.visiblePosition;
     }
 
-    ElementData.prototype.isEmptyBoxValid = function () {
-        if (this.type !== presenter.ELEMENT_TYPE.EMPTY_BOX) {
-            return false;
-        }
-
-        return (
-            (presenter.multisigns && presenter.isIntegerOrFloat(this.parsedValue))
-            || (!presenter.multisigns && presenter.isInteger(this.parsedValue))
-        )
-    }
-
     presenter.createAnswer = function(rowIndex, cellIndex, elementValue) {
         return {
             rowIndex: parseInt(rowIndex, 10),
@@ -1114,7 +1102,7 @@ function AddonWritingCalculations_create() {
                     elementValue = row.slice(startingIndex, startingIndex + elementLength);
 
                     elementData = presenter.createElementData(rowIndex + 1, ++cellBoxIndex, elementValue, true);
-                    if (!elementData.isEmptyBoxValid()) {
+                    if (elementData.type !== presenter.ELEMENT_TYPE.EMPTY_BOX) {
                         return getErrorObject("V05", {rowIndex: rowIndex + 1, value: elementData.rawValue});
                     }
 
