@@ -556,7 +556,6 @@ function AddonColoring_create(){
         presenter.setSpeechTexts(model["speechTexts"]);
 
         presenter.configuration = presenter.validateModel(model, isPreview);
-        presenter.addEraserToColors();
         presenter.createColorSpeechTextsMap(presenter.configuration.colors);
         presenter.allColoredPixels = [];
         presenter.currentAreaIdInGSAMode = 0;
@@ -570,15 +569,6 @@ function AddonColoring_create(){
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.setImageElement(isPreview);
         presenter.buildKeyboardController();
-    }
-
-    presenter.addEraserToColors = function() {
-        const colorsModel = presenter.configuration.colors;
-        if (!colorsModel || !colorsModel.length) return;
-        presenter.configuration.colors.push({
-            speechText: "Eraser",
-            colorRGBA: presenter.whiteRGBA
-        });
     }
 
     presenter.createColorSpeechTextsMap = function(colors) {
