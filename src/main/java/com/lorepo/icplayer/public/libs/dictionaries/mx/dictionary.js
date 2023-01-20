@@ -2384,5 +2384,13 @@ var ice_dictionary_mx = {
 	"LottiePlayer_property_speech_text_loop_button": "Loop button",
 	"LottiePlayer_property_speech_text_paused": "Paused",
 	"LottiePlayer_property_speech_text_stopped": "Stopped",
-	"LottiePlayer_property_library": "Library"
+	"LottiePlayer_property_library": "Library",
+    "edit_ordered_list_start_at": "Start at:",
+    "edit_ordered_list_ordered_list": "Ordered list",
+    "edit_ordered_list_type": "Type:",
+    "edit_ordered_list_type_1": "1, 2, 3",
+    "edit_ordered_list_type_a": "a, b, c",
+    "edit_ordered_list_type_A": "A, B, C",
+    "edit_ordered_list_type_i": "i, ii, iii",
+    "edit_ordered_list_type_I": "I, II, III"
 };
