@@ -709,6 +709,28 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				audio.reset();
 				button.setStartPlayingStyleClass();
+				sendOnAudioEndEvent(audioInfo.getIndex());
+			}
+
+            @Override
+			public void onAudioTimeUpdate(AudioInfo audioInfo) {
+			    AudioWidget audioWidget = audioInfo.getAudio();
+			    String currentTime = audioWidget.getCurrentTimeInMMSSFormat();
+			    if (currentTime != audioInfo.getCurrentTime()) {
+			        audioInfo.setCurrentTime(currentTime);
+
+			        sendOnAudioCurrentTimeChangingEvent(audioInfo.getIndex(), currentTime);
+			    }
+			}
+
+			@Override
+			public void onAudioPlaying(AudioInfo audioInfo) {
+				sendOnAudioPlayingEvent(audioInfo.getIndex());
+			}
+
+			@Override
+			public void onAudioPause(AudioInfo audioInfo) {
+				sendOnAudioPauseEvent(audioInfo.getIndex());
 			}
 
 			@Override
@@ -1599,10 +1621,42 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
+
 	private void sendRemoveFromGapValueChangedEvent(String gapId) {
 		String value = "";
 		String score = "0";
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioPlayingEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "playing";
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioCurrentTimeChangingEvent(int audioId, String value) {
+		String itemID = "" + audioId;
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioPauseEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "pause";
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioEndEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "end";
+		String score = "";
 
 		this.sendValueChangedEvent(itemID, value, score);
 	}
