@@ -712,15 +712,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				sendOnAudioEndEvent(audioInfo.getIndex());
 			}
 
-            @Override
+			@Override
 			public void onAudioTimeUpdate(AudioInfo audioInfo) {
-			    AudioWidget audioWidget = audioInfo.getAudio();
-			    String currentTime = audioWidget.getCurrentTimeInMMSSFormat();
-			    if (currentTime != audioInfo.getCurrentTime()) {
-			        audioInfo.setCurrentTime(currentTime);
-
-			        sendOnAudioCurrentTimeChangingEvent(audioInfo.getIndex(), currentTime);
-			    }
+				AudioWidget audioWidget = audioInfo.getAudio();
+				String currentTime = audioWidget.getCurrentTimeInMMSSFormat();
+				if (currentTime != audioInfo.getCurrentTime()) {
+					audioInfo.setCurrentTime(currentTime);
+					
+					sendOnAudioCurrentTimeChangingEvent(audioInfo.getIndex(), currentTime);
+				}
 			}
 
 			@Override
@@ -1638,11 +1638,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.sendValueChangedEvent(itemID, value, score);
 	}
 
-	private void sendOnAudioCurrentTimeChangingEvent(int audioId, String value) {
+	private void sendOnAudioCurrentTimeChangingEvent(int audioId, String currentTime) {
 		String itemID = "" + audioId;
 		String score = "";
 
-		this.sendValueChangedEvent(itemID, value, score);
+		this.sendValueChangedEvent(itemID, currentTime, score);
 	}
 
 	private void sendOnAudioPauseEvent(int audioId) {
