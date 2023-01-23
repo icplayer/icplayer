@@ -133,7 +133,7 @@ function AddonTable_create() {
             $(presenter.$view).find('input').each(function () {
                 $(this).replaceWith(
                     generateMathGap(
-                        $(this).attr('id'),
+                        window.xssUtils.sanitize($(this).attr('id')),
                         presenter.configuration.gapWidth.value
                     )
                 );
@@ -297,6 +297,7 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+        presenter.eventBus.addEventListener('ItemConsumed', this);
         presenter.eventBus.addEventListener('GradualShowAnswers', this);
         presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
@@ -421,7 +422,8 @@ function AddonTable_create() {
 
     presenter.parseDefinitionLinks = function () {
         $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            $(element).html(presenter.textParser.parse($(element).html()));
+            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
+            $(element).html(sanitizedLink);
         });
 
         presenter.textParser.connectLinks(presenter.$view);
@@ -869,11 +871,13 @@ function AddonTable_create() {
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.enableAllGaps();
     };
 
     presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.disableAllGaps();
     };
 
     presenter.getGapText = function (gapIndex) {
@@ -1068,22 +1072,40 @@ function AddonTable_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        } else if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        } else if (eventName === "ItemSelected") {
-            presenter.lastDraggedItem = eventData;
-        } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
-            }
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (!presenter.isGradualShowAnswersActive) {
+                    presenter.isGradualShowAnswersActive = true;
+                }
+                if (eventData.moduleID === presenter.configuration.addonID) {
+                    presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
+            case "ItemSelected":
+                if(presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = eventData;
+                }
+                break;
+            case "ItemConsumed":
+                const isEqualToDraggedValue = presenter.lastDraggedItem.value && eventData.value === presenter.lastDraggedItem.value
+                const isEqualToDraggedItem = presenter.lastDraggedItem.item && eventData.item === presenter.lastDraggedItem.item
 
-            if (eventData.moduleID === presenter.configuration.addonID) {
-                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
-            }
-        } else if (eventName === "GradualHideAnswers") {
-            presenter.gradualHideAnswers();
+                if (isEqualToDraggedValue  && isEqualToDraggedItem && presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = {};
+                }
+                break;
+            default:
+                break;
+            
         }
     };
 

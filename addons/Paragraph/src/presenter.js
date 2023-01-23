@@ -164,10 +164,6 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.getActivitiesCount = function () {
-        return 1;
-    }
-
     presenter.enableEdit = function () {
         let paragraph = presenter.$view.find(".paragraph-wrapper");
 
@@ -1240,11 +1236,11 @@ function AddonParagraph_create() {
             }
             text = element.hasClass("mce-active") ? `${text} ${presenter.speechTexts.selected}` : text;
         } else if (element.hasClass("mce-edit-area")) {
-            let contentToRead = presenter.editor.getContent({format : 'text'});
-            if (contentToRead.trim().length === 0) {
+            let contentToRead = $(presenter.editor.getContent({format : 'html'}));
+            if (contentToRead.text().trim().length === 0) {
                 text = presenter.speechTexts.paragraphContent;
             } else {
-                text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.langTag)];
+                text = TTSUtils.getTextVoiceArrayFromElement(contentToRead, presenter.configuration.langTag);
             }
         } else {
             let content;
@@ -1280,7 +1276,13 @@ function AddonParagraph_create() {
     };
 
     presenter.getActivitiesCount = function Paragraph_getActivitiesCount () {
-        return presenter.configuration.modelAnswer.length;
+        let answersCount = 0;
+        presenter.configuration.modelAnswer.forEach(answer => {
+            if (answer.Text.replace("<br>", "") !== "") {
+                answersCount++;
+            }
+        });
+        return answersCount;
     };
 
     return presenter;

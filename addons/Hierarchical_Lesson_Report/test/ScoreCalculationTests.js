@@ -7,94 +7,93 @@ TestCase("[Hierarchical Lesson Report] Score calculation", {
 
     'test no pages': function () {
         this.presenter.lessonScore = {
-            pageCount: 0
+            weightedScaledScoreDenominator: 0
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0, scaledScore);
+        assertEquals(0, result);
     },
 
     'test single page': function () {
         this.presenter.lessonScore = {
-            pageCount: 1,
-            scaledScore: 0.5
+            weightedScaledScoreDenominator: 1,
+            weightedScaledScoreNumerator: 0.5
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.5, scaledScore);
+        assertEquals(0.5, result);
     },
 
     'test two pages': function () {
         this.presenter.lessonScore = {
-            pageCount: 2,
-            scaledScore: 0.5
+            weightedScaledScoreDenominator: 2,
+            weightedScaledScoreNumerator: 0.5
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.25, scaledScore);
+        assertEquals(0.25, result);
     },
 
     'test multiple pages - rounding check': function () {
         this.presenter.lessonScore = {
-            pageCount: 11,
-            scaledScore: 4.5
+            weightedScaledScoreDenominator: 4,
+            weightedScaledScoreNumerator: 3.75
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.4, scaledScore);
+        assertEquals(0.94, result);
     },
 
     'test no pages when addon in printable state': function () {
         setPrintableShowResultsStateMode(this.presenter);
         this.presenter.printableLessonScore = {
-            pageCount: 0
+            weightedScaledScoreDenominator: 0
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0, scaledScore);
+        assertEquals(0, result);
     },
 
     'test single page when addon in printable state': function () {
         setPrintableShowResultsStateMode(this.presenter);
         this.presenter.printableLessonScore = {
-            pageCount: 1,
-            scaledScore: 0.5
+            weightedScaledScoreDenominator: 1,
+            weightedScaledScoreNumerator: 0.5
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.5, scaledScore);
+        assertEquals(0.5, result);
     },
 
     'test two pages when addon in printable state': function () {
         setPrintableShowResultsStateMode(this.presenter);
         this.presenter.printableLessonScore = {
-            pageCount: 2,
-            scaledScore: 0.5
+            weightedScaledScoreDenominator: 2,
+            weightedScaledScoreNumerator: 0.5
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.25, scaledScore);
+        assertEquals(0.25, result);
     },
 
     'test multiple pages - rounding check when addon in printable state': function () {
         setPrintableShowResultsStateMode(this.presenter);
         this.presenter.printableLessonScore = {
-            pageCount: 11,
-            scaledScore: 4.5
+            weightedScaledScoreDenominator: 11,
+            weightedScaledScoreNumerator: 4.5
         };
 
-        var scaledScore = this.presenter.calculateLessonScaledScore();
+        var result = this.presenter.calculateLessonScore();
 
-        assertEquals(0.4, scaledScore);
+        assertEquals(0.41, result);
     }
-
 });
 
 TestCase("[Hierarchical Lesson Report] Checking conditions to calculate Page Scaled Score", {

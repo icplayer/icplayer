@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.model;
 public interface IAsset {
 
 	public String getHref();
+	public String getType();
 	public String toXML();
 	public String getTitle();
 	public String getFileName();

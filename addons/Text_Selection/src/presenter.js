@@ -14,6 +14,7 @@ function AddonText_Selection_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.activeGradualShowAnswersItems = [];
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -1134,6 +1135,7 @@ function AddonText_Selection_create() {
             presenter.hideAnswers();
         }
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.selected_elements = null;
 
         presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
@@ -1143,18 +1145,25 @@ function AddonText_Selection_create() {
     };
 
     presenter.getState = function () {
+        let returnToShowAnswers = false;
+        let returnToGradualShowAnswers = false;
         if (presenter.isShowAnswers) {
             presenter.hideAnswers();
+            returnToShowAnswers = true;
         } else if (presenter.isGradualShowAnswersActive) {
             presenter.gradualHideAnswers();
+            returnToGradualShowAnswers = true;
         }
 
-        var allSelected = presenter.$view.find('.text_selection').find('.selected');
-        var numberSelected = [];
+        const allSelected = presenter.$view.find('.text_selection').find('.selected');
+        const numberSelected = [];
 
-        for (var i = 0; i < allSelected.length; i++) {
+        for (let i = 0; i < allSelected.length; i++) {
             numberSelected.push($(allSelected[i]).attr('number'));
         }
+
+        if (returnToShowAnswers) presenter.showAnswers();
+        if (returnToGradualShowAnswers) presenter.restoreGradualShowAnswers();
 
         return JSON.stringify({
             numbers: numberSelected,
@@ -1351,6 +1360,7 @@ function AddonText_Selection_create() {
 
         presenter.turnOnEventListeners();
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.isShowAnswers = false;
         presenter.restoreSelection();
     };
@@ -1378,6 +1388,7 @@ function AddonText_Selection_create() {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
             }
         } else if (eventName === "GradualHideAnswers") {
+            presenter.activeGradualShowAnswersItems = [];
             presenter.gradualHideAnswers();
         }
     };
@@ -1547,8 +1558,10 @@ function AddonText_Selection_create() {
     };
 
     presenter.getWordsTextVoices = function($element) {
-        var $clone = $element.clone();
-        $clone.find('.selectable').each(function(){
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
+
+        $($sanitizedElement).find('.selectable').each(function(){
             var $this = $(this);
 
             if ($this.hasClass('selected')) {
@@ -1563,7 +1576,7 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
@@ -1584,10 +1597,12 @@ function AddonText_Selection_create() {
     };
 
     presenter.getPhrasesTextVoices = function($element) {
-        var $clone = $element.clone();
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
 
-        $clone.find('.selectable').each(function(index){
+        $sanitizedElement.find('.selectable').each(function(index){
             var $this = $(this);
+
             $this.html(SPLIT + PHRASE + ' ' + (index+1) + SPLIT + $this.html() + SPLIT + PHRASE_END + SPLIT );
 
             if ($this.hasClass('selected')) {
@@ -1602,7 +1617,7 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
@@ -1636,7 +1651,6 @@ function AddonText_Selection_create() {
     }
 
     presenter.getSectionsTextVoices = function($element) {
-
         var $clone = $element.clone();
 
         $clone.find('.selectable').each(function(){
@@ -1955,14 +1969,26 @@ function AddonText_Selection_create() {
             presenter.saveAndRemoveSelection();
             presenter.isGradualShowAnswersActive = true;
         }
+        presenter.activeGradualShowAnswersItems.push(item);
         presenter.showCorrectAnswer(item);
     };
+
+   presenter.restoreGradualShowAnswers = function () {
+       if (!presenter.activeGradualShowAnswersItems.length) return;
+       if (presenter.configuration.areEventListenersOn) {
+                presenter.turnOffEventListeners();
+            }
+        presenter.saveAndRemoveSelection();
+        presenter.isGradualShowAnswersActive = true;
+        for (const item in presenter.activeGradualShowAnswersItems) {
+            presenter.showCorrectAnswer(item);
+       }
+   }
 
     presenter.gradualHideAnswers = function () {
         presenter.isGradualShowAnswersActive = false;
         presenter.turnOnEventListeners();
         presenter.restoreSelection();
-
     };
 
     return presenter;

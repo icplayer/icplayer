@@ -5,6 +5,8 @@ It is possible to modify the appearance of each part of the report individually.
 
 ##Properties
 
+The list starts with the common properties, learn more about them by visiting the <a href="doc/page/Modules-description">Modules description</a> section. The other available properties are described below.
+
 <table border='1'>
 <tbody>
     <tr>
@@ -97,7 +99,20 @@ It is possible to modify the appearance of each part of the report individually.
 		Page name input is used to replace the tile.
 		</td>
 	</tr>
-	
+    <tr>
+        <td>Lang attribute</td>
+        <td>Allows you to set the langauge used to read the contents of the card via the TTS module.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
+    </tr>  
+	<tr>
+		<td>Use weighted arithmetic mean</td>
+		<td>Checking this property enables to use weighted arithmetic mean to calculate value in result column (progress bar and percentage result). <br>
+        Learn more about weights by visiting the <a href="doc/page/Activity-scoring">Activity scoring</a> section.
+        </td>
+	</tr>
 </tbody>
 </table>
 

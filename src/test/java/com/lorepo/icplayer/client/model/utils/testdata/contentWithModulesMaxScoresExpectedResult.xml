@@ -81,6 +81,7 @@
         <layout id="default" isDefault="true" name="default">
             <style id="default"/>
             <threshold width="800"/>
+            <gridSize value="0"/>
         </layout>
     </layouts>
     <pages>

@@ -212,7 +212,8 @@ function AddonDouble_State_Button_create(){
     function createTextElement(element) {
         var textElement = document.createElement('span');
         $(textElement).addClass('doublestate-button-text');
-        $(textElement).html(presenter.isSelected() ? presenter.configuration.selected.text : presenter.configuration.deselected.text);
+        const buttonText = presenter.getSanitizedButtonTextValue();
+        $(textElement).html(buttonText);
         $(element).append(textElement);
     }
 
@@ -280,7 +281,8 @@ function AddonDouble_State_Button_create(){
         var displayContent = presenter.isSelected() ? presenter.configuration.selected.displayContent : presenter.configuration.deselected.displayContent;
 
         var textElement = $(element).find('.doublestate-button-text');
-        textElement.html(presenter.isSelected() ? presenter.configuration.selected.text : presenter.configuration.deselected.text);
+        const buttonText = presenter.getSanitizedButtonTextValue();
+        textElement.html(buttonText);
 
         var imageElement = $(element).find('.doublestate-button-image');
         imageElement.attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
@@ -307,6 +309,11 @@ function AddonDouble_State_Button_create(){
         applySelectionStyle(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
     };
+
+    presenter.getSanitizedButtonTextValue = function () {
+        const text = presenter.isSelected() ? presenter.configuration.selected.text : presenter.configuration.deselected.text
+        return window.xssUtils.sanitize(text);
+    }
 
     presenter.updateLaTeX = function () {
         var textElement = presenter.$view.find('.doublestate-button-text')[0];
@@ -414,6 +421,10 @@ function AddonDouble_State_Button_create(){
             presenter.updateLaTeX();
         }
     };
+
+    presenter.isEnabledInGSAMode = function () {
+        return presenter.configuration.enableCheckMode;
+    }
 
     presenter.enable = function() {
         if (presenter.configuration.isDisabled) {

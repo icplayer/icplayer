@@ -1047,6 +1047,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.enable();
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return true;
+    };
+
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
     };
@@ -1353,6 +1357,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "reset",
         value: function reset() {
             this.deactivate();
+            if (this.model.isResetRemovesRecording) {
+                this.resetRecording();
+            }
             this.activate();
             this.setVisibility(this.model["Is Visible"]);
             this._setEnableState(!this.model.isDisabled);
@@ -1360,6 +1367,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "resetRecording",
         value: function resetRecording() {
+            this.recordButton.reset();
             this.player.reset();
             this.addonState.reset();
             this.timer.reset();
@@ -1732,9 +1740,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.defaultRecordingPlayButton.onStopPlaying = function () {
                 if (_this2.player.hasRecording) {
-                    _this2.timer.setDuration(_this2.player.duration);
                     _this2.mediaState.setLoaded();
-                } else _this2.mediaState.setLoadedDefaultRecording();
+                    _this2.timer.setDuration(_this2.player.duration);
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
 
                 _this2.defaultRecordingPlayer.stopPlaying();
                 _this2.timer.stopCountdown();
@@ -1785,7 +1795,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.defaultRecordingPlayer.onEndLoading = function () {
-                if (_this2.player.hasRecording) _this2.mediaState.setLoaded();else _this2.mediaState.setLoadedDefaultRecording();
+                if (_this2.player.hasRecording) {
+                    _this2.mediaState.setLoaded();
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
                 _this2.loader.hide();
             };
 
@@ -1857,28 +1871,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
-        key: "_stopRecordButton",
-        value: function _stopRecordButton() {
-            if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
-            } else {
-                this.recordButton.forceClick();
-            }
-        }
-    }, {
         key: "_stopActions",
         value: function _stopActions() {
             if (this.mediaState.isRecording()) {
-                this._stopRecordButton();
+                this.recordButton.forceClick();
             }
             if (this.mediaState.isPlaying()) {
                 this.playButton.forceClick();
             }
             if (this.mediaState.isPlayingDefaultRecording()) {
                 this.defaultRecordingPlayButton.forceClick();
-            }
-            if (this.model.isResetRemovesRecording) {
-                this.resetRecording();
             }
             if (this.mediaState.isLoaded()) {
                 this.timer.setTime(0);
@@ -3705,6 +3707,7 @@ var AddonViewService = exports.AddonViewService = function () {
         key: 'setVisibility',
         value: function setVisibility(isVisible) {
             this.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+            this.$view.parent().css('visibility', isVisible ? 'visible' : 'hidden');
         }
     }, {
         key: 'activate',
@@ -3916,10 +3919,15 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     _createClass(BaseRecorder, [{
         key: "startRecording",
         value: function startRecording(stream) {
+            var _this2 = this;
+
             this._clearRecorder();
+            var audioContext = AudioContextSingleton.getOrCreate();
             this.recorder = RecordRTC(stream, this._getOptions());
-            this.recorder.startRecording();
-            this._onStartRecordingCallback();
+            audioContext.resume().then(function () {
+                _this2.recorder.startRecording();
+                _this2._onStartRecordingCallback();
+            });
         }
     }, {
         key: "stopRecording",
@@ -4127,10 +4135,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             var _this2 = this;
 
             this.mediaNode.src = source;
+            this.hasRecording = true;
             this._getDuration().then(function (duration) {
                 _this2.onDurationChangeCallback(duration);
                 _this2.duration = duration;
-                _this2.hasRecording = true;
+            }).catch(function (e) {
+                _this2.hasRecording = false;
             });
         }
     }, {
@@ -4141,8 +4151,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             return new Promise(function (resolve) {
                 _this3.mediaNode.muted = false;
                 if (_this3.onTimeUpdateCallback) {
-                    _this3.mediaNode.addEventListener('timeupdate', _this3.onTimeUpdateCallback);
-                    _this3.mediaNode.addEventListener('ended', _this3.onTimeUpdateCallback);
+                    _this3._enableTimerEventsHandling();
                 }
                 if (_this3._isNotOnlineResources(_this3.mediaNode.src)) resolve(_this3.mediaNode);
                 _this3.mediaNode.play();
@@ -4157,11 +4166,22 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 _this4.mediaNode.pause();
                 _this4.mediaNode.currentTime = 0;
                 if (_this4.onTimeUpdateCallback) {
-                    _this4.mediaNode.removeEventListener('timeupdate', _this4.onTimeUpdateCallback);
-                    _this4.mediaNode.removeEventListener('ended', _this4.onTimeUpdateCallback);
+                    _this4._disableTimerEventsHandling();
                 }
                 resolve();
             });
+        }
+    }, {
+        key: "_enableTimerEventsHandling",
+        value: function _enableTimerEventsHandling() {
+            this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+        }
+    }, {
+        key: "_disableTimerEventsHandling",
+        value: function _disableTimerEventsHandling() {
+            this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
         }
     }, {
         key: "pausePlaying",

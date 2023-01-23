@@ -18,6 +18,7 @@ import com.lorepo.icf.properties.IEditableSelectProperty;
 import com.lorepo.icf.properties.IFileProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IImageProperty;
+import com.lorepo.icf.properties.IScriptProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
@@ -189,7 +190,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getErrorCount != undefined){
-				return obj.getErrorCount();
+				var result = obj.getErrorCount();
+				if (result === undefined) return 0;
+				return result;
+
 			}
 		}
 		catch(err){
@@ -209,7 +213,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getMaxScore != undefined){
-				return obj.getMaxScore();
+				var result = obj.getMaxScore();
+				if (result === undefined) return 0;
+				return result;
 			}
 		}
 		catch(err){
@@ -229,7 +235,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 		try{
 			if(obj.getScore != undefined){
-				return obj.getScore();
+				var result = obj.getScore();
+				if (result === undefined) return 0;
+				return result;
 			}
 		}
 		catch(err){
@@ -374,7 +382,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native String getState(JavaScriptObject obj, String addonId) /*-{
 		try{
 			if(obj.getState != undefined){
-				return obj.getState();
+				var result = obj.getState();
+				if (result === undefined) return "";
+				return result;
 			}
 		}
 		catch(err){
@@ -456,20 +466,44 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	@Override
 	public void selectAsActive(String className) {
+		boolean wasExecuted = selectAsActiveInPresenter(jsObject, className);
+		if (wasExecuted) {
+		    return;
+		}
 		this.view.getElement().addClassName(className);
-		
+
 		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().focus();
 		}
 	}
 
+	private native boolean selectAsActiveInPresenter( JavaScriptObject presenter, String className ) /*-{
+		if (presenter !== null && presenter.selectAsActive !== undefined){
+			presenter.selectAsActive(className);
+			return true;
+		}
+		return false;
+	}-*/;
+
 	@Override
 	public void deselectAsActive(String className) {
+		boolean wasExecuted = deselectAsActiveInPresenter(jsObject, className);
+		if (wasExecuted) {
+		    return;
+		}
 		this.view.getElement().removeClassName(className);
 		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().blur();
 		}
 	}
+
+	private native boolean deselectAsActiveInPresenter( JavaScriptObject presenter, String className ) /*-{
+		if (presenter !== null && presenter.deselectAsActive !== undefined){
+			presenter.deselectAsActive(className);
+			return true;
+		}
+		return false;
+	}-*/;
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
@@ -601,6 +635,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return false;
 	}-*/;
 
+	public boolean isEnabledInGSAMode() {
+		return this.isEnabledInGSAMode(this.getAsJavaScript());
+	}
+
+	public native boolean isEnabledInGSAMode (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isEnabledInGSAMode')) {
+			return obj.isEnabledInGSAMode();
+		};
+		return false;
+	}-*/;
+
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
@@ -652,5 +697,21 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		AddonScoreWithMetadata addonScoreWithMetadata = new AddonScoreWithMetadata(model, jsObject);
 
 		return addonScoreWithMetadata.getScoreWithMetadata();
+	}
+
+	@Override
+	public boolean isActivity() {
+		for (IProperty property: model.getProperties()) {
+			String propertyName = property.getName().toLowerCase();
+			if ((propertyName.startsWith("is") || propertyName.startsWith("not")) && propertyName.endsWith("activity")) {
+				boolean value = Boolean.parseBoolean(property.getValue());
+				if (propertyName.contains("not")) {
+					return !value;
+				} else {
+					return value;
+				}
+			}
+		}
+		return true;
 	}
 }

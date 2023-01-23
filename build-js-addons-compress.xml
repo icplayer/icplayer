@@ -130,6 +130,7 @@
                 <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
                 <file name="${build.temp.folder}/lame.min.js"/>
+                <file name="${build.temp.folder}/purify.js"/>
 
                 <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
                 <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>

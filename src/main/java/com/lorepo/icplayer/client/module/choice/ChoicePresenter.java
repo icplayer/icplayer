@@ -915,4 +915,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.currentMaxScore = getMaxScore();
 		this.currentState = getState();
 	}
+
+	@Override
+	public boolean isActivity() {
+		return this.module.isActivity();
+	}
 }

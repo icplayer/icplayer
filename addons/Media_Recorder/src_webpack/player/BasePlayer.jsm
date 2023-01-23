@@ -22,11 +22,13 @@ export class BasePlayer extends Player {
 
     setRecording(source) {
         this.mediaNode.src = source;
+        this.hasRecording = true;
         this._getDuration()
             .then(duration => {
                 this.onDurationChangeCallback(duration);
                 this.duration = duration;
-                this.hasRecording = true;
+            }).catch(e => {
+                this.hasRecording = false
             });
     }
 
@@ -34,8 +36,7 @@ export class BasePlayer extends Player {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
             if (this.onTimeUpdateCallback) {
-                this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
-                this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+                this._enableTimerEventsHandling();
             }
             if (this._isNotOnlineResources(this.mediaNode.src))
                 resolve(this.mediaNode);
@@ -48,11 +49,20 @@ export class BasePlayer extends Player {
             this.mediaNode.pause();
             this.mediaNode.currentTime = 0;
             if (this.onTimeUpdateCallback) {
-                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
-                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+                this._disableTimerEventsHandling();
             }
             resolve();
         });
+    }
+
+    _enableTimerEventsHandling() {
+        this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+        this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+    }
+
+    _disableTimerEventsHandling() {
+        this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+        this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
     }
 
     pausePlaying() {

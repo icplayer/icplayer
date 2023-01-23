@@ -15,6 +15,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.metadata.IMetadata;
 import com.lorepo.icplayer.client.metadata.Metadata;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -50,7 +51,6 @@ public class Content implements IContentBuilder, IContent {
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 
 	private HashMap<String, HashMap<String, String>> ttsDictionary = new HashMap<String, HashMap<String, String>>();
-	private HashMap<String, OutstretchPageHeight> outstretchPageDictionary = new HashMap<String, OutstretchPageHeight>();
 
 	private int maxPagesCount = 100;
 
@@ -107,18 +107,8 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public void addAsset(IAsset asset){
-
-		String href = asset.getHref();
-
-		if(href == null){
-			return;
-		}
-
-		String escaped = StringUtils.escapeHTML(href);
-		if(escaped.compareTo(href) != 0){
-			return;
-		}
-
+		if (!isAssetHrefValid(asset)) return;
+		
 		boolean foundURL = false;
 
 		for(IAsset a : assets){
@@ -128,10 +118,44 @@ public class Content implements IContentBuilder, IContent {
 			}
 		}
 
-		if(	!foundURL){
-
+		if(!foundURL){
 			assets.add(asset);
 		}
+	}
+
+	public void addAsset(ScriptAsset asset){
+		if (!isAssetHrefValid(asset)) return;
+
+		boolean foundURL = false;
+
+		for(int i = 0; i < assets.size(); i++) {
+			IAsset a = assets.get(i);
+			if(a.getHref().compareTo(asset.getHref()) == 0){
+				foundURL = true;
+				if (a.getType() != asset.getType()) {
+					asset.setContentType(a.getContentType());
+					asset.setFileName(a.getFileName());
+					asset.setTitle(a.getTitle());
+					asset.setOrderNumber(a.getOrderNumber());
+					assets.set(i, asset);
+				}
+				break;
+			}
+		}
+
+		if(!foundURL){
+			assets.add(asset);
+		}
+	}
+
+	private boolean isAssetHrefValid(IAsset asset) {
+		String href = asset.getHref();
+		if(href == null) return false;
+
+		String escaped = StringUtils.escapeHTML(href);
+		if(escaped.compareTo(href) != 0) return false;
+		
+		return true;
 	}
 
 	public void setPagesSubsetMap(ArrayList<Integer> mapping) {
@@ -223,6 +247,7 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += "</styles>";
 
+		// Layouts
 		Document xmlDocument = XMLParser.createDocument();
 		Element layouts = xmlDocument.createElement("layouts");
 		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
@@ -543,6 +568,10 @@ public class Content implements IContentBuilder, IContent {
 		return setsLayouts;
 	}
 
+	public PageLayout getActualSemiResponsiveLayout() {
+		return this.layoutsContainer.getActualLayout();
+	}
+
 	public String getDefaultSemiResponsiveLayoutID() {
 		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
 	}
@@ -652,23 +681,20 @@ public class Content implements IContentBuilder, IContent {
 		return dictionary.toString();
 	}
 
-	public void addOutstretchPage(int y, int height, boolean dontMoveModules, boolean isOn, String layoutName) {
-		this.outstretchPageDictionary.put(layoutName, new OutstretchPageHeight(y, height, dontMoveModules, isOn));
+	public void setDefaultGridSize() {
+		int defaultGridSize;
+		try {
+			defaultGridSize = Integer.valueOf(this.metadata.getValue("gridSize"));
+		} catch (Exception e) {
+			defaultGridSize = 25;
+		}
+
+		for(PageLayout layout : this.getLayouts().values()) {
+			int gridSize = layout.getGridSize();
+			if (gridSize == 0) {
+				layout.setGridSize(defaultGridSize);
+			}
+		}
 	}
 
-	public boolean hasOutstretchPage(String layoutName) {
-		return this.outstretchPageDictionary.containsKey(layoutName);
-	}
-
-	public OutstretchPageHeight getOutstretchPage(String layoutName) {
-		return this.outstretchPageDictionary.get(layoutName);
-	}
-
-	public boolean isOutstretchPageDictionaryEmpty() {
-		return this.outstretchPageDictionary.isEmpty();
-	}
-
-	public void deleteOutstretchPage(String layoutName) {
-		this.outstretchPageDictionary.remove(layoutName);
-	}
 }

@@ -5,6 +5,12 @@ function AddonPointsLines_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.answersNumber = 0;
 
+    presenter.altTexts = [];
+    presenter.langTag = '';
+    presenter.isWCAGOn = false;
+    presenter.speechTexts = null;
+    presenter.keyboardControllerObject = null;
+
     presenter.ERROR_CODES = {
         'PE' : 'Points coordinates incorrect!',
         'PO' : 'Points outside the addon!',
@@ -12,7 +18,19 @@ function AddonPointsLines_create() {
         'IE' : 'Indexes incorrect!',
         'LE' : 'Starting lines incorrect!',
         'BL' : 'Blocked lines incorrect!',
-        'AE' : 'Answer incorrect!'
+        'AE' : 'Answer incorrect!',
+        'AT' : 'Alternative texts incorrect!'
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        POINT: "Point",
+        CONNECTED: "Connected",
+        DISCONNECTED: "Disconnected",
+        CONNECTED_TO: "Connected to",
+        SELECTED: "Selected",
+        DESELECTED: "Deselected",
+        WRONG: "Wrong",
+        CORRECT: "Correct",
     };
 
     presenter.executeCommand = function(name, params) {
@@ -170,9 +188,14 @@ function AddonPointsLines_create() {
             presenter.hide();
         }
     };
+    
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+        presenter.eventBus = controller.getEventBus();
+        const events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (const event of events) {
+            presenter.eventBus.addEventListener(event, this);
+        }
     };
     presenter.createEventData = function(line, state, score) {
         return {
@@ -212,7 +235,7 @@ function AddonPointsLines_create() {
 
     function checkIndexes(indexes, numberOfPoints) {
         indexes = indexes.replace(/\s/g, '');
-        pointsIndexes = new Array(numberOfPoints);
+        var pointsIndexes = new Array(numberOfPoints);
         var i;
         if (indexes == '') {
             for (i = 0; i < numberOfPoints; i++) {
@@ -267,6 +290,7 @@ function AddonPointsLines_create() {
         }
         return pointsCoordinates;
     }
+
     function getLines(dataLines, numberOfPoints, type) {
         if (dataLines == undefined) dataLines='';
         dataLines = dataLines.replace(/\s/g, '');
@@ -310,6 +334,20 @@ function AddonPointsLines_create() {
             }
         }
         return Lines;
+    }
+
+    function getAlternativeTexts(configurationText) {
+        configurationText = window.xssUtils.sanitize(configurationText);
+        let texts = configurationText.split(/\r?\n/);
+        texts.forEach((text, index) => {
+            texts[index] = text.replace(/\s/g, '');
+        })
+
+        if (texts.length > presenter.points.length) {
+            presenter.error = 'AT';
+            return false;
+        }
+        return texts;
     }
 
     presenter.drawPoints = function() {
@@ -378,6 +416,9 @@ function AddonPointsLines_create() {
             if (presenter.startingLines[i][j] == 2) {
                 presenter.$view.find('#line_' + i + '_' + j).addClass('noremovable');
             }
+            if (presenter.keyboardControllerObject) {
+                presenter.keyboardControllerObject.readConnected();
+            }
         }
     };
 
@@ -426,6 +467,7 @@ function AddonPointsLines_create() {
     };
 
     presenter.initiate = function(view, model) {
+        presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
         presenter.addonID = model.ID;
@@ -433,6 +475,7 @@ function AddonPointsLines_create() {
         presenter.activity = ModelValidationUtils.validateBoolean(presenter.model['Is activity']);
         presenter.disabled = ModelValidationUtils.validateBoolean(presenter.model['Is disabled']);
         presenter.singleMode = ModelValidationUtils.validateBoolean(presenter.model['Single']);
+        presenter.langTag = model['langAttribute'];
         presenter.showAllAnswersInGradualShowAnswersMode = ModelValidationUtils.validateBoolean(presenter.model['showAllAnswersInGradualShowAnswersMode']);
         presenter.initDisabled = presenter.disabled;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -447,7 +490,8 @@ function AddonPointsLines_create() {
         });
         presenter.points = getPoint(con, coords);
         presenter.indexes = checkIndexes(presenter.model['Indexes'],(presenter.points).length);
-        if (presenter.points === false || presenter.indexes === false) {
+        presenter.altTexts = getAlternativeTexts(model["alternativeTexts"]);
+        if (presenter.points === false || presenter.indexes === false || presenter.altTexts === false) {
             con.text(presenter.ERROR_CODES[presenter.error]);
             return;
         }
@@ -469,7 +513,7 @@ function AddonPointsLines_create() {
             for ( var i = 0; i < numberOfPoints; i++) {
                 presenter.pointsConnected[i] = 0;
             }
-        };
+        }
         for ( var i = 0; i < numberOfPoints; i++) {
             for ( var j = i; j < numberOfPoints; j++) {
                 if (presenter.currentLines[i][j] == 1 || presenter.currentLines[i][j] == 2) {
@@ -522,6 +566,9 @@ function AddonPointsLines_create() {
                 }
             } else if (presenter.currentLines[point1][point2] == 1) {
                 presenter.$view.find('#line_'+(point1)+'_'+(point2)).remove();
+                if (presenter.keyboardControllerObject) {
+                    presenter.keyboardControllerObject.readDisconnected();
+                }
                 presenter.currentLines[point1][point2] = 0;
                 if (presenter.singleMode) {
                     presenter.pointsConnected[point1] = 0;
@@ -551,22 +598,119 @@ function AddonPointsLines_create() {
         }
     };
 
-    function upgradeModelAddProperties(model) {
-        var upgradedModel = {};
+    presenter.upgradeModel = function(model) {
+        let upgradedModel = presenter.upgradeShowAllAnswersInGSAMode(model);
+        upgradedModel = presenter.upgradeAlternativeTexts(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechText(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeShowAllAnswersInGSAMode = function (model) {
+        let upgradedModel = {};
         $.extend(true, upgradedModel, model);
-        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']){
+
+        if(!upgradedModel.hasOwnProperty('showAllAnswersInGradualShowAnswersMode')) {
             upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
         }
-        return upgradedModel;
-    }
 
-    presenter.upgradeModel = function(model) {
-        return upgradeModelAddProperties(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeAlternativeTexts = function (model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel.hasOwnProperty('alternativeTexts')) {
+            upgradedModel['alternativeTexts'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('langAttribute')) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechText = function (model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('speechTexts')) {
+            upgradedModel['speechTexts'] = {};
+        }
+
+        const speechTextProperties = [
+            'Point', 'Connected', 'Disconnected', 'ConnectedTo',
+            'Selected', 'Deselected', 'Correct', 'Wrong'
+        ];
+        speechTextProperties.forEach((propertyName) => {
+            if (!upgradedModel['speechTexts'].hasOwnProperty(propertyName)) {
+                let property = {};
+                property[propertyName] = "";
+                upgradedModel['speechTexts'][propertyName] = property;
+            }
+        });
+
+        return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            point: presenter.DEFAULT_TTS_PHRASES.POINT,
+            connected: presenter.DEFAULT_TTS_PHRASES.CONNECTED,
+            disconnected: presenter.DEFAULT_TTS_PHRASES.DISCONNECTED,
+            connectedTo: presenter.DEFAULT_TTS_PHRASES.CONNECTED_TO,
+            selected: presenter.DEFAULT_TTS_PHRASES.SELECTED,
+            deselected: presenter.DEFAULT_TTS_PHRASES.DESELECTED,
+            correct: presenter.DEFAULT_TTS_PHRASES.CORRECT,
+            wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            point: TTSUtils.getSpeechTextProperty(
+                speechTexts.Point.Point,
+                presenter.speechTexts.point),
+            connected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Connected.Connected,
+                presenter.speechTexts.connected),
+            disconnected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Disconnected.Disconnected,
+                presenter.speechTexts.disconnected),
+            connectedTo: TTSUtils.getSpeechTextProperty(
+                speechTexts.ConnectedTo.ConnectedTo,
+                presenter.speechTexts.connectedTo),
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.deselected),
+            correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.correct),
+            wrong: TTSUtils.getSpeechTextProperty(
+                speechTexts.Wrong.Wrong,
+                presenter.speechTexts.wrong),
+        };
     };
 
     presenter.run = function(view, model) {
         model = presenter.upgradeModel(model);
         presenter.initiate(view, model);
+        presenter.setSpeechTexts(model["speechTexts"]);
         if (!presenter.error) {
             var $div = presenter.$view.find('.pointslines');
             var Width = $div.width();
@@ -738,11 +882,8 @@ function AddonPointsLines_create() {
                     presenter.doClick(i);
                 }
             });
-            var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-            for (var i = 0; i < events.length; i++) {
-                presenter.eventBus.addEventListener(events[i], this);
-            }
         }
+        presenter.buildKeyboardController();
     };
 
     presenter.onEventReceived = function (eventName, data) {
@@ -936,101 +1077,89 @@ function AddonPointsLines_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+
+        var score = 0;
+        if (!presenter.activity || (presenter.error !== false)) {
+            return score;
+        }
+
         var numberOfPoints = presenter.points.length;
-        if (presenter.activity && (presenter.error == false)) {
-            var licznik = 0;
-            var i, j;
-            for (i = 0; i < numberOfPoints; i++) {
-                for (j = i; j < numberOfPoints; j++) {
-                    if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1) {
-                        licznik++;
-                    } else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0) {
-                        licznik++;
-                    }
+        for (var i = 0; i < numberOfPoints; i++) {
+            for (var j = i; j < numberOfPoints; j++) {
+                if ((presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1)
+                    || (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0)
+                ) {
+                    score++;
                 }
             }
-            return licznik;
-        } else {
-            return 0;
         }
+        return score;
     };
 
     presenter.getScore = function(view, model) {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        var numberOfPoints = presenter.points.length;
+
+        var score = 0;
         if (!presenter.activity || (presenter.error !== false)) {
-            return 0;
-        } else {
-            var licznik = 0;
-            var i, j;
-            for (i = 0; i < numberOfPoints; i++) {
-                for (j = i; j < numberOfPoints; j++) {
-                    if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] == 1) {
-                        licznik++;
-                    } else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] === 0) {
-                        licznik++;
-                    }
+            return score;
+        }
+
+        var numberOfPoints = presenter.points.length;
+        for (var i = 0; i < numberOfPoints; i++) {
+            for (var j = i; j < numberOfPoints; j++) {
+                if (isCorrctConnected(i, j)) {
+                    score++;
                 }
             }
-            return licznik;
         }
+        return score;
     };
 
     presenter.getErrorCount = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        var numberOfPoints = presenter.points.length;
+
+        var errors = 0;
         if (!presenter.activity || (presenter.error !== false)) {
-            return 0;
-        } else {
-            var licznik = 0;
-            var i, j;
-            for (i = 0; i < numberOfPoints; i++) {
-                for (j = i; j < numberOfPoints; j++) {
-                    if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] == 1) {
-                        licznik++;
-                    } else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] === 0) {
-                        licznik++;
-                    }
+            return errors;
+        }
+
+        var numberOfPoints = presenter.points.length;
+        for (var i = 0; i < numberOfPoints; i++) {
+            for (var j = i; j < numberOfPoints; j++) {
+                if (isWrongConnected(i, j)) {
+                    errors++;
                 }
             }
-            return licznik;
         }
+        return errors;
     };
 
     presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        var numberOfPoints = presenter.points.length;
+
         presenter.isErrorMode = true;
-        var i, j;
-        if (!presenter.activity) return 0;
-        if (presenter.getScore() > 0) {
-            for (i = 0; i < numberOfPoints; i++) {
-                for (j = i; j < numberOfPoints; j++) {
-                    if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] == 1) {
-                        presenter.$view.find('#line_' + i + '_' + j).addClass('correctLine');
-                    } else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] === 0) {
-                        presenter.$view.find('#line_' + i + '_' + j).addClass('correctLine');
-                    }
+        if (!presenter.activity || (presenter.error !== false)) {
+            return;
+        }
+
+        var numberOfPoints = presenter.points.length;
+        for (var i = 0; i < numberOfPoints; i++) {
+            for (var j = i; j < numberOfPoints; j++) {
+                var lineId = '#line_' + i + '_' + j;
+                if (isCorrctConnected(i, j)) {
+                    presenter.$view.find(lineId).addClass('correctLine');
+                } else if (isWrongConnected(i, j)) {
+                    presenter.$view.find(lineId).addClass('wrongLine');
                 }
             }
         }
-        if (presenter.getErrorCount() > 0) {
-            for (i = 0; i < numberOfPoints; i++) {
-                for (j = i; j < numberOfPoints; j++) {
-                    if (presenter.startingLines[i][j] === 0 && presenter.answer[i][j] === 0 && presenter.currentLines[i][j] == 1) {
-                        presenter.$view.find('#line_' + i + '_' + j).addClass('wrongLine');
-                    } else if (presenter.startingLines[i][j] == 1 && presenter.answer[i][j] == 1 && presenter.currentLines[i][j] === 0) {
-                        presenter.$view.find('#line_' + i + '_' + j).addClass('wrongLine');
-                    }
-                }
-            }
-        }
+
         if (presenter.getScore() == presenter.getMaxScore() && presenter.getErrorCount() === 0 && !(presenter.isEmpty())) {
             presenter.$view.find('.pointslines').addClass('correct');
         } else if (presenter.getScore() === 0 && presenter.getErrorCount() === 0) {
@@ -1038,6 +1167,36 @@ function AddonPointsLines_create() {
             presenter.$view.find('.pointslines').addClass('wrong');
         }
     };
+
+    function isCorrctConnected(point1Index, point2Index) {
+        if (point1Index > point2Index) {
+            let temp = point1Index;
+            point1Index = point2Index;
+            point2Index = temp;
+        }
+        return ((presenter.startingLines[point1Index][point2Index] === 0
+                && presenter.answer[point1Index][point2Index] == 1
+                && presenter.currentLines[point1Index][point2Index] == 1)
+            || (presenter.startingLines[point1Index][point2Index] == 1
+                && presenter.answer[point1Index][point2Index] === 0
+                && presenter.currentLines[point1Index][point2Index] === 0)
+        )
+    }
+
+    function isWrongConnected(point1Index, point2Index) {
+        if (point1Index > point2Index) {
+            let temp = point1Index;
+            point1Index = point2Index;
+            point2Index = temp;
+        }
+        return ((presenter.startingLines[point1Index][point2Index] === 0
+                && presenter.answer[point1Index][point2Index] === 0
+                && presenter.currentLines[point1Index][point2Index] == 1)
+            || (presenter.startingLines[point1Index][point2Index] == 1
+                && presenter.answer[point1Index][point2Index] == 1
+                && presenter.currentLines[point1Index][point2Index] === 0)
+        )
+    }
 
     presenter.setWorkMode = function() {
         presenter.isErrorMode = false;
@@ -1130,6 +1289,224 @@ function AddonPointsLines_create() {
             presenter.$view.find('.line-show-answer').remove();
             presenter.$view.find('.line').css("visibility", "inherit");
         }
+    };
+
+    presenter.isShowingAnswers = function () {
+        return presenter.isGradualShowAnswersActive || presenter.isShowAnswersActive;
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject
+            = new PointsLinesKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`.point`);
+    };
+
+    function PointsLinesKeyboardController(elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    presenter.isTTS = function () {
+        return presenter.isWCAGOn && presenter.getTextToSpeechOrNull(presenter.playerController);
+    };
+
+    presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    PointsLinesKeyboardController.prototype = Object.create(KeyboardController.prototype);
+    PointsLinesKeyboardController.prototype.constructor = PointsLinesKeyboardController;
+
+    PointsLinesKeyboardController.prototype.getCurrentElement = function () {
+        return this.getTarget(this.keyboardNavigationCurrentElement, false);
+    };
+
+    PointsLinesKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    PointsLinesKeyboardController.prototype.switchElement = function (move) {
+        let newPositionIndex = this.keyboardNavigationCurrentElementIndex + move;
+        if (newPositionIndex >= this.keyboardNavigationElementsLen) {
+            newPositionIndex = this.keyboardNavigationCurrentElementIndex;
+        } else if (newPositionIndex < 0) {
+            newPositionIndex = 0;
+        }
+        this.markCurrentElement(newPositionIndex);
+        this.readCurrentElement();
+    };
+
+    PointsLinesKeyboardController.prototype.select = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        if (!this.isSelectEnabled) {
+            return;
+        }
+
+        const wasSelected = this.getCurrentElement().hasClass('selected');
+
+        this.selectAction();
+
+        const isSelected = this.getCurrentElement().hasClass('selected');
+        if (!wasSelected && isSelected) {
+            this.readSelected();
+        } else if (wasSelected && !isSelected) {
+            this.readDeselected();
+        }
+    };
+
+    PointsLinesKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    PointsLinesKeyboardController.prototype.readCurrentElement = function () {
+        if (!presenter.isTTS()) {
+            return;
+        }
+
+        let textVoices = [];
+        const $currentPoint = this.getCurrentElement();
+        const currentPointIndex = parseInt($currentPoint.parent().attr('order_value'), 10) - 1;
+        textVoices.push(this.createTextVoiceForPoint(currentPointIndex));
+
+        if ($currentPoint.hasClass('selected') && !presenter.isShowingAnswers()) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+        }
+
+        const connectedPointsIndexes = getConnectedPointsIndexes(currentPointIndex);
+        if (connectedPointsIndexes.length !== 0) {
+            textVoices.push(this.createTextVoiceWithLanguageFromLesson(presenter.speechTexts.connectedTo));
+            connectedPointsIndexes.forEach(pointIndex => {
+                textVoices.push(this.createTextVoiceForPoint(pointIndex));
+                if (!presenter.isErrorMode) {
+                    return;
+                }
+
+                if (isCorrctConnected(currentPointIndex, pointIndex)) {
+                    textVoices.push(this.createTextVoiceWithLanguageFromLesson(presenter.speechTexts.correct));
+                } else if (isWrongConnected(currentPointIndex, pointIndex)) {
+                    textVoices.push(this.createTextVoiceWithLanguageFromLesson(presenter.speechTexts.wrong));
+                }
+            })
+        }
+        presenter.speak(textVoices);
+    };
+    
+    function getConnectedPointsIndexes (rootPointIndex) {
+        let connectedPointsIndexes = [];
+        if (presenter.isShowingAnswers()) {
+            const linesForShowAnswers = presenter.view.querySelectorAll(`.line-show-answer`);
+            const attribute1Name = `point1`;
+            const attribute2Name = `point2`;
+            linesForShowAnswers.forEach(line => {
+                let attribute1Value = parseInt(line.getAttribute(attribute1Name), 10);
+                if (attribute1Value === rootPointIndex) {
+                    let attribute2Value = parseInt(line.getAttribute(attribute2Name), 10);
+                    connectedPointsIndexes.push(attribute2Value);
+                } else {
+                    let attribute2Value = parseInt(line.getAttribute(attribute2Name), 10);
+                    if (attribute2Value === rootPointIndex) {
+                        connectedPointsIndexes.push(attribute1Value);
+                    }
+                }
+            })
+            connectedPointsIndexes = [...new Set(connectedPointsIndexes)];
+        } else {
+            let connections = presenter.currentLines[rootPointIndex];
+            for (let i = 0; i < rootPointIndex; i++) {
+                connections[i] = presenter.currentLines[i][rootPointIndex];
+            }
+            connections.forEach((value, index) => {
+                if (!value) return;
+                connectedPointsIndexes.push(index);
+            })
+        }
+        connectedPointsIndexes.sort();
+        return connectedPointsIndexes;
+    }
+
+    PointsLinesKeyboardController.prototype.readSelected = function () {
+        if (!presenter.isTTS()) {
+            return;
+        }
+
+        let textVoices = [];
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+        presenter.speak(textVoices);
+    };
+
+    PointsLinesKeyboardController.prototype.readDeselected = function () {
+        if (!presenter.isTTS()) {
+            return;
+        }
+
+        let textVoices = [];
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselected));
+        presenter.speak(textVoices);
+    };
+
+    PointsLinesKeyboardController.prototype.readConnected = function () {
+        if (!presenter.isTTS()) {
+            return;
+        }
+
+        let textVoices = [];
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.connected));
+        presenter.speak(textVoices);
+    };
+
+    PointsLinesKeyboardController.prototype.readDisconnected = function () {
+        if (!presenter.isTTS()) {
+            return;
+        }
+
+        let textVoices = [];
+        textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disconnected));
+        presenter.speak(textVoices);
+    };
+
+    PointsLinesKeyboardController.prototype.createTextVoiceForPoint = function (pointIndex) {
+        let message;
+        if (presenter.altTexts && presenter.altTexts[pointIndex]) {
+            message = presenter.altTexts[pointIndex];
+        } else {
+            const isIndexExist = presenter.indexes && presenter.indexes[pointIndex];
+            const index = isIndexExist ? presenter.indexes[pointIndex] : pointIndex + 1;
+            const commaToSeparateIndex = ','
+            message = `${presenter.speechTexts.point}${commaToSeparateIndex} ${index}`;
+        }
+        return this.createTextVoiceWithLanguageFromPresenter(message);
+    };
+
+    PointsLinesKeyboardController.prototype.createTextVoiceWithLanguageFromLesson = function (message) {
+        return window.TTSUtils.getTextVoiceObject(message);
+    };
+
+    PointsLinesKeyboardController.prototype.createTextVoiceWithLanguageFromPresenter = function (message) {
+        return window.TTSUtils.getTextVoiceObject(message, presenter.langTag);
+    };
+
+    presenter.speak = function (data) {
+        let tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
     };
 
     return presenter;

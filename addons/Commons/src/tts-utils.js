@@ -8,7 +8,9 @@
             dropdown: '&&dropdown&&',
             correct: '&&correct&&',
             wrong: '&&wrong&&',
-            empty: '&&empty&&'
+            empty: '&&empty&&',
+            nonBreakingSpace: '\u00A0',
+            textNodeId: 3
         },
 
         GENDER: {
@@ -18,10 +20,12 @@
         },
 
         getTextVoiceArrayFromElement: function($element, presenterLangTag) {
-            var $clone = $element.clone();
+            var $clone = $('<div></div>').append($element.clone());
 
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
+            $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
             var TextVoiceArray = [];
@@ -59,6 +63,8 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
+            $clone = this._prepareLists($clone);
+            $clone = this._addEndingSpace($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
 
@@ -175,11 +181,12 @@
 
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
+                var sanitizedText = window.xssUtils.sanitize(replaceText);
                 var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
-                    replaceText = '\\alt{ |' + replaceText + '}' + '[lang ' + langTag + ']';
+                    sanitizedText = '\\alt{ |' + sanitizedText + '}' + '[lang ' + langTag + ']';
                 }
-                $(this).append(replaceText);
+                $(this).append(sanitizedText);
             });
 
             return $clone;
@@ -189,12 +196,67 @@
             var breakText = this.statics.breakText;
 
             $clone.find('img[alt]').each(function(){
-                var altText = $(this).attr('alt');
+                var altText = window.xssUtils.sanitize($(this).attr('alt'));
                 $('<span>' + breakText + '</span>').insertBefore($(this));
                 $('<span>' + breakText + '</span>').insertAfter($(this));
                 $('<span>' + altText + '</span>').insertAfter($(this));
             });
 
+            return $clone;
+        },
+
+        _prepareLists: function($clone) {
+            $clone.find('ol > li').each(function(){
+                var index = 0;
+                var currentElement = this;
+                while (currentElement != null) {
+                    if (currentElement.nodeName && currentElement.nodeName.toLowerCase()  == "li") {
+                        index += 1;
+                        if (currentElement.hasAttribute("value")) {
+                            var value = currentElement.getAttribute("value");
+                            if (!isNaN(value)) {
+                                index += parseInt(value) - 1;
+                                break;
+                            }
+                        }
+                    }
+                    currentElement = currentElement.previousSibling;
+                }
+                this.innerHTML = ". " + index + ": " + this.innerHTML;
+                this.setAttribute("value", index);
+            });
+
+            return $clone;
+        },
+
+        _addEndingSpace: function($clone) {
+            var self = this;
+            function isTextNode(node) {
+                return node != null && node.nodeType == self.statics.textNodeId;
+            }
+
+            function endsWithPunctuation(text) {
+                var trimmedText = text.replaceAll(self.statics.nonBreakingSpace, " ").replaceAll("&nbsp;", " ").trim();
+                if (trimmedText.length === 0) return true; //text node with only white spaces should be ignored
+                var punc = ".,;?!";
+                for (var i = 0; i < punc.length; i++) {
+                    if (trimmedText.endsWith(punc[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            $clone.find('div, p').each(function(){
+                originalHTML = this.innerHTML;
+                if (isTextNode(this.previousSibling) && !endsWithPunctuation(this.previousSibling.wholeText)) {
+                    originalHTML = "." + self.statics.nonBreakingSpace + originalHTML;
+                }
+                if (isTextNode(this.lastChild) && !endsWithPunctuation(this.innerText)) {
+                    originalHTML = originalHTML + "." + self.statics.nonBreakingSpace;
+                }
+                originalHTML = originalHTML + self.statics.nonBreakingSpace;
+                this.innerHTML = originalHTML;
+            });
             return $clone;
         },
 

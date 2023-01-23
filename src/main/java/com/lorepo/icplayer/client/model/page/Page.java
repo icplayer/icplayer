@@ -27,6 +27,7 @@ import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
@@ -52,7 +53,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "7";
+	public static final String version = "8";
 	
 	private String id;
 	private String name;
@@ -92,10 +93,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private int pageWeight = 1;
 	private int pageCustomWeight = 1;
 	private String semiResponsiveLayoutID = "default";
-	private String previousSemiResponsiveLayoutID = null;
 	public PageHeightModifications heightModifications = new PageHeightModifications();
 	
 	private boolean randomizeInPrint = false;
+	private boolean isSplitInPrintBlocked = false;
 	private boolean notAssignable = false;
 
 	private String defaultLayoutID;
@@ -117,6 +118,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
 		addPropertyRandomizeInPrint();
+		addPropertyIsSplitInPrintBlocked();
+		addGroupIdValidatorToModules();
 	}
 
 	/**
@@ -146,6 +149,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		
 		page.getRandomizeInPrint = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::getRandomizeInPrint()();
+		}
+
+		page.isSplitInPrintBlocked = function() {
+			return x.@com.lorepo.icplayer.client.model.page.Page::isSplitInPrintBlocked()();
 		}
 
 		page.isNotAssignable = function() {
@@ -253,7 +260,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
-		this.previousSemiResponsiveLayoutID = this.semiResponsiveLayoutID;
 		this.semiResponsiveLayoutID = newLayoutID;
 	}
 
@@ -272,6 +278,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += " scoring='" + scoringType + "'";
 		xml += " version='" + Page.version + "'";
 		xml += " randomizeInPrint='" + randomizeInPrint + "'";
+		xml += " isSplitInPrintBlocked='" + isSplitInPrintBlocked + "'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
@@ -573,6 +580,45 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addProperty(property);
 	}
 
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IBooleanProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+
 	private void addPropertyNotAssignable() {
 
 		IBooleanProperty property = new IBooleanProperty() {
@@ -648,6 +694,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
+	}
+
+	private void addGroupIdValidatorToModules() {
+		this.modules.addGroupIdValidator(new INameValidator() {
+			public boolean canChangeName(String newName) {
+				return (getGroupById(newName) == null);
+			}
+		});
 	}
 	
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
@@ -766,14 +820,20 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		String name;
 
 		for(int i = 1; i < 100; i++) {
-
 			name = baseName + i;
-			if (modules.getModuleById(name) == null) {
+            if (isIDUnique(name)) {
 				return name;
 			}
 		}
 
 		return baseName + "_new";
+	}
+
+	private boolean isIDUnique(String id) {
+		return (
+			modules.getModuleById(id) == null 
+			&& getGroupById(id) == null
+		);
 	}
 
 	public void outstreachHeight(int position, int amount) {
@@ -1030,13 +1090,50 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		return groupedModules;
 	}
 
-	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
-		rulers.put("verticals", verticals);
-		rulers.put("horizontals", horizontals);
+	public int getPageIndex() {
+		return playerServices.getCurrentPageIndex();
 	}
 
-	public List<Ruler> getRulersByType(String type) {
-		return rulers.get(type);
+	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
+		if (!rulers.isEmpty()) {
+			List<Ruler> currentVerticalRulers = this.getVerticalRulersFromOtherLayouts();
+			List<Ruler> currentHorizontalRulers = this.getHorizontalRulersFromOtherLayouts();
+
+			currentHorizontalRulers.addAll(horizontals);
+			currentVerticalRulers.addAll(verticals);
+			
+			rulers.put("verticals", currentVerticalRulers);
+			rulers.put("horizontals", currentHorizontalRulers);
+		} else {
+			rulers.put("verticals", verticals);
+			rulers.put("horizontals", horizontals);
+		}
+	}
+
+	private List<Ruler> getHorizontalRulersFromOtherLayouts() {
+		String layoutID = this.getSemiResponsiveLayoutID();
+		List<Ruler> horizontalRulers = new ArrayList<Ruler>();
+
+		for(Ruler ruler : rulers.get("horizontals")) {
+			if (ruler.getLayoutID() != layoutID) {
+				horizontalRulers.add(ruler);
+			}
+		}
+
+		return horizontalRulers;
+	}
+
+	private List<Ruler> getVerticalRulersFromOtherLayouts() {
+		String layoutID = this.getSemiResponsiveLayoutID();
+		List<Ruler> verticalRulers = new ArrayList<Ruler>();
+
+		for(Ruler ruler : rulers.get("verticals")) {
+			if (ruler.getLayoutID() != layoutID) {
+				verticalRulers.add(ruler);
+			}
+		}
+
+		return verticalRulers;
 	}
 
 	public HashMap<String, List<Ruler>> getRulers() {
@@ -1125,10 +1222,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public String getSemiResponsiveLayoutID() {
 		return this.semiResponsiveLayoutID;
-	}
-
-	public String getPreviousSemiResponsiveLayoutID() {
-		return this.previousSemiResponsiveLayoutID;
 	}
 
 	@Override
@@ -1278,6 +1371,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	
 	public boolean getRandomizeInPrint() {
 		return this.randomizeInPrint;
+	}
+
+	public boolean isSplitInPrintBlocked() {
+		return this.isSplitInPrintBlocked;
+	}
+
+	public void setSplitInPrintBlocked(boolean value) {
+		this.isSplitInPrintBlocked = value;
 	}
 
 	public void setNotAssignable(boolean value) {

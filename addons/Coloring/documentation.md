@@ -18,10 +18,18 @@ The Coloring addon gives users the ability to upload an image which can be later
     </tr>
     <tr>
         <td>Areas</td>
-        <td>The areas with provided correct coloring settings. It's a new line separated property. Each single line should contain x, y values and the color. <br>For example: 155;100;255 255 50 255
+        <td>The areas with provided correct coloring settings. It's a new line separated property. Each single line should contain x, y values, the color and an optional description for Text to speech. <br>For example: 155;100;255 255 50 255; Head area
 <br>The color is in RGBA format. x and y can be taken from the top-left corner of the Coloring module when in Editor. The color can also be "transparent". <br>For example: 155; 100; transparent.<br>
             Marking the area as transparent makes this area to be correct only when it is left without being colored. Coloring this area will be counted as mistake.
 		</td>
+    </tr>
+    <tr>
+        <td>Colors</td>
+        <td>
+            The colors that will be available for coloring in Text to speech use.
+            <p>Description - Description of the color. Read during color selection and while pointing at a colored area</p>
+            <p>Color RGBA - RGBA for the color</p>
+        </td>
     </tr>
 	<tr>
 		<td>Default Filling Color</td>
@@ -47,6 +55,14 @@ The Coloring addon gives users the ability to upload an image which can be later
         <td>Show all answers in gradual show answers mode</td>
         <td>If this property is selected the gradual show answer button will show correct answers for entire addon.</td>
     </tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>Allows you to set the langauge used to read the area names and color descriptions via the TTS module.</td>
+    </tr>
+
 </table>
 
 ## Supported commands

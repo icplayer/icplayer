@@ -7,7 +7,7 @@ public class AssetFactory {
 	private int orderNumber = 0;
 
 	public IAsset createAsset(String type, String url) {
-		
+
 
 		IAsset asset = null;
 		
@@ -21,7 +21,13 @@ public class AssetFactory {
 		else if(type.compareTo("video") == 0){
 			asset = new VideoAsset(url);
 		}
-		else{
+		else if(type.compareTo("script") == 0){
+			asset = new ScriptAsset(url);
+		}
+		else if(type.compareTo("module-script") == 0){
+			asset = new ScriptAsset(url, true);
+		}
+		else {
 			asset = new FileAsset(url);
 		}
 		

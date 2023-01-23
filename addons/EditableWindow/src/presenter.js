@@ -87,7 +87,7 @@ function AddonEditableWindow_create() {
         presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
         presenter.jQueryElementsCache.$container = $view.find(presenter.cssClasses.container.getSelector());
         presenter.jQueryElementsCache.$fixedContainer = $view.find(presenter.cssClasses.fixedContainer.getSelector());
-        presenter.jQueryElementsCache.$view =$view;
+        presenter.jQueryElementsCache.$view = $view;
     };
 
     presenter.run = function (view, model) {
@@ -431,7 +431,7 @@ function AddonEditableWindow_create() {
         presenter.createTinyMceAsync(textareaId, height, width);
 
         presenter.fillActiveTinyMce(presenter.configuration.model.textEditor, function (content) {
-            tinymce.get(textareaId).getBody().innerHTML = content;
+            setTextAreaInnerHTML(textareaId, content);
 
             presenter.configuration.iframeContent = content;
             $view.find(".addon-editable-reset-button").click(function () {
@@ -830,8 +830,8 @@ function AddonEditableWindow_create() {
             }
         }
 
-        var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
-        tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+        var newContent = documentContent.getElementsByTagName("body")[0].innerHTML;
+        setTextAreaInnerHTML(textareaId, newContent);
 
         presenter.getStyles();
 
@@ -840,6 +840,10 @@ function AddonEditableWindow_create() {
 
         presenter.configuration.isTinyMceFilled = true;
     };
+
+    function setTextAreaInnerHTML(textareaId, content) {
+        tinymce.get(textareaId).getBody().innerHTML = presenter.textParser.parse(content);
+    }
 
     presenter.getStyles = function() {
         var indexUrl = presenter.configuration.model.indexFile;
@@ -906,6 +910,9 @@ function AddonEditableWindow_create() {
         var availableWidth = presenter.getAvailableWidth();
 
         var scrollY = presenter.temporaryState.scrollTop;
+        if (scrollY == 0 && presenter.configuration.playerController) {
+            scrollY = presenter.configuration.playerController.iframeScroll();
+        }
 
         var topOffset = scrollY + 25;
         var leftOffset = (availableWidth - width) / 2;
@@ -983,12 +990,12 @@ function AddonEditableWindow_create() {
 
     presenter.disableWCAGIfTTSOrKeyboardNav = function EditableWindow_disableWCAGIfTTSOrKeyboardNav() {
         const $element = $($(presenter.configuration.view).find(".addon_EditableWindow").context);
-        if ($element.hasClass("ic_selected_module") || $element.hasClass("ic_active_module")) {
+        if ($element.hasClass(presenter.cssClasses.selectedModule.getName()) || $element.hasClass(presenter.cssClasses.activeModule.getName())) {
             presenter.dispatchEscapeKeydownEvent();
             presenter.dispatchShiftTabKeydownEvent();
-            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-            $(realElement[0]).removeClass("selected_module_fake");
-            $(realElement[0]).removeClass("active_module_fake");
+            const realElement = $(presenter.configuration.view).find(presenter.cssClasses.wrapper.getSelector());
+            $(realElement[0]).removeClass(presenter.cssClasses.selectedModuleFake.getName());
+            $(realElement[0]).removeClass(presenter.cssClasses.activeModuleFake.getName());
         }
     };
 
@@ -1023,6 +1030,8 @@ function AddonEditableWindow_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.configuration.playerController = controller;
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+
         presenter.configuration.eventBus = presenter.configuration.playerController.getEventBus();
         presenter.configuration.eventBus.addEventListener('ValueChanged', this);
         presenter.configuration.eventBus.addEventListener('ScrollEvent', this);
@@ -1203,7 +1212,11 @@ function AddonEditableWindow_create() {
         openFullScreenButton: new presenter.CssClass("addon-editable-open-full-screen-button"),
         closeFullScreenButton: new presenter.CssClass("addon-editable-close-full-screen-button"),
         wrapper: new presenter.CssClass("addon-editable-window-wrapper"),
-        buttonMenu: new presenter.CssClass("addon-editable-buttons-menu")
+        buttonMenu: new presenter.CssClass("addon-editable-buttons-menu"),
+        selectedModule: new presenter.CssClass("ic_selected_module"),
+        activeModule: new presenter.CssClass("ic_active_module"),
+        selectedModuleFake: new presenter.CssClass("selected_module_fake"),
+        activeModuleFake: new presenter.CssClass("active_module_fake"),
     };
 
     function EditableWindowKeyboardController (elements, columnsCount) {
@@ -1223,27 +1236,55 @@ function AddonEditableWindow_create() {
         var oldStyles = $element.attr("style") || "";
         var newStyles = oldStyles + " outline: none !important; box-shadow: none !important";
         $element.attr('style', newStyles);
-
-        document.addEventListener('keydown', keydownCallback);
-
-        function keydownCallback(e) {
-            const element = $(presenter.configuration.view).find(".addon_EditableWindow");
-            const $element = $(element.context);
-            const realElement = $(presenter.configuration.view).find(".addon-editable-window-wrapper");
-
-            if ($element.hasClass("ic_selected_module")) {
-                $(realElement[0]).addClass("selected_module_fake");
-            } else {
-                $(realElement[0]).removeClass("selected_module_fake");
-            }
-
-            if($element.hasClass("ic_active_module")) {
-                $(realElement[0]).addClass("active_module_fake");
-            } else {
-                $(realElement[0]).removeClass("active_module_fake");
-            }
-        };
     };
+
+    /**
+     * Method to select or activate module.
+     * This method is executed by class KeyboardNavigationController.
+     *
+     * @param className CSS class name to add to the view
+     *
+     * @return undefined
+     */
+    presenter.selectAsActive = function (className) {
+        const view = presenter.configuration.view;
+        const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
+
+        view.classList.add(className);
+        if (className === presenter.cssClasses.selectedModule.getName()) {
+            windowWrapper.classList.add(presenter.cssClasses.selectedModuleFake.getName());
+            if (!presenter.isWCAGOn) {
+                windowWrapper.focus();
+            }
+        }
+        if (className === presenter.cssClasses.activeModule.getName()) {
+            windowWrapper.classList.add(presenter.cssClasses.activeModuleFake.getName());
+        }
+    }
+
+    /**
+     * Method to deselect or deactivate module.
+     * This method is executed by class KeyboardNavigationController.
+     *
+     * @param className CSS class name to remove from the view
+     *
+     * @return undefined
+     */
+    presenter.deselectAsActive = function (className) {
+        const view = presenter.configuration.view;
+        const windowWrapper = $(view).find(presenter.cssClasses.wrapper.getSelector())[0];
+
+        view.classList.remove(className);
+        if (className === presenter.cssClasses.selectedModule.getName()) {
+            windowWrapper.classList.remove(presenter.cssClasses.selectedModuleFake.getName());
+            if (!presenter.isWCAGOn) {
+                windowWrapper.blur();
+            }
+        }
+        if (className === presenter.cssClasses.activeModule.getName()) {
+            windowWrapper.classList.remove(presenter.cssClasses.activeModuleFake.getName());
+        }
+    }
 
     presenter.getElementsForKeyboardNavigation = function EditableWindow_getElementsForKeyboardNavigation() {
         let fullscreenElement = $(presenter.configuration.view).find(".addon-editable-full-screen-button");
@@ -1418,8 +1459,7 @@ function AddonEditableWindow_create() {
             const key = presenter.getTTSKeyBasedOnColor(element);
             text = presenter.speechTexts[key];
         } else if(element.hasClass("mce-edit-area")) {
-            const contentToRead = presenter.getContentToRead();
-            text = [TTSUtils.getTextVoiceObject(contentToRead, presenter.configuration.model.langAttribute)];
+            text = presenter.getContentToRead();
         } else if(element.hasClass("addon-editable-reset-button")) {
             text = presenter.speechTexts.reset;
         } else if(element[0].nodeName === "AUDIO") {
@@ -1434,15 +1474,11 @@ function AddonEditableWindow_create() {
     //images are temporarily replaced with it's alt text wrapped in paragraph in purpose to getContent with text- this allows to avoid manual parsing HTML
     //after all, originalContent is being restored to editor
     presenter.getContentToRead = function EditableWindow_getContentToRead () {
-        const originalContent = presenter.configuration.editor.getContent();
-        const img = presenter.speechTexts.image;
-
-        let contentWithoutImages = presenter.configuration.editor.getContent().replace(/<img .*?alt="(.*?)".*?>/gm, `<p>${img} $1</p>`);
-        presenter.configuration.editor.setContent(contentWithoutImages);
-        let contentToRead = presenter.configuration.editor.getContent({format : 'text'});
-        presenter.configuration.editor.setContent(originalContent);
-
-        return contentToRead;
+        const rawHTMLContent = presenter.configuration.editor.getContent({format : 'raw'});
+        const regex = /<img .*?alt="(.*?)".*?>/gm;
+        const contentWithoutImages = rawHTMLContent.replace(regex, `<p>${presenter.speechTexts.image} $1</p>`);
+        const sanitizedContent = window.xssUtils.sanitize(contentWithoutImages);
+        return window.TTSUtils.getTextVoiceArrayFromElement($(sanitizedContent), presenter.configuration.model.langAttribute);
     };
 
     presenter.getTTSKeyBasedOnColor = function EditableWindow_getTTSKeyBasedOnColor (element) {

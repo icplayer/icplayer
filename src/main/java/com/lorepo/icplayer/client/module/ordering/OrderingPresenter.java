@@ -398,6 +398,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			};
 		}
 
+		presenter.getView = function() { 
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getView()();
+		}
+
 		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::show()();
 		}
@@ -517,7 +521,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return "";
 	}
 
-	private boolean isActivity () {
+	@Override
+	public boolean isActivity () {
 		return module.isActivity();
 	}
 
@@ -527,6 +532,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 
 		return view.getInitialOrder() != view.getState();
+	}
+
+	private Element getView() {
+		return view.getElement();
 	}
 
 	private void show() {
