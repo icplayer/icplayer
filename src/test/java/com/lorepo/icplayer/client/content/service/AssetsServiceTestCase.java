@@ -16,7 +16,7 @@ import com.lorepo.icplayer.client.content.services.AssetsService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.IAsset;
 import com.lorepo.icplayer.client.model.asset.AssetFactory;
-import com.lorepo.icplayer.client.model.asset.FileAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 
@@ -55,7 +55,7 @@ public class AssetsServiceTestCase {
 	@Test
 	public void getAttachedLibrariesTest() {
 		IAsset asset = factory.createAsset("image", "file/1");
-		IAsset asset2 = factory.createAsset("library", "file/2");
+		IAsset asset2 = factory.createAsset("module-script", "file/2");
 		asset2.setFileName("new_library.min.js");
 		List<IAsset> assets = new ArrayList<IAsset>();
 		
@@ -65,7 +65,7 @@ public class AssetsServiceTestCase {
 		as = new AssetsService(mockedContent);
 		Whitebox.setInternalState(as, "assets", assets);
 
-		Map<String, FileAsset> attachedLibraries = as.getAttachedLibraries();
+		Map<String, ScriptAsset> attachedLibraries = as.getAttachedLibraries();
 		String fileName = attachedLibraries.keySet().iterator().next();
 
 		assertEquals(1, attachedLibraries.size());

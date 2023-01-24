@@ -14,7 +14,11 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.asset.FileAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.content.services.AssetsService;
+import com.lorepo.icplayer.client.module.api.player.IAssetsService;
+import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.model.Content;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
@@ -58,31 +62,5 @@ public class PlayerAppTestCase {
 		Whitebox.setInternalState(appMock, "lastSentLayoutID", lastSentLayout);
 		appMock.updateLayout();
 		Mockito.verify(appMock, Mockito.times(1)).changeLayout(lastSentLayout);
-	}
-
-	@Ignore
-	@Test
-	// mocked assets service occures null - to correct
-	public void loadAttachedLibrariesTest() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-		PlayerController playerControllerMock = Mockito.mock(PlayerController.class);
-		PlayerEntryPoint entryPoint1 = new PlayerEntryPoint();
-		PlayerApp player = new PlayerApp("player", entryPoint1);
-		Method method = this.getLoadAttachedLibraries(player);
-		FileAsset asset = new FileAsset("test/url");
-		Map<String, FileAsset> libraries = new HashMap<String, FileAsset>();
-		AssetsService assetsService = Mockito.mock(AssetsService.class);
-		libraries.put("Test", asset);
-
-		Mockito.when(playerControllerMock.getAssetsService()).thenReturn(assetsService);
-		Mockito.when(assetsService.getAttachedLibraries()).thenReturn(libraries);
-		
-		method.invoke(player);
-	}
-
-	private Method getLoadAttachedLibraries(PlayerApp player) throws NoSuchMethodException {
-		Method method = player.getClass().getDeclaredMethod("loadAttachedLibraries");
-		method.setAccessible(true);
-
-		return method;
 	}
 }
