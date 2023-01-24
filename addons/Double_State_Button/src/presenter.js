@@ -422,6 +422,10 @@ function AddonDouble_State_Button_create(){
         }
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return presenter.configuration.enableCheckMode;
+    }
+
     presenter.enable = function() {
         if (presenter.configuration.isDisabled) {
             presenter.toggleDisable(false);

@@ -1,4 +1,4 @@
-TestCase("[PointLines] gradualShowAnswers button", {
+TestCase("[PointsLines] gradualShowAnswers button", {
     setUp: function () {
         this.presenter = AddonPointsLines_create();
 
@@ -31,7 +31,6 @@ TestCase("[PointLines] gradualShowAnswers button", {
         this.stubs.notStub.returns({
             css: this.stubs.cssStub,
         });
-
 
         this.presenter.$view = {
             find: this.stubs.findStub,
