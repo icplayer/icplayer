@@ -65,7 +65,6 @@ TestCase("[Paragraph] lock and unlock method", {
         this.presenter.unlock();
         assertTrue(this.presenter.$view.find('.paragraph-lock').length === 0);
     }
-
 });
 
 TestCase("[Paragraph] isAttempted method", {
@@ -132,5 +131,5 @@ TestCase("[Paragraph] isAttempted method", {
         assertTrue(this.presenter.editor.getContent.called);
         assertFalse(result);
     }
-
 });
+
