@@ -189,6 +189,7 @@ function AddonParagraph_create() {
 
         elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
         presenter.isShowAnswersActive = true;
+        presenter.isErrorCheckingMode = false;
     };
 
     presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
@@ -220,6 +221,7 @@ function AddonParagraph_create() {
         presenter.enableEdit();
         presenter.isShowAnswersActive = false;
         presenter.isGradualShowAnswersActive = false;
+        presenter.isErrorCheckingMode = false;
         presenter.currentGSAIndex = 0;
 
         if (presenter.cachedAnswer.length) {
@@ -241,6 +243,7 @@ function AddonParagraph_create() {
             presenter.initializeShowAnswers(elements);
             presenter.isGradualShowAnswersActive = true;
         }
+        presenter.isErrorCheckingMode = false;
 
         if (presenter.currentGSAIndex !== 0) {
             elements[0].innerHTML += "<div></div><br>";
@@ -1192,7 +1195,9 @@ function AddonParagraph_create() {
     };
 
     ParagraphKeyboardController.prototype.selectAction = function () {
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive
+            || presenter.isGradualShowAnswersActive
+            || presenter.isErrorCheckingMode) {
             return;
         }
 

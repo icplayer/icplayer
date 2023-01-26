@@ -1200,7 +1200,7 @@ var ice_dictionary_pl = {
 	"Paragraph_property_AlignCenter": "Align center",
 	"Paragraph_property_AlignRight": "Align right",
 	"Paragraph_property_Justify": "Justify",
-    "Paragraph_property_lang_attribute": "Lang attribute",
+	"Paragraph_property_lang_attribute": "Lang attribute",
 	"Paragraph_property_block_in_error_checking_mode": "Block in error checking mode",
 	"Paragraph_Keyboard_info" : "Pozwala użytkownikowi na wprowadzenie tekstu w dowolnej formie z zachowaniem formatowania WYSIWYG i wykorzystaniem znaków diakrytycznych.",
 	"Paragraph_Keyboard_name" : "Paragraf z e-Klawiaturą",
