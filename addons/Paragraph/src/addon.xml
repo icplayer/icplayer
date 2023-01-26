@@ -46,6 +46,6 @@
                 <property name="Justify" nameLabel="Paragraph_property_Justify" type="string"/>
             </property>
 		</property>
-		<property displayName="Lang attribute" name="langAttribute" nameLabel="Cross_Lesson_property_lang_attribute" type="string"/>
+		<property displayName="Lang attribute" name="langAttribute" nameLabel="Paragraph_property_lang_attribute" type="string"/>
 	</model>
 </addon>
