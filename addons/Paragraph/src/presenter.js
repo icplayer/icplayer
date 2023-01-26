@@ -11,6 +11,7 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
+    presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
 
@@ -252,11 +253,25 @@ function AddonParagraph_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+
+        if (!presenter.isErrorCheckingMode) {
+            presenter.isErrorCheckingMode = true;
+            if (presenter.configuration.isBlockedInErrorCheckingMode) {
+                presenter.disableEdit();
+            }
+        }
     };
 
     presenter.setWorkMode = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+        }
+
+        if (presenter.isErrorCheckingMode) {
+            presenter.isErrorCheckingMode = false;
+            if (presenter.configuration.isBlockedInErrorCheckingMode) {
+                presenter.enableEdit();
+            }
         }
     };
 
@@ -495,7 +510,8 @@ function AddonParagraph_create() {
             manualGrading: manualGrading,
             weight: weight,
             modelAnswer: modelAnswer,
-            langTag: model["langAttribute"]
+            langTag: model["langAttribute"],
+            isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
         };
     };
 
@@ -521,13 +537,14 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradePlaceholderText(model);
+        let upgradedModel = presenter.upgradePlaceholderText(model);
         upgradedModel = presenter.upgradeManualGrading(upgradedModel);
         upgradedModel = presenter.upgradeTitle(upgradedModel);
         upgradedModel = presenter.upgradeWeight(upgradedModel);
         upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeBlockInErrorCheckingMode(upgradedModel);
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -564,6 +581,10 @@ function AddonParagraph_create() {
 
     presenter.upgradeLangTag = function (model) {
         return presenter.upgradeAttribute(model, "langAttribute", "");
+    };
+
+    presenter.upgradeBlockInErrorCheckingMode = function (model) {
+        return presenter.upgradeAttribute(model, "Block in error checking mode", "False");
     };
 
     presenter.upgradeSpeechTexts = function (model) {

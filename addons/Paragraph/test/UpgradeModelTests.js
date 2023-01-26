@@ -8,8 +8,9 @@ TestCase("[Paragraph] Upgrade model", {
         this.upgradeTitleStub = sinon.stub(this.presenter, 'upgradeTitle');
         this.upgradeWeightStub = sinon.stub(this.presenter, 'upgradeWeight');
         this.upgradeModelAnswerStub = sinon.stub(this.presenter, 'upgradeModelAnswer');
-        this.upgradeLangTag = sinon.stub(this.presenter, 'upgradeLangTag');
-        this.upgradeSpeechTexts = sinon.stub(this.presenter, 'upgradeSpeechTexts');
+        this.upgradeLangTagStub = sinon.stub(this.presenter, 'upgradeLangTag');
+        this.upgradeSpeechTextsStub = sinon.stub(this.presenter, 'upgradeSpeechTexts');
+        this.upgradeBlockInErrorCheckingModeStub = sinon.stub(this.presenter, 'upgradeBlockInErrorCheckingMode');
     },
 
     tearDown: function () {
@@ -18,19 +19,23 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter.upgradeTitle.restore();
         this.presenter.upgradeWeight.restore();
         this.presenter.upgradeModelAnswer.restore();
+        this.presenter.upgradeLangTag.restore();
+        this.presenter.upgradeSpeechTexts.restore();
+        this.presenter.upgradeBlockInErrorCheckingMode.restore();
     },
 
     'test upgrade model': function () {
         this.presenter.upgradeModel({});
 
-        assertTrue(this.upgradePlaceholderTextStub.called);
-        assertTrue(this.upgradeEditablePlaceholderStub.called);
-        assertTrue(this.upgradeManualGradingStub.called);
-        assertTrue(this.upgradeTitleStub.called);
-        assertTrue(this.upgradeWeightStub.called);
-        assertTrue(this.upgradeModelAnswerStub.called);
-        assertTrue(this.upgradeLangTag.called);
-        assertTrue(this.upgradeSpeechTexts.called);
+        assertTrue(this.upgradePlaceholderTextStub.calledOnce);
+        assertTrue(this.upgradeEditablePlaceholderStub.calledOnce);
+        assertTrue(this.upgradeManualGradingStub.calledOnce);
+        assertTrue(this.upgradeTitleStub.calledOnce);
+        assertTrue(this.upgradeWeightStub.calledOnce);
+        assertTrue(this.upgradeModelAnswerStub.calledOnce);
+        assertTrue(this.upgradeLangTagStub.calledOnce);
+        assertTrue(this.upgradeSpeechTextsStub.calledOnce);
+        assertTrue(this.upgradeBlockInErrorCheckingModeStub.calledOnce);
     }
 });
 
@@ -229,3 +234,26 @@ TestCase("[Paragraph] Upgrade model with show answers", {
     }
 });
 
+TestCase("[Paragraph] Upgrade model with Block in error checking mode", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test given empty model when upgrade then should add Block in error checking mode with "False" value': function () {
+        const model = {};
+
+        const upgradedModel = this.presenter.upgradeBlockInErrorCheckingMode(model);
+
+        assertEquals("False", upgradedModel["Block in error checking mode"]);
+    },
+
+    'test given model with filled Block in error checking mode when upgrade then should leave value unchanged': function () {
+        const model = {
+            "Block in error checking mode": "True"
+        };
+
+        const upgradedModel = this.presenter.upgradeBlockInErrorCheckingMode(model);
+
+        assertEquals("True", upgradedModel["Block in error checking mode"]);
+    },
+});
