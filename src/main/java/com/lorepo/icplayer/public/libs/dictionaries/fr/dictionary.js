@@ -1201,6 +1201,8 @@ var ice_dictionary_fr = {
     "Paragraph_property_AlignCenter": "Align center",
     "Paragraph_property_AlignRight": "Align right",
     "Paragraph_property_Justify": "Justify",
+    "Paragraph_property_lang_attribute": "Lang attribute",
+    "Paragraph_property_block_in_error_checking_mode": "Block in error checking mode",
     "Paragraph_Keyboard_info": "Permet à un utilisateur de saisir un texte libre qui s'affichera tel quel et avec les caractères diacritiques.",
     "Paragraph_Keyboard_name": "Clavier de caractères spéciaux",
     "Paragraph_Keyboard_property_default_font_family": "Famille de police par défaut",
