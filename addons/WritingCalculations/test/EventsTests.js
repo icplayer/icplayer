@@ -1,4 +1,4 @@
-TestCase("Events tests", {
+TestCase("[Writing Calculations] Events tests", {
     setUp : function() {
         this.presenter = AddonWritingCalculations_create();
         this.presenter.model = {
@@ -15,4 +15,3 @@ TestCase("Events tests", {
         assertEquals('1', eventData.score);
     }
 });
-
