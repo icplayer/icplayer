@@ -681,12 +681,12 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		if (this.presenters.size() == 0 && this.presentersOriginalOrder.size() == 0) {
 			return;
 		}
-        final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0
-            ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
-            : false;
+        	final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0
+            		? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
+            		: false;
 		final boolean isCommonModuleActivatedWCAGNavigation = this.presenters.size() > 0 &&  ((this.presenters.size() - 1) >= this.actualSelectedModuleIndex)
-            ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
-            : false;
+            		? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
+            		: false;
 		
 		if (!isCommonModuleActivatedOriginalNavigation && !isCommonModuleActivatedWCAGNavigation) {
 			this.moduleIsActivated = false;
