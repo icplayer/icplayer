@@ -573,8 +573,10 @@ function AddonColoring_create(){
 
     presenter.createColorSpeechTextsMap = function(colors) {
         if (!colors) return;
+        const whiteRGBAString = presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
         presenter.colorSpeechTextMap = colors.reduce((prev, curr) => {
             const color = presenter.getRGBAStringFromRGBAArray(curr.colorRGBA);
+            if (color === whiteRGBAString) return prev;
             return {
                 ...prev,
                 [color] : curr.speechText
