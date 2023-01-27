@@ -250,9 +250,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void connectAudios(Iterator<AudioInfo> iterator) {
+		int audioIndex = 1;
 		while (iterator.hasNext()) {
 			final AudioInfo info = iterator.next();
 			String id = info.getId();
+			info.setIndex(audioIndex);
 
 			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
 			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
@@ -281,9 +283,50 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 			});
 
+			this.addAudioUpdateTimeEventListener(info);
+			this.addAudioPlayingEventListener(info);
+			this.addAudioPauseEventListener(info);
+
 			textElements.add(button);
+			audioIndex += 1;
 		}
 	}
+
+	private native void addAudioUpdateTimeEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("timeupdate", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioTimeUpdate(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
+
+	private native void addAudioPlayingEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("playing", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioPlaying(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
+
+	private native void addAudioPauseEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("pause", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioPause(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
 
 	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<NavigationTextElement> navigationTextElements) {
 		for (int i=startingIndex; i<navigationTextElements.size(); i++) {
