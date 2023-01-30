@@ -1,3 +1,4 @@
+2023-01-27 Fix TTS causing error in page load
 2023-01-18 Added sending to all teachers option in FileSender
 2023-01-12 Fixed inability to drag a Source List item from Text when formatting is used
 2023-01-11 Added Gradual Show Answers to Gap Binder
