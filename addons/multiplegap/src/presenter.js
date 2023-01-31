@@ -411,6 +411,8 @@ function Addonmultiplegap_create(){
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
+            console.log('eventName ', eventName)
+            console.log('eventData ', eventData)
 
             switch (true) {
                 case eventName === "ItemConsumed":
@@ -1388,7 +1390,7 @@ function Addonmultiplegap_create(){
         if (itemsToCount !== null && itemsToCount !== undefined) {
             return itemsToCount;
         }
-        return presenter.$view.find('.multiplegap_placeholders')[0].childElementCount;
+        return presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
     };
     
     presenter.isAttemptedCommand = function() {
