@@ -411,8 +411,6 @@ function Addonmultiplegap_create(){
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
-            console.log('eventName ', eventName)
-            console.log('eventData ', eventData)
 
             switch (true) {
                 case eventName === "ItemConsumed":
