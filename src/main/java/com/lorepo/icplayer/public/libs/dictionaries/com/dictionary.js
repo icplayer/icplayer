@@ -1087,6 +1087,8 @@ var ice_dictionary_en = {
 	"Paragraph_property_AlignCenter": "Align center",
 	"Paragraph_property_AlignRight": "Align right",
 	"Paragraph_property_Justify": "Justify",
+	"Paragraph_property_lang_attribute": "Lang attribute",
+	"Paragraph_property_block_in_error_checking_mode": "Block in error checking mode",
     "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and diacritical characters.",
 	"Paragraph_Keyboard_name": "Paragraph eKeyboard",
 	"Paragraph_Keyboard_property_default_font_family": "Default font family",
