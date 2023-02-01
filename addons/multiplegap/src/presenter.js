@@ -423,12 +423,15 @@ function Addonmultiplegap_create(){
                     presenter.isItemChecked = true;
                     break;
 
+                case eventName === "ItemSelected" && eventData.value == null && presenter.isAllOK():
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    sendAllOKEvent();
+                    break;
+
                 case eventName === "ItemSelected":
                     presenter.$view.find('.handler').show();
                     presenter.isItemChecked = false;
-
-                case eventData.value == null && presenter.isAllOK():
-                    sendAllOKEvent();
                     break;
             }
 
@@ -1096,8 +1099,6 @@ function Addonmultiplegap_create(){
             'value' : 'remove',
             'score' : '0'
         });
-        
-        if (presenter.isAllOK()) sendAllOKEvent();
     };
         
     presenter.movePlaceholdersAfterRemove = function (index, element) {
