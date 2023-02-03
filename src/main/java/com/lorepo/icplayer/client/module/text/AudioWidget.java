@@ -18,4 +18,19 @@ public class AudioWidget extends Audio {
         pause();
         setCurrentTime(0);
     }
+
+    public String getCurrentTimeInMMSSFormat() {
+        int currentTime = (int) this.getCurrentTime();
+        int minutes = currentTime / 60;
+        int seconds = currentTime % 60;
+        String minutesRep = "" + minutes;
+        if (minutes < 10) {
+            minutesRep = "0" + minutesRep;
+        }
+        String secondsRep = "" + seconds;
+        if (seconds < 10) {
+            secondsRep = "0" + secondsRep;
+        }
+        return minutesRep + ":" + secondsRep;
+    }
 }

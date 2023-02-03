@@ -19,4 +19,7 @@ public interface ITextViewListener {
 	void onUserAction(String id, String newValue);
 	void onAudioButtonClicked(AudioInfo audioInfo);
 	void onAudioEnded(AudioInfo audioInfo);
+	void onAudioTimeUpdate(AudioInfo audioInfo);
+	void onAudioPlaying(AudioInfo audioInfo);
+	void onAudioPause(AudioInfo audioInfo);
 }
