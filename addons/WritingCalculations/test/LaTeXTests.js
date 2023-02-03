@@ -1,4 +1,4 @@
-TestCase("LaTeX Methods Tests", {
+TestCase("[Writing Calculations] LaTeX Methods Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
         this.presenter.signs = {

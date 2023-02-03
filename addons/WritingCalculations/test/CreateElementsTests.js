@@ -1,4 +1,4 @@
-TestCase("Create Elements Tests", {
+TestCase("[Writing Calculations] Create Elements Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
     },
@@ -12,14 +12,13 @@ TestCase("Create Elements Tests", {
 
     'test createElement method with different types': function() {
         // Given
-        var value = 8;
 
         // When
-        var createdElementSymbol = this.presenter.createElement(value, this.presenter.ELEMENT_TYPE.SYMBOL);
-        var createdElementEmptyBox = this.presenter.createElement(value, this.presenter.ELEMENT_TYPE.EMPTY_BOX);
-        var createdElementEmptySpace = this.presenter.createElement(value, this.presenter.ELEMENT_TYPE.EMPTY_SPACE);
-        var createdElementLine = this.presenter.createElement(value, this.presenter.ELEMENT_TYPE.LINE);
-        var createdElementNumber = this.presenter.createElement(value, this.presenter.ELEMENT_TYPE.NUMBER);
+        var createdElementSymbol = this.presenter.createElement(this.presenter.ELEMENT_TYPE.SYMBOL);
+        var createdElementEmptyBox = this.presenter.createElement(this.presenter.ELEMENT_TYPE.EMPTY_BOX);
+        var createdElementEmptySpace = this.presenter.createElement(this.presenter.ELEMENT_TYPE.EMPTY_SPACE);
+        var createdElementLine = this.presenter.createElement(this.presenter.ELEMENT_TYPE.LINE);
+        var createdElementNumber = this.presenter.createElement(this.presenter.ELEMENT_TYPE.NUMBER);
         var containerSymbol = createdElementSymbol.children();
         var containerEmptyBox = createdElementEmptyBox.children();
         var containerEmptySpace = createdElementEmptySpace.children();
@@ -58,5 +57,4 @@ TestCase("Create Elements Tests", {
         // Then
         assertEquals("", expectedAnswer, answer);
     }
-
 });

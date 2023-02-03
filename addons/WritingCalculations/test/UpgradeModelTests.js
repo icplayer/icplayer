@@ -1,4 +1,4 @@
-UpgradeModelTests = TestCase("Upgrade Model Tests");
+UpgradeModelTests = TestCase("[Writing Calculations] Upgrade Model Tests");
 
 UpgradeModelTests.prototype.setUp = function() {
     this.presenter = AddonWritingCalculations_create();
