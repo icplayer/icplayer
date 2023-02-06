@@ -14,6 +14,7 @@ function Addonmultiplegap_create(){
     var printableState = null;
 
     var presenter = function(){};
+    var elementCounter = 0;
 
     function getPlaceholders() {
         return jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function (placeholder) {
@@ -396,6 +397,7 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
+        presenter.elementCounter = presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -908,6 +910,7 @@ function Addonmultiplegap_create(){
     }
     
     function sendEvent(item, consumed) {
+        presenter.elementCounter++;
         if (consumed) {
             presenter.eventBus.sendEvent('ItemConsumed', item);
         }
@@ -1053,7 +1056,7 @@ function Addonmultiplegap_create(){
     };
     
     presenter.performRemoveDraggable = function(handler) {
-
+        presenter.elementCounter--;
         var placeholder = handler.parent();
         var child = placeholder.find('.contents');
         if(isWCAGOn) {
@@ -1099,6 +1102,8 @@ function Addonmultiplegap_create(){
             'value' : 'remove',
             'score' : '0'
         });
+
+        if (presenter.isAllOK()) sendAllOKEvent();
     };
         
     presenter.movePlaceholdersAfterRemove = function (index, element) {
@@ -1389,7 +1394,7 @@ function Addonmultiplegap_create(){
         if (itemsToCount !== null && itemsToCount !== undefined) {
             return itemsToCount;
         }
-        return presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
+        return presenter.elementCounter;
     };
     
     presenter.isAttemptedCommand = function() {
