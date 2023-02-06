@@ -206,9 +206,22 @@
         },
 
         _prepareLists: function($clone) {
+            function getAlphabeticIndex(index) {
+                var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var result = "";
+                while (index != 0) {
+                    var mod = index % 26;
+                    result = " " + ALPHABET[mod - 1] + result;
+                    index -= mod;
+                    index = index / 26;
+                }
+                return result;
+            }
+
             $clone.find('ol > li').each(function(){
                 var index = 0;
                 var currentElement = this;
+                var parent = this.parentElement;
                 while (currentElement != null) {
                     if (currentElement.nodeName && currentElement.nodeName.toLowerCase()  == "li") {
                         index += 1;
@@ -222,7 +235,11 @@
                     }
                     currentElement = currentElement.previousSibling;
                 }
-                this.innerHTML = ". " + index + ": " + this.innerHTML;
+                var startAttr = parent.getAttribute("start");
+                if (currentElement == null && startAttr.length > 0 && !isNaN(startAttr)) index += Number(startAttr) - 1;
+                var indexStr = index + "";
+                if (parent.getAttribute("type").toLowerCase() == "a") indexStr = getAlphabeticIndex(index);
+                this.innerHTML = ". " + getAlphabeticIndex(indexStr) + ": " + this.innerHTML;
                 this.setAttribute("value", index);
             });
 
