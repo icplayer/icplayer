@@ -239,7 +239,7 @@
                 if (currentElement == null && startAttr.length > 0 && !isNaN(startAttr)) index += Number(startAttr) - 1;
                 var indexStr = index + "";
                 if (parent.getAttribute("type").toLowerCase() == "a") indexStr = getAlphabeticIndex(index);
-                this.innerHTML = ". " + getAlphabeticIndex(indexStr) + ": " + this.innerHTML;
+                this.innerHTML = ". " + indexStr + ": " + this.innerHTML;
                 this.setAttribute("value", index);
             });
 
