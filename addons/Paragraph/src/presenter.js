@@ -122,6 +122,13 @@ function AddonParagraph_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.removeFocusFromDisabledElement = function () {
+        if (presenter.hasDisabledClass()) {
+            const iframe = presenter.$view.find('iframe');
+            iframe.blur();
+        }
+    };
+
     presenter.setVisibility = function AddonParagraph_setVisibility(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         if (isVisible) {
@@ -166,19 +173,19 @@ function AddonParagraph_create() {
     };
 
     presenter.enableEdit = function () {
-        let paragraph = presenter.$view.find(".paragraph-wrapper");
-
-        if(paragraph.hasClass('disabled')) {
-            paragraph.removeClass('disabled');
+        if(presenter.hasDisabledClass()) {
+            presenter.$view.find(".paragraph-wrapper").removeClass('disabled');
         }
     }
 
     presenter.disableEdit = function () {
-        let paragraph = presenter.$view.find(".paragraph-wrapper");
-
-        if(!paragraph.hasClass('disabled')) {
-            paragraph.addClass('disabled');
+        if(!presenter.hasDisabledClass()) {
+            presenter.$view.find(".paragraph-wrapper").addClass('disabled');
         }
+    }
+
+    presenter.hasDisabledClass = function () {
+        return presenter.$view.find(".paragraph-wrapper").hasClass('disabled');
     }
 
     presenter.showAnswers = function () {
@@ -327,6 +334,11 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+
+            presenter.editor.on('focus', function () {
+                presenter.removeFocusFromDisabledElement();
+            });
+
             presenter.isEditorLoaded = true;
             presenter.setStyles();
             presenter.setSpeechTexts(upgradedModel["speechTexts"]);
@@ -587,7 +599,7 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeBlockInErrorCheckingMode = function (model) {
-        return presenter.upgradeAttribute(model, "Block in error checking mode", "False");
+        return presenter.upgradeAttribute(model, "Block in error checking mode", "True");
     };
 
     presenter.upgradeSpeechTexts = function (model) {
@@ -617,7 +629,7 @@ function AddonParagraph_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model[attrName] == undefined) {
+        if (!upgradedModel.hasOwnProperty(attrName)) {
             upgradedModel[attrName] = defaultValue;
         }
 
