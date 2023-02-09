@@ -1,3 +1,4 @@
+2023-02-09 Update Hierarchical Lesson Report documentation
 2023-02-03 Fixed assessment navigation bar sometimes attempting to call isActualPage on an invalid object
 2023-02-03 Fix TTS causing error in page load
 2023-02-03 Added eraser to Coloring TTS

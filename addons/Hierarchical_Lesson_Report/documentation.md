@@ -83,7 +83,7 @@ The list starts with the common properties, learn more about them by visiting th
 	</tr>
 	<tr>
 		<td>Disable score on pages</td>
-		<td>Semicolon separated list of page indexes for which user progress (e.g. results) won't be displayed. In addition, ignored pages will not be taken into account while calculating the total score of the lesson.</td>
+		<td>Semicolon separated list of page indexes for which user progress (e.g. results) won't be displayed. In addition, ignored pages will not be taken into account while calculating the total score of the lesson. NOTE: When providing page indexes lesson chapters visible in the pages section are also counted towards the index.</td>
 	</tr>
 	<tr>
 		<td>Enable pages</td>
