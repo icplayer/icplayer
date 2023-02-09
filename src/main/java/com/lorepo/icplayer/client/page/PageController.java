@@ -470,7 +470,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getId() + statefulObj.getSerialId();
 				String moduleState = state.get(key);
-				if (moduleState != null) {
+				if (moduleState != null && moduleState != "") {
 					statefulObj.setState(moduleState);
 				}
 			}
