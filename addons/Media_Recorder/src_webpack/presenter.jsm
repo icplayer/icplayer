@@ -97,6 +97,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.enable();
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return true;
+    }
+
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
     };

@@ -5,7 +5,7 @@ function getValidModel(isVisible) {
     }
 }
 
-TestCase('[WritingCalculations] Visibility tests', {
+TestCase('[Writing Calculations] Visibility tests', {
     setUp: function () {
         this.presenter = AddonWritingCalculations_create();
 
@@ -18,7 +18,8 @@ TestCase('[WritingCalculations] Visibility tests', {
             createViewStub: sinon.stub(),
             bindValueChangeEventStub: sinon.stub(),
             setContainerWidthStub: sinon.stub(),
-            addAdditionalStylesStub: sinon.stub()
+            addAdditionalStylesStub: sinon.stub(),
+            validateModelValueStub: sinon.stub()
         };
 
         this.presenter.validateModel = this.stubs.validateModelStub;
@@ -30,13 +31,18 @@ TestCase('[WritingCalculations] Visibility tests', {
         this.presenter.setContainerWidth = this.stubs.setContainerWidthStub;
         this.presenter.addAdditionalStyles = this.stubs.addAdditionalStylesStub;
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
+        this.presenter.validateModelValue = this.stubs.validateModelValueStub;
 
         this.stubs.getEventBusStub.returns({
             addEventListener: function(){}
         });
 
+        this.presenter.validateModelValue.returns({
+            isValid: true
+        })
+
         this.presenter.playerController = {
-           getEventBus: this.stubs.getEventBusStub
+            getEventBus: this.stubs.getEventBusStub
         };
 
         this.view = document.createElement('div');

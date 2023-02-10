@@ -1,4 +1,4 @@
-TestCase("Adding additional classes and styles", {
+TestCase("[Writing Calculations] Adding additional classes and styles", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
 

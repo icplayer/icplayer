@@ -4,6 +4,7 @@ function AddonFile_Sender_create() {
     presenter.teachers = [];
     presenter.fileEndpointUrl = "";
     presenter.fileDownloadEndpointUrl = "";
+    presenter.fileSenderPickRecipientAvailable = true;
     presenter.views = [];
     presenter.dialog = null;
     presenter.pageIndex = -1;
@@ -124,6 +125,9 @@ function AddonFile_Sender_create() {
             }
             if ("fileDownloadEndpointUrl" in context) {
                 presenter.fileDownloadEndpointUrl = context["fileDownloadEndpointUrl"];
+            }
+            if (context["fileSenderPickRecipientAvailable"] == false) {
+                presenter.fileSenderPickRecipientAvailable = false;
             }
             if (presenter.fileEndpointUrl.length > 0
                 && presenter.fileDownloadEndpointUrl.length > 0) {
@@ -270,21 +274,39 @@ function AddonFile_Sender_create() {
 
     presenter.onSendFileClick = function() {
         if (!presenter.contextLoaded) return;
-
+        
         if (presenter.configuration.sourceType == SOURCE_TYPES.FILE) {
             if (presenter.sentFileId != -1) {
-                presenter.showTargetDialog();
+                if (!presenter.fileSenderPickRecipientAvailable) {
+                    presenter.sendFileToAllTeachers();
+                } else {
+                    presenter.showTargetDialog();
+                }
             }
         } else if (presenter.configuration.sourceType == SOURCE_TYPES.MEDIA_RECORDER) {
             var module = presenter.getMediaRecorderModule();
             if (module != null && !module.isEmpty()) {
-                presenter.showTargetDialog();
+                if (!presenter.fileSenderPickRecipientAvailable) {
+                    presenter.sendFileToAllTeachers();
+                } else {
+                    presenter.showTargetDialog();
+                }
             }
         } else {
             if (presenter.getParagraphModule() != null) {
-                presenter.showTargetDialog();
+                if (!presenter.fileSenderPickRecipientAvailable) {
+                    presenter.sendFileToAllTeachers();
+                } else {
+                    presenter.showTargetDialog();
+                }
             }
         }
+    }
+
+    presenter.sendFileToAllTeachers = function() {
+        presenter.teachers.forEach(teacher => {
+            presenter.sendFile(teacher["id"]);
+        });
     }
 
     presenter.setSentFile = function(fileName, fileId) {
