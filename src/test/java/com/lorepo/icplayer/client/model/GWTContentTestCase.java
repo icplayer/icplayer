@@ -29,6 +29,7 @@ import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.model.utils.ContentFactoryMockup;
@@ -588,5 +589,15 @@ public class GWTContentTestCase extends GwtTest {
 		assertNotNull(content.getPageById("schoice1"));
 		assertNotNull(content.getPageById("ordering2"));
 		assertNotNull(content.getPageById("report5"));
+	}
+
+	@Test
+	public void givenOnlyValidScriptAssetWhenAddAssetWasCalledThenAddToContent() {
+		Content content = new Content();
+		
+		content.addAsset(new ScriptAsset("test/file"));
+		content.addAsset(new ScriptAsset(null));
+
+		assertEquals(1, content.getAssetCount());
 	}
 }
