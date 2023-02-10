@@ -1,4 +1,10 @@
-2023-02-03 Fixed connection not coloring connections with MathJax
+2023-02-10 Fixed connection not coloring connections with MathJax
+2023-02-10 Update Hierarchical Lesson Report documentation
+2023-02-10 Added ordered list edition
+2023-02-06 Added deselected tts in paragraph toolbar
+2023-02-03 Fixed assessment navigation bar sometimes attempting to call isActualPage on an invalid object
+2023-02-03 Fix TTS causing error in page load
+2023-02-03 Added eraser to Coloring TTS
 2023-01-24 Fixed functionality to auto set in correct order groups' modules in view
 2023-01-20 Added support to audio events in Text addon
 2023-01-20 Added support for more than one digit inside the gap in Writing calculation addon

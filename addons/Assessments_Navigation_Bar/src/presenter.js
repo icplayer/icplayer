@@ -804,7 +804,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.moveToCurrentPageLogic = function () {
         for (var i = 0; i < this.actualPages.length; i++) {
-            if (this.actualPages[i].isActualPage()) {
+            var page = this.actualPages[i];
+            if (page != undefined && page.isActualPage != undefined && page.isActualPage()) {
                 return;
             }
         }
