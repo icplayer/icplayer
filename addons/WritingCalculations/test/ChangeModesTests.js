@@ -1,4 +1,4 @@
-TestCase("Change Modes Tests", {
+TestCase("[Writing Calculations] Change Modes Tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
         this.presenter.$view = $("<div><input class='writing-calculations-input correct' value='test' /></div>")
@@ -42,8 +42,5 @@ TestCase("Change Modes Tests", {
         assertEquals("", expectedElementValue, $(element).val());
         assertFalse("", element.hasClass("correct"));
         assertFalse("", element.hasClass("incorrect"));
-
     }
-
-
 });

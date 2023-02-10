@@ -4,6 +4,8 @@ This addon allows you to create writing calculations. You can create multiplicat
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
     <tr>
         <th>Property name</th>
@@ -127,6 +129,10 @@ This addon allows you to create writing calculations. You can create multiplicat
     <tr>
         <td>Enable more digits in gap</td>
         <td>Enables to write more digits than one in a gap. </td>
+    </tr>
+	<tr>
+        <td>Use numeric keyboard</td>
+        <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td>
     </tr>
 </table>
 
