@@ -36,9 +36,10 @@ function AddonConnection_create() {
     presenter.printableParserID = "";
     presenter.printableParserCallback = null;
 
+
     presenter.mathJaxLoaders = {
-        runLoader: false,
-        setStateLoader: true
+        runLoaded: false,
+        setStateLoaded: true,
     };
 
     presenter.PRINTABLE_STATE_MODE = {
@@ -53,7 +54,8 @@ function AddonConnection_create() {
     var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
 
     function checkIsMathJaxLoaded() {
-        return presenter.mathJaxLoaders.runLoader && presenter.mathJaxLoaders.setStateLoader;
+        return presenter.mathJaxLoaders.runLoaded
+            && presenter.mathJaxLoaders.setStateLoaded
     }
 
     var connections;
@@ -667,11 +669,10 @@ function AddonConnection_create() {
                     presenter.initializeView(view, model);
                     presenter.drawInitialValues();
                     presenter.addDisabledElementsFromInitialValues();
+                    presenter.mathJaxLoaders.runLoaded = true;
+                    deferredCommandQueue.resolve();
                 })
                 presenter.registerListeners(presenter.view);
-
-                presenter.mathJaxLoaders.runLoader = true;
-                deferredCommandQueue.resolve();
             });
         }
 
@@ -1621,7 +1622,7 @@ function AddonConnection_create() {
         // this is needed because run/setState method waits for MathJax process to be finished
         // if getState is called before MathJax EndProcess callback then state would be lost
         // this fix that problem
-        if (!presenter.mathJaxLoaders.setStateLoader && presenter.initialState !== null) {
+        if (!presenter.mathJaxLoaders.setStateLoaded && presenter.initialState !== null) {
             return presenter.initialState;
         }
 
@@ -1638,7 +1639,7 @@ function AddonConnection_create() {
     presenter.setState = function (state) {
         var hookExecuted = false;
         presenter.initialState = state;
-        presenter.mathJaxLoaders.setStateLoader = false;
+        presenter.mathJaxLoaders.setStateLoaded = false;
 
         presenter.mathJaxProcessEnded.then(function () {
             if (state !== '' && !hookExecuted) {
@@ -1661,11 +1662,10 @@ function AddonConnection_create() {
 
                 presenter.lineStack.setSendEvents(true);
                 presenter.redraw();
+                presenter.mathJaxLoaders.setStateLoaded = true;
                 deferredCommandQueue.resolve();
             }
-
             presenter.initialState = null;
-            presenter.mathJaxLoaders.setStateLoader = true;
             hookExecuted = true;
         });
     };

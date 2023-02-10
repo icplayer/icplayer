@@ -78,6 +78,37 @@ TestCase("[Coloring] TTS Tests", {
         assertEquals(this.presenter.colorSpeechTextMap["255 255 255 255"], color)
     },
 
+    'test given colors with white RGBA when creating colorMap then white is skipped': function () {
+        const colors = [
+            { colorRGBA: [255, 255, 255, 255], speechText: "white" },
+            { colorRGBA: [0, 0, 0, 0], speechText: "black" },
+            { colorRGBA: [100, 100, 100, 100], speechText: "red" },
+        ]
+
+        this.presenter.createColorSpeechTextsMap(colors);
+
+        const expected = undefined;
+        const actual = this.presenter.colorSpeechTextMap["255 255 255 255"];
+        assertEquals(expected, actual)
+    },
+
+    'test given valid colors when creating colorMap then colors are saved in map': function () {
+        const colors = [
+            { colorRGBA: [0, 0, 0, 0], speechText: "black" },
+            { colorRGBA: [100, 100, 100, 100], speechText: "some color" },
+        ]
+
+        this.presenter.createColorSpeechTextsMap(colors);
+
+        const expectedBlack = "black";
+        const expectedRed = "some color";
+        const actualBlack = this.presenter.colorSpeechTextMap["0 0 0 0"];
+        const actualRed = this.presenter.colorSpeechTextMap["100 100 100 100"];
+        assertEquals(expectedBlack, actualBlack);
+        assertEquals(expectedRed, actualRed);
+    },
+
+
     activateTTSWithoutReading: function() {
         this.presenter.setWCAGStatus(true);
         this.keyboardControllerObject.keyboardNavigationActive = true;

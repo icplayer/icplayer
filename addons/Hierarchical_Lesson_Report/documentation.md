@@ -5,7 +5,7 @@ It is possible to modify the appearance of each part of the report individually.
 
 ##Properties
 
-The list starts with the common properties, learn more about them by visiting the <a href="doc/page/Modules-description">Modules description</a> section. The other available properties are described below.
+The list starts with the common properties, learn more about them by visiting the <a href="https://mauthor.com/doc/page/Modules-description">Modules description</a> section. The other available properties are described below.
 
 <table border='1'>
 <tbody>
@@ -83,7 +83,7 @@ The list starts with the common properties, learn more about them by visiting th
 	</tr>
 	<tr>
 		<td>Disable score on pages</td>
-		<td>Semicolon separated list of page indexes for which user progress (e.g. results) won't be displayed. In addition, ignored pages will not be taken into account while calculating the total score of the lesson.</td>
+		<td>Semicolon separated list of page indexes for which user progress (e.g. results) won't be displayed. In addition, ignored pages will not be taken into account while calculating the total score of the lesson. NOTE: When providing page indexes lesson chapters visible in the pages section are also counted towards the index.</td>
 	</tr>
 	<tr>
 		<td>Enable pages</td>
@@ -110,7 +110,7 @@ The list starts with the common properties, learn more about them by visiting th
 	<tr>
 		<td>Use weighted arithmetic mean</td>
 		<td>Checking this property enables to use weighted arithmetic mean to calculate value in result column (progress bar and percentage result). <br>
-        Learn more about weights by visiting the <a href="doc/page/Activity-scoring">Activity scoring</a> section.
+        Learn more about weights by visiting the <a href="https://mauthor.com/doc/page/Activity-scoring">Activity scoring</a> section.
         </td>
 	</tr>
 </tbody>
@@ -303,4 +303,4 @@ the look of the errors column</td>
 } 
 
 ## Demo presentation
-Demo presentation is available [here](/embed/5665978565263360).                             
+Demo presentation is available [here](https://mauthor.com/embed/5665978565263360).                               
