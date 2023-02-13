@@ -800,6 +800,8 @@ function AddonIWB_Toolbar_create() {
             'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
             'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
             'enableUndoRedo': enableUndoRedo,
+            'disableModuleZoom': true,
+            'defaultZoom': 2
         };
     }
 
@@ -960,6 +962,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.zoomClickHandler = function IWB_Toolbar_zoomClickHandler(button){
+        console.log("zoom click handler");
         var lastEvent = null;
 
         presenter.panelView(button);
@@ -976,21 +979,37 @@ function AddonIWB_Toolbar_create() {
         presenter.modules = presenter.$pagePanel.find('.ic_page > *:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note,.iwb-toolbar-mask)');
 
         if(presenter.isZoomActive){
-            presenter.modules.each(function () {
-               var coverElement = $('<div class="iwb-zoom-cover"></div>'),
-                   maxDimensions = presenter.getTheWidestAndHighest($(this));
-               coverElement.css({
+            var pageElement = $('.ic_page');
+            var defaultCoverElement = $('<div class="iwb-zoom-cover iwb-default-zoom-cover"></div>'),
+               defMaxDimensions = presenter.getTheWidestAndHighest(pageElement);
+               defaultCoverElement.css({
                   position: "absolute",
-                  left: $(this).position().left,
-                  top: $(this).position().top,
-                  width: maxDimensions.width,
-                  height: maxDimensions.height,
-                  display: $(this).css('display'),
-                  visibility: $(this).css('visibility')
+                  left: 0,
+                  top: 0,
+                  width: defMaxDimensions.width,
+                  height: defMaxDimensions.height,
+                  display: pageElement.css('display'),
+                  visibility: pageElement.css('visibility')
                });
+           $('.ic_page').append(defaultCoverElement);
 
-               $('.ic_page').append(coverElement);
-            });
+            if (!presenter.config.disableModuleZoom) {
+                presenter.modules.each(function () {
+                   var coverElement = $('<div class="iwb-zoom-cover"></div>'),
+                       maxDimensions = presenter.getTheWidestAndHighest($(this));
+                   coverElement.css({
+                      position: "absolute",
+                      left: $(this).position().left,
+                      top: $(this).position().top,
+                      width: maxDimensions.width,
+                      height: maxDimensions.height,
+                      display: $(this).css('display'),
+                      visibility: $(this).css('visibility')
+                   });
+
+                   $('.ic_page').append(coverElement);
+                });
+            }
 
             var iwbCoverElements = $(".iwb-zoom-cover");
 
@@ -1002,10 +1021,13 @@ function AddonIWB_Toolbar_create() {
             presenter.modules.find('a').on('click', presenter.preventClickAction_zoomClickHandler);
 
             iwbCoverElements.on('mousedown', function(e) {
+                console.log("mousedown2");
                 e.stopPropagation();
                 e.preventDefault();
                 lastEvent = e;
                 presenter.isMouseDown= true;
+                presenter.mouseDownClientX = e.clientX;
+                presenter.mouseDownClientY = e.clientY;
             });
 
             iwbCoverElements.on('mouseup', function(e) {
@@ -1019,8 +1041,15 @@ function AddonIWB_Toolbar_create() {
                     !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
-
-                    presenter.zoomSelectedModule(e.currentTarget);
+                    console.log(e.currentTarget);
+                    console.log(e);
+                    console.log(presenter.mouseDownClientX);
+                    console.log(presenter.mouseDownClientY);
+                    if (!$(e.currentTarget).hasClass('iwb-default-zoom-cover')
+                        || (Math.abs(presenter.mouseDownClientX - e.clientX) < 20
+                        && Math.abs(presenter.mouseDownClientY - e.clientY) < 20)) {
+                        presenter.zoomSelectedModule(e);
+                    }
                 }
                 lastEvent = e;
             });
@@ -2652,7 +2681,9 @@ function AddonIWB_Toolbar_create() {
     };
 
 
-    presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(selectedModule) {
+    presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(event) {
+        console.log('zoomSelectedModule');
+        var selectedModule = event.currentTarget;
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
             presenter.$panel.show();
             zoom.out();
@@ -2666,11 +2697,20 @@ function AddonIWB_Toolbar_create() {
                 topWindowHeight = window.iframeSize.windowInnerHeight;
                 iframeTopOffset = window.iframeSize.offsetTop - window.iframeSize.frameOffset;
             }
-            zoom.to({
-                element: selectedModule,
-                topWindowHeight: topWindowHeight,
-                iframeTopOffset: iframeTopOffset
-            });
+            if ($(selectedModule).hasClass('iwb-default-zoom-cover')) {
+                console.log("default zoom");
+                zoom.to({
+                    x: event.pageX,
+                    y: event.pageY,
+                    scale: presenter.config.defaultZoom
+                });
+            } else {
+                zoom.to({
+                    element: selectedModule,
+                    topWindowHeight: topWindowHeight,
+                    iframeTopOffset: iframeTopOffset
+                });
+            }
             $(selectedModule).addClass('zoomed');
             presenter.changeCursor('zoom-out');
         }
