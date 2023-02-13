@@ -173,20 +173,22 @@ function AddonAnimated_Page_Progress_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive && !presenter.configuration.workInCheckMode) {
-            presenter.changeRange();
-        }
+        switch (eventName) {
+            case "ValueChanged":
+                if (!presenter.isShowAnswersActive && !presenter.configuration.workInCheckMode ||
+                    !presenter.isShowAnswersActive && presenter.configuration.workInCheckMode && eventData.value === "resetClicked" ||
+                    eventData.value === "PageLoaded") {
+                    presenter.changeRange();
+                }
+                break;
 
-        if (eventName == "ValueChanged" && !presenter.isShowAnswersActive && presenter.configuration.workInCheckMode && eventData.value == "resetClicked") {
-            presenter.changeRange();
-        }
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
 
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
         }
     };
 
