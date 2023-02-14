@@ -36,6 +36,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	private ChoiceOption choiceOption;
 	private ParserResult parserResult;
 	private EventBus eventBus;
+	private IOptionListener listener;
 	
 	private boolean isTouched = false;
 	
@@ -64,7 +65,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		setElementId();
 	}
 	
-	public boolean isEnable() {
+	public boolean isEnabled() {
 		return super.isEnabled(); 
 	}
 	
@@ -73,14 +74,23 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
 			e.preventDefault();
-			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
+			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnabled()();
 			if(isEnabled){
 				self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
 			}
 		});
 	}-*/;
-	
-	
+
+	@Override
+	public void onClick() {
+		//TODO, dokładniejszy komentarz pod:
+		//https://learneticsa.assembla.com/spaces/lorepo/tickets/realtime_cardwall?ticket=8637
+	}
+
+	public void addListener(IOptionListener listener) {
+		this.listener = listener;
+	}
+
 	@Override
 	public void onBrowserEvent(Event event) {
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
