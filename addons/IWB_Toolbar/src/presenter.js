@@ -687,6 +687,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeEnableUndoRedo(model);
+        upgradedModel = presenter.upgradeDefaultZoom(model);
         return upgradedModel;
     };
 
@@ -699,6 +700,21 @@ function AddonIWB_Toolbar_create() {
         }
         return upgradedModel;
     }
+
+    presenter.upgradeDefaultZoom = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (!upgradedModel['disableModuleZoom']) {
+                upgradedModel['disableModuleZoom'] = 'false';
+            }
+
+            if (!upgradedModel['defaultZoom']) {
+                upgradedModel['defaultZoom'] = '';
+            }
+
+            return upgradedModel;
+        }
 
     presenter.setBasicConfiguration = function (view, model) {
         presenter.$view = $(view);
@@ -752,6 +768,7 @@ function AddonIWB_Toolbar_create() {
             widthWhenClosed;
         var hasCustomButton = model["hasCustomButton"] == 'True';
         var enableUndoRedo = ModelValidationUtils.validateBoolean(model["enableUndoRedo"]);
+        var disableModuleZoom = ModelValidationUtils.validateBoolean(model["disableModuleZoom"]);
 
         if (!hasCustomButton) {
             presenter.$panel.children('.button.custom-script').hide();
@@ -784,6 +801,14 @@ function AddonIWB_Toolbar_create() {
 
         widthWhenClosed = validated.value;
 
+        var defaultZoom = 2;
+        if (model['defaultZoom']) {
+            var validated = ModelValidationUtils.validatePositiveInteger(model['defaultZoom']);
+            if (validated.isValid) defaultZoom = validated.value;
+        }
+        console.log("set default zoom to:");
+        console.log(defaultZoom);
+
         return {
             'addonID': model.ID,
             'isValid': true,
@@ -800,8 +825,8 @@ function AddonIWB_Toolbar_create() {
             'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
             'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
             'enableUndoRedo': enableUndoRedo,
-            'disableModuleZoom': true,
-            'defaultZoom': 2
+            'disableModuleZoom': disableModuleZoom,
+            'defaultZoom': defaultZoom
         };
     }
 

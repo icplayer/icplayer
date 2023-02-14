@@ -1814,6 +1814,8 @@ var ice_dictionary_mx = {
 	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
 	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
 	"IWB_Toolbar_property_enable_undo_redo": "Enable Undo/Redo buttons",
+	"IWB_Toolbar_property_disable_module_zoom": "Disable module zoom",
+    "IWB_Toolbar_property_default_zoom": "Default zoom",
 	"SVG2_info": "El módulo SVG permite insertar una imagen SVG en una presentación.",
 	"SVG2_name": "Imagen SVG",
 	"SVG2_property_svg_file": "Archivo SVG",
