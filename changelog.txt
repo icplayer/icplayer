@@ -1,3 +1,4 @@
+2023-02-15 Fixed crashing lesson editor for "Sample Templates"
 2023-01-26 Added Block in error checking mode to Paragraph addon
 2023-01-24 Fixed functionality to auto set in correct order groups' modules in view
 2023-01-20 Added support to audio events in Text addon
