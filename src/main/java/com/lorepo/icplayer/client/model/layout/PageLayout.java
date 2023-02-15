@@ -9,6 +9,7 @@ import com.lorepo.icf.utils.UUID;
 public class PageLayout implements PageLayoutBuilder {
 	
 	public static int MAX_TRESHOLD = 800;
+	public static int DEFAULT_GRID_SIZE = 25;
 	private String name;
 	private String id;
 	private int threshold;
@@ -134,7 +135,11 @@ public class PageLayout implements PageLayoutBuilder {
 	}
 
 	public void setGridSize(int gridSize) {
-		this.gridSize = gridSize;
+		if (gridSize == 0) {
+			this.gridSize = DEFAULT_GRID_SIZE;
+		} else {
+			this.gridSize = gridSize;
+		}
 	}
 
 	public boolean isThisCssStyle(String styleID) {

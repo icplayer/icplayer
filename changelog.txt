@@ -1,3 +1,4 @@
+2022-02-15 Fixed crashing lesson editor for "Sample Templates"
 2023-02-10 Added tests to external library injection
 2023-02-10 Fixed removing the gap by dragleave
 2023-02-10 Fixed connection not coloring connections with MathJax
