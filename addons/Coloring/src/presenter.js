@@ -27,6 +27,7 @@ function AddonColoring_create(){
     presenter.initialState = null;
     presenter.isCanvasInitiated = false;
     presenter.defaultColorRGBA = [255, 100, 100, 255];
+    presenter.whiteRGBA = [255, 255, 255, 255];
 
     presenter.AREA_TYPE = {
         NORMAL: 0,
@@ -156,7 +157,7 @@ function AddonColoring_create(){
         var configuration = presenter.configuration;
         var clickedArea = new areaObject(clickObject.x, clickObject.y, presenter.AREA_TYPE.USER_AREA);
         clickedArea.setPixelPosition();
-        clickedArea.colorToFill = [255, 255, 255, 255];
+        clickedArea.colorToFill = presenter.whiteRGBA;
 
         for(var i = 0; i < configuration.areas.length; i++) {
             var area = configuration.areas[i];
@@ -572,8 +573,10 @@ function AddonColoring_create(){
 
     presenter.createColorSpeechTextsMap = function(colors) {
         if (!colors) return;
+        const whiteRGBAString = presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
         presenter.colorSpeechTextMap = colors.reduce((prev, curr) => {
             const color = presenter.getRGBAStringFromRGBAArray(curr.colorRGBA);
+            if (color === whiteRGBAString) return prev;
             return {
                 ...prev,
                 [color] : curr.speechText
@@ -927,7 +930,7 @@ function AddonColoring_create(){
     presenter.setEraserOn = function() {
         presenter.configuration.isErase = true;
         presenter.configuration.lastUsedColor = presenter.configuration.currentFillingColor;
-        presenter.configuration.currentFillingColor = [255, 255, 255, 255];
+        presenter.configuration.currentFillingColor = presenter.whiteRGBA;
     };
 
     presenter.clearAreaCommand = function (coordinates){
@@ -1239,7 +1242,7 @@ function AddonColoring_create(){
 
     presenter.setCurrentFillingColorInSetState = function (state) {
         if (presenter.configuration.isErase) {
-            presenter.configuration.currentFillingColor = [255, 255, 255, 255];
+            presenter.configuration.currentFillingColor = presenter.whiteRGBA;
         } else {
             presenter.configuration.currentFillingColor = state.currentFillingColor;
         }
@@ -1536,7 +1539,7 @@ function AddonColoring_create(){
             presenter.floodFill({
                     x: this.area.x,
                     y: this.area.y,
-                    color: [255, 255, 255, 255]
+                    color: presenter.whiteRGBA
                 },
                 this.color,
                 presenter.configuration.tolerance);
@@ -1549,7 +1552,7 @@ function AddonColoring_create(){
         presenter.floodFill({
                 x: area.x,
                 y: area.y,
-                color: [255, 255, 255, 255]
+                color: presenter.whiteRGBA
             },
             [area.colorToFill[0], area.colorToFill[1], area.colorToFill[2], area.colorToFill[3]],
             presenter.configuration.tolerance);
@@ -1743,6 +1746,19 @@ function AddonColoring_create(){
                 presenter.configuration.tolerance
             );
             presenter.configuration.currentFillingColor = previousColor;
+            this.sendColoredEvent(colorString);
+    }
+
+    ColoringKeyboardController.prototype.sendColoredEvent = function (colorString) {
+            const isColorWhite = colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
+            setTimeout(() =>{
+                // Without timeout there are issues on Firefox if event handling takes too long
+                presenter.sendEvent(
+                    [this.lastAreaElement.x, this.lastAreaElement.y],
+                    isColorWhite ? 0 : 1,
+                    isCorrect(this.lastAreaElement) ? 1 : 0
+                );
+            }, 0);
     }
 
     ColoringKeyboardController.prototype.switchElementsToAreas = function () {

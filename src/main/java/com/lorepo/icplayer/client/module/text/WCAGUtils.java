@@ -138,24 +138,54 @@ public class WCAGUtils {
 		NodeList<Element> lis = wrapper.getElementsByTagName("li");
 		for	(int i = 0; i < lis.getLength(); i++) {
 			Element selectedLI = lis.getItem(i);
-			if(selectedLI.getParentElement().getTagName().toLowerCase().equals("ul")) continue;
+			Element parent = selectedLI.getParentElement();
+			if(parent.getTagName().toLowerCase().equals("ul")) continue;
 			Element currentElement = selectedLI;
 			int index = 0;
 			while (currentElement != null) {
 				if (currentElement.getTagName().toLowerCase().equals("li")) {
 					index += 1;
 					if (currentElement.hasAttribute("value")) {
-						try {
-							index += Integer.parseInt(currentElement.getAttribute("value")) - 1;
+						Integer value = getSafeNumberFromString(currentElement.getAttribute("value"));
+						if (value != null) {
+							index += value - 1;
 							break;
-						} catch (NumberFormatException e) {
 						}
 					}
 				}
 				currentElement = currentElement.getPreviousSiblingElement();
 			}
-			selectedLI.setInnerHTML(". " + String.valueOf(index) + ": " + selectedLI.getInnerHTML());
+			if (currentElement == null && parent.hasAttribute("start")) {
+				Integer startValue = getSafeNumberFromString(parent.getAttribute("start"));
+				if (startValue != null) index += startValue - 1;
+			}
+			String indexValue = String.valueOf(index);
+			if (parent.hasAttribute("type") && parent.getAttribute("type").toLowerCase().equals("a")) {
+				indexValue = getAlphabeticIndex(index);
+			}
+
+			selectedLI.setInnerHTML(". " + indexValue + ": " + selectedLI.getInnerHTML());
 			selectedLI.setAttribute("value", String.valueOf(index));
+		}
+	}
+
+	private static String getAlphabeticIndex(int index) {
+		char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+		String result = "";
+		while (index != 0) {
+			int mod = index % 26;
+			result = " " + ALPHABET[mod - 1] + result;
+			index -= mod;
+			index = index / 26;
+		}
+		return result;
+	}
+
+	private static Integer getSafeNumberFromString (String text) {
+		try {
+			return Integer.parseInt(text);
+		} catch (NumberFormatException e) {
+			return null;
 		}
 	}
 

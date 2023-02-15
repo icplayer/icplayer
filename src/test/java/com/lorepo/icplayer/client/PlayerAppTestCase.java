@@ -7,13 +7,22 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import com.googlecode.gwt.test.GwtModule;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.model.asset.FileAsset;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
+import com.lorepo.icplayer.client.content.services.AssetsService;
+import com.lorepo.icplayer.client.module.api.player.IAssetsService;
+import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.model.Content;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(DictionaryWrapper.class)
+import java.lang.reflect.*;
+import java.util.HashMap;
+import java.util.Map;
+@GwtModule("com.lorepo.icplayer.Icplayer")
 public class PlayerAppTestCase {
 
 	@Test

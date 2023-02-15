@@ -28,7 +28,7 @@ The Coloring addon gives users the ability to upload an image which can be later
         <td>
             The colors that will be available for coloring in Text to speech use.
             <p>Description - Description of the color. Read during color selection and while pointing at a colored area</p>
-            <p>Color RGBA - RGBA for the color</p>
+            <p>Color RGBA - RGBA for the color, if value is set as "255,255,255,255" the color will act as a eraser</p>
         </td>
     </tr>
 	<tr>

@@ -66,5 +66,5 @@ public class AssetsService implements IAssetsService {
 		}
 
 		return attachedLibraries;
-	} 
+	}
 }
