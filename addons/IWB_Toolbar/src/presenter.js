@@ -82,8 +82,6 @@ function AddonIWB_Toolbar_create() {
     presenter.penUsed = false;
     presenter.markerUsed = false;
 
-    presenter.mouseDownPosition = {X:0, Y:0};
-
     presenter.zoomConfiguration = {
         initialWindowHeight: 0,
         initialNotScaledOffset: 0,
@@ -1049,8 +1047,8 @@ function AddonIWB_Toolbar_create() {
                 e.preventDefault();
                 lastEvent = e;
                 presenter.isMouseDown= true;
-                presenter.mouseDownPosition.X = e.clientX;
-                presenter.mouseDownPosition.Y = e.clientY;
+                presenter.mouse.x = e.clientX;
+                presenter.mouse.y = e.clientY;
             });
 
             iwbCoverElements.on('mouseup', function(e) {
@@ -1065,8 +1063,8 @@ function AddonIWB_Toolbar_create() {
                     !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch') &&
                     (!$(e.currentTarget).hasClass('iwb-default-zoom-cover') ||
-                    (Math.abs(presenter.mouseDownPosition.X - e.clientX) < 20 &&
-                    Math.abs(presenter.mouseDownPosition.Y - e.clientY) < 20))) { // click
+                    (Math.abs(presenter.mouse.x - e.clientX) < 20 &&
+                    Math.abs(presenter.mouse.y - e.clientY) < 20))) { // click
                         presenter.zoomSelectedModule(e);
                 }
                 lastEvent = e;
@@ -2716,9 +2714,11 @@ function AddonIWB_Toolbar_create() {
             }
             if ($(selectedModule).hasClass('iwb-default-zoom-cover')) {
                 zoom.to({
-                    x: event.pageX,
-                    y: event.pageY,
-                    scale: presenter.config.defaultZoom
+                    x: event.clientX,
+                    y: event.clientY,
+                    scale: presenter.config.defaultZoom,
+                    topWindowHeight: topWindowHeight,
+                    iframeTopOffset: iframeTopOffset
                 });
             } else {
                 zoom.to({
