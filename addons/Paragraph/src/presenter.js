@@ -55,6 +55,7 @@ function AddonParagraph_create() {
 
     presenter.DEFAULT_TTS_PHRASES = {
         selected: "selected",
+        deselected:"deselected",
         paragraphContent: "paragraph content",
         bold: "bold",
         italic: "italic",
@@ -638,15 +639,7 @@ function AddonParagraph_create() {
 
     presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
         presenter.speechTexts = {
-            selected: presenter.DEFAULT_TTS_PHRASES.selected,
-            paragraphContent: presenter.DEFAULT_TTS_PHRASES.paragraphContent,
-            bold: presenter.DEFAULT_TTS_PHRASES.bold,
-            italic: presenter.DEFAULT_TTS_PHRASES.italic,
-            underline: presenter.DEFAULT_TTS_PHRASES.underline,
-            alignLeft: presenter.DEFAULT_TTS_PHRASES.alignLeft,
-            alignCenter: presenter.DEFAULT_TTS_PHRASES.alignCenter,
-            alignRight: presenter.DEFAULT_TTS_PHRASES.alignRight,
-            justify: presenter.DEFAULT_TTS_PHRASES.justify
+            ...presenter.DEFAULT_TTS_PHRASES,
         };
 
         if (!speechTexts || $.isEmptyObject(speechTexts)) {
@@ -657,6 +650,9 @@ function AddonParagraph_create() {
             selected: TTSUtils.getSpeechTextProperty(
                 speechTexts.Selected.Selected,
                 presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.deselected),
             paragraphContent: TTSUtils.getSpeechTextProperty(
                 speechTexts.ParagraphContent.ParagraphContent,
                 presenter.speechTexts.paragraphContent),
@@ -1227,6 +1223,8 @@ function AddonParagraph_create() {
     presenter.speakSelectedOnAction = function Paragraph_speakSelectedOnAction (el) {
         if (el.hasClass("mce-active")) {
             presenter.speak(presenter.speechTexts.selected);
+        } else {
+            presenter.speak(presenter.speechTexts.deselected);
         }
     };
 
