@@ -265,11 +265,9 @@ function AddonParagraph_create() {
             presenter.hideAnswers();
         }
 
-        if (!presenter.isErrorCheckingMode) {
+        if (!presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
             presenter.isErrorCheckingMode = true;
-            if (presenter.configuration.isBlockedInErrorCheckingMode) {
-                presenter.disableEdit();
-            }
+            presenter.disableEdit();
         }
     };
 
@@ -278,11 +276,9 @@ function AddonParagraph_create() {
             presenter.hideAnswers();
         }
 
-        if (presenter.isErrorCheckingMode) {
+        if (presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
             presenter.isErrorCheckingMode = false;
-            if (presenter.configuration.isBlockedInErrorCheckingMode) {
-                presenter.enableEdit();
-            }
+            presenter.enableEdit();
         }
     };
 
@@ -600,7 +596,7 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeBlockInErrorCheckingMode = function (model) {
-        return presenter.upgradeAttribute(model, "Block in error checking mode", "True");
+        return presenter.upgradeAttribute(model, "Block in error checking mode", "False");
     };
 
     presenter.upgradeSpeechTexts = function (model) {
