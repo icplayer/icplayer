@@ -14,6 +14,7 @@ function Addonmultiplegap_create(){
     var printableState = null;
 
     var presenter = function(){};
+    var elementCounter = 0;
 
     function getPlaceholders() {
         return jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function (placeholder) {
@@ -396,6 +397,7 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
+        presenter.elementCounter = presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -411,31 +413,43 @@ function Addonmultiplegap_create(){
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
-            
-            if (eventName === "ItemConsumed") {
-                presenter.$view.find('.handler').show();
-                presenter.isItemChecked = false;
+
+            switch (true) {
+                case eventName === "ItemConsumed":
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    break;
+
+                case eventName === "ItemSelected" && eventData.value !== null && eventData.value !== "":
+                    presenter.$view.find('.handler').hide();
+                    presenter.isItemChecked = true;
+                    break;
+
+                case eventName === "ItemSelected" && eventData.value == null && presenter.isAllOK():
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    sendAllOKEvent();
+                    break;
+
+                case eventName === "ItemSelected":
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    break;
             }
-            
-            if (eventName === "ItemSelected" && eventData.value !== null && eventData.value !== "") {
-                presenter.$view.find('.handler').hide();
-                presenter.isItemChecked = true;
-            } else if (eventName === "ItemSelected" ) {
-                presenter.$view.find('.handler').show();
-                presenter.isItemChecked = false;
-            }
-            
-            if(typeof(eventData.item) == "undefined" || eventData.item === null) {
-                presenter.clearSelected();
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES && eventData.type === "image") {
-                presenter.saveSelected(eventData);
-                
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.TEXTS && eventData.type === "string") {
-                presenter.saveSelected(eventData);
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO && eventData.type === "audio") {
-                presenter.saveSelected(eventData);
-            } else {
-                presenter.clearSelected();
+
+            switch (true) {
+                case typeof(eventData.item) == "undefined" || eventData.item === null:
+                    presenter.clearSelected();
+                    break;
+
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES && eventData.type === "image":
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.TEXTS && eventData.type === "string":
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO && eventData.type === "audio":
+                    presenter.saveSelected(eventData);
+                    break;
+
+                default:
+                    presenter.clearSelected();
             }
         }
     };
@@ -896,6 +910,7 @@ function Addonmultiplegap_create(){
     }
     
     function sendEvent(item, consumed) {
+        presenter.elementCounter++;
         if (consumed) {
             presenter.eventBus.sendEvent('ItemConsumed', item);
         }
@@ -1041,7 +1056,7 @@ function Addonmultiplegap_create(){
     };
     
     presenter.performRemoveDraggable = function(handler) {
-
+        presenter.elementCounter--;
         var placeholder = handler.parent();
         var child = placeholder.find('.contents');
         if(isWCAGOn) {
@@ -1087,7 +1102,7 @@ function Addonmultiplegap_create(){
             'value' : 'remove',
             'score' : '0'
         });
-        
+
         if (presenter.isAllOK()) sendAllOKEvent();
     };
         
@@ -1376,14 +1391,10 @@ function Addonmultiplegap_create(){
     };
     
     presenter.countItems = function(itemsToCount) {
-        var countItems;
         if (itemsToCount !== null && itemsToCount !== undefined) {
-            countItems = itemsToCount;
-        } else {
-            countItems = presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
+            return itemsToCount;
         }
-        
-        return countItems;
+        return presenter.elementCounter;
     };
     
     presenter.isAttemptedCommand = function() {

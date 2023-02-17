@@ -1,4 +1,10 @@
 2023-02-13 Fixed updating Animated Page Progress
+2023-02-10 Added tests to external library injection
+2023-02-10 Fixed removing the gap by dragleave
+2023-02-10 Fixed connection not coloring connections with MathJax
+2023-02-10 Update Hierarchical Lesson Report documentation
+2023-02-10 Added ordered list edition
+2023-02-06 Added deselected tts in paragraph toolbar
 2023-02-03 Fixed assessment navigation bar sometimes attempting to call isActualPage on an invalid object
 2023-02-03 Fix TTS causing error in page load
 2023-02-03 Added eraser to Coloring TTS
@@ -28,7 +34,7 @@
 2022-12-07 Fixed rounding of total score in Lesson Report
 2022-11-28 Added ModuleScript property
 2022-11-25 Removed pause while reading syntax about time for TTS
-2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element  
+2022-11-25 Fixed TTS reading an extra comma when alt text with dot is present at the end of a list element
 2022-11-25 Fixed no break in tts at the end of a line of text.
 2022-11-22 Secured Text Selection addon against xss attacks
 2022-11-14 Fixed support for only one audio type in slideshow addon
@@ -50,7 +56,7 @@
 2022-10-20 Fixed outstretchHeight command not working properly with static header
 2022-10-14 Added methods for accessing correct/incorrect/partial/empty feedbacks to the Automatic Feedback addon
 2022-10-10 Added Enlarge Button to header in present view
-2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element 
+2022-10-07 Fixed Media Recorder show/hide not affecting addon's main div element
 2022-10-06 Fixed downloading zip package for Android mLibro app
 2022-10-06 Fixed tts not reading numbers of ordered lists
 2022-10-06 Fixed functionality of "Force Load Audio" in Audio on IOS
