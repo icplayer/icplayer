@@ -1,3 +1,4 @@
+2023-02-17 Fixed Paragraph TTS not working correctly in old content
 2023-02-16 Added Block in error checking mode to Paragraph addon
 2023-02-13 Fixed updating Animated Page Progress
 2023-02-10 Added tests to external library injection

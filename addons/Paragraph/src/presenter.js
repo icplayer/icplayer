@@ -619,6 +619,10 @@ function AddonParagraph_create() {
             upgradedModel.speechTexts.ParagraphContent = {ParagraphContent: ""};
         }
 
+        if (!upgradedModel.speechTexts.hasOwnProperty("Deselected")) {
+            upgradedModel.speechTexts.Deselected = {Deselected: ""};
+        }
+
         return upgradedModel;
     };
 
