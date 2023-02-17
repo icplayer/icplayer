@@ -11,6 +11,7 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
+    presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
 
@@ -122,6 +123,13 @@ function AddonParagraph_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.removeFocusFromDisabledElement = function () {
+        if (presenter.hasDisabledClass()) {
+            const iframe = presenter.$view.find('iframe');
+            iframe.blur();
+        }
+    };
+
     presenter.setVisibility = function AddonParagraph_setVisibility(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         if (isVisible) {
@@ -166,19 +174,19 @@ function AddonParagraph_create() {
     };
 
     presenter.enableEdit = function () {
-        let paragraph = presenter.$view.find(".paragraph-wrapper");
-
-        if(paragraph.hasClass('disabled')) {
-            paragraph.removeClass('disabled');
+        if(presenter.hasDisabledClass()) {
+            presenter.$view.find(".paragraph-wrapper").removeClass('disabled');
         }
     }
 
     presenter.disableEdit = function () {
-        let paragraph = presenter.$view.find(".paragraph-wrapper");
-
-        if(!paragraph.hasClass('disabled')) {
-            paragraph.addClass('disabled');
+        if(!presenter.hasDisabledClass()) {
+            presenter.$view.find(".paragraph-wrapper").addClass('disabled');
         }
+    }
+
+    presenter.hasDisabledClass = function () {
+        return presenter.$view.find(".paragraph-wrapper").hasClass('disabled');
     }
 
     presenter.showAnswers = function () {
@@ -189,6 +197,7 @@ function AddonParagraph_create() {
 
         elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
         presenter.isShowAnswersActive = true;
+        presenter.isErrorCheckingMode = false;
     };
 
     presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
@@ -220,6 +229,7 @@ function AddonParagraph_create() {
         presenter.enableEdit();
         presenter.isShowAnswersActive = false;
         presenter.isGradualShowAnswersActive = false;
+        presenter.isErrorCheckingMode = false;
         presenter.currentGSAIndex = 0;
 
         if (presenter.cachedAnswer.length) {
@@ -241,6 +251,7 @@ function AddonParagraph_create() {
             presenter.initializeShowAnswers(elements);
             presenter.isGradualShowAnswersActive = true;
         }
+        presenter.isErrorCheckingMode = false;
 
         if (presenter.currentGSAIndex !== 0) {
             elements[0].innerHTML += "<div></div><br>";
@@ -253,11 +264,21 @@ function AddonParagraph_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+
+        if (!presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
+            presenter.isErrorCheckingMode = true;
+            presenter.disableEdit();
+        }
     };
 
     presenter.setWorkMode = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+        }
+
+        if (presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
+            presenter.isErrorCheckingMode = false;
+            presenter.enableEdit();
         }
     };
 
@@ -310,6 +331,11 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+
+            presenter.editor.on('focus', function () {
+                presenter.removeFocusFromDisabledElement();
+            });
+
             presenter.isEditorLoaded = true;
             presenter.setStyles();
             presenter.setSpeechTexts(upgradedModel["speechTexts"]);
@@ -496,7 +522,8 @@ function AddonParagraph_create() {
             manualGrading: manualGrading,
             weight: weight,
             modelAnswer: modelAnswer,
-            langTag: model["langAttribute"]
+            langTag: model["langAttribute"],
+            isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
         };
     };
 
@@ -522,13 +549,14 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradePlaceholderText(model);
+        let upgradedModel = presenter.upgradePlaceholderText(model);
         upgradedModel = presenter.upgradeManualGrading(upgradedModel);
         upgradedModel = presenter.upgradeTitle(upgradedModel);
         upgradedModel = presenter.upgradeWeight(upgradedModel);
         upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeBlockInErrorCheckingMode(upgradedModel);
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -567,6 +595,10 @@ function AddonParagraph_create() {
         return presenter.upgradeAttribute(model, "langAttribute", "");
     };
 
+    presenter.upgradeBlockInErrorCheckingMode = function (model) {
+        return presenter.upgradeAttribute(model, "Block in error checking mode", "False");
+    };
+
     presenter.upgradeSpeechTexts = function (model) {
         let defaultValue = {
             Bold: {Bold: ""},
@@ -598,7 +630,7 @@ function AddonParagraph_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model[attrName] == undefined) {
+        if (!upgradedModel.hasOwnProperty(attrName)) {
             upgradedModel[attrName] = defaultValue;
         }
 
@@ -1171,7 +1203,9 @@ function AddonParagraph_create() {
     };
 
     ParagraphKeyboardController.prototype.selectAction = function () {
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive
+            || presenter.isGradualShowAnswersActive
+            || presenter.isErrorCheckingMode) {
             return;
         }
 

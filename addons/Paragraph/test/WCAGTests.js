@@ -135,9 +135,10 @@ TestCase("[Paragraph] WCAG - TTS Test", {
 
     'test given mce-edit-area when readCurrentElement then speak is invoked with content': function () {
         this.presenter.keyboardControllerObject.keyboardNavigationCurrentElement = this.presenter.$view.find(".mce-edit-area");
-        var readElementSpy = sinon.spy(this.presenter.keyboardControllerObject, "readCurrentElement");
-        let content = "Just some text content";
-        sinon.stub(this.presenter.editor, "getContent").callsFake(function () { return content;});
+        let readElementSpy = sinon.spy(this.presenter.keyboardControllerObject, "readCurrentElement");
+        const content = "Just some text content.";
+        const contentAsHTML = "<div>" + content + "</div>";
+        sinon.stub(this.presenter.editor, "getContent").callsFake(function () { return contentAsHTML;});
 
         this.presenter.keyboardControllerObject.readCurrentElement();
 

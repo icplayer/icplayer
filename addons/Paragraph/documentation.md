@@ -59,6 +59,10 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
       <td>Show answers</td>
       <td>A list of correct answers. On Show Answers, all correct answers are displayed at the same time, each answer separated by a new line. On Gradual Show Answers, correct answers are displayed gradually, one after another, each time a Gradual Show Answers event is fired.</td>
     </tr>
+    <tr>
+        <td>Block in error checking mode</td>
+        <td>If this option is selected, the addon is blocked in error checking mode.</td>
+    </tr>
 </table>
 
 ## Supported commands
