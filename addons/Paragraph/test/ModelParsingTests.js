@@ -154,7 +154,30 @@ TestCase("[Paragraph] Model parsing", {
         var validatedModel = this.presenter.validateModel(upgradedModel);
 
         assertEquals('', validatedModel.weight);
-    }
+    },
+
+    'test given model with Block in error checking mode empty when validating model then isBlockedInErrorCheckingMode should be set to false in model': function () {
+        const model = {
+            "ID": "Paragraph ID"
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals(false, validatedModel.isBlockedInErrorCheckingMode);
+    },
+
+    'test given model with Block in error checking mode set to True when validating model then isBlockedInErrorCheckingMode should be set to true in model': function () {
+        const model = {
+            "ID": "Paragraph ID",
+            "Block in error checking mode": "True",
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals(true, validatedModel.isBlockedInErrorCheckingMode);
+    },
 });
 
 TestCase("[Paragraph] ToolbarValidation", {
