@@ -1202,6 +1202,8 @@ var ice_dictionary_mx = {
 	"Paragraph_property_AlignCenter": "Align center",
 	"Paragraph_property_AlignRight": "Align right",
 	"Paragraph_property_Justify": "Justify",
+	"Paragraph_property_lang_attribute": "Lang attribute",
+	"Paragraph_property_block_in_error_checking_mode": "Block in error checking mode",
 	"Paragraph_Keyboard_info": "Permite a los usuarios a introducir un texto con el formateo básico y con los signos diacríticos.",
 	"Paragraph_Keyboard_name": "Párrafo con teclado",
 	"Paragraph_Keyboard_property_default_font_family": "Familia de fuentes predeterminada",
