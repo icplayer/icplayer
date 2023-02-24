@@ -2698,7 +2698,6 @@ function AddonIWB_Toolbar_create() {
 
 
     presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(event) {
-        console.log("zoomSelectedModule0");
         var selectedModule = event.currentTarget;
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
             presenter.$panel.show();
@@ -2715,18 +2714,13 @@ function AddonIWB_Toolbar_create() {
             }
             if ($(selectedModule).hasClass('iwb-default-zoom-cover')) {
                 var y = event.clientY;
-
                 var minY = (presenter.zoomConfiguration.initialWindowHeight/2 - window.iframeSize.frameOffset) / presenter.config.defaultZoom;
-                var maxY = $('.ic_page').height() - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.config.defaultZoom);
-                console.log("minY: "+minY+", maxY: "+maxY);
+                var pageHeight = $('.ic_page').height();
+                if ($('.ic_header').length > 0) pageHeight += $('.ic_header').height();
+                if ($('.ic_footer').length > 0) pageHeight += $('.ic_footer').height();
+                var maxY = pageHeight - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.config.defaultZoom);
                 if (y < minY) y = minY;
                 if (y > maxY) y = maxY;
-
-                console.log("zoom Y:" + y);
-                console.log(presenter.zoomConfiguration.initialWindowHeight);
-                console.log(window.iframeSize.offsetTop);
-                console.log(window.iframeSize.frameOffset);
-                console.log(window.iframeSize.windowInnerHeight);
 
                 zoom.to({
                     x: event.clientX,
