@@ -687,6 +687,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeEnableUndoRedo(model);
+        upgradedModel = presenter.upgradeDefaultZoom(model);
         return upgradedModel;
     };
 
@@ -699,6 +700,21 @@ function AddonIWB_Toolbar_create() {
         }
         return upgradedModel;
     }
+
+    presenter.upgradeDefaultZoom = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (!upgradedModel['disableModuleZoom']) {
+                upgradedModel['disableModuleZoom'] = 'false';
+            }
+
+            if (!upgradedModel['defaultZoom']) {
+                upgradedModel['defaultZoom'] = '';
+            }
+
+            return upgradedModel;
+        }
 
     presenter.setBasicConfiguration = function (view, model) {
         presenter.$view = $(view);
@@ -752,6 +768,7 @@ function AddonIWB_Toolbar_create() {
             widthWhenClosed;
         var hasCustomButton = model["hasCustomButton"] == 'True';
         var enableUndoRedo = ModelValidationUtils.validateBoolean(model["enableUndoRedo"]);
+        var disableModuleZoom = ModelValidationUtils.validateBoolean(model["disableModuleZoom"]);
 
         if (!hasCustomButton) {
             presenter.$panel.children('.button.custom-script').hide();
@@ -784,6 +801,12 @@ function AddonIWB_Toolbar_create() {
 
         widthWhenClosed = validated.value;
 
+        var defaultZoom = 2;
+        if (model['defaultZoom']) {
+            var validated = ModelValidationUtils.validatePositiveInteger(model['defaultZoom']);
+            if (validated.isValid) defaultZoom = validated.value;
+        }
+
         return {
             'addonID': model.ID,
             'isValid': true,
@@ -800,6 +823,8 @@ function AddonIWB_Toolbar_create() {
             'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
             'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
             'enableUndoRedo': enableUndoRedo,
+            'disableModuleZoom': disableModuleZoom,
+            'defaultZoom': defaultZoom
         };
     }
 
@@ -976,21 +1001,37 @@ function AddonIWB_Toolbar_create() {
         presenter.modules = presenter.$pagePanel.find('.ic_page > *:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note,.iwb-toolbar-mask)');
 
         if(presenter.isZoomActive){
-            presenter.modules.each(function () {
-               var coverElement = $('<div class="iwb-zoom-cover"></div>'),
-                   maxDimensions = presenter.getTheWidestAndHighest($(this));
-               coverElement.css({
+            var pageElement = $('.ic_page');
+            var defaultCoverElement = $('<div class="iwb-zoom-cover iwb-default-zoom-cover"></div>'),
+               defMaxDimensions = presenter.getTheWidestAndHighest(pageElement);
+               defaultCoverElement.css({
                   position: "absolute",
-                  left: $(this).position().left,
-                  top: $(this).position().top,
-                  width: maxDimensions.width,
-                  height: maxDimensions.height,
-                  display: $(this).css('display'),
-                  visibility: $(this).css('visibility')
+                  left: 0,
+                  top: 0,
+                  width: defMaxDimensions.width,
+                  height: defMaxDimensions.height,
+                  display: pageElement.css('display'),
+                  visibility: pageElement.css('visibility')
                });
+           $('.ic_page').append(defaultCoverElement);
 
-               $('.ic_page').append(coverElement);
-            });
+            if (!presenter.config.disableModuleZoom) {
+                presenter.modules.each(function () {
+                   var coverElement = $('<div class="iwb-zoom-cover"></div>'),
+                       maxDimensions = presenter.getTheWidestAndHighest($(this));
+                   coverElement.css({
+                      position: "absolute",
+                      left: $(this).position().left,
+                      top: $(this).position().top,
+                      width: maxDimensions.width,
+                      height: maxDimensions.height,
+                      display: $(this).css('display'),
+                      visibility: $(this).css('visibility')
+                   });
+
+                   $('.ic_page').append(coverElement);
+                });
+            }
 
             var iwbCoverElements = $(".iwb-zoom-cover");
 
@@ -1006,6 +1047,8 @@ function AddonIWB_Toolbar_create() {
                 e.preventDefault();
                 lastEvent = e;
                 presenter.isMouseDown= true;
+                presenter.mouse.x = e.clientX;
+                presenter.mouse.y = e.clientY;
             });
 
             iwbCoverElements.on('mouseup', function(e) {
@@ -1018,9 +1061,11 @@ function AddonIWB_Toolbar_create() {
                     !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
-                    !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
-
-                    presenter.zoomSelectedModule(e.currentTarget);
+                    !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch') &&
+                    (!$(e.currentTarget).hasClass('iwb-default-zoom-cover') ||
+                    (Math.abs(presenter.mouse.x - e.clientX) < 20 &&
+                    Math.abs(presenter.mouse.y - e.clientY) < 20))) { // click
+                        presenter.zoomSelectedModule(e);
                 }
                 lastEvent = e;
             });
@@ -2652,7 +2697,8 @@ function AddonIWB_Toolbar_create() {
     };
 
 
-    presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(selectedModule) {
+    presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(event) {
+        var selectedModule = event.currentTarget;
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
             presenter.$panel.show();
             zoom.out();
@@ -2666,11 +2712,30 @@ function AddonIWB_Toolbar_create() {
                 topWindowHeight = window.iframeSize.windowInnerHeight;
                 iframeTopOffset = window.iframeSize.offsetTop - window.iframeSize.frameOffset;
             }
-            zoom.to({
-                element: selectedModule,
-                topWindowHeight: topWindowHeight,
-                iframeTopOffset: iframeTopOffset
-            });
+            if ($(selectedModule).hasClass('iwb-default-zoom-cover')) {
+                var y = event.clientY;
+                var minY = (presenter.zoomConfiguration.initialWindowHeight/2 - window.iframeSize.frameOffset) / presenter.config.defaultZoom;
+                var pageHeight = $('.ic_page').height();
+                if ($('.ic_header').length > 0) pageHeight += $('.ic_header').height();
+                if ($('.ic_footer').length > 0) pageHeight += $('.ic_footer').height();
+                var maxY = pageHeight - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.config.defaultZoom);
+                if (y < minY) y = minY;
+                if (y > maxY) y = maxY;
+
+                zoom.to({
+                    x: event.clientX,
+                    y: y,
+                    scale: presenter.config.defaultZoom,
+                    topWindowHeight: topWindowHeight,
+                    iframeTopOffset: iframeTopOffset
+                });
+            } else {
+                zoom.to({
+                    element: selectedModule,
+                    topWindowHeight: topWindowHeight,
+                    iframeTopOffset: iframeTopOffset
+                });
+            }
             $(selectedModule).addClass('zoomed');
             presenter.changeCursor('zoom-out');
         }
