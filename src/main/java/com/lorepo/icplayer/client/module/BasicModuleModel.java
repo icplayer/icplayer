@@ -24,6 +24,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private INameValidator nameValidator;
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
+	private boolean shouldOmitInTTS = false;
 	private String contentDefaultLayoutID = null;
 	public IMetadata metadata = new Metadata();
 
@@ -35,6 +36,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addPropertyId();
 		registerPositionProperties();
 		addPropertyIsVisible();
+		this.addPropertyOmitInTTS();
 		this.addPropertyIsTabindexEnabled();
 	}
 
@@ -110,6 +112,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
 		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
+		XMLUtils.setBooleanAttribute(moduleXML, "shouldOmitInTTS", this.shouldOmitInTTS);
 		
 		if (this.haveStyles()) {
 			moduleXML.appendChild(this.stylesToXML());
@@ -232,6 +235,52 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		};
 
 		addProperty(property);
+	}
+
+	private void addPropertyOmitInTTS() {
+		IProperty property = new IBooleanProperty() {
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != shouldOmitInTTS) {
+					shouldOmitInTTS = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return shouldOmitInTTS ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return "Omit in TTS";
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("should_omit_in_TTS");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+	@Override
+	public boolean shouldOmitInTTS() {
+		return this.shouldOmitInTTS;
+	}
+
+	@Override
+	public void setOmitInTTS(boolean value) {
+		this.shouldOmitInTTS = value;
 	}
 
 	public String getBaseURL() {

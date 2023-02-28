@@ -323,6 +323,7 @@ var ice_dictionary_en = {
 	"close_popup_button_menu" : "Close Popup Button",
 	"is_visible" : "Is Visible",
 	"is_tabindex_enabled": "Enable tabindex",
+	"should_omit_in_TTS": "Omit in TTS",
 	"is_sort_right_to_left": "Sort right to left:",
 	"layout": "Layout",
 	"top" : "Top",
