@@ -324,6 +324,7 @@ var ice_dictionary_mx = {
 	"close_popup_button_menu": "Botón para cerrar Ventana Emergente",
 	"is_visible": "Visible",
 	"is_tabindex_enabled": "Enable tabindex",
+	"should_omit_in_TTS": "Omit in TTS",
 	"is_sort_right_to_left": "Sort right to left:",
 	"layout": "Fondo",
 	"top": "Arriba",

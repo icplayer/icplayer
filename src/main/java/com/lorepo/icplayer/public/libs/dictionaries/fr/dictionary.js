@@ -324,6 +324,7 @@ var ice_dictionary_fr = {
     "close_popup_button_menu" : "Bouton Fermer la pop-up",
     "is_visible" : "Est visible",
     "is_tabindex_enabled": "Enable tabindex",
+    "should_omit_in_TTS": "Omit in TTS",
     "is_sort_right_to_left": "Sort right to left:",
     "layout": "Configuration",
     "top" : "Haut",

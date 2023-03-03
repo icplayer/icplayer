@@ -324,6 +324,7 @@ var ice_dictionary_pl = {
 	"close_popup_button_menu" : "Zamknij okno",
 	"is_visible" : "Jest widoczny",
 	"is_tabindex_enabled": "Włącz tabindex",
+	"should_omit_in_TTS": "Omit in TTS",
 	"is_sort_right_to_left": "Sortuj od prawej do lewej:",
 	"layout" : "Układ",
 	"top" : "Góra",

@@ -305,6 +305,17 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
+	public boolean shouldOmitInTTS() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setOmitInTTS(boolean value) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public void translateSemiResponsiveIDs(
 			HashMap<String, String> translationMap) {
 		// TODO Auto-generated method stub
