@@ -1,3 +1,4 @@
+2022-03-03 Added autofill page id button in editor
 2022-02-17 Fixed crashing lesson editor for "Sample Templates"
 2023-02-17 Fixed Paragraph TTS not working correctly in old content
 2023-02-16 Added Block in error checking mode to Paragraph addon

@@ -2227,6 +2227,7 @@ var ice_dictionary_bl = {
     "editor_metadata_question_remove_external": "Do you want to remove metadata fields not specified in project settings from current page?",
     "editor_metadata_notification_remove_finished": "External metadata removal finished.",
     "editor_module_fixed_position_error": "One of the modules' CSS position is set to 'fixed'. This value is not supported for the module wrapper and the lesson may not render properly. Module ID: ",
+	"editor_fill_page_id": "Page ID autofill",
 	"EditableWindow_info": "Прозорец, който може да се редактира",
 	"EditableWindow_name": "Прозорец, който може да се редактира",
 	"EditableWindow_property_file_list" : "Списък с файлове",
