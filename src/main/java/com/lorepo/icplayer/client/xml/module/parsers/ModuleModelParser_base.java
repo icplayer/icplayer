@@ -88,6 +88,7 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		this.module.setIsLocked(XMLUtils.getAttributeAsBoolean(xml, "isLocked", false));
 		this.module.setModuleInEditorVisibility(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));
         this.module.setIsTabindexEnabled(XMLUtils.getAttributeAsBoolean(xml, "isTabindexEnabled", false));
+        this.module.setOmitInTTS(XMLUtils.getAttributeAsBoolean(xml, "shouldOmitInTTS", false));
 	}
 	
 	protected void parseModuleStyleAttributes(Element xml) {
