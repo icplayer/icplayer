@@ -26,5 +26,7 @@ public interface IModuleModelBuilder {
 	public void setDefaultStyleClass(String styleClass);
 	public void setDefaultInlineStyle(String inlineStyle);
 	public void setIsTabindexEnabled(boolean value);
+	public boolean shouldOmitInTTS();
+	public void setOmitInTTS(boolean value);
 	public void setMetadata(IMetadata metadata);
 }
