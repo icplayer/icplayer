@@ -284,7 +284,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 				if (newValue != ttsTitle) {
 					ttsTitle = newValue;
 					sendPropertyChangedEvent(this);
-                }
+				}
 			}
 
 			@Override

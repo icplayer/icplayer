@@ -63,7 +63,7 @@ var ice_dictionary_en = {
 	"tts_title_changer_new_title_label": "New title from property:",
 	"tts_title_changer_change_action": "Change",
 	"tts_title_changer_decline_action": "Decline",
-    "load": "Load",
+	"load": "Load",
 	"confirm_yes": "yes",
 	"confirm_no": "no",
 	"edit_editable_gap": "Edit an editable/draggable gap",
