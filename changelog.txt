@@ -1,3 +1,4 @@
+2023-03-06 Added new property TTS Title to the addons
 2023-02-28 Add new property Omit in TTS to the modules
 2022-02-17 Fixed crashing lesson editor for "Sample Templates"
 2023-02-17 Fixed Paragraph TTS not working correctly in old content

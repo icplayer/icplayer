@@ -315,6 +315,17 @@ public class ModuleModelMockup implements IModuleModel {
 		// TODO Auto-generated method stub
 	}
 
+    @Override
+    public String getTTSTitle() {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    @Override
+    public void setTTSTitle(String title) {
+        // TODO Auto-generated method stub
+    }
+
 	@Override
 	public void translateSemiResponsiveIDs(
 			HashMap<String, String> translationMap) {

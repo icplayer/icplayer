@@ -25,6 +25,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
 	private boolean shouldOmitInTTS = false;
+	private String ttsTitle = "";
 	private String contentDefaultLayoutID = null;
 	public IMetadata metadata = new Metadata();
 
@@ -37,6 +38,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		registerPositionProperties();
 		addPropertyIsVisible();
 		this.addPropertyOmitInTTS();
+		this.addPropertyTTSTitle();
 		this.addPropertyIsTabindexEnabled();
 	}
 
@@ -113,6 +115,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		moduleXML.setAttribute("id", escapedId);
 		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
 		XMLUtils.setBooleanAttribute(moduleXML, "shouldOmitInTTS", this.shouldOmitInTTS);
+		String escapedTTSTitle = StringUtils.escapeXML(this.getTTSTitle());
+		moduleXML.setAttribute("ttsTitle", escapedTTSTitle);
 		
 		if (this.haveStyles()) {
 			moduleXML.appendChild(this.stylesToXML());
@@ -273,6 +277,40 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addProperty(property);
 	}
 
+	private void addPropertyTTSTitle() {
+		IProperty property = new IProperty() {
+			@Override
+			public void setValue(String newValue) {
+				if (newValue != ttsTitle) {
+					ttsTitle = newValue;
+					sendPropertyChangedEvent(this);
+                }
+			}
+
+			@Override
+			public String getValue() {
+				return ttsTitle;
+			}
+
+			@Override
+			public String getName() {
+				return "TTS Title";
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("tts_title");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
 	@Override
 	public boolean shouldOmitInTTS() {
 		return this.shouldOmitInTTS;
@@ -316,5 +354,15 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	@Override
 	public IMetadata getMetadata() {
 		return this.metadata;
+	}
+
+	@Override
+	public String getTTSTitle() {
+		return this.ttsTitle;
+	}
+
+	@Override
+	public void setTTSTitle(String title) {
+		this.ttsTitle = title;
 	}
 }

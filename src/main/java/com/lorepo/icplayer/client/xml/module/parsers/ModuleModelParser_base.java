@@ -89,6 +89,8 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 		this.module.setModuleInEditorVisibility(XMLUtils.getAttributeAsBoolean(xml, "isModuleVisibleInEditor", true));
         this.module.setIsTabindexEnabled(XMLUtils.getAttributeAsBoolean(xml, "isTabindexEnabled", false));
         this.module.setOmitInTTS(XMLUtils.getAttributeAsBoolean(xml, "shouldOmitInTTS", false));
+        String title = parseModuleTitle(xml);
+        this.module.setTTSTitle(title);
 	}
 	
 	protected void parseModuleStyleAttributes(Element xml) {
@@ -113,5 +115,15 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 			id = StringUtils.unescapeXML(id);
 		}
 		return id;
+	}
+
+	protected String parseModuleTitle(Element xml) {
+		String title = xml.getAttribute("ttsTitle");
+		if (title == null || title.compareTo("null") == 0) {
+			title = "";
+		} else {
+			title = StringUtils.unescapeXML(title);
+		}
+		return title;
 	}
 }
