@@ -152,6 +152,7 @@ function AddonAnimated_Page_Progress_create() {
         eventBus.addEventListener('ValueChanged', this, true);
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
+        eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -176,8 +177,7 @@ function AddonAnimated_Page_Progress_create() {
         switch (eventName) {
             case "ValueChanged":
                 if (!presenter.isShowAnswersActive && !presenter.configuration.workInCheckMode ||
-                    !presenter.isShowAnswersActive && presenter.configuration.workInCheckMode && eventData.value === "resetClicked" ||
-                    eventData.value === "PageLoaded") {
+                    !presenter.isShowAnswersActive && presenter.configuration.workInCheckMode && eventData.value === "resetClicked") {
                     presenter.changeRange();
                 }
                 break;
@@ -188,6 +188,10 @@ function AddonAnimated_Page_Progress_create() {
 
             case "HideAnswers":
                 presenter.hideAnswers();
+                break;
+
+            case "PageLoaded":
+                presenter.changeRange();
                 break;
         }
     };
