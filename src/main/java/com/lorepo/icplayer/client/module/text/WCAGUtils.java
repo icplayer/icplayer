@@ -131,7 +131,7 @@ public class WCAGUtils {
 	}
 
 	public static void parseLineBreakTags (Element wrapper) {
-	    NodeList<Element> elements = wrapper.getElementsByTagName("br");
+		NodeList<Element> elements = wrapper.getElementsByTagName("br");
 		for (int i = elements.getLength() - 1; i >= 0; i--) {
 			Element br = elements.getItem(i);
 			Element parent = br.getParentElement();
@@ -143,7 +143,7 @@ public class WCAGUtils {
 	}
 
 	public static String addSpacesToListTags (String text) {
-	    return text.replaceAll("</li>", ", </li>");
+		return text.replaceAll("</li>", ", </li>");
 	}
 
 	private static void addListNumbers(Element wrapper) {
