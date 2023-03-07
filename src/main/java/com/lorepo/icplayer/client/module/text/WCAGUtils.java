@@ -130,6 +130,18 @@ public class WCAGUtils {
 		return result;	
 	}
 
+	public static void parseLineBreakTags (Element wrapper) {
+	    NodeList<Element> elements = wrapper.getElementsByTagName("br");
+        for (int i = elements.getLength() - 1; i >= 0; i--) {
+            Element br = elements.getItem(i);
+            Element parent = br.getParentElement();
+            Element replacement = DOM.createDiv();
+            replacement.setInnerHTML("." + NON_BREAKING_SPACE);
+            parent.insertAfter(replacement, br);
+            parent.removeChild(br);
+        }
+	}
+
 	public static String addSpacesToListTags (String text) {
 	    return text.replaceAll("</li>", ", </li>");
 	}
@@ -237,6 +249,7 @@ public class WCAGUtils {
 		Element wrapper = DOM.createElement("div");
 		wrapper.setInnerHTML(text);
 		addListNumbers(wrapper);
+		parseLineBreakTags(wrapper);
 		addEndingSpace(wrapper);
 		text = wrapper.getInnerHTML();
 
