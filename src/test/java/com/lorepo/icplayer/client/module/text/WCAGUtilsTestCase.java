@@ -78,6 +78,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String expected = "test-string test-string2 .";
 
 		String result = WCAGUtils.getCleanText(html);
+		
 		assertEquals(expected, result);
 	}
 
@@ -87,6 +88,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String expected = "test-string test-string2 .";
 
 		String result = WCAGUtils.getCleanText(html);
+
 		assertEquals(expected, result);
 	}
 
@@ -96,6 +98,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String expected = "test-string test-string2 .";
 
 		String result = WCAGUtils.getCleanText(html);
+
 		assertEquals(expected, result);
 	}
 
@@ -105,6 +108,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String expected = "test-string test-string2 . .";
 
 		String result = WCAGUtils.getCleanText(html);
+
 		assertEquals(expected, result);
 	}
 
@@ -114,6 +118,7 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String expected = "test-string test-string2 . .";
 
 		String result = WCAGUtils.getCleanText(html);
+
 		assertEquals(expected, result);
 	}
 }

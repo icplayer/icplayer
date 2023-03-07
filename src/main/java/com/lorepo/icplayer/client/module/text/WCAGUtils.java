@@ -132,14 +132,14 @@ public class WCAGUtils {
 
 	public static void parseLineBreakTags (Element wrapper) {
 	    NodeList<Element> elements = wrapper.getElementsByTagName("br");
-        for (int i = elements.getLength() - 1; i >= 0; i--) {
-            Element br = elements.getItem(i);
-            Element parent = br.getParentElement();
-            Element replacement = DOM.createDiv();
-            replacement.setInnerHTML("." + NON_BREAKING_SPACE);
-            parent.insertAfter(replacement, br);
-            parent.removeChild(br);
-        }
+		for (int i = elements.getLength() - 1; i >= 0; i--) {
+			Element br = elements.getItem(i);
+			Element parent = br.getParentElement();
+			Element replacement = DOM.createDiv();
+			replacement.setInnerHTML("." + NON_BREAKING_SPACE);
+			parent.insertAfter(replacement, br);
+			parent.removeChild(br);
+		}
 	}
 
 	public static String addSpacesToListTags (String text) {
