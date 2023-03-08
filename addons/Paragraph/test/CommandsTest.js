@@ -157,7 +157,7 @@ TestCase("[Paragraph] isAttempted method", {
         assertFalse(result);
     },
 
-    'test given editor was loaded, not-editable placeholder set but not visible and editor contains text from placeholder when calling isAttempted then return true': function () {
+    'test given editor was loaded, not-editable placeholder set but not visible and editor contains text equal to placeholder text when calling isAttempted then return true': function () {
         this.presenter.isEditorLoaded = true;
         this.presenter.editor.getContent.returns('<p>hello world</p>');
         this.presenter.configuration.isPlaceholderSet = true;
@@ -216,6 +216,24 @@ TestCase("[Paragraph] isAttempted method", {
 
         assertTrue(this.presenter.editor.getContent.calledOnce);
         assertFalse(result);
+    },
+
+    'test given editor was loaded, editable placeholder set and editor contains text not equal to placeholder when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>Hi</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.isPlaceholderEditable = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: true,
+            shouldBeSet: true,
+            placeholderText: "",
+        }
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertTrue(result);
     },
 
     'test given editor was loaded, editable placeholder set and editor contains text from placeholder when calling isAttempted then return false': function () {
