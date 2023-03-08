@@ -105,7 +105,14 @@ function AddonParagraph_create() {
                 return false;
             }
         }
-        return $(presenter.editor.getContent({format: 'raw'})).text() != '';
+
+        const editorContent = presenter.getText();
+        if (presenter.configuration.isPlaceholderSet
+            && !presenter.configuration.isPlaceholderEditable) {
+            return !isPlaceholderInHTML(editorContent);
+        }
+        const textToCompare = presenter.configuration.isPlaceholderSet ? presenter.configuration.placeholderText : "";
+        return $(editorContent).text() != textToCompare;
     };
 
     presenter.getText = function AddonParagraph_getText() {
@@ -1063,7 +1070,7 @@ function AddonParagraph_create() {
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        if (tinymceState!=undefined && tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
+        if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
@@ -1079,6 +1086,10 @@ function AddonParagraph_create() {
             presenter.unlock();
         }
     };
+
+    function isPlaceholderInHTML (html) {
+        return html.indexOf("class=\"placeholder\"") !== -1;
+    }
 
     presenter.reset = function AddonParagraph_reset() {
         presenter.setVisibility(presenter.configuration.isVisible);

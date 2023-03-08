@@ -954,7 +954,7 @@ function AddonParagraph_Keyboard_create() {
 
         if (tinymceState !== undefined
             && tinymceState !== ""
-            && tinymceState.indexOf("class=\"placeholder\"") === -1) {
+            && !isPlaceholderInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
@@ -971,6 +971,9 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
+    function isPlaceholderInHTML (html) {
+        return html.indexOf("class=\"placeholder\"") !== -1;
+    }
 
     presenter.executeCommand = function AddonParagraph_Keyboard_executeCommand(name, params) {
         if (!presenter.configuration.isValid) { return; }
@@ -1051,8 +1054,13 @@ function AddonParagraph_Keyboard_create() {
                 return false;
             }
         }
-        var content = presenter.getText().replace(/<[^>]*>/g,''); //remove HTML tags
-        return !!content;
+        const editorContent = presenter.getText();
+        if (presenter.configuration.isPlaceholderSet
+            && !presenter.configuration.isPlaceholderEditable) {
+            return !isPlaceholderInHTML(editorContent);
+        }
+        const textToCompare = presenter.configuration.isPlaceholderSet ? presenter.configuration.placeholderText : "";
+        return $(editorContent).text() != textToCompare;
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
