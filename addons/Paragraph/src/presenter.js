@@ -109,7 +109,7 @@ function AddonParagraph_create() {
         const editorContent = presenter.getText();
         if (presenter.configuration.isPlaceholderSet
             && !presenter.configuration.isPlaceholderEditable) {
-            return !isPlaceholderInHTML(editorContent);
+            return !isPlaceholderClassInHTML(editorContent);
         }
         const textToCompare = presenter.configuration.isPlaceholderSet ? presenter.configuration.placeholderText : "";
         return $(editorContent).text() != textToCompare;
@@ -1070,7 +1070,7 @@ function AddonParagraph_create() {
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderInHTML(tinymceState)) {
+        if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderClassInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
@@ -1087,7 +1087,7 @@ function AddonParagraph_create() {
         }
     };
 
-    function isPlaceholderInHTML (html) {
+    function isPlaceholderClassInHTML (html) {
         return html.indexOf("class=\"placeholder\"") !== -1;
     }
 
