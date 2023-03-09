@@ -402,6 +402,9 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			public boolean isDefault() {
 				return true;
 			}
+
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {}
 		};
 
 		addProperty(itemsProperty);

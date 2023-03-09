@@ -359,6 +359,9 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 				return isDefault;
 			}
 
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {}
+
 		};
 		
 		addProperty(optionsProperty);

@@ -175,6 +175,12 @@ public class ListAddonParam extends StringAddonParam{
 			public boolean isDefault() {
 				return isDefault;
 			}
+
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {
+				moveItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
+			}
 		};
 		
 		return property;
@@ -200,6 +206,13 @@ public class ListAddonParam extends StringAddonParam{
 		if(index > 0){
 			AddonParamProvider item = propertyProviders.remove(index);
 			propertyProviders.add(index-1, item);
+		}
+	}
+
+	private void moveItem(int prevIndex, int nextIndex) {
+		if(nextIndex > 0){
+			AddonParamProvider item = propertyProviders.remove(prevIndex);
+			propertyProviders.add(nextIndex, item);
 		}
 	}
 

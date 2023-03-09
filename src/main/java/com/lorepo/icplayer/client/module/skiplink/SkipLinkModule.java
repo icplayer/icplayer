@@ -158,6 +158,9 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule,
                 return true;
             }
 
+            @Override
+			public void moveChild(int prevIndex, int nextIndex) {}
+
         };
 
         addProperty(property);
