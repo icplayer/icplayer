@@ -24,8 +24,12 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public void load(Element node, String baseURL, String version);
     public boolean isTabindexEnabled();
 	public void setIsTabindexEnabled(boolean value);
+	public boolean shouldOmitInTTS();
+	public void setOmitInTTS(boolean value);
 	public void setContentDefaultLayoutID(String layoutID);
 	public void setIsVisible(Boolean isVisible);
 	public SemiResponsiveStyles getSemiResponsiveStyles();
 	public boolean isVisible();
+	public String getTTSTitle();
+	public void setTTSTitle(String title);
 }

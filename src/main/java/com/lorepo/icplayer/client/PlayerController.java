@@ -360,10 +360,6 @@ public class PlayerController implements IPlayerController {
 				if (!keyboardController.isModuleActivated()) {
 					scrollViewToBeggining();
 				}
-
-				getPlayerServices()
-					.getEventBusService()
-					.sendValueChangedEvent("", "PlayerController", "", "PageLoaded", "");
 			}
 
 			@Override
