@@ -134,6 +134,16 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
 	public void setOmitInTTS(boolean value) {}
 
     @Override
+    public String getTTSTitle() {
+        return "";
+    }
+
+    @Override
+    public void setTTSTitle(String title) {
+
+    }
+
+    @Override
     public void setContentDefaultLayoutID(String layoutID) {
 
     }

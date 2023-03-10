@@ -1,3 +1,4 @@
+2023-03-10 Added new property TTS Title to the addons
 2023-03-08 Changed behavior of isAttempted command if placeholder is set in paragraph addons
 2023-03-07 Fixed TTS not working properly with HTML br Tag
 2023-02-22 Fixed setting state in Paragraph

@@ -29,4 +29,5 @@ public interface IModuleModelBuilder {
 	public boolean shouldOmitInTTS();
 	public void setOmitInTTS(boolean value);
 	public void setMetadata(IMetadata metadata);
+	public void setTTSTitle(String title);
 }

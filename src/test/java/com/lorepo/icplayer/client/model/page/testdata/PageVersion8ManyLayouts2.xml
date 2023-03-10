@@ -15,7 +15,7 @@
 		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC74" width="950" height="1204"/>
 	</layouts>
 	<modules>
-	    <imageModule id="Image1" isTabindexEnabled="false" shouldOmitInTTS="false">
+	    <imageModule id="Image1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
@@ -48,7 +48,7 @@
 			<image src="/file/serve/4937597482696704" alt="" mode="stretch" printable="" animatedGifRefresh="false"/>
 		</imageModule>
 		
-		<textModule id="Text1" isTabindexEnabled="false" shouldOmitInTTS="false">
+		<textModule id="Text1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
 			<styles>
 				<styleClasses>
 					<styleClass value="text_first_page_title" layoutID="default"/>
@@ -91,7 +91,7 @@
 			</text>
 			</textModule>
 		
-		<textModule id="Text2" isTabindexEnabled="false" shouldOmitInTTS="false">
+		<textModule id="Text2" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
 			<styles>
 				<styleClasses>
 					<styleClass value="text_first_page_title" layoutID="default"/>
@@ -134,7 +134,7 @@
 			</text>
 		</textModule>
 		
-		<buttonModule id="NextPage1" isTabindexEnabled="false" shouldOmitInTTS="false">
+		<buttonModule id="NextPage1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
