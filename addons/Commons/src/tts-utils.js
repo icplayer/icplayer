@@ -25,6 +25,7 @@
             $clone = this._prepareAltTexts($clone);
             $clone = this._prepareImages($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._parseLineBreakTags($clone);
             $clone = this._addEndingSpace($clone);
 
             var splitTexts = $clone.text().split(this.statics.breakText);
@@ -64,6 +65,7 @@
             $clone = this._prepareImages($clone);
             $clone = this._prepareGaps($clone);
             $clone = this._prepareLists($clone);
+            $clone = this._parseLineBreakTags($clone);
             $clone = this._addEndingSpace($clone);
 
             var TextVoiceArray = this._parseRawText($clone.text(), speechTexts, presenterLangTag);
@@ -274,6 +276,11 @@
                 originalHTML = originalHTML + self.statics.nonBreakingSpace;
                 this.innerHTML = originalHTML;
             });
+            return $clone;
+        },
+
+        _parseLineBreakTags: function($clone) {
+            $clone.find("br").replaceWith("<div>." + this.statics.nonBreakingSpace + "</div>");
             return $clone;
         },
 
