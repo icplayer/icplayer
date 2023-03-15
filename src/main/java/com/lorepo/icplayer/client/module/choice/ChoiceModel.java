@@ -360,7 +360,10 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			}
 
 			@Override
-			public void moveChild(int prevIndex, int nextIndex) {}
+			public void moveChild(int prevIndex, int nextIndex) {
+				moveItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
+			}
 
 		};
 		
@@ -396,6 +399,11 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			ChoiceOption item = options.remove(index);
 			options.add(index+1, item);
 		}
+	}
+
+	private void moveItem(int prevIndex, int nextIndex) {
+		ChoiceOption item = options.remove(prevIndex);
+		options.add(nextIndex, item);
 	}
 
 	public ArrayList<ChoiceOption> getOptions() {
