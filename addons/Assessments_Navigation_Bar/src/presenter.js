@@ -293,6 +293,10 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$view.removeClass(presenter.CSS_CLASSES.BOOKMARK);
     };
 
+    presenter.Button.prototype.removeAttempted = function () {
+        this.$view.removeClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
+    };
+
     presenter.Button.prototype.createView = function () {
         var $view = $('<div></div>');
 
@@ -447,6 +451,10 @@ function AddonAssessments_Navigation_Bar_create(){
         if (attempted_page_index !== -1) {
             this.attemptedPages.splice(attempted_page_index, 1);
         }
+    };
+
+    presenter.Sections.prototype.markAllPagesAsNotAttempted = function () {
+        this.attemptedPages = [];
     };
 
     presenter.Sections.prototype.getPagesIndexes = function (pages) {
@@ -660,6 +668,15 @@ function AddonAssessments_Navigation_Bar_create(){
         }).forEach(function (button) {
             button.addCssClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
         });
+    };
+
+    presenter.NavigationManager.prototype.removeAttemptedFromButtons = function () {
+        this.buttons.forEach(function(button) {
+            button.removeAttempted();
+        });
+        this.sections.map(function (section) {
+            section.markAllPagesAsNotAttempted();
+        })
     };
 
     presenter.NavigationManager.prototype.initView = function () {
@@ -1711,6 +1728,7 @@ function AddonAssessments_Navigation_Bar_create(){
         }
         if (eventData.item === "Lesson Reset") {
             presenter.navigationManager.removeBookmarksFromButtons();
+            presenter.navigationManager.removeAttemptedFromButtons();
         }
     };
 
