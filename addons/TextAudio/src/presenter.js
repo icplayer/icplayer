@@ -1027,20 +1027,8 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
         }
 
-        if(presenter.configuration.showSlides == "Show all slides"){
-            var frames_array = presenter.configuration.frames;
-            for (var i = 0; i< frames_array.length; i++){
-                if(frames_array[i].slide_id >= 0){
-                    var slide_data = {
-                        slide_id: frames_array[i].slide_id,
-                        selection_id: frames_array[i].selection_id
-                    };
-                    presenter.changeSlideFromDataAll(slide_data);
-                }
-            }
-            presenter.$view.find('.textaudio-text span').removeClass('active');
-        }else{
-            presenter.changeSlide(0);
+        if (!isPreview) {
+            presenter.handleChangingSlides();
         }
 
         presenter.slidesMade = true;
@@ -1065,6 +1053,53 @@ function AddonTextAudio_create() {
             }
         });
     };
+
+    presenter.handleChangingSlides = function() {
+        if(presenter.configuration.showSlides === "Show all slides"){
+            var frames_array = filterFrames(presenter.configuration.frames);
+            for (var i = 0; i< frames_array.length; i++){
+                if(frames_array[i].slide_id >= 0){
+                    var slide_data = {
+                        slide_id: frames_array[i].slide_id,
+                        selection_id: frames_array[i].selection_id
+                    };
+                    presenter.changeSlideFromDataAll(slide_data);
+                }
+            }
+            presenter.$view.find('.textaudio-text span').removeClass('active');
+        } else{
+            presenter.changeSlide(0);
+        }
+    }
+
+    function filterFrames(frames) {
+        const filteredFrames = [];
+        let lastAddedElement = null;
+        frames.forEach((frame) => {
+            if (!filteredFrames.length) {
+                filteredFrames.push({
+                    slide_id: frame.slide_id,
+                    selection_id: frame.selection_id
+                })
+                lastAddedElement = {
+                    slide_id: frame.slide_id,
+                    selection_id: frame.selection_id
+                }
+            }
+            if (lastAddedElement.slide_id !== frame.slide_id && lastAddedElement.selection_id !== frame.selection_id) {
+                filteredFrames.push({
+                    slide_id: frame.slide_id,
+                    selection_id: frame.selection_id
+                })
+                lastAddedElement = {
+                    slide_id: frame.slide_id,
+                    selection_id: frame.selection_id
+                }
+            }
+        })
+
+        return filteredFrames;
+    }
 
     presenter.onAudioPlaying = function AddonTextAudio_onAudioPlaying () {
         presenter.hasBeenStarted = true;
