@@ -674,9 +674,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.buttons.forEach(function(button) {
             button.removeAttempted();
         });
-        if (presenter.sections) {
-            presenter.sections.markAllPagesAsNotAttempted();
-        }
+        presenter.sections.markAllPagesAsNotAttempted();
     };
 
     presenter.NavigationManager.prototype.initView = function () {
