@@ -1,4 +1,4 @@
-TestCase("Scores tests", {
+TestCase("[Puzzle] Scores tests", {
     setUp: function () {
         this.presenter = AddonPuzzle_create();
 

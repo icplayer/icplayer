@@ -1,15 +1,15 @@
-TestCase("Model validation", {
+TestCase("[Puzzle] Model validation", {
     setUp: function () {
         this.presenter = AddonPuzzle_create();
+
+        this.model = {
+            "Is Visible": "True",
+            "ID": 'Puzzle1',
+        };
     },
 
     'test proper model': function () {
-        var model = {
-            'Is Visible': "True",
-            ID: 'Puzzle1'
-        };
-
-        var validationResult = this.presenter.validateModel(model);
+        const validationResult = this.presenter.validateModel(this.model);
 
         assertTrue(validationResult.isValid);
         assertTrue(validationResult.isVisible);
@@ -21,10 +21,35 @@ TestCase("Model validation", {
         assertEquals(4, validationResult.rows);
 
         assertEquals('Puzzle1', validationResult.addonID);
-    }
+    },
+
+    'test given model without isNotActivity value when validating then set isNotActivity to false': function () {
+        const validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+        assertFalse(validatedModel.isNotActivity);
+    },
+
+    'test given model with isNotActivity set to True when validating then set isNotActivity to true': function () {
+        this.model["isNotActivity"] = "True";
+
+        const validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+        assertTrue(validatedModel.isNotActivity);
+    },
+
+    'test given model with isNotActivity set to value other than True when validating then set isNotActivity to false': function () {
+        this.model["isNotActivity"] = "AA";
+
+        const validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+        assertFalse(validatedModel.isNotActivity);
+    },
 });
 
-TestCase("Puzzle dimensions validation", {
+TestCase("[Puzzle] Dimensions validation", {
     setUp: function () {
         this.presenter = AddonPuzzle_create();
     },
