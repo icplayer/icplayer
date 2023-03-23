@@ -513,7 +513,7 @@ public class GWTAddonModelTestCase extends GwtTest {
 		AddonModel module = new AddonModel();
 		module.load(element, "", PAGE_VERSION);
 		
-		assertEquals(13, module.getPropertyCount());
+		assertEquals(14, module.getPropertyCount());
 	}
 	
 	

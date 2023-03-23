@@ -82,12 +82,22 @@ TestCase("[Paragraph Keyboard] isAttempted method", {
         this.presenter.configuration = {
             ID: 'Paragraph-eKeyboard1',
             isVisible: true,
-            isValid: true
+            isValid: true,
+            isPlaceholderSet: false,
+            isPlaceholderEditable: false,
         };
 
         this.presenter.editor = {
             'getContent': sinon.stub()
         }
+    },
+
+    setUpPlaceholderStateAfterChangedPage: function () {
+        this.presenter.placeholder = {
+            isSet: true,
+            shouldBeSet: false,
+            placeholderText: this.presenter.configuration.isPlaceholderEditable ? "" : this.presenter.configuration.placeholderText,
+        };
     },
 
     'test given editor was not loaded and state is not set when calling isAttempted then return false': function () {
@@ -120,25 +130,151 @@ TestCase("[Paragraph Keyboard] isAttempted method", {
         assertTrue(result);
     },
 
-    'test given editor was loaded and editor contains text when calling isAttempted then return true': function () {
+    'test given editor was loaded, no placeholder and editor is empty when calling isAttempted then return false': function () {
         this.presenter.isEditorLoaded = true;
-        this.presenter.state = '{"tinymceState":"<p>hello world</p>"}';
+        this.presenter.editor.getContent.returns('<p></p>');
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertFalse(result);
+    },
+
+    'test given editor was loaded, no placeholder and editor contains text when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
         this.presenter.editor.getContent.returns('<p>hello world</p>');
 
-        var result = this.presenter.isAttempted();
+        const result = this.presenter.isAttempted();
 
-        assertTrue(this.presenter.editor.getContent.called);
+        assertTrue(this.presenter.editor.getContent.calledOnce);
         assertTrue(result);
     },
 
-    'test given editor was loaded and editor contains no text when calling isAttempted then return false': function () {
+    'test given editor was loaded, not-editable placeholder set and visible when calling isAttempted then return false': function () {
         this.presenter.isEditorLoaded = true;
-        this.presenter.state = '{"tinymceState":"<p>hello world</p>"}';
-        this.presenter.editor.getContent.returns('<p></p>');
+        this.presenter.editor.getContent.returns('<placeholder class="placeholder">hello world</placeholder>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: true,
+            shouldBeSet: true,
+            placeholderText: "hello world",
+        }
 
-        var result = this.presenter.isAttempted();
+        const result = this.presenter.isAttempted();
 
-        assertTrue(this.presenter.editor.getContent.called);
+        assertTrue(this.presenter.editor.getContent.calledOnce);
         assertFalse(result);
-    }
+    },
+
+    'test given editor was loaded, not-editable placeholder set but not visible and editor contains text equal to placeholder text when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: false,
+            shouldBeSet: false,
+            placeholderText: "hello world",
+        }
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertTrue(result);
+    },
+
+    'test given editor was loaded, not-editable placeholder set and changed page when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<placeholder class="placeholder">hello world</placeholder>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.setUpPlaceholderStateAfterChangedPage();
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertFalse(result);
+    },
+
+    'test given editor was loaded, not-editable placeholder set but not visible and changed page when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.setUpPlaceholderStateAfterChangedPage();
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertTrue(result);
+    },
+
+    'test given editor was loaded, editable placeholder set and visible when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.isPlaceholderEditable = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: true,
+            shouldBeSet: true,
+            placeholderText: "",
+        }
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertFalse(result);
+    },
+
+    'test given editor was loaded, editable placeholder set and editor contains text not equal to placeholder when calling isAttempted then return true': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>Hi</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.isPlaceholderEditable = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: true,
+            shouldBeSet: true,
+            placeholderText: "",
+        }
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertTrue(result);
+    },
+
+    'test given editor was loaded, editable placeholder set and editor contains text from placeholder when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.isPlaceholderEditable = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.presenter.placeholder = {
+            isSet: false,
+            shouldBeSet: false,
+            placeholderText: "",
+        }
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertFalse(result);
+    },
+
+    'test given editor was loaded, editable placeholder set, editor contains text from placeholder and changed page when calling isAttempted then return false': function () {
+        this.presenter.isEditorLoaded = true;
+        this.presenter.editor.getContent.returns('<p>hello world</p>');
+        this.presenter.configuration.isPlaceholderSet = true;
+        this.presenter.configuration.isPlaceholderEditable = true;
+        this.presenter.configuration.placeholderText = "hello world";
+        this.setUpPlaceholderStateAfterChangedPage();
+
+        const result = this.presenter.isAttempted();
+
+        assertTrue(this.presenter.editor.getContent.calledOnce);
+        assertFalse(result);
+    },
 });

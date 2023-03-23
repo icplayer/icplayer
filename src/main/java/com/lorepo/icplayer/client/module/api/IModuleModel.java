@@ -30,4 +30,6 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public void setIsVisible(Boolean isVisible);
 	public SemiResponsiveStyles getSemiResponsiveStyles();
 	public boolean isVisible();
+	public String getTTSTitle();
+	public void setTTSTitle(String title);
 }

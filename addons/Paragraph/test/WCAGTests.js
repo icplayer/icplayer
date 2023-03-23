@@ -29,12 +29,15 @@ TestCase("[Paragraph] WCAG - Keyboard Navigation Test", {
         this.presenter.keyboardControllerObject.mark = markStub;
         var execCommandStub = sinon.stub();
         this.presenter.editor.execCommand = execCommandStub;
+        var speakSelectedOnActionStub = sinon.stub();
+        this.presenter.speakSelectedOnAction = speakSelectedOnActionStub;
 
         this.presenter.keyboardControllerObject.selectAction();
 
         sinon.assert.callCount(elementClickedSpy, 1);
         sinon.assert.callCount(markStub, 1);
         sinon.assert.callCount(execCommandStub, 0);
+        sinon.assert.callCount(speakSelectedOnActionStub, 1);
     },
 
     'test given mce-edit-area element when selectAction then command fired': function () {

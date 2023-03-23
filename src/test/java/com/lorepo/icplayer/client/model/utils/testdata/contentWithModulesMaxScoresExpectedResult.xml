@@ -1,4 +1,4 @@
-<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="4">
+<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="5">
     <metadata>
         <entry key="useGrid" value="true"/>
         <entry key="snapToGrid" value="true"/>
@@ -137,4 +137,5 @@
     </assets>
     <adaptive><![CDATA[]]></adaptive>
     <dictionary></dictionary>
+    <defaultTTSTitlesDictionary></defaultTTSTitlesDictionary>
 </interactiveContent>

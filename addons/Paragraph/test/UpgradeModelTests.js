@@ -160,7 +160,8 @@ TestCase("[Paragraph] Upgrade model with speech texts", {
             AlignRight: {AlignRight: ""},
             Justify: {Justify: ""},
             Selected:{Selected:""},
-            ParagraphContent:{ParagraphContent: ""}
+            ParagraphContent:{ParagraphContent: ""},
+            Deselected:{Deselected:""},
         };
         var upgradedModel = this.presenter.upgradeSpeechTexts(model);
 
@@ -178,7 +179,8 @@ TestCase("[Paragraph] Upgrade model with speech texts", {
                 AlignRight: {AlignRight: "do prawej"},
                 Justify: {Justify: "wyjustuj"},
                 Selected: {Selected: "wybrano"},
-                ParagraphContent: {ParagraphContent: "zawartość"}
+                ParagraphContent: {ParagraphContent: "zawartość"},
+                Deselected: {Deselected: "Odznaczono"},
             }
         };
 

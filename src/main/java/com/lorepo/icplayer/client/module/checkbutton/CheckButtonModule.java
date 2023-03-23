@@ -219,12 +219,10 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 			}
 
 			@Override
-			public void moveChildUp(int index) {
-			}
+			public void moveChildUp(int index) {}
 
 			@Override
-			public void moveChildDown(int index) {
-			}
+			public void moveChildDown(int index) {}
 
 		};
 
