@@ -33,6 +33,7 @@ function AddonTextAudio_create() {
 
     presenter.PLAYBACK_RATE_LIST = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
     presenter.playbackRate = 1.0;
+    presenter.isPreview = false;
 
     var controls = {
         CUSTOM: "Custom",
@@ -660,6 +661,21 @@ function AddonTextAudio_create() {
         presenter.changeSlideFromDataAll(slide_data);
     };
 
+    presenter.changeSlideFromDataAllPreview = function AddonTextAudio_changeSlideFromDataAll (slide_data) {
+        const textWrapper = presenter.$view.find(".slide-id-0");
+        if (!presenter.areSlidesEqual(slide_data, presenter.current_slide_data)) {
+            const currentSelId = presenter.current_slide_data.selection_id;
+            if (presenter.configuration.playPart && currentSelId !== -1 && presenter.selectionId === currentSelId) {
+                presenter.pause();
+            }
+            if (slide_data.slide_id !== presenter.current_slide_data.slide_id && !presenter.slidesMade) {
+                presenter.makeSlide(textWrapper, slide_data.slide_id);
+            }
+            presenter.current_slide_data = slide_data;
+            presenter.playedByClick = false;
+        }
+    };
+
     presenter.changeSlideFromDataAll = function AddonTextAudio_changeSlideFromDataAll (slide_data) {
         var textWrapper = presenter.$view.find(".slide-id-0");
         if (!presenter.areSlidesEqual(slide_data, presenter.current_slide_data)) {
@@ -1027,7 +1043,9 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
         }
 
-        if (!isPreview) {
+        if (isPreview) {
+            presenter.handleChangingSlidesForPreview();
+        } else {
             presenter.handleChangingSlides();
         }
 
@@ -1054,12 +1072,30 @@ function AddonTextAudio_create() {
         });
     };
 
-    presenter.handleChangingSlides = function() {
-        if(presenter.configuration.showSlides === "Show all slides"){
-            var frames_array = filterFrames(presenter.configuration.frames);
-            for (var i = 0; i< frames_array.length; i++){
-                if(frames_array[i].slide_id >= 0){
-                    var slide_data = {
+    presenter.handleChangingSlidesForPreview = function () {
+        if (presenter.configuration.showSlides === "Show all slides") {
+            const frames_array = filterFrames(presenter.configuration.frames).slice(0, 2);
+            for (let i = 0; i < frames_array.length; i++) {
+                if (frames_array[i].slide_id >= 0) {
+                    const slide_data = {
+                        slide_id: frames_array[i].slide_id,
+                        selection_id: frames_array[i].selection_id
+                    };
+                    presenter.changeSlideFromDataAllPreview(slide_data);
+                }
+            }
+            presenter.$view.find('.textaudio-text span').removeClass('active');
+        } else {
+            presenter.changeSlide(0);
+        }
+    }
+
+    presenter.handleChangingSlides = function () {
+        if (presenter.configuration.showSlides === "Show all slides") {
+            const frames_array = filterFrames(presenter.configuration.frames);
+            for (let i = 0; i < frames_array.length; i++) {
+                if (frames_array[i].slide_id >= 0) {
+                    const slide_data = {
                         slide_id: frames_array[i].slide_id,
                         selection_id: frames_array[i].selection_id
                     };
@@ -1067,7 +1103,7 @@ function AddonTextAudio_create() {
                 }
             }
             presenter.$view.find('.textaudio-text span').removeClass('active');
-        } else{
+        } else {
             presenter.changeSlide(0);
         }
     }
@@ -1358,6 +1394,7 @@ function AddonTextAudio_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.isPreview = isPreview;
 
         buzz.defaults.preload = 'auto';
         buzz.defaults.autoplay = false;

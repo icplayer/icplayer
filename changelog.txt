@@ -1,3 +1,4 @@
+2023-03-23 Fixed loading subtitles preview in editor
 2023-03-21 Fixed loading subtitles in Text Audio
 2022-03-10 Added autofill page id button in editor
 2023-03-10 Added new property TTS Title to the addons
