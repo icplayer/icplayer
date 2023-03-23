@@ -1,4 +1,6 @@
-2023-03-15 Added buttons in the list of addons in TTS that allows to add item in a selected place
+2023-03-23 Added buttons in the list of addons in TTS that allows to add item in a selected place
+2022-03-23 Added Default TTS Titles Dictionary to the Editor
+2022-03-21 Changed behavior of the Assessments Navigation Bar addon to reset attempted status after receiving Lesson Reset event
 2022-03-10 Added autofill page id button in editor
 2023-03-10 Added new property TTS Title to the addons
 2023-03-08 Changed behavior of isAttempted command if placeholder is set in paragraph addons
