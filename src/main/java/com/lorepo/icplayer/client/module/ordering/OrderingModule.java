@@ -402,6 +402,12 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			public boolean isDefault() {
 				return true;
 			}
+
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {
+				moveItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
+			}
 		};
 
 		addProperty(itemsProperty);
@@ -437,6 +443,11 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			OrderingItem item = items.remove(index);
 			items.add(index + 1, item);
 		}
+	}
+
+	private void moveItem(int prevIndex, int nextIndex) {
+		OrderingItem item = items.remove(prevIndex);
+		items.add(nextIndex, item);
 	}
 
 	private void addPropertyOptionalOrder() {

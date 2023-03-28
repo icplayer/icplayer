@@ -30,7 +30,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public final static String version = "4";
+	public final static String version = "5";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -51,6 +51,7 @@ public class Content implements IContentBuilder, IContent {
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 
 	private HashMap<String, HashMap<String, String>> ttsDictionary = new HashMap<String, HashMap<String, String>>();
+	private HashMap<String, String> defaultTTSTitlesDictionary = new HashMap<String, String>();
 
 	private int maxPagesCount = 100;
 
@@ -273,6 +274,7 @@ public class Content implements IContentBuilder, IContent {
 
 		// TTS Dictionary
 		xml += this.createDictionaryStructure();
+		xml += this.parseDefaultTTSTitlesDictionaryToXML();
 
 		xml += 	"</interactiveContent>";
 		return xml;
@@ -327,6 +329,16 @@ public class Content implements IContentBuilder, IContent {
 	
 			this.ttsDictionary.put(addonName, copiedProperties);
 		}
+	}
+
+	public HashMap<String, String> getDefaultTTSTitlesDictionary() {
+		return this.defaultTTSTitlesDictionary;
+	}
+
+	@Override
+	public void setDefaultTTSTitlesDictionary(HashMap<String, String> dictionary) {
+		this.defaultTTSTitlesDictionary = new HashMap<String, String>();
+		this.defaultTTSTitlesDictionary.putAll(dictionary);
 	}
 
 	@Override
@@ -676,6 +688,26 @@ public class Content implements IContentBuilder, IContent {
 			}
 
 			dictionary.appendChild(module.toXML());
+		}
+
+		return dictionary.toString();
+	}
+
+	private String parseDefaultTTSTitlesDictionaryToXML() {
+		Document document = XMLParser.createDocument();
+		Element dictionary = document.createElement("defaultTTSTitlesDictionary");
+
+		if (this.defaultTTSTitlesDictionary.isEmpty()) {
+			return dictionary.toString();
+		}
+
+		for (String addonName : this.defaultTTSTitlesDictionary.keySet()) {
+			String defaultTitle = this.defaultTTSTitlesDictionary.get(addonName);
+
+			Element module = document.createElement("module");
+			module.setAttribute("type", addonName);
+			module.setAttribute("value", defaultTitle);
+			dictionary.appendChild(module);
 		}
 
 		return dictionary.toString();
