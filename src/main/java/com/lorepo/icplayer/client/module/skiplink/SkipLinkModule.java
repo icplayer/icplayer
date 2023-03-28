@@ -97,6 +97,11 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule,
         }
     }
 
+    private void moveItem(int prevIndex, int nextIndex) {
+        SkipLinkItem linkItem = items.remove(prevIndex);
+        items.add(nextIndex, linkItem);
+    }
+
     private void addPropertyItems() {
         IListProperty property = new IListProperty() {
             @Override
@@ -156,6 +161,12 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule,
             @Override
             public boolean isDefault() {
                 return true;
+            }
+
+            @Override
+			public void moveChild(int prevIndex, int nextIndex) {
+                moveItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
             }
 
         };

@@ -90,6 +90,10 @@ public abstract class ContentParserBase implements IContentParser {
 					HashMap<String, HashMap<String, String>> dictionary = parseDictionaryStructure(child);
 					content.setDictionaryStructure(dictionary);
 				}
+				else if (name.compareTo("defaultTTSTitlesDictionary") == 0) {
+					HashMap<String, String> dictionary = parseDefaultTTSTitlesDictionary(child);
+					content.setDefaultTTSTitlesDictionary(dictionary);
+				}
 			}
 		}		
 
@@ -267,5 +271,9 @@ public abstract class ContentParserBase implements IContentParser {
 
 	protected HashMap<String, HashMap<String, String>> parseDictionaryStructure(Element xml) {
 		return new HashMap<String, HashMap<String, String>>();
+	}
+
+	protected HashMap<String, String> parseDefaultTTSTitlesDictionary(Element xml) {
+		return new HashMap<String, String>();
 	}
 }
