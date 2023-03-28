@@ -305,13 +305,13 @@ public class PlayerServices implements IPlayerServices {
 		
 		$wnd.$.ui.intersect = $wnd.$.ui.intersect = function(draggable, droppable, toleranceMode) {			
 			if (!droppable.offset) return false;
-
-            var scale = getScaleInformation();
+			
+			var scale = getScaleInformation();
 			var draggableWidth = draggable.helperProportions.width;
 			var draggableHeight = draggable.helperProportions.height;
 			if (draggable.useScaledProportions) {
-			    draggableWidth *= scale.X;
-                draggableHeight *= scale.Y;
+				draggableWidth *= scale.X;
+				draggableHeight *= scale.Y;
 			}
 
 			if (!draggable.isGeneratePositionScaled) { //a decorator applying scaling to draggable._generatePosition is being used
@@ -330,12 +330,6 @@ public class PlayerServices implements IPlayerServices {
 						&& t <= y1 && y2 <= b);
 					break;
 				case 'intersect':
-				    if (l < x1 + (draggableWidth / 2)
-						&& x2 - (draggableWidth / 2) < r
-						&& t < y1 + (draggableHeight / 2)
-						&& y2 - (draggableHeight / 2) < b ); {
-				        $wnd.console.log("draggable.useScaledProportions", draggable.useScaledProportions);
-				    }
 				    return (l < x1 + (draggableWidth / 2) // Right Half
 						&& x2 - (draggableWidth / 2) < r // Left Half
 						&& t < y1 + (draggableHeight / 2) // Bottom Half
