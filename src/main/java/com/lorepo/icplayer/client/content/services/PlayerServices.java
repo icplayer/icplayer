@@ -330,7 +330,7 @@ public class PlayerServices implements IPlayerServices {
 						&& t <= y1 && y2 <= b);
 					break;
 				case 'intersect':
-				    return (l < x1 + (draggableWidth / 2) // Right Half
+					return (l < x1 + (draggableWidth / 2) // Right Half
 						&& x2 - (draggableWidth / 2) < r // Left Half
 						&& t < y1 + (draggableHeight / 2) // Bottom Half
 						&& y2 - (draggableHeight / 2) < b ); // Top Half
