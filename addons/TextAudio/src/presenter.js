@@ -1086,7 +1086,7 @@ function AddonTextAudio_create() {
             }
             presenter.$view.find('.textaudio-text span').removeClass('active');
         } else {
-            presenter.changeSlide(0);
+            presenter.changeSlide(presenter.getFirstSlideStartTime());
         }
     }
 
@@ -1104,8 +1104,12 @@ function AddonTextAudio_create() {
             }
             presenter.$view.find('.textaudio-text span').removeClass('active');
         } else {
-            presenter.changeSlide(0);
+            presenter.changeSlide(presenter.getFirstSlideStartTime());
         }
+    }
+
+    presenter.getFirstSlideStartTime = function () {
+        return presenter.configuration.slides[0].Times[0].start;
     }
 
     function filterFrames(frames) {
