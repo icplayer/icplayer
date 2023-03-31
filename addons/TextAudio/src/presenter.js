@@ -661,7 +661,7 @@ function AddonTextAudio_create() {
         presenter.changeSlideFromDataAll(slide_data);
     };
 
-    presenter.changeSlideFromDataAllPreview = function AddonTextAudio_changeSlideFromDataAll (slide_data) {
+    presenter.changeSlideFromDataAllPreview = function AddonTextAudio_changeSlideFromDataAllPreview (slide_data) {
         const textWrapper = presenter.$view.find(".slide-id-0");
         if (!presenter.areSlidesEqual(slide_data, presenter.current_slide_data)) {
             const currentSelId = presenter.current_slide_data.selection_id;
