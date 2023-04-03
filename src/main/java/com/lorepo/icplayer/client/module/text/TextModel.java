@@ -192,21 +192,21 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	}
 
 	private void parseModuleGroupsGapsNode(Element node) {
-	    NodeList groupsGapsNodes = node.getElementsByTagName("groupsGaps");
-        if (groupsGapsNodes.getLength() == 0) {
+		NodeList groupsGapsNodes = node.getElementsByTagName("groupsGaps");
+		if (groupsGapsNodes.getLength() == 0) {
 			return;
-        }
-
-        groupGaps.clear();
-
-        Element groupsGapsElement = (Element) groupsGapsNodes.item(0);
-        NodeList groupGapsNodes = groupsGapsElement.getElementsByTagName("groupGaps");
-        for (int groupGapIndex = 0; groupGapIndex < groupGapsNodes.getLength(); groupGapIndex++) {
-            GroupGapsListItem groupGapsItem = new GroupGapsListItem(groupGapsListProperty);
-            Element groupGapsElement = (Element) groupGapsNodes.item(groupGapIndex);
-            groupGapsItem.load(groupGapsElement);
-            this.addGroupGapsItem(groupGapsItem);
-        }
+		}
+		
+		groupGaps.clear();
+		
+		Element groupsGapsElement = (Element) groupsGapsNodes.item(0);
+		NodeList groupGapsNodes = groupsGapsElement.getElementsByTagName("groupGaps");
+		for (int groupGapIndex = 0; groupGapIndex < groupGapsNodes.getLength(); groupGapIndex++) {
+			GroupGapsListItem groupGapsItem = new GroupGapsListItem(groupGapsListProperty);
+			Element groupGapsElement = (Element) groupGapsNodes.item(groupGapIndex);
+			groupGapsItem.load(groupGapsElement);
+			this.addGroupGapsItem(groupGapsItem);
+		}
 	}
 
 	public void setText(String text) {
@@ -234,11 +234,11 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 			this.clearInfos();
 			return;
 		}
-
-        Integer gapsNumber = parsedTextInfo.gapInfos.size() + parsedTextInfo.choiceInfos.size();
+		
+		Integer gapsNumber = parsedTextInfo.gapInfos.size() + parsedTextInfo.choiceInfos.size();
 		String groupGapsErrorCode = validateGroupGapsProperty(gapsNumber);
-        if (!groupGapsErrorCode.isEmpty()) {
-		    parsedText = DictionaryWrapper.get(groupGapsErrorCode);
+		if (!groupGapsErrorCode.isEmpty()) {
+			parsedText = DictionaryWrapper.get(groupGapsErrorCode);
 			this.clearInfos();
 			return;
 		}
@@ -1422,8 +1422,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private void addPropertyGroupGaps() {
 
 		groupGapsListProperty = new IListProperty() {
-
-            @Override
+			
+			@Override
 			public void setValue(String newValue) {
 			    // Use this function to validate property
 			    setText(moduleText);
@@ -1477,16 +1477,16 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				moveGroupGapsItemDown(index);
 				sendPropertyChangedEvent(this);
 			}
-
-            public void onMoveTop(int index) {
-                moveGroupGapsItemTop(index);
-                sendPropertyChangedEvent(this);
-            }
-
-            public void onMoveBottom(int index) {
-                moveGroupGapsItemBottom(index);
-                sendPropertyChangedEvent(this);
-            }
+			
+			public void onMoveTop(int index) {
+				moveGroupGapsItemTop(index);
+				sendPropertyChangedEvent(this);
+			}
+			
+			public void onMoveBottom(int index) {
+				moveGroupGapsItemBottom(index);
+				sendPropertyChangedEvent(this);
+			}
 
 			@Override
 			public boolean isDefault() {
@@ -1507,11 +1507,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		if (count < 1 || count >= 50) {
 			return;
 		}
-
+		
 		for (int i = 0; i < count; i++) {
-            int index = groupGaps.size() + 1;
-            addGroupGapsItem(new GroupGapsListItem(groupGapsListProperty));
-        }
+			addGroupGapsItem(new GroupGapsListItem(groupGapsListProperty));
+		}
 	}
 
 	private void addGroupGapsItem(GroupGapsListItem item) {
@@ -1527,22 +1526,22 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	private String validateGroupGapsProperty(Integer gapsNumber) {
 		ArrayList<Integer> allIndexes = new ArrayList<Integer>();
-
-        for (GroupGapsListItem item : groupGaps) {
-		    boolean isValidItem = item.validate(gapsNumber);
-		    if (!isValidItem) {
-		        return item.getErrorCode();
-		    }
-
-		    ArrayList<Integer> itemGroupIndexes = item.getParsedGapsIndexes();
-            for (Integer indexInGroup : itemGroupIndexes) {
-                if (allIndexes.contains(indexInGroup)) {
-                    return "text_module_group_gaps_duplication_error";
-                }
-                allIndexes.add(indexInGroup);
-            }
-        }
-        return "";
+		
+		for (GroupGapsListItem item : groupGaps) {
+			boolean isValidItem = item.validate(gapsNumber);
+			if (!isValidItem) {
+				return item.getErrorCode();
+			}
+			
+			ArrayList<Integer> itemGroupIndexes = item.getParsedGapsIndexes();
+			for (Integer indexInGroup : itemGroupIndexes) {
+				if (allIndexes.contains(indexInGroup)) {
+					return "text_module_group_gaps_duplication_error";
+				}
+				allIndexes.add(indexInGroup);
+			}
+		}
+		return "";
 	}
 
 	private void removeGroupGapsItem(int index) {
@@ -1585,14 +1584,14 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	}
 
 	private void clearInfos() {
-	    gapInfos.clear();
-        choiceInfos.clear();
-        linkInfos.clear();
-        audioInfos.clear();
+		gapInfos.clear();
+		choiceInfos.clear();
+		linkInfos.clear();
+		audioInfos.clear();
 	}
 
 	public ArrayList<GroupGapsListItem> getGroupGaps() {
-        return this.groupGaps;
+		return this.groupGaps;
 	}
 
 	@Override

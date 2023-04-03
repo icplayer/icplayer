@@ -595,14 +595,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
-		    if (groupGapsItem.getErrorCode() != null) {
-		        return 0;
-		    }
+			if (groupGapsItem.getErrorCode() != null) {
+				return 0;
+			}
 		}
 		
 		int maxScore = 0;
-
-        HashMap<Integer, Integer> maxScoresDict = new HashMap<Integer, Integer>();
+		
+		HashMap<Integer, Integer> maxScoresDict = new HashMap<Integer, Integer>();
 		for (int i = 0; i < module.getGapInfos().size(); i++) {
 			GapInfo gap = module.getGapInfos().get(i);
 			maxScoresDict.put(i + 1, gap.getValue());
@@ -611,23 +611,23 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			InlineChoiceInfo choice = module.getChoiceInfos().get(i);
 			maxScoresDict.put(i + 1 + module.getGapInfos().size(), choice.getValue());
 		}
-
+		
 		HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
-        for (Integer gapIndex: maxScoresDict.keySet()) {
+		for (Integer gapIndex: maxScoresDict.keySet()) {
             gapsWithScoresIndexes.add(gapIndex);
         }
 		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
-            maxScore += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
-
-            ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
-            for (Integer gapIndex: gapsIndexes) {
-                maxScoresDict.remove(gapIndex);
-            }
+			maxScore += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
+			
+			ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+			for (Integer gapIndex: gapsIndexes) {
+				maxScoresDict.remove(gapIndex);
+			}
 		}
-        for (Integer gapScore: maxScoresDict.values()) {
-            maxScore += gapScore;
-        }
-
+		for (Integer gapScore: maxScoresDict.values()) {
+			maxScore += gapScore;
+		}
+		
 		return maxScore;
 	}
 
@@ -642,61 +642,60 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
-		    if (groupGapsItem.getErrorCode() != null) {
-		        return 0;
-		    }
+			if (groupGapsItem.getErrorCode() != null) {
+				return 0;
+			}
 		}
 
 		int score = 0;
 		String enteredValue;
-
-        HashMap<Integer, Integer> scoresDict = new HashMap<Integer, Integer>();
+		
+		HashMap<Integer, Integer> scoresDict = new HashMap<Integer, Integer>();
 		for (int i = 0; i < module.getGapInfos().size(); i++) {
 			GapInfo gap = module.getGapInfos().get(i);
 			enteredValue = getElementText(gap);
-
+			
 			if (isGapCheckable(gap) && gap.isCorrect(enteredValue)) {
 				scoresDict.put(i + 1, gap.getValue());
 			}
 		}
-
+		
 		for (int i = 0; i < module.getChoiceInfos().size(); i++) {
 			InlineChoiceInfo choice = module.getChoiceInfos().get(i);
 			enteredValue = getElementText(choice.getId());
 			
 			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
-
 			if (isCorrectAnswer) {
 				scoresDict.put(i + 1 + module.getGapInfos().size(), choice.getValue());
 			}
 		}
-
-        HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
-        for (Integer gapIndex: scoresDict.keySet()) {
-            gapsWithScoresIndexes.add(gapIndex);
-        }
-        for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
-            score += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
-
-            ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
-            for (Integer gapIndex: gapsIndexes) {
-                scoresDict.remove(gapIndex);
-            }
+		
+		HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
+		for (Integer gapIndex: scoresDict.keySet()) {
+			gapsWithScoresIndexes.add(gapIndex);
 		}
-
-        for (Integer gapScore: scoresDict.values()) {
-            score += gapScore;
-        }
+		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
+			score += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
+			
+			ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+			for (Integer gapIndex: gapsIndexes) {
+				scoresDict.remove(gapIndex);
+			}
+		}
+		
+		for (Integer gapScore: scoresDict.values()) {
+			score += gapScore;
+		}
 
 		return score;
 	}
-
+	
 	private int calculateScoreForGroupGaps(HashSet<Integer> gapsWithScoresIndexes, GroupGapsListItem groupGapsItem) {
-	    ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
-        if (gapsWithScoresIndexes.containsAll(gapsIndexes) && gapsIndexes.size() != 0) {
-            return 1;
-        }
-        return 0;
+		ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+		if (gapsWithScoresIndexes.containsAll(gapsIndexes) && gapsIndexes.size() != 0) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private String getElementText(String id) {
