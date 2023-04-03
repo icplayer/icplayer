@@ -278,7 +278,7 @@ public class PlayerServices implements IPlayerServices {
 	            func(t, event);
 	            var droppables = $wnd.$.ui.ddmanager.droppables[t.options.scope] || [];
 	
-	            for (var i = 0; i < droppables.length; i++) {	            	
+	            for (var i = 0; i < droppables.length; i++) {
 	                droppables[i].proportions.width = droppables[i].element[0].getBoundingClientRect().width;
 	                droppables[i].proportions.height = droppables[i].element[0].getBoundingClientRect().height;
 	            }
@@ -305,11 +305,19 @@ public class PlayerServices implements IPlayerServices {
 		
 		$wnd.$.ui.intersect = $wnd.$.ui.intersect = function(draggable, droppable, toleranceMode) {			
 			if (!droppable.offset) return false;
+			
+			var scale = getScaleInformation();
+			var draggableWidth = draggable.helperProportions.width;
+			var draggableHeight = draggable.helperProportions.height;
+			if (draggable.useScaledProportions) {
+				draggableWidth *= scale.X;
+				draggableHeight *= scale.Y;
+			}
+
 			if (!draggable.isGeneratePositionScaled) { //a decorator applying scaling to draggable._generatePosition is being used
 				var x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.element[0].getBoundingClientRect().width,
 					y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.element[0].getBoundingClientRect().height;
 			} else {
-				var scale = getScaleInformation();
 				var x1 = draggable.position.left * scale.X - draggable.originalPosition.left, x2 = x1 + draggable.helperProportions.width * scale.X,
 					y1 = draggable.position.top * scale.Y - draggable.originalPosition.top, y2 = y1 + draggable.helperProportions.height * scale.Y;
 			}
@@ -322,10 +330,10 @@ public class PlayerServices implements IPlayerServices {
 						&& t <= y1 && y2 <= b);
 					break;
 				case 'intersect':
-					return (l < x1 + (draggable.helperProportions.width / 2) // Right Half
-						&& x2 - (draggable.helperProportions.width / 2) < r // Left Half
-						&& t < y1 + (draggable.helperProportions.height / 2) // Bottom Half
-						&& y2 - (draggable.helperProportions.height / 2) < b ); // Top Half
+					return (l < x1 + (draggableWidth / 2) // Right Half
+						&& x2 - (draggableWidth / 2) < r // Left Half
+						&& t < y1 + (draggableHeight / 2) // Bottom Half
+						&& y2 - (draggableHeight / 2) < b ); // Top Half
 					break;
 				case 'pointer':
 					var draggableLeft = ((draggable.positionAbs || draggable.position.absolute).left + (draggable.clickOffset || draggable.offset.click).left),

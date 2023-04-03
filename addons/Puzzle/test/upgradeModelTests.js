@@ -4,19 +4,19 @@ TestCase("[Puzzle] Upgrade Model", {
         this.presenter = AddonPuzzle_create();
     },
 
-    "test given empty model when upgrading isNotActivity then sets isNotActivity to false": function () {
+    "test given empty model when upgrading isNotActivity then sets isNotActivity to False": function () {
         const upgradedModel = this.presenter.upgradeIsNotActivity({});
 
         assertNotUndefined(upgradedModel.isNotActivity);
-        assertFalse(upgradedModel.isNotActivity);
+        assertEquals("False", upgradedModel.isNotActivity);
     },
 
-    "test given model with isNotActivity being true when upgrading model then sets isNotActivity to true": function () {
-        const isNotActivity = true;
-        const upgradedModel = this.presenter.upgradeIsNotActivity({'isNotActivity': isNotActivity});
+    "test given model with isNotActivity when upgradeModel is called then isNotActivity value remains unchanged": function () {
+        const isNotActivity = "True";
+
+        const upgradedModel = this.presenter.upgradeIsNotActivity({"isNotActivity": isNotActivity});
 
         assertNotUndefined(upgradedModel.isNotActivity);
-        assertTrue(upgradedModel.isNotActivity);
+        assertEquals("True", upgradedModel.isNotActivity);
     },
-
 });
