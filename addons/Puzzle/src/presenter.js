@@ -213,7 +213,7 @@ function AddonPuzzle_create() {
                 Container.append(puzzle);
 
                 // first add it to DOM, then apply draggable, so that it won't add position: relative to element
-                AddDraggableDroppable(puzzle);
+                addDraggableDroppable(puzzle);
             }
         }
 
@@ -226,13 +226,15 @@ function AddonPuzzle_create() {
         Shuffle();
     }
 
-    function AddDraggableDroppable(puzzle) {
+    function addDraggableDroppable(puzzle) {
         puzzle.draggable({
             delay: 150, // to give more time before drag starts, to prevent drags when clicking
             // don't use container or revert, as those options are bugged in subtle ways
             start: function(event,ui) {
                 // clear state if it was clicked before
                 clickNumber = 0;
+
+                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
                 if (PieceOld)
                     PieceOld.removeClass('selected');
 
@@ -241,12 +243,24 @@ function AddonPuzzle_create() {
                 ui.helper.off("click");
 
                 DraggedPiece = ui.helper;
+                DraggedPiece.addClass( hoverClass );
+
                 DragStartPos = presenter.getPiecePositionData(DraggedPiece);
 
-                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
-                DraggedPiece.addClass( hoverClass );
-              },
+                ui.position.left = 0;
+                ui.position.top = 0;
+            },
+            drag : function(event, ui) {
+                const scale = getScale();
+                const changeLeft = ui.position.left - ui.originalPosition.left;  // find change in left
+                const newLeft = ui.originalPosition.left + changeLeft / scale.X; // adjust new left by our zoomScale
 
+                const changeTop = ui.position.top - ui.originalPosition.top;  // find change in top
+                const newTop = ui.originalPosition.top + changeTop / scale.Y; // adjust new top by our zoomScale
+
+                ui.position.left = newLeft;
+                ui.position.top = newTop;
+            },
             stop: function(event,ui) {
 
                 if (DraggedPiece) {
@@ -275,8 +289,13 @@ function AddonPuzzle_create() {
         });
 
         puzzle.droppable({
-            tolerance: "intersect",
-
+            activate: function (event, ui) {
+                const scale = getScale();
+                // add marker to currently dragged element to scale its proportions
+                if (presenter.$view.find( "." + hoverClass ).length > 0 && scale.X !== 1 && scale.Y !== 1) {
+                    $.ui.ddmanager.current.useScaledProportions = true;
+                }
+            },
             drop: function (event, ui) {
                 if (!DragStartPos)
                     return;
@@ -304,7 +323,6 @@ function AddonPuzzle_create() {
 
                 DraggedPiece = null;
                 DragStartPos = null;
-
             },
             over: function (event, ui) {
                 $(this).addClass(hoveredOverByOtherClass);
@@ -314,6 +332,21 @@ function AddonPuzzle_create() {
                 $(this).removeClass(hoveredOverByOtherClass);
             }
         });
+    }
+
+    function getScale() {
+        let $content = $("#content");
+        if ($content.size() > 0) {
+            const contentElem = $content[0];
+            const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X: scaleX, Y: scaleY};
+        } else if (playerController) {
+            const scale = playerController.getScaleInformation();
+            return {X: scale.scaleX, Y: scale.scaleY};
+        } else {
+            return {X: 1.0, Y: 1.0};
+        }
     }
 
     presenter.getPiecePositionData = function(piece) {
@@ -670,7 +703,7 @@ function AddonPuzzle_create() {
     };
 
     presenter.getMaxScore = function () {
-        if(presenter.configuration.isNotActivity) {
+        if (presenter.isPreview || presenter.configuration.isNotActivity) {
             return 0;
         }
         return 1;
@@ -825,9 +858,7 @@ function AddonPuzzle_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        const upgradedIsNotActivityModel = presenter.upgradeIsNotActivity(model);
-
-        return upgradedIsNotActivityModel;
+        return presenter.upgradeIsNotActivity(model);
     };
 
     presenter.upgradeIsNotActivity = function (model) {
