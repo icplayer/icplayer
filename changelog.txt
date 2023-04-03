@@ -1,3 +1,4 @@
+2023-04-03 Fixed loading subtitles preview in editor
 2022-03-29 Fixed problem with incorrect positioning of Catch and Puzzle addons on mobile devices
 2023-03-23 Fixed loading subtitles in Text Audio
 2023-03-23 Added buttons in the list of addons in TTS that allows to add item in a selected place
