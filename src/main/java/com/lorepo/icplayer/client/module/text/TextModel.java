@@ -70,6 +70,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
+	IListProperty groupGapsListProperty = null;
+	private ArrayList<GroupGapsListItem> groupGaps = new ArrayList<GroupGapsListItem>();
 	private boolean allCharactersGapSizeStyle = true;
 	private PrintableController printableController = null;
 	
@@ -104,6 +106,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addPropertyIsSection();
 		addPropertyIsSplitInPrintBlocked();
 		addPropertyIgnoreDefaultPlaceholderWhenCheck();
+		addPropertyGroupGaps();
+		addGroupGapsItems(1);
 	}
 
 	@Override
@@ -176,6 +180,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				this.speechTextItems.get(TextModel.REMOVED_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "removed"));
 				this.speechTextItems.get(TextModel.LINK_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "link"));
 
+				this.parseModuleGroupsGapsNode(node);
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
@@ -184,6 +189,24 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				setText(rawText);
 			}
 		}
+	}
+
+	private void parseModuleGroupsGapsNode(Element node) {
+	    NodeList groupsGapsNodes = node.getElementsByTagName("groupsGaps");
+        if (groupsGapsNodes.getLength() == 0) {
+			return;
+        }
+
+        groupGaps.clear();
+
+        Element groupsGapsElement = (Element) groupsGapsNodes.item(0);
+        NodeList groupGapsNodes = groupsGapsElement.getElementsByTagName("groupGaps");
+        for (int groupGapIndex = 0; groupGapIndex < groupGapsNodes.getLength(); groupGapIndex++) {
+            GroupGapsListItem groupGapsItem = new GroupGapsListItem(groupGapsListProperty);
+            Element groupGapsElement = (Element) groupGapsNodes.item(groupGapIndex);
+            groupGapsItem.load(groupGapsElement);
+            this.addGroupGapsItem(groupGapsItem);
+        }
 	}
 
 	public void setText(String text) {
@@ -201,19 +224,25 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		parser.setLangTag(this.getLangAttribute());
 		parser.setIsNumericOnly(useNumericKeyboard);
+
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		originalText = parsedTextInfo.originalText;
 
 		if (parsedText.equals("#ERROR#")) {
 			parsedText = DictionaryWrapper.get("text_parse_error");
-			gapInfos.clear();
-			choiceInfos.clear();
-			linkInfos.clear();
-			audioInfos.clear();
-
+			this.clearInfos();
 			return;
 		}
+
+        Integer gapsNumber = parsedTextInfo.gapInfos.size() + parsedTextInfo.choiceInfos.size();
+		String groupGapsErrorCode = validateGroupGapsProperty(gapsNumber);
+        if (!groupGapsErrorCode.isEmpty()) {
+		    parsedText = DictionaryWrapper.get(groupGapsErrorCode);
+			this.clearInfos();
+			return;
+		}
+
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
@@ -271,6 +300,12 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 
 		textModule.appendChild(text);
+
+		Element groupGapsElement = XMLUtils.createElement("groupsGaps");
+		for (GroupGapsListItem listItem : groupGaps) {
+			groupGapsElement.appendChild(listItem.toXML());
+		}
+		textModule.appendChild(groupGapsElement);
 
 		return StringUtils.removeIllegalCharacters(textModule.toString());
 	}
@@ -1382,6 +1417,182 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	public boolean ignoreDefaultPlaceholderWhenCheck() {
 		return ignoreDefaultPlaceholderWhenCheck;
+	}
+
+	private void addPropertyGroupGaps() {
+
+		groupGapsListProperty = new IListProperty() {
+
+            @Override
+			public void setValue(String newValue) {
+			    // Use this function to validate property
+			    setText(moduleText);
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(groupGaps.size());
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_group_gaps");
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return groupGaps.get(index);
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return groupGaps.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				addGroupGapsItems(count);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_group_gaps");
+			}
+
+			@Override
+			public void removeChildren(int index) {
+				removeGroupGapsItem(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+				moveGroupGapsItemUp(index);
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+				moveGroupGapsItemDown(index);
+				sendPropertyChangedEvent(this);
+			}
+
+            public void onMoveTop(int index) {
+                moveGroupGapsItemTop(index);
+                sendPropertyChangedEvent(this);
+            }
+
+            public void onMoveBottom(int index) {
+                moveGroupGapsItemBottom(index);
+                sendPropertyChangedEvent(this);
+            }
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {
+				moveGroupGapsItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
+			}
+		};
+
+		addProperty(groupGapsListProperty);
+	}
+
+	private void addGroupGapsItems(int count) {
+		if (count < 1 || count >= 50) {
+			return;
+		}
+
+		for (int i = 0; i < count; i++) {
+            int index = groupGaps.size() + 1;
+            addGroupGapsItem(new GroupGapsListItem(groupGapsListProperty));
+        }
+	}
+
+	private void addGroupGapsItem(GroupGapsListItem item) {
+		groupGaps.add(item);
+		item.addPropertyListener(new IPropertyListener() {
+			@Override
+			public void onPropertyChanged(IProperty source) {
+				TextModel.this.sendPropertyChangedEvent(groupGapsListProperty);
+			}
+		});
+		setText(moduleText);
+	}
+
+	private String validateGroupGapsProperty(Integer gapsNumber) {
+		ArrayList<Integer> allIndexes = new ArrayList<Integer>();
+
+        for (GroupGapsListItem item : groupGaps) {
+		    boolean isValidItem = item.validate(gapsNumber);
+		    if (!isValidItem) {
+		        return item.getErrorCode();
+		    }
+
+		    ArrayList<Integer> itemGroupIndexes = item.getParsedGapsIndexes();
+            for (Integer indexInGroup : itemGroupIndexes) {
+                if (allIndexes.contains(indexInGroup)) {
+                    return "text_module_group_gaps_duplication_error";
+                }
+                allIndexes.add(indexInGroup);
+            }
+        }
+        return "";
+	}
+
+	private void removeGroupGapsItem(int index) {
+		if (groupGaps.size() > 1) {
+			groupGaps.remove(index);
+		}
+	}
+
+	private void moveGroupGapsItemUp(int index) {
+		if (index > 0) {
+			GroupGapsListItem item = groupGaps.remove(index);
+			groupGaps.add(index - 1, item);
+		}
+	}
+
+	private void moveGroupGapsItemDown(int index) {
+		if (index < groupGaps.size() - 1) {
+			GroupGapsListItem item = groupGaps.remove(index);
+			groupGaps.add(index + 1, item);
+		}
+	}
+
+	private void moveGroupGapsItemTop(int index) {
+		if (index > 0) {
+			GroupGapsListItem item = groupGaps.remove(index);
+			groupGaps.add(0, item);
+		}
+	}
+
+	private void moveGroupGapsItemBottom(int index) {
+		if (index < groupGaps.size() - 1) {
+			GroupGapsListItem item = groupGaps.remove(index);
+			groupGaps.add(groupGaps.size() - 1, item);
+		}
+	}
+
+	private void moveGroupGapsItem(int prevIndex, int nextIndex) {
+		GroupGapsListItem item = groupGaps.remove(prevIndex);
+		groupGaps.add(nextIndex, item);
+	}
+
+	private void clearInfos() {
+	    gapInfos.clear();
+        choiceInfos.clear();
+        linkInfos.clear();
+        audioInfos.clear();
+	}
+
+	public ArrayList<GroupGapsListItem> getGroupGaps() {
+        return this.groupGaps;
 	}
 
 	@Override
