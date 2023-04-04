@@ -204,9 +204,9 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		eventBus.fireEvent(event);
 		// consume
-		display.getListener().onGapClicked("Gap 1");
+		display.getListener().onGapClicked("Gap-1");
 		// return
-		display.getListener().onGapClicked("Gap 1");
+		display.getListener().onGapClicked("Gap-1");
 		
 		assertTrue(eventReceived);
 	}

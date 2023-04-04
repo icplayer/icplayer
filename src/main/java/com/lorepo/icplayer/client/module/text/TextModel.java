@@ -1596,12 +1596,12 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	public Integer findGapGroupIndex(Integer gapIndex) {
 		for (int i = 0; i < this.getGroupGaps().size(); i++) {
-	        GroupGapsListItem group = this.getGroupGaps().get(i);
-	        if (group.isGapInGroup(gapIndex)) {
-	            return i;
-	        }
-	    }
-	    return -1;
+			GroupGapsListItem group = this.getGroupGaps().get(i);
+			if (group.isGapInGroup(gapIndex)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	@Override

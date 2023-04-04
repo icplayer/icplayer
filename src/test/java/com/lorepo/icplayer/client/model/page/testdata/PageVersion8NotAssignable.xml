@@ -52,7 +52,10 @@
 			     number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="" link="" allAnswersGapSizeCalculationStyle="true" isSplitInPrintBlocked="false"
 				ignoreDefaultPlaceholderWhenCheck="false">
 			</text>
-			</textModule>
+            <groupsGaps>
+                <groupGaps gapsIndexes=""></groupGaps>
+            </groupsGaps>
+        </textModule>
 
 		<textModule id="Text2" isTabindexEnabled="false" ttsTitle="">
 			<styles>
@@ -77,6 +80,9 @@
 			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="" link="" allAnswersGapSizeCalculationStyle="true" isSplitInPrintBlocked="false"
 				ignoreDefaultPlaceholderWhenCheck="false">
 			</text>
+            <groupsGaps>
+                <groupGaps gapsIndexes=""></groupGaps>
+            </groupsGaps>
 		</textModule>
 		
 		<buttonModule id="NextPage1" isTabindexEnabled="false" ttsTitle="">

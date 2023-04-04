@@ -34,6 +34,9 @@
 				&lt;p&gt;She {{2:didn&apos;t}} like him very much (didn&apos;t).&lt;/p&gt;
 				&lt;p&gt;I like to drive {{2:volvo}}.&lt;/p&gt;
 			</text>
+			<groupsGaps>
+				<groupGaps gapsIndexes=""></groupGaps>
+			</groupsGaps>
 		</textModule>
 		
 		<imageSourceModule id="is1" left="100" top="100" width="64" height="64">

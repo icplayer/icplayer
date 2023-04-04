@@ -40,7 +40,10 @@
 			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" useNumericKeyboard="false"
 			     openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All">
 			</text>
-			</textModule>
+            <groupsGaps>
+                <groupGaps gapsIndexes=""></groupGaps>
+            </groupsGaps>
+        </textModule>
 		
 		<textModule id="Text2" class="text_first_page_title">
 			<layouts>
@@ -58,6 +61,9 @@
 			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" useNumericKeyboard="false"
 			    openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All">
 			</text>
+            <groupsGaps>
+                <groupGaps gapsIndexes=""></groupGaps>
+            </groupsGaps>
 		</textModule>
 		
 		<buttonModule id="NextPage1">

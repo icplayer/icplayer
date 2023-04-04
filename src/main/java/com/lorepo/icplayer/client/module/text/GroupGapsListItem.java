@@ -81,7 +81,7 @@ public class GroupGapsListItem extends BasicPropertyProvider {
 	}
 
 	public boolean isGapInGroup(Integer gapIndex) {
-	    return this.getParsedGapsIndexes().contains(gapIndex);
+		return this.getParsedGapsIndexes().contains(gapIndex);
 	}
 
 	public void load(Element groupGaps) {
