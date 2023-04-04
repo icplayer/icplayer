@@ -1248,10 +1248,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			GapInfo gapInfo = getGapInfoById(gapId);
 			String enteredValue = getElementText(gapInfo);
 			int gapScore = getItemScore(gapId);
-			if (enteredValue.isEmpty() && gapScore != 1) {
+			if (enteredValue.isEmpty() && gapScore == 0) {
 				return -1;
 			}
-			if (gapScore != 1) {
+			if (gapScore == 0) {
 				return 0;
 			}
 		}
