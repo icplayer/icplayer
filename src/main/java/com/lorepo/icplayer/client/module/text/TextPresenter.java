@@ -909,13 +909,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				JavaScriptUtils.log(nfe);
 			}
 		}
-
-        Integer groupIndex = -1;
-        try {
-		    groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
-        } catch(NumberFormatException nfe) {
-            JavaScriptUtils.log(nfe);
-        }
+		
+		Integer groupIndex = -1;
+		try {
+			groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		} catch(NumberFormatException nfe) {
+			JavaScriptUtils.log(nfe);
+		}
 		if (groupIndex == -1) {
 			this.sendValueChangedEvent(itemID, newValue, score);
 		} else {
@@ -986,11 +986,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		
 		Integer groupIndex = -1;
-        try {
-		    groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
-        } catch(NumberFormatException nfe) {
-            JavaScriptUtils.log(nfe);
-        }
+		try {
+			groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		} catch(NumberFormatException nfe) {
+			JavaScriptUtils.log(nfe);
+		}
 		if (groupIndex == -1) {
 			this.sendValueChangedEvent(itemID, value, score);
 		} else {

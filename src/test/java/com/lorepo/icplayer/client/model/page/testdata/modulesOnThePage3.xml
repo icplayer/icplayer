@@ -27,9 +27,9 @@
             </layout>
          </layouts>
          <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="" number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed=""><![CDATA[Title]]></text>
-          <groupsGaps>
-              <groupGaps gapsIndexes=""></groupGaps>
-          </groupsGaps>
+         <groupsGaps>
+            <groupGaps gapsIndexes=""></groupGaps>
+         </groupsGaps>
       </textModule>
       <buttonModule id="PrevPage" isTabindexEnabled="false">
          <layouts>
