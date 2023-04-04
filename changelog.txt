@@ -1,3 +1,4 @@
+2023-04-04 Fixed displaying answers in the hidden Multiplegap
 2023-03-23 Fixed loading subtitles in Text Audio
 2023-03-23 Added buttons in the list of addons in TTS that allows to add item in a selected place
 2022-03-23 Added Default TTS Titles Dictionary to the Editor
