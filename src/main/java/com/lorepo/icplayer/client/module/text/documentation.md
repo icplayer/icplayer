@@ -172,8 +172,10 @@ This texts will be read by Text to Speech addon after a user performs an action.
             Groups change the calculation of scores and maximum scores for gaps belonging to the group. 
             Gaps that are in a group do not have their own scores (when the score and maximum score are calculated). 
             If a correct answer is given to each gap in the group then the addon will get 1 point. 
-            Otherwise, the number of points will not increase.<br/><br/>
-            Groups do not change the behavior of events.<br/><br/>
+            Otherwise, the number of points will not increase.<br/>
+            <br/>
+            This property change data in ValueChanged event due to change in value of gap in group.<br/>
+            <br/>
             To create a group, provide indexes (1-based indexes of gaps in text) in the following formats:<br />
             Separated by comma: "1,2".<br />
             In range: "1-3".<br />
@@ -306,7 +308,8 @@ Different countries use different decimal separators. In the Text module, the de
 	
 ## Events
 
-The Text module sends ValueChanged events to Event Bus when a user changes the value of a gap.
+The Text module sends ValueChanged events to Event Bus when a user changes the value of a gap.<br> 
+ValueChanged event when gap not defined in `Group answers` property:
 
 <table border='1'>
     <tr>
@@ -324,6 +327,48 @@ The Text module sends ValueChanged events to Event Bus when a user changes the v
     <tr>
         <td>Score</td>
         <td>n for correct answer (where n is a maximum score for given gap), 0 for wrong</td>
+    </tr>
+</table>
+
+ValueChanged event when gap defined in `Group answers` property:
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>index - 1-based index of gap in module</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>gap value</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>"correct" for correct answer, "wrong" for wrong</td>
+    </tr>
+</table>
+
+The Text module sends additional ValueChanged event to Event Bus when a user changes the value of a gap in group and all gaps of this group are filled in.<br>
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>Group index ("Group" + 1-based index of group answers)</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>1 for correct answers, 0 for wrong</td>
     </tr>
 </table>
 

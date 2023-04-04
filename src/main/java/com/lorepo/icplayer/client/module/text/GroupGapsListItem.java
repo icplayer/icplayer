@@ -64,6 +64,38 @@ public class GroupGapsListItem extends BasicPropertyProvider {
 		addProperty(property);
 	}
 
+	private String getGapsIndexes() {
+		return StringUtils.escapeXML(this.gapsIndexes);
+	}
+
+	private void setGapsIndexes(String gapsIndexes) {
+		this.gapsIndexes = StringUtils.unescapeXML(gapsIndexes.trim());
+	}
+
+	public String getErrorCode() {
+		return this.errorCode;
+	}
+
+	public ArrayList<Integer> getParsedGapsIndexes() {
+		return this.parsedGapsIndexes;
+	}
+
+	public boolean isGapInGroup(Integer gapIndex) {
+	    return this.getParsedGapsIndexes().contains(gapIndex);
+	}
+
+	public void load(Element groupGaps) {
+		String gapsIndexes = groupGaps.getAttribute("gapsIndexes");
+		this.setGapsIndexes(gapsIndexes);
+	}
+
+	public Element toXML() {
+		Element groupGaps = XMLUtils.createElement("groupGaps");
+		groupGaps.setAttribute("gapsIndexes", this.getGapsIndexes());
+
+		return groupGaps;
+	}
+	
 	public boolean validate(Integer gapsNumber) {
 		this.resetValidationResult();
 		
@@ -166,33 +198,5 @@ public class GroupGapsListItem extends BasicPropertyProvider {
 	private void resetValidationResult() {
 		this.errorCode = null;
 		this.parsedGapsIndexes.clear();
-	}
-	
-	public String getErrorCode() {
-		return this.errorCode;
-	}
-	
-	public ArrayList<Integer> getParsedGapsIndexes() {
-		return this.parsedGapsIndexes;
-	}
-	
-	public String getGapsIndexes() {
-		return StringUtils.escapeXML(this.gapsIndexes);
-	}
-
-	public void setGapsIndexes(String gapsIndexes) {
-		this.gapsIndexes = StringUtils.unescapeXML(gapsIndexes.trim());
-	}
-
-	public void load(Element groupGaps) {
-		String gapsIndexes = groupGaps.getAttribute("gapsIndexes");
-		this.setGapsIndexes(gapsIndexes);
-	}
-
-	public Element toXML() {
-		Element groupGaps = XMLUtils.createElement("groupGaps");
-		groupGaps.setAttribute("gapsIndexes", this.getGapsIndexes());
-
-		return groupGaps;
 	}
 }

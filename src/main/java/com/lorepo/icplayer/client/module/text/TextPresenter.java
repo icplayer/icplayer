@@ -614,8 +614,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
 		for (Integer gapIndex: maxScoresDict.keySet()) {
-            gapsWithScoresIndexes.add(gapIndex);
-        }
+			gapsWithScoresIndexes.add(gapIndex);
+		}
 		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
 			maxScore += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
 			
@@ -910,7 +910,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 
-		sendValueChangedEvent(itemID, newValue, score);
+		Integer groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		if (groupIndex == -1) {
+		    this.sendValueChangedEvent(itemID, newValue, score);
+		} else {
+		    this.sendGapInGroupValueChangedEvent(itemID, newValue, score);
+
+            GroupGapsListItem group = this.module.getGroupGaps().get(groupIndex);
+		    String groupScore = Integer.toString(getGroupScore(group));
+		    if (groupScore != "-1") {
+		        String groupID = Integer.toString(groupIndex + 1);
+		        this.sendGroupValueChangedEvent(groupID, groupScore);
+		    }
+		}
 	}
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
@@ -967,7 +979,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		fireItemConsumedEvent();
 		String score = Integer.toString(getItemScore(gapId));
-		this.sendValueChangedEvent(itemID, value, score);
+
+		Integer groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		if (groupIndex == -1) {
+		    this.sendValueChangedEvent(itemID, value, score);
+		} else {
+		    this.sendGapInGroupValueChangedEvent(itemID, value, score);
+
+            GroupGapsListItem group = this.module.getGroupGaps().get(groupIndex);
+		    String groupScore = Integer.toString(getGroupScore(group));
+		    if (groupScore != "-1") {
+		        String groupID = Integer.toString(groupIndex + 1);
+		        this.sendGroupValueChangedEvent(groupID, groupScore);
+		    }
+		}
 
 		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
@@ -1198,6 +1223,40 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return "";
 	}
 
+    /**
+	 * Get group score using gap id
+	 *
+	 * @param currentItemID
+	 * @return 1 if all items in group are correct,
+	 *         0 if all items in group filled in and at least one item is wrong,
+	 *        -1 if at least one item in group is empty and this is not a correct answer
+	 */
+	private int getGroupScore(GroupGapsListItem group) {
+	    int gapInfosSize = this.module.getGapInfos().size();
+	    for (Integer gapIndex: group.getParsedGapsIndexes()) {
+	        String gapId = getGapIdByGapIndex(gapIndex - 1);
+	        GapInfo gapInfo = getGapInfoById(gapId);
+            String enteredValue = getElementText(gapInfo);
+	        int gapScore = getItemScore(gapId);
+            if (enteredValue.isEmpty() && gapScore != 1) {
+                return -1;
+            }
+            if (gapScore != 1) {
+                return 0;
+            }
+	    }
+
+	    return 1;
+	}
+
+	private String getGapIdByGapIndex(Integer gapIndex) {
+	    Integer gapInfosSize = module.getGapInfos().size();
+	    if (gapIndex < gapInfosSize) {
+            return module.getGapInfos().get(gapIndex).getId();
+        }
+        return module.getChoiceInfos().get(gapIndex - gapInfosSize).getId();
+	}
+
 	private int getItemScore(String itemID) {
 		int score = 0;
 
@@ -1218,7 +1277,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 						score = choice.getValue();
 					}
 				} else {
-					if(choice.getAnswer().compareToIgnoreCase(enteredChoiceValue) == 0) {
+					if (choice.getAnswer().compareToIgnoreCase(enteredChoiceValue) == 0) {
 						score = choice.getValue();
 					}
 				}
@@ -1717,6 +1776,22 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String itemID = "" + audioId;
 		String value = "end";
 		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	public void sendGapInGroupValueChangedEvent(String itemID, String value, String score) {
+		String newScore = "correct";
+		if (score == "0") {
+		    newScore = "wrong";
+		}
+
+		this.sendValueChangedEvent(itemID, value, newScore);
+	}
+
+	public void sendGroupValueChangedEvent(String groupID, String score) {
+		String itemID = "Group" + groupID;
+		String value = "";
 
 		this.sendValueChangedEvent(itemID, value, score);
 	}
