@@ -1,3 +1,4 @@
+2023-04-05 Fixed separation of events listening due to the platform in the Cross Lesson
 2023-04-03 Fixed loading subtitles preview in editor
 2022-03-29 Fixed problem with incorrect positioning of Catch and Puzzle addons on mobile devices
 2023-03-23 Fixed loading subtitles in Text Audio
