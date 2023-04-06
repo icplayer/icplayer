@@ -1501,7 +1501,7 @@ function AddonTextAudio_create() {
             addClass('textelement' + n1).
             attr('data-selectionid', n1).
             attr('data-intervalid', n2).
-            html(text);
+            html(text + '&nbsp');
         return $span.prop("outerHTML");
     };
 
