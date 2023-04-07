@@ -76,6 +76,8 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
 <tbody>
     <tr>
@@ -83,18 +85,14 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
         <th>Description</th> 
     </tr>
     <tr>
-        <td>Is visible</td>
-        <td>This property allows hiding or showing the module depending on the activity requirements.</td> 
-    </tr>
-    <tr>
         <td>Gap type</td>
         <td>This property serves for selecting a gap module type - editable (drop-down and fillable gap) or draggable. A common text paragraph should be marked as an "editable" gap type.</td> 
     </tr>
-<tr>
+    <tr>
         <td>Gap width</td>
         <td>This property allows defining a gap width by default.</td> 
     </tr>
-<tr>
+    <tr>
         <td>Gap max length</td>
         <td>This property allows defining a maximum amount of chars available to be put in each gap.
 		If this property is set to zero, no restriction will be applied.
@@ -103,18 +101,18 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
 	<td>Is activity</td>
         <td>This property allows defining whether a text module is an activity or not. When it is not defined as an activity, the answers given are not taken into account in the overall result. It is helpful for e.g. simulations.</td> 
     </tr>
- <tr>
-       <td>Is disabled</td>
-        <td>This property allows disabling a text module so that it is not possible to enter any answers before certain actions are performed, e.g. a particular part of an activity is completed correctly.
+    <tr>
+        <td>Is disabled</td>
+        <td>Allows disabling the module so that the user is not able to interact with it.
         </td> 
     </tr>
-<tr>
-       <td>Case sensitive</td>
+    <tr>
+        <td>Case sensitive</td>
         <td>When this property is checked it means that letter case is important while giving answers.
         </td> 
     </tr>
 	<tr>
-       <td>Use numeric keyboard</td>
+        <td>Use numeric keyboard</td>
         <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td> 
 	</tr>
     <tr>
@@ -122,7 +120,7 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
         <td>This property serves for inserting text into a module. Here it is also possible to define different types of gaps together with the required answers.
         </td> 
     </tr>
-<tr>
+    <tr>
         <td>Ignore punctuation</td>
         <td>This property allows ignoring punctuation marks while checking the answers' correctness.
         </td> 
@@ -142,7 +140,7 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
         <td>This property allows clearing the placeholder on click in a filled gap.
         </td> 
     </tr>
-<tr>
+    <tr>
         <td>Value type</td>
         <td>This property allows defining characters to be put into a gap. There are four vaues to choose from: Numbers only, Letters only, Alphanumeric and All. The default value of this property is set to "All".
         </td> 
@@ -167,6 +165,22 @@ In each case, if you choose the Editable, Dropdown or Filled gap, simply click O
         <td>Speech texts</td>
         <td>List of speech texts: Number, Gap, Dropdown, Correct, Wrong, Empty, Inserted, Removed. <br />
 This texts will be read by Text to Speech addon after a user performs an action.</td> 
+    </tr>
+    <tr>
+        <td>Group answers</td>
+        <td>Group answers allows defining the groups to which the given gaps will belong. 
+            Groups change the calculation of scores and maximum scores for gaps belonging to the group. 
+            Gaps that are in a group do not have their own scores (when the score and maximum score are calculated). 
+            If a correct answer is given to each gap in the group then the addon will get 1 point. 
+            Otherwise, the number of points will not increase.<br/>
+            <br/>
+            This property change data in ValueChanged event due to change in value of gap in group.<br/>
+            <br/>
+            To create a group, provide indexes (1-based indexes of gaps in text) in the following formats:<br />
+            Separated by comma: "1,2".<br />
+            In range: "1-3".<br />
+            Single number: "2".<br />
+            Mixed format: "1-3,5".</td> 
     </tr>
 </tbody>
 </table>
@@ -294,7 +308,8 @@ Different countries use different decimal separators. In the Text module, the de
 	
 ## Events
 
-The Text module sends ValueChanged events to Event Bus when a user changes the value of a gap.
+The Text module sends ValueChanged events to Event Bus when a user changes the value of a gap.<br> 
+ValueChanged event when gap not defined in `Group answers` property:
 
 <table border='1'>
     <tr>
@@ -315,6 +330,48 @@ The Text module sends ValueChanged events to Event Bus when a user changes the v
     </tr>
 </table>
 
+ValueChanged event when gap defined in `Group answers` property:
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>index - 1-based index of gap in module</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>gap value</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>"correct" for correct answer, "wrong" for wrong</td>
+    </tr>
+</table>
+
+The Text module sends additional ValueChanged event to Event Bus when a user changes the value of a gap in group and all gaps of this group are filled in.<br>
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>Group index ("Group" + 1-based index of group answers)</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>1 for correct answers, 0 for wrong</td>
+    </tr>
+</table>
+
 When a user clicks on a definition, it will trigger a definition event.
 
 <table border='1'>
@@ -327,6 +384,109 @@ When a user clicks on a definition, it will trigger a definition event.
         <td>id of the definition</td>
     </tr>
 </table>
+
+Audio added to addon has its own events.
+
+The audio in Text addon sends ValueChanged type events to Event Bus when playing begins.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>Current item</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>playing</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
+When playback time changes, audio in Text addon sends a relevant event to Event Bus.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>Current item</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>Current time (in MM:SS format)</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
+The pause event occurs when the audio in Text addon is paused.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>Current item</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>pause</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
+When audio playback is finished, audio in Text addon sends OnEnd event to Event Bus.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>Current item</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>end</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
 
 ##Show Answers
 
