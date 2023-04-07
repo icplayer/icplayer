@@ -1317,14 +1317,22 @@ function Addonmultiplegap_create(){
         
         presenter.clearSelected();
         
-        if (presenter.configuration.isVisibleByDefault) {
+        presenter.handleDisplayingAddon();
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+        presenter.elementCounter = 0;
+    };
+
+    presenter.isVisible = function() {
+        return presenter.$view.css("visibility") === 'visible';
+    }
+
+    presenter.handleDisplayingAddon = function () {
+        if (presenter.configuration.isVisibleByDefault && presenter.isVisible()) {
             presenter.show();
         } else {
             presenter.hide();
         }
-        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
-        presenter.elementCounter = 0;
-    };
+    }
     
     presenter.getState = function() {
         function getBaseState(placeholders) {
@@ -1896,11 +1904,19 @@ function Addonmultiplegap_create(){
 
     function setUpResetOnce() {
          presenter.resetOnce = (function() {
-            var didReset = false;
+            let didReset = false;
             return function() {
                 if(!didReset) {
                     didReset = true;
-                    presenter.reset();
+                    if(presenter.isShowAnswersActive){
+                        presenter.hideAnswers();
+                    }
+
+                    presenter.$view.find('.placeholder').remove();
+                    presenter.setWorkMode();
+                    presenter.clearSelected();
+                    presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+                    presenter.elementCounter = 0;
                 }
             };
         })();
