@@ -103,8 +103,6 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     },
 
     'test enable the addon view on hide answers': function () {
-        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
-        paragraph['0'].classList.add('disabled');
         this.presenter.isShowAnswersActive = true;
         this.presenter.isEditorReadOnly = true;
 
