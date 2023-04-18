@@ -519,9 +519,9 @@ function AddonText_Coloring_create() {
             presenter.connectHandlers();
             presenter.setColor(presenter.configuration.colors[0].id);
             presenter.stateMachine.notifyEdit();
+            presenter.buildKeyboardController();
+            presenter.setSpeechTexts(model["speechTexts"]);
         }
-        presenter.buildKeyboardController();
-        presenter.setSpeechTexts(model["speechTexts"]);
     };
 
     presenter.createStateMachine = function() {
