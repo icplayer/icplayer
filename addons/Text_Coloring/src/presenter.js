@@ -1615,20 +1615,28 @@ function AddonText_Coloring_create() {
         var areAllSelectable = presenter.configuration.mode === 'ALL_SELECTABLE'
 
         modelText.forEach((token, index) => {
+            var colorId;
+            var color;
             switch (true) {
                 case (userAnswer && userAnswer[index].isSelected) && !showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    colorId = userAnswer[index].selectionColorID;
+                    color = presenter.getColor(model, colorId);
+
                     printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value}</span> `;
                     break;
 
                 case (userAnswer && userAnswer[index].isSelected) && showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    colorId = userAnswer[index].selectionColorID;
+                    color = presenter.getColor(model, colorId);
+
                     var answerMark = presenter.isAnswerCorrect(userAnswer[index], token.value) ? '&#10004;' : '&#10006;';
                     printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value} ${answerMark}</span> `;
                     break;
 
                 case token.hasOwnProperty('color') && showAnswers && !didUserAnswer:
-                    var color = presenter.getColor(model, token.color);
+                    colorId = token.color;
+                    color = presenter.getColor(model, colorId);
+
                     printableHTML += `<span style="border: 2px dashed ${color}">${token.value}</span> `;
                     break;
 
@@ -1675,17 +1683,17 @@ function AddonText_Coloring_create() {
     presenter.getColors = function (model) {
         var colors = [];
         model['colors'].forEach(colorObject => {
-           colors.push({name: colorObject.description, value: parseToGrayscale(colorObject.color)});
+           colors.push({id: colorObject.id, value: parseToGrayscale(colorObject.color)});
         });
 
         return colors;
     }
 
     /* Returns color in hex code from color name */
-    presenter.getColorInHex = function (model, colorName) {
+    presenter.getColorInHex = function (model, colorId) {
         var colors =  presenter.getColors(model);
 
-        return colors.find(color => color.name === colorName).value;
+        return colors.find(color => color.id === colorId).value;
     }
 
     /* Extracts the word from phrase \\color{color}{word} */
@@ -1695,8 +1703,8 @@ function AddonText_Coloring_create() {
     }
 
     /* Extracts the color from phrase and convert into grayscale \\color{color}{word} */
-    presenter.getColor = function (model, color) {
-        return parseToGrayscale(presenter.getColorInHex(model, color));
+    presenter.getColor = function (model, colorId) {
+        return parseToGrayscale(presenter.getColorInHex(model, colorId));
     }
 
     /* Return user answers */
