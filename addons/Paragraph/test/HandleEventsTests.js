@@ -35,7 +35,8 @@ TestCase("[Paragraph] handle events related to showing model answer", {
 
         this.stubs = {
             addEventListenerStub: sinon.stub(),
-            getParagraphs: sinon.stub()
+            getParagraphs: sinon.stub(),
+            setMode: sinon.stub()
         };
 
         this.presenter.eventBus = {
@@ -44,6 +45,7 @@ TestCase("[Paragraph] handle events related to showing model answer", {
 
         this.stubs.getParagraphs.returns([document.createElement("p")]);
         this.presenter.getParagraphs = this.stubs.getParagraphs;
+        this.presenter.editor = {setMode: this.stubs.setMode};
     },
 
     'test add events listener on setEventBus invoke': function () {
@@ -93,37 +95,23 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     },
 
     'test disable the addon view on show answers': function () {
-        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
-
         this.presenter.showAnswers();
 
-        assertTrue(paragraph['0'].classList.contains('disabled'));
+        var result = this.stubs.setMode;
+        assertEquals(result.getCall(0).args[0], 'readonly');
+        assertTrue(this.presenter.isEditorReadOnly);
     },
 
     'test enable the addon view on hide answers': function () {
         var paragraph = this.presenter.$view.find(".paragraph-wrapper");
         paragraph['0'].classList.add('disabled');
         this.presenter.isShowAnswersActive = true;
+        this.presenter.isEditorReadOnly = true;
 
         this.presenter.hideAnswers();
 
-        assertFalse(paragraph['0'].classList.contains('disabled'));
-    },
-
-    'test given view when disableEdit then add disabled class': function () {
-        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
-
-        this.presenter.disableEdit();
-
-        assertTrue(paragraph.hasClass('disabled'));
-    },
-
-    'test given view when enableEdit then remove disabled class': function () {
-        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
-        paragraph['0'].classList.add('disabled');
-
-        this.presenter.enableEdit();
-
-        assertFalse(paragraph.hasClass('disabled'));
+        var result = this.stubs.setMode;
+        assertEquals(result.getCall(0).args[0], 'design');
+        assertFalse(this.presenter.isEditorReadOnly);
     }
 });
