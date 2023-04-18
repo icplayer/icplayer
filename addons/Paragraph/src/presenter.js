@@ -16,6 +16,7 @@ function AddonParagraph_create() {
     presenter.currentGSAIndex = 0;
 
     presenter.isEditorLoaded = false;
+    presenter.isEditorReadOnly = false;
 
     presenter.toolbarChangeHeightTimeoutID = null;
 
@@ -131,7 +132,7 @@ function AddonParagraph_create() {
     };
 
     presenter.removeFocusFromDisabledElement = function () {
-        if (presenter.hasDisabledClass()) {
+        if (presenter.isEditorReadOnly) {
             const iframe = presenter.$view.find('iframe');
             iframe.blur();
         }
@@ -181,19 +182,17 @@ function AddonParagraph_create() {
     };
 
     presenter.enableEdit = function () {
-        if(presenter.hasDisabledClass()) {
-            presenter.$view.find(".paragraph-wrapper").removeClass('disabled');
+        if(presenter.isEditorReadOnly) {
+            presenter.editor.setMode('design');
+            presenter.isEditorReadOnly = false;
         }
     }
 
     presenter.disableEdit = function () {
-        if(!presenter.hasDisabledClass()) {
-            presenter.$view.find(".paragraph-wrapper").addClass('disabled');
+        if(!presenter.isEditorReadOnly) {
+            presenter.editor.setMode('readonly');
+            presenter.isEditorReadOnly = true;
         }
-    }
-
-    presenter.hasDisabledClass = function () {
-        return presenter.$view.find(".paragraph-wrapper").hasClass('disabled');
     }
 
     presenter.showAnswers = function () {
