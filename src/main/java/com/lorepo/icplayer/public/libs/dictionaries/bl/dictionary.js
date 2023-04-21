@@ -652,6 +652,7 @@ var ice_dictionary_bl = {
 	"TextAudio_pause": "Pause button",
 	"TextAudio_stop": "Stop button",
 	"TextAudio_audio_speed_controller": "Audio speed controller",
+	"TextAudio_property_enable_italic_fix": "Formatting fix",
 	"Connection_info": "Позволява създаването на задача с две колони елементи (текстове или изображения) за свързване. Задачата може да се осъществи в режим с една връзка или с множество връзки, в който всеки елемент може да се свърже с няколко други.",
 	"Connection_name": "Свързване",
 	"Connection_property_is_not_activity": "Не е задача",

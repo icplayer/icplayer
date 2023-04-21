@@ -30,6 +30,7 @@ function AddonTextAudio_create() {
     presenter.keyboardControllerObject = null;
     presenter.isWCAGOn = false;
     presenter.speechTexts = null;
+    presenter.enableItalicFix = false;
 
     presenter.PLAYBACK_RATE_LIST = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
     presenter.playbackRate = 1.0;
@@ -218,6 +219,7 @@ function AddonTextAudio_create() {
         upgradedModel = presenter.upgradeClickAction(upgradedModel);
         upgradedModel = presenter.upgradeEnablePlaybackSpeedControls(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeEnableItalicFix(upgradedModel);
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -305,6 +307,18 @@ function AddonTextAudio_create() {
 
         return upgradedModel;
     }
+
+    presenter.upgradeEnableItalicFix = function AddonTextAudio_upgradeEnableItalicFix (model) {
+        var upgradedModel = {};
+
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel.hasOwnProperty('enableItalicFix')) {
+            upgradedModel['enableItalicFix'] = 'False';
+        }
+
+        return upgradedModel;
+    };
 
     presenter.setSpeechTexts = function (speechTexts) {
         presenter.speechTexts = {
@@ -1501,7 +1515,7 @@ function AddonTextAudio_create() {
             addClass('textelement' + n1).
             attr('data-selectionid', n1).
             attr('data-intervalid', n2).
-            html(text + '&nbsp');
+            html(text);
         return $span.prop("outerHTML");
     };
 
@@ -1535,9 +1549,29 @@ function AddonTextAudio_create() {
                 }
             }
         });
+        if (presenter.enableItalicFix) {
+            resultHTML = presenter.applyItalicFix(resultHTML, elemNumber);
+        }
 
         return resultHTML;
     };
+
+     presenter.applyItalicFix = function AddonTextAudio_applyItalicFix (html, maxElemNumber) {
+        var $wrapper = $("<div></div>");
+        $wrapper.html(html);
+
+        for (var elemNumber = 0; elemNumber < maxElemNumber; elemNumber++) {
+            var $lastTextElement = $wrapper.find('.textelement' + elemNumber + ':last');
+            if ($lastTextElement.closest('i').length > 0) {
+                $lastTextElement.css("padding-right", "5px");
+            }
+        }
+
+        var newHTML = $wrapper.html();
+        return newHTML;
+
+    };
+
 
     presenter.handleSlides = function AddonTextAudio_handleSlides (slides) {
         const newSlides = [];
@@ -1765,6 +1799,7 @@ function AddonTextAudio_create() {
         }
 
         presenter.totalNumberOfParts = 0;
+        presenter.enableItalicFix = ModelValidationUtils.validateBoolean(model["enableItalicFix"]);
         var validatedSlides = presenter.handleSlides(model.Slides);
         var validatedVocabularyIntervals = presenter.validateVocabularyIntervals(model.vocabulary_intervals);
         if (validatedSlides.errorCode) {

@@ -653,6 +653,7 @@ var ice_dictionary_fr = {
     "TextAudio_pause": "Pause button",
     "TextAudio_stop": "Stop button",
     "TextAudio_audio_speed_controller": "Audio speed controller",
+	"TextAudio_property_enable_italic_fix": "Formatting fix",
     "Gradual_Show_Answer_name": "Gradual Show Answer",
 	"Gradual_Show_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Gradual_Show_Answer_property_is_hide_answers": "Hide Answers Mode",

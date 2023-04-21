@@ -41,5 +41,6 @@
                 <property name="AudioSpeedController" nameLabel="TextAudio_audio_speed_controller" type="string"/>
             </property>
         </property>
+        <property name="enableItalicFix" type="boolean" nameLabel="TextAudio_property_enable_italic_fix"/>
     </model>
 </addon>
