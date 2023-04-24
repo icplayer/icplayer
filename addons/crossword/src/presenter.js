@@ -116,7 +116,7 @@ function Addoncrossword_create(){
         CELL_VALID: "cell_valid",
         CELL_INVALID: "cell_invalid",
         PRINTABLE: "printable",
-        PRINTABLE_ADDON: "printable_addon_Crossword",
+        PRINTABLE_ADDON: "printable_addon_crossword",
         PRINTABLE_CELL_LETTER_CONTENT: "printable_cell_letter_content",
         PRINTABLE_SIGN_VALID: "printable_sign_valid",
         PRINTABLE_SIGN_INVALID: "printable_sign_invalid",
@@ -830,13 +830,23 @@ function Addoncrossword_create(){
 
         var gridContainer = $('<div></div>');
         addClass(gridContainer, "crossword_container");
-        gridContainer
-            .css({
-                width:      presenter.columnCount * presenter.cellWidth + 'px',
-                height:     presenter.rowCount * presenter.cellHeight + 'px',
-                marginLeft: -1 * Math.round(presenter.columnCount * presenter.cellWidth / 2) + 'px',
-                marginTop:  -1 * Math.round(presenter.rowCount * presenter.cellHeight / 2) + 'px'
+        let containerWidth = presenter.columnCount * presenter.cellWidth;
+        let containerHeight = presenter.rowCount * presenter.cellHeight;
+        let containerMarginLeft = Math.round(presenter.columnCount * presenter.cellWidth / 2);
+        let containerMarginTop = Math.round(presenter.rowCount * presenter.cellHeight / 2);
+        if (isInPrintableStateMode()) {
+            gridContainer.css({
+                width: containerWidth + 'px',
+                height: containerHeight + 'px',
             });
+        } else {
+            gridContainer.css({
+                width: containerWidth + 'px',
+                height: containerHeight + 'px',
+                marginLeft: -1 * containerMarginLeft + 'px',
+                marginTop: -1 * containerMarginTop + 'px'
+            });
+        }
 
         var tabIndexOffset = 0;
         for(var i = 0; i < presenter.rowCount; i++) {

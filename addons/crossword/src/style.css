@@ -4,12 +4,6 @@
     left: 50%;
 }
 
-.printable_crossword_container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-}
-
 .crossword_container .cell_container {
     float: left;
     position: relative;
