@@ -104,13 +104,13 @@
     font-size: 6pt;
 }
 
-.printable_crossword_container .printable_cell_content_valid {
+.printable_crossword_container .printable_sign_valid {
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 2px;
 }
 
-.printable_crossword_container .printable_cell_content_invalid {
+.printable_crossword_container .printable_sign_invalid {
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 2px;

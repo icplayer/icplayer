@@ -117,7 +117,7 @@ function Addoncrossword_create(){
         CELL_INVALID: "cell_invalid",
         PRINTABLE: "printable",
         PRINTABLE_ADDON: "printable_addon_Crossword",
-        PRINTABLE_CELL_CONTENT: "printable_cell_letter_content",
+        PRINTABLE_CELL_LETTER_CONTENT: "printable_cell_letter_content",
         PRINTABLE_SIGN_VALID: "printable_sign_valid",
         PRINTABLE_SIGN_INVALID: "printable_sign_invalid",
         PRINTABLE_CELL_VALID: "printable_cell_valid",
@@ -2488,7 +2488,7 @@ function Addoncrossword_create(){
     function replaceInputElementsByPrintableDivs() {
         presenter.$view.find(".printable_cell_letter input").replaceWith(function() {
             let $cellContent = $('<div>' + $(this).val() + '</div>');
-            $cellContent.addClass(presenter.CSS_CLASSES.PRINTABLE_CELL_CONTENT);
+            $cellContent.addClass(presenter.CSS_CLASSES.PRINTABLE_CELL_LETTER_CONTENT);
             return $cellContent
         });
     }
