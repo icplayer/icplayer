@@ -1475,9 +1475,13 @@ function Addoncrossword_create(){
     };
 
     presenter.isAttempted = function() {
-        var countedConstantLetters = 0;
+        let classPrefix = "cell";
+        if (isInPrintableStateMode()) {
+            classPrefix = presenter.CSS_CLASSES.PRINTABLE + "_" + classPrefix;
+        }
 
-        jQuery.each(presenter.$view.find('.cell input'), function() {
+        var countedConstantLetters = 0;
+        jQuery.each(presenter.$view.find(`.${classPrefix} input`), function() {
             if (!ModelValidationUtils.isStringEmpty($(this).val())) countedConstantLetters++;
         });
 
@@ -2432,10 +2436,14 @@ function Addoncrossword_create(){
     function updateViewToCheckAnswersInPrintableStateMode() {
         setUserAnswersFromPrintableState();
         presenter.replaceAnswersBySavedUserAnswers();
-        addPrintableSigns();
+
+        if (!presenter.isAttempted()) {
+            return;
+        }
+        validateForPrintable();
     }
 
-    function addPrintableSigns() {
+    function validateForPrintable() {
         presenter.validate(presenter.VALIDATION_MODE.SHOW_ERRORS);
         for (let row = 0; row < presenter.rowCount; row++) {
             for (let column = 0; column < presenter.columnCount; column++) {
