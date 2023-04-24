@@ -1276,7 +1276,6 @@ function Addoncrossword_create(){
     };
 
     presenter.validate = function(mode) {
-        // TODO czeck why class valid and invalid added to blank cells
         const classPrefix = '.' + (isInPrintableStateMode() ? presenter.CSS_CLASSES.PRINTABLE + '_' : '');
         let wordValid, k, l, score, markedCell;
         let filled = false;
