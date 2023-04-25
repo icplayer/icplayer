@@ -16,7 +16,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
 
     'test given addon in fraction mode and empty state when executing getExpectedHTML then return empty score and max score from page': function() {
         this.model.DisplayMode = "Fraction (Score/Max Score)";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;"
         const expectedMaxScore = "3";
         const expectedHtmlText = this.getExpectedHTML(expectedScore, expectedMaxScore);
 
@@ -27,7 +27,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
 
     'test given addon in fraction mode and show answers state when executing getExpectedHTML then return empty score and max score from page': function() {
         this.model.DisplayMode = "Fraction (Score/Max Score)";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;"
         const expectedMaxScore = "3";
         const expectedHtmlText = this.getExpectedHTML(expectedScore, expectedMaxScore);
 
@@ -39,7 +39,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
     'test given addon in fraction mode and show user answers state when executing getExpectedHTML then return empty score and max score from page': function() {
         this.presenter.printableState = {"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 3};
         this.model.DisplayMode = "Fraction (Score/Max Score)";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;"
         const expectedMaxScore = "3";
         const expectedHtmlText = this.getExpectedHTML(expectedScore, expectedMaxScore);
 
@@ -62,7 +62,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
 
     'test given addon in Score mode and empty state when executing getExpectedHTML then return empty score': function() {
         this.model.DisplayMode = "Score";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;"
         const expectedHtmlText = this.getExpectedHTML(expectedScore);
 
         const actualHtmlText = this.presenter.getPrintableHTML(this.model, false);
@@ -72,7 +72,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
 
     'test given addon in Score mode and show answers state when executing getExpectedHTML then return empty score': function() {
         this.model.DisplayMode = "Score";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;"
         const expectedHtmlText = this.getExpectedHTML(expectedScore);
 
         const actualHtmlText = this.presenter.getPrintableHTML(this.model, true);
@@ -83,7 +83,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
     'test given addon in Score mode and show user answers state when executing getExpectedHTML then return empty score': function() {
         this.presenter.printableState = {"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 3};
         this.model.DisplayMode = "Score";
-        const expectedScore = " ";
+        const expectedScore = "&nbsp;";
         const expectedHtmlText = this.getExpectedHTML(expectedScore);
 
         const actualHtmlText = this.presenter.getPrintableHTML(this.model, false);
@@ -192,7 +192,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
     createElement: function (text, className) {
         const element = document.createElement("div");
         element.classList.add(className);
-        element.innerText = text;
+        element.innerHTML = text;
         return element;
     }
 });
