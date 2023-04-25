@@ -304,7 +304,7 @@ function AddonPage_Score_Counter_create(){
         const element = document.createElement("div");
         element.classList.add(presenter.CSS_CLASSES.PRINTABLE_SCORE);
         element.innerHTML = isInPrintableShowResultsStateMode()
-            ? "" + (presenter.printableState.score ? presenter.printableState.score : 0)
+            ? "" + presenter.printableState.score
             : "&nbsp;";
         return element;
     }
