@@ -319,7 +319,7 @@ function AddonPage_Score_Counter_create(){
     function createPrintableMaxScore() {
         const element = document.createElement("div");
         element.classList.add(presenter.CSS_CLASSES.PRINTABLE_MAX_SCORE);
-        element.innerText = presenter.printableController.getModulesMaxScore();
+        element.innerText = presenter.printableController.getPageMaxScore();
         return element;
     }
 

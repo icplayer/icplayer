@@ -8,7 +8,7 @@ TestCase("[Page_Score_Counter] GetPrintableHTML tests", {
         };
 
         this.presenter.printableController = {
-            getModulesMaxScore: function () {
+            getPageMaxScore: function () {
                 return 3;
             }
         };
