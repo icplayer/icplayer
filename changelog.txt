@@ -1,3 +1,4 @@
+2023-04-25 Added support for printable for Page Score Counter addon
 2023-04-04 Adding gap grouping in the Text module
 2023-04-04 Fixed displaying answers in the hidden Multiplegap
 2023-04-03 Fixed loading subtitles preview in editor

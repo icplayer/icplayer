@@ -88,6 +88,10 @@ public class PrintableController {
 		controller.getPageName = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPageName()();
 		}
+		
+		controller.getModulesMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::getModulesMaxScore()();
+		}
 
 		return controller;
 	}-*/;
@@ -95,7 +99,11 @@ public class PrintableController {
 	public String getPageId () {
 		return page.getId();
 	}
-
+	
+	public int getModulesMaxScore() {
+		return page.getModulesMaxScore();
+	}
+	
 	public void setScore(String score) {
 		this.scoreJS = parseJson(score);
 	}

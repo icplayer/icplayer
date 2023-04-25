@@ -3,16 +3,33 @@ function AddonPage_Score_Counter_create(){
     var presenter = function(){};
 
     presenter.playerController = null;
+    presenter.printableController = null;
     presenter.eventBus = null;
     presenter.isVisible = true;
     presenter.isScoreVisible = false;
     presenter.currentScore = 0;
     presenter.maxScore = 0;
+    presenter.printableState = null;
+    presenter.printableStateMode = null;
 
     presenter.DISPLAY_MODE = {
         FRACTION: 1,
         SCORE: 2,
         MAX_SCORE: 3
+    };
+
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_RESULTS: 1
+    };
+
+    presenter.CSS_CLASSES = {
+        PRINTABLE_ADDON: "printable_addon_Page_Score_Counter",
+        PRINTABLE_WRAPPER: "printable_page-score-counter-wrapper",
+        PRINTABLE_FRACTION: "printable_fraction",
+        PRINTABLE_SCORE: "printable_score",
+        PRINTABLE_SEPARATOR: "printable_separator",
+        PRINTABLE_MAX_SCORE: "printable_max-score"
     };
 
     presenter.setPlayerController = function (controller) {
@@ -21,6 +38,10 @@ function AddonPage_Score_Counter_create(){
 
         var presentation = presenter.playerController.getPresentation();
         presenter.page = presentation.getPage(presenter.playerController.getCurrentPageIndex());
+    };
+
+    presenter.setPrintableController = function (controller) {
+        presenter.printableController = controller;
     };
 
     presenter.createEventData = function (score) {
@@ -64,6 +85,7 @@ function AddonPage_Score_Counter_create(){
             presenter.eventBus.addEventListener('PageLoaded', this);
         }
     };
+
     function runLogic(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(model);
@@ -213,6 +235,93 @@ function AddonPage_Score_Counter_create(){
 
         presenter.setVisibility(parsedState.isVisible);
     };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    };
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        chosePrintableStateMode(showAnswers);
+        const configuration = presenter.validateModel(model);
+
+        const view = createPrintableBaseView(model);
+        const wrapper = createPrintableWrapper();
+        view.append(wrapper);
+
+        switch (configuration.displayMode) {
+            case presenter.DISPLAY_MODE.FRACTION:
+                wrapper.append(createPrintableFraction());
+                break;
+            case presenter.DISPLAY_MODE.SCORE:
+                wrapper.append(createPrintableScore());
+                break;
+            case presenter.DISPLAY_MODE.MAX_SCORE:
+                wrapper.append(createPrintableMaxScore());
+                break;
+        }
+
+        presenter.printableStateMode = null;
+        return view.outerHTML;
+    };
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState && showAnswers) {
+            presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_RESULTS;
+        } else {
+            presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }
+    }
+
+    function isInPrintableShowResultsStateMode() {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_RESULTS;
+    }
+
+    function createPrintableBaseView(model) {
+        const element = document.createElement("div");
+        element.id = model.ID;
+        element.classList.add(presenter.CSS_CLASSES.PRINTABLE_ADDON);
+        return element;
+    }
+
+    function createPrintableWrapper() {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add(presenter.CSS_CLASSES.PRINTABLE_WRAPPER);
+        return wrapper;
+    }
+
+    function createPrintableFraction() {
+        const element = document.createElement("div");
+        element.classList.add(presenter.CSS_CLASSES.PRINTABLE_FRACTION);
+        element.append(createPrintableScore());
+        element.append(createPrintableSeparator());
+        element.append(createPrintableMaxScore());
+        return element;
+    }
+
+    function createPrintableScore() {
+        const element = document.createElement("div");
+        element.classList.add(presenter.CSS_CLASSES.PRINTABLE_SCORE);
+        element.innerText = isInPrintableShowResultsStateMode()
+            ? "" + (presenter.printableState.score ? presenter.printableState.score : 0)
+            : " ";
+        return element;
+    }
+
+    function createPrintableSeparator() {
+        const element = document.createElement("div");
+        element.classList.add(presenter.CSS_CLASSES.PRINTABLE_SEPARATOR);
+        element.innerText = "/";
+        return element;
+    }
+
+    function createPrintableMaxScore() {
+        const element = document.createElement("div");
+        element.classList.add(presenter.CSS_CLASSES.PRINTABLE_MAX_SCORE);
+        element.innerText = presenter.printableController.getModulesMaxScore();
+        return element;
+    }
 
     return presenter;
 }
