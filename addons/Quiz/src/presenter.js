@@ -198,12 +198,12 @@ function AddonQuiz_create() {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
             questions: validateQuestions(model['Questions'], helpButtons, model["HelpButtonsMode"]),
             helpButtons: helpButtons,
-            nextLabel: window.xssUtils.sanitize(model['NextLabel'] || ''),
-            gameLostMessage: window.xssUtils.sanitize(model['GameLostMessage']),
-            gameWonMessage: window.xssUtils.sanitize(model['GameWonMessage']),
-            gameSummaryMessage: window.xssUtils.sanitize(model['GameSummaryMessage']),
-            correctGameMessage: window.xssUtils.sanitize(model['CorrectGameMessage']),
-            wrongGameMessage: window.xssUtils.sanitize(model['WrongGameMessage']),
+            nextLabel: model['NextLabel'] || '',
+            gameLostMessage: model['GameLostMessage'],
+            gameWonMessage: model['GameWonMessage'],
+            gameSummaryMessage: model['GameSummaryMessage'],
+            correctGameMessage: model['CorrectGameMessage'],
+            wrongGameMessage: model['WrongGameMessage'],
             centerVertically: ModelValidationUtils.validateBoolean(model['Center vertically']),
             isActivity: ModelValidationUtils.validateBoolean(model['isActivity']),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -241,14 +241,31 @@ function AddonQuiz_create() {
         var wrapper = $('<div class="game-won-message-wrapper"></div>');
         var message = $(`<div class="${CSS_CLASSES.GAME_WON_MESSAGE}"></div>`);
         if(presenter.config.showSummary) {
-            message.html(
+            message.html(window.xssUtils.sanitize(
                 parseAltText(presenter.config.gameWonMessage) +
                 '<div>' + parseAltText(presenter.config.gameSummaryMessage) +
                 '<div>' + parseAltText(presenter.config.correctGameMessage) + ': ' + getScore() +
                 '</div><div>' + parseAltText(presenter.config.wrongGameMessage) + ': ' + (presenter.config.questions.length - getScore()) +
-                '</div>' + '</div>');
+                '</div>' + '</div>'));
         } else {
-            message.html(parseAltText(presenter.config.gameWonMessage));
+            message.html(window.xssUtils.sanitize(parseAltText(presenter.config.gameWonMessage)));
+        }
+        wrapper.append(message);
+        showInHintArea(wrapper);
+    };
+
+    function gameLostMessage() {
+        var wrapper = $('<div class="game-lost-message-wrapper"></div>');
+        var message = $(`<div class="${CSS_CLASSES.GAME_LOST_MESSAGE}"></div>`);
+        if(presenter.config.showSummary) {
+            message.html(window.xssUtils.sanitize(
+                parseAltText(presenter.config.gameLostMessage) +
+                '<div>' + parseAltText(presenter.config.gameSummaryMessage) +
+                '<div>' + parseAltText(presenter.config.correctGameMessage) + ': ' + getScore() +
+                '</div><div>' + parseAltText(presenter.config.wrongGameMessage) + ': ' + (presenter.config.questions.length - getScore()) +
+                '</div>' + '</div>'));
+        }else{
+            message.html(window.xssUtils.sanitize(parseAltText(presenter.config.gameLostMessage)));
         }
         wrapper.append(message);
         showInHintArea(wrapper);
@@ -257,23 +274,6 @@ function AddonQuiz_create() {
     function parseAltText(text) {
         return presenter.preview ? window.TTSUtils.parsePreviewAltText(text) : presenter.textParser.parse(text);
     }
-
-    function gameLostMessage() {
-        var wrapper = $('<div class="game-lost-message-wrapper"></div>');
-        var message = $(`<div class="${CSS_CLASSES.GAME_LOST_MESSAGE}"></div>`);
-        if(presenter.config.showSummary) {
-            message.html(
-                parseAltText(presenter.config.gameLostMessage) +
-                '<div>' + parseAltText(presenter.config.gameSummaryMessage) +
-                '<div>' + parseAltText(presenter.config.correctGameMessage) + ': ' + getScore() +
-                '</div><div>' + parseAltText(presenter.config.wrongGameMessage) + ': ' + (presenter.config.questions.length - getScore()) +
-                '</div>' + '</div>');
-        }else{
-            message.html(parseAltText(presenter.config.gameLostMessage));
-        }
-        wrapper.append(message);
-        showInHintArea(wrapper);
-    };
 
     function getSelectItemAction(answer, $this) {
         var isCorrect = answer == getCurrentQuestion().CorrectAnswer;
@@ -426,7 +426,7 @@ function AddonQuiz_create() {
 
     function showHint() {
         var $hint = $(`<div class="${CSS_CLASSES.QUESTION_HINT}"></div>`);
-        $hint.html(parseAltText(getCurrentQuestion().Hint));
+        $hint.html(window.xssUtils.sanitize(parseAltText(getCurrentQuestion().Hint)));
         showInHintArea($hint);
         presenter.$view.find('.hint-button').addClass('used');
     }
@@ -476,7 +476,7 @@ function AddonQuiz_create() {
         var $title = $(`<div class="${CSS_CLASSES.QUESTION_TITLE}"></div>`);
         var $tips = $('<div class="question-tips"></div>');
         var $nextButton = $(`<div class="${CSS_CLASSES.NEXT_QUESTION_BUTTON}"></div>`);
-        $nextButton.html(parseAltText(presenter.config.nextLabel));
+        $nextButton.html(window.xssUtils.sanitize(parseAltText(presenter.config.nextLabel)));
         $nextButton.clickAction = nextButtonAction;
 
         cleanWorkspace();
