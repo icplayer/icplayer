@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElemen
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 import java.util.*;
 
@@ -237,7 +238,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						event.stopPropagation();
 						event.preventDefault();
 						if (listener != null) {
-							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
+							String validLink = StringUtils.unescapeXML(info.getHref());
+							listener.onLinkClicked(info.getType(), validLink, info.getTarget());
 						}
 						event.preventDefault();
 					}
@@ -366,6 +368,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void addListener(ITextViewListener l) {
+		JavaScriptUtils.log("addListener");
 		listener = l;
 	}
 
