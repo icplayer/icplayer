@@ -24,7 +24,6 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElemen
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 import java.util.*;
 
@@ -368,7 +367,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void addListener(ITextViewListener l) {
-		JavaScriptUtils.log("addListener");
 		listener = l;
 	}
 
