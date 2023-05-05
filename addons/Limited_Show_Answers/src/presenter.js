@@ -86,6 +86,10 @@ function AddonLimited_Show_Answers_create() {
         presenter.presenterLogic(view, model, true);
     };
 
+    presenter.getWorksWithModulesList = function () {
+        return presenter.configuration.worksWithModulesList.slice();
+    };
+
     presenter.validateModel = function (model) {
         presenter.setSpeechTexts(model['speechTexts']);
 
