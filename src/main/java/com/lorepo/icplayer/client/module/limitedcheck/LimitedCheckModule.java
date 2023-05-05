@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Arrays;
 
 import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
@@ -73,6 +74,10 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 	public List<String> getModules() {
 		return modules;
 	}
+
+	public String getWorksWithModulesList() {
+		return this.getRawWorksWith();
+    }
 
 	private void addPropertyCheckText() {
 

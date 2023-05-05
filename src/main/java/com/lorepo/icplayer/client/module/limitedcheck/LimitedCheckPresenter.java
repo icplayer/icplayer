@@ -277,11 +277,24 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 			return x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getTitlePostfix()();
 		}
 
+        presenter.getWorksWithModulesList = function() {
+            var moduleList = x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getModuleList()();
+			return x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getWorksWithModules(Ljava/lang/String;)(moduleList);
+		}
+
         return presenter;
+    }-*/;
+
+    private native JavaScriptObject getWorksWithModules(String moduleList) /*-{
+        return moduleList.split(",");
     }-*/;
 
     private String getTitlePostfix() {
         return view.getTitlePostfix();
+    }
+
+    private String getModuleList() {
+        return this.model.getWorksWithModulesList();
     }
 
     private Element getView() {
