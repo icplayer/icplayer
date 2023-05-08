@@ -130,7 +130,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentMaxScore = 0;
 	private boolean isTextSetByCommand = false;
 	private boolean isDisabled = false;
-	private boolean isGradualShowAnswers = false;
+	private boolean isGradualShowAnswersActive = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -200,9 +200,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
 			@Override
 			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
-				if (!isGradualShowAnswers) {
+				if (!isGradualShowAnswersActive) {
 					setCurrentViewState();
-					isGradualShowAnswers = true;
+					isGradualShowAnswersActive = true;
 				}
 
 				if (event.getModuleID().equals(module.getId())) {
@@ -223,23 +223,37 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isShowAnswers() {
 		return module.isActivity() && this.isShowAnswersActive;
 	}
+	
+	private boolean isGradualShowAnswers() {
+		return module.isActivity() && this.isGradualShowAnswersActive;
+	}
 
 	public void handleGradualShowAnswers(int itemIndex) {
 		TextElementDisplay gap = view.getActivity(itemIndex);
 		if (gap != null) {
+			gap.reset();
 			gap.showAnswers();
 		}
+		
+		view.refreshMath();
 	}
 
 	public void handleGradualHideAnswers() {
-		this.isGradualShowAnswers = false;
-
+		if (!this.isGradualShowAnswersActive) {
+			return;
+		}
+		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
 			child.reset();
+			child.setWorkMode();
+			child.setDisabled(child.isDisabled());
 		}
-
+		
 		setState(this.currentState);
+		this.isGradualShowAnswersActive = false;
+		
+		view.refreshMath();
 	}
 
 	private void blockAllGaps() {
@@ -307,7 +321,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void hideAnswers () {
-		if (!this.isShowAnswersActive) {
+		if (!(isShowAnswers() || isGradualShowAnswers())) {
 			return;
 		}
 
@@ -330,6 +344,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		setState(this.currentState);
 		this.isShowAnswersActive = false;
+		this.isGradualShowAnswersActive = false;
 
 		view.refreshMath();
 	}
@@ -338,6 +353,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public void setWorkMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
@@ -351,6 +368,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public void setShowErrorsMode() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
@@ -437,7 +456,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (String id : values.keySet()) {
 			String value = values.get(id);
-			if (module.hasMathGaps() && !isShowAnswersActive) {
+			if (module.hasMathGaps() && !(isShowAnswersActive || isGradualShowAnswersActive)) {
 				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", value);
 			} else if (module.hasMathGaps()) {
 				InputElement elem = DOM.getElementById(id).cast();
@@ -454,7 +473,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		savedDisabledState = stateDisabled;
 
-		if (module.hasMathGaps() && !isShowAnswersActive) {
+		if (module.hasMathGaps() && !(isShowAnswersActive || isGradualShowAnswersActive)) {
 			view.setHTML(module.parsedText);
 		}
 
@@ -500,7 +519,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers() || isGradualShowAnswers) {
+		if (isShowAnswers() || isGradualShowAnswers()) {
 			return currentErrorCount;
 		}
 
@@ -534,8 +553,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			setText(this.module.getDefaultModuleText());
 		}
 
-		if (module.isActivity() && isShowAnswers()) {
+		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (module.isVisible()) {
@@ -590,7 +611,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers() || isGradualShowAnswers) {
+		if (isShowAnswers() || isGradualShowAnswers()) {
 			return currentMaxScore;
 		}
 
@@ -637,7 +658,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers() || isGradualShowAnswers) {
+		if (isShowAnswers() || isGradualShowAnswers()) {
 			return currentScore;
 		}
 
@@ -1519,6 +1540,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private String getGapText(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()) {
@@ -1563,6 +1586,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isGapAttempted(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()) {
@@ -1575,6 +1600,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void markGapAsCorrect(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()) {
@@ -1585,6 +1612,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void markGapAsWrong(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()) {
@@ -1595,6 +1624,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void markGapAsEmpty(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()) {
@@ -1605,6 +1636,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void enableGap(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()){
@@ -1615,6 +1648,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void enableAllGaps() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		for (int index = 0; index < view.getChildrenCount(); index++) {
@@ -1625,6 +1660,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void disableGap(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		if (view != null && index <= view.getChildrenCount()){
@@ -1635,6 +1672,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void disableAllGaps() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		for (int index = 0; index < view.getChildrenCount(); index++) {
@@ -1650,6 +1689,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isAttempted() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		for (int index = 0; index < view.getChildrenCount(); index++) {
@@ -1665,6 +1706,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isTextSetByCommand = true;
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		enteredText = text;
@@ -1674,6 +1717,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void show() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		isVisible = true;
@@ -1685,6 +1730,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void hide() {
 		if (isShowAnswers()) {
 			hideAnswers();
+		} else if (isGradualShowAnswers()) {
+			handleGradualHideAnswers();
 		}
 
 		isVisible = false;
