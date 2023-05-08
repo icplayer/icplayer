@@ -1,3 +1,4 @@
+2023-04-27 Fixed problem with incorrect conversion of & to &amp; in links in text module
 2023-04-25 Added support for printable for Page Score Counter addon
 2023-04-24 Added support for printable for crossword addon
 2023-04-19 Fixed scroll for Coloring addon when active TTS
