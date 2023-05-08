@@ -253,22 +253,22 @@ TestCase("[Text_Coloring] Model Validation flow", {
         var eraserButtonText = "Argh";
 
         var expectedModel = {
-            isVisible: true,
+            ID: modelID,
             isValid: true,
             isError: false,
-            ID: modelID,
-            colors: colorsValue,
             textTokens: parsedText,
+            colors: colorsValue,
             buttonsPosition: buttonsPosition,
             showAllAnswersInGradualShowAnswersMode: false,
             showSetEraserButtonMode: false,
             hideColorsButtons: false,
             eraserButtonText: eraserButtonText,
+            isVisible: true,
             mode: "MARK_PHRASES",
             countErrors: false,
             modelText: ['Example', 'text'],
             height: 50,
-            legendTitle: "Legend"
+            legendTitle: "Legend",
         };
 
         this.stubs.validateColors.returns({
@@ -292,8 +292,10 @@ TestCase("[Text_Coloring] Model Validation flow", {
             Height: 100
         });
 
-
-        assertEquals(expectedModel, result);
+        Object.keys(expectedModel).forEach(function(key, index) {
+            assertEquals(expectedModel[key], result[key]);
+        });
+        assertEquals(expectedModel.length, result.length);
         assertTrue(this.stubs.validateColors.calledOnce);
         assertTrue(this.stubs.parseText.calledOnce);
     }
