@@ -237,7 +237,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						event.stopPropagation();
 						event.preventDefault();
 						if (listener != null) {
-							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
+							String validLink = StringUtils.unescapeXML(info.getHref());
+							listener.onLinkClicked(info.getType(), validLink, info.getTarget());
 						}
 						event.preventDefault();
 					}

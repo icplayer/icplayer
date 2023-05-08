@@ -1674,9 +1674,37 @@ function AddonColoring_create(){
 
     ColoringKeyboardController.prototype.switchElement = function (move) {
         KeyboardController.prototype.switchElement.call(this, move);
-        if (!this.isColorSelectActive) presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
+        if (this.isColorSelectActive) {
+            this.adjustScroll(move);
+        } else {
+            presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
+        }
         this.readCurrentElement();
     };
+
+    ColoringKeyboardController.prototype.adjustScroll = function (move) {
+        let currentElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText][0];
+        let parentElement = currentElement.parentElement;
+
+        if (!isScrollbarVisible(parentElement)) {
+            return;
+        }
+
+        if (move < 0) {
+            parentElement.scrollTo(0, currentElement.offsetTop);
+        } else {
+            let currentElementOffsetBottom = currentElement.offsetTop + currentElement.offsetHeight;
+            if (currentElementOffsetBottom > parentElement.offsetHeight) {
+                parentElement.scrollTo(0, currentElementOffsetBottom - parentElement.offsetHeight);
+            } else {
+                parentElement.scrollTo(0, 0);
+            }
+        }
+    }
+
+    function isScrollbarVisible(element) {
+        return element.scrollHeight > element.clientHeight;
+    }
 
     ColoringKeyboardController.prototype.enter = function (event) {
         if (presenter.isFirstEnter) {
