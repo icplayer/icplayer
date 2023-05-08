@@ -1,3 +1,4 @@
+2023-05-08 Fixed text not being selectable in Paragraph when editor is disabled
 2023-05-08 Expanded support for alternative texts in Quiz addon
 2023-04-27 Fixed problem with incorrect conversion of & to &amp; in links in text module
 2023-04-25 Added support for printable for Page Score Counter addon
