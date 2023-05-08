@@ -52,6 +52,7 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.sendEvent = function (eventName) {
+        if(!presenter.eventBus) return;
         var eventData = {
             'value': eventName,
             'source': presenter.configuration.addonID,
