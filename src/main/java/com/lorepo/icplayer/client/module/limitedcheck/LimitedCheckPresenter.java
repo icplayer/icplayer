@@ -286,7 +286,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
     }-*/;
 
     private native JavaScriptObject getWorksWithModules(String moduleList) /*-{
-        return moduleList.split(",");
+        if (!moduleList.trim().length) return [];
+
+        return moduleList.split(";");
     }-*/;
 
     private String getTitlePostfix() {

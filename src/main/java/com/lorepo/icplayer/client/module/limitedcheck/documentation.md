@@ -66,6 +66,11 @@ Note: Limited Show Aswers module and Limited Check must covered the same modules
         <td>---</td>
         <td>Returns JavaScript object with score information (score, errors and maxScore) that is the sum of all score info for individual connected module.</td>
     </tr>
+    <tr>
+        <td>getWorksWithModulesList</td>
+        <td>---</td>
+        <td>Gets list of modules configuerd in "Works With" property.</td>
+    </tr>
 </table>
 
 ## Advanced Connector integration
