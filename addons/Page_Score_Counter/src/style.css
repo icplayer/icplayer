@@ -10,7 +10,16 @@
     text-align: center;
 }
 
+.printable_page-score-counter-wrapper > div {
+    text-align: center;
+}
+
 .page-score-counter-wrapper .fraction > div {
+    text-align: left;
+    display: inline-block;
+}
+
+.printable_page-score-counter-wrapper .printable_fraction > div {
     text-align: left;
     display: inline-block;
 }
