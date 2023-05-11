@@ -255,7 +255,21 @@ public class WCAGUtils {
 
 		HTML html = new HTML(getImageAltTextsWithBreaks(text));
 		final String noHTML = html.getText();
-		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
+		return removeSeparatedPunctation(noHTML.replaceAll("\\s{2,}", " ").trim()); // remove spaces if more than 1
+	}
+
+	private static String removeSeparatedPunctation(String text) {
+		String textWithoutSeparatedDots = removeSeparatedDots(text);
+
+		return removeSingleComma(textWithoutSeparatedDots);
+	}
+
+	private static String removeSeparatedDots(String text) {
+		return text.replaceAll("\\.*\\s*(\\,|\\.)\\s\\.\\s", ". ");
+	}
+
+	private static String removeSingleComma(String text) {
+		return text.replaceAll("\\.\\,", "");
 	}
 
 	private static String updateLinks(String text) {
