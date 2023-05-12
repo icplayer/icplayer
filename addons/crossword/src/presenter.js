@@ -5,12 +5,15 @@ function Addoncrossword_create(){
     var eventBus;
     var originalFieldValue = "";
 
+    presenter.ID               = null;
+    presenter.$view            = null;
+    presenter.crossword        = null;
+
     presenter.rowCount         = null;
     presenter.columnCount      = null;
     presenter.cellHeight       = null;
     presenter.cellWidth        = null;
     presenter.maxScore         = null;
-    presenter.id               = null;
     presenter.isVisible        = true;
     presenter.showAllAnswersInGradualShowAnswersMode;
     presenter.isGradualShowAnswersActive = false;
@@ -23,10 +26,16 @@ function Addoncrossword_create(){
     presenter.wordNumbersHorizontal = false;
     presenter.wordNumbersVertical = false;
     presenter.disableAutomaticWordNumbering = false;
+    presenter.blockWrongAnswers = false;
     presenter.markedColumnIndex = 0;
     presenter.markedRowIndex = 0;
     presenter.maxTabIndex = 0;
     presenter.areUserAnswersSaved = false;
+    presenter.correctAnswers = [];
+
+    presenter.printableController = null;
+    presenter.printableState = null;
+    presenter.printableStateMode = null;
 
     var enableMoveToNextField = false;
 
@@ -106,6 +115,20 @@ function Addoncrossword_create(){
         CELL_LETTER: "cell_letter",
         CELL_VALID: "cell_valid",
         CELL_INVALID: "cell_invalid",
+        PRINTABLE: "printable",
+        PRINTABLE_ADDON: "printable_addon_crossword",
+        PRINTABLE_CELL_LETTER_CONTENT: "printable_cell_letter_content",
+        PRINTABLE_SIGN_VALID: "printable_sign_valid",
+        PRINTABLE_SIGN_INVALID: "printable_sign_invalid",
+        PRINTABLE_CELL_VALID: "printable_cell_valid",
+        PRINTABLE_CELL_INVALID: "printable_cell_invalid",
+    };
+
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
     };
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -124,7 +147,8 @@ function Addoncrossword_create(){
     };
 
     presenter.prepareGrid = function(model) {
-        presenter.tabIndexBase = ($("div.crossword_container").length * 5000) + 5000;
+        const elementPath = "div." + (isInPrintableStateMode() ? presenter.CSS_CLASSES.PRINTABLE + "_" : "") + "crossword_container";
+        presenter.tabIndexBase = ($(elementPath).length * 5000) + 5000;
         presenter.maxScore = 0;
         presenter.crossword = [];
 
@@ -439,6 +463,7 @@ function Addoncrossword_create(){
             presenter.setVerticalDirection();
         }
     }
+
     presenter.analyzeDirectionOfMove = function (currentCellInput) {
         var $currentCellInput = $(currentCellInput);
         var currentPosition = getPositionOfCellInputElement($currentCellInput);
@@ -803,41 +828,55 @@ function Addoncrossword_create(){
     presenter.createGrid = function() {
         var wordNumberCounter = 1;
 
-        var gridContainer = $('<div class="crossword_container"></div>');
-        gridContainer
-            .css({ width:      presenter.columnCount * presenter.cellWidth + 'px',
-                height:     presenter.rowCount * presenter.cellHeight + 'px',
-                marginLeft: -1 * Math.round(presenter.columnCount * presenter.cellWidth / 2) + 'px',
-                marginTop:  -1 * Math.round(presenter.rowCount * presenter.cellHeight / 2) + 'px' });
+        var gridContainer = $('<div></div>');
+        addClass(gridContainer, "crossword_container");
+        let containerWidth = presenter.columnCount * presenter.cellWidth;
+        let containerHeight = presenter.rowCount * presenter.cellHeight;
+        let containerMarginLeft = Math.round(presenter.columnCount * presenter.cellWidth / 2);
+        let containerMarginTop = Math.round(presenter.rowCount * presenter.cellHeight / 2);
+        if (isInPrintableStateMode()) {
+            gridContainer.css({
+                width: containerWidth + 'px',
+                height: containerHeight + 'px',
+            });
+        } else {
+            gridContainer.css({
+                width: containerWidth + 'px',
+                height: containerHeight + 'px',
+                marginLeft: -1 * containerMarginLeft + 'px',
+                marginTop: -1 * containerMarginTop + 'px'
+            });
+        }
 
         var tabIndexOffset = 0;
         for(var i = 0; i < presenter.rowCount; i++) {
             for(var j = 0; j < presenter.columnCount; j++) {
-                var cellContainer = $('<div class="cell_container"></div>');
+                var cellContainer = $('<div></div>');
+                addClass(cellContainer, "cell_container");
                 cellContainer.css({ width:  presenter.cellWidth + 'px',
                     height: presenter.cellHeight + 'px' });
 
-                var cell = $('<div class="cell"></div>')
-                    .addClass('cell_' + i + 'x' + j)
-                    .addClass('cell_row_' + i)
-                    .addClass('cell_column_' + j);
+                var cell = $('<div></div>');
+                addClass(cell, "cell");
+                addClass(cell, 'cell_' + i + 'x' + j);
+                addClass(cell, 'cell_row_' + i);
+                addClass(cell, 'cell_column_' + j);
 
-                if(presenter.markedRowIndex > 0 && presenter.markedRowIndex == i+1) {
-                    cell.addClass('cell_row_marked');
+                if (presenter.markedRowIndex > 0 && presenter.markedRowIndex == i+1) {
+                    addClass(cell, "cell_row_marked");
                 }
 
-                if(presenter.markedColumnIndex > 0 && presenter.markedColumnIndex == j+1) {
-                    cell.addClass('cell_column_marked');
+                if (presenter.markedColumnIndex > 0 && presenter.markedColumnIndex == j+1) {
+                    addClass(cell, "cell_column_marked");
                 }
 
                 cellContainer.append(cell);
-
-                if(presenter.crossword[i][j] == ' ') {
-                    cell.addClass('cell_blank');
-                    cellContainer.addClass('cell_container_blank');
+                if (presenter.crossword[i][j] == ' ') {
+                    addClass(cell, "cell_blank");
+                    addClass(cellContainer, "cell_container_blank");
                 } else {
-                    cell.addClass('cell_letter');
-                    cellContainer.addClass('cell_container_letter');
+                    addClass(cell, "cell_letter");
+                    addClass(cellContainer, "cell_container_letter");
 
                     var input = $('<input type="text" maxlength="2" size="1"/>');
 
@@ -846,9 +885,9 @@ function Addoncrossword_create(){
                             .val(presenter.crossword[i][j][1])
                             .prop('disabled', true);
 
-                        cell.addClass("cell_constant_letter");
+                        addClass(cell, "cell_constant_letter");
                         cell.addClass("");
-                    } else {
+                    } else if (!isInPrintableStateMode()){
                         input
                             .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
                             .keyup(presenter.onCellInputKeyUp)
@@ -857,6 +896,10 @@ function Addoncrossword_create(){
                             .mouseup(presenter.onCellInputMouseUp)
                             .focusout(presenter.onCellInputFocusOut)
                             .click(presenter.onCellClick);
+                    } else {
+                        input
+                            .prop('disabled', true)
+                            .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++);
                     }
 
                     if(presenter.preview) {
@@ -874,18 +917,19 @@ function Addoncrossword_create(){
                     if (horizontalWordBegin) presenter.maxScore++;
                     if (verticalWordBegin) presenter.maxScore++;
 
-                    if(horizontalWordBegin || verticalWordBegin) {
-                        cell.addClass('cell_word_begin');
+                    if (horizontalWordBegin || verticalWordBegin) {
+                        addClass(cell, "cell_word_begin");
 
-                        if(horizontalWordBegin)
-                            cell.addClass('cell_word_begin_horizontal');
+                        if (horizontalWordBegin)
+                            addClass(cell, "cell_word_begin_horizontal");
 
-                        if(verticalWordBegin)
-                            cell.addClass('cell_word_begin_vertical');
+                        if (verticalWordBegin)
+                            addClass(cell, "cell_word_begin_vertical");
 
-                        if(!presenter.disableAutomaticWordNumbering) {
+                        if (!presenter.disableAutomaticWordNumbering) {
                             const sanitizedText = window.xssUtils.sanitize(wordNumberCounter++);
-                            const wordNumber = $('<div class="word_number"></div>').html(sanitizedText);
+                            const wordNumber = $('<div></div>').html(sanitizedText);
+                            addClass(wordNumber, "word_number");
 
                             cell.append(wordNumber);
                         }
@@ -956,15 +1000,15 @@ function Addoncrossword_create(){
 
                 // Additional classes
                 if(j == 0) {
-                    cell.addClass('cell_first_in_row');
+                    addClass(cell, "cell_first_in_row");
                 } else if(j == presenter.columnCount - 1) {
-                    cell.addClass('cell_last_in_row');
+                    addClass(cell, "cell_last_in_row");
                 }
 
                 if(i == 0) {
-                    cell.addClass('cell_first_in_column');
+                    addClass(cell, "cell_first_in_column");
                 } else if(i == presenter.rowCount - 1) {
-                    cell.addClass('cell_last_in_column');
+                    addClass(cell, "cell_last_in_column");
                 }
 
                 gridContainer.append(cellContainer);
@@ -1242,14 +1286,17 @@ function Addoncrossword_create(){
     };
 
     presenter.validate = function(mode) {
-        var wordValid, k, l, score, markedCell;
-        var filled = false;
-        
+        const classPrefix = '.' + (isInPrintableStateMode() ? presenter.CSS_CLASSES.PRINTABLE + '_' : '');
+        let wordValid, k, l, score, markedCell;
+        let filled = false;
+
         if (presenter.isShowAnswersActive && mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
             presenter.hideAnswers();
-            for(var i = 0; i < presenter.rowCount; i++) {
-                for(var j = 0; j < presenter.columnCount; j++) {
-                    if(presenter.$view.find('.cell_' + i + 'x' + j + ' input').val() != '' && typeof(presenter.$view.find('.cell_' + i + 'x' + j + ' input').val()) !== "undefined" && presenter.crossword[i][j][0] !== '!') {
+            for (let i = 0; i < presenter.rowCount; i++) {
+                for (let j = 0; j < presenter.columnCount; j++) {
+                    if (presenter.$view.find(classPrefix + 'cell_' + i + 'x' + j + ' input').val() != ''
+                        && typeof(presenter.$view.find(classPrefix + 'cell_' + i + 'x' + j + ' input').val()) !== "undefined"
+                        && presenter.crossword[i][j][0] !== '!') {
                         filled = true;
                     }
                 }
@@ -1260,7 +1307,7 @@ function Addoncrossword_create(){
         }
 
         if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
-            presenter.$view.find(".cell_letter input").attr('disabled', true);
+            presenter.$view.find(classPrefix + "cell_letter input").attr('disabled', true);
         } else if(mode == presenter.VALIDATION_MODE.COUNT_SCORE) {
             score = 0;
         }
@@ -1275,7 +1322,8 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[i][k] != presenter.$view.find('.cell_' + i + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[i][k][0] !== '!') {
+                        if(presenter.crossword[i][k] != presenter.$view.find(classPrefix + 'cell_' + i + 'x' + k + " input").attr('value').toUpperCase()
+                            && presenter.crossword[i][k][0] !== '!') {
                             wordValid = false;
                         }
                     }
@@ -1286,7 +1334,7 @@ function Addoncrossword_create(){
 
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = j; l < k; l++) {
-                            markedCell = presenter.$view.find('.cell_' + i + 'x' + l);
+                            markedCell = presenter.$view.find(classPrefix + 'cell_' + i + 'x' + l);
                             if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
                                 markedCell.addClass(
                                     wordValid
@@ -1307,7 +1355,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[k][j] != presenter.$view.find('.cell_' + k + 'x' + j + " input").attr('value').toUpperCase() && presenter.crossword[k][j][0] !== '!') {
+                        if(presenter.crossword[k][j] != presenter.$view.find(classPrefix + 'cell_' + k + 'x' + j + " input").attr('value').toUpperCase() && presenter.crossword[k][j][0] !== '!') {
                             wordValid = false;
                         }
                     }
@@ -1318,7 +1366,7 @@ function Addoncrossword_create(){
 
                     if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
                         for(l = i; l < k; l++) {
-                            markedCell = presenter.$view.find('.cell_' + l + 'x' + j);
+                            markedCell = presenter.$view.find(classPrefix + 'cell_' + l + 'x' + j);
                             if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
                                 markedCell.addClass(
                                     wordValid
@@ -1427,9 +1475,13 @@ function Addoncrossword_create(){
     };
 
     presenter.isAttempted = function() {
-        var countedConstantLetters = 0;
+        let classPrefix = "cell";
+        if (isInPrintableStateMode()) {
+            classPrefix = presenter.CSS_CLASSES.PRINTABLE + "_" + classPrefix;
+        }
 
-        jQuery.each(presenter.$view.find('.cell input'), function() {
+        var countedConstantLetters = 0;
+        jQuery.each(presenter.$view.find(`.${classPrefix} input`), function() {
             if (!ModelValidationUtils.isStringEmpty($(this).val())) countedConstantLetters++;
         });
 
@@ -1526,6 +1578,13 @@ function Addoncrossword_create(){
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
+    };
+
+    /**
+     * @param controller (PrintableController)
+     */
+    presenter.setPrintableController = function (controller) {
+        presenter.printableController = controller;
     };
 
     presenter.executeCommand = function (name, params) {
@@ -1712,28 +1771,38 @@ function Addoncrossword_create(){
     }
 
     presenter.replaceUserAnswersByModelAnswers = function () {
+        let classPrefix = "cell_";
+        if (isInPrintableStateMode()) {
+            classPrefix = presenter.CSS_CLASSES.PRINTABLE + "_" + classPrefix;
+        }
+
         for (let row = 0; row < presenter.rowCount; row++) {
             for (let column = 0; column < presenter.columnCount; column++) {
-                presenter.$view.find('.cell_' + row + 'x' + column + ' input')
-                    .val(presenter.crossword[row][column]
-                        .replaceAll("!",""));
+                let $cellInputs = presenter.$view.find(`.${classPrefix}${row}x${column} input`);
+                $cellInputs.val(presenter.crossword[row][column].replaceAll("!",""));
             }
         }
     }
 
     presenter.replaceAnswersBySavedUserAnswers = function () {
+        let classPrefix = "cell_";
+        if (isInPrintableStateMode()) {
+            classPrefix = presenter.CSS_CLASSES.PRINTABLE + "_" + classPrefix;
+        }
+
         for (let row = 0; row < presenter.rowCount; row++) {
             for (let column = 0; column < presenter.columnCount; column++) {
                 if (!presenter.crossword[row][column][0].includes('!')) {
-                    presenter.$view.find(`.cell_${row}x${column} input`)
-                        .val(presenter.userAnswers[row][column])
-                        .attr('disabled', false);
+                    let $cellInputs = presenter.$view.find(`.${classPrefix}${row}x${column} input`);
+                    $cellInputs.val(presenter.userAnswers[row][column]);
+                    if (!isInPrintableStateMode()) {
+                        $cellInputs.attr('disabled', false);
+                    }
                 }
             }
         }
         presenter.areUserAnswersSaved = false;
     }
-
 
     presenter.fillRowGaps = function (answerData) {
         const answer = answerData.answer.replaceAll("!","");
@@ -2284,6 +2353,219 @@ function Addoncrossword_create(){
 
         return null;
     };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+
+        presenter.printableState = JSON.parse(state);
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        chosePrintableStateMode(showAnswers);
+        const snapshot = createSnapshotOfVariables();
+
+        createPrintableBaseView(model);
+        modifyViewAccordingToPrintableStateMode();
+        const printableHTML = presenter.$view[0].outerHTML;
+
+        restoreSnapshotOfVariables(snapshot);
+        presenter.printableStateMode = null;
+
+        return printableHTML;
+    };
+
+    function createPrintableBaseView(model) {
+        model = presenter.upgradeModel(model);
+
+        presenter.$view = $('<div></div>');
+        presenter.$view.attr("id", model.ID);
+        presenter.$view.addClass(presenter.CSS_CLASSES.PRINTABLE_ADDON);
+
+        presenter.printableConfiguration = presenter.readConfiguration(model);
+        if (presenter.printableConfiguration.isError) {
+            presenter.showErrorMessage(
+                presenter.printableConfiguration.errorMessage,
+                presenter.printableConfiguration.errorMessageSubstitutions
+            );
+            presenter.destroyCommands();
+            return;
+        }
+
+        presenter.prepareGrid(model);
+        presenter.prepareCorrectAnswers();
+        presenter.createGrid();
+    }
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }
+    }
+
+    function isInPrintableStateMode() {
+        return presenter.printableStateMode !== null;
+    }
+
+    function modifyViewAccordingToPrintableStateMode() {
+        switch (presenter.printableStateMode) {
+            case presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS:
+                updateViewToCheckAnswersInPrintableStateMode();
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS:
+                updateViewToShowUserAnswersInPrintableStateMode();
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS:
+                updateViewToShowAnswersInPrintableStateMode();
+                break;
+            case presenter.PRINTABLE_STATE_MODE.EMPTY:
+                updateViewToEmptyStateInPrintableStateMode();
+                break;
+        }
+        replaceInputElementsByPrintableDivs();
+    }
+
+    function updateViewToCheckAnswersInPrintableStateMode() {
+        setUserAnswersFromPrintableState();
+        presenter.replaceAnswersBySavedUserAnswers();
+
+        if (!presenter.isAttempted()) {
+            return;
+        }
+        validateForPrintable();
+    }
+
+    function validateForPrintable() {
+        presenter.validate(presenter.VALIDATION_MODE.SHOW_ERRORS);
+        for (let row = 0; row < presenter.rowCount; row++) {
+            for (let column = 0; column < presenter.columnCount; column++) {
+                let $cell = presenter.$view.find(`.${presenter.CSS_CLASSES.PRINTABLE}_cell_${row}x${column}`);
+                if ($cell.hasClass(presenter.CSS_CLASSES.CELL_VALID)) {
+                    $cell.append(getPrintableGapSignHTML(true));
+                    $cell.removeClass(presenter.CSS_CLASSES.CELL_VALID);
+                    $cell.addClass(presenter.CSS_CLASSES.PRINTABLE_CELL_VALID);
+                } else if ($cell.hasClass(presenter.CSS_CLASSES.CELL_INVALID)) {
+                    $cell.append(getPrintableGapSignHTML(false));
+                    $cell.removeClass(presenter.CSS_CLASSES.CELL_INVALID);
+                    $cell.addClass(presenter.CSS_CLASSES.PRINTABLE_CELL_INVALID);
+                }
+            }
+        }
+    }
+
+    function getPrintableGapSignHTML(isCorrectAnswer) {
+        const $sign = $("<span></span>");
+        if (isCorrectAnswer) {
+            $sign.addClass(presenter.CSS_CLASSES.PRINTABLE_SIGN_VALID);
+        } else {
+            $sign.addClass(presenter.CSS_CLASSES.PRINTABLE_SIGN_INVALID);
+        }
+        return $sign;
+    }
+
+    function updateViewToShowUserAnswersInPrintableStateMode() {
+        setUserAnswersFromPrintableState();
+        presenter.replaceAnswersBySavedUserAnswers();
+    }
+
+    function setUserAnswersFromPrintableState() {
+        presenter.userAnswers = [];
+
+        let cells;
+        if (presenter.printableState.hasOwnProperty("cells")) {
+            cells = presenter.printableState.cells;
+        } else {
+            cells = presenter.printableState;
+        }
+        let counter = 0;
+        for (let i = 0; i < presenter.rowCount; i++) {
+            let row = [];
+            for (let j = 0; j < presenter.columnCount; j++) {
+                row.push(cells[counter]);
+                counter++;
+            }
+            presenter.userAnswers.push(row);
+        }
+    }
+
+    function updateViewToShowAnswersInPrintableStateMode() {
+        presenter.replaceUserAnswersByModelAnswers();
+    }
+
+    function updateViewToEmptyStateInPrintableStateMode() {}
+
+    function replaceInputElementsByPrintableDivs() {
+        presenter.$view.find(".printable_cell_letter input").replaceWith(function() {
+            let $cellContent = $('<div>' + $(this).val() + '</div>');
+            $cellContent.addClass(presenter.CSS_CLASSES.PRINTABLE_CELL_LETTER_CONTENT);
+            return $cellContent
+        });
+    }
+
+    function createSnapshotOfVariables() {
+        return {
+            crossword: presenter.crossword,
+            rowCount: presenter.rowCount,
+            columnCount: presenter.columnCount,
+            cellHeight: presenter.cellHeight,
+            cellWidth: presenter.cellWidth,
+            blankCellsBorderStyle: presenter.blankCellsBorderStyle,
+            blankCellsBorderWidth: presenter.blankCellsBorderWidth,
+            blankCellsBorderColor: presenter.blankCellsBorderColor,
+            letterCellsBorderStyle: presenter.letterCellsBorderStyle,
+            letterCellsBorderWidth: presenter.letterCellsBorderWidth,
+            letterCellsBorderColor: presenter.letterCellsBorderColor,
+            wordNumbersHorizontal: presenter.wordNumbersHorizontal,
+            wordNumbersVertical: presenter.wordNumbersVertical,
+            showAllAnswersInGradualShowAnswersMode: presenter.showAllAnswersInGradualShowAnswersMode,
+            disableAutomaticWordNumbering: presenter.disableAutomaticWordNumbering,
+            blockWrongAnswers: presenter.blockWrongAnswers,
+            isVisibleByDefault: presenter.isVisibleByDefault,
+            markedColumnIndex: presenter.markedColumnIndex,
+            markedRowIndex: presenter.markedRowIndex,
+            autoNavigationMode: autoNavigationMode,
+
+            $view: presenter.$view,
+            tabIndexBase: presenter.tabIndexBase,
+            maxTabIndex: presenter.maxTabIndex,
+            numberOfConstantLetters: presenter.numberOfConstantLetters,
+            maxScore: presenter.maxScore,
+            areUserAnswersSaved: presenter.areUserAnswersSaved,
+            configuration: {...presenter.configuration},
+            correctAnswers: [...presenter.correctAnswers]
+        }
+    }
+
+    function restoreSnapshotOfVariables(snapshot) {
+        Object.keys(snapshot).forEach(function(key) {
+            if (presenter.hasOwnProperty(key)) {
+                presenter[key] = snapshot[key];
+            } else {
+                switch (key.toString()) {
+                    case "autoNavigationMode":
+                        autoNavigationMode = snapshot[key];
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
+
+    function addClass($element, className) {
+        if (isInPrintableStateMode()) {
+            className = presenter.CSS_CLASSES.PRINTABLE + "_" + className;
+        }
+        $element.addClass(className);
+    }
 
     return presenter;
 }

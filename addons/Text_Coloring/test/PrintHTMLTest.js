@@ -68,8 +68,8 @@ TestCase("[Text_Coloring] get printable HTML", {
 
     'test given model when getColors was called should return defined colors in grayscale': function () {
         var mockColors = [
-            {'name':'red', 'value':'#787878'},
-            {'name':'blue', 'value':'#8f8f8f'}
+            {'id': 'red', 'value':'#787878'},
+            {'id': 'blue', 'value':'#8f8f8f'}
         ];
         var colors = this.presenter.getColors(this.model);
 

@@ -61,6 +61,11 @@ Note: Limited Show Aswers module and Limited Check must cover the same modules.
         <td>---</td>
         <td>Shows the module.</td>
     </tr>
+    <tr>
+        <td>getWorksWithModulesList</td>
+        <td>---</td>
+        <td>Gets list of modules configured in "Works With" property.</td>
+    </tr>
 </table>
 
 ## Advanced Connector integration
