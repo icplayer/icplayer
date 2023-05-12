@@ -54,7 +54,10 @@ export class AddonState {
             if (this.isMP3Format(blob)) {
                 return blob;
             }
-            if (!!this.mp3ConvertHandler && this.mp3ConvertHandler.wasCreated()) {
+            if (!!this.mp3ConvertHandler
+                && this.mp3ConvertHandler.isSupported()
+                && this.mp3ConvertHandler.isValid
+                && !this.mp3ConvertHandler.isWorkerExist()) {
                 return this.convertWavBlobToMP3BlobByWorker(blob);
             }
             return this.convertWavBlobToMP3Blob(blob);

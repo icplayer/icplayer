@@ -3147,7 +3147,7 @@ var AddonState = exports.AddonState = function () {
                 if (_this3.isMP3Format(blob)) {
                     return blob;
                 }
-                if (!!_this3.mp3ConvertHandler && _this3.mp3ConvertHandler.wasCreated()) {
+                if (!!_this3.mp3ConvertHandler && _this3.mp3ConvertHandler.isSupported() && _this3.mp3ConvertHandler.isValid && !_this3.mp3ConvertHandler.isWorkerExist()) {
                     return _this3.convertWavBlobToMP3BlobByWorker(blob);
                 }
                 return _this3.convertWavBlobToMP3Blob(blob);
