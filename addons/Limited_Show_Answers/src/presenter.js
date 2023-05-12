@@ -52,6 +52,7 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.sendEvent = function (eventName) {
+        if(!presenter.eventBus) return;
         var eventData = {
             'value': eventName,
             'source': presenter.configuration.addonID,
@@ -84,6 +85,10 @@ function AddonLimited_Show_Answers_create() {
 
     presenter.createPreview = function (view, model) {
         presenter.presenterLogic(view, model, true);
+    };
+
+    presenter.getWorksWithModulesList = function () {
+        return presenter.configuration.worksWithModulesList.slice();
     };
 
     presenter.validateModel = function (model) {

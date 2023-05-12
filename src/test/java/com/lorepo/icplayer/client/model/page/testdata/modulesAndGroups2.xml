@@ -17,6 +17,9 @@
             </layout>
          </layouts>
          <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="" number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed=""><![CDATA[Title]]></text>
+         <groupsGaps>
+            <groupGaps gapsIndexes=""></groupGaps>
+         </groupsGaps>
       </textModule>
       <buttonModule id="PrevPage" isTabindexEnabled="false">
          <layouts>
@@ -111,6 +114,9 @@
             </layout>
          </layouts>
          <text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All" number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed=""><![CDATA[Text Module can be used for gap filling activities.<br><ol><li>A dropdown gap: {{1:option 1|option 2|option 3}}.</li><li>An editable or a draggable gap: \gap{answer}.</li><li>A gap with 2 correct options: \gap{blue|navy}.</li><li>This is a filled gap: \filledGap{initial text|answer}</li></ol>]]></text>
+         <groupsGaps>
+            <groupGaps gapsIndexes=""></groupGaps>
+         </groupsGaps>
       </textModule>
       <textModule id="Text2" isTabindexEnabled="false">
          <layouts>
@@ -125,6 +131,9 @@
             </layout>
          </layouts>
          <text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All" number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed=""><![CDATA[Text Module can be used for gap filling activities.<br><ol><li>A dropdown gap: {{1:option 1|option 2|option 3}}.</li><li>An editable or a draggable gap: \gap{answer}.</li><li>A gap with 2 correct options: \gap{blue|navy}.</li><li>This is a filled gap: \filledGap{initial text|answer}</li></ol>]]></text>
+         <groupsGaps>
+            <groupGaps gapsIndexes=""></groupGaps>
+         </groupsGaps>
       </textModule>
    </modules>
    <groups>
