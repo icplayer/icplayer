@@ -15,6 +15,7 @@ function AddonGap_Binder_create() {
     const SUPPORTED_MODULES_TYPES = ["Text", "table"];
 
     let scoreData = {
+        emptyElementsNumber: 0,
         correctElementsNumber: 0,
         maxCorrectElementsNumber: 0,
         usedAnswersIndex: [],
@@ -233,6 +234,7 @@ function AddonGap_Binder_create() {
             handleWorkMode();
         }
 
+        checkCorrectnessOfAnswers();
         handleShowAnswers();
     };
 
@@ -287,16 +289,24 @@ function AddonGap_Binder_create() {
     }
 
     presenter.gradualShowAnswers = function (eventData) {
-        if (eventData.moduleID !== presenter.addonID) return;
-        if (presenter.isErrorMode) handleWorkMode();
-        if (!presenter.isGradualShowAnswersActive) presenter.isGradualShowAnswersActive = true;
+        if (eventData.moduleID !== presenter.addonID) {
+            return;
+        }
+
+        if (presenter.isErrorMode) {
+            handleWorkMode();
+        }
+
+        if (!presenter.isGradualShowAnswersActive) {
+            checkCorrectnessOfAnswers();
+            presenter.isGradualShowAnswersActive = true;
+        }
 
         presenter.modulesIDs.forEach(moduleID => {
             const moduleGaps = findModuleGaps(moduleID);
             const module = getModule(moduleID);
 
             for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
-
                 if (gapIndex === presenter.GSACounter) {
                     const gap = moduleGaps[gapIndex];
                     saveNextGapValue(gap);
@@ -318,7 +328,7 @@ function AddonGap_Binder_create() {
 
     presenter.updateGSACounter = function (eventData) {
         let itemIndex = parseInt(eventData.item, 10)
-        while(itemIndex < presenter.GSAcounter) {
+        while (itemIndex < presenter.GSAcounter) {
             itemIndex++;
         }
         presenter.GSACounter = itemIndex + 1;
@@ -340,6 +350,9 @@ function AddonGap_Binder_create() {
     }
 
     function loadSavedGapValue(gap, index) {
+        if (index >= savedGapsValues.length) {
+            return;
+        }
         const valueToLoad = savedGapsValues[index];
         gap.innerHTML = valueToLoad.innerHTML;
         gap.value = valueToLoad.value;
@@ -368,8 +381,6 @@ function AddonGap_Binder_create() {
 
     function handleShowErrorsMode() {
         presenter.isErrorMode = true;
-
-        checkCorrectnessOfAnswers();
 
         presenter.validatedPages[presenter.currentPageIndex] = true;
 
@@ -430,30 +441,52 @@ function AddonGap_Binder_create() {
     }
 
     presenter.getErrorCount = function () {
-        handleShownAnswers();
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
+            return getErrorCountFromScoreData();
+        }
 
+        handleShownAnswers();
         checkCorrectnessOfAnswers();
         if (scoreData.correctElementsNumber === scoreData.maxCorrectElementsNumber) {
             return 0;
         }
-        const emptyGapsNumber = countEmptyItems();
-        return scoreData.maxCorrectElementsNumber - scoreData.correctElementsNumber - emptyGapsNumber;
+        return getErrorCountFromScoreData();
     };
+
+    function getErrorCountFromScoreData() {
+        return scoreData.maxCorrectElementsNumber - scoreData.correctElementsNumber - scoreData.emptyElementsNumber;
+    }
 
     presenter.getMaxScore = function () {
         if (!presenter.playerController) {
             return presenter.answers.length;
         }
+
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
+            return getMaxScoreFromScoreData();
+        }
+
         checkCorrectnessOfAnswers();
+        return getMaxScoreFromScoreData();
+    }
+
+    function getMaxScoreFromScoreData() {
         return scoreData.maxCorrectElementsNumber;
     }
 
     presenter.getScore = function () {
-        handleShownAnswers();
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
+            return getScoreFromScoreData();
+        }
 
+        handleShownAnswers();
         checkCorrectnessOfAnswers();
-        return scoreData.correctElementsNumber;
+        return getScoreFromScoreData();
     };
+
+    function getScoreFromScoreData() {
+        return scoreData.correctElementsNumber;
+    }
 
     function checkCorrectnessOfAnswers() {
         if (!presenter.answers || !presenter.modulesIDs) {
@@ -474,6 +507,11 @@ function AddonGap_Binder_create() {
 
         scoreData.maxCorrectElementsNumber += moduleGaps.length;
         moduleGaps.forEach(gap => {
+            if (isGapEmpty(gap)) {
+                scoreData.emptyElementsNumber++;
+                return;
+            }
+
             for (let answerIndex = 0; answerIndex < presenter.answers.length; answerIndex++) {
                 if (isAnswerUsed(answerIndex)) {
                     continue;
@@ -490,8 +528,9 @@ function AddonGap_Binder_create() {
     }
 
     function resetScoreData() {
-        scoreData.maxCorrectElementsNumber = 0;
+        scoreData.emptyElementsNumber = 0;
         scoreData.correctElementsNumber = 0;
+        scoreData.maxCorrectElementsNumber = 0;
         scoreData.usedAnswersIndex.length = 0;
         scoreData.gapsIDsWithCorrectAnswer.length = 0;
     }
@@ -675,6 +714,7 @@ function AddonGap_Binder_create() {
 
     presenter.getState = function () {
         handleShownAnswers();
+        checkCorrectnessOfAnswers();
     };
 
     return presenter;

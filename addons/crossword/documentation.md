@@ -209,7 +209,7 @@ This event has the following structure:
     </tr>
     <tr>
         <td>Item</td>
-        <td><em>Numer of the word</em></td>
+        <td><em>Number of the word</em></td>
     </tr>
     <tr>
         <td>Value</td>
@@ -331,7 +331,36 @@ Please note that in practice, styles related to the cell position (.cell_AxB, .c
 * .cell_column_3.cell_letter will apply only to cells with letters in column 4,
 * .cell_row_0.cell_blank  will apply only to cells without letters in row 1.
 
-###Examples
+### CSS classes for printable
+
+CSS classes for the printable version of the addon have the same names as in the original version but with the prefix `printable_`. 
+For example `printable_cell_container_letter` is equivalent to `cell_container_letter` in the printable version. 
+Like the original classes should be defined by providing a path where the first name is `printable_crossword_container`, e.g. ```.printable_crossword_container .printable_cell_container_letter```.
+
+The new CSS classes include:
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Class name</th>
+        <th>Description</th> 
+    </tr>
+    <tr>
+        <td>.printable_crossword_container .printable_cell_letter_content</td>
+        <td>Indicates the look of fields that are used to capture answers written by a user (in their default state).</td> 
+    </tr>
+    <tr>
+        <td>.printable_crossword_container .printable_sign_valid</td>
+        <td>Indicates the look of fields that are used to show valid sign for the correct answer given by the user. The sign is set as ::after class.</td> 
+    </tr>
+    <tr>
+        <td>.printable_crossword_container .printable_sign_invalid</td>
+        <td>Indicates the look of fields that are used to show invalid sign for the wrong answer given by the user. The sign is set as ::after class.</td> 
+    </tr>
+</tbody>
+</table>
+
+### Examples
 
 **1.1. Make font bigger:**  
 
