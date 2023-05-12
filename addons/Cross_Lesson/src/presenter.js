@@ -195,8 +195,11 @@ function AddonCross_Lesson_create(){
     };
 
     presenter.connectHandlers = function () {
-        presenter.$wrapper[0].addEventListener('click', presenter.clickHandler);
-        presenter.$wrapper[0].addEventListener('touchend', presenter.clickHandler);
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            presenter.$wrapper[0].addEventListener('touchend', presenter.clickHandler);
+        } else {
+            presenter.$wrapper[0].addEventListener('click', presenter.clickHandler);
+        }
     };
 
     presenter.clickHandler = function (event) {
