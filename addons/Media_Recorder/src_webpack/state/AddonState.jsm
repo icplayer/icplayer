@@ -85,7 +85,7 @@ export class AddonState {
             File.prototype.arrayBuffer = File.prototype.arrayBuffer || this._fixArrayBuffer;
             Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || this._fixArrayBuffer;
 
-            return blob.arrayBuffer();
+            return wavBlob.arrayBuffer();
         })
         .then(arrayBuffer => {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;

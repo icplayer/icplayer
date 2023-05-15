@@ -4,6 +4,7 @@ export class MP3ConvertHandler {
         this.worker = null;
         this.scriptURL = null;
         this.isValid = false;
+        this.validationTimoutID = null;
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
@@ -28,14 +29,20 @@ export class MP3ConvertHandler {
         return new Promise(resolve => {
             this.worker = new Worker(this.scriptURL);
             this.worker.onmessage = function(e) {
-                self.isValid = true;
-                resolve(true);
+                if (e.data === "WORKER STARTED") {
+                    self.isValid = true;
+                    resolve(true);
+                } else {
+                    console.log('Error occurred for Web worker in Media Recorder: ' + e.data);
+                    self.isValid = false;
+                    resolve(false);
+                }
             }
             this.worker.postMessage({
                 cmd: "validate",
                 origin: document.location.origin
             });
-            setTimeout(() => {
+            this.validationTimoutID = setTimeout(() => {
                 if (!self.isValid) {
                     console.log('Lib for web worker in Media Recorder is unreachable.');
                     self.isValid = false;
@@ -47,14 +54,13 @@ export class MP3ConvertHandler {
     }
 
     execute(numberOfChannels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
-        if (!this.isValid) {
-            return;
-        }
-        if (this.isWorkerExist()) {
-            this.terminateWorkerProcess();
-        }
-
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
+            if (!this.isValid) {
+                reject("Not valid worker");
+            }
+            if (this.isWorkerExist()) {
+                this.terminateWorkerProcess();
+            }
             this.worker = new Worker(this.scriptURL);
             this.worker.onmessage = function(e) {
                 resolve(e.data);
@@ -81,8 +87,15 @@ export class MP3ConvertHandler {
                     postMessage("Unknown origin");
                     return;
                 }
+
                 const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";
-                importScripts(lameScriptURL);
+                try {
+                    importScripts(lameScriptURL);
+                } catch (e) {
+                    postMessage("Library lame.min.js is unreachable");
+                    return;
+                }
+
                 switch (data.cmd) {
                     case "validate":
                         postMessage("WORKER STARTED");
@@ -129,9 +142,15 @@ export class MP3ConvertHandler {
     destroy() {
         if (this.isWorkerExist()) {
             this.terminateWorkerProcess();
-            URL.revokeObjectURL(this.scriptURL)
         }
-        this.scriptURL = null;
+        if (this.scriptURL) {
+            URL.revokeObjectURL(this.scriptURL);
+            this.scriptURL = null;
+        }
+        if (this.validationTimoutID) {
+            clearTimeout(this.validationTimoutID);
+            this.validationTimoutID = null;
+        }
         this.isValid = false;
     }
 

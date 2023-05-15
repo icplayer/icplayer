@@ -474,7 +474,7 @@ export class MediaRecorder {
                         })
                         .then(mp3Blob => {
                             this.addonState.setRecordingBlob(mp3Blob);
-                        });
+                        }, () => {});
                 }
                 this.resourcesProvider.destroy();
             }

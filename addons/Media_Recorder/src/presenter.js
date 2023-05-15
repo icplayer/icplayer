@@ -1662,7 +1662,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                             return _this2.addonState.convertWavBlobToMP3BlobByWorker(wavBlob);
                         }).then(function (mp3Blob) {
                             _this2.addonState.setRecordingBlob(mp3Blob);
-                        });
+                        }, function () {});
                     }
                     _this2.resourcesProvider.destroy();
                 }
@@ -3180,7 +3180,7 @@ var AddonState = exports.AddonState = function () {
                 File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this5._fixArrayBuffer;
                 Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this5._fixArrayBuffer;
 
-                return blob.arrayBuffer();
+                return wavBlob.arrayBuffer();
             }).then(function (arrayBuffer) {
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
                 var context = new AudioContext();
@@ -4974,6 +4974,7 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
         this.worker = null;
         this.scriptURL = null;
         this.isValid = false;
+        this.validationTimoutID = null;
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
@@ -5004,14 +5005,20 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
             return new Promise(function (resolve) {
                 _this.worker = new Worker(_this.scriptURL);
                 _this.worker.onmessage = function (e) {
-                    self.isValid = true;
-                    resolve(true);
+                    if (e.data === "WORKER STARTED") {
+                        self.isValid = true;
+                        resolve(true);
+                    } else {
+                        console.log('Error occurred for Web worker in Media Recorder: ' + e.data);
+                        self.isValid = false;
+                        resolve(false);
+                    }
                 };
                 _this.worker.postMessage({
                     cmd: "validate",
                     origin: document.location.origin
                 });
-                setTimeout(function () {
+                _this.validationTimoutID = setTimeout(function () {
                     if (!self.isValid) {
                         console.log('Lib for web worker in Media Recorder is unreachable.');
                         self.isValid = false;
@@ -5026,14 +5033,13 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
         value: function execute(numberOfChannels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
             var _this2 = this;
 
-            if (!this.isValid) {
-                return;
-            }
-            if (this.isWorkerExist()) {
-                this.terminateWorkerProcess();
-            }
-
-            return new Promise(function (resolve) {
+            return new Promise(function (resolve, reject) {
+                if (!_this2.isValid) {
+                    reject("Not valid worker");
+                }
+                if (_this2.isWorkerExist()) {
+                    _this2.terminateWorkerProcess();
+                }
                 _this2.worker = new Worker(_this2.scriptURL);
                 _this2.worker.onmessage = function (e) {
                     resolve(e.data);
@@ -5054,7 +5060,7 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
     }, {
         key: 'createBlobWithScript',
         value: function createBlobWithScript() {
-            var script = '\n            addEventListener("message", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage("Unknown origin");\n                    return;\n                }\n                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";\n                importScripts(lameScriptURL);\n                switch (data.cmd) {\n                    case "validate":\n                        postMessage("WORKER STARTED");\n                        break;\n                    case "start":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage("Unknown command: " + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: "audio/mpeg-3"});\n            }\n        ';
+            var script = '\n            addEventListener("message", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage("Unknown origin");\n                    return;\n                }\n\n                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";\n                try {\n                    importScripts(lameScriptURL);\n                } catch (e) {\n                    postMessage("Library lame.min.js is unreachable");\n                    return;\n                }\n\n                switch (data.cmd) {\n                    case "validate":\n                        postMessage("WORKER STARTED");\n                        break;\n                    case "start":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage("Unknown command: " + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: "audio/mpeg-3"});\n            }\n        ';
             return new Blob([script], { type: 'application/javascript' });
         }
     }, {
@@ -5062,9 +5068,15 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
         value: function destroy() {
             if (this.isWorkerExist()) {
                 this.terminateWorkerProcess();
-                URL.revokeObjectURL(this.scriptURL);
             }
-            this.scriptURL = null;
+            if (this.scriptURL) {
+                URL.revokeObjectURL(this.scriptURL);
+                this.scriptURL = null;
+            }
+            if (this.validationTimoutID) {
+                clearTimeout(this.validationTimoutID);
+                this.validationTimoutID = null;
+            }
             this.isValid = false;
         }
     }, {
