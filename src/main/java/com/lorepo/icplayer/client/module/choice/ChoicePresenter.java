@@ -867,8 +867,13 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	public void handleGradualHideAnswers() {
 		isGradualShowAnswers = false;
+		boolean isVisibleBeforeSetState = isVisible;
+
 		clearStylesAndSelection(false);
 		setState(this.currentState);
+
+		isVisible = isVisibleBeforeSetState;
+        view.setVisibleVal(isVisibleBeforeSetState);
 	}
 
 	public void sendValueChangedEvent(String itemID, String value, String score) {
