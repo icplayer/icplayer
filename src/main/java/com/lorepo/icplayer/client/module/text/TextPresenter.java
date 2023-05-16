@@ -241,9 +241,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		setState(this.currentState);
-
-        isVisible = isVisibleBeforeSetState;
-        if (isVisibleBeforeSetState) {
+		
+		isVisible = isVisibleBeforeSetState;
+		if (isVisibleBeforeSetState) {
 			view.show(false);
 		} else {
 			view.hide();

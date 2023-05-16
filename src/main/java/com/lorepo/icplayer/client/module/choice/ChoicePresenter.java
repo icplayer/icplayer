@@ -873,7 +873,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		setState(this.currentState);
 
 		isVisible = isVisibleBeforeSetState;
-        view.setVisibleVal(isVisibleBeforeSetState);
+		view.setVisibleVal(isVisibleBeforeSetState);
 	}
 
 	public void sendValueChangedEvent(String itemID, String value, String score) {
