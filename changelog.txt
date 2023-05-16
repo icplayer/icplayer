@@ -1,3 +1,4 @@
+2023-05-16 Fixed issue with show and hide in Text when in showAnswers mode
 2023-05-08 Fixed Gap Binder now working with GSA when page is reportable
 2023-05-08 Added getWorksWithModulesList function to LimitedShowAnswers addon
 2023-05-08 Fixed text not being selectable in Paragraph when editor is disabled
