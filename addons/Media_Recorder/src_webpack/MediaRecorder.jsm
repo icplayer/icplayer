@@ -715,6 +715,7 @@ export class MediaRecorder {
         return {
             validateModel: validateModel,
             ActivationState: ActivationState,
+            AddonState: AddonState,
             AudioLoader: AudioLoader,
             PlayButton: PlayButton,
             RecordButton: RecordButton,
@@ -723,7 +724,8 @@ export class MediaRecorder {
             Timer: Timer,
             AudioPlayer: AudioPlayer,
             DownloadButton: DownloadButton,
-            SoundIntensity: SoundIntensity
+            SoundIntensity: SoundIntensity,
+            MP3ConvertHandler: MP3ConvertHandler,
         }
     }
 

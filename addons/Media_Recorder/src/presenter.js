@@ -1926,6 +1926,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             return {
                 validateModel: _validateModel.validateModel,
                 ActivationState: _ActivationState.ActivationState,
+                AddonState: _AddonState.AddonState,
                 AudioLoader: _AudioLoader.AudioLoader,
                 PlayButton: _PlayButton.PlayButton,
                 RecordButton: _RecordButton.RecordButton,
@@ -1934,7 +1935,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 Timer: _Timer.Timer,
                 AudioPlayer: _AudioPlayer.AudioPlayer,
                 DownloadButton: _DownloadButton.DownloadButton,
-                SoundIntensity: _SoundIntensity.SoundIntensity
+                SoundIntensity: _SoundIntensity.SoundIntensity,
+                MP3ConvertHandler: _MP3ConvertHandler.MP3ConvertHandler
             };
         }
     }, {
