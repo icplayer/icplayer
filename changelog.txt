@@ -1,3 +1,4 @@
+2023-05-16 Changed Text and Choice module do not reset visibility for Gradual Hide Answers
 2023-05-16 Fixed issue with show and hide in Text when in showAnswers mode
 2023-05-12 Fixed 0 width/height groups in parser
 2023-05-12 Fixed separation of events listening due to the platform in the Cross Lesson
