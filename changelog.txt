@@ -1,3 +1,4 @@
+2023-05-12 Fixed 0 width/height groups in parser
 2023-05-12 Fixed separation of events listening due to the platform in the Cross Lesson
 2023-05-12 Added getWorksWithModulesList function to LimitedCheck addon
 2023-05-08 Fixed Gap Binder now working with GSA when page is reportable
