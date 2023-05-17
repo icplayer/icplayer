@@ -1680,21 +1680,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void show() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = true;
 		if (view != null) {
 			view.show(true);
 		}
+
+		if (isShowAnswers()) {
+			for (int i = 0; i < view.getChildrenCount(); i++) {
+				TextElementDisplay child = view.getChild(i);
+				child.reset();
+				child.setStyleShowAnswers();
+			}
+
+			this.setShowAnswersTextInGaps();
+
+			view.refreshMath();
+		}
 	}
 
 	private void hide() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = false;
 		if (view != null) {
 			view.hide();

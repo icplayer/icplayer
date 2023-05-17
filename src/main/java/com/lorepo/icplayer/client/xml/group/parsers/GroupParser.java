@@ -15,6 +15,8 @@ import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 import com.lorepo.icplayer.client.semi.responsive.StylesDTO;
 
 public class GroupParser {
+	private static int defaultLayoutWidth = 0;
+	private static int defaultLayoutHeight = 0;
 	
 	public static String toXML(Group group) {
 		Element groupModule = XMLUtils.createElement("group");
@@ -87,6 +89,8 @@ public class GroupParser {
 	}
 	
 	private static void parseLayouts(Element xml, Group group) {
+		defaultLayoutWidth = 0;
+		defaultLayoutHeight = 0;
 		NodeList nodes = xml.getChildNodes();
 		Boolean isVisible = XMLUtils.getAttributeAsBoolean((Element) xml, "isVisible", true);
 		group.setIsVisible(isVisible);
@@ -97,6 +101,8 @@ public class GroupParser {
 				parseSingleLayout(childNode, group);
 			}
 		}
+		defaultLayoutWidth = 0;
+		defaultLayoutHeight = 0;
 	}
 	
 	private static void parseSingleLayout(Node xml, Group group) {
@@ -113,7 +119,15 @@ public class GroupParser {
 			Node childNode = nodes.item(i);
 			
 			if(childNode.getNodeName().compareTo("absolute") == 0 && childNode instanceof Element) {
-				dimensions = parseAbsoluteLayout(childNode);
+				if (isDiv) {
+					dimensions = parseAbsoluteLayout(childNode, 0, 0);
+				} else {
+					dimensions = parseAbsoluteLayout(childNode, defaultLayoutWidth, defaultLayoutHeight);
+				}
+				if (id.toLowerCase().equals("default")) {
+					defaultLayoutWidth = dimensions.width;
+					defaultLayoutHeight = dimensions.height;
+				}
 			} 
 		}
 		group.setSemiResponsiveLayoutID(id);
@@ -125,7 +139,7 @@ public class GroupParser {
 		group.setIsVisibleInEditor(id, isModuleVisibleInEditor);
 	}
 	
-	private static ModuleDimensions parseAbsoluteLayout(Node node) {
+	private static ModuleDimensions parseAbsoluteLayout(Node node, int defaultWidth, int defaultHeight) {
 		Element xml = (Element) node;
 		
 		int left = XMLUtils.getAttributeAsInt(xml, "left");
@@ -134,6 +148,8 @@ public class GroupParser {
 		int bottom = XMLUtils.getAttributeAsInt(xml, "bottom");
 		int width = XMLUtils.getAttributeAsInt(xml, "width");
 		int height = XMLUtils.getAttributeAsInt(xml, "height");
+		if (width == 0 && defaultWidth != 0) width = defaultWidth;
+		if (height == 0 && defaultHeight != 0) height = defaultHeight;
 
 		return new ModuleDimensions(left, right, top, bottom, height, width);
 	}
