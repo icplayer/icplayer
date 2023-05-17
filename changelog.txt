@@ -1,4 +1,9 @@
-2023-05-11 Fixed reading separated punction marks (TTS)
+2023-05-17 Fixed reading separated punction marks (TTS)
+2023-05-16 Changed Text and Choice module do not reset visibility for Gradual Hide Answers
+2023-05-16 Fixed issue with show and hide in Text when in showAnswers mode
+2023-05-12 Fixed 0 width/height groups in parser
+2023-05-12 Fixed separation of events listening due to the platform in the Cross Lesson
+2023-05-12 Added getWorksWithModulesList function to LimitedCheck addon
 2023-05-08 Fixed Gap Binder now working with GSA when page is reportable
 2023-05-08 Added getWorksWithModulesList function to LimitedShowAnswers addon
 2023-05-08 Fixed text not being selectable in Paragraph when editor is disabled
