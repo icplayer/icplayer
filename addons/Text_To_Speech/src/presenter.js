@@ -250,7 +250,7 @@ function AddonText_To_Speech_create() {
                 presenter.intervalResume = setInterval(function () {
                 window.speechSynthesis.pause();
                 window.speechSynthesis.resume();
-            }, 5000);
+            }, 3000);
         }
 
         presenter.intervalId = setInterval(function() {
