@@ -1,4 +1,5 @@
-2023-05-11 Fixed reading separated punction marks (TTS)
+2023-05-18 Fixed reading stoppage (TTS)
+2023-05-11 Fixed reading separated punctuation marks (TTS)
 2023-05-08 Fixed Gap Binder now working with GSA when page is reportable
 2023-05-08 Added getWorksWithModulesList function to LimitedShowAnswers addon
 2023-05-08 Fixed text not being selectable in Paragraph when editor is disabled

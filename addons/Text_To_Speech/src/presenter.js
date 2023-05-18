@@ -229,6 +229,7 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.intervalId = null;
+    presenter.intervalResume = null;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts, finalCallback) {
@@ -240,6 +241,18 @@ function AddonText_To_Speech_create() {
         }
         var onStartExecuted = false;
         // Fix for running speak method after cancelling SpeechSynthesis queue
+        if(presenter.intervalResume != null) {
+            clearInterval(presenter.intervalResume);
+            presenter.intervalResume = undefined;
+        }
+
+        if (isChrome()) {
+                presenter.intervalResume = setInterval(function () {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }, 5000);
+        }
+
         presenter.intervalId = setInterval(function() {
 
             if (window.speechSynthesis.speaking) {
@@ -250,6 +263,9 @@ function AddonText_To_Speech_create() {
             if (textsObjects.length === 0) {
                 clearInterval(presenter.intervalId);
                 presenter.intervalId = undefined;
+
+                clearInterval(presenter.intervalResume);
+                presenter.intervalResume = undefined;
                 return;
             }
             if (presenter.intervalId == null) return;
@@ -829,6 +845,9 @@ function AddonText_To_Speech_create() {
         if(presenter.speechSynthInterval!==null){
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
+
+            clearInterval(presenter.intervalResume);
+            presenter.intervalResume = undefined;
         }
     };
 
