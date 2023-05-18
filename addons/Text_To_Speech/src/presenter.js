@@ -246,6 +246,7 @@ function AddonText_To_Speech_create() {
             presenter.intervalResume = undefined;
         }
 
+        // Necessary for Chrome browser because instead stop reading
         if (isChrome()) {
                 presenter.intervalResume = setInterval(function () {
                 window.speechSynthesis.pause();
