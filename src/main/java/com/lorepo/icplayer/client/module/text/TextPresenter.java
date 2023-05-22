@@ -233,6 +233,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	public void handleGradualHideAnswers() {
 		this.isGradualShowAnswers = false;
+		boolean isVisibleBeforeSetState = isVisible;
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
@@ -240,6 +241,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		setState(this.currentState);
+		
+		isVisible = isVisibleBeforeSetState;
+		if (isVisibleBeforeSetState) {
+			view.show(false);
+		} else {
+			view.hide();
+		}
 	}
 
 	private void blockAllGaps() {
@@ -1672,21 +1680,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void show() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = true;
 		if (view != null) {
 			view.show(true);
 		}
+
+		if (isShowAnswers()) {
+			for (int i = 0; i < view.getChildrenCount(); i++) {
+				TextElementDisplay child = view.getChild(i);
+				child.reset();
+				child.setStyleShowAnswers();
+			}
+
+			this.setShowAnswersTextInGaps();
+
+			view.refreshMath();
+		}
 	}
 
 	private void hide() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = false;
 		if (view != null) {
 			view.hide();
