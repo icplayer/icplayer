@@ -98,7 +98,13 @@ export class MediaRecorder {
         this.addonState.getRecordingBlob()
             .then(blob => {
                 this.mediaState.setLoading();
-                let recording = URL.createObjectURL(blob);
+                let recording;
+                if (this.addonState.isMP3Format(blob)) {
+                    let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 this.player.setRecording(recording);
                 if (this.model.extendedMode) {
                     this.setEMRecordedStateView();

@@ -1269,7 +1269,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             Object.assign(this.addonState, JSON.parse(state));
             this.addonState.getRecordingBlob().then(function (blob) {
                 _this.mediaState.setLoading();
-                var recording = URL.createObjectURL(blob);
+                var recording = void 0;
+                if (_this.addonState.isMP3Format(blob)) {
+                    var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 _this.player.setRecording(recording);
                 if (_this.model.extendedMode) {
                     _this.setEMRecordedStateView();
@@ -2799,23 +2805,6 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
                 element.click();
             });
         }
-
-        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
-        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
-
-    }, {
-        key: "_fixArrayBuffer",
-        value: function _fixArrayBuffer() {
-            var _this2 = this;
-
-            return new Promise(function (resolve) {
-                var fr = new FileReader();
-                fr.onload = function () {
-                    resolve(fr.result);
-                };
-                fr.readAsArrayBuffer(_this2);
-            });
-        }
     }]);
 
     return DownloadButton;
@@ -3187,6 +3176,23 @@ var AddonState = exports.AddonState = function () {
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
                 var context = new AudioContext();
                 return context.decodeAudioData(arrayBuffer);
+            });
+        }
+
+        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
+        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
+
+    }, {
+        key: "_fixArrayBuffer",
+        value: function _fixArrayBuffer() {
+            var _this6 = this;
+
+            return new Promise(function (resolve) {
+                var fr = new FileReader();
+                fr.onload = function () {
+                    resolve(fr.result);
+                };
+                fr.readAsArrayBuffer(_this6);
             });
         }
     }, {
