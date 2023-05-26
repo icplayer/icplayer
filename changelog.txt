@@ -1,4 +1,7 @@
-2023-05-19 Fixed Advance Connector addon losing context of Show Answers and Hide Answers event
+2023-05-26 Fixed Advance Connector addon losing context of Show Answers and Hide Answers event
+2023-05-26 Fixed reading dots in text list
+2023-05-26 Fixed dropdownClicked event received behaviour in Audio, TextAudio, Video and MultiAudio addon when paused
+2023-05-26 Fixed hierarchical lesson report incorrectly restoring state when some pages/chapters are not reportable
 2023-05-18 Fixed reading stoppage (TTS)
 2023-05-16 Changed Text and Choice module do not reset visibility for Gradual Hide Answers
 2023-05-16 Fixed issue with show and hide in Text when in showAnswers mode

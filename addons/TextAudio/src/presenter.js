@@ -115,10 +115,18 @@ function AddonTextAudio_create() {
     };
 
     presenter.onEventReceived = function AddonTextAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
+        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing && !isTemporarilyPaused()) {
             presenter.audio.load();
         }
     };
+
+    function isTemporarilyPaused() {
+        return (presenter.audio.paused
+            && presenter.audio.readyState > 2
+            && presenter.audio.currentTime > 0
+            && !presenter.audio.ended
+        );
+    }
 
     presenter.showLoadingArea = function AddonTextAudio_showLoadingArea (clickAction) {
         if (clickAction === 'play_vocabulary_interval' && presenter.buzzAudio.length === 0 && !MobileUtils.isMobileUserAgent(navigator.userAgent)) {
