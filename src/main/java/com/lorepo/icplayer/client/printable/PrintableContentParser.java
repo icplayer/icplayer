@@ -466,7 +466,9 @@ public class PrintableContentParser {
 
 	private void continueGeneratePrintableHTML(JavaScriptObject element) {
 		updateAsyncModules(element);
-		updateImageSizes(element);
+		int maxHeight = getA4HeightInPixels(12);
+		int maxWidth =	getA4WidthInPixels(12);
+		updateImageSizes(element, maxHeight, maxWidth);
 		List<String> pageHTMLs = getModuleHTMLsFromWrapper(element);
 		String result = paginatePageHTMLs(pageHTMLs);
 		removeJSElement(element);
@@ -970,14 +972,25 @@ public class PrintableContentParser {
 		return resultArray;
 	}-*/;
 
-	private native void updateImageSizes(JavaScriptObject wrapper)/*-{
+	private native void updateImageSizes(JavaScriptObject wrapper, int maxHeight, int maxWidth)/*-{
 		var $_ = $wnd.$;
 		var $outerWrapper = $_(wrapper);
 		$outerWrapper.find('img').each(function(){
 			var $this = $_(this);
 			if (!$this.parent().hasClass('printable_ic_image') && this.naturalHeight) {
-				$this.css('height', this.naturalHeight + 'px');
-				$this.css('width', this.naturalWidth + 'px');
+				var height = this.naturalHeight;
+				var width = this.naturalWidth;
+				if (width > maxWidth && width/maxWidth > height/maxHeight) {
+					height = maxWidth * height/width; 1031 * 2000/702
+					width = maxWidth;
+					$this.css('object-fit','scale-down');
+				} else if (height > maxHeight && height/maxHeight > width/maxWidth) {
+					width = maxHeight * width/height;
+					height = maxHeight;
+					this.css('object-fit','scale-down');
+				}
+				$this.css('height', height + 'px');
+				$this.css('width', width + 'px');
 			}
 		});
 	}-*/;
