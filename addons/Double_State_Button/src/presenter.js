@@ -41,6 +41,7 @@ function AddonDouble_State_Button_create(){
         upgradedModel = presenter.addImageAlternativeText(upgradedModel);
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addTTS(upgradedModel);
+        upgradedModel = presenter.addRenderSVGAsHTML(upgradedModel);
 
         return upgradedModel;
     };
@@ -90,6 +91,17 @@ function AddonDouble_State_Button_create(){
                 deselectButton: {deselectButton: DEFAULT_TTS_PHRASES.DESELECT_BUTTON},
                 speechTextDisabled: {speechTextDisabled: "False"}
             };
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addRenderSVGAsHTML = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!model.hasOwnProperty('renderSVGAsHTML')) {
+            upgradedModel['renderSVGAsHTML'] = 'False';
         }
 
         return upgradedModel;
@@ -209,6 +221,41 @@ function AddonDouble_State_Button_create(){
         $(element).append(imageElement);
     }
 
+    function createSVGElement(element) {
+        const url = presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image;
+        const sanitizeUrl = window.xssUtils.sanitize(url);
+        $.ajax({
+           url: sanitizeUrl,
+           success: function (data) { onLoadCompleted(data, element); },
+           error: function (data) { onLoadFailed(data); },
+           dataType: 'xml'
+        });
+    }
+
+    function onLoadCompleted(data, element) {
+        const el = $(data).find('svg');
+        if (el.length === 0) { return; }
+
+        let cw = el.attr('width') ? el.attr('width') : presenter.configuration.width;
+        let ch = el.attr('height') ? el.attr('height') : presenter.configuration.height;
+
+        //fit size of svg
+        cw = cw.replace("px", "");
+        ch = ch.replace("px", "");
+
+        el.attr('viewBox', '0 0 ' + cw + ' ' + ch);
+        el.attr('width', '100%');
+        el.attr('height', '100%');
+
+        const svgData = data.childNodes;
+        $(element).html(svgData);
+        createTextElement(element);
+    }
+
+    function onLoadFailed(data) {
+        console.error('Error occurred on loading SVG file: ', data);
+    }
+
     function createTextElement(element) {
         var textElement = document.createElement('span');
         $(textElement).addClass('doublestate-button-text');
@@ -221,9 +268,12 @@ function AddonDouble_State_Button_create(){
         var element = document.createElement('div');
         $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
-        createImageElement(element);
-        createTextElement(element);
-
+        if (presenter.configuration.renderSVGAsHTML) {
+            createSVGElement(element);
+        } else {
+            createImageElement(element);
+            createTextElement(element);
+        }
         wrapper.append(element);
 
         return element;
@@ -533,6 +583,9 @@ function AddonDouble_State_Button_create(){
         var isSelected = ModelValidationUtils.validateBoolean(model.isSelected);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         var enableCheckMode = ModelValidationUtils.validateBoolean(model["Do not block in check mode"]);
+        var renderSVGAsHTML = ModelValidationUtils.validateBoolean(model.renderSVGAsHTML);
+        var width = ModelValidationUtils.validateInteger(model.Width);
+        var height = ModelValidationUtils.validateInteger(model.Height);
 
         presenter.setSpeechTexts(model['speechTexts']);
 
@@ -561,7 +614,10 @@ function AddonDouble_State_Button_create(){
             isErrorMode: false,
             isTabindexEnabled: isTabindexEnabled,
             enableCheckMode: enableCheckMode,
-            langTag: langTag
+            langTag: langTag,
+            renderSVGAsHTML: renderSVGAsHTML,
+            width: width,
+            height: height
         };
     };
 
