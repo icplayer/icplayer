@@ -443,7 +443,7 @@ function AddonZoom_Image_create() {
         model = presenter.upgradeModel(model);
         var $root = $('<div></div>');
         $root.attr('id',model.ID);
-        $root.addClass('printable_addon_Heading');
+        $root.addClass('printable_addon_Zoom_Image');
 
 
         var $img = $('<img></img>');
