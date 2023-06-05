@@ -3175,7 +3175,11 @@ var AddonState = exports.AddonState = function () {
             }).then(function (arrayBuffer) {
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
                 var context = new AudioContext();
-                return context.decodeAudioData(arrayBuffer);
+                return new Promise(function (resolve) {
+                    context.decodeAudioData(arrayBuffer, function (buffer) {
+                        resolve(buffer);
+                    });
+                });
             });
         }
 

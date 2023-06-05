@@ -90,7 +90,12 @@ export class AddonState {
         .then(arrayBuffer => {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             var context = new AudioContext();
-            return context.decodeAudioData(arrayBuffer);
+            return new Promise(resolve => {
+                context.decodeAudioData(
+                    arrayBuffer,
+                    (buffer) => { resolve(buffer); }
+                )
+            })
         })
     }
 
