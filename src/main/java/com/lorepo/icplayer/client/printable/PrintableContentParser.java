@@ -981,7 +981,7 @@ public class PrintableContentParser {
 				var height = this.naturalHeight;
 				var width = this.naturalWidth;
 				if (width > maxWidth && width/maxWidth > height/maxHeight) {
-					height = maxWidth * height/width; 1031 * 2000/702
+					height = maxWidth * height/width;
 					width = maxWidth;
 					$this.css('object-fit','scale-down');
 				} else if (height > maxHeight && height/maxHeight > width/maxWidth) {
