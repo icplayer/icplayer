@@ -910,14 +910,14 @@ function AddonHierarchical_Lesson_Report_create() {
     function saveTreeState() {
         var state = [];
         $('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
-            state.push($(this).treegrid('isExpanded'))
+            state.push($(this).treegrid('isExpanded'));
         });
         return state;
     }
 
     function restoreTreeState(state) {
-        $('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function () {
-            $(this).treegrid(state[$(this).treegrid('getNodeId')] ? 'expand' : 'collapse');
+        $('.hier_report table').find('tr').not('.hier_report-header').not('.hier_report-footer').each(function (index) {
+            $(this).treegrid(state[index] ? 'expand' : 'collapse');
         });
     }
 
