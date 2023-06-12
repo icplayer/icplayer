@@ -24,6 +24,10 @@ function AddonDouble_State_Button_create(){
         DESELECT_BUTTON: "deselected"
     };
 
+    const ERROR_MESSAGES = {
+        INVALID_FILE: 'Invalid SVG file',
+    };
+
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.MOUSE_CLICK + " " +
             CSS_CLASSES.SELECTED + " " + CSS_CLASSES.SELECTED_MOUSE_HOVER + " " + CSS_CLASSES.SELECTED_MOUSE_CLICK;
@@ -214,47 +218,126 @@ function AddonDouble_State_Button_create(){
         DOMOperationsUtils.setReducedSize(wrapper, element);
     }
 
-    function createImageElement(element) {
+    function createImageElement(element, shouldDisplayImage = true) {
         var imageElement = document.createElement('img');
         $(imageElement).addClass('doublestate-button-image');
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
+
+        if(!shouldDisplayImage) {
+            hideImageElement(element);
+        }
+
         $(element).append(imageElement);
     }
 
     function createSVGElement(element) {
         const url = presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image;
         const sanitizeUrl = window.xssUtils.sanitize(url);
+
         $.ajax({
-           url: sanitizeUrl,
-           success: function (data) { onLoadCompleted(data, element); },
-           error: function (data) { onLoadFailed(data); },
-           dataType: 'xml'
+            url: sanitizeUrl,
+            success: function (data) {
+                onLoadCompleted(data, element);
+            },
+            error: function () {
+                presenter.showErrorMessage();
+            },
+            dataType: 'xml'
         });
     }
 
+    function createSVGElementFromCSSUrl(element) {
+        setTimeout(() => {
+            const _el = presenter.$view.find('div[class*=doublestate-button-element]:first');
+            if (!_el) { return; }
+
+            const url = _el.css('background-image');
+            const sanitizeUrl = getURLFromAbsolutePath(url);
+
+            $.ajax({
+                url: sanitizeUrl,
+                success: function (data) {
+                    removeImageElement(element);
+                    onLoadCompleted(data, element);
+                },
+                error: function (err) {
+                    presenter.showErrorMessage(err);
+                }
+            });
+        }, 200);
+    }
+
+    function getURLFromAbsolutePath(absolutePath) {
+        const regExp = new RegExp(".*\\.com(\\/)file");
+        const urlMatch = absolutePath.match(regExp);
+        const startURLIndex = urlMatch[0].lastIndexOf('/');
+        const endURLIndex = absolutePath.lastIndexOf('"');
+
+        return absolutePath.slice(startURLIndex, endURLIndex);
+    }
+
+    function removeImageElement(element) {
+        const imageElement = $(element).find('doublestate-button-element');
+        const $imageElement = $(imageElement.context);
+        $imageElement.attr('style', 'background-image: none !important');
+    }
+
+    function hideImageElement(element) {
+        const imageElement = $(element).find('doublestate-button-element');
+        const $imageElement = $(imageElement.context);
+        $imageElement.attr('style', 'visibility: hidden !important');
+    }
+
     function onLoadCompleted(data, element) {
-        const el = $(data).find('svg');
-        if (el.length === 0) { return; }
+        const svgElement = $(data).find('svg');
+        if (svgElement.length === 0) {
+            presenter.showErrorMessage();
+            return;
+        }
 
-        let cw = el.attr('width') ? el.attr('width') : presenter.configuration.width;
-        let ch = el.attr('height') ? el.attr('height') : presenter.configuration.height;
+        const svgWidth = getElementWidth(svgElement);
+        const svgHeight = getElementHeight(svgElement);
 
-        //fit size of svg
-        cw = cw.replace("px", "");
-        ch = ch.replace("px", "");
-
-        el.attr('viewBox', '0 0 ' + cw + ' ' + ch);
-        el.attr('width', '100%');
-        el.attr('height', '100%');
+        svgElement.attr('viewBox', '0 0 ' + svgWidth + ' ' + svgHeight);
+        svgElement.attr('width', '100%');
+        svgElement.attr('height', '100%');
 
         const svgData = data.childNodes;
         $(element).html(svgData);
         createTextElement(element);
     }
 
-    function onLoadFailed(data) {
-        console.error('Error occurred on loading SVG file: ', data);
+    function getElementWidth(HTMLElement) {
+        const width = HTMLElement.attr('width');
+        const widthFromRectTag = HTMLElement.find('rect').attr('width');
+
+        if (width) {
+            return width.replace('px', '');
+        } else if (widthFromRectTag) {
+            return widthFromRectTag.replace('px', '');
+        } else {
+            return presenter.configuration.width;
+        }
     }
+
+    function getElementHeight(HTMLElement) {
+        const height = HTMLElement.attr('width');
+        const heightFromRectTag = HTMLElement.find('rect').attr('width');
+
+        if (height) {
+            return height.replace('px', '');
+        } else if (heightFromRectTag) {
+            return heightFromRectTag.replace('px', '');
+        } else {
+            return presenter.configuration.height;
+        }
+    }
+
+    presenter.showErrorMessage = function() {
+        const errorContainer = '<p>' + ERROR_MESSAGES.INVALID_FILE + '</p>';
+
+        presenter.$view.html(errorContainer);
+    };
 
     function createTextElement(element) {
         var textElement = document.createElement('span');
@@ -265,15 +348,20 @@ function AddonDouble_State_Button_create(){
     }
 
     function createElements(wrapper) {
-        var element = document.createElement('div');
+        const element = document.createElement('div');
+        const atLeastOneImgIsAvailable = presenter.configuration.selected.image || presenter.configuration.deselected.image;
         $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
-        if (presenter.configuration.renderSVGAsHTML) {
+        if (!atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
+            createImageElement(element, false);
+            createSVGElementFromCSSUrl(element);
+        } else if (atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
             createSVGElement(element);
         } else {
             createImageElement(element);
             createTextElement(element);
         }
+
         wrapper.append(element);
 
         return element;
@@ -584,8 +672,8 @@ function AddonDouble_State_Button_create(){
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         var enableCheckMode = ModelValidationUtils.validateBoolean(model["Do not block in check mode"]);
         var renderSVGAsHTML = ModelValidationUtils.validateBoolean(model.renderSVGAsHTML);
-        var width = ModelValidationUtils.validateInteger(model.Width);
-        var height = ModelValidationUtils.validateInteger(model.Height);
+        var width = +model.Width;
+        var height = +model.Height;
 
         presenter.setSpeechTexts(model['speechTexts']);
 
