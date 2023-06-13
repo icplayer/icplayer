@@ -1156,6 +1156,8 @@ function AddonColoring_create(){
     };
 
     presenter.getState = function(){
+        const wasAnswersShow = presenter.isShowAnswersActive;
+        const lastAreaIdInGSAMode = presenter.currentAreaIdInGSAMode;
 
         if (!presenter.isCanvasInitiated && presenter.initialState != null) {
             return presenter.initialState;
@@ -1197,6 +1199,12 @@ function AddonColoring_create(){
             errorCount: presenter.getErrorCount(),
             userAreas: userAreas
         };
+
+        if (wasAnswersShow) {
+            presenter.currentAreaIdInGSAMode = lastAreaIdInGSAMode;
+            presenter.showAnswersAgain();
+        }
+
         return JSON.stringify(state);
     };
 
@@ -1485,6 +1493,21 @@ function AddonColoring_create(){
 
         presenter.deactivateShowAnswersMode();
     };
+
+    presenter.showAnswersAgain = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            if (!presenter.isShowAnswersActive) {
+                presenter.activateShowAnswersMode();
+            }
+
+            for(let i=0; i<presenter.currentAreaIdInGSAMode; i++) {
+                const area = presenter.configuration.areas[i];
+                presenter.fillAreaWithCorrectColor(area);
+            }
+        } else {
+            presenter.showAnswers();
+        }
+    }
 
     presenter.activateShowAnswersMode = function () {
         presenter.isShowErrorsModeActive = false;
