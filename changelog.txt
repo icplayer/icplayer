@@ -1,4 +1,9 @@
-2023-06-05 Fixed Show Answers with mistake counter activated in Points and Lines
+2023-06-07 Fixed Show Answers with mistake counter activated in Points and Lines
+2023-06-07 Fixed keyboard navigation not working correctly when there's a mix of draggable and editable gaps in Text
+2023-06-01 Fixed audio in Choice not working on mobile
+2023-05-31 Added printing support for Zoom Image
+2023-05-31 Fixed dragging out responses from draggable gap after changing page in Table addon
+2023-05-31 Added renderSVGAsHTML property to Double State Button letting creating SVG file from data
 2023-05-26 Fixed Advance Connector addon losing context of Show Answers and Hide Answers event
 2023-05-26 Fixed reading dots in text list
 2023-05-26 Fixed dropdownClicked event received behaviour in Audio, TextAudio, Video and MultiAudio addon when paused

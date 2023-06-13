@@ -47,7 +47,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private String originalDisplay = "";
 	private boolean isPreview = false;
 	private NavigationTextElement activatedNavigationElement = null;
-	
+
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
@@ -63,7 +63,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public void mathJaxLoaded() {
 		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
-	
+
 	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
@@ -72,14 +72,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
-		
+
 		if (this.module.isTabindexEnabled()) {
 			this.getElement().setTabIndex(0);
 		}
-		
+
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
-	
+
 	public void mathJaxIsLoadedCallback() {
         if (!this.mathJaxIsLoaded) {
             this.mathJaxIsLoaded = true;
@@ -99,7 +99,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void connectInlineChoices (List<InlineChoiceInfo> InlineChoiceList) {
 		final int gapWidth = module.getGapWidth();
-		
+
 		for (InlineChoiceInfo ic: InlineChoiceList) {
 			inlineChoiceInfoArrayList.add(ic);
 			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener,this);
@@ -107,14 +107,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
-			
+
 			gap.setDisabled(module.isDisabled());
-			
+
 			textElements.add(gap);
 			navigationTextElements.add(gap);
 		}
 	}
-	
+
 	private void setPageControllerToInLineChoices () {
 		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
 			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener,this);
@@ -131,7 +131,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
-			
+
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 			navigationTextElements.add(gap);
@@ -146,15 +146,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			try {
 				GapWidget gap = new GapWidget(gi, listener);
 				gap.setIgnorePlaceholder(module.ignoreDefaultPlaceholderWhenCheck());
-				
+
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
-				
+
 				if (!module.isOldGapSizeCalculation()) {
 					setSizeAttributeToLongestAnswerSize(gap, gi);
 				}
-				
+
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
@@ -179,7 +179,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
-				
+
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 			} catch (Exception e) {
@@ -340,23 +340,23 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 		return -1;
 	}
-	
+
 	public void sortGapsOrder () {
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = navigationTextElements.size();
-		
+
 		if (gapsOrderSize == 0 && textElementsSize != gapsOrderSize) {
 			return;
 		}
-		
+
 		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
 			final String gapType = gapsOrder.get(i);
 			final String currentGapType = navigationTextElements.get(i).getElementType();
-			
+
 			if (gapType != currentGapType) {
 				int correctElementId = getIndexOfNextGapType(i, gapType, navigationTextElements);
-				
+
 				if (correctElementId != -1) {
 					navigationTextElements.add(i, navigationTextElements.get(correctElementId));
 					navigationTextElements.remove(correctElementId+1);
@@ -451,7 +451,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 		super.setHTML(html);
 	}
-	
+
 	public void setValue(String text) {
 		super.setHTML(text);
 		this.module.setText(text);
@@ -495,7 +495,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			rerenderMathJax();
 		}
 	}
-	
+
 	private void reconnectHandlers () {
 		for (GapWidget element: this.gapsWidgets) {
 			element.reconnectHandlers(this.listener);
@@ -505,7 +505,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private int getTextElementsSize() {
 		return textElements.size();
 	}
-	
+
 	private void removeAllSelections () {
 		for (TextElementDisplay element: this.textElements) {
 			element.deselect();
@@ -517,7 +517,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			element.deselect();
 		}
 	}
-	
+
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -599,11 +599,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void move (boolean goNext) {
 		int size = navigationTextElements.size();
 		boolean hasAchievedMaximum = false;
-		
+
 		if (size == 0) {
 			return;
 		}
-		
+
 		this.removeNavigationElementSelections();
 		int nextGapIndex = goNext ? activeNavigationGapIndex + 1 : activeNavigationGapIndex - 1;
 
@@ -622,18 +622,18 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (!(activeElement instanceof LinkWidget)) {
 				focusOnNextGap();
 			}
-			
+
 		} else if (!goNext && activeNavigationGapIndex > 0) {
 			activeNavigationGapIndex--;
 			if (!(activeElement instanceof LinkWidget)) {
 				focusOnPrevGap();
 			}
 		}
-		
+
 		this.activatedNavigationElement = activeElement;
 		activeElement.setElementFocus(true);
 		moduleHasFocus = true;
-		
+
 		this.readNavigationText(activeElement, activeGapIndex);
 	}
 
@@ -652,7 +652,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
 	}
-	
+
 	@Override
 	public void left (KeyDownEvent event) {
 		inlineChoiceChangeSelected(event, false);
@@ -665,19 +665,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void down (KeyDownEvent event) {
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
-			event.preventDefault(); 
+		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+			event.preventDefault();
 		}
-				
+
 	inlineChoiceChangeSelected(event, true);
 	}
 
 	@Override
-	public void up (KeyDownEvent event) {		
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
-			event.preventDefault(); 
+	public void up (KeyDownEvent event) {
+		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+			event.preventDefault();
 		}
-		
+
 		inlineChoiceChangeSelected(event, false);
 	}
 
@@ -697,9 +697,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
-			event.preventDefault(); 
+			event.preventDefault();
 		}
-				
+
 	    if(!WCAGUtils.hasGaps(this.module)){ // text without gaps
 	        event.preventDefault();
 	    }
@@ -738,8 +738,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
-		if (isWCAGon && activeGap!=null && activeGap.getGapType().equals("dropdown")) {
-			InlineChoiceWidget icw = (InlineChoiceWidget) activeGap;
+		if (isWCAGon && activatedNavigationElement!=null && activatedNavigationElement.getElementType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) activatedNavigationElement;
 			if (icw.getPageController() == null){
 				icw.setPageController(this.pageController);
 			};
