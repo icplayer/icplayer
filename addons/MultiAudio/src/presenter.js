@@ -27,7 +27,7 @@ function AddonMultiAudio_create(){
     
     presenter.onEventReceived = function(eventName, eventData) {
         if (eventName == "ValueChanged") {
-            if (eventData.value == 'dropdownClicked') {
+            if (eventData.value == 'dropdownClicked' && !presenter.audio.playing && !isTemporarilyPaused()) {
                 this.audio.load();
             }
         }else if (eventName == "ItemConsumed") {
@@ -62,6 +62,14 @@ function AddonMultiAudio_create(){
             this.applySelectedClass(itemID);
         }
     };
+
+    function isTemporarilyPaused() {
+        return (presenter.audio.paused
+            && presenter.audio.readyState > 2
+            && presenter.audio.currentTime > 0
+            && !presenter.audio.ended
+        );
+    }
 
     function getItemIdFromEvent(eventDataItem) {
         var addonAndItemIds = eventDataItem.split('-');
@@ -236,6 +244,12 @@ function AddonMultiAudio_create(){
                 presenter.createDraggableItems(model['Files']);
                 break;
         }
+
+        Object.defineProperty(presenter.audio, 'playing', {
+            get: function () {
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
     };
 
     presenter.createDraggableItems = function(filesModel) {

@@ -15,7 +15,9 @@ function AddonAdvanced_Connector_create() {
         'Done',
         'AllAttempted',
         'NotAllAttempted',
-        'LimitedCheck'
+        'LimitedCheck',
+        'GradualShowAnswers',
+        'GradualHideAnswers',
     ];
 
     presenter.setPlayerController = function (controller) {
@@ -27,11 +29,12 @@ function AddonAdvanced_Connector_create() {
             return;
         }
         var i, length;
-        event = presenter.fillEventData(eventData, eventName);
+        let filledEventData = presenter.fillEventData(eventData, eventName);
 
         try {
-            var filteredEvents = presenter.filterEvents(presenter.events, event);
+            var filteredEvents = presenter.filterEvents(presenter.events, filledEventData);
             for (i = 0, length = filteredEvents.length; i < length; i++) {
+                event = filledEventData;
                 eval(filteredEvents[i].Code);
             }
         } catch (error) {
