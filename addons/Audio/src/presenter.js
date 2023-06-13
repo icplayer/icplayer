@@ -31,10 +31,18 @@ function AddonAudio_create(){
     presenter.mouseData = {};
 
     presenter.onEventReceived = function AddonAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
+        if (eventData.value == 'dropdownClicked' && !presenter.audio.playing && !isTemporarilyPaused()) {
             presenter.audio.load();
         }
     };
+
+    function isTemporarilyPaused() {
+        return (presenter.audio.paused
+            && presenter.audio.readyState > 2
+            && presenter.audio.currentTime > 0
+            && !presenter.audio.ended
+        );
+    }
 
     presenter.setPlayerController = function AddonAudio_setPlayerController (controller) {
         presenter.playerController = controller;

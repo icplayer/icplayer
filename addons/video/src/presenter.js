@@ -312,11 +312,19 @@ function Addonvideo_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
-        if (eventData.value === 'dropdownClicked' && !presenter.videoObject.playing) {
+        if (eventData.value === 'dropdownClicked' && !presenter.videoObject.playing && !isTemporarilyPaused()) {
             presenter.metadadaLoaded = false;
             presenter.videoObject.load();
         }
     };
+
+    function isTemporarilyPaused() {
+        return (presenter.videoObject.paused
+            && presenter.videoObject.readyState > 2
+            && presenter.videoObject.currentTime > 0
+            && !presenter.videoObject.ended
+        );
+    }
 
     presenter.createEndedEventData = function (currentVideo) {
         return {
