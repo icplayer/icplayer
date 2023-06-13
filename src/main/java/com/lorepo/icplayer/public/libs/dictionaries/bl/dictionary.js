@@ -2179,6 +2179,7 @@ var ice_dictionary_bl = {
 	"Double_State_Button_property_image_alternative_text": "Алтернативен текст към изображението",
 	"Double_State_Button_property_image_selected_alternative_text": "Алтернативен текст към маркирано изображение",
 	"Double_state_button_speech_text_disabled": "Не чети текстовете за изговаряне",
+	"Double_state_button_render_SVG_as_HTML": "Render SVG as HTML",
     "copy_page_layout": "Настройки за копиране на страницата",
     "copy_page_layout_question": "Настройките на страницата ще бъдат копирани от оформлението: ",
 	"Double_state_button_speech_text_disabled": "Do not read the Speech texts",
