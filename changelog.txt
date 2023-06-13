@@ -1,3 +1,4 @@
+2023-06-07 Fixed keyboard navigation not working correctly when there's a mix of draggable and editable gaps in Text
 2023-06-01 Fixed audio in Choice not working on mobile
 2023-05-31 Added printing support for Zoom Image
 2023-05-31 Fixed dragging out responses from draggable gap after changing page in Table addon
