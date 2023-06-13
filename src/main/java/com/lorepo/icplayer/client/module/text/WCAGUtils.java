@@ -262,8 +262,9 @@ public class WCAGUtils {
 
 	private static String removeSeparatedPunctation(String text) {
 		String textWithoutSeparatedDots = removeSeparatedDots(text);
+		String textWithClearedAltText = removePunctation(textWithoutSeparatedDots);
 
-		return removeComma(textWithoutSeparatedDots);
+		return removeComma(textWithClearedAltText);
 	}
 
 	private static String removeSeparatedDots(String text) {
@@ -281,6 +282,28 @@ public class WCAGUtils {
 			if (matchResult.getGroupCount() > 0) {
 				String group = matchResult.getGroup(0);
 				replacedText = group.replace(",", "");
+				parsedText = parsedText.replaceFirst(pattern, replacedText);
+			} else {
+				break;
+			}
+		}
+
+		return parsedText;
+	}
+
+	private static String removePunctation(String text) {
+		final String pattern = "[a-z](\\.\\s*)\\\\alt\\{";
+		RegExp gapRegExp = RegExp.compile(pattern);
+		MatchResult matchResult;
+		String replacedText;
+		String parsedText = text;
+
+		while ((matchResult = gapRegExp.exec(parsedText)) != null) {
+			if (matchResult.getGroupCount() > 0) {
+				String group = matchResult.getGroup(0);
+				replacedText = group
+								.replaceAll("\\s", "")
+								.replace(".", " \\\\");
 				parsedText = parsedText.replaceFirst(pattern, replacedText);
 			} else {
 				break;

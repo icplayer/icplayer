@@ -2168,6 +2168,7 @@ var ice_dictionary_fr = {
     "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
     "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked",
     "Double_state_button_property_lang_attribute": "Lang attribute",
+    "Double_state_button_render_SVG_as_HTML": "Render SVG as HTML",
     "Double_state_button_speech_texts": "Speech texts",
     "Double_state_button_speech_text_select": "Selected",
     "Double_state_button_speech_text_deselect": "Deselected",
