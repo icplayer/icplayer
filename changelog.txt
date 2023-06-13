@@ -1,3 +1,4 @@
+2023-05-31 Added printing support for Zoom Image
 2023-05-31 Fixed dragging out responses from draggable gap after changing page in Table addon
 2023-05-31 Added renderSVGAsHTML property to Double State Button letting creating SVG file from data
 2023-05-26 Fixed Advance Connector addon losing context of Show Answers and Hide Answers event
