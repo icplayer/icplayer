@@ -318,15 +318,32 @@ var BlobService = exports.BlobService = function () {
             return new Blob(byteArrays, { type: contentType });
         }
     }, {
+        key: "getMp3BlobFromDecodedDataByWorker",
+        value: function getMp3BlobFromDecodedDataByWorker(worker, decodedData) {
+            var buffers = this.prepareSampleBuffers(decodedData);
+            var left = buffers[0];
+            var right = buffers[1];
+
+            return worker.execute(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+        }
+    }, {
         key: "getMp3BlobFromDecodedData",
         value: function getMp3BlobFromDecodedData(decodedData) {
+            var buffers = this.prepareSampleBuffers(decodedData);
+            var left = buffers[0];
+            var right = buffers[1];
+
+            return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+        }
+    }, {
+        key: "prepareSampleBuffers",
+        value: function prepareSampleBuffers(decodedData) {
             var left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
             var right = left;
             if (decodedData.numberOfChannels === 2) {
                 right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
             }
-
-            return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+            return [left, right];
         }
     }, {
         key: "_encode",
@@ -1169,6 +1186,8 @@ var _ExtendedKeyboardController = __webpack_require__(49);
 
 var _CssClasses = __webpack_require__(0);
 
+var _MP3ConvertHandler = __webpack_require__(50);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MediaRecorder = exports.MediaRecorder = function () {
@@ -1179,6 +1198,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         this.isMlibro = false;
         this.isWCAGOn = false;
         this.keyboardControllerObject = null;
+        this.mp3ConvertHandler = null;
     }
 
     _createClass(MediaRecorder, [{
@@ -1194,7 +1214,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
-            } else if (validatedModel.isValid) this._runAddon(view, validatedModel.value);else this._showError(view, validatedModel);
+            } else if (validatedModel.isValid) {
+                this.mp3ConvertHandler = new _MP3ConvertHandler.MP3ConvertHandler(this.playerController);
+                this._runAddon(view, validatedModel.value);
+            } else {
+                this._showError(view, validatedModel);
+            }
 
             this._executeNotification(JSON.stringify({ type: "platform", target: this.model.ID }));
             this._buildKeyboardController();
@@ -1234,7 +1259,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "getState",
         value: function getState() {
-            return JSON.stringify(this.addonState);
+            return this.addonState.getState();
         }
     }, {
         key: "setState",
@@ -1244,7 +1269,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             Object.assign(this.addonState, JSON.parse(state));
             this.addonState.getRecordingBlob().then(function (blob) {
                 _this.mediaState.setLoading();
-                var recording = URL.createObjectURL(blob);
+                var recording = void 0;
+                if (_this.addonState.isMP3Format(blob)) {
+                    var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 _this.player.setRecording(recording);
                 if (_this.model.extendedMode) {
                     _this.setEMRecordedStateView();
@@ -1297,6 +1328,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.addonState.destroy();
             this.mediaState.destroy();
             this.activationState.destroy();
+            this.mp3ConvertHandler.destroy();
 
             this.viewHandlers = null;
             this.defaultRecordingPlayButton = null;
@@ -1323,6 +1355,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.playerController = null;
             this.keyboardControllerObject = null;
+            this.mp3ConvertHandler = null;
             this.view = null;
             this.model = null;
         }
@@ -1431,6 +1464,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaState = new _MediaState.MediaState();
             this.activationState = new _ActivationState.ActivationState();
             this.addonState = new _AddonState.AddonState();
+            this.addonState.setMP3ConvertHandler(this.mp3ConvertHandler);
         }
     }, {
         key: "_loadViewHandlers",
@@ -1628,7 +1662,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
                             var recording = URL.createObjectURL(blob);
                             _this2.player.reset();
                             _this2.player.setRecording(recording);
-                        });
+
+                            return blob;
+                        }).then(function (wavBlob) {
+                            return _this2.addonState.convertWavBlobToMP3BlobByWorker(wavBlob);
+                        }).then(function (mp3Blob) {
+                            _this2.addonState.setRecordingBlob(mp3Blob);
+                        }, function () {});
                     }
                     _this2.resourcesProvider.destroy();
                 }
@@ -1892,6 +1932,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             return {
                 validateModel: _validateModel.validateModel,
                 ActivationState: _ActivationState.ActivationState,
+                AddonState: _AddonState.AddonState,
                 AudioLoader: _AudioLoader.AudioLoader,
                 PlayButton: _PlayButton.PlayButton,
                 RecordButton: _RecordButton.RecordButton,
@@ -1900,7 +1941,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 Timer: _Timer.Timer,
                 AudioPlayer: _AudioPlayer.AudioPlayer,
                 DownloadButton: _DownloadButton.DownloadButton,
-                SoundIntensity: _SoundIntensity.SoundIntensity
+                SoundIntensity: _SoundIntensity.SoundIntensity,
+                MP3ConvertHandler: _MP3ConvertHandler.MP3ConvertHandler
             };
         }
     }, {
@@ -2745,24 +2787,12 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
     }, {
         key: "downloadRecording",
         value: function downloadRecording() {
-            var _this2 = this;
-
             var element = document.createElement("a");
             element.setAttribute("id", "dl");
             element.setAttribute("download", "recording.mp3");
             element.setAttribute("href", "#");
 
-            this.addonState.getRecordingBlob().then(function (blob) {
-                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this2._fixArrayBuffer;
-                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this2._fixArrayBuffer;
-
-                return blob.arrayBuffer();
-            }).then(function (arrayBuffer) {
-                window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                var context = new AudioContext();
-                return context.decodeAudioData(arrayBuffer);
-            }).then(function (decodedData) {
-                var mp3Blob = _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
+            this.addonState.getMP3Blob().then(function (mp3Blob) {
                 return _BlobService.BlobService.serialize(mp3Blob);
             }).then(function (b64Recording) {
                 function handleDownloadRecording() {
@@ -2773,23 +2803,6 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
                 }
                 element.onclick = handleDownloadRecording;
                 element.click();
-            });
-        }
-
-        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
-        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
-
-    }, {
-        key: "_fixArrayBuffer",
-        value: function _fixArrayBuffer() {
-            var _this3 = this;
-
-            return new Promise(function (resolve) {
-                var fr = new FileReader();
-                fr.onload = function () {
-                    resolve(fr.result);
-                };
-                fr.readAsArrayBuffer(_this3);
             });
         }
     }]);
@@ -3063,9 +3076,15 @@ var AddonState = exports.AddonState = function () {
         this.recording = null;
         this.visibility = null;
         this.enabled = null;
+        this.mp3ConvertHandler = null;
     }
 
     _createClass(AddonState, [{
+        key: "setMP3ConvertHandler",
+        value: function setMP3ConvertHandler(handler) {
+            this.mp3ConvertHandler = handler;
+        }
+    }, {
         key: "setRecordingBlob",
         value: function setRecordingBlob(blob) {
             var _this = this;
@@ -3094,22 +3113,90 @@ var AddonState = exports.AddonState = function () {
             return this.recording == null;
         }
     }, {
+        key: "isMP3Format",
+        value: function isMP3Format(blob) {
+            return !this.isEmpty() && blob.type.includes("audio/mpeg");
+        }
+    }, {
+        key: "isWAVFormat",
+        value: function isWAVFormat(blob) {
+            return !this.isEmpty() && blob.type.includes("audio/wav");
+        }
+    }, {
         key: "getMP3File",
         value: function getMP3File() {
+            return this.getMP3Blob().then(function (mp3Blob) {
+                return new File([mp3Blob], "recording.mp3");
+            });
+        }
+    }, {
+        key: "getMP3Blob",
+        value: function getMP3Blob() {
             var _this3 = this;
 
             return this.getRecordingBlob().then(function (blob) {
-                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this3._fixArrayBuffer;
-                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this3._fixArrayBuffer;
+                if (_this3.isMP3Format(blob)) {
+                    return blob;
+                }
+                if (!!_this3.mp3ConvertHandler && _this3.mp3ConvertHandler.isSupported() && _this3.mp3ConvertHandler.isValid && !_this3.mp3ConvertHandler.isWorkerExist()) {
+                    return _this3.convertWavBlobToMP3BlobByWorker(blob);
+                }
+                return _this3.convertWavBlobToMP3Blob(blob);
+            });
+        }
+    }, {
+        key: "convertWavBlobToMP3BlobByWorker",
+        value: function convertWavBlobToMP3BlobByWorker(wavBlob) {
+            var _this4 = this;
 
-                return blob.arrayBuffer();
+            return this.decodeVawBlobData(wavBlob).then(function (decodedData) {
+                return _BlobService.BlobService.getMp3BlobFromDecodedDataByWorker(_this4.mp3ConvertHandler, decodedData);
+            });
+        }
+    }, {
+        key: "convertWavBlobToMP3Blob",
+        value: function convertWavBlobToMP3Blob(wavBlob) {
+            return this.decodeVawBlobData(wavBlob).then(function (decodedData) {
+                return _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
+            });
+        }
+    }, {
+        key: "decodeVawBlobData",
+        value: function decodeVawBlobData(wavBlob) {
+            var _this5 = this;
+
+            return new Promise(function (resolve) {
+                resolve(wavBlob);
+            }).then(function (wavBlob) {
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this5._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this5._fixArrayBuffer;
+
+                return wavBlob.arrayBuffer();
             }).then(function (arrayBuffer) {
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
                 var context = new AudioContext();
-                return context.decodeAudioData(arrayBuffer);
-            }).then(function (decodedData) {
-                var mp3Blob = _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
-                return new File([mp3Blob], "recording.mp3");
+                return new Promise(function (resolve) {
+                    context.decodeAudioData(arrayBuffer, function (buffer) {
+                        resolve(buffer);
+                    });
+                });
+            });
+        }
+
+        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
+        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
+
+    }, {
+        key: "_fixArrayBuffer",
+        value: function _fixArrayBuffer() {
+            var _this6 = this;
+
+            return new Promise(function (resolve) {
+                var fr = new FileReader();
+                fr.onload = function () {
+                    resolve(fr.result);
+                };
+                fr.readAsArrayBuffer(_this6);
             });
         }
     }, {
@@ -3139,6 +3226,16 @@ var AddonState = exports.AddonState = function () {
             });
         }
     }, {
+        key: "getState",
+        value: function getState() {
+            var state = {
+                recording: this.recording,
+                visibility: this.visibility,
+                enabled: this.enabled
+            };
+            return JSON.stringify(state);
+        }
+    }, {
         key: "reset",
         value: function reset() {
             this.recording = null;
@@ -3151,6 +3248,7 @@ var AddonState = exports.AddonState = function () {
             this.recording = null;
             this.visibility = null;
             this.enabled = null;
+            this.mp3ConvertHandler = null;
         }
     }]);
 
@@ -4868,6 +4966,141 @@ var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (
 
     return ExtendedKeyboardController;
 }(_BaseKeyboardController.BaseKeyboardController);
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
+    function MP3ConvertHandler(playerController) {
+        _classCallCheck(this, MP3ConvertHandler);
+
+        this.worker = null;
+        this.scriptURL = null;
+        this.isValid = false;
+        this.validationTimoutID = null;
+
+        if (!this.isSupported()) {
+            console.log('Your browser doesn\'t support web workers.');
+            return;
+        }
+
+        var scriptBlob = this.createBlobWithScript();
+        this.scriptURL = URL.createObjectURL(scriptBlob);
+        this._validateScript();
+    }
+
+    _createClass(MP3ConvertHandler, [{
+        key: 'isSupported',
+        value: function isSupported() {
+            return !!window.Worker;
+        }
+    }, {
+        key: 'isWorkerExist',
+        value: function isWorkerExist() {
+            return !!this.worker;
+        }
+    }, {
+        key: '_validateScript',
+        value: function _validateScript() {
+            var _this = this;
+
+            var self = this;
+            return new Promise(function (resolve) {
+                _this.worker = new Worker(_this.scriptURL);
+                _this.worker.onmessage = function (e) {
+                    if (e.data === "WORKER STARTED") {
+                        self.isValid = true;
+                        resolve(true);
+                    } else {
+                        console.log('Error occurred for Web worker in Media Recorder: ' + e.data);
+                        self.isValid = false;
+                        resolve(false);
+                    }
+                };
+                _this.worker.postMessage({
+                    cmd: "validate",
+                    origin: document.location.origin
+                });
+                _this.validationTimoutID = setTimeout(function () {
+                    if (!self.isValid) {
+                        console.log('Lib for web worker in Media Recorder is unreachable.');
+                        self.isValid = false;
+                        _this.terminateWorkerProcess();
+                        resolve(false);
+                    }
+                }, 5000);
+            });
+        }
+    }, {
+        key: 'execute',
+        value: function execute(numberOfChannels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
+            var _this2 = this;
+
+            return new Promise(function (resolve, reject) {
+                if (!_this2.isValid) {
+                    reject("Not valid worker");
+                }
+                if (_this2.isWorkerExist()) {
+                    _this2.terminateWorkerProcess();
+                }
+                _this2.worker = new Worker(_this2.scriptURL);
+                _this2.worker.onmessage = function (e) {
+                    resolve(e.data);
+                };
+                _this2.worker.postMessage({
+                    cmd: "start",
+                    data: {
+                        numberOfChannels: numberOfChannels,
+                        sampleRate: sampleRate,
+                        sampleLength: sampleLength,
+                        leftChannelData: leftChannelData,
+                        rightChannelData: rightChannelData
+                    },
+                    origin: document.location.origin
+                });
+            });
+        }
+    }, {
+        key: 'createBlobWithScript',
+        value: function createBlobWithScript() {
+            var script = '\n            addEventListener("message", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage("Unknown origin");\n                    return;\n                }\n\n                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";\n                try {\n                    importScripts(lameScriptURL);\n                } catch (e) {\n                    postMessage("Library lame.min.js is unreachable");\n                    return;\n                }\n\n                switch (data.cmd) {\n                    case "validate":\n                        postMessage("WORKER STARTED");\n                        break;\n                    case "start":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage("Unknown command: " + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: "audio/mpeg-3"});\n            }\n        ';
+            return new Blob([script], { type: 'application/javascript' });
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            if (this.isWorkerExist()) {
+                this.terminateWorkerProcess();
+            }
+            if (this.scriptURL) {
+                URL.revokeObjectURL(this.scriptURL);
+                this.scriptURL = null;
+            }
+            if (this.validationTimoutID) {
+                clearTimeout(this.validationTimoutID);
+                this.validationTimoutID = null;
+            }
+            this.isValid = false;
+        }
+    }, {
+        key: 'terminateWorkerProcess',
+        value: function terminateWorkerProcess() {
+            this.worker.terminate();
+            this.worker = null;
+        }
+    }]);
+
+    return MP3ConvertHandler;
+}();
 
 /***/ })
 /******/ ]);
