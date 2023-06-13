@@ -117,6 +117,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 	public void testDropdownKeyboardControlsInWCAG() throws Exception {
 		InlineChoiceWidget choiceMock = mock(InlineChoiceWidget.class);
 		when(choiceMock.getGapType()).thenReturn("dropdown");
+		when(choiceMock.getElementType()).thenReturn("dropdown");
 		when(choiceMock.getWCAGTextValue()).thenReturn("content");
 		this.textView.addElement(choiceMock);
 		
