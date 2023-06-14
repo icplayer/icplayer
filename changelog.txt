@@ -1,3 +1,4 @@
+2023-06-14 Fixed not being able to set page index 0 in alternative page titles property of HLR
 2023-05-26 Fixed Advance Connector addon losing context of Show Answers and Hide Answers event
 2023-05-26 Fixed reading dots in text list
 2023-05-26 Fixed dropdownClicked event received behaviour in Audio, TextAudio, Video and MultiAudio addon when paused
