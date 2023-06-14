@@ -3026,10 +3026,8 @@ function AddonIWB_Toolbar_create() {
                 }
 
                 presenter.updateZoomConfiguration();
-                const changeLeft = ui.position.left - ui.originalPosition.left;  // find change in left
-                const newLeft = ui.originalPosition.left - presenter.zoomConfiguration.playerInitialLeftOffset + changeLeft; // adjust new left by our zoomScale
-
-                ui.position.left = newLeft;
+                const changeLeft = ui.position.left - ui.originalPosition.left;
+                ui.position.left = ui.originalPosition.left - presenter.zoomConfiguration.playerInitialLeftOffset + changeLeft;
             },
             stop: function (event, ui) {
                 let top = ui.position.top;
@@ -3050,7 +3048,6 @@ function AddonIWB_Toolbar_create() {
                 presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
             }
         });
-
 
         presenter.applyHovered([presenter.$panel.find('.button')]);
         presenter.$panel.width(presenter.config.widthWhenClosed - 50 + 'px');
