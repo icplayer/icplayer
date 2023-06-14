@@ -2976,61 +2976,74 @@ function AddonIWB_Toolbar_create() {
             create: function (event, _) {
                 $(event.target).addClass('running');
                 $(event.target).css('position', presenter.config.panelPosition);
+
+                let top = parseInt(model['Top'], 10);
+                let left = parseInt(model['Left'], 10);
+
+                let topOffset = 0;
+                let leftOffset = 0;
+                if (presenter.config.panelPosition == 'fixed') {
+                    presenter.updateZoomConfiguration();
+                    topOffset = calculateCorrectionForTopWhenFixed();
+                    leftOffset = calculateCorrectionForLeftWhenFixed();
+                }
+
                 if (window.savedPanel && window.savedPanel.position) {
                     if (presenter.isKeepStateAndPosition) {
-                        if (presenter.config.panelPosition == 'fixed') {
-                            $(event.target).css('top', window.savedPanel.position.top + presenter.$pagePanel.offset().top + 'px');
-                            $(event.target).css('left', window.savedPanel.position.left + presenter.$pagePanel.offset().left + 'px');
-                        } else {
-                            $(event.target).css('top', window.savedPanel.position.top + 'px');
-                            $(event.target).css('left', window.savedPanel.position.left + 'px');
-                        }
-                    } else {
-                        if (presenter.config.panelPosition == 'fixed') {
-                            $(event.target).css('top', (parseInt(model['Top'], 10)) + presenter.$pagePanel.offset().top + 'px');
-                            $(event.target).css('left', (parseInt(model['Left'], 10)) + presenter.$pagePanel.offset().left + 'px');
+                        top = window.savedPanel.position.top;
+                        left = window.savedPanel.position.left;
+                    }
 
-                        } else {
-                            $(event.target).css('top', (parseInt(model['Top'], 10)) + 'px');
-                            $(event.target).css('left', (parseInt(model['Left'], 10)) + 'px');
-                        }
-                    }
+                    $(event.target).css('top', (top + topOffset) + 'px');
+                    $(event.target).css('left', (left + leftOffset) + 'px');
                 } else {
-                    var offsetTopPrev,
-                        offsetLeftPrev;
-                    if (presenter.config.panelPosition == 'fixed') {
-                        offsetTopPrev = presenter.$pagePanel.offset().top;
-                        offsetLeftPrev = presenter.$pagePanel.offset().left;
-                    } else {
-                        offsetTopPrev = $(presenter.$panel).position().top;
-                        offsetLeftPrev = $(presenter.$panel).position().left;
+                    if (presenter.config.panelPosition != 'fixed') {
+                        topOffset = $(presenter.$panel).position().top;
+                        leftOffset = $(presenter.$panel).position().left;
                     }
-                    $(event.target).css('top', (offsetTopPrev + parseInt(model['Top'], 10)) + 'px');
-                    $(event.target).css('left', (offsetLeftPrev + parseInt(model['Left'], 10)) + 'px');
+
+                    $(event.target).css('top', (top + topOffset) + 'px');
+                    $(event.target).css('left', (left + leftOffset) + 'px');
+
                     presenter.headerLoaded.then(function () {
-                        var offsetTop,
-                            offsetLeft;
+                        let newOffsetTop = 0;
+                        let newOffsetLeft = 0;
+
                         if (presenter.config.panelPosition == 'fixed') {
-                            offsetTop = presenter.$pagePanel.offset().top;
-                            offsetLeft = presenter.$pagePanel.offset().left;
-                        } else {
-                            offsetTop = '';
-                            offsetLeft = '';
+                            presenter.updateZoomConfiguration();
+                            newOffsetTop = calculateCorrectionForTopWhenFixed();
+                            newOffsetLeft = calculateCorrectionForLeftWhenFixed();
                         }
-                        $(event.target).css('top', (offsetTop + parseInt(model['Top'], 10)) + 'px');
-                        $(event.target).css('left', (offsetLeft + parseInt(model['Left'], 10)) + 'px');
+
+                        $(event.target).css('top', (top + newOffsetTop) + 'px');
+                        $(event.target).css('left', (left + newOffsetLeft) + 'px');
                     });
                 }
             },
+            drag : function(event, ui) {
+                if (presenter.config.panelPosition != 'fixed') {
+                    return;
+                }
+
+                presenter.updateZoomConfiguration();
+                const changeLeft = ui.position.left - ui.originalPosition.left;  // find change in left
+                const newLeft = ui.originalPosition.left - presenter.zoomConfiguration.playerInitialLeftOffset + changeLeft; // adjust new left by our zoomScale
+
+                ui.position.left = newLeft;
+            },
             stop: function (event, ui) {
-                var top = ui.position.top;
-                var left = ui.position.left;
+                let top = ui.position.top;
+                let left = ui.position.left;
+                let topOffset = 0;
+                let leftOffset = 0;
 
                 if (presenter.config.panelPosition == 'fixed') {
-                    window.savedPanel.position = { top: top - presenter.$pagePanel.offset().top, left: left - presenter.$pagePanel.offset().left};
-                } else {
-                    window.savedPanel.position = { top: top, left: left};
+                    presenter.updateZoomConfiguration();
+                    topOffset = calculateCorrectionForTopWhenFixed();
+                    leftOffset = calculateCorrectionForLeftWhenFixed();
                 }
+
+                window.savedPanel.position = { top: top + topOffset, left: left + leftOffset};
 
                 $.ui.ddmanager.current = null;
 
@@ -3119,6 +3132,14 @@ function AddonIWB_Toolbar_create() {
 
         presenter.updateZoomConfiguration();
     };
+
+    function calculateCorrectionForTopWhenFixed() {
+        return presenter.$pagePanel.offset().top;
+    }
+
+    function calculateCorrectionForLeftWhenFixed() {
+        return presenter.$pagePanel.offset().left - presenter.zoomConfiguration.playerInitialLeftOffset;
+    }
 
     presenter.onDestroy = function () {
         clearCanvases();
@@ -3780,13 +3801,15 @@ function AddonIWB_Toolbar_create() {
 
         var clocks = getSavedClocks(),
            stopwatches = getSavedStopwatches(),
-           position = presenter.$panel.position(),
            openedPanel = isPanelOpened(),
            drawings = {
                'pen' : (presenter.penUsed && presenter.canvas) ? presenter.penDataURL : null,
                'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerDataUrl : null
            };
 
+        presenter.updateZoomConfiguration();
+        var position = presenter.$panel.position();
+        position.left = position.left - presenter.zoomConfiguration.playerInitialLeftOffset;
 
         var stateColor;
         var stateThickness;
