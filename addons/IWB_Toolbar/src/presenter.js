@@ -188,7 +188,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.onEventReceived = function(eventName, eventData) {
-        if (eventName == 'PageLoaded' && eventData.source == 'header') {
+        if (eventName == 'PageLoaded' && eventData.source && eventData.source.startsWith('header')) {
             presenter.headerLoadedDeferred.resolve();
         }
 
@@ -3015,8 +3015,8 @@ function AddonIWB_Toolbar_create() {
                             newOffsetLeft = calculateCorrectionForLeftWhenFixed();
                         }
 
-                        $(event.target).css('top', (top + newOffsetTop) + 'px');
-                        $(event.target).css('left', (left + newOffsetLeft) + 'px');
+                        $(event.target).css('top', (top - newOffsetTop) + 'px');
+                        $(event.target).css('left', (left - newOffsetLeft) + 'px');
                     });
                 }
             },
@@ -3797,16 +3797,18 @@ function AddonIWB_Toolbar_create() {
         });
 
         var clocks = getSavedClocks(),
-           stopwatches = getSavedStopwatches(),
-           openedPanel = isPanelOpened(),
-           drawings = {
-               'pen' : (presenter.penUsed && presenter.canvas) ? presenter.penDataURL : null,
-               'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerDataUrl : null
-           };
+            position = presenter.$panel.position(),
+            stopwatches = getSavedStopwatches(),
+            openedPanel = isPanelOpened(),
+            drawings = {
+                'pen' : (presenter.penUsed && presenter.canvas) ? presenter.penDataURL : null,
+                'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerDataUrl : null
+        };
 
-        presenter.updateZoomConfiguration();
-        var position = presenter.$panel.position();
-        position.left = position.left - presenter.zoomConfiguration.playerInitialLeftOffset;
+        if (presenter.config.panelPosition == 'fixed') {
+            presenter.updateZoomConfiguration();
+            position.left = position.left - presenter.zoomConfiguration.playerInitialLeftOffset;
+        }
 
         var stateColor;
         var stateThickness;
