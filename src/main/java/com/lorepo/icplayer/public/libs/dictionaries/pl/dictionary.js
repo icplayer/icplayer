@@ -244,6 +244,8 @@ var ice_dictionary_pl = {
 	"styles" : "Style",
 	"css_class" : "Klasa CSS:",
 	"inline_css" : "CSS wplatany:",
+	"styles_sort_label" : "Sort",
+	"can_not_save_styles_sort_selected": "Non-logged user can not save their CSS class sort preference",
 	"update_style" : "Aktualizuj styl",
 	"cant_load_document" : "Nie można wczytać dokumentu: ",
 	"cant_add_page" : "Nie można dodać strony: ",
