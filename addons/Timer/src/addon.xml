@@ -7,5 +7,28 @@
         <property name="Send event every second" nameLabel="Timer_property_send_event_every_second" type="boolean" />
         <property name="Show hours" nameLabel="Timer_property_show_hours" type="boolean" />
         <property name="Enable reset" nameLabel="Timer_property_enable_reset" type="boolean" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Timer_property_speech_texts" type="staticlist">
+            <property name="TimerStarted" nameLabel="Timer_property_timer_started" type="staticrow">
+                    <property name="TimerStarted" nameLabel="Timer_property_timer_started" type="string"/>
+            </property>
+            <property name="TimerEnded" nameLabel="Timer_property_timer_ended" type="staticrow">
+                    <property name="TimerEnded" nameLabel="Timer_property_timer_ended" type="string"/>
+            </property>
+            <property name="StopwatchStarted" nameLabel="Timer_property_stopwatch_started" type="staticrow">
+                    <property name="StopwatchStarted" nameLabel="Timer_property_stopwatch_started" type="string"/>
+            </property>
+            <property name="StopwatchStopped" nameLabel="Timer_property_stopwatch_stopped" type="staticrow">
+                    <property name="StopwatchStopped" nameLabel="Timer_property_stopwatch_stopped" type="string"/>
+            </property>
+            <property name="Hours" nameLabel="Timer_property_hours" type="staticrow">
+                    <property name="Hours" nameLabel="Timer_property_hours" type="string"/>
+            </property>
+            <property name="Minutes" nameLabel="Timer_property_minutes" type="staticrow">
+                    <property name="Minutes" nameLabel="Timer_property_minutes" type="string"/>
+            </property>
+            <property name="Seconds" nameLabel="Timer_property_seconds" type="staticrow">
+                    <property name="Seconds" nameLabel="Timer_property_seconds" type="string"/>
+            </property>
+        </property>
     </model>
 </addon>

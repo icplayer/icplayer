@@ -36,6 +36,10 @@ This addon allows users to add timer to the presentation.
         <td>Enable reset</td>
         <td>If selected the reset command will reset the addon, if not the addon will not react on any reset</td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
+    </tr>
 </table>
 
 ## Events
