@@ -7,6 +7,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.IXMLSerializable;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
@@ -54,7 +55,9 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	public boolean hasSpeechTextProp() {
 		for(AddonProperty property : properties) {
-			if (property.getName().replaceAll("\\s", "").toLowerCase().contains("speechtexts")) {
+			String propertyName = property.getName().replaceAll("\\s", "").replaceAll("_", "").toLowerCase();
+			//JavaScriptUtils.log(propertyName);
+			if (propertyName.contains("speechtexts") || propertyName.contains("langattribute")) {
 				return true;
 			}
 		}
