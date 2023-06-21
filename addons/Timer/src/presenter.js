@@ -524,10 +524,6 @@ function AddonTimer_create(){
 		}
 	};
 
-	presenter.setWCAGStatus = function(isWCAGOn) {
-        presenter.isWCAGOn = isWCAGOn;
-    };
-
 	presenter.getTextToSpeechOrNull = function () {
 		if (presenter.playerController) {
 			return presenter.playerController.getModule('Text_To_Speech1');
