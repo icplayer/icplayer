@@ -1500,9 +1500,13 @@ function AddonColoring_create(){
                 presenter.activateShowAnswersMode();
             }
 
-            for(let i=0; i<presenter.currentAreaIdInGSAMode; i++) {
-                const area = presenter.configuration.areas[i];
-                presenter.fillAreaWithCorrectColor(area);
+            if (presenter.currentAreaIdInGSAMode === 0) {
+                presenter.showAnswers();
+            } else {
+                for (let i = 0; i < presenter.currentAreaIdInGSAMode; i++) {
+                    const area = presenter.configuration.areas[i];
+                    presenter.fillAreaWithCorrectColor(area);
+                }
             }
         } else {
             presenter.showAnswers();
