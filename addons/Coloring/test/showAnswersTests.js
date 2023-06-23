@@ -45,4 +45,41 @@ TestCase("[Coloring] gradualShowAnswers button", {
             assertTrue(this.stubs.fillAreaWithCorrectColorStub.calledWithExactly(expectedArg));
         }
     },
+
+    'test given show-all-answers-in-GSA on true when showAnswersAgain was called should showAnswers called': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = true;
+        const showAnswerStub = sinon.stub();
+        this.presenter.showAnswers = showAnswerStub;
+
+        this.presenter.showAnswersAgain();
+
+        assertTrue(showAnswerStub.calledOnce);
+    },
+
+    'test given show-all-answers-in-GSA on false when showAnswersAgain was called should fillAreaWithCorrectColor called': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = false;
+        this.presenter.isShowAnswersActive = true;
+        this.presenter.currentAreaIdInGSAMode = 2;
+        this.presenter.configuration.areas = [
+            {
+                x: 0,
+                y: 0,
+                colorToFill: [128, 128, 128]
+            },
+            {
+                x: 1,
+                y: 1,
+                colorToFill: [128, 128, 128]
+            },
+            {
+                x: 2,
+                y: 2,
+                colorToFill: [128, 128, 128]
+            }
+        ];
+
+        this.presenter.showAnswersAgain();
+
+        assertTrue(this.stubs.fillAreaWithCorrectColorStub.calledTwice);
+    }
 });
