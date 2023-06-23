@@ -1074,6 +1074,8 @@ function AddonPointsLines_create() {
     };
 
     presenter.getMaxScore = function() {
+        const isShowAnswersActive = presenter.isShowAnswersActive;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1093,10 +1095,17 @@ function AddonPointsLines_create() {
                 }
             }
         }
+
+        if (isShowAnswersActive) {
+            presenter.showAnswers();
+        }
+
         return score;
     };
 
     presenter.getScore = function(view, model) {
+        const isShowAnswersActive = presenter.isShowAnswersActive;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1114,10 +1123,18 @@ function AddonPointsLines_create() {
                 }
             }
         }
+
+
+        if (isShowAnswersActive) {
+            presenter.showAnswers();
+        }
+
         return score;
     };
 
     presenter.getErrorCount = function() {
+        const isShowAnswersActive = presenter.isShowAnswersActive;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1135,6 +1152,11 @@ function AddonPointsLines_create() {
                 }
             }
         }
+
+        if (isShowAnswersActive) {
+            presenter.showAnswers();
+        }
+
         return errors;
     };
 

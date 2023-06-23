@@ -20,20 +20,8 @@ export class DownloadButton extends Button {
         element.setAttribute("download", "recording.mp3");
         element.setAttribute("href", "#");
 
-        this.addonState.getRecordingBlob()
-            .then(blob => {
-                File.prototype.arrayBuffer = File.prototype.arrayBuffer || this._fixArrayBuffer;
-                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || this._fixArrayBuffer;
-
-                return blob.arrayBuffer();
-            })
-            .then(arrayBuffer => {
-                window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                var context = new AudioContext();
-                return context.decodeAudioData(arrayBuffer);
-            })
-            .then(decodedData => {
-                const mp3Blob = BlobService.getMp3BlobFromDecodedData(decodedData);
+        this.addonState.getMP3Blob()
+            .then(mp3Blob => {
                 return BlobService.serialize(mp3Blob);
             })
             .then(b64Recording => {
@@ -45,19 +33,6 @@ export class DownloadButton extends Button {
                 }
                 element.onclick = handleDownloadRecording;
                 element.click();
-            });            
-        
-    }
-
-    //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
-    //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
-    _fixArrayBuffer() {
-        return new Promise((resolve) => {
-            let fr = new FileReader();
-            fr.onload = () => {
-              resolve(fr.result);
-            };
-            fr.readAsArrayBuffer(this);
-          });
+            });
     }
 }

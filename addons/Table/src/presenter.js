@@ -1392,7 +1392,7 @@ function AddonTable_create() {
         var value = configuration.value;
         var source = configuration.source;
         var isEnabled = configuration.isEnabled;
-        var droppedElement = configuration.droppable;
+        var droppedElement = configuration.droppedElement;
         this.isAttempted = configuration.isAttempted === undefined ? false : configuration.isAttempted;
 
         if (presenter.configuration.gapType === "draggable") {

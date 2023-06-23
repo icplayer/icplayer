@@ -38,14 +38,29 @@ export class BlobService {
         return new Blob(byteArrays, {type: contentType});
     }
 
+    static getMp3BlobFromDecodedDataByWorker(worker, decodedData) {
+        let buffers = this.prepareSampleBuffers(decodedData);
+        let left = buffers[0];
+        let right = buffers[1];
+
+        return worker.execute(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+    }
+
     static getMp3BlobFromDecodedData(decodedData) {       
+        let buffers = this.prepareSampleBuffers(decodedData);
+        let left = buffers[0];
+        let right = buffers[1];
+
+        return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);       
+    }
+
+    static prepareSampleBuffers(decodedData) {
         let left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
         let right = left;
         if (decodedData.numberOfChannels === 2) {
             right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
         }
-
-        return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);       
+        return [left, right];
     }
 
     static _encode(channels, sampleRate, sampleLen, left, right) {

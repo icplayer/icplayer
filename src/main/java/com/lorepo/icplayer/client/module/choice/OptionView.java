@@ -72,6 +72,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
+			if ($wnd.$(e.target).is('input')) return;
 			e.preventDefault();
 			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
 			if(isEnabled){
