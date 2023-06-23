@@ -57,6 +57,11 @@ The Limited Reset module is based on the <a href="/doc/page/Check-and-Reset-butt
         <td>---</td>
         <td>Shows the module.</td>
     </tr>
+    <tr>
+        <td>getWorksWithModulesList</td>
+        <td>---</td>
+        <td>Returns the list of module ids configured in the "Works With" property.</td>
+    </tr>
 </table>
 
 ## Advanced Connector integration
