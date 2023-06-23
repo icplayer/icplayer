@@ -75,7 +75,7 @@ function AddonHierarchical_Lesson_Report_create() {
         P03: "Values in Disable pages property should be unique",
 
         A01: "There should be at least one item in Alternative Page Names property",
-        A02: "Values in Alternative Page Number property should be greater than 0"
+        A02: "Values in Alternative Page Number property cannot be lower than 0"
     };
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -580,7 +580,7 @@ function AddonHierarchical_Lesson_Report_create() {
             if (alternativeTitle.alternativePageNumber === index && alternativeTitle.alternativePageIsChapter === isChapter){
                 result = alternativeTitle.alternativePageName;
             }
-        })
+        });
         return result;
     };
 
@@ -1016,8 +1016,8 @@ function AddonHierarchical_Lesson_Report_create() {
              var alternativePageNumber = "";
 
              if (!ModelValidationUtils.isStringEmpty(listOfPages[i].alternativePageNumber)) {
-                var alternativePageNumberObject = ModelValidationUtils.validatePositiveInteger(listOfPages[i].alternativePageNumber);
-                if (!alternativePageNumberObject.isValid) {
+                var alternativePageNumberObject = ModelValidationUtils.validateInteger(listOfPages[i].alternativePageNumber);
+                if (!alternativePageNumberObject.isValid || alternativePageNumberObject.value < 0) {
                     return returnErrorObject('A02');
                 }
 
