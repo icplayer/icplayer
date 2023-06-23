@@ -1,3 +1,4 @@
+2023-06-13 Fixed GSA in Coloring in exported SCORM packages 
 2023-06-07 Added conversion to mp3 in media recorder after recording is complete
 2023-06-07 Fixed Show Answers with mistake counter activated in Points and Lines
 2023-06-07 Fixed keyboard navigation not working correctly when there's a mix of draggable and editable gaps in Text
