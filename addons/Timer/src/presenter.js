@@ -41,6 +41,7 @@ function AddonTimer_create(){
 
 	presenter.DEFAULT_TTS_PHRASES = {
         TIMER_STARTED: "Timer started",
+        TIMER_STOPPED: "Timer stopped",
         TIMER_ENDED: "Timer ended",
         STOPWATCH_STARTED: "Stopwatch started",
         STOPWATCH_STOPPED: "Stopwatch stopped",
@@ -271,6 +272,7 @@ function AddonTimer_create(){
 		const upgradedModel = {};
 		const defaultValue = {
 			TimerStarted: {TimerStarted: ''},
+			TimerStopped: {TimerStopped: ''},
 			TimerEnded: {TimerEnded: ''},
 			StopwatchStarted: {StopwatchStarted: ''},
 			StopwatchStopped: {StopwatchStopped: ''},
@@ -419,6 +421,7 @@ function AddonTimer_create(){
 		const speechTexts = model['speechTexts'];
 		presenter.speechTexts = {
 			TimerStarted: presenter.DEFAULT_TTS_PHRASES.TIMER_STARTED,
+			TimerStopped: presenter.DEFAULT_TTS_PHRASES.TIMER_STOPPED,
 			TimerEnded: presenter.DEFAULT_TTS_PHRASES.TIMER_ENDED,
 			StopwatchStarted: presenter.DEFAULT_TTS_PHRASES.STOPWATCH_STARTED,
 			StopwatchStopped: presenter.DEFAULT_TTS_PHRASES.STOPWATCH_STOPPED,
@@ -435,6 +438,10 @@ function AddonTimer_create(){
 			TimerStarted: TTSUtils.getSpeechTextProperty(
 				speechTexts.TimerStarted.TimerStarted,
 				presenter.speechTexts.TimerStarted
+			),
+			TimerStopped: TTSUtils.getSpeechTextProperty(
+				speechTexts.TimerStopped.TimerStopped,
+				presenter.speechTexts.TimerStopped
 			),
 			TimerEnded: TTSUtils.getSpeechTextProperty(
 				speechTexts.TimerEnded.TimerEnded,
@@ -503,7 +510,7 @@ function AddonTimer_create(){
 		const textToRead = presenter.configuration.mode === 'Timer' ?
 			presenter.speechTexts.TimerStarted : presenter.speechTexts.StopwatchStarted;
 
-		presenter.speak(textToRead);
+		presenter.speak(textToRead, true);
 	};
 
 
@@ -512,17 +519,37 @@ function AddonTimer_create(){
 	};
 
 	presenter.readOnStop = function () {
-		if (presenter.configuration.mode === 'Stopwatch') {
-			presenter.speak(presenter.speechTexts.StopwatchStopped);
-		}
+		const textToRead = presenter.configuration.mode === 'Timer' ?
+			presenter.speechTexts.TimerStopped : presenter.speechTexts.StopwatchStopped;
+
+		presenter.speak(textToRead, true);
 	};
 	
-	presenter.speak = function (data) {
+	presenter.speak = function (data, shouldRunWithOffset = false) {
 		const tts = presenter.getTextToSpeechOrNull();
-		if (tts && presenter.$view.hasClass('ic_active_module') && presenter.isWCAGOn) {
+		if (!tts) { return; }
+
+		if (shouldRunWithOffset) {
+			setTimeout(() => {
+				presenter.waitForEndSpeaking(tts.speak, data);
+			}, 400);
+		} else {
 			tts.speak(data);
 		}
 	};
+
+	presenter.waitForEndSpeaking = function(callback, data, timeout = 5000) {
+        const startTime = Date.now();
+
+        let interval = setInterval(() => {
+            if (!window.speechSynthesis.speaking) {
+                clearInterval(interval);
+                callback(data);
+            } else if (Date.now() - startTime > timeout) {
+                clearInterval(interval);
+            }
+        }, 100);
+    };
 
 	presenter.getTextToSpeechOrNull = function () {
 		if (presenter.playerController) {

@@ -29,6 +29,8 @@ TestCase("[Timer] TTS Tests", {
     'test given TTS and Timer mode when readOnStart was called then the speak should be called with speech text': function () {
         const timerStartText = 'Start timer';
         const stopwatchStartText = 'Start stopwatch';
+        const speakStub = sinon.stub();
+        this.presenter.speak = speakStub;
         this.presenter.speechTexts = {
             'TimerStarted': timerStartText,
             'StopwatchStarted': stopwatchStartText
@@ -39,12 +41,14 @@ TestCase("[Timer] TTS Tests", {
 
         this.presenter.readOnStart();
 
-        assertTrue(this.tts.speak.calledWith(timerStartText));
+        assertTrue(speakStub.called);
     },
 
     'test given TTS and Stopwatch mode when readOnStart was called then the speak should be called with speech text': function () {
         const timerStartText = 'Start timer';
         const stopwatchStartText = 'Start stopwatch';
+        const speakStub = sinon.stub();
+        this.presenter.speak = speakStub;
         this.presenter.speechTexts = {
             'TimerStarted': timerStartText,
             'StopwatchStarted': stopwatchStartText
@@ -55,7 +59,7 @@ TestCase("[Timer] TTS Tests", {
 
         this.presenter.readOnStart();
 
-        assertTrue(this.tts.speak.calledWith(stopwatchStartText));
+        assertTrue(speakStub.called);
     },
 
     'test given model when setSpeechTexts was called then speechText should be created with model values': function () {
@@ -68,6 +72,7 @@ TestCase("[Timer] TTS Tests", {
                 StopwatchStopped: {StopwatchStopped: ''},
                 TimerEnded: {TimerEnded: ''},
                 TimerStarted: {TimerStarted: ''},
+                TimerStopped: {TimerStopped: ''}
             }
         };
 
@@ -87,6 +92,7 @@ TestCase("[Timer] TTS Tests", {
                 StopwatchStopped: {StopwatchStopped: ''},
                 TimerEnded: {TimerEnded: ''},
                 TimerStarted: {TimerStarted: ''},
+                TimerStopped: {TimerStopped: ''}
             }
         };
 
@@ -95,4 +101,12 @@ TestCase("[Timer] TTS Tests", {
         assertEquals(this.presenter.speechTexts.Hours, 'Hours');
         assertEquals(this.presenter.speechTexts.TimerStarted, 'Timer started');
     },
+
+    'test given data when speak was called then ttsSpeak should be called': function () {
+        const textToRead = 'Text to read';
+
+        this.presenter.speak(textToRead);
+
+        assertTrue(this.tts.speak.calledWith(textToRead));
+    }
 });

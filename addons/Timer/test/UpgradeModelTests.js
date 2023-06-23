@@ -22,6 +22,7 @@ TestCase("[Timer] Upgrade model", {
                 StopwatchStopped: {StopwatchStopped: ''},
                 TimerEnded: {TimerEnded: ''},
                 TimerStarted: {TimerStarted: ''},
+                TimerStopped: {TimerStopped: ''}
             }
         };
 
@@ -39,6 +40,7 @@ TestCase("[Timer] Upgrade model", {
             StopwatchStopped: {StopwatchStopped: 'Stop'},
             TimerEnded: {TimerEnded: ''},
             TimerStarted: {TimerStarted: ''},
+            TimerStopped: {TimerStopped: ''}
         };
 
         const expectedModel = {
@@ -53,6 +55,7 @@ TestCase("[Timer] Upgrade model", {
                 StopwatchStopped: {StopwatchStopped: 'Stop'},
                 TimerEnded: {TimerEnded: ''},
                 TimerStarted: {TimerStarted: ''},
+                TimerStopped: {TimerStopped: ''}
             }
         };
 

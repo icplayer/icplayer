@@ -11,6 +11,9 @@
             <property name="TimerStarted" nameLabel="Timer_property_timer_started" type="staticrow">
                     <property name="TimerStarted" nameLabel="Timer_property_timer_started" type="string"/>
             </property>
+            <property name="TimerStopped" nameLabel="Timer_property_timer_stopped" type="staticrow">
+                    <property name="TimerStopped" nameLabel="Timer_property_timer_stopped" type="string"/>
+            </property>
             <property name="TimerEnded" nameLabel="Timer_property_timer_ended" type="staticrow">
                     <property name="TimerEnded" nameLabel="Timer_property_timer_ended" type="string"/>
             </property>
