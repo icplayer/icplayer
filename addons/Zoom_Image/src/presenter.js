@@ -439,5 +439,18 @@ function AddonZoom_Image_create() {
 
     presenter.isEnterable = function() {return presenter.isOpened};
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+        var $root = $('<div></div>');
+        $root.attr('id',model.ID);
+        $root.addClass('printable_addon_Zoom_Image');
+
+
+        var $img = $('<img></img>');
+        $img.attr('src', model['Full Screen image']);
+        $root.append($img);
+        return $root[0].outerHTML;
+    }
+
     return presenter;
 }

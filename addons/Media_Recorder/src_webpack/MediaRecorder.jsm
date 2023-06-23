@@ -25,6 +25,7 @@ import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButt
 import {DefaultKeyboardController} from "./keyboard_navigation/DefaultKeyboardController.jsm";
 import {ExtendedKeyboardController} from "./keyboard_navigation/ExtendedKeyboardController.jsm";
 import {CSS_CLASSES} from "./view/CssClasses.jsm";
+import {MP3ConvertHandler} from "./worker/MP3ConvertHandler.jsm";
 
 export class MediaRecorder {
 
@@ -32,6 +33,7 @@ export class MediaRecorder {
     isMlibro = false;
     isWCAGOn = false;
     keyboardControllerObject = null;
+    mp3ConvertHandler = null;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
@@ -44,10 +46,12 @@ export class MediaRecorder {
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
-        } else if (validatedModel.isValid)
+        } else if (validatedModel.isValid) {
+            this.mp3ConvertHandler = new MP3ConvertHandler(this.playerController);
             this._runAddon(view, validatedModel.value);
-        else
+        } else {
             this._showError(view, validatedModel);
+        }
 
         this._executeNotification(JSON.stringify({type: "platform", target: this.model.ID}));
         this._buildKeyboardController();
@@ -86,7 +90,7 @@ export class MediaRecorder {
     }
 
     getState() {
-        return JSON.stringify(this.addonState);
+        return this.addonState.getState();
     }
 
     setState(state) {
@@ -94,7 +98,13 @@ export class MediaRecorder {
         this.addonState.getRecordingBlob()
             .then(blob => {
                 this.mediaState.setLoading();
-                let recording = URL.createObjectURL(blob);
+                let recording;
+                if (this.addonState.isMP3Format(blob)) {
+                    let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 this.player.setRecording(recording);
                 if (this.model.extendedMode) {
                     this.setEMRecordedStateView();
@@ -148,6 +158,7 @@ export class MediaRecorder {
         this.addonState.destroy();
         this.mediaState.destroy();
         this.activationState.destroy();
+        this.mp3ConvertHandler.destroy();
 
         this.viewHandlers = null;
         this.defaultRecordingPlayButton = null;
@@ -174,6 +185,7 @@ export class MediaRecorder {
 
         this.playerController = null;
         this.keyboardControllerObject = null;
+        this.mp3ConvertHandler = null;
         this.view = null;
         this.model = null;
     }
@@ -271,6 +283,7 @@ export class MediaRecorder {
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
         this.addonState = new AddonState();
+        this.addonState.setMP3ConvertHandler(this.mp3ConvertHandler);
     }
 
     _loadViewHandlers(view) {
@@ -459,7 +472,15 @@ export class MediaRecorder {
                             let recording = URL.createObjectURL(blob);
                             this.player.reset();
                             this.player.setRecording(recording);
-                        });
+
+                            return blob;
+                        })
+                        .then(wavBlob => {
+                            return this.addonState.convertWavBlobToMP3BlobByWorker(wavBlob);
+                        })
+                        .then(mp3Blob => {
+                            this.addonState.setRecordingBlob(mp3Blob);
+                        }, () => {});
                 }
                 this.resourcesProvider.destroy();
             }
@@ -700,6 +721,7 @@ export class MediaRecorder {
         return {
             validateModel: validateModel,
             ActivationState: ActivationState,
+            AddonState: AddonState,
             AudioLoader: AudioLoader,
             PlayButton: PlayButton,
             RecordButton: RecordButton,
@@ -708,7 +730,8 @@ export class MediaRecorder {
             Timer: Timer,
             AudioPlayer: AudioPlayer,
             DownloadButton: DownloadButton,
-            SoundIntensity: SoundIntensity
+            SoundIntensity: SoundIntensity,
+            MP3ConvertHandler: MP3ConvertHandler,
         }
     }
 
