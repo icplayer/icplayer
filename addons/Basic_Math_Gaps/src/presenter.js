@@ -801,6 +801,11 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getState = function(){
+        let wasShowAnswersActive = false;
+        if (presenter.configuration.isShowAnswersActive) {
+            wasShowAnswersActive = true;
+            presenter.hideAnswers();
+        }
         var state = {
             'values' : presenter.gapsContainer.getValues(),
             'sources': presenter.gapsContainer.getSources(),
@@ -809,6 +814,7 @@ function AddonBasic_Math_Gaps_create(){
             'droppedElements' : presenter.gapsContainer.getDroppedElements()
         };
 
+        wasShowAnswersActive ? presenter.showAnswers() : "";
         return JSON.stringify(state);
     };
 
