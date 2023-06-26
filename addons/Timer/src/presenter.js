@@ -527,7 +527,8 @@ function AddonTimer_create(){
 	
 	presenter.speak = function (data, shouldRunWithOffset = false) {
 		const tts = presenter.getTextToSpeechOrNull();
-		if (!tts) { return; }
+		const isWCAGActive = presenter.playerController.isWCAGOn();
+		if (!(tts && isWCAGActive)) { return; }
 
 		if (shouldRunWithOffset) {
 			setTimeout(() => {

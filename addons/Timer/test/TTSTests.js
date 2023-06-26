@@ -16,6 +16,11 @@ TestCase("[Timer] TTS Tests", {
 
         this.stubs.getTextToSpeechOrNullStub.returns(this.tts);
         this.presenter.getTextToSpeechOrNull = this.stubs.getTextToSpeechOrNullStub;
+
+        this.presenter.playerController = {
+            isWCAGOn: sinon.stub()
+        };
+        this.presenter.playerController.isWCAGOn.returns(true);
     },
 
     'test given TTS and active module with text to read when speak was called then the speak should be called with text': function () {
