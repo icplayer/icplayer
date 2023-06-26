@@ -595,18 +595,22 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getErrorCount = function(){
+        let wasShowAnswersActive = false;
         if (presenter.configuration.isShowAnswersActive) {
+            wasShowAnswersActive = true;
             presenter.hideAnswers();
         }
 
+        let errorCount = _getErrorCount();
+        wasShowAnswersActive ? presenter.showAnswers() : "";
+        return errorCount;
+    };
+
+    function _getErrorCount () {
         if (presenter.cantCheck()) {
             return 0;
         }
 
-        return _getErrorCount();
-    };
-
-    function _getErrorCount () {
         var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
@@ -753,10 +757,18 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getScore = function () {
+        let wasShowAnswersActive = false;
         if (presenter.configuration.isShowAnswersActive) {
+            wasShowAnswersActive = true;
             presenter.hideAnswers();
         }
 
+        let score = _getScore();
+        wasShowAnswersActive ? presenter.showAnswers() : "";
+        return score;
+    };
+
+    function _getScore() {
         if (presenter.cantCheck()) {
             return 0;
         }
@@ -776,7 +788,7 @@ function AddonBasic_Math_Gaps_create(){
         } else {
             return validated.validGapsCount;
         }
-    };
+    }
 
     presenter.cantCheck = function () {
         if (presenter.configuration.isNotActivity

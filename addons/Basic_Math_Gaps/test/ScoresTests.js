@@ -18,7 +18,9 @@ TestCase("[Basic Math Gaps] Score Tests", {
             getMaxScore: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getMaxScore'),
             areAllGapsEmpty: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsEmpty'),
             areAllGapsFilled: sinon.stub(this.presenter.GapsContainerObject.prototype, 'areAllGapsFilled'),
-            getStringReconvertedUserExpression: sinon.stub(this.presenter, 'getStringReconvertedUserExpression')
+            getStringReconvertedUserExpression: sinon.stub(this.presenter, 'getStringReconvertedUserExpression'),
+            hideAnswers: sinon.stub(this.presenter, 'hideAnswers'),
+            showAnswers: sinon.stub(this.presenter, 'showAnswers')
         };
 
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
@@ -42,6 +44,8 @@ TestCase("[Basic Math Gaps] Score Tests", {
         this.presenter.GapsContainerObject.prototype.areAllGapsEmpty.restore();
         this.presenter.getStringReconvertedUserExpression.restore();
         this.presenter.GapsContainerObject.prototype.areAllGapsFilled.restore();
+        this.presenter.hideAnswers.restore();
+        this.presenter.showAnswers.restore();
     },
 
     'test getScore for equation and valid user input' : function() {
@@ -51,6 +55,8 @@ TestCase("[Basic Math Gaps] Score Tests", {
 
         var score = this.presenter.getScore();
 
+        assertFalse(this.stubs.hideAnswers.called);
+        assertFalse(this.stubs.showAnswers.called);
         assertEquals(1, score);
     },
 
@@ -107,10 +113,23 @@ TestCase("[Basic Math Gaps] Score Tests", {
             '</div>');
 
         this.stubs.getValues.returns(["1", "1"]);
-    this.stubs.getStringReconvertedUserExpression.returns("1+1");
+        this.stubs.getStringReconvertedUserExpression.returns("1+1");
 
         var score = this.presenter.getScore();
 
+        assertEquals(1, score);
+    },
+
+    'test should hide answers if show answers is active and restore after' : function() {
+        this.stubs.getValues.returns(["1", "2"]);
+        this.stubs.getStringReconvertedUserExpression.returns("1+2=3");
+        this.stubs.areAllGapsFilled.returns(true);
+        this.presenter.configuration.isShowAnswersActive = true;
+
+        let score = this.presenter.getScore();
+
+        assertTrue(this.stubs.hideAnswers.calledOnce);
+        assertTrue(this.stubs.showAnswers.calledOnce);
         assertEquals(1, score);
     },
 
@@ -119,7 +138,6 @@ TestCase("[Basic Math Gaps] Score Tests", {
 
         assertEquals(1, maxScore);
     },
-
 
     'test getMaxScore when NOT isEquation' : function() {
         this.presenter.configuration.isEquation = false;
