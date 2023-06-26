@@ -595,14 +595,13 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getErrorCount = function(){
-        let wasShowAnswersActive = false;
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
         if (presenter.configuration.isShowAnswersActive) {
-            wasShowAnswersActive = true;
             presenter.hideAnswers();
         }
 
-        let errorCount = _getErrorCount();
-        wasShowAnswersActive ? presenter.showAnswers() : "";
+        const errorCount = _getErrorCount();
+        wasShowAnswersActive && presenter.showAnswers();
         return errorCount;
     };
 
@@ -757,14 +756,13 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getScore = function () {
-        let wasShowAnswersActive = false;
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
         if (presenter.configuration.isShowAnswersActive) {
-            wasShowAnswersActive = true;
             presenter.hideAnswers();
         }
 
-        let score = _getScore();
-        wasShowAnswersActive ? presenter.showAnswers() : "";
+        const score = _getScore();
+        wasShowAnswersActive && presenter.showAnswers();
         return score;
     };
 
@@ -801,9 +799,8 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getState = function(){
-        let wasShowAnswersActive = false;
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
         if (presenter.configuration.isShowAnswersActive) {
-            wasShowAnswersActive = true;
             presenter.hideAnswers();
         }
         var state = {
@@ -814,7 +811,7 @@ function AddonBasic_Math_Gaps_create(){
             'droppedElements' : presenter.gapsContainer.getDroppedElements()
         };
 
-        wasShowAnswersActive ? presenter.showAnswers() : "";
+        wasShowAnswersActive && presenter.showAnswers();
         return JSON.stringify(state);
     };
 
