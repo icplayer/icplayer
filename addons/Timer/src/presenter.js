@@ -562,7 +562,7 @@ function AddonTimer_create(){
 
 	presenter.getTextToRead = function () {
 		if (presenter.state.currentTime === 0) {
-			return null;
+			return `0 ${presenter.speechTexts.Seconds}`;
 		}
 
 		const timerValues = presenter.getTime().split(':');
