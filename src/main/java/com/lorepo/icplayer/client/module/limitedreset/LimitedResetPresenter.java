@@ -95,6 +95,12 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("getWorksWithModulesList") == 0) {
+			// the returned value is different from what is being returned by presenter.getWorksWithModulesList method.
+			// This is because executeCommand can only return a String. There is little practical reason to make such
+			// a command to get those values (an AC/custom addon script would use the method call instead) in the first
+			// place, so this command was mostly added to avoid errors if anyone tried anyway
+			value = model.getModules().toString();
 		}
 		
 		return value;
@@ -215,6 +221,10 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};
+
+		presenter.getWorksWithModulesList = function() {
+			return x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::getWorksWithModulesList()();
+		}
 		
 		return presenter;
 	}-*/;
@@ -225,6 +235,12 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		}
 		
 		return null;
+	}
+
+	private JavaScriptObject getWorksWithModulesList() {
+		JavaScriptObject array = JavaScriptUtils.createEmptyJsArray();
+		for(String moduleId: model.getModules()) JavaScriptUtils.addElementToJSArray(array, moduleId);
+		return array;
 	}
 
     private void handleLimitedShowAnswersEvent(HashMap<String, String> data) {

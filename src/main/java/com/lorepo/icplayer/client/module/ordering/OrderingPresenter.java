@@ -624,6 +624,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	public void handleGradualHideAnswers() {
 		isGradualShowAnswers = false;
 		setState(currentState);
+
+		view.setWorkStatus(true);
 	}
 
 	private void setCurrentViewState() {
