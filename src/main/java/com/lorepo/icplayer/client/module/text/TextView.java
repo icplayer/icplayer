@@ -575,7 +575,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (activeGap == null) {
 				if (navigationTextElements.size() > 0) {
 					NavigationTextElement navigationElement = navigationTextElements.get(0);
-		            activeGap = findDisplayElementForNavigationElement(navigationElement);
+					activeGap = findDisplayElementForNavigationElement(navigationElement);
 				}
 			} else {
 				if (!moduleHasFocus) {
@@ -599,14 +599,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private TextElementDisplay findDisplayElementForNavigationElement(NavigationTextElement navigationElement) {
-	    String searchId = navigationElement.getId();
-	    for (int i = 0; i < textElements.size(); i++) {
-	        TextElementDisplay displayElement = textElements.get(i);
-	        if (searchId == displayElement.getId()) {
-	            return displayElement;
-	        }
-	    }
-	    return null;
+		String searchId = navigationElement.getId();
+		for (int i = 0; i < textElements.size(); i++) {
+			TextElementDisplay displayElement = textElements.get(i);
+			if (searchId == displayElement.getId()) {
+				return displayElement;
+			}
+		}
+		return null;
 	}
 
 	private void move (boolean goNext) {
