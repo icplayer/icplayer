@@ -1,4 +1,6 @@
-2023-06-23 Added missing addons from default tts titles editor
+2023-06-29 Added missing addons from default tts titles editor
+2023-06-26 Fixed disabled Ordering after GradualHideAnswer
+2023-06-23 Added getWorksWithModulesList method to the Limited Reset button
 2023-06-23 Fixed nested addons in Text breaking printing
 2023-06-23 Fixed IWB Toolbar left position when uncheck "Fixed Position" in LMS mCourser
 2023-06-23 Fixed not being able to set page index 0 in alternative page titles property of HLR
