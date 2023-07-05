@@ -592,5 +592,9 @@ function AddonTimer_create(){
 		return text;
 	};
 
+	presenter.isSelectable = function(isWCAGOn) {
+	    return isWCAGOn;
+	}
+
 	return presenter;
 }
