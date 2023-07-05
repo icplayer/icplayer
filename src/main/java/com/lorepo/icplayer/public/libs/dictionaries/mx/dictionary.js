@@ -244,6 +244,8 @@ var ice_dictionary_mx = {
 	"styles": "Estilos",
 	"css_class": "Clase CSS:",
 	"inline_css": "CSS embebido:",
+	"styles_sort_label" : "Sort",
+	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
 	"update_style": "Actualizar estilo",
 	"cant_load_document": "No se puede cargar el documento:",
 	"cant_add_page": "No se puede añadir la página:",

@@ -30,15 +30,15 @@ public class TextPrintable {
 		String parsedText = model.parsedText;
 
 		parsedText = removeTextAudio(parsedText);
-		
+
 		// Convert all inputs with initial text to a printer friendly format
 		parsedText = makePrintableInput(parsedText, showAnswers);
-		
+
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 
 		parsedText = makePrintableMathInput(parsedText, showAnswers);
-		
+
 		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
 		return result;
@@ -60,7 +60,10 @@ public class TextPrintable {
 		} else {
 			NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
 			for (int i = 0; i < inputs.getLength(); i++) {
-				gaps.add(inputs.getItem(i));
+				Element input = inputs.getItem(i);
+				if (input.getClassName().indexOf("ic_addon_gap") == -1) {
+					gaps.add(input);
+				}
 			}
 		}
 

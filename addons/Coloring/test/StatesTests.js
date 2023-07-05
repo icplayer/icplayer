@@ -30,6 +30,19 @@ TestCase("[Coloring] States Tests", {
         };
 
         sinon.stub(this.presenter, 'shouldBeTakenIntoConsideration');
+        this.presenter.image = [];
+        this.presenter.tmpFilledAreas = [];
+        this.presenter.ctx = {
+            clearRect: function() { },
+            drawImage: function () { },
+            getImageData: function () { return {
+                data: []
+            }; },
+            putImageData: function () { }
+        };
+        this.stubs = {
+            clearRect: sinon.stub(this.presenter.ctx.clearRect, 'clearRect'),
+        };
 
         this.presenter.$view = $('' +
             '<div>' +
@@ -70,6 +83,23 @@ TestCase("[Coloring] States Tests", {
 
         assertEquals([[255,50,255,255]], this.presenter.configuration.colorsThatCanBeFilled);
 
+    },
+
+    'test given show answer when getState was called should show them again': function () {
+        this.presenter.isShowAnswersActive = true;
+        this.presenter.isCanvasInitiated = true;
+        this.presenter.configuration.isActivity = true;
+        this.presenter.configuration.areas = [
+            {
+                x: 0,
+                y: 0,
+                colorToFill: [128, 128, 128]
+            }
+        ];
+
+        this.presenter.getState();
+
+        assertTrue(this.presenter.isShowAnswersActive);
     }
 });
 
