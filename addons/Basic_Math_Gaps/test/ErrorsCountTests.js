@@ -18,7 +18,8 @@ TestCase("[Basic Math Gaps] Get Error Count", {
 
             isEquationCorrect: sinon.stub(this.presenter, 'isEquationCorrect'),
 
-            validateScore: sinon.stub(this.presenter, 'validateScore')
+            validateScore: sinon.stub(this.presenter, 'validateScore'),
+            showAnswers: sinon.stub(this.presenter, 'showAnswers')
         };
 
         this.stubs.validateScore.returns({
@@ -30,6 +31,7 @@ TestCase("[Basic Math Gaps] Get Error Count", {
 
     tearDown: function () {
         this.presenter.hideAnswers.restore();
+        this.presenter.showAnswers.restore();
         this.presenter.isEquationCorrect.restore();
         this.presenter.validateScore.restore();
 
@@ -39,18 +41,20 @@ TestCase("[Basic Math Gaps] Get Error Count", {
         this.presenter.GapsContainerObject.prototype.getNonEmptyGapsNumber.restore();
     },
 
-    'test should hide answers if show answers is active': function () {
+    'test should hide answers if show answers is active and restore after': function () {
         this.presenter.configuration.isShowAnswersActive = true;
 
         this.presenter.getErrorCount();
 
         assertTrue(this.stubs.hideAnswers.calledOnce);
+        assertTrue(this.stubs.showAnswers.calledOnce);
     },
 
     'test shouldnt hide answers if show answers isnt active ': function () {
         this.presenter.getErrorCount();
 
         assertFalse(this.stubs.hideAnswers.called);
+        assertFalse(this.stubs.showAnswers.called);
     },
 
     'test should return zero errors if is not activity': function () {

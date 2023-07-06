@@ -810,4 +810,26 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 		return text;
 	}
 
+	public static String[] getWCAGButtonTitles() {
+		return new String[]{"close popup", "open popup", "reset page", "go to page", "next page", "previous page"};
+	}
+
+	public String getWCAGButtonTitle() {
+		switch (type) {
+			case nextPage:
+				return "next page";
+			case prevPage:
+				return "previous page";
+			case gotoPage:
+				return "go to page";
+			case popup:
+				return "open popup";
+			case cancel:
+				return "close popup";
+			case reset:
+				return "reset page";
+		}
+		return "";
+	}
+
 }
