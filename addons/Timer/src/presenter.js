@@ -88,17 +88,21 @@ function AddonTimer_create(){
 		Commands.dispatch(commands, name, params, presenter);
 	};
 
-	presenter.start = function() {
+	presenter.start = function(shouldReadTTS = true) {
         presenter.countDown();
 		presenter.state.nowStart = true;
-		presenter.readOnStart();
+		if (shouldReadTTS) {
+			presenter.readOnStart();
+		}
     };
 
-	presenter.stop = function() {
+	presenter.stop = function(shouldReadTTS = true) {
         clearInterval(presenter.state.interval);
 		presenter.state.isFired = false;
 		presenter.state.nowStart = false;
-		presenter.readOnStop();
+		if (shouldReadTTS) {
+			presenter.readOnStop();
+		}
     };
 
 	presenter.show = function() {
@@ -393,9 +397,9 @@ function AddonTimer_create(){
 		presenter.displayhhmmss(presenter.state.currentTime);
 		presenter.state.nowStart = parsedState.nowStart;
 		if (presenter.state.nowStart) {
-			presenter.start();
+			presenter.start(false);
 		} else {
-			presenter.stop();
+			presenter.stop(false);
 		}
 		presenter.updateVisibility();
 		if (presenter.state.isVisible && presenter.state.showHours) {
