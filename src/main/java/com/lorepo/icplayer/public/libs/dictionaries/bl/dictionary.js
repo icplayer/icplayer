@@ -1258,6 +1258,7 @@ var ice_dictionary_bl = {
 	"Table_property_ignore_punctuation": "Игнорирай пунктуация",
 	"Table_property_gap_width": "Широчина на празното място",
     "Table_property_gap_type": "Вид празно място",
+    "Table_property_gap_max_length": "Gap max length",
 	"Table_property_keep_order": "Keep original order",
 	"Table_property_first_row_is_header": "First row is a header",
 	"Table_row_speech_text": "Row",

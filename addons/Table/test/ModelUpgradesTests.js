@@ -142,3 +142,33 @@ TestCase("[Table] Model upgrades - add langAttribute", {
         assertEquals("Column span", upgradedModel['speechTexts']["ColSpan"]["ColSpan"]);
     },
 });
+
+TestCase("[Table] Model upgrades - add gap max length", {
+    setUp: function () {
+        this.presenter = AddonTable_create();
+        this.model = {
+            Rows: "",
+            Columns: "",
+            "Table cells": [{
+                Row: "",
+                Column: "",
+                Content: ""
+            }],
+            "Columns width": [ { Width: ""} ]
+        };
+    },
+
+    'test given model without gapMaxLength when addGapMaxLength is called then missing properties are added with default value': function () {
+        const upgradedModel = this.presenter.addGapMaxLength(this.model);
+
+        assertNotUndefined(upgradedModel["GapMaxLength"]);
+        assertEquals(["0"], upgradedModel["GapMaxLength"]);
+    },
+
+    'test given model with gapMaxLength when addGapMaxLength is called then the property are not changed': function () {
+        this.model['GapMaxLength'] = '12';
+        const upgradedModel = this.presenter.addGapMaxLength(this.model);
+
+        assertEquals(["12"], upgradedModel["GapMaxLength"]);
+    }
+});

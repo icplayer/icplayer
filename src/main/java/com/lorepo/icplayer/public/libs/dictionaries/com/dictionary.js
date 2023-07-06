@@ -1271,6 +1271,7 @@ var ice_dictionary_en = {
 	"Table_property_ignore_punctuation": "Ignore punctuation",
 	"Table_property_gap_width": "Gap width",
     "Table_property_gap_type": "Gap type",
+	"Table_property_gap_max_length": "Gap max length",
 	"Table_property_keep_order": "Keep original order",
 	"Table_property_first_row_is_header": "First row is a header",
 	"Table_property_first_column_is_header": "First column is a header",

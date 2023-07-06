@@ -78,6 +78,7 @@
         @param [configuration.source] {String} ID of source which will be used at sending proper events by this object - default value empty string
         @param [configuration.value] {String} Value which will be set to object - default value empty string
         @param [configuration.type] {String} It's used at sending proper events by this object - default value string "string"
+        @param [configuration.maxLength] {number} Value specifies the maximum number of characters in the gap
         @param [configuration.showAnswersValue] {String} Value which will be used at show answers function - default value empty string, it is used also to determine if object is correct or wrong
         @param [configuration.createView] {Function} Method for object which will be used to create View, have to return jQuery object
         @param [configuration.connectEvents] {Function} Method for object which will connect to jQuery view mouse, drag, drop events and handlers
@@ -107,7 +108,7 @@
         this.value = configuration.value || "";
         this.showAnswersValue = configuration.showAnswersValue || "";
         this.type = configuration.type || "string";
-
+        this.gapMaxLength = configuration.maxLength;
 
         this._isClickable = true;
         this.droppedElement;
@@ -417,6 +418,24 @@
      */
     DraggableDroppableObject.prototype.getObjectID = function () {
         return this.objectID;
+    };
+
+    /**
+     * Returns max character for the gap
+     * @method getGapMaxLength
+     * @returns {number}
+     */
+    DraggableDroppableObject.prototype.getGapMaxLength = function () {
+        return this.gapMaxLength;
+    };
+
+    /**
+     * Sets max character for the gap
+     * @method getGapMaxLength
+     * @param {number} value
+     */
+    DraggableDroppableObject.prototype.setGapMaxLength = function (value) {
+        this.gapMaxLength = value;
     };
 
     /**
