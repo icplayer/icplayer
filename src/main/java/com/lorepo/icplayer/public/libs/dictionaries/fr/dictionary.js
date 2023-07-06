@@ -115,7 +115,7 @@ var ice_dictionary_fr = {
     "settings" : "Paramètres",
     "edit_css" : "Editer le CSS",
     "edit_css_tip" : "Astuce: Press F1 to open Command Palette",
-	"edit_css_dark_theme": "Dark theme",
+    "edit_css_dark_theme": "Dark theme",
     "public_templates" : "Public",
     "private_templates" : "Privé",
     "select_templates_button" : "Sélectionner un modèle",
