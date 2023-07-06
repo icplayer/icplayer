@@ -114,7 +114,7 @@ var ice_dictionary_mx = {
 	"Group": "Grupo",
 	"settings": "Ajustes",
 	"edit_css": "Editar CSS",
-	"edit_css_tip": "Consejo: Ctrl-F: Encontrar",
+	"edit_css_tip": "Consejo: Press F1 to open Command Palette",
 	"edit_css_dark_theme": "Dark theme",
 	"public_templates": "Público",
 	"private_templates": "Privado",

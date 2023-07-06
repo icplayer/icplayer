@@ -113,7 +113,7 @@ var ice_dictionary_bl = {
 	"minusErrors": "Без грешките",
 	"Group" : "Група",
 	"settings" : "Настройки",
-	"edit_css_tip" : "Съвет: Ctrl-F: Намери",
+	"edit_css_tip" : "Съвет: Press F1 to open Command Palette",
 	"edit_css_dark_theme": "Dark theme",
 	"public_templates" : "Публични",
 	"private_templates" : "Частни",

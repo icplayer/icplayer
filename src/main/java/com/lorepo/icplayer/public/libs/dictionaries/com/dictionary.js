@@ -113,7 +113,7 @@ var ice_dictionary_en = {
 	"minusErrors": "Minus Errors",
 	"Group" : "Group",
 	"settings" : "Settings",
-	"edit_css_tip" : "Tip: Ctrl-F: Find",
+	"edit_css_tip" : "Tip: Press F1 to open Command Palette",
 	"edit_css_dark_theme": "Dark theme",
 	"public_templates" : "Public",
 	"private_templates" : "Private",

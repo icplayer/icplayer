@@ -114,7 +114,7 @@ var ice_dictionary_pl = {
 	"Group" : "Grupa",
 	"settings" : "Ustawienia",
 	"edit_css" : "Edytuj CSS",
-	"edit_css_tip" : "Wskazówka: Ctrl-F: Wyszukaj",
+	"edit_css_tip" : "Wskazówka: Press F1 to open Command Palette",
 	"edit_css_dark_theme": "Dark theme",
 	"public_templates" : "Publiczne",
 	"private_templates" : "Prywatne",
