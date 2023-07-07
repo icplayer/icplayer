@@ -1,3 +1,4 @@
+2023-07-07 Fixed added audio in Choice not working on mobile
 2023-06-30 Fixed keyboard navigation when dropdown elements in text
 2026-06-29 Fixed Basic Math Gaps addon not working correctly when Show Answers increments mistake counter
 2023-06-29 Added missing addons from default tts titles editor
