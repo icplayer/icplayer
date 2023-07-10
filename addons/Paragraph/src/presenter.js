@@ -14,7 +14,7 @@ function AddonParagraph_create() {
     presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
-    presenter.answerWrapper = null;
+    presenter.savedInitializedSA = null;
 
     presenter.isEditorLoaded = false;
     presenter.isEditorReadOnly = false;
@@ -201,32 +201,10 @@ function AddonParagraph_create() {
 
         const elements = presenter.getParagraphs();
         presenter.initializeShowAnswers(elements);
-
-        presenter.answerWrapper = document.createElement('div');
-        presenter.answerWrapper.innerHTML = combineAnswers(presenter.configuration.modelAnswer);
-        var hasDefaultFontFamily = presenter.configuration.hasDefaultFontFamily,
-            hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
-            hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
-
-        if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss) {
-            var $answerWrapper = $(presenter.answerWrapper);
-            var answerElements = [ $answerWrapper, $answerWrapper.find('p'), $answerWrapper.find('ol'), $answerWrapper.find('ul'), $answerWrapper.find("placeholder")];
-
-            for (var i = 0; i < answerElements.length; i++) {
-                if (answerElements[i].length == 0) {
-                    continue;
-                }
-
-                if (!hasDefaultFontFamily || !hasContentCss) {
-                    answerElements[i].css('font-family', presenter.configuration.fontFamily);
-                }
-
-                if (!hasDefaultFontSize || !hasContentCss) {
-                    answerElements[i].css('font-size', presenter.configuration.fontSize);
-                }
-            }
-        }
-        elements[0].before(presenter.answerWrapper);
+        presenter.savedInitializedSA = presenter.getText();
+        var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
+        presenter.editor.setContent(modelAnswer);
+        presenter.setStyles();
         presenter.isShowAnswersActive = true;
         presenter.isErrorCheckingMode = false;
     };
@@ -255,7 +233,10 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
-        if (presenter.answerWrapper) presenter.answerWrapper.remove();
+        if (presenter.savedInitializedSA) {
+            presenter.setText(presenter.savedInitializedSA);
+            presenter.savedInitializedSA = null;
+        }
         const elements = presenter.getParagraphs();
 
         presenter.enableEdit();
