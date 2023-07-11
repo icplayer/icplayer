@@ -14,6 +14,12 @@ TestCase('[FlashCards] testing displayCard function', {
                 }
             ]
         };
+
+        this.stubs = {
+            renderMathJax: sinon.stub()
+        };
+        this.presenter.renderMathJax = this.stubs.renderMathJax;
+
         this.view = $("<div></div>");
         this.view.addClass('flashcards-wrapper');
         this.view.html(getMockedView());
