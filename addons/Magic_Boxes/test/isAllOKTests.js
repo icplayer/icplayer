@@ -51,6 +51,6 @@ TestCase("[Magic Boxes] IsAllOK test", {
 
         this.presenter.isSelectionPossible = false;
 
-        assertEquals(undefined, this.presenter.isAllOK());
+        assertEquals(false, this.presenter.isAllOK());
     }
 });
