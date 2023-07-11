@@ -14,6 +14,7 @@ function AddonParagraph_create() {
     presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
+    presenter.savedInitializedSA = null;
 
     presenter.isEditorLoaded = false;
     presenter.isEditorReadOnly = false;
@@ -200,8 +201,10 @@ function AddonParagraph_create() {
 
         const elements = presenter.getParagraphs();
         presenter.initializeShowAnswers(elements);
-
-        elements[0].innerHTML = combineAnswers(presenter.configuration.modelAnswer);
+        presenter.savedInitializedSA = presenter.getText();
+        var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
+        presenter.editor.setContent(modelAnswer);
+        presenter.setStyles();
         presenter.isShowAnswersActive = true;
         presenter.isErrorCheckingMode = false;
     };
@@ -230,6 +233,10 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
+        if (presenter.savedInitializedSA) {
+            presenter.setText(presenter.savedInitializedSA);
+            presenter.savedInitializedSA = null;
+        }
         const elements = presenter.getParagraphs();
 
         presenter.enableEdit();
