@@ -28,7 +28,6 @@ import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
 import com.lorepo.icplayer.client.module.text.AudioInfo;
 import com.google.gwt.dom.client.EventTarget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
 
@@ -73,11 +72,11 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
-			var isFromInsertedAddon = $wnd.$(e.target).is("input");
-			if (isFromInsertedAddon) return;
+			var isFromInsertedAudio = $wnd.$(e.target).is("input");
+			if (isFromInsertedAudio) return;
 			
-			var isFromAddedAddon = $wnd.$(e.target).parents().hasClass("inner_addon");
-			if (isFromAddedAddon) return;
+			var isFromAddedAudio = $wnd.$(e.target).parents().hasClass("inner_addon");
+			if (isFromAddedAudio) return;
 			
 			e.preventDefault();
 			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
