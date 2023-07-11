@@ -577,7 +577,7 @@ function AddonHierarchical_Lesson_Report_create() {
         const alternativeTitles = configuration.alternativePageTitles;
 
         alternativeTitles.forEach(alternativeTitle => {
-            if (alternativeTitle.alternativePageNumber === index && alternativeTitle.alternativePageIsChapter === isChapter){
+            if ((alternativeTitle.alternativePageNumber - 1) === index && alternativeTitle.alternativePageIsChapter === isChapter){
                 result = alternativeTitle.alternativePageName;
             }
         });
