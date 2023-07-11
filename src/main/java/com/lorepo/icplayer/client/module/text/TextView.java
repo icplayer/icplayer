@@ -573,13 +573,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			handleWCAGExit();
 		} else {
 			if (activeGap == null) {
-				if (textElements.size() > 0) {
-					activeGap = textElements.get(0);
+				if (navigationTextElements.size() > 0) {
+					NavigationTextElement navigationElement = navigationTextElements.get(0);
+					activeGap = findDisplayElementForNavigationElement(navigationElement);
 				}
 			} else {
 				if (!moduleHasFocus) {
-					activeGap.setFocusGap(true);
-					moduleHasFocus = true;
+					move(true);
 				}
 			}
 			this.readTextContent();
@@ -588,12 +588,25 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	private void focusOnNextGap() {
 		activeGapIndex++;
-		activeGap = textElements.get(activeGapIndex);
+		NavigationTextElement navigationElement = navigationTextElements.get(activeGapIndex);
+		activeGap = findDisplayElementForNavigationElement(navigationElement);
 	}
 
 	private void focusOnPrevGap() {
 		activeGapIndex--;
-		activeGap = textElements.get(activeGapIndex);
+		NavigationTextElement navigationElement = navigationTextElements.get(activeGapIndex);
+		activeGap = findDisplayElementForNavigationElement(navigationElement);
+	}
+
+	private TextElementDisplay findDisplayElementForNavigationElement(NavigationTextElement navigationElement) {
+		String searchId = navigationElement.getId();
+		for (int i = 0; i < textElements.size(); i++) {
+			TextElementDisplay displayElement = textElements.get(i);
+			if (searchId == displayElement.getId()) {
+				return displayElement;
+			}
+		}
+		return null;
 	}
 
 	private void move (boolean goNext) {
@@ -633,13 +646,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		this.activatedNavigationElement = activeElement;
 		activeElement.setElementFocus(true);
 		moduleHasFocus = true;
-
-		this.readNavigationText(activeElement, activeGapIndex);
 	}
 
 	@Override
 	public void tab (KeyDownEvent event) {
 		this.move(true);
+		this.readNavigationText(this.activatedNavigationElement, activeGapIndex);
 	}
 
 	@Override
@@ -651,6 +663,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
+		this.readNavigationText(this.activatedNavigationElement, activeGapIndex);
 	}
 
 	@Override
