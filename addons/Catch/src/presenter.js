@@ -562,6 +562,7 @@ function AddonCatch_create() {
                 $welcomePage.remove();
             });
         }
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.setVisibility = function (isVisible) {
