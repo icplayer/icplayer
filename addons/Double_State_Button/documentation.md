@@ -42,6 +42,10 @@ Double state button allows users to perform different actions in presentations, 
         <td>Disable</td>
         <td>Disable button. No events will be triggered when selected.</td>
     </tr>
+    <tr>
+        <td>Render SVG as HTML</td>
+        <td>This option allows to represent the loaded SVG files as an HTML tag.</td>
+    </tr>
 </table>
 
 ## Supported commands
