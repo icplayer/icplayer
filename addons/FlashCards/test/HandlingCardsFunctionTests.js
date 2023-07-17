@@ -48,6 +48,11 @@ TestCase('[FlashCards] handling Flash Cards function', {
         this.view.addClass('flashcards-wrapper');
         this.view.html(getMockedView());
 
+        this.stubs = {
+            renderMathJax: sinon.stub()
+        };
+        this.presenter.renderMathJax = this.stubs.renderMathJax;
+
         this.spies = {
             'validateModelSpy': sinon.spy(this.presenter, 'validateModel'),
             'showCardSpy': sinon.spy(this.presenter, 'showCard'),
@@ -255,5 +260,78 @@ TestCase('[FlashCards] handling Flash Cards function', {
 
         assertTrue(this.spies.updateVisibilitySpy.called);
         assertTrue(this.spies.showCardSpy.calledWith(3));
+    },
+
+    'test given addon when show was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.show();
+
+        assertTrue(this.stubs.renderMathJax.calledOnce);
+    },
+
+    'test given addon when nextCard was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.nextCard();
+
+        assertTrue(this.stubs.renderMathJax.calledOnce);
+    },
+
+    'test given addon when prevCard was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.prevCard();
+
+        assertTrue(this.stubs.renderMathJax.calledOnce);
+    },
+
+    'test given addon with favourites when showOnlyFavourites was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.presenter.state.cardsFavourites = [true];
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.showOnlyFavourites();
+
+        assertTrue(this.stubs.renderMathJax.calledOnce);
+    },
+
+    'test given addon without favourites when showOnlyFavourites was called then do not renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.showOnlyFavourites();
+
+        assertFalse(this.stubs.renderMathJax.called);
+    },
+
+    'test given addon when showAllCards was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.showAllCards();
+
+        assertTrue(this.stubs.renderMathJax.calledOnce);
+    },
+
+    'test given addon when reset was called then renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.reset();
+
+        assertTrue(this.stubs.renderMathJax.called);
+    },
+
+    'test given addon when resetFavourites was not called then do not renderMathJax': function () {
+        this.presenter.init(this.view, this.model);
+        this.stubs.renderMathJax.reset();
+
+        this.presenter.resetFavourites();
+
+        assertFalse(this.stubs.renderMathJax.called);
     }
 });

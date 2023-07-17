@@ -11,7 +11,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.state = {
-    isVisible: false,
+        isVisible: false,
         currentCard: 1,
         totalCards: 1,
         noLoop: false,
@@ -21,6 +21,8 @@ function AddonFlashCards_create(){
         cardsScore: null,
         cardsFavourites: null
     };
+
+    presenter.isLoaded = false;
 
     let isWCAGOn = false;
     presenter.speechTexts = {};
@@ -216,6 +218,8 @@ function AddonFlashCards_create(){
         presenter.isFrontPlaying = false;
         presenter.isBackPlaying = false;
         presenter.addAudioEventHandlers();
+
+        presenter.isLoaded = true;
     };
 
     presenter.countFavourites = function () {
@@ -456,10 +460,12 @@ function AddonFlashCards_create(){
             presenter.audioElementBack.setAttribute("src","");
             $(presenter.$view.find(".flashcards-card-audio-wrapper-back")).hide();
         }
+        presenter.renderMathJax();
     };
 
     presenter.show = function () {
         presenter.setVisibility(true);
+        presenter.renderMathJax();
     };
 
     presenter.hide = function () {
@@ -790,6 +796,18 @@ function AddonFlashCards_create(){
         if (tts && isWCAGOn) {
             tts.speak(data);
         }
+    }
+
+    presenter.renderMathJax = function () {
+        if (presenter.isLoaded) {
+            reloadMathJax();
+        }
+    }
+
+    function reloadMathJax () {
+        window.MathJax.Callback.Queue().Push(function () {
+            window.MathJax.Hub.Typeset(presenter.$view[0]);
+        });
     }
 
     return presenter;
