@@ -562,11 +562,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void handleWCAGExit() {
-        this.removeNavigationElementSelections();
-        activeGap = null;
-        keyboardNavigationCurrentElementIndex = -1;
+		this.removeNavigationElementSelections();
+		activeGap = null;
+		keyboardNavigationCurrentElementIndex = -1;
 		keyboardNavigationCurrentElement = null;
-        moduleHasFocus = false;
+		moduleHasFocus = false;
 	}
 
 	public void enter (KeyDownEvent event, boolean isExiting) {
@@ -594,8 +594,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		int keyboardNavigationNextElementIndex = goNext
-		    ? keyboardNavigationCurrentElementIndex + 1
-		    : keyboardNavigationCurrentElementIndex - 1;
+			? keyboardNavigationCurrentElementIndex + 1
+			: keyboardNavigationCurrentElementIndex - 1;
 		if (keyboardNavigationNextElementIndex >= keyboardNavigationElementsLen) {
 			keyboardNavigationNextElementIndex = keyboardNavigationElementsLen - 1;
 		} else if (keyboardNavigationNextElementIndex < 0) {
@@ -635,26 +635,27 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return null;
 	}
 
-    /**
+	/**
 	 * Find the index of the active gap.
-     * - When counting the index, links are not taken into account.
-     * - The index is calculated relative to the position of the gap relative to other gaps counting from the top down.
-     * - The type of the gap does not matter.
+	 * - When counting the index, links are not taken into account.
+	 * - The index is calculated relative to the position of the gap relative to other gaps counting from the top down.
+	 * - The type of the gap does not matter.
 	 */
 	private int findActiveGapIndex() {
-	    if (activeGap == null) {
-	        return -1;
-	    }
-
-	    String searchId = activeGap.getId();
+		if (activeGap == null) {
+			return -1;
+		}
+		
+		String searchId = activeGap.getId();
 		int relativeIndex = 0;
 		for (int i = 0; i < navigationTextElements.size(); i++) {
 			NavigationTextElement navigationTextElement = navigationTextElements.get(i);
 			if (searchId == navigationTextElement.getId()) {
 				return relativeIndex;
 			}
+			
 			if (!(navigationTextElement instanceof LinkWidget)) {
-			    relativeIndex++;
+				relativeIndex++;
 			}
 		}
 		return -1;
