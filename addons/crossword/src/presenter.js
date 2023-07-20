@@ -36,6 +36,7 @@ function Addoncrossword_create(){
     presenter.printableController = null;
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.GSAcounter = null;
 
     var enableMoveToNextField = false;
 
@@ -1490,14 +1491,19 @@ function Addoncrossword_create(){
 
     presenter.getScore = function() {
         const restoreState = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
             presenter.hideAnswers();
         }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
         var finalScore = presenter.isAttempted() ? score : 0;
         if (restoreState) {
             presenter.showAnswers();
+        }
+
+        if (wasGradualShowAnswersActive) {
+            this.restoreGradualShowAnswers();
         }
         return finalScore;
     };
@@ -1508,7 +1514,8 @@ function Addoncrossword_create(){
 
     presenter.getErrorCount = function() {
         const restoreState = presenter.isShowAnswersActive;
-        if (presenter.isShowAnswersActive) {
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
             presenter.hideAnswers();
         }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE),
@@ -1516,6 +1523,10 @@ function Addoncrossword_create(){
         var finalErrorCount = presenter.isAttempted() ? errorCount : 0;
         if (restoreState) {
             presenter.showAnswers();
+        }
+
+        if (wasGradualShowAnswersActive) {
+            this.restoreGradualShowAnswers();
         }
         return finalErrorCount
     };
@@ -1748,10 +1759,26 @@ function Addoncrossword_create(){
         } else {
             presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
             const itemIndex = parseInt(data.item, 10);
+            presenter.GSAcounter = itemIndex;
             const answerData = presenter.correctAnswers[itemIndex];
 
             if(itemIndex === 0) presenter.prepareCrosswordForGSA();
             presenter.fillRowGaps(answerData);
+        }
+    }
+
+    presenter.restoreGradualShowAnswers = function () {
+        if (presenter.showAllAnswersInGradualShowAnswersMode === "True") {
+            presenter.showAnswers();
+        } else {
+            presenter.isGradualShowAnswersActive = true;
+            for (let i = 0; i <= presenter.GSAcounter; i++) {
+                presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
+                const answerData = presenter.correctAnswers[i];
+
+                if (i === 0) presenter.prepareCrosswordForGSA();
+                presenter.fillRowGaps(answerData);
+            }
         }
     }
 
