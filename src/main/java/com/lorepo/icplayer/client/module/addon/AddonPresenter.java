@@ -511,8 +511,16 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				&& !this.view.getElement().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		boolean isEnabled = (!this.isDisabled()) || isTextToSpeechOn;
-		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && isEnabled;
+		boolean isSelectableJSObject = isSelectableJSObject(this.jsObject, isTextToSpeechOn);
+		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && isEnabled && isSelectableJSObject;
 	}
+
+	private native boolean isSelectableJSObject (JavaScriptObject obj, boolean isTextToSpeechOn) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isSelectable')) {
+			return obj.isSelectable(isTextToSpeechOn);
+		};
+		return true;
+	}-*/;
 	
 	@Override
 	public void enter(KeyDownEvent event, boolean isExiting) {

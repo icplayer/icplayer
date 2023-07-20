@@ -1,11 +1,22 @@
-2023-07-07 Restored page numbering from 1 in Hierarchical Lesson Report
+2023-07-19 Restored page numbering from 1 in Hierarchical Lesson Report
+2023-07-19 Fixed added audio in Choice not working on mobile
+2023-07-19 Fixed the isAllOK function in the Magic Boxes
+2023-07-19 Fixed setting visibility on reset in Catch addon
+2023-07-19 Added support for rootDirectory metadata in Media Recorder
+2023-07-19 Changed label of functionality to sort addons CSS classes in Editor from "Sort" to "Sort A-Z"
+2023-07-19 Fixed incorrect counting of the gap index in the text module after keyboard navigation on links
+2023-07-19 Fixed disabled Text getting enabled on gradual hide answers
+2023-07-13 Fixed updating score in Crossword after GradualShowAnswer
+2023-07-07 Fixed interaction of LaTeX in FlashCards
+2023-07-05 Fixed Pragraph styling of the current content affecting Show Answers text
+2023-07-05 Changed CSS editor
+2023-07-05 Added TTS to Timer
 2023-06-30 Fixed keyboard navigation when dropdown elements in text
 2026-06-29 Fixed Basic Math Gaps addon not working correctly when Show Answers increments mistake counter
 2023-06-29 Added missing addons from default tts titles editor
 2023-06-26 Fixed disabled Ordering after GradualHideAnswer
 2023-06-23 Added getWorksWithModulesList method to the Limited Reset button
 2023-06-23 Fixed nested addons in Text breaking printing
-2023-06-23 Fixed IWB Toolbar left position when uncheck "Fixed Position" in LMS mCourser
 2023-06-23 Fixed not being able to set page index 0 in alternative page titles property of HLR
 2023-06-19 Added alphabetical sorting of CSS classes
 2023-06-13 Fixed GSA in Coloring in exported SCORM packages 

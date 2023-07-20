@@ -1173,8 +1173,6 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.isAllOK = function () {
-        if (!presenter.isSelectionPossible) return;
-
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
