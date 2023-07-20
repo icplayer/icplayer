@@ -1,3 +1,4 @@
+2023-07-19 Restored page numbering from 1 in Hierarchical Lesson Report
 2023-07-19 Fixed added audio in Choice not working on mobile
 2023-07-19 Fixed the isAllOK function in the Magic Boxes
 2023-07-19 Fixed setting visibility on reset in Catch addon
