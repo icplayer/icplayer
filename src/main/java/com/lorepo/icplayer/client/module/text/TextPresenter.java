@@ -136,6 +136,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
+		isDisabled = module.isDisabled();
 		try {
 			// in editor services are null
 			if (this.playerServices != null) {
