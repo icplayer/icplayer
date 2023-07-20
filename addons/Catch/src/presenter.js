@@ -562,6 +562,7 @@ function AddonCatch_create() {
                 $welcomePage.remove();
             });
         }
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -611,7 +612,7 @@ function AddonCatch_create() {
 
     presenter.getState = function () {
         return JSON.stringify({
-            isVisible: presenter.configuration.isVisible,
+            isVisible: presenter.$view.css('visibility') === 'visible',
             points: points,
             errors: errors
         });
@@ -622,13 +623,11 @@ function AddonCatch_create() {
             return;
         }
 
-        var parsedState = JSON.parse(state);
-
-        presenter.configuration.isVisible = parsedState.isVisible;
+        const parsedState = JSON.parse(state);
         points = parsedState.points;
         errors = parsedState.errors;
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(parsedState.isVisible);
     };
 
     presenter.isAllOk = function () {
