@@ -495,6 +495,19 @@ function AddonText_To_Speech_create() {
         return splitText;
     }
 
+    presenter.removeLonelyPunctuationMarks = function (texts) {
+        const punctuationMarks = ['.', ',', ';', '?', '!', '(', ')', "[", ']', '{', '}', '-', '"', '\''];
+        return texts.filter(function (value) {
+            const textWithoutWhiteSpaces = value.text.replace(/\s/g, '');
+            for (let i = 0; i < textWithoutWhiteSpaces.length; i++) {
+                if (!punctuationMarks.includes(textWithoutWhiteSpaces[i])) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    };
+
     // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
     presenter.splitLongTexts = function (texts) {
         let finalSplitTexts = [];
@@ -602,6 +615,9 @@ function AddonText_To_Speech_create() {
 
     presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
+        if (isChrome()) {
+            texts = presenter.removeLonelyPunctuationMarks(texts);
+        }
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
             return;
