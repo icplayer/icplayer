@@ -90,7 +90,8 @@ function Addoncrossword_create(){
 
     presenter.VALIDATION_MODE = {
         COUNT_SCORE: 0,
-        SHOW_ERRORS: 1
+        SHOW_ERRORS: 1,
+        CHECK_ANSWERS: 2
     };
 
     presenter.isModelValid = true;
@@ -1316,6 +1317,8 @@ function Addoncrossword_create(){
             for(j = 0; j < presenter.columnCount; j++) {
                 if(presenter.isHorizontalWordBegin(i, j)) {
                     wordValid = true;
+                    let exampleLettersCounter = 0;
+                    let letterCounter = 0;
 
                     for(k = j; k < presenter.columnCount; k++) {
                         if(presenter.crossword[i][k] == ' ') {
@@ -1326,13 +1329,22 @@ function Addoncrossword_create(){
                             && presenter.crossword[i][k][0] !== '!') {
                             wordValid = false;
                         }
+
+                        if(presenter.crossword[i][k].match('![a-zA-Z]*?')) {
+                            exampleLettersCounter++;
+                        }
+                        letterCounter++;
+                    }
+
+                    if (wordValid && letterCounter === exampleLettersCounter && mode !== presenter.VALIDATION_MODE.CHECK_ANSWERS) {
+                        wordValid = false;
                     }
 
                     if(mode == presenter.VALIDATION_MODE.COUNT_SCORE && wordValid) {
                         score++;
                     }
 
-                    if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
+                    if(mode === presenter.VALIDATION_MODE.SHOW_ERRORS || mode === presenter.VALIDATION_MODE.CHECK_ANSWERS) {
                         for(l = j; l < k; l++) {
                             markedCell = presenter.$view.find(classPrefix + 'cell_' + i + 'x' + l);
                             if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
@@ -1349,6 +1361,8 @@ function Addoncrossword_create(){
 
                 if(presenter.isVerticalWordBegin(i, j)) {
                     wordValid = true;
+                    let exampleLettersCounter = 0;
+                    let letterCounter = 0;
 
                     for(k = i; k < presenter.rowCount; k++) {
                         if(presenter.crossword[k][j] == ' ') {
@@ -1358,13 +1372,22 @@ function Addoncrossword_create(){
                         if(presenter.crossword[k][j] != presenter.$view.find(classPrefix + 'cell_' + k + 'x' + j + " input").attr('value').toUpperCase() && presenter.crossword[k][j][0] !== '!') {
                             wordValid = false;
                         }
+
+                         if(presenter.crossword[k][j].match('![a-zA-Z]*?')) {
+                            exampleLettersCounter++;
+                        }
+                        letterCounter++;
+                    }
+
+                    if (wordValid && letterCounter === exampleLettersCounter && mode !== presenter.VALIDATION_MODE.CHECK_ANSWERS) {
+                        wordValid = false;
                     }
 
                     if(mode == presenter.VALIDATION_MODE.COUNT_SCORE && wordValid) {
                         score++;
                     }
 
-                    if(mode == presenter.VALIDATION_MODE.SHOW_ERRORS) {
+                    if(mode === presenter.VALIDATION_MODE.SHOW_ERRORS || mode === presenter.VALIDATION_MODE.CHECK_ANSWERS) {
                         for(l = i; l < k; l++) {
                             markedCell = presenter.$view.find(classPrefix + 'cell_' + l + 'x' + j);
                             if(!markedCell.hasClass(presenter.CSS_CLASSES.CELL_VALID))
@@ -1392,7 +1415,7 @@ function Addoncrossword_create(){
             return;
         }
 
-        presenter.validate(presenter.VALIDATION_MODE.SHOW_ERRORS);
+        presenter.validate(presenter.VALIDATION_MODE.CHECK_ANSWERS);
     };
 
     presenter.setWorkMode = function() {
