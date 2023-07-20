@@ -245,7 +245,7 @@ var ice_dictionary_en = {
 	"styles" : "Styles",
 	"css_class" : "CSS class:",
 	"inline_css" : "Inline CSS:",
-	"styles_sort_label" : "Sort",
+	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
 	"update_style" : "Update style",
 	"cant_load_document" : "Can't load document: ",
