@@ -1,3 +1,4 @@
+2023-07-19 Fixed added audio in Choice not working on mobile
 2023-07-19 Fixed the isAllOK function in the Magic Boxes
 2023-07-19 Fixed setting visibility on reset in Catch addon
 2023-07-19 Added support for rootDirectory metadata in Media Recorder
