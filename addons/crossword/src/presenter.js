@@ -227,8 +227,9 @@ function Addoncrossword_create(){
     }
 
     presenter.isHorizontalWordBegin = function(i, j) {
-        if(!presenter.wordNumbersHorizontal)
+        if(!presenter.wordNumbersHorizontal) {
             return false;
+        }
 
         return (
             // Skip empty cells
@@ -242,8 +243,9 @@ function Addoncrossword_create(){
     };
 
     presenter.isVerticalWordBegin = function(i, j) {
-        if(!presenter.wordNumbersVertical)
+        if(!presenter.wordNumbersVertical) {
             return false;
+        }
 
         return (
             // Skip empty cells
@@ -1016,6 +1018,7 @@ function Addoncrossword_create(){
             }
         }
 
+        presenter.updateMaxScore();
         presenter.$view.append(gridContainer);
     };
 
@@ -1025,6 +1028,59 @@ function Addoncrossword_create(){
             errorMessage: errorMessage,
             errorMessageSubstitutions: errorMessageSubstitutions
         }
+    }
+
+    presenter.updateMaxScore = function () {
+        presenter.maxScore -= presenter.getNumberOfExampleWords();
+    }
+
+    presenter.getNumberOfExampleWords = function () {
+        let exampleWordsCounter = 0;
+        for (let i = 0; i < presenter.rowCount; i++) {
+            for (let j = 0; j < presenter.columnCount; j++) {
+                if (presenter.isHorizontalWordBegin(i, j)) {
+                    let exampleLettersCounter = 0;
+                    let letterCounter = 0;
+
+                    for (let k = j; k < presenter.columnCount; k++) {
+                        if (presenter.crossword[i][k] === ' ') {
+                            break;
+                        }
+
+                        if (presenter.crossword[i][k].match('![a-zA-Z]*?')) {
+                            exampleLettersCounter++;
+                        }
+                        letterCounter++;
+                    }
+
+                    if (letterCounter === exampleLettersCounter) {
+                        exampleWordsCounter++;
+                    }
+                }
+
+                if (presenter.isVerticalWordBegin(i, j)) {
+                    let exampleLettersCounter = 0;
+                    let letterCounter = 0;
+
+                    for (let k = i; k < presenter.rowCount; k++) {
+                        if (presenter.crossword[k][j] === ' ') {
+                            break;
+                        }
+
+                        if (presenter.crossword[k][j].match('![a-zA-Z]*?')) {
+                            exampleLettersCounter++;
+                        }
+                        letterCounter++;
+                    }
+
+                    if (letterCounter === exampleLettersCounter) {
+                        exampleWordsCounter++;
+                    }
+                }
+            }
+        }
+
+        return exampleWordsCounter;
     }
 
     presenter.readConfiguration = function(model) {
