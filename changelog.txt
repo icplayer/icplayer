@@ -1,3 +1,4 @@
+2023-07-24 Changed editor in Advance Connector addon
 2023-07-07 Fixed interaction of LaTeX in FlashCards
 2023-07-05 Fixed Pragraph styling of the current content affecting Show Answers text
 2023-07-05 Changed CSS editor
