@@ -117,7 +117,7 @@ var ice_dictionary_mx = {
 	"edit_css_tip": "Consejo: Press F1 to open Command Palette",
 	"edit_css_dark_theme": "Dark theme",
 	"editableScript_editor": "Script Editor",
-	"script_editor_dark_theme": "Dark theme",
+	"editable_script_editor_dark_theme": "Dark theme",
 	"public_templates": "Público",
 	"private_templates": "Privado",
 	"select_templates_button": "Seleccionar Plantilla",
