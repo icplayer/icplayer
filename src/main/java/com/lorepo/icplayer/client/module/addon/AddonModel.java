@@ -79,7 +79,6 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public String getModuleName() {
 		return getModuleTypeName();
 	}
-
 	
 	@Override
 	public String getProviderName() {
@@ -92,7 +91,6 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		addonId = rootElement.getAttribute("addonId");
 		loadProperties(rootElement);
 	}
-
 	
 	private void loadProperties(Element rootElement) {
 		AddonParamFactory paramFactory = new AddonParamFactory();
