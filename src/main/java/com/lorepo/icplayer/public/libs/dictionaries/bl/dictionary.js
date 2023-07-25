@@ -247,7 +247,7 @@ var ice_dictionary_bl = {
 	"styles" : "Стилове",
 	"css_class" : "CSS клас:",
 	"inline_css" : "Инлайн CSS:",
-	"styles_sort_label" : "Sort",
+	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
 	"update_style" : "Обновяване на стила",
 	"cant_load_document" : "Документът не може да се зареди: ",
