@@ -201,6 +201,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
+		clearContentData();
 		this.theApplication.load(url, pageIndex);
 	}
 
@@ -208,6 +209,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
+		clearContentData();
 		this.theApplication.loadCommonPage(url, pageIndex);
 	}
 
@@ -377,6 +379,21 @@ public class PlayerEntryPoint implements EntryPoint {
 		}
 		return jsScores;
 	}
+
+	private void clearContentData() {
+		pageLoadedListener = null;
+		externalEventListener = null;
+		pageScrollToListener = null;
+		statusChangedListener = null;
+		outstretchHeightListener = null;
+		contextMetadata = null;
+		externalVariables = null;
+		clearGlobalAddonVariables();
+	}
+
+	private native void clearGlobalAddonVariables()/*-{
+		$wnd.savedPanel = null; //IWB_Toolbar
+	}-*/;
 
 	private void setScoreWithMetadata(String state) {
 		this.theApplication.setScoreWithMetadata(state);

@@ -557,6 +557,7 @@ public class PlayerApp {
 			}
 		});
 		contentModel.setPlayerController(getPlayerServices());
+		RootPanel.get(divId).clear();
 		RootPanel.get(divId).add(playerView);
 		this.loadActualLayoutCSSStyles();
 		this.loadAttachedLibraries();
