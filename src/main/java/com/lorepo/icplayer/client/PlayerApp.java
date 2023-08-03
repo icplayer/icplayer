@@ -47,6 +47,7 @@ public class PlayerApp {
 	private boolean isStaticHeader = false;
 	private static boolean isAnimationRunning = false;
 	private String lastSentLayoutID = "";
+	private boolean isContentModelLoaded = false;
 
 	public PlayerApp(String id, PlayerEntryPoint entryPoint) {
 		this.divId = id;
@@ -84,6 +85,10 @@ public class PlayerApp {
 		return playerController.getScoreService();
 	}
 
+	public boolean isContentModelLoaded() {
+		return isContentModelLoaded;
+	}
+
 	/**
 	 * Load content from given URL
 	 * 
@@ -95,10 +100,11 @@ public class PlayerApp {
 		startPageIndex = pageIndex;
 
 		IXMLFactory contentFactory = ContentFactory.getInstance(this.pagesSubset);
-
+		isContentModelLoaded = false;
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
+				isContentModelLoaded = true;
 				initPlayer(isCommonPage);
 			}
 
@@ -861,4 +867,19 @@ public class PlayerApp {
 		playerController.getScoreWithMetadataService().setScoreWithMetadata(state);
 		playerController.updateState();
 	}
+
+	public void clearBeforeReload() {
+		clearGlobalAddonVariables();
+		clearMediaRecorders();
+		getPlayerServices().getCommands().closePopup();
+	}
+
+	private native void clearGlobalAddonVariables()/*-{
+		$wnd.savedPanel = null; //IWB_Toolbar
+	}-*/;
+
+	private native void clearMediaRecorders()/*-{
+		// unless removed manually, it may take some time for the recorder to be destroyed
+		$wnd.$('.ic_player .addon_Media_Recorder').remove();
+	}-*/;
 }
