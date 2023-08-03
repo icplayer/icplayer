@@ -88,7 +88,7 @@ export class BlobService {
 
     static _encode(channels, sampleRate, sampleLen, left, right) {
         var buffer = [];
-        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 64);
 
         var maxSamples = 1152;
         for (var i = 0; i < sampleLen; i += maxSamples) {
