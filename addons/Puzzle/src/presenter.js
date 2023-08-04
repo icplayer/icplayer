@@ -908,7 +908,6 @@ function AddonPuzzle_create() {
     };
 
     presenter.hide = function () {
-        console.log('hide')
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
