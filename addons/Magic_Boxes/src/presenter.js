@@ -167,7 +167,9 @@ function AddonMagic_Boxes_create() {
 
                 var selectableElement = $(document.createElement('div'));
                 selectableElement.addClass(presenter.CSS_CLASSES.ELEMENT);
-                selectableElement.text(presenter.configuration.gridElements[row][column].toUpperCase());
+                var rawChar = presenter.configuration.gridElements[row][column];
+                var charToShow = isCharacterToCapitalize(rawChar) ? rawChar.toUpperCase() : rawChar;
+                selectableElement.text(charToShow);
 
                 wrapperElement.append(selectableElement);
                 gridContainer.append(wrapperElement);
@@ -293,6 +295,10 @@ function AddonMagic_Boxes_create() {
                 }
             }
         });
+    }
+
+    function isCharacterToCapitalize (character) {
+        return !(/\u00DF/.test(character));
     }
 
     presenter.calculateScoreForEvent = function (prevScore, currentScore) {

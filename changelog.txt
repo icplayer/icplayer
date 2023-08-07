@@ -1,3 +1,4 @@
+2023-08-07 Removed capitalization of letter ß in Magic Boxes
 2023-08-03 Fixed storing current visibility status in Puzzle
 2023-07-24 Changed editor in Advance Connector addon
 2023-07-20 Fixed counting score when the Crossword has sample answers
