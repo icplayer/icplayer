@@ -1,4 +1,5 @@
 2023-07-24 Changed editor in Advance Connector addon
+2023-07-20 Fixed counting score when the Crossword has sample answers
 2023-07-19 Restored page numbering from 1 in Hierarchical Lesson Report
 2023-07-19 Fixed added audio in Choice not working on mobile
 2023-07-19 Fixed the isAllOK function in the Magic Boxes
