@@ -5,10 +5,15 @@ export class MP3ConvertHandler {
         this.scriptURL = null;
         this.isValid = false;
         this.validationTimoutID = null;
+        this.origin = document.location.origin;
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
             return;
+        }
+        let context = playerController.getContextMetadata();
+        if (context != null && "rootDirectory" in context) {
+            this.origin = context["rootDirectory"];
         }
 
         let scriptBlob = this.createBlobWithScript();
@@ -40,7 +45,7 @@ export class MP3ConvertHandler {
             }
             this.worker.postMessage({
                 cmd: "validate",
-                origin: document.location.origin
+                origin: self.origin
             });
             this.validationTimoutID = setTimeout(() => {
                 if (!self.isValid) {
@@ -74,7 +79,7 @@ export class MP3ConvertHandler {
                     leftChannelData: leftChannelData,
                     rightChannelData: rightChannelData
                 },
-                origin: document.location.origin
+                origin: this.origin
             });
         })
     }

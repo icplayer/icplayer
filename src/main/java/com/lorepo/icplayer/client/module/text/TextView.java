@@ -35,9 +35,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private ArrayList<NavigationTextElement> navigationTextElements = new ArrayList<NavigationTextElement>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int activeGapIndex = -1;
-	private int activeNavigationGapIndex = -1; //to distinct the active index of navigation text elements (includes links)
-	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
@@ -46,7 +43,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
-	private NavigationTextElement activatedNavigationElement = null;
+
+	// active index of navigation text elements (including links). The order follows the order of navigation elements.
+	private int keyboardNavigationCurrentElementIndex = -1;
+	private NavigationTextElement keyboardNavigationCurrentElement = null;
+	private TextElementDisplay activeGap = null;
 
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
@@ -561,11 +562,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void handleWCAGExit() {
-        this.removeNavigationElementSelections();
-        activeGapIndex = -1;
-        activeNavigationGapIndex = -1;
-        activeGap = null;
-        moduleHasFocus = false;
+		this.removeNavigationElementSelections();
+		activeGap = null;
+		keyboardNavigationCurrentElementIndex = -1;
+		keyboardNavigationCurrentElement = null;
+		moduleHasFocus = false;
 	}
 
 	public void enter (KeyDownEvent event, boolean isExiting) {
@@ -586,16 +587,41 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	private void focusOnNextGap() {
-		activeGapIndex++;
-		NavigationTextElement navigationElement = navigationTextElements.get(activeGapIndex);
-		activeGap = findDisplayElementForNavigationElement(navigationElement);
+	private void move (boolean goNext) {
+		int keyboardNavigationElementsLen = navigationTextElements.size();
+		if (keyboardNavigationElementsLen == 0) {
+			return;
+		}
+
+		int keyboardNavigationNextElementIndex = goNext
+			? keyboardNavigationCurrentElementIndex + 1
+			: keyboardNavigationCurrentElementIndex - 1;
+		if (keyboardNavigationNextElementIndex >= keyboardNavigationElementsLen) {
+			keyboardNavigationNextElementIndex = keyboardNavigationElementsLen - 1;
+		} else if (keyboardNavigationNextElementIndex < 0) {
+			keyboardNavigationNextElementIndex = 0;
+		}
+
+		this.removeNavigationElementSelections();
+		this.keyboardNavigationCurrentElementIndex = keyboardNavigationNextElementIndex;
+		this.keyboardNavigationCurrentElement = navigationTextElements.get(keyboardNavigationNextElementIndex);
+		this.keyboardNavigationCurrentElement.setElementFocus(true);
+		this.moduleHasFocus = true;
+
+		adjustActiveGapInformation();
 	}
 
-	private void focusOnPrevGap() {
-		activeGapIndex--;
-		NavigationTextElement navigationElement = navigationTextElements.get(activeGapIndex);
-		activeGap = findDisplayElementForNavigationElement(navigationElement);
+	private void adjustActiveGapInformation() {
+		if (this.keyboardNavigationCurrentElement instanceof LinkWidget) {
+			return;
+		}
+
+		TextElementDisplay nextGap = findDisplayElementForNavigationElement(this.keyboardNavigationCurrentElement);
+		if (nextGap == null) {
+			return;
+		}
+
+		this.activeGap = nextGap;
 	}
 
 	private TextElementDisplay findDisplayElementForNavigationElement(NavigationTextElement navigationElement) {
@@ -609,49 +635,36 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return null;
 	}
 
-	private void move (boolean goNext) {
-		int size = navigationTextElements.size();
-		boolean hasAchievedMaximum = false;
-
-		if (size == 0) {
-			return;
+	/**
+	 * Find the index of the active gap.
+	 * - When counting the index, links are not taken into account.
+	 * - The index is calculated relative to the position of the gap relative to other gaps counting from the top down.
+	 * - The type of the gap does not matter.
+	 */
+	private int findActiveGapIndex() {
+		if (activeGap == null) {
+			return -1;
 		}
-
-		this.removeNavigationElementSelections();
-		int nextGapIndex = goNext ? activeNavigationGapIndex + 1 : activeNavigationGapIndex - 1;
-
-		if (nextGapIndex >= size) {
-			nextGapIndex = size - 1;
-			hasAchievedMaximum = true;
-		}
-
-		if (nextGapIndex < 0) {
-			nextGapIndex = 0;
-		}
-
-		NavigationTextElement activeElement = navigationTextElements.get(nextGapIndex);
-		if (goNext && !hasAchievedMaximum) {
-			activeNavigationGapIndex++;
-			if (!(activeElement instanceof LinkWidget)) {
-				focusOnNextGap();
+		
+		String searchId = activeGap.getId();
+		int relativeIndex = 0;
+		for (int i = 0; i < navigationTextElements.size(); i++) {
+			NavigationTextElement navigationTextElement = navigationTextElements.get(i);
+			if (searchId == navigationTextElement.getId()) {
+				return relativeIndex;
 			}
-
-		} else if (!goNext && activeNavigationGapIndex > 0) {
-			activeNavigationGapIndex--;
-			if (!(activeElement instanceof LinkWidget)) {
-				focusOnPrevGap();
+			
+			if (!(navigationTextElement instanceof LinkWidget)) {
+				relativeIndex++;
 			}
 		}
-
-		this.activatedNavigationElement = activeElement;
-		activeElement.setElementFocus(true);
-		moduleHasFocus = true;
+		return -1;
 	}
 
 	@Override
 	public void tab (KeyDownEvent event) {
 		this.move(true);
-		this.readNavigationText(this.activatedNavigationElement, activeGapIndex);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
@@ -663,7 +676,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
-		this.readNavigationText(this.activatedNavigationElement, activeGapIndex);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
@@ -678,7 +691,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void down (KeyDownEvent event) {
-		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
 
@@ -687,7 +700,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void up (KeyDownEvent event) {
-		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
 
@@ -696,10 +709,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void space(KeyDownEvent event) {
-		boolean isActivatedLinkWidget = activatedNavigationElement != null && activatedNavigationElement.getElementType() == "link";
+		boolean isActivatedLinkWidget = keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType() == "link";
 
 		if(WCAGUtils.hasLinks(this.module) && isActivatedLinkWidget) {
-			LinkWidget linkWidget = (LinkWidget) activatedNavigationElement;
+			LinkWidget linkWidget = (LinkWidget) keyboardNavigationCurrentElement;
 			LinkInfo linkInfo = linkWidget.getLinkInfo();
 
 			if (listener != null) {
@@ -751,8 +764,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
-		if (isWCAGon && activatedNavigationElement!=null && activatedNavigationElement.getElementType().equals("dropdown")) {
-			InlineChoiceWidget icw = (InlineChoiceWidget) activatedNavigationElement;
+		if (isWCAGon && keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) keyboardNavigationCurrentElement;
 			if (icw.getPageController() == null){
 				icw.setPageController(this.pageController);
 			};
