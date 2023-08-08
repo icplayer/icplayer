@@ -672,7 +672,7 @@ function AddonPuzzle_create() {
         presenter.saveBoard();
 
         return JSON.stringify({
-            visible: presenter.configuration.isVisibleByDefault,
+            visible: presenter.configuration.isVisible,
             board: savedBoard,
             shouldCalcScore: presenter.configuration.shouldCalcScore,
             score: presenter.getScore(),
@@ -698,6 +698,8 @@ function AddonPuzzle_create() {
             presenter.configuration.shouldCalcScore = parsedState.shouldCalcScore;
             if (!parsedState.visible) {
                 presenter.hide();
+            } else {
+                presenter.show();
             }
         });
     };
