@@ -1,3 +1,4 @@
+2023-08-08 Added reducing audio file in MediaRecorder
 2023-08-07 Fixed issues with rounding score in progress bar and lesson report
 2023-08-07 Removed capitalization of letter ß in Magic Boxes
 2023-08-03 Fixed storing current visibility status in Puzzle
