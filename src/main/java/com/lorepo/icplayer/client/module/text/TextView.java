@@ -131,6 +131,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
+			} else {
+				String longestAnswer = gi.getLongestAnswer();
+				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+				gap.setWidth(calculatedGapWidth + "px");
 			}
 
 			gap.setDisabled(module.isDisabled());
@@ -150,6 +154,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
+				} else {
+					String longestAnswer = gi.getLongestAnswer();
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+					gap.setWidth(calculatedGapWidth + "px");
 				}
 
 				if (!module.isOldGapSizeCalculation()) {
@@ -179,6 +187,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				FilledGapWidget gap = new FilledGapWidget(gi, listener);
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
+				} else {
+					String longestAnswer = gi.getLongestAnswer();
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+					gap.setWidth(calculatedGapWidth + "px");
 				}
 
 				gap.setDisabled(module.isDisabled());
@@ -293,6 +305,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			audioIndex += 1;
 		}
 	}
+
+	private native int getCalculatedGapWidth(String text) /*-{
+		var canvas = document.createElement("canvas");
+		var fontFamily = 'Arial';
+		var fontSize = '18px';
+		var fontOptions = fontSize.concat(" ", fontFamily);
+		var context = canvas.getContext("2d");
+		context.font =  fontOptions;
+		
+		var metrics = context.measureText(text);
+
+		return Math.ceil(metrics.width);
+	}-*/;
 
 	private native void addAudioUpdateTimeEventListener (AudioInfo info) /*-{
 		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
