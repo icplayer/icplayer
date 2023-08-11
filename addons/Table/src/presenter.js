@@ -1014,7 +1014,6 @@ function AddonTable_create() {
     };
 
     presenter.getScore = function () {
-        return 0;
         if (presenter.configuration.isNotActivity) {
             return 0;
         }
@@ -1140,6 +1139,7 @@ function AddonTable_create() {
         if (!presenter.isShowAnswersActive) {
             return;
         }
+
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             presenter.gapsContainer.hideAnswers();
             if (isConnectedWithMath){
