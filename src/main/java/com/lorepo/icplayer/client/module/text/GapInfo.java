@@ -157,6 +157,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		
 		for (String answer : answers) {
 			if (longestAnswerLength < answer.length()) {
+				longestAnswerLength = answer.length();
 				longestAnswer = answer;
 			}
 		}

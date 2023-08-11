@@ -133,7 +133,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				gap.setWidth(gapWidth + "px");
 			} else {
 				String longestAnswer = gi.getLongestAnswer();
-				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+				String fontSize = getFontSize(gap.getId());
+				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 				gap.setWidth(calculatedGapWidth + "px");
 			}
 
@@ -156,7 +157,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					gap.setWidth(gapWidth + "px");
 				} else {
 					String longestAnswer = gi.getLongestAnswer();
-					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+					String fontSize = getFontSize(gap.getId());
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 					gap.setWidth(calculatedGapWidth + "px");
 				}
 
@@ -189,7 +191,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					gap.setWidth(gapWidth + "px");
 				} else {
 					String longestAnswer = gi.getLongestAnswer();
-					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer);
+					String fontSize = getFontSize(gap.getId());
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 					gap.setWidth(calculatedGapWidth + "px");
 				}
 
@@ -306,10 +309,20 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	private native int getCalculatedGapWidth(String text) /*-{
+	private native String getFontSize(String gapId) /*-{
+		var divElement = $wnd.document.getElementById("editor-" + gapId);
+		if (!divElement) {
+			return "18px";
+		}
+		var cssObject = window.getComputedStyle(divElement, null);
+		var fontSize = cssObject.getPropertyValue("font-size");
+
+		return fontSize;
+	}-*/;
+
+	private native int getCalculatedGapWidth(String text, String fontSize) /*-{
 		var canvas = document.createElement("canvas");
 		var fontFamily = 'Arial';
-		var fontSize = '18px';
 		var fontOptions = fontSize.concat(" ", fontFamily);
 		var context = canvas.getContext("2d");
 		context.font =  fontOptions;

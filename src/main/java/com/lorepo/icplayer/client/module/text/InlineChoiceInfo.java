@@ -88,6 +88,7 @@ public class InlineChoiceInfo implements IGapCommonUtilsProvider {
 		
 		for (String answer : distractors) {
 			if (longestAnswerLength < answer.length()) {
+				longestAnswerLength = answer.length();
 				longestAnswer = answer;
 			}
 		}
