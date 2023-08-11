@@ -60,6 +60,15 @@ You can work in one of two modes:
         <td>Mode</td>
         <td>'Mark phrases to select' or 'All selectable'</td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: Selected, Deselected, TextContent, Correct, Incorrect. <br />
+            This texts will be read by Text to Speech addon after a user performs an action.</td> 
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
+    </tr>
 </table>
 
 ## Configuration

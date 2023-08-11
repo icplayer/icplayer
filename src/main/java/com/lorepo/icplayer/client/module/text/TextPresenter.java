@@ -5,6 +5,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -53,6 +55,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setDroppedElement(String element);
 		String getDroppedElement();
 		String getId();
+		boolean getResetStatus();
+		void setResetStatus(boolean wasReset);
 		void setFocusGap(boolean focus);
 		String getGapType();
 		void select();
@@ -95,6 +99,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		List<ScoreWithMetadata> getScoreWithMetadata();
 	}
 
+	public interface NavigationTextElement {
+		void setElementFocus(boolean focus);
+		void deselect();
+		String getId();
+		String getElementType();
+		String getLangTag();
+		int getGapState();
+	}
+
 	private final TextModel module;
 	private final IPlayerServices playerServices;
 	private IDisplay view;
@@ -123,6 +136,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
+		isDisabled = module.isDisabled();
 		try {
 			// in editor services are null
 			if (this.playerServices != null) {
@@ -220,6 +234,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	public void handleGradualHideAnswers() {
 		this.isGradualShowAnswers = false;
+		boolean isVisibleBeforeSetState = isVisible;
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
@@ -227,6 +242,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		setState(this.currentState);
+		
+		isVisible = isVisibleBeforeSetState;
+		if (isVisibleBeforeSetState) {
+			view.show(false);
+		} else {
+			view.hide();
+		}
 	}
 
 	private void blockAllGaps() {
@@ -341,7 +363,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-		        view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
+				view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
 		resetAudio();
 		this.view.setShowErrorsMode();
@@ -379,8 +401,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		state.put("isVisible", Boolean.toString(isVisible));
 
 		if (JSONUtils.toJSONString(view.getDroppedElements()) != null) {
-    		state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
+			state.put("droppedElements", JSONUtils.toJSONString(view.getDroppedElements()));
 		}
+
+		HashMap<String, String> hasBeenAccessed = new HashMap<String, String>();
+		for (int i=0; i < view.getChildrenCount(); i++) {
+			if (view.getChild(i) instanceof GapWidget) {
+				GapWidget gw = (GapWidget) view.getChild(i);
+				if (gw.hasGapBeenAccessed()) {
+					hasBeenAccessed.put(gw.getId(), "true");
+				}
+			}
+		}
+		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
 		return JSONUtils.toJSONString(state);
 	}
@@ -439,13 +472,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (state.containsKey("droppedElements")){
 			droppedElements = JSONUtils.decodeHashMap(state.get("droppedElements"));
 			if(droppedElements != null){
-	            for (String key: droppedElements.keySet()) {
-	                String value = droppedElements.get(key);
-	                if (value != null) {
-	                    view.setDroppedElements(key, value);
-	                }
-	            }
-	        }
+				for (String key: droppedElements.keySet()) {
+					String value = droppedElements.get(key);
+					if (value != null) {
+						view.setDroppedElements(key, value);
+					}
+				}
+			}
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
@@ -454,6 +487,19 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.show(false);
 		} else {
 			view.hide();
+		}
+
+		HashMap<String, String> hasBeenAccessed = null;
+		if (state.containsKey("hasBeenAccessed")) {
+			hasBeenAccessed = JSONUtils.decodeHashMap(state.get("hasBeenAccessed"));
+			if(hasBeenAccessed != null){
+				for (String key: hasBeenAccessed.keySet()) {
+					String newKey = key.replace(oldGapId, module.getGapUniqueId()+"-");
+					GapWidget gw = getGapWidgetFromGapId(newKey);
+					gw.markGapAsAccessed();
+					restoreGapVisitedState(newKey);
+				}
+			}
 		}
 	}
 
@@ -472,7 +518,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap).trim();
-			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue) && !gap.isTextOnlyPlaceholder(enteredValue, module.ignoreDefaultPlaceholderWhenCheck())) {
+			if (isGapCheckable(gap) && !enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
 		}
@@ -556,16 +602,41 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentMaxScore;
 		}
+
+		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
+			if (groupGapsItem.getErrorCode() != null) {
+				return 0;
+			}
+		}
 		
 		int maxScore = 0;
-
-		for (GapInfo gap : module.getGapInfos()) {
-			maxScore += gap.getValue();
+		
+		HashMap<Integer, Integer> maxScoresDict = new HashMap<Integer, Integer>();
+		for (int i = 0; i < module.getGapInfos().size(); i++) {
+			GapInfo gap = module.getGapInfos().get(i);
+			maxScoresDict.put(i + 1, gap.getValue());
 		}
-		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
-			maxScore += choice.getValue();
+		for (int i = 0; i < module.getChoiceInfos().size(); i++) {
+			InlineChoiceInfo choice = module.getChoiceInfos().get(i);
+			maxScoresDict.put(i + 1 + module.getGapInfos().size(), choice.getValue());
 		}
-
+		
+		HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
+		for (Integer gapIndex: maxScoresDict.keySet()) {
+			gapsWithScoresIndexes.add(gapIndex);
+		}
+		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
+			maxScore += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
+			
+			ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+			for (Integer gapIndex: gapsIndexes) {
+				maxScoresDict.remove(gapIndex);
+			}
+		}
+		for (Integer gapScore: maxScoresDict.values()) {
+			maxScore += gapScore;
+		}
+		
 		return maxScore;
 	}
 
@@ -579,33 +650,68 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return currentScore;
 		}
 
-		int score = 0;
-		String enteredValue;
-
-		for (GapInfo gap : module.getGapInfos()) {
-			enteredValue = getElementText(gap);
-			if(gap.isCorrect(enteredValue)){
-				score += gap.getValue();
+		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
+			if (groupGapsItem.getErrorCode() != null) {
+				return 0;
 			}
 		}
 
-		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
+		int score = 0;
+		String enteredValue;
+		
+		HashMap<Integer, Integer> scoresDict = new HashMap<Integer, Integer>();
+		for (int i = 0; i < module.getGapInfos().size(); i++) {
+			GapInfo gap = module.getGapInfos().get(i);
+			enteredValue = getElementText(gap);
+			
+			if (isGapCheckable(gap) && gap.isCorrect(enteredValue)) {
+				scoresDict.put(i + 1, gap.getValue());
+			}
+		}
+		
+		for (int i = 0; i < module.getChoiceInfos().size(); i++) {
+			InlineChoiceInfo choice = module.getChoiceInfos().get(i);
 			enteredValue = getElementText(choice.getId());
 			
 			boolean isCorrectAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
-
 			if (isCorrectAnswer) {
-				score += choice.getValue();
+				scoresDict.put(i + 1 + module.getGapInfos().size(), choice.getValue());
 			}
 		}
+		
+		HashSet<Integer> gapsWithScoresIndexes = new HashSet<Integer>();
+		for (Integer gapIndex: scoresDict.keySet()) {
+			gapsWithScoresIndexes.add(gapIndex);
+		}
+		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
+			score += calculateScoreForGroupGaps(gapsWithScoresIndexes, groupGapsItem);
+			
+			ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+			for (Integer gapIndex: gapsIndexes) {
+				scoresDict.remove(gapIndex);
+			}
+		}
+		
+		for (Integer gapScore: scoresDict.values()) {
+			score += gapScore;
+		}
+
 		return score;
+	}
+	
+	private int calculateScoreForGroupGaps(HashSet<Integer> gapsWithScoresIndexes, GroupGapsListItem groupGapsItem) {
+		ArrayList<Integer> gapsIndexes = groupGapsItem.getParsedGapsIndexes();
+		if (gapsWithScoresIndexes.containsAll(gapsIndexes) && gapsIndexes.size() != 0) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private String getElementText(String id) {
 		return values.get(id) == null ? "" : values.get(id).trim();
 	}
 
-     private String getElementText(GapInfo gap) {
+	 private String getElementText(GapInfo gap) {
 		String userAnswer =  getElementText(gap.getId());
 		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
 			userAnswer = gap.getPlaceHolder();
@@ -672,6 +778,28 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				audio.reset();
 				button.setStartPlayingStyleClass();
+				sendOnAudioEndEvent(audioInfo.getIndex());
+			}
+
+			@Override
+			public void onAudioTimeUpdate(AudioInfo audioInfo) {
+				AudioWidget audioWidget = audioInfo.getAudio();
+				String currentTime = audioWidget.getCurrentTimeInMMSSFormat();
+				if (currentTime != audioInfo.getCurrentTime()) {
+					audioInfo.setCurrentTime(currentTime);
+					
+					sendOnAudioCurrentTimeChangingEvent(audioInfo.getIndex(), currentTime);
+				}
+			}
+
+			@Override
+			public void onAudioPlaying(AudioInfo audioInfo) {
+				sendOnAudioPlayingEvent(audioInfo.getIndex());
+			}
+
+			@Override
+			public void onAudioPause(AudioInfo audioInfo) {
+				sendOnAudioPauseEvent(audioInfo.getIndex());
 			}
 
 			@Override
@@ -712,6 +840,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			@Override
 			public void onGapFocused(String gapId, Element element) {
+				markGapAsAccessed(gapId);
 				gapFocused(gapId, element);
 			}
 
@@ -789,8 +918,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				JavaScriptUtils.log(nfe);
 			}
 		}
-
-		sendValueChangedEvent(itemID, newValue, score);
+		
+		Integer groupIndex = -1;
+		try {
+			groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		} catch(NumberFormatException nfe) {
+			JavaScriptUtils.log(nfe);
+		}
+		if (groupIndex == -1) {
+			this.sendValueChangedEvent(itemID, newValue, score);
+		} else {
+			this.sendGapInGroupValueChangedEvent(itemID, newValue, score);
+			
+			GroupGapsListItem group = this.module.getGroupGaps().get(groupIndex);
+			String groupScore = Integer.toString(getGroupScore(group));
+			if (groupScore != "-1") {
+				String groupID = Integer.toString(groupIndex + 1);
+				this.sendGroupValueChangedEvent(groupID, groupScore);
+			}
+		}
 	}
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
@@ -847,8 +993,26 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		fireItemConsumedEvent();
 		String score = Integer.toString(getItemScore(gapId));
-		this.sendValueChangedEvent(itemID, value, score);
-
+		
+		Integer groupIndex = -1;
+		try {
+			groupIndex = this.module.findGapGroupIndex(Integer.valueOf(itemID));
+		} catch(NumberFormatException nfe) {
+			JavaScriptUtils.log(nfe);
+		}
+		if (groupIndex == -1) {
+			this.sendValueChangedEvent(itemID, value, score);
+		} else {
+			this.sendGapInGroupValueChangedEvent(itemID, value, score);
+			
+			GroupGapsListItem group = this.module.getGroupGaps().get(groupIndex);
+			String groupScore = Integer.toString(getGroupScore(group));
+			if (groupScore != "-1") {
+				String groupID = Integer.toString(groupIndex + 1);
+				this.sendGroupValueChangedEvent(groupID, groupScore);
+			}
+		}
+		
 		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
@@ -865,7 +1029,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		view.refreshGapMath(gapId);
-    }
+	}
 
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);
@@ -882,6 +1046,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (enteredValue == "") {
 				input.setValue(gap.getPlaceHolder());
 			}
+		}
+		values.put(gapId, input.getValue());
+	}
+
+	protected void markGapAsAccessed(String gapId) {
+		GapWidget gw = getGapWidgetFromGapId(gapId);
+		if (!gw.hasGapBeenAccessed()) {
+			gw.markGapAsAccessed();
 		}
 	}
 
@@ -937,9 +1109,26 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			input.setAttribute("placeholder", gap.getPlaceHolder());
 		}
 
-		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (!module.ignoreDefaultPlaceholderWhenCheck() && enteredValue.equals(gap.getPlaceHolder())) {
 			input.setValue("");
 		}
+	}
+
+	private void restoreGapVisitedState(String gapId) {
+	   InputElement input = DOM.getElementById(gapId).cast();
+	   String enteredValue = input.getValue();
+	   GapInfo gap = getGapInfoById(gapId);
+	   String placeholder = gap.getPlaceHolder();
+
+	   if (!enteredValue.equals(placeholder)) {
+		   return;
+	   }
+
+	   if (module.ignoreDefaultPlaceholderWhenCheck()) {
+		   input.setValue(placeholder);
+	   } else {
+		   input.setValue("");
+	   }
 	}
 
 	private GapInfo getGapInfoById(String gapId) {
@@ -1052,6 +1241,40 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return "";
 	}
+	
+	/**
+	 * Get group score using gap id
+	 *
+	 * @param currentItemID
+	 * @return 1 if all items in group are correct,
+	 *         0 if all items in group filled in and at least one item is wrong,
+	 *        -1 if at least one item in group is empty and this is not a correct answer
+	 **/
+	private int getGroupScore(GroupGapsListItem group) {
+		int gapInfosSize = this.module.getGapInfos().size();
+		for (Integer gapIndex: group.getParsedGapsIndexes()) {
+			String gapId = getGapIdByGapIndex(gapIndex - 1);
+			GapInfo gapInfo = getGapInfoById(gapId);
+			String enteredValue = getElementText(gapInfo);
+			int gapScore = getItemScore(gapId);
+			if (enteredValue.isEmpty() && gapScore == 0) {
+				return -1;
+			}
+			if (gapScore == 0) {
+				return 0;
+			}
+		}
+		
+		return 1;
+	}
+	
+	private String getGapIdByGapIndex(Integer gapIndex) {
+		Integer gapInfosSize = module.getGapInfos().size();
+		if (gapIndex < gapInfosSize) {
+			return module.getGapInfos().get(gapIndex).getId();
+		}
+		return module.getChoiceInfos().get(gapIndex - gapInfosSize).getId();
+	}
 
 	private int getItemScore(String itemID) {
 		int score = 0;
@@ -1073,7 +1296,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 						score = choice.getValue();
 					}
 				} else {
-					if(choice.getAnswer().compareToIgnoreCase(enteredChoiceValue) == 0) {
+					if (choice.getAnswer().compareToIgnoreCase(enteredChoiceValue) == 0) {
 						score = choice.getValue();
 					}
 				}
@@ -1144,6 +1367,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		presenter.setGapAnswer = function(gapId, answer) {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapAnswer(ILjava/lang/String;)(gapId, answer);
+		}
+
+		presenter.setGapText = function(gapIndex, text) {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setGapText(ILjava/lang/String;)(gapIndex, text);
 		}
 
 		presenter.getGapValue = function(gapId) {
@@ -1331,6 +1558,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isMathShowAnswersActive = false;
 	}
 
+	private void setGapText(int gapIndex, String text) {
+		if (view != null && gapIndex <= view.getChildrenCount() && gapIndex > 0) {
+			TextElementDisplay gap = view.getChild(gapIndex-1);
+			String gapID = gap.getId();
+			view.setValue(gapID, text);
+			view.refreshMath();
+			values.put(gapID, text);
+			fireItemConsumedEvent();
+		}
+	}
+
 	private boolean isGapAttempted(int index) {
 		if (isShowAnswers()) {
 			hideAnswers();
@@ -1413,7 +1651,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-	private boolean isActivity() {
+	@Override
+	public boolean isActivity() {
 		return module.isActivity();
 	}
 
@@ -1442,21 +1681,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void show() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = true;
 		if (view != null) {
 			view.show(true);
 		}
+
+		if (isShowAnswers()) {
+			for (int i = 0; i < view.getChildrenCount(); i++) {
+				TextElementDisplay child = view.getChild(i);
+				child.reset();
+				child.setStyleShowAnswers();
+			}
+
+			this.setShowAnswersTextInGaps();
+
+			view.refreshMath();
+		}
 	}
 
 	private void hide() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		isVisible = false;
 		if (view != null) {
 			view.hide();
@@ -1475,9 +1718,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public boolean isSelectable (boolean isTextToSpeechOn) {
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
-		final boolean isEnabled = !this.module.isDisabled();
+		final boolean hasLinks = module.getLinkInfos().iterator().hasNext();
+		final boolean isEnabled = (!this.module.isDisabled()) || isTextToSpeechOn;
 		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
+		return (isTextToSpeechOn || isWithGaps || hasLinks) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override
@@ -1501,7 +1745,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public boolean isEnterable() {
-		return WCAGUtils.hasGaps(this.module);
+		return WCAGUtils.hasGaps(this.module) || WCAGUtils.hasLinks(this.module);
 	}
 
 	@Override
@@ -1519,11 +1763,59 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
+
 	private void sendRemoveFromGapValueChangedEvent(String gapId) {
 		String value = "";
 		String score = "0";
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioPlayingEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "playing";
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioCurrentTimeChangingEvent(int audioId, String currentTime) {
+		String itemID = "" + audioId;
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, currentTime, score);
+	}
+
+	private void sendOnAudioPauseEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "pause";
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void sendOnAudioEndEvent(int audioId) {
+		String itemID = "" + audioId;
+		String value = "end";
+		String score = "";
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	public void sendGapInGroupValueChangedEvent(String itemID, String value, String score) {
+		String newScore = "correct";
+		if (score == "0") {
+			newScore = "wrong";
+		}
+		
+		this.sendValueChangedEvent(itemID, value, newScore);
+	}
+
+	public void sendGroupValueChangedEvent(String groupID, String score) {
+		String itemID = "Group" + groupID;
+		String value = "";
+		
 		this.sendValueChangedEvent(itemID, value, score);
 	}
 
@@ -1545,4 +1837,24 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return view.getScoreWithMetadata();
 	}
 
+	private GapWidget getGapWidgetFromGapId(String gapId) {
+		GapWidget gw = null;
+		for (int i=0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			if (gapId.equalsIgnoreCase(child.getId()) && child instanceof GapWidget ) {
+				gw = (GapWidget) view.getChild(i);
+				break;
+			}
+		}
+
+		return gw;
+	}
+
+	private boolean isGapCheckable(GapInfo gap) {
+		GapWidget gw = getGapWidgetFromGapId(gap.getId());
+		if (gw == null) {
+			return true;
+		}
+		return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	}
 }

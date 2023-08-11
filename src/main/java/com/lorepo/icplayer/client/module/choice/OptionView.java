@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.choice;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -24,8 +26,12 @@ import com.lorepo.icplayer.client.module.text.LinkWidget;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
+import com.google.gwt.dom.client.EventTarget;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
+
+    public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	private ChoiceOption choiceOption;
 	private ParserResult parserResult;
@@ -45,6 +51,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		
 		TextParser parser = new TextParser();
 		parserResult = parser.parse(choiceOption.getText());
+		audioInfos = parserResult.audioInfos;
 		this.setHTML(parserResult.parsedText);
 
 		if(isMulti){
@@ -65,6 +72,12 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
+			var isFromInsertedAudio = $wnd.$(e.target).is("input");
+			if (isFromInsertedAudio) return;
+			
+			var isFromAddedAudio = $wnd.$(e.target).parents().hasClass("inner_addon");
+			if (isFromAddedAudio) return;
+			
 			e.preventDefault();
 			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
 			if(isEnabled){
@@ -73,15 +86,32 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		});
 	}-*/;
 	
-	
 	@Override
 	public void onBrowserEvent(Event event) {
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
 	    	event.stopPropagation();
 	    }
 	    if( DOM.eventGetType(event) != Event.ONTOUCHEND) { //Touchend is handled in setListener
+            if (isEventTargetAudioButton(event)) { //if click event comes from audio then option should not be checked
+                return;
+            }
 	    	super.onBrowserEvent(event);
 	    }
+	}
+
+	private boolean isEventTargetAudioButton (Event event) {
+	    EventTarget target = event.getEventTarget();
+	    if(!com.google.gwt.dom.client.Element.is(target)) {
+	        return false;
+	    }
+
+	    com.google.gwt.dom.client.Element elem = com.google.gwt.dom.client.Element.as(target);
+	    String classNames = elem.getClassName();
+	    if (classNames.contains("ic_text_audio_button")) {
+	        return true;
+	    }
+
+	    return false;
 	}
 	
 	protected void onAttach() {
@@ -302,4 +332,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		return choiceOption.getParentId() + "_ic_option_" + choiceOption.getID();
 	}
 
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
+	}
 }

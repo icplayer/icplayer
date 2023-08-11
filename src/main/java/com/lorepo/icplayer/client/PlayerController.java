@@ -39,6 +39,7 @@ import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
@@ -348,6 +349,7 @@ public class PlayerController implements IPlayerController {
 					}
 				}
 				pageLoaded(page, pageController);
+				visitedPages.add(page);
 				if(pageLoadListener != null){
 					pageLoadListener.onFinishedLoading(producedItem);
 				}
@@ -668,7 +670,14 @@ public class PlayerController implements IPlayerController {
 	}
 	
 	private native int getScrollTop() /*-{
-		return $wnd.window.top.pageYOffset;
+		var scrollTop = $wnd.window.top.pageYOffset;
+		if (scrollTop === 0) {
+			var contentView = $wnd.document.getElementById('content-view');
+			if (contentView != null && contentView.scrollTop) {
+				scrollTop = contentView.scrollTop;
+			}
+		};
+		return scrollTop;
 	}-*/;
 
 	public void setIframeScroll (int scroll) {
@@ -791,7 +800,10 @@ public class PlayerController implements IPlayerController {
 
 	public void clearVisitedPages() {
 		this.visitedPages.clear();
-		this.visitedPages.add(this.pageController1.getPage());
+		IPage page = this.pageController1.getPage();
+		if (page != null) {
+		    this.visitedPages.add(page);
+		}
 	}
 
 	@Override
@@ -825,5 +837,18 @@ public class PlayerController implements IPlayerController {
 	public String getExternalVariable(String key) {
 		IPlayerServices services = this.pageController1.getPlayerServices();
 		return services.getExternalVariable(key);
+	}
+
+	@Override
+	public void setAllPagesAsVisited() {
+		int pageCount = this.getModel().getPageCount();
+		for (int i = 0; i < pageCount; i++) {
+			IPage page = this.getModel().getPage(i);
+			if (!visitedPages.contains(page)) {
+                		visitedPages.add(page);
+				PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
+				scoreService.setPageScore(page, newPageScore);
+			}
+		}
 	}
 }

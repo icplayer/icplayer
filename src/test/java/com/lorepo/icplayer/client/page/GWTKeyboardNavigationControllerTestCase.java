@@ -133,7 +133,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		
 		Browser.dispatchEvent(RootPanel.get(), eventActivate);
 		
-		assertTrue(this.headerPageController.getWidgets().get("button1").getElement().getClassName().indexOf("ic_active_module") == -1);
+		assertTrue(this.headerPageController.getWidgets().get("button2").getElement().getClassName().indexOf("ic_active_module") == -1);
 	}
 	
 	

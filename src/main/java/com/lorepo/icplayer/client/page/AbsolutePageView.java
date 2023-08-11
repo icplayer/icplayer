@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.dimensions.PageDimensionsForCalculations;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
+import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -38,7 +39,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	@Override
 	public void setPage(Page newPage) {
 		this.currentPage = newPage;
-		String styles = "position:relative;overflow:hidden;";
+		String styles = "position:relative;overflow:hidden;-webkit-text-size-adjust: 100%;";
 		if(this.currentPage.getInlineStyle() != null){
 			styles += URLUtils.resolveCSSURL(this.currentPage.getBaseURL(), this.currentPage.getInlineStyle());
 		}
@@ -73,9 +74,13 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
-			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-		    this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			Boolean isAddonGap = NestedAddonUtils.insertIntoAddonGap(module.getId(), moduleView.getElement(), this.getElement());
+			if (isAddonGap) {
+				adopt(moduleView);
+			} else {
+		    	this.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			}
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
@@ -92,7 +97,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 					.compute(this.widgets);
 			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-			groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			Boolean isAddonGap = NestedAddonUtils.insertIntoAddonGap(module.getId(), moduleView.getElement(), this.getElement());
+			if (isAddonGap) {
+				adopt(moduleView);
+			} else {
+				groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
+			}
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
@@ -173,26 +183,35 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		}
 		
 		if (difference > 0 && !isRestore) {
-			int height = this.height + difference + calculateStaticHeaderFooterHeight();
-			this.height = this.height + difference;
-			this.setHeight(height + "px");
+			this.changeHeightConsideringStaticHeaderFooterHeight(difference);
 			this.createPageDimensions();
 			if (PlayerApp.isStaticFooter()) {
 				setProperFotterPosition();
 			}
 		} else if (difference < 0 && !isRestore) {
-			if (PlayerApp.isStaticHeader() || PlayerApp.isStaticFooter()) {
-				setProperPageHeight(difference);
-			}
-			if(!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
-				int height = this.height + difference + calculateStaticHeaderFooterHeight();
-				this.height = this.height + difference;
-				this.setHeight(height + "px");
-			}else{
+			if (!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
+			    this.changeHeightConsideringStaticHeaderFooterHeight(difference);
+			} else {
 				setHeight(this.height + difference);
 			}
 		} else {
 			setHeight(this.height + difference);
 		}
+
+		if (!isRestore && (PlayerApp.isStaticHeader() || PlayerApp.isStaticFooter())) {
+			setProperPageHeight(difference);
+			int newPagePanelHeight = this.height + calculateStaticHeaderFooterHeight();
+			setPagePanelHeight(newPagePanelHeight);
+		}
+	}
+
+	private void changeHeightConsideringStaticHeaderFooterHeight(int difference) {
+		int height = this.height + difference + calculateStaticHeaderFooterHeight();
+		this.height = this.height + difference;
+		this.setHeight(height + "px");
+	}
+
+	private void setPagePanelHeight(int height) {
+		this.getParent().setHeight(height + "px");
 	}
 }

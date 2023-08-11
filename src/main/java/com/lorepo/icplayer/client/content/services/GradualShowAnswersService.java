@@ -1,8 +1,9 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
-import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
@@ -16,7 +17,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private List<IGradualShowAnswersPresenter> presenters;
     private Map<String, Boolean> presenterDisabledState;
     private Map<String, Integer> presenterActivitiesCountUsed;
-
 
     public GradualShowAnswersService(IPageController pageController) {
         this.pageController = pageController;
@@ -105,9 +105,11 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
     private void disablePresenters() {
         for (IPresenter presenter : this.pageController.getPresenters()) {
+            if (presenter instanceof AddonPresenter) {
+                AddonPresenter addonPresenter = (AddonPresenter)presenter;
+                if (addonPresenter.isEnabledInGSAMode()) continue;
+            }
             // remember the state of presenters, so it can be restored when the mode is switched off
-            if (presenter.getModel().getModuleTypeName() == "Gradual_Show_Answer")
-                continue;
             presenterDisabledState.put(presenter.getModel().getId(), presenter.isDisabled());
 
             presenter.setDisabled(true);
@@ -122,6 +124,10 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         List<IPresenter> pagePresenters = this.pageController.getPresenters();
         if (pagePresenters != null) {
             for (IPresenter presenter : pagePresenters) {
+                if (presenter instanceof IActivity) {
+                    boolean isActivity = ((IActivity)presenter).isActivity();
+                    if (!isActivity) continue;
+                }
                 if (presenter instanceof IGradualShowAnswersPresenter) {
                     presenters.add((IGradualShowAnswersPresenter) presenter);
                     presenterActivitiesCountUsed.put(presenter.getModel().getId(), 0);

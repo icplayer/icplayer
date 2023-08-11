@@ -50,6 +50,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Plot", "activities_menu");
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
+		addDescriptor("Speechace", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
 		addDescriptor("Text_Coloring", "activities_menu");
@@ -117,6 +118,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("IWB_Toolbar", "media_menu");
 		addDescriptor("Layered_Image", "media_menu");
 		addDescriptor("Line", "media_menu");
+		addDescriptor("LottiePlayer", "media_menu");
 		addDescriptor("MultiAudio", "media_menu");
 		addDescriptor("Shape_Tracing", "media_menu");
 		addDescriptor("Slideshow", "media_menu");
@@ -133,6 +135,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Heading", "media_menu");
 		addDescriptor("Media_Recorder", "media_menu");
 		addDescriptor("FlashCards", "media_menu");
+		addDescriptor("EditableWindow", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
@@ -143,6 +146,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Event_Listener", "scripting_menu");
 		addDescriptor("Event_Sender", "scripting_menu");
 		addDescriptor("feedback", "scripting_menu");
+		addDescriptor("File_Sender", "scripting_menu");
+		addDescriptor("Automatic_Feedback", "scripting_menu");
 		addDescriptor("FractionsBinder", "scripting_menu");
 		addDescriptor("Logger", "scripting_menu");
 		addDescriptor("Multiple_Audio_Controls_Binder", "scripting_menu");
@@ -154,6 +159,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Variable_Storage", "scripting_menu");
 		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
 		addDescriptor("Grid_Scene", "scripting_menu");
+		addDescriptor("Gap_Binder", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
 		addDescriptor("Text_To_Speech", "scripting_menu");
         addDescriptor("PseudoCode_Console", "scripting_menu");
@@ -163,9 +169,6 @@ public class AddonDescriptorFactory {
 		addDescriptor("LearnPen", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
-
-		// NOT VISIBLE
-        addDescriptor("EditableWindow", "not_visible");
     }
 
 	private void addDescriptor(String id, String category) {
@@ -190,14 +193,20 @@ public class AddonDescriptorFactory {
 	}
 	
 	public void setWirisEnabled(boolean isEnabled) {
-		if (isEnabled) {
-			if (!addonList.containsKey("MathText")) {
-				addDescriptor("MathText", "activities_menu");
-			}
-		} else {
-			if (addonList.containsKey("MathText")) {
-				addonList.remove("MathText");
-			}
-		}
+		setOptionalAddonEnabled(isEnabled, "MathText", "activities_menu");
+	}
+
+	public void setSpeechaceEnabled(boolean isEnabled) {
+	    setOptionalAddonEnabled(isEnabled, "Speechace", "activities_menu");
+	}
+
+	private void setOptionalAddonEnabled(boolean isEnabled, String addonName, String category) {
+        if (isEnabled && !addonList.containsKey(addonName)) {
+            addDescriptor(addonName, category);
+        }
+
+        if (!isEnabled && addonList.containsKey(addonName)) {
+            addonList.remove(addonName);
+        }
 	}
 }

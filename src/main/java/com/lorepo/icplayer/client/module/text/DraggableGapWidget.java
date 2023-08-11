@@ -12,11 +12,12 @@ import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.model.alternativeText.IToken;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DraggableGapWidget extends HTML implements TextElementDisplay, AltTextGap {
+public class DraggableGapWidget extends HTML implements TextElementDisplay, AltTextGap, NavigationTextElement {
 
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
@@ -221,7 +222,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 
 			super.setHTML(visibleText);
 			answerText = TextParser.removeHtmlFormatting(visibleText);
-			droppedElementHelper = getElement(visibleText);
+			droppedElementHelper = getElement(answerText);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			if (!droppedElementHelper.isEmpty() && !isShowAnswersMode){
 				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
@@ -246,6 +247,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public String getId() {
 		return gapInfo.getId();
+	}
+
+    @Override
+	public boolean getResetStatus() {
+	    return gapInfo.getResetStatus();
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+	    gapInfo.setResetStatus(wasReset);
 	}
 
 	@Override
@@ -333,6 +344,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 		} else {
 			this.deselect();
 		}
+	}
+
+	@Override
+	public void setElementFocus(boolean focus) {
+		setFocus(focus);
+	}
+
+	@Override
+	public String getElementType() {
+		return "draggable";
 	}
 
 	@Override

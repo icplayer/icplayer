@@ -1,4 +1,4 @@
-<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="3">
+<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="5">
     <metadata>
         <entry key="useGrid" value="true"/>
         <entry key="snapToGrid" value="true"/>
@@ -81,6 +81,7 @@
         <layout id="default" isDefault="true" name="default">
             <style id="default"/>
             <threshold width="800"/>
+            <gridSize value="0"/>
         </layout>
     </layouts>
     <pages>
@@ -135,4 +136,6 @@
         <asset contentType="image/png" fileName="" href="http://0x0800.github.io/2048-STARWARS/style/img/8.svg" title="" type="image"/>
     </assets>
     <adaptive><![CDATA[]]></adaptive>
+    <dictionary></dictionary>
+    <defaultTTSTitlesDictionary></defaultTTSTitlesDictionary>
 </interactiveContent>

@@ -8,7 +8,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -21,6 +20,7 @@ import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
@@ -32,10 +32,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<NavigationTextElement> navigationTextElements = new ArrayList<NavigationTextElement>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int clicks = -1;
-	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
@@ -44,7 +43,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
-	
+
+	// active index of navigation text elements (including links). The order follows the order of navigation elements.
+	private int keyboardNavigationCurrentElementIndex = -1;
+	private NavigationTextElement keyboardNavigationCurrentElement = null;
+	private TextElementDisplay activeGap = null;
+
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
@@ -60,7 +64,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public void mathJaxLoaded() {
 		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
-	
+
 	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
@@ -69,14 +73,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
-		
+
 		if (this.module.isTabindexEnabled()) {
 			this.getElement().setTabIndex(0);
 		}
-		
+
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
-	
+
 	public void mathJaxIsLoadedCallback() {
         if (!this.mathJaxIsLoaded) {
             this.mathJaxIsLoaded = true;
@@ -90,12 +94,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void addElement(TextElementDisplay el) {
 		textElements.add(el);
+		navigationTextElements.add((NavigationTextElement) el);
 	}
 
 	@Override
 	public void connectInlineChoices (List<InlineChoiceInfo> InlineChoiceList) {
 		final int gapWidth = module.getGapWidth();
-		
+
 		for (InlineChoiceInfo ic: InlineChoiceList) {
 			inlineChoiceInfoArrayList.add(ic);
 			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener,this);
@@ -103,13 +108,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
-			
+
 			gap.setDisabled(module.isDisabled());
-			
+
 			textElements.add(gap);
+			navigationTextElements.add(gap);
 		}
 	}
-	
+
 	private void setPageControllerToInLineChoices () {
 		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
 			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener,this);
@@ -126,9 +132,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
-			
+
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
+			navigationTextElements.add(gap);
 		}
 	}
 
@@ -140,18 +147,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			try {
 				GapWidget gap = new GapWidget(gi, listener);
 				gap.setIgnorePlaceholder(module.ignoreDefaultPlaceholderWhenCheck());
-				
+
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
-				
+
 				if (!module.isOldGapSizeCalculation()) {
 					setSizeAttributeToLongestAnswerSize(gap, gi);
 				}
-				
+
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
+				navigationTextElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -172,7 +180,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
-				
+
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 			} catch (Exception e) {
@@ -206,6 +214,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 
 						textElements.add(gap);
+						navigationTextElements.add(gap);
 						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
@@ -229,20 +238,25 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						event.stopPropagation();
 						event.preventDefault();
 						if (listener != null) {
-							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
+							String validLink = StringUtils.unescapeXML(info.getHref());
+							listener.onLinkClicked(info.getType(), validLink, info.getTarget());
 						}
 						event.preventDefault();
 					}
 				});
+
+				navigationTextElements.add(widget);
 			}
 		}
 	}
 
 	@Override
 	public void connectAudios(Iterator<AudioInfo> iterator) {
+		int audioIndex = 1;
 		while (iterator.hasNext()) {
 			final AudioInfo info = iterator.next();
 			String id = info.getId();
+			info.setIndex(audioIndex);
 
 			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
 			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
@@ -271,14 +285,55 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 			});
 
+			this.addAudioUpdateTimeEventListener(info);
+			this.addAudioPlayingEventListener(info);
+			this.addAudioPauseEventListener(info);
+
 			textElements.add(button);
+			audioIndex += 1;
 		}
 	}
 
-	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
-		for (int i=startingIndex; i<textElements.size(); i++) {
-			TextElementDisplay textElement = textElements.get(i);
-			String teGapType = textElement.getGapType() == "draggable" ? "gap" : textElement.getGapType();
+	private native void addAudioUpdateTimeEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("timeupdate", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioTimeUpdate(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
+
+	private native void addAudioPlayingEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("playing", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioPlaying(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
+
+	private native void addAudioPauseEventListener (AudioInfo info) /*-{
+		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
+		var audioElement = audioWidget.@com.lorepo.icplayer.client.module.text.AudioWidget::getElement()();
+		var that = this;
+		audioElement.addEventListener("pause", function(event) {
+			var listener = that.@com.lorepo.icplayer.client.module.text.TextView::getListener()();
+			if (listener != null) {
+				listener.@com.lorepo.icplayer.client.module.text.ITextViewListener::onAudioPause(Lcom/lorepo/icplayer/client/module/text/AudioInfo;)(info);
+			}
+		});
+	}-*/;
+
+	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<NavigationTextElement> navigationTextElements) {
+		for (int i=startingIndex; i<navigationTextElements.size(); i++) {
+			NavigationTextElement textElement = navigationTextElements.get(i);
+			String teGapType = textElement.getElementType() == "draggable" ? "gap" : textElement.getElementType();
 			if (teGapType == gapType) {
 				return i;
 			}
@@ -286,26 +341,26 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 		return -1;
 	}
-	
+
 	public void sortGapsOrder () {
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
-		final int textElementsSize = textElements.size();
-		
+		final int textElementsSize = navigationTextElements.size();
+
 		if (gapsOrderSize == 0 && textElementsSize != gapsOrderSize) {
 			return;
 		}
-		
+
 		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
 			final String gapType = gapsOrder.get(i);
-			final String currentGapType = textElements.get(i).getGapType();
-			
+			final String currentGapType = navigationTextElements.get(i).getElementType();
+
 			if (gapType != currentGapType) {
-				int correctElementId = getIndexOfNextGapType(i, gapType, textElements);
-				
+				int correctElementId = getIndexOfNextGapType(i, gapType, navigationTextElements);
+
 				if (correctElementId != -1) {
-					textElements.add(i, textElements.get(correctElementId));
-					textElements.remove(correctElementId+1);
+					navigationTextElements.add(i, navigationTextElements.get(correctElementId));
+					navigationTextElements.remove(correctElementId+1);
 				}
 			}
 		}
@@ -397,7 +452,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 		super.setHTML(html);
 	}
-	
+
 	public void setValue(String text) {
 		super.setHTML(text);
 		this.module.setText(text);
@@ -441,7 +496,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			rerenderMathJax();
 		}
 	}
-	
+
 	private void reconnectHandlers () {
 		for (GapWidget element: this.gapsWidgets) {
 			element.reconnectHandlers(this.listener);
@@ -451,13 +506,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private int getTextElementsSize() {
 		return textElements.size();
 	}
-	
+
 	private void removeAllSelections () {
 		for (TextElementDisplay element: this.textElements) {
 			element.deselect();
 		}
 	}
-	
+
+	private void removeNavigationElementSelections () {
+		for (NavigationTextElement element: this.navigationTextElements) {
+			element.deselect();
+		}
+	}
+
 	public native void connectDOMNodeRemovedEvent (String id) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -499,73 +560,125 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public String getName() {
 		return "Text";
 	}
-	
+
+	private void handleWCAGExit() {
+		this.removeNavigationElementSelections();
+		activeGap = null;
+		keyboardNavigationCurrentElementIndex = -1;
+		keyboardNavigationCurrentElement = null;
+		moduleHasFocus = false;
+	}
+
 	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
-			this.removeAllSelections();
-			clicks = -1;
-			activeGap = null;
+			handleWCAGExit();
 		} else {
 			if (activeGap == null) {
-				if (textElements.size() > 0) {
-					activeGap = textElements.get(0);
+				if (navigationTextElements.size() > 0) {
+					NavigationTextElement navigationElement = navigationTextElements.get(0);
+					activeGap = findDisplayElementForNavigationElement(navigationElement);
 				}
 			} else {
 				if (!moduleHasFocus) {
-					activeGap.setFocusGap(true);
-					moduleHasFocus = true;
+					move(true);
 				}
 			}
-
 			this.readTextContent();
 		}
 	}
-	
+
 	private void move (boolean goNext) {
-		int size = getTextElementsSize();
-		
-		if (size == 0) {
+		int keyboardNavigationElementsLen = navigationTextElements.size();
+		if (keyboardNavigationElementsLen == 0) {
 			return;
 		}
-		
-		this.removeAllSelections();
-		
-		clicks += goNext ? 1 : -1;
-		
-		if (clicks >= size) {
-			clicks = size-1;
+
+		int keyboardNavigationNextElementIndex = goNext
+			? keyboardNavigationCurrentElementIndex + 1
+			: keyboardNavigationCurrentElementIndex - 1;
+		if (keyboardNavigationNextElementIndex >= keyboardNavigationElementsLen) {
+			keyboardNavigationNextElementIndex = keyboardNavigationElementsLen - 1;
+		} else if (keyboardNavigationNextElementIndex < 0) {
+			keyboardNavigationNextElementIndex = 0;
+		}
+
+		this.removeNavigationElementSelections();
+		this.keyboardNavigationCurrentElementIndex = keyboardNavigationNextElementIndex;
+		this.keyboardNavigationCurrentElement = navigationTextElements.get(keyboardNavigationNextElementIndex);
+		this.keyboardNavigationCurrentElement.setElementFocus(true);
+		this.moduleHasFocus = true;
+
+		adjustActiveGapInformation();
+	}
+
+	private void adjustActiveGapInformation() {
+		if (this.keyboardNavigationCurrentElement instanceof LinkWidget) {
+			return;
+		}
+
+		TextElementDisplay nextGap = findDisplayElementForNavigationElement(this.keyboardNavigationCurrentElement);
+		if (nextGap == null) {
+			return;
+		}
+
+		this.activeGap = nextGap;
+	}
+
+	private TextElementDisplay findDisplayElementForNavigationElement(NavigationTextElement navigationElement) {
+		String searchId = navigationElement.getId();
+		for (int i = 0; i < textElements.size(); i++) {
+			TextElementDisplay displayElement = textElements.get(i);
+			if (searchId == displayElement.getId()) {
+				return displayElement;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Find the index of the active gap.
+	 * - When counting the index, links are not taken into account.
+	 * - The index is calculated relative to the position of the gap relative to other gaps counting from the top down.
+	 * - The type of the gap does not matter.
+	 */
+	private int findActiveGapIndex() {
+		if (activeGap == null) {
+			return -1;
 		}
 		
-		if (clicks < 0) {
-			clicks = 0;
+		String searchId = activeGap.getId();
+		int relativeIndex = 0;
+		for (int i = 0; i < navigationTextElements.size(); i++) {
+			NavigationTextElement navigationTextElement = navigationTextElements.get(i);
+			if (searchId == navigationTextElement.getId()) {
+				return relativeIndex;
+			}
+			
+			if (!(navigationTextElement instanceof LinkWidget)) {
+				relativeIndex++;
+			}
 		}
-		
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
-		moduleHasFocus = true;
-		
-		this.readGap(activeGap, clicks);
+		return -1;
 	}
 
 	@Override
 	public void tab (KeyDownEvent event) {
 		this.move(true);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
 	public void escape(KeyDownEvent event) {
 	    event.preventDefault();
-		this.removeAllSelections();
-		moduleHasFocus = false;
-		clicks = -1;
-		activeGap = null;
+	    handleWCAGExit();
 	}
 
 	@Override
 	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
-	
+
 	@Override
 	public void left (KeyDownEvent event) {
 		inlineChoiceChangeSelected(event, false);
@@ -578,28 +691,41 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void down (KeyDownEvent event) {
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
-			event.preventDefault(); 
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
+			event.preventDefault();
 		}
-				
+
 	inlineChoiceChangeSelected(event, true);
 	}
 
 	@Override
-	public void up (KeyDownEvent event) {		
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
-			event.preventDefault(); 
+	public void up (KeyDownEvent event) {
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
+			event.preventDefault();
 		}
-		
+
 		inlineChoiceChangeSelected(event, false);
 	}
 
 	@Override
 	public void space(KeyDownEvent event) {
-		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
-			event.preventDefault(); 
+		boolean isActivatedLinkWidget = keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType() == "link";
+
+		if(WCAGUtils.hasLinks(this.module) && isActivatedLinkWidget) {
+			LinkWidget linkWidget = (LinkWidget) keyboardNavigationCurrentElement;
+			LinkInfo linkInfo = linkWidget.getLinkInfo();
+
+			if (listener != null) {
+				listener.onLinkClicked(linkInfo.getType(), linkInfo.getHref(), linkInfo.getTarget());
+			}
+
+			return;
 		}
-				
+
+		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
+			event.preventDefault();
+		}
+
 	    if(!WCAGUtils.hasGaps(this.module)){ // text without gaps
 	        event.preventDefault();
 	    }
@@ -638,8 +764,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
-		if (isWCAGon && activeGap!=null && activeGap.getGapType().equals("dropdown")) {
-			InlineChoiceWidget icw = (InlineChoiceWidget) activeGap;
+		if (isWCAGon && keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) keyboardNavigationCurrentElement;
 			if (icw.getPageController() == null){
 				icw.setPageController(this.pageController);
 			};
@@ -691,7 +817,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void readTextContent () {
-		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.textElements, this.module.getLangAttribute());
+		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.navigationTextElements, this.module.getLangAttribute());
 		this.speak(result);
 	}
 	
@@ -743,32 +869,57 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		gap.setSizeAttribute(longestAnswer);
 	}
 
-	private void readGap(TextElementDisplay gap, int index) {
-		List<TextToSpeechVoice> textVoices = prepareGapSpeechTexts(gap, index);
+	private void readNavigationText(NavigationTextElement element, int index) {
+		List<TextToSpeechVoice> textVoices = prepareNavigationElementSpeech(element, index);
 		this.speak(textVoices);
 	}
 
-	private List<TextToSpeechVoice> prepareGapSpeechTexts(TextElementDisplay gap, int index) {
+	private List<TextToSpeechVoice> prepareNavigationElementSpeech(NavigationTextElement element, int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 
 		textVoices.add(
-				TextToSpeechVoice.create(getGapTypeAndIndexText(gap, index))
+				TextToSpeechVoice.create(getTypeAndIndexNavigationElement(element, index))
 		);
 		textVoices.addAll(
-				getContent(gap)
+				getContent(element)
 		);
 
-		TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
-		if (isShowErrorsMode && showErrorFeedback != null) {
-			textVoices.add(showErrorFeedback);
+		if (element.getElementType() != "link") {
+			TextElementDisplay gap = (TextElementDisplay) element;
+			TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
+			if (isShowErrorsMode && showErrorFeedback != null) {
+				textVoices.add(showErrorFeedback);
+			}
 		}
 
 		return textVoices;
 	}
 
-	private List<TextToSpeechVoice> getContent(TextElementDisplay gap) {
+	private String getTypeAndIndexNavigationElement(NavigationTextElement element, int index) {
+		String type;
+		if (element.getElementType() != null && element.getElementType() == "link") {
+			return this.module.getSpeechTextItem(TextModel.LINK_INDEX);
+		}
+		else {
+			TextElementDisplay gap = (TextElementDisplay) element;
+			type = gap.getGapType().equals("dropdown") ?
+			this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) :
+			this.module.getSpeechTextItem(TextModel.GAP_INDEX);
+		}
+
+		return type + " " + Integer.toString(index + 1);
+	}
+
+	private List<TextToSpeechVoice> getContent(NavigationTextElement element) {
 		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
-		String langTag = getGapOrModuleLangTag(gap);
+		String langTag = getGapOrModuleLangTag(element);
+		
+		if (element.getElementType() == "link") {
+			content.add(TextToSpeechVoice.create(getLinkTitle(element), langTag));
+			return content;
+		}
+
+		TextElementDisplay gap = (TextElementDisplay) element;
 		String type = gap.getGapType();
 		String textValue = gap.getWCAGTextValue();
 
@@ -779,7 +930,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				);
 			}
 		} else if (gap instanceof AltTextGap) {
-			JavaScriptUtils.log(gap.getTextValue());
 			content.addAll(
 					((AltTextGap) gap).getReadableText()
 			);
@@ -788,6 +938,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		return content;
+	}
+
+	private String getLinkTitle(NavigationTextElement element) {
+		LinkWidget linkWidget = (LinkWidget) element;
+		String href = linkWidget.getHref();
+		String text = this.module.getOriginalText();
+		int hrefIndex = text.indexOf(href);
+		text = text.substring(hrefIndex);
+		int endTagLink = text.indexOf("</a>");
+
+		return text.substring((href.length() + 2), endTagLink).trim();
 	}
 
 	private TextToSpeechVoice getCorrectnessFeedback(int gapState) {
@@ -802,7 +963,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return null;
 	}
 
-	private String getGapOrModuleLangTag(TextElementDisplay gap) {
+	private String getGapOrModuleLangTag(NavigationTextElement gap) {
 		String gapLangTag = gap.getLangTag();
 		if (gapLangTag != null) {
 			return gapLangTag;

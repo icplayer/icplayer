@@ -21,15 +21,41 @@ function AddonColoring_create(){
     presenter.eventBus = null;
     presenter.lastEvent = null;
     presenter.imageHasBeenLoaded = false;
-
+    presenter.keyboardControllerObject = null;
+    presenter.colorSpeechTextMap = {};
+    presenter.isTTSExitBlocked = false;
     presenter.initialState = null;
     presenter.isCanvasInitiated = false;
+    presenter.defaultColorRGBA = [255, 100, 100, 255];
+    presenter.whiteRGBA = [255, 255, 255, 255];
 
     presenter.AREA_TYPE = {
         NORMAL: 0,
         TRANSPARENT: 1,
         USER_AREA: 2
     };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        area: "Area",
+        color: "Color",
+        selected: "Selected",
+        correct: "Correct",
+        incorrect: "Incorrect",
+    };
+
+    presenter.errorCodes = {
+        'E01': 'Wrong color notation. Must be in "r g b a" format. See documentation for more details.',
+        'E02': 'All color values must be between 0 - 255.',
+        'E03': 'Areas are configured wrong. It should be in "x; y; color; optional TTS description" format. See documentation for more details.',
+        'E04': 'Areas x & y values have to be smaller than Width and Height properties.',
+        'E05': 'Tolerance value must be between 0 - 100',
+        'E06': 'Areas are configured wrong. Color has an invalid value, or TTS description is not properly separated. See documentation for more details',
+        'E07': 'Colors property is configured wrong. "Description" field must not be empty.',
+        'A01': "Areas x & y values have to be integer values between 0 - 255."
+    };
+
+    function getErrorObject (errorCode) { return { isValid: false, isError: true, errorCode }; }
+    function getCorrectObject (value) { return { isValid: true, isError: false, value }; }
 
     function areaObject(x, y, type) {
         this.x = x;
@@ -48,22 +74,6 @@ function AddonColoring_create(){
         };
     }
 
-    presenter.upgradeModel = function(model) {
-        var upgradedModel = upgradeModelAddProperties(model);
-        return upgradedModel;
-    };
-
-    function upgradeModelAddProperties(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
-        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']){
-            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
-        }
-
-        return upgradedModel;
-    }
-
     presenter.createPreview = function(view, model){
         runLogic(view, model, true);
     };
@@ -71,12 +81,16 @@ function AddonColoring_create(){
     function setColorsThatCanBeFilled() {
         var configuration = presenter.configuration;
         configuration.colorsThatCanBeFilled = [];
-        $.each(configuration.areas, function() {
-            var color = presenter.getColorAtPoint(this.x, this.y);
+        const wholeCanvas = presenter.ctx.getImageData(0, 0, presenter.canvasWidth, presenter.canvasHeight).data;
+        const areas = configuration.areas;
+
+        for (var i = areas.length; i--;) {
+            let area = areas[i];
+            let color = getColorAtPointFromCanvas(area.x, area.y, wholeCanvas);
             if (!presenter.isAlreadyInColorsThatCanBeFilled(color)) {
                 configuration.colorsThatCanBeFilled.push(color);
             }
-        });
+        }
     }
 
     presenter.setPlayerController = function(controller) {
@@ -106,7 +120,7 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-        if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+        if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
             var eventData = presenter.createEventData(item, value, score);
             presenter.eventBus.sendEvent('ValueChanged', eventData);
 
@@ -143,7 +157,7 @@ function AddonColoring_create(){
         var configuration = presenter.configuration;
         var clickedArea = new areaObject(clickObject.x, clickObject.y, presenter.AREA_TYPE.USER_AREA);
         clickedArea.setPixelPosition();
-        clickedArea.colorToFill = [255, 255, 255, 255];
+        clickedArea.colorToFill = presenter.whiteRGBA;
 
         for(var i = 0; i < configuration.areas.length; i++) {
             var area = configuration.areas[i];
@@ -207,7 +221,7 @@ function AddonColoring_create(){
         }
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) || isRemovingWrongColor) {
-            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+            if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.fillColor,
@@ -264,7 +278,7 @@ function AddonColoring_create(){
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
+            if (!presenter.isShowAnswersActive && !presenter.isShowErrorsModeActive) {
                 presenter.floodFill(
                     presenter.click,
                     presenter.configuration.currentFillingColor,
@@ -319,10 +333,230 @@ function AddonColoring_create(){
         presenter.ctx.putImageData(imageData,0,0);
     };
 
+    presenter.upgradeModel = function(model) {
+        let upgradedModel = presenter.upgradeShowAllAnswersInGradualShowAnswersMode(model);
+        upgradedModel = presenter.upgradeColors(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeShowAllAnswersInGradualShowAnswersMode = function AddonColoring_upgradeShowAllAnswersInGradualShowAnswersMode (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeColors = function AddonColoring_upgradeColors (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+        if (!upgradedModel['colors']) {
+            upgradedModel['colors'] = [];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function AddonColoring_upgradeSpeechTexts (model) {
+        const defaultValue = {
+            Area: { Area: "" },
+            Color: { Color: "" },
+            Selected: { Selected: "" },
+            Correct: { Correct: "" },
+            Incorrect: { Incorrect: "" }
+        }
+
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+        if (model["speechTexts"] === undefined) {
+            upgradedModel["speechTexts"] = defaultValue;
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function AddonColoring_upgradeLangTag (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+        if (model["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.validateModel = function(model, isPreview) {
+        const validatedAreas = model['Areas'].toString().length
+            ? presenter.validateAreas(model['Areas'], isPreview, model['Width'], model['Height'])
+            : getCorrectObject([]);
+        if (validatedAreas.isError) return validatedAreas;
+
+        const validatedTolerance = model['Tolerance'].toString().length
+            ? ModelValidationUtils.validateIntegerInRange(model['Tolerance'], 100, 0)
+            : getCorrectObject(50);
+         if (!validatedTolerance.isValid) return getErrorObject('E05');
+
+        const validatedDefaultFillingColor = model['DefaultFillingColor'].toString().length
+            ? presenter.validateColor(model['DefaultFillingColor'])
+            : getCorrectObject(presenter.defaultColorRGBA);
+        if (validatedDefaultFillingColor.isError) return validatedDefaultFillingColor;
+
+        const validatedColors = presenter.validateColors(model['colors']);
+        const colorsError = validatedColors.find(colorObject => colorObject.isError);
+        if (colorsError) return colorsError;
+
+        const validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        const validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']);
+
+        return {
+            'isValid': true,
+            'isError': false,
+            'addonID' : model['ID'],
+
+            'imageFile': model.Image,
+            'areas' : validatedAreas.value,
+            'tolerance' : validatedTolerance.value,
+            'currentFillingColor' : validatedDefaultFillingColor.value,
+            'defaultFillingColor' : validatedDefaultFillingColor.value,
+            'colors' : validatedColors,
+            'isErase' : false,
+            'isVisible' : validatedIsVisible,
+            'isVisibleByDefault' : validatedIsVisible,
+            'isDisabled' : validatedIsDisabled,
+            'isDisabledByDefault' : validatedIsDisabled,
+            'isActivity' : !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
+            'lastUsedColor' : validatedDefaultFillingColor.value,
+            'disableFill' : ModelValidationUtils.validateBoolean(model['disableFill']),
+            'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect),
+            'showAllAnswersInGradualShowAnswersMode' : ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
+            'langTag': model.langAttribute
+        }
+    };
+
+    presenter.validateAreas = function(areasText, isPreview, modelWidth, modelHeight) {
+        modelWidth = parseInt(modelWidth, 10);
+        modelHeight = parseInt(modelHeight, 10);
+        const areas = Helpers.splitLines(areasText)
+            .map(element => element.split(';'))
+            .map(element => presenter.validateArea(element, isPreview, modelWidth, modelHeight));
+
+        const errors = areas.filter(element => element.isError);
+        if (errors.length) {
+            return errors[0];
+        }
+
+        return getCorrectObject(areas);
+    };
+
+    presenter.validateArea = function(element, isPreview, modelWidth, modelHeight) {
+        if (element.length === 3 || element.length === 4) {
+            const trimmedArray = element.map(value => value.trim());
+            if (presenter.isTransparent(trimmedArray)) {
+                return presenter.parseTransparentArea(trimmedArray);
+            }
+            const area = {
+                x: parseInt(trimmedArray[0], 10),
+                y: parseInt(trimmedArray[1], 10),
+                type: presenter.AREA_TYPE.NORMAL,
+                speechText: trimmedArray[3] ? trimmedArray[3] : presenter.speechTexts.Area,
+            };
+
+            if (isPreview && (area.x >= modelWidth || area.y >= modelHeight)) {
+                return getErrorObject('E04');
+            }
+
+            const validatedColor = presenter.validateColor(trimmedArray[2]);
+            if (validatedColor.isError) return getErrorObject("E06");
+
+            area.colorToFill = validatedColor.value;
+            area.isError = false;
+            return area;
+        }
+        return getErrorObject('E03');
+    }
+
+
+    presenter.isTransparent = function (value) {
+        return value[2] === "transparent";
+    };
+
+    presenter.parseTransparentArea = function (splittedAreaArray) {
+        const area = {
+            x: parseInt(Number(splittedAreaArray[0])),
+            y: parseInt(Number(splittedAreaArray[1])),
+            type: presenter.AREA_TYPE.TRANSPARENT,
+            colorToFill: [-1, -1, -1, -1],
+            speechText: splittedAreaArray[3] ? splittedAreaArray[3] : presenter.speechTexts.Area
+        };
+
+        if (isNaN(area.x) || isNaN(area.y)) {
+            return getErrorObject("A01");
+        }
+        if (area.x < 0 || area.y < 0) {
+            return getErrorObject("A01");
+        }
+
+        area.isError = false;
+
+        return area;
+    };
+
+    presenter.validateColor = function(spaceSeparatedColor) {
+        const splitted = spaceSeparatedColor.split(' '),
+            validatedColors = [];
+
+        if (splitted.length !== 4) {
+            return getErrorObject('E01');
+        }
+
+        let areAllValuesInRange = true;
+        $.each(splitted, function() {
+            const validated = ModelValidationUtils.validateIntegerInRange(this, 255, 0);
+            if (!validated.isValid) {
+                areAllValuesInRange = false;
+                return;
+            }
+            validatedColors.push(validated.value);
+        });
+
+        if (!areAllValuesInRange) {
+            return getErrorObject('E02');
+        }
+
+        return getCorrectObject(validatedColors);
+    };
+
+    presenter.validateColors = function (colorsModel) {
+        return colorsModel
+            .filter(colorObject => colorObject?.colorRGBA.length || colorObject?.speechText.length)
+            .map(colorObject => {
+                const colorValidation = presenter.validateColor(colorObject.colorRGBA)
+                const speechText = colorObject.speechText?.length
+                    ? colorObject.speechText
+                    : getErrorObject("E07");
+
+                if (colorValidation.isError) return colorValidation;
+                if (speechText.isError) return speechText;
+
+                return {
+                        speechText,
+                        colorRGBA: colorValidation.value
+                    }
+            });
+    }
+
     function runLogic(view, model, isPreview) {
         model = presenter.upgradeModel(model);
+        presenter.setSpeechTexts(model["speechTexts"]);
 
         presenter.configuration = presenter.validateModel(model, isPreview);
+        presenter.createColorSpeechTextsMap(presenter.configuration.colors);
         presenter.allColoredPixels = [];
         presenter.currentAreaIdInGSAMode = 0;
 
@@ -332,18 +566,34 @@ function AddonColoring_create(){
         }
 
         presenter.$view = $(view);
-
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.setImageElement(isPreview);
+        presenter.buildKeyboardController();
+    }
 
-        var imageElement = $('<img>');
+    presenter.createColorSpeechTextsMap = function(colors) {
+        if (!colors) return;
+        const whiteRGBAString = presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
+        presenter.colorSpeechTextMap = colors.reduce((prev, curr) => {
+            const color = presenter.getRGBAStringFromRGBAArray(curr.colorRGBA);
+            if (color === whiteRGBAString) return prev;
+            return {
+                ...prev,
+                [color] : curr.speechText
+            }
+        }, {});
+    }
 
-        if(presenter.configuration.imageFile.indexOf("/file/serve") == 0){
+    presenter.setImageElement = function (isPreview) {
+        const imageElement = $('<img>');
+
+        if(presenter.configuration.imageFile.indexOf("/file/serve") === 0){
             presenter.configuration.imageFile = presenter.configuration.imageFile + "?no_gcs=true";
         }
 
         imageElement.attr('src', presenter.configuration.imageFile);
 
-        var canvasElement = $('<canvas></canvas>');
+        const canvasElement = $('<canvas></canvas>');
         presenter.ctx = canvasElement[0].getContext('2d');
 
         imageElement.load(function() {
@@ -355,13 +605,10 @@ function AddonColoring_create(){
 
             presenter.ctx.drawImage(imageElement[0], 0, 0);
             presenter.imageHasBeenLoaded = true;
-
             presenter.imageData = presenter.ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
-
             presenter.image = imageElement;
 
-            var coloringContainer = presenter.$view.find('.coloring-container');
-
+            const coloringContainer = presenter.$view.find('.coloring-container');
             coloringContainer.append(canvasElement);
 
             presenter.canvasOffset = canvasElement.offset();
@@ -371,7 +618,7 @@ function AddonColoring_create(){
             setAreasPixelPosition();
 
             if (isPreview) {
-                var coordinatesContainer = $('<div></div>'),
+                const coordinatesContainer = $('<div></div>'),
                     xContainer = $('<div>x: <span class="value"></span></div>'),
                     yContainer = $('<div>y: <span class="value"></span></div>'),
                     coloringWrapper = presenter.$view.find('.coloring-wrapper');
@@ -400,7 +647,7 @@ function AddonColoring_create(){
                     'minWidth' : presenter.canvasWidth
                 });
 
-                var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.addonID+'"]');
+                const moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.addonID+'"]');
 
                 moduleSelector.on('mousemove', function(e) {
                     xContainer.find('.value').html(getMousePositionOnCanvas(e).x);
@@ -421,7 +668,7 @@ function AddonColoring_create(){
                 });
 
                 canvasElement.on('touchend', function (e){
-                    if ( presenter.lastEvent.type != e.type ) {
+                    if (presenter.lastEvent.type != e.type) {
                         presenter.clickLogic(e, true);
                     }
                 });
@@ -433,17 +680,45 @@ function AddonColoring_create(){
         });
     }
 
+    presenter.setSpeechTexts = function AddonColoring_setSpeechTexts(speechTexts) {
+        presenter.speechTexts = {
+            ...presenter.DEFAULT_TTS_PHRASES
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            area: TTSUtils.getSpeechTextProperty(
+                speechTexts.Area.Area,
+                presenter.speechTexts.area),
+            color: TTSUtils.getSpeechTextProperty(
+                speechTexts.Color.Color,
+                presenter.speechTexts.color),
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
+            correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.correct),
+            incorrect: TTSUtils.getSpeechTextProperty(
+                speechTexts.Incorrect.Incorrect,
+                presenter.speechTexts.incorrect)
+        };
+    };
+
     presenter.run = function(view, model){
         runLogic(view, model, false);
 
         var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             presenter.eventBus.addEventListener(events[i], this);
         }
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
-        for (var i = 0; i < presenter.configuration.colorsThatCanBeFilled.length; i++) {
+        for (let i = 0; i < presenter.configuration.colorsThatCanBeFilled.length; i++) {
             if (presenter.compareArrays(color, presenter.configuration.colorsThatCanBeFilled[i])) {
                 return true;
             }
@@ -479,6 +754,22 @@ function AddonColoring_create(){
         }
         return color;
     };
+
+    function getColorAtPointFromCanvas (x, y, canvas) {
+        // canvas is flat - 1 dimensional
+        // data is flatened by going through whole X axis before incrementing Y axis - e.g. (x:1,y:0),(x:2,y:0) etc.
+        // so to jump to desired position of pixel (Y:area.y, X:area.x) we need to multiply by width - that gives us desired row
+        // and then add X position (area.x) - that gives us desired column
+        // multiply by 4 is because wholeCanvas doesnt store px but R,G,B,A values, so each px takes 4 places in Canvas array
+        let index = (y * presenter.canvasWidth + x ) * 4;
+        let color = [
+          canvas[index],     //R
+          canvas[index + 1], //G
+          canvas[index + 2], //B
+          canvas[index + 3]  //A
+        ];
+        return color;
+    }
 
     function fixTouch (touch) {
         var winPageX = window.pageXOffset,
@@ -523,180 +814,6 @@ function AddonColoring_create(){
 
         return {x: scaledPoint.x, y: scaledPoint.y};
     }
-
-    presenter.errorCodes = {
-        'E01': 'Wrong color notation. Must be in "r g b a" format. See documentation for more details.',
-        'E02': 'All color values must be between 0 - 255.',
-        'E03': 'Areas are configured wrong. It should be in "x; y; color" format. See documentation for more details.',
-        'E04': 'Areas x & y values have to be smaller than Width and Height properties.',
-        'A01': "Areas x & y values have to be integer values between 0 - 255."
-    };
-
-    presenter.validateModel = function(model, isPreview) {
-        var validatedAreas = {
-            items: []
-        };
-
-        if (model['Areas'].toString().length > 0) {
-            validatedAreas = presenter.validateAreas(model['Areas'], isPreview, model['Width'], model['Height']);
-            if (validatedAreas.isError) {
-                return { isError: true, errorCode: validatedAreas.errorCode};
-            }
-        }
-
-        var validatedTolerance = {};
-        if (model['Tolerance'].toString().length === 0) {
-            validatedTolerance.value = 50;
-        } else {
-            validatedTolerance = ModelValidationUtils.validateIntegerInRange(model['Tolerance'], 100, 0);
-            if (validatedTolerance.isError) {
-                return { isError: true, errorCode: validatedTolerance.errorCode};
-            }
-        }
-
-        var validatedDefaultFillingColor = {};
-        if (model['DefaultFillingColor'].toString().length === 0) {
-
-            validatedDefaultFillingColor.value = [255, 100, 100, 255];
-
-        } else {
-
-            validatedDefaultFillingColor = presenter.validateColor(model['DefaultFillingColor']);
-            if (validatedDefaultFillingColor.isError) {
-                return { isError: true, errorCode: validatedDefaultFillingColor.errorCode};
-            }
-
-        }
-
-        var validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
-            validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']);
-
-        return {
-            'isValid': true,
-            'isError': false,
-            'addonID' : model['ID'],
-
-            'imageFile': model.Image,
-            'areas' : validatedAreas.items,
-            'tolerance' : validatedTolerance.value,
-            'currentFillingColor' : validatedDefaultFillingColor.value,
-            'defaultFillingColor' : validatedDefaultFillingColor.value,
-            'isErase' : false,
-            'isVisible' : validatedIsVisible,
-            'isVisibleByDefault' : validatedIsVisible,
-            'isDisabled' : validatedIsDisabled,
-            'isDisabledByDefault' : validatedIsDisabled,
-            'isActivity' : !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
-            'lastUsedColor' : validatedDefaultFillingColor.value,
-            'disableFill' : ModelValidationUtils.validateBoolean(model['disableFill']),
-            'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect),
-            'showAllAnswersInGradualShowAnswersMode' : ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
-        }
-    };
-
-    presenter.getErrorObject = function (errorCode) {
-        return {isValid: false, isError: true, errorCode: errorCode};
-    };
-
-    presenter.parseTransparentArea = function (splitedAreaArray) {
-        var area = {
-            x: parseInt(Number(splitedAreaArray[0])),
-            y: parseInt(Number(splitedAreaArray[1])),
-            type: presenter.AREA_TYPE.TRANSPARENT,
-            colorToFill: [-1, -1, -1, -1]
-        };
-
-        if (isNaN(area.x) || isNaN(area.y)) {
-            return presenter.getErrorObject("A01");
-        }
-
-        if (area.x < 0 || area.y < 0) {
-            return presenter.getErrorObject("A01");
-        }
-
-        area.isError = false;
-
-        return area;
-    };
-
-    presenter.isTransparent = function (value) {
-        if (value.length === 3) {
-            return value[2] === "transparent";
-        }
-
-        return false;
-    };
-
-    presenter.validateAreas = function(areasText, isPreview, modelWidth, modelHeight) {
-        modelWidth = parseInt(modelWidth, 10);
-        modelHeight = parseInt(modelHeight, 10);
-        var areas = Helpers.splitLines(areasText).map(function (element) {
-           return element.split(';');
-        }).map(function (element) {
-
-            if (element.length === 3) {
-                var trimmedArray = element.map(function (value) {return value.trim();});
-
-                if (presenter.isTransparent(trimmedArray)) {
-                    return presenter.parseTransparentArea(trimmedArray);
-                } else {
-                    var area = {
-                        x: parseInt(trimmedArray[0], 10),
-                        y: parseInt(trimmedArray[1], 10),
-                        type: presenter.AREA_TYPE.NORMAL
-                    };
-
-                    if(isPreview && (area.x>=modelWidth || area.y>=modelHeight)) {
-                        return {isValid: false, isError: true, errorCode: 'E04'};
-                    }
-
-                    var validatedColor = presenter.validateColor(trimmedArray[2]);
-                    if(!validatedColor.isError) {
-                      area.colorToFill = validatedColor.value;
-                      area.isError = false;
-                      return area;
-                    }
-                }
-
-                return {isValid: false, isError: true, errorCode: validatedColor.errorCode};
-            }
-
-            return {isValid: false, isError: true, errorCode: 'E03'};
-        });
-
-        var errors = areas.filter(function (element) {if (element.isError) return element;});
-        if (errors.length > 0) {
-            return errors[0];
-        }
-
-        return {isValid: true, isError: false, items: areas};
-    };
-
-    presenter.validateColor = function(spaceSeparatedColor) {
-        var splitted = spaceSeparatedColor.split(' '),
-            validatedColors = [];
-
-        if (splitted.length < 4) {
-            return {isError: true, errorCode: 'E01'};
-        }
-
-        var areAllValuesInRange = true;
-        $.each(splitted, function() {
-
-            var validated = ModelValidationUtils.validateIntegerInRange(this, 255, 0);
-            if (!validated.isValid) {
-                areAllValuesInRange = false;
-                return;
-            }
-            validatedColors.push(validated.value);
-        });
-
-        if (!areAllValuesInRange) {
-            return { isError: true, errorCode: 'E02'};
-        }
-
-        return { value: validatedColors, isError: false};
-    };
 
     presenter.show = function() {
         presenter.setVisibility(true);
@@ -813,7 +930,7 @@ function AddonColoring_create(){
     presenter.setEraserOn = function() {
         presenter.configuration.isErase = true;
         presenter.configuration.lastUsedColor = presenter.configuration.currentFillingColor;
-        presenter.configuration.currentFillingColor = [255, 255, 255, 255];
+        presenter.configuration.currentFillingColor = presenter.whiteRGBA;
     };
 
     presenter.clearAreaCommand = function (coordinates){
@@ -839,7 +956,7 @@ function AddonColoring_create(){
         presenter.configuration.isErase = false;
     };
 
-    presenter.setShowErrorsMode = function(){
+    presenter.activateErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -859,7 +976,25 @@ function AddonColoring_create(){
                 }
             });
         }
-        presenter.setShowErrorsModeActive = true;
+
+        presenter.isShowErrorsModeActive = true;
+    }
+
+    function waitForElement(callback, timeout = 5000) {
+        const startTime = Date.now();
+
+        let interval = setInterval(() => {
+            if (!$.isEmptyObject(presenter.canvas)) {
+                clearInterval(interval);
+                callback();
+            } else if (Date.now() - startTime > timeout) {
+                clearInterval(interval);
+            }
+        }, 100);
+    }
+
+    presenter.setShowErrorsMode = function(){
+        waitForElement(presenter.activateErrorsMode)
     };
 
     function displayIcon(area, isWrong) {
@@ -884,7 +1019,7 @@ function AddonColoring_create(){
 
     presenter.setWorkMode = function(){
         presenter.$view.find('.icon-container').remove();
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
     };
 
     presenter.clearCanvas = function() {
@@ -892,12 +1027,23 @@ function AddonColoring_create(){
         presenter.ctx.drawImage(presenter.image[0], 0, 0);
     };
 
-    presenter.reset = function(){
-        presenter.clearCanvas();
+    presenter.reset = function(resetOnlyWrong){
+        if (resetOnlyWrong) {
+            $.each(presenter.configuration.areas, function () {
+                var area = this;
+                if (!isCorrect(area)) {
+                    presenter.clearArea(area.x, area.y, true)
+                }
+            });
+        } else {
+            presenter.clearCanvas();
+        }
+        presenter.removeAreaMark();
+        presenter.removeColorList();
         presenter.$view.find('.icon-container').remove();
         presenter.isColored = false;
         presenter.isShowAnswersActive = false;
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
 
@@ -1010,6 +1156,8 @@ function AddonColoring_create(){
     };
 
     presenter.getState = function(){
+        const wasAnswersShow = presenter.isShowAnswersActive;
+        const lastAreaIdInGSAMode = presenter.currentAreaIdInGSAMode;
 
         if (!presenter.isCanvasInitiated && presenter.initialState != null) {
             return presenter.initialState;
@@ -1051,6 +1199,12 @@ function AddonColoring_create(){
             errorCount: presenter.getErrorCount(),
             userAreas: userAreas
         };
+
+        if (wasAnswersShow) {
+            presenter.currentAreaIdInGSAMode = lastAreaIdInGSAMode;
+            presenter.showAnswersAgain();
+        }
+
         return JSON.stringify(state);
     };
 
@@ -1096,7 +1250,7 @@ function AddonColoring_create(){
 
     presenter.setCurrentFillingColorInSetState = function (state) {
         if (presenter.configuration.isErase) {
-            presenter.configuration.currentFillingColor = [255, 255, 255, 255];
+            presenter.configuration.currentFillingColor = presenter.whiteRGBA;
         } else {
             presenter.configuration.currentFillingColor = state.currentFillingColor;
         }
@@ -1340,8 +1494,27 @@ function AddonColoring_create(){
         presenter.deactivateShowAnswersMode();
     };
 
+    presenter.showAnswersAgain = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            if (!presenter.isShowAnswersActive) {
+                presenter.activateShowAnswersMode();
+            }
+
+            if (presenter.currentAreaIdInGSAMode === 0) {
+                presenter.showAnswers();
+            } else {
+                for (let i = 0; i < presenter.currentAreaIdInGSAMode; i++) {
+                    const area = presenter.configuration.areas[i];
+                    presenter.fillAreaWithCorrectColor(area);
+                }
+            }
+        } else {
+            presenter.showAnswers();
+        }
+    }
+
     presenter.activateShowAnswersMode = function () {
-        presenter.setShowErrorsModeActive = false;
+        presenter.isShowErrorsModeActive = false;
 
         presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
@@ -1393,7 +1566,7 @@ function AddonColoring_create(){
             presenter.floodFill({
                     x: this.area.x,
                     y: this.area.y,
-                    color: [255, 255, 255, 255]
+                    color: presenter.whiteRGBA
                 },
                 this.color,
                 presenter.configuration.tolerance);
@@ -1406,7 +1579,7 @@ function AddonColoring_create(){
         presenter.floodFill({
                 x: area.x,
                 y: area.y,
-                color: [255, 255, 255, 255]
+                color: presenter.whiteRGBA
             },
             [area.colorToFill[0], area.colorToFill[1], area.colorToFill[2], area.colorToFill[3]],
             presenter.configuration.tolerance);
@@ -1421,6 +1594,10 @@ function AddonColoring_create(){
         return presenter.configuration.areas.length;
     };
 
+    presenter.getRGBAStringFromRGBAArray = function(rgbaArray) {
+        return rgbaArray.reduce((prev, curr) => (prev === "") ? curr : `${prev} ${curr}`, "");
+    }
+
     function scalePoint({x, y}) {
         var scaledPoint = {x: x, y: y};
         if (!presenter.playerController)
@@ -1434,5 +1611,372 @@ function AddonColoring_create(){
         return scaledPoint;
     }
 
+    function ColoringKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    presenter.isDeactivationBlocked = function() {
+        if (presenter.isTTSExitBlocked) {
+            presenter.isTTSExitBlocked = false;
+            return true;
+        }
+        return false;
+    };
+
+    ColoringKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ColoringKeyboardController.prototype.isColorSelectActive = false;
+    ColoringKeyboardController.prototype.lastAreaElement = null;
+    ColoringKeyboardController.prototype.colorElementsMap = {};
+    ColoringKeyboardController.prototype.lastAreaElementIndex = null;
+    ColoringKeyboardController.prototype.constructor = ColoringKeyboardController;
+
+
+    presenter.buildKeyboardController = function AddonColoring_buildKeyboardController () {
+        const elements = presenter.getElementsForKeyboardNavigation();
+        presenter.keyboardControllerObject = new ColoringKeyboardController(elements, 1);
+    };
+
+    presenter.keyboardController = function AddonColoring_keyboardController (keycode, isShiftKeyDown, event) {
+        if (presenter.shouldIgnoreKeyNav()) {
+            const enterKeycode = 13;
+            if (keycode === enterKeycode) presenter.keyboardControllerObject.escape(event);
+            event.preventDefault();
+            return;
+        }
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    presenter.shouldIgnoreKeyNav = function () {
+        return !presenter.configuration.colors?.length && !presenter.isTTS();
+    }
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.configuration.areas ? presenter.configuration.areas : [];
+    };
+
+    presenter.getAvailableColorsForKeyboardNavigation = function() {
+        return presenter.configuration.colors;
+    };
+
+    ColoringKeyboardController.prototype.mark = function (element) {
+        if (!this.isColorSelectActive) return;
+        const $colorElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText];
+        if ($colorElement) {
+            $colorElement.addClass('keyboard_navigation_active_element');
+        }
+    };
+    ColoringKeyboardController.prototype.unmark = function (element) {
+        if (!this.isColorSelectActive) return;
+        const $colorElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText];
+        if ($colorElement) {
+            $colorElement.removeClass('keyboard_navigation_active_element');
+        }
+    };
+
+    ColoringKeyboardController.prototype.nextRow = function (event) {
+        this.nextElement(event);
+    }
+
+    ColoringKeyboardController.prototype.previousRow = function (event) {
+        this.previousElement(event);
+    }
+
+    ColoringKeyboardController.prototype.nextElement = function (event) {
+        if (event) event.preventDefault();
+        if (this.keyboardNavigationCurrentElementIndex === this.keyboardNavigationElements.length - 1) {
+            this.readCurrentElement();
+        } else {
+            this.switchElement(1);
+        }
+    }
+
+    ColoringKeyboardController.prototype.previousElement = function (event) {
+        if (event) event.preventDefault();
+        if (this.keyboardNavigationCurrentElementIndex === 0) {
+            this.readCurrentElement();
+        } else {
+            this.switchElement(-1);
+        }
+    }
+
+    ColoringKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        if (this.isColorSelectActive) {
+            this.adjustScroll(move);
+        } else {
+            presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
+        }
+        this.readCurrentElement();
+    };
+
+    ColoringKeyboardController.prototype.adjustScroll = function (move) {
+        let currentElement = this.colorElementsMap[this.keyboardNavigationCurrentElement.speechText][0];
+        let parentElement = currentElement.parentElement;
+
+        if (!isScrollbarVisible(parentElement)) {
+            return;
+        }
+
+        if (move < 0) {
+            parentElement.scrollTo(0, currentElement.offsetTop);
+        } else {
+            let currentElementOffsetBottom = currentElement.offsetTop + currentElement.offsetHeight;
+            if (currentElementOffsetBottom > parentElement.offsetHeight) {
+                parentElement.scrollTo(0, currentElementOffsetBottom - parentElement.offsetHeight);
+            } else {
+                parentElement.scrollTo(0, 0);
+            }
+        }
+    }
+
+    function isScrollbarVisible(element) {
+        return element.scrollHeight > element.clientHeight;
+    }
+
+    ColoringKeyboardController.prototype.enter = function (event) {
+        if (presenter.isFirstEnter) {
+            this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+            presenter.isFirstEnter = false;
+        }
+        KeyboardController.prototype.enter.call(this, event);
+        if (!this.isColorSelectActive) {
+            presenter.markAreaWithCircle(this.keyboardNavigationCurrentElement);
+        }
+        this.readCurrentElement();
+    };
+
+    ColoringKeyboardController.prototype.select = function (event) {
+        if (event) event.preventDefault();
+        if (!this.isSelectEnabled) return;
+        if (presenter.isShowAnswersActive) return;
+        if (presenter.isShowErrorsModeActive) return;
+        if (!presenter.configuration.colors?.length) return;
+
+        if (this.isColorSelectActive) {
+            presenter.removeColorList();
+            this.colorAreaWithSelectedColor();
+            this.readSelectedColor();
+            this.switchElementsToAreas();
+        } else {
+            this.switchElementsToColors();
+            this.readCurrentElement();
+        }
+    };
+
+    presenter.markAreaWithCircle = function ({ x, y }) {
+        presenter.removeAreaMark();
+        const $mark = $("<span></span>");
+        $mark.addClass("coloring-circle-mark");
+        $mark.css({
+            'top' : y + 20,
+            'left' : x + 20,
+        });
+        const coloringWrapper = presenter.$view.find('.coloring-wrapper');
+        coloringWrapper.append($mark);
+        presenter.$areaMark = $mark;
+    }
+
+    presenter.removeAreaMark = function () {
+        if (presenter.$areaMark) {
+            presenter.$areaMark.remove();
+        }
+    }
+
+    presenter.removeColorList = function () {
+      if (presenter.$colorList) {
+          presenter.$colorList.remove();
+      }
+    }
+
+    ColoringKeyboardController.prototype.colorAreaWithSelectedColor = function () {
+            const previousColor = presenter.configuration.currentFillingColor;
+            const colorString = presenter.getRGBAStringFromRGBAArray(this.keyboardNavigationCurrentElement.colorRGBA);
+            presenter.setColor(colorString);
+            presenter.floodFill({
+                    x: this.lastAreaElement.x,
+                    y: this.lastAreaElement.y,
+                    color: presenter.getColorAtPoint(this.lastAreaElement.x, this.lastAreaElement.y)
+                },
+                this.keyboardNavigationCurrentElement.colorRGBA,
+                presenter.configuration.tolerance
+            );
+            presenter.configuration.currentFillingColor = previousColor;
+            this.sendColoredEvent(colorString);
+    }
+
+    ColoringKeyboardController.prototype.sendColoredEvent = function (colorString) {
+            const isColorWhite = colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA);
+            setTimeout(() =>{
+                // Without timeout there are issues on Firefox if event handling takes too long
+                presenter.sendEvent(
+                    [this.lastAreaElement.x, this.lastAreaElement.y],
+                    isColorWhite ? 0 : 1,
+                    isCorrect(this.lastAreaElement) ? 1 : 0
+                );
+            }, 0);
+    }
+
+    ColoringKeyboardController.prototype.switchElementsToAreas = function () {
+        this.isColorSelectActive = false;
+        this.setElements(presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.switchElement.call(this, this.lastAreaElementIndex);
+    }
+
+    ColoringKeyboardController.prototype.createColorListForKeyNav = function () {
+        const $colorList = $("<span></span>");
+        $colorList.addClass("coloring-color-list");
+        $colorList.css({
+            'top': this.lastAreaElement.y,
+            'left': this.lastAreaElement.x,
+        });
+        this.populateColorListWithColors($colorList);
+        const coloringWrapper = presenter.$view.find('.coloring-wrapper');
+        coloringWrapper.append($colorList);
+        presenter.$colorList = $colorList;
+    }
+
+    ColoringKeyboardController.prototype.populateColorListWithColors = function ($colorList) {
+        const colors = presenter.configuration.colors;
+
+        colors.forEach(color => {
+            const $color = $("<div></div>");
+            $color.addClass("coloring-color-list-element");
+            $color.text(color.speechText);
+            $colorList.append($color);
+            this.colorElementsMap[color.speechText] = $color;
+        });
+    }
+
+    ColoringKeyboardController.prototype.switchElementsToColors = function () {
+        this.isColorSelectActive = true;
+        this.lastAreaElement = this.keyboardNavigationCurrentElement;
+        this.lastAreaElementIndex = this.keyboardNavigationCurrentElementIndex;
+        this.createColorListForKeyNav();
+        const colors = presenter.getAvailableColorsForKeyboardNavigation();
+        this.setElements(colors);
+    }
+
+    ColoringKeyboardController.prototype.readCurrentElement = function () {
+        const text = this.keyboardNavigationCurrentElement.speechText;
+        const textWithPrefix = this.isColorSelectActive ? getColorTTS(text) : this.getAreaTTS(text);
+
+        presenter.speak(textWithPrefix);
+    };
+
+    ColoringKeyboardController.prototype.readSelectedColor = function () {
+        const textVoiceObject = [];
+
+        const color = this.keyboardNavigationCurrentElement.speechText;
+
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.selected);
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, color);
+
+        presenter.speak(textVoiceObject);
+    };
+
+    ColoringKeyboardController.prototype.escape = function (event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        if (this.isColorSelectActive) {
+            presenter.isTTSExitBlocked = true;
+            this.switchElementsToAreas();
+            presenter.removeColorList();
+            this.readCurrentElement();
+        } else {
+            this.exitWCAGMode();
+        }
+    };
+
+    ColoringKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.removeAreaMark();
+        presenter.removeColorList();
+        this.isColorSelectActive = false;
+        presenter.isFirstEnter = true;
+        this.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    function getColorTTS(colorText) {
+        const textVoiceObject = [];
+
+        const colorPrefix = presenter.speechTexts.color;
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, colorPrefix);
+
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+
+        return textVoiceObject;
+    }
+
+    ColoringKeyboardController.prototype.getAreaTTS = function(areaText) {
+        const textVoiceObject = [];
+
+        const areaPrefix = presenter.speechTexts.area;
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, areaPrefix);
+
+        pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, areaText);
+
+        const colorText = this.getCurrentAreaColorSpeechText();
+        if (colorText) {
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
+            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            if (presenter.isShowErrorsModeActive) {
+                if (isCorrect(this.keyboardNavigationCurrentElement)) {
+                    pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.correct);
+                } else {
+                    pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.incorrect);
+                }
+            }
+        }
+
+        return textVoiceObject;
+    }
+
+    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function() {
+        const colorArray = presenter.getColorAtPoint(
+            this.keyboardNavigationCurrentElement.x,
+            this.keyboardNavigationCurrentElement.y
+        );
+        const colorString = presenter.getRGBAStringFromRGBAArray(colorArray);
+        return presenter.colorSpeechTextMap[colorString];
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+    }
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.speak = function(text) {
+        const tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(text);
+        }
+    };
+
+    presenter.isTTS = function () {
+        return presenter.getTextToSpeechOrNull(presenter.playerController) && presenter.isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Coloring_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
     return presenter;
 }
+
+AddonColoring_create.__supported_player_options__ = {
+    resetInterfaceVersion: 2
+};

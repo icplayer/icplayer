@@ -7,6 +7,7 @@
     <inherits name="com.google.gwt.json.JSON"/>
     <inherits name="com.lorepo.icf.Properties"/>
     <inherits name="com.lorepo.icf.Utils"/>
+    <inherits name="com.lorepo.icf.Widgets"/>
     <inherits name="com.lorepo.icf.Scripting"/>
     <inherits name="com.lorepo.icf.Screen"/>
 

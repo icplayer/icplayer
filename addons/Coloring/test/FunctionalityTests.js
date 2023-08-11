@@ -18,13 +18,21 @@ TestCase("[Coloring] Functionality Tests", {
 
         sinon.stub(this.presenter, 'clearCanvas');
         sinon.stub(this.presenter, 'recolorImage');
+        this.getColorAtPointStub = sinon.stub(this.presenter, 'getColorAtPoint');
+        this.fillAreaSpy = sinon.spy(this.presenter, 'fillArea');
 
         this.presenter.$view = $('<div></div>');
+
+        var canvasElement = $('<canvas></canvas>');
+        this.presenter.ctx = canvasElement[0].getContext('2d');
+        this.presenter.canvasWidth = 200;
+        this.presenter.canvasHeight = 100;
     },
 
     tearDown : function() {
         this.presenter.clearCanvas.restore();
         this.presenter.recolorImage.restore();
+        this.presenter.getColorAtPoint.restore();
     },
 
     'test reset restores last used color when is erase is true' : function() {
@@ -58,5 +66,20 @@ TestCase("[Coloring] Functionality Tests", {
         var result = this.presenter.isAlreadyInColorsThatCanBeFilled([200, 255, 255, 255]);
 
         assertFalse(result);
+    },
+
+    'test given resetOnlyWrong parameter on true when reset was called then remove only incorrect answers': function () {
+        this.presenter.configuration.areas = [
+            {x: 1, y: 1, defaultColor: [1, 1, 1, 1], colorToFill: [9, 9, 9, 9], type: this.presenter.AREA_TYPE.NORMAL},
+            {x: 2, y: 2, defaultColor: [2, 2, 2, 2], colorToFill: [9, 9, 9, 9], type: this.presenter.AREA_TYPE.NORMAL},
+            {x: 3, y: 3, defaultColor: [3, 3, 3, 3], colorToFill: [9, 9, 9, 9], type: this.presenter.AREA_TYPE.NORMAL}
+        ];
+        this.getColorAtPointStub.withArgs(1, 1).returns([9, 9, 9, 9]);
+        this.getColorAtPointStub.withArgs(2, 2).returns([9, 9, 9, 9]);
+        this.getColorAtPointStub.withArgs(3, 3).returns([7, 7, 7, 7]);
+
+        this.presenter.reset(true);
+
+        assertTrue(this.fillAreaSpy.calledWith(3, 3, '255 255 255 255', true));
     }
 });

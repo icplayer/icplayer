@@ -11,7 +11,6 @@ function Addonmultiplegap_create(){
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
     var isWCAGOn = false;
     var printableController = null;
-    var printableState = null;
 
     var presenter = function(){};
 
@@ -35,7 +34,7 @@ function Addonmultiplegap_create(){
         TEXTS: 1,
         AUDIO: 2
     };
-    
+
     presenter.ERROR_CODES = {
         INVALID_ITEM_WIDTH: "Item width has to be greater than 0",
         INVALID_ITEM_HEIGHT: "Item height has to be greater than 0",
@@ -60,7 +59,7 @@ function Addonmultiplegap_create(){
 
     presenter.keyboardControllerObject = null;
     presenter.container = null;
-
+    presenter.elementCounter = 0;
     
     presenter.createPreview = function(view, model) {
         presenter.createLogic(view, model, true);
@@ -374,6 +373,7 @@ function Addonmultiplegap_create(){
             presenter.eventBus.addEventListener('GradualHideAnswers', this);
         }
     };
+
     presenter.createLogic = function Multiplegap_createLogic (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.addonID = model.ID;
@@ -396,6 +396,7 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
+        presenter.elementCounter = presenter.$view.find('.placeholder').not('.ui-draggable-dragging').length;
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -411,31 +412,43 @@ function Addonmultiplegap_create(){
     presenter.eventListener = {
         onEventReceived: function(eventName, eventData) {
             if(presenter.showErrorsMode || presenter.isShowAnswersActive) return;
-            
-            if (eventName === "ItemConsumed") {
-                presenter.$view.find('.handler').show();
-                presenter.isItemChecked = false;
+
+            switch (true) {
+                case eventName === "ItemConsumed":
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    break;
+
+                case eventName === "ItemSelected" && eventData.value !== null && eventData.value !== "":
+                    presenter.$view.find('.handler').hide();
+                    presenter.isItemChecked = true;
+                    break;
+
+                case eventName === "ItemSelected" && eventData.value == null && presenter.isAllOK():
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    sendAllOKEvent();
+                    break;
+
+                case eventName === "ItemSelected":
+                    presenter.$view.find('.handler').show();
+                    presenter.isItemChecked = false;
+                    break;
             }
-            
-            if (eventName === "ItemSelected" && eventData.value !== null && eventData.value !== "") {
-                presenter.$view.find('.handler').hide();
-                presenter.isItemChecked = true;
-            } else if (eventName === "ItemSelected" ) {
-                presenter.$view.find('.handler').show();
-                presenter.isItemChecked = false;
-            }
-            
-            if(typeof(eventData.item) == "undefined" || eventData.item === null) {
-                presenter.clearSelected();
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES && eventData.type === "image") {
-                presenter.saveSelected(eventData);
-                
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.TEXTS && eventData.type === "string") {
-                presenter.saveSelected(eventData);
-            } else if(presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO && eventData.type === "audio") {
-                presenter.saveSelected(eventData);
-            } else {
-                presenter.clearSelected();
+
+            switch (true) {
+                case typeof(eventData.item) == "undefined" || eventData.item === null:
+                    presenter.clearSelected();
+                    break;
+
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES && eventData.type === "image":
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.TEXTS && eventData.type === "string":
+                case presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO && eventData.type === "audio":
+                    presenter.saveSelected(eventData);
+                    break;
+
+                default:
+                    presenter.clearSelected();
             }
         }
     };
@@ -514,12 +527,13 @@ function Addonmultiplegap_create(){
 
         return imageSourceModule.getImageUrl();
     };
-    
+
     presenter.updateLaTeX = function (element) {
-        MathJax.CallBack.Queue().Push(function () {
+        MathJax.Hub.Queue(() => {
             MathJax.Hub.Typeset(element)
         });
     };
+
 
     presenter.getAltText = function (id) {
         var imageSourceModule = presenter.playerController.getModule(id);
@@ -623,136 +637,32 @@ function Addonmultiplegap_create(){
     presenter.getContainerHeight = function () {
         return presenter.$view.height();
     };
-    
+
     presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
         if(!presenter.isShowingAnswers()){
             if(!force && presenter.selectedItem == null) return;
             if(presenter.maximumItemCountReached()) return;
             if(presenter.configuration.blockWrongAnswers && !presenter.isElementCorrect(item.item)) {
-                sendEvent(item, false);
+                if (sendEvents) {
+                    sendEvent(item, false);
+                }
                 return;
             }
         }
 
-        var child;
-        var placeholder;
-        if(presenter.isShowingAnswers()){
-            placeholder = $('<div class="placeholder placeholder-show-answers"></div>');
-        }else{
-            placeholder = $('<div class="placeholder"></div>');
-        }
+        const placeholder = presenter.createDraggablePlaceholderBase(item);
+        const child = presenter.createDraggableItem(item);
 
-        placeholder.css({
-            width: presenter.configuration.items.width + 'px',
-            height: presenter.configuration.items.height + 'px'
-        });
-
-        if (presenter.configuration.isTabindexEnabled) {
-            placeholder.attr("tabindex", "0");
-        }
-        
-        var positions = presenter.calculateElementPositions();
-        placeholder.css({
-            top: positions.top + 'px',
-            left: positions.left + 'px'
-        });
-        
         presenter.$view.find('.multiplegap_placeholders').append(placeholder);
+        presenter.elementCounter++;
+        placeholder.append(child);
 
-        switch(presenter.configuration.sourceType) {
-            case presenter.SOURCE_TYPES.IMAGES:
-                child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" lang="'+ presenter.getItemLangAttribute(item.item) +'" />');
-                child.attr('src', presenter.getImageURL(item));
-
-                if(presenter.configuration.stretchImages) {
-                    child.css({
-                        width: presenter.configuration.items.width + 'px',
-                        height: presenter.configuration.items.height + 'px'
-                    });
-                }
-                break;
-            
-            case presenter.SOURCE_TYPES.TEXTS:
-                child = $('<p class="contents"></p>');
-                child.html(presenter.parseItemValue(item.value));
-                break;
-
-            case presenter.SOURCE_TYPES.AUDIO:
-                child = createDraggableAudioItem(item.item);
-                break;
-        }
-        
-        placeholder
-          .attr({
-              draggableValue: item.value,
-              draggableItem: item.item,
-              draggableType: item.type
-          })
-          .append(child);
-        
         if (!isState) {
             presenter.updateLaTeX(child[0]);
         }
-        
-        var placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding,
-          placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right,
-          placeholderHorizontalPadding = placeholderPadding.top + placeholderPadding.bottom;
-        
-        switch(presenter.configuration.items.horizontalAlign) {
-            case 'left':
-                child.css({
-                    position: 'absolute',
-                    left: 0
-                });
-                break;
-            case 'center':
-                
-                switch(presenter.configuration.sourceType) {
-                    case presenter.SOURCE_TYPES.TEXTS:
-                        child.css({
-                            position: 'absolute',
-                            width: '100%',
-                            textAlign: 'center'
-                        });
-                        break;
-                    
-                    case presenter.SOURCE_TYPES.IMAGES:
-                        child.css({
-                            position: 'absolute',
-                            left: Math.round((presenter.configuration.items.width - placeholderHorizontalPadding - parseInt(child.css('width'))) / 2) + 'px'
-                        });
-                        break;
-                }
-                break;
-            case 'right':
-                child.css({
-                    position: 'absolute',
-                    right: 0
-                });
-                break;
-        }
-        
-        switch(presenter.configuration.items.horizontalAlign) {
-            case 'top':
-                child.css({
-                    position: 'absolute',
-                    top: 0
-                });
-                break;
-            case 'center':
-                child.css({
-                    position: 'absolute',
-                    top: Math.round((presenter.configuration.items.height - placeholderVerticalPadding - parseInt(child.css('height'))) / 2) + 'px'
-                });
-                break;
-            case 'bottom':
-                child.css({
-                    position: 'absolute',
-                    bottom: 0
-                });
-                break;
-        }
-        
+
+        presenter.positionDraggableItem(placeholder, child);
+
         handler = $('<div class="handler" style="color: rgba(0,0,0,0.0); font-size:1px">' + presenter.getAltText(item.item) + '</div>');
         
         // Workaround for IE bug: empty divs in IE are not clickable so let's
@@ -784,28 +694,70 @@ function Addonmultiplegap_create(){
         }
 
         if(isWCAGOn) {
-            var altText = "";
-            var langTag = "";
-            var voicesArray = [];
-            voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
-            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
-                voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
-            } else {
-                if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
-                    altText = child.attr('alt');
-                    langTag = child.attr('lang');
-                } else {
-                    altText = child.text();
-                    langTag = presenter.configuration.langTag;
-                }
-            }
-            voicesArray.push(getTextVoiceObject(altText,langTag));
-            presenter.speak(voicesArray);
+            presenter.handleDraggableItemTTS(child)
         }
-
     };
 
-    function createDraggableAudioItem (itemID) {
+    presenter.createDraggablePlaceholderBase = function(item) {
+        const placeholder = presenter.isShowingAnswers()
+            ? $('<div class="placeholder placeholder-show-answers"></div>')
+            : $('<div class="placeholder"></div>')
+
+        const positions = presenter.calculateElementPositions();
+        placeholder.css({
+            top: positions.top + 'px',
+            left: positions.left + 'px',
+            width: presenter.configuration.items.width + 'px',
+            height: presenter.configuration.items.height + 'px'
+        });
+
+        placeholder.attr({
+              draggableValue: item.value,
+              draggableItem: item.item,
+              draggableType: item.type
+          })
+
+        if (presenter.configuration.isTabindexEnabled) {
+            placeholder.attr("tabindex", "0");
+        }
+
+        return placeholder;
+    };
+
+    presenter.createDraggableItem = function(item) {
+        const sourceType = presenter.configuration.sourceType;
+        const draggableItemConstructorMap = {
+            [presenter.SOURCE_TYPES.TEXTS]: presenter.createDraggableTextItem,
+            [presenter.SOURCE_TYPES.IMAGES]: presenter.createDraggableImageItem,
+            [presenter.SOURCE_TYPES.AUDIO]: createDraggableAudioItem,
+        }
+
+        return draggableItemConstructorMap[sourceType](item);
+    };
+
+    presenter.createDraggableTextItem = function(item) {
+        const child = $('<p class="contents"></p>');
+        child.html(presenter.parseItemValue(item.value));
+
+        return child;
+    };
+
+    presenter.createDraggableImageItem = function(item) {
+        const child = $(`<img class="contents" alt="${presenter.getAltText(item.item)}" lang="${presenter.getItemLangAttribute(item.item)}" />`);
+        child.attr('src', presenter.getImageURL(item));
+
+        if(presenter.configuration.stretchImages) {
+            child.css({
+                width: presenter.configuration.items.width + 'px',
+                height: presenter.configuration.items.height + 'px'
+            });
+        }
+
+        return child;
+    };
+
+    function createDraggableAudioItem (item) {
+        const itemID = item.item
         var $el = $('<div></div>');
 
         var addonAndItemIds = itemID.split('-');
@@ -885,6 +837,78 @@ function Addonmultiplegap_create(){
             audioAddon.jumpToID(itemID);
         })
     }
+
+    presenter.positionDraggableItem = function(placeholder, item) {
+        presenter.applyDraggableItemHorizontalPositioning(placeholder, item);
+        presenter.applyDraggableItemVerticalPositioning(placeholder, item);
+    };
+
+    presenter.applyDraggableItemHorizontalPositioning = function(placeholder, item) {
+        const sourceType = presenter.configuration.sourceType;
+        const placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding;
+        const placeholderHorizontalPadding = placeholderPadding.top + placeholderPadding.bottom;
+        const horizontalAlignType = presenter.configuration.items.horizontalAlign;
+
+        const centerTypeStylesBasedOnSourceTypeMap = {
+            [presenter.SOURCE_TYPES.TEXTS]: { position: 'absolute', width: '100%', textAlign: 'center' },
+            [presenter.SOURCE_TYPES.IMAGES]: { position: 'absolute', left: Math.round((presenter.configuration.items.width - placeholderHorizontalPadding - parseInt(item.css('width'))) / 2) + 'px'},
+        }
+
+        switch(horizontalAlignType) {
+            case 'center':
+                item.css(centerTypeStylesBasedOnSourceTypeMap[sourceType])
+                break;
+            case 'right':
+            case 'left':
+                item.css({
+                    position: 'absolute',
+                    [horizontalAlignType]: 0
+                });
+                break;
+        }
+    }
+
+    presenter.applyDraggableItemVerticalPositioning = function(placeholder, item) {
+        const placeholderPadding = DOMOperationsUtils.getOuterDimensions(placeholder).padding;
+        const placeholderVerticalPadding = placeholderPadding.left + placeholderPadding.right;
+        const verticalAlignType = presenter.configuration.items.verticalAlign;
+
+        switch(verticalAlignType) {
+            case 'center':
+                item.css({
+                    position: 'absolute',
+                    top: Math.round((presenter.configuration.items.height - placeholderVerticalPadding - parseInt(item.css('height'))) / 2) + 'px'
+                });
+                break;
+            case 'top':
+            case 'bottom':
+                item.css({
+                    position: 'absolute',
+                    [verticalAlignType]: 0
+                });
+                break;
+        }
+    }
+
+    presenter.handleDraggableItemTTS = function(child) {
+        var altText = "";
+        var langTag = "";
+        var voicesArray = [];
+        voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
+        if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+            voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
+        } else {
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
+                altText = child.attr('alt');
+                langTag = child.attr('lang');
+            } else {
+                altText = child.text();
+                langTag = presenter.configuration.langTag;
+            }
+        }
+        voicesArray.push(getTextVoiceObject(altText,langTag));
+        presenter.speak(voicesArray);
+    }
     
     function sendEvent(item, consumed) {
         if (consumed) {
@@ -892,9 +916,9 @@ function Addonmultiplegap_create(){
         }
         
         var score;
-        if(presenter.isElementCorrect(item.item)){
+        if (presenter.isElementCorrect(item.item)){
             score = 1;
-        }else{
+        } else{
             score = 0;
         }
 
@@ -916,10 +940,10 @@ function Addonmultiplegap_create(){
         placeholder.draggable({
             revert : false,
             helper: function() {
-                placeholder.addClass('dragging');
                 if (!presenter.isDragPossible()) {
                     return $('<div></div>');
                 }
+                placeholder.addClass('dragging');
                 
                 presenter.itemDragged(placeholder);
                 return getDraggedSrc(placeholder).clone().show();
@@ -1032,7 +1056,7 @@ function Addonmultiplegap_create(){
     };
     
     presenter.performRemoveDraggable = function(handler) {
-
+        presenter.elementCounter--;
         var placeholder = handler.parent();
         var child = placeholder.find('.contents');
         if(isWCAGOn) {
@@ -1078,7 +1102,7 @@ function Addonmultiplegap_create(){
             'value' : 'remove',
             'score' : '0'
         });
-        
+
         if (presenter.isAllOK()) sendAllOKEvent();
     };
         
@@ -1138,7 +1162,7 @@ function Addonmultiplegap_create(){
             'value': '',
             'score': ''
         };
-        
+
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
     
@@ -1293,13 +1317,22 @@ function Addonmultiplegap_create(){
         
         presenter.clearSelected();
         
-        if (presenter.configuration.isVisibleByDefault) {
+        presenter.handleDisplayingAddon();
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+        presenter.elementCounter = 0;
+    };
+
+    presenter.isVisible = function() {
+        return presenter.$view.css("visibility") === 'visible';
+    }
+
+    presenter.handleDisplayingAddon = function () {
+        if (presenter.configuration.isVisibleByDefault && presenter.isVisible()) {
             presenter.show();
         } else {
             presenter.hide();
         }
-        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
-    };
+    }
     
     presenter.getState = function() {
         function getBaseState(placeholders) {
@@ -1341,7 +1374,7 @@ function Addonmultiplegap_create(){
         var parsedState = JSON.parse(state),
           upgradedState = presenter.upgradeState(parsedState);
 
-        for(var i = 0; i < upgradedState.placeholders.length; i++) {
+        for (let i = 0; i < upgradedState.placeholders.length; i++) {
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
         }
 
@@ -1352,11 +1385,11 @@ function Addonmultiplegap_create(){
         }
         
         presenter.pageLoaded.then(function() {
-            presenter.updateLaTeX(presenter.getContainerElement());
-            for (var i=0; i<presenter.placeholders2drag.length; i++) {
-                var placeholder = presenter.placeholders2drag[i];
+            for (let i=0; i<presenter.placeholders2drag.length; i++) {
+                const placeholder = presenter.placeholders2drag[i];
                 presenter.makePlaceholderDraggable(placeholder);
             }
+            presenter.updateLaTeX(presenter.getContainerElement());
         });
 
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
@@ -1367,14 +1400,10 @@ function Addonmultiplegap_create(){
     };
     
     presenter.countItems = function(itemsToCount) {
-        var countItems;
         if (itemsToCount !== null && itemsToCount !== undefined) {
-            countItems = itemsToCount;
-        } else {
-            countItems = presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging').length;
+            return itemsToCount;
         }
-        
-        return countItems;
+        return presenter.elementCounter;
     };
     
     presenter.isAttemptedCommand = function() {
@@ -1499,6 +1528,7 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.placeholder').remove();
         var iteratedObject = presenter.getActivitiesCount();
 
+        presenter.elementCounter = 0;
         for (var i = 0; i < iteratedObject; i++) {
             presenter.showAnswer(i);
         }
@@ -1533,8 +1563,9 @@ function Addonmultiplegap_create(){
 
         presenter.$view.find('.placeholder-show-answers').remove();
 
-        if(presenter.tmpState){
-            for(var i = 0; i < presenter.tmpState.length; i++) {
+        if (presenter.tmpState){
+            presenter.elementCounter = 0;
+            for (var i = 0; i < presenter.tmpState.length; i++) {
                 presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
             }
         }
@@ -1862,17 +1893,30 @@ function Addonmultiplegap_create(){
     }
 
     presenter.gradualHideAnswers = function () {
+        presenter.removePlaceholders();
         presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = false;
     }
 
+    presenter.removePlaceholders = function () {
+        presenter.$view.find('.placeholder').remove();
+    }
+
     function setUpResetOnce() {
          presenter.resetOnce = (function() {
-            var didReset = false;
+            let didReset = false;
             return function() {
                 if(!didReset) {
                     didReset = true;
-                    presenter.reset();
+                    if(presenter.isShowAnswersActive){
+                        presenter.hideAnswers();
+                    }
+
+                    presenter.$view.find('.placeholder').remove();
+                    presenter.setWorkMode();
+                    presenter.clearSelected();
+                    presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+                    presenter.elementCounter = 0;
                 }
             };
         })();

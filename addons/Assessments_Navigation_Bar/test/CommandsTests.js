@@ -78,6 +78,50 @@ TestCase("[Assessments_Navigation_Bar] add / remove Bookmark", {
     }
 });
 
+TestCase("[Assessments_Navigation_Bar] add / remove Bookmark from not visible button", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.sections = [
+            {
+                sectionName: "",
+                pages: [0, 1, 2],
+                pagesDescriptions: ["0", "1", "2"]
+            }
+        ];
+        this.presenter.sections = new this.presenter.Sections(this.sections);
+
+        this.presenter.buttons = [];
+
+        this.stubs = {
+            initView: sinon.stub(this.presenter.NavigationManager.prototype, 'initView'),
+            isActualPage1: sinon.stub(this.presenter.sections.allPages[0], 'isActualPage'),
+            isActualPage2: sinon.stub(this.presenter.sections.allPages[1], 'isActualPage'),
+            isActualPage3: sinon.stub(this.presenter.sections.allPages[2], 'isActualPage'),
+        };
+
+        this.stubs.isActualPage1.returns(false);
+        this.stubs.isActualPage2.returns(true);
+        this.stubs.isActualPage3.returns(false);
+
+        this.presenter.navigationManager = new this.presenter.NavigationManager(0);
+    },
+
+    tearDown: function () {
+        this.presenter.NavigationManager.prototype.initView.restore();
+        this.presenter.sections.allPages[0].isActualPage.restore();
+        this.presenter.sections.allPages[1].isActualPage.restore();
+        this.presenter.sections.allPages[2].isActualPage.restore();
+    },
+
+    'test bookmarking current page that is not visible should not raise error': function () {
+        this.presenter.bookmarkCurrentPage();
+    },
+
+    'test removing bookmark from current page that is not visible should not raise error': function () {
+        this.presenter.removeBookmark();
+    },
+});
+
 TestCase("[Assessments_Navigation_Bar] Move to page", {
     setUp: function () {
         this.presenter = AddonAssessments_Navigation_Bar_create();

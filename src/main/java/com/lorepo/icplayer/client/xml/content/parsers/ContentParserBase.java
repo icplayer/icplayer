@@ -62,6 +62,7 @@ public abstract class ContentParserBase implements IContentParser {
 					content.setStyles(this.parseStyles(child));
 				} else if(name.compareTo("layouts") == 0) {
 					content = this.parseLayouts(content, child);
+					content.setDefaultGridSize();
 				}
 				else if(name.compareTo("pages") == 0){
 					this.parsePages(content, child, this.pagesSubset);
@@ -84,6 +85,14 @@ public abstract class ContentParserBase implements IContentParser {
 				else if (name.compareTo("adaptive") == 0) {
 					String adaptiveStructure = parseAdaptiveStructure(child);
 					content.setAdaptiveStructure(adaptiveStructure);
+				}
+				else if (name.compareTo("dictionary") == 0) {
+					HashMap<String, HashMap<String, String>> dictionary = parseDictionaryStructure(child);
+					content.setDictionaryStructure(dictionary);
+				}
+				else if (name.compareTo("defaultTTSTitlesDictionary") == 0) {
+					HashMap<String, String> dictionary = parseDefaultTTSTitlesDictionary(child);
+					content.setDefaultTTSTitlesDictionary(dictionary);
 				}
 			}
 		}		
@@ -258,5 +267,13 @@ public abstract class ContentParserBase implements IContentParser {
 	
 	protected String parseAdaptiveStructure(Element xml) {
 		return "";
+	}
+
+	protected HashMap<String, HashMap<String, String>> parseDictionaryStructure(Element xml) {
+		return new HashMap<String, HashMap<String, String>>();
+	}
+
+	protected HashMap<String, String> parseDefaultTTSTitlesDictionary(Element xml) {
+		return new HashMap<String, String>();
 	}
 }

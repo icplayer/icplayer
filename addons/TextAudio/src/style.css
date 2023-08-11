@@ -161,3 +161,27 @@
     background: url('resources/audio-slider-btn.png') no-repeat center;
     margin-left: -10px;
 }
+
+.textaudioplayer.playback-speed-control-enabled {
+    width: 460px;
+}
+
+.textaudio-playback-rate {
+    float: left;
+    vertical-align: middle;
+    height: 30px;
+    width: 60px;
+    margin-top: 15px;
+    line-height: 16px;
+    padding-right: 10px;
+    background-color:inherit;
+}
+
+.textaudio-playback-rate select {
+    width: 100%;
+    font-size: 14px;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: grey;
+    border: 0;
+    background-color:inherit;
+}

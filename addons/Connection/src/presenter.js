@@ -28,6 +28,7 @@ function AddonConnection_create() {
 
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
+    presenter.GSAcounter = 0;
     presenter.isCheckActive = false;
     presenter.initialState = null;
 
@@ -35,9 +36,10 @@ function AddonConnection_create() {
     presenter.printableParserID = "";
     presenter.printableParserCallback = null;
 
+
     presenter.mathJaxLoaders = {
-        runLoader: false,
-        setStateLoader: true
+        runLoaded: false,
+        setStateLoaded: true,
     };
 
     presenter.PRINTABLE_STATE_MODE = {
@@ -52,7 +54,8 @@ function AddonConnection_create() {
     var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
 
     function checkIsMathJaxLoaded() {
-        return presenter.mathJaxLoaders.runLoader && presenter.mathJaxLoaders.setStateLoader;
+        return presenter.mathJaxLoaders.runLoaded
+            && presenter.mathJaxLoaders.setStateLoaded
     }
 
     var connections;
@@ -313,11 +316,29 @@ function AddonConnection_create() {
 
     presenter.parseDefinitionLinks = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
-            $(element).html(presenter.textParser.parse($(element).html()));
+            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
+            $(element).html(sanitizedLink);
         });
 
         presenter.textParser.connectLinks($(presenter.view));
     };
+
+    presenter.parseAddonGaps = function (model) {
+        //This method is only needed in preview, in normal mode text parser will handle addon gaps
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var el = model["Left column"][i];
+            el.content = parseAddonGapsInContent(el.content);
+        }
+        for (var i = 0; i < model["Right column"].length; i++) {
+            var el = model["Right column"][i];
+            el.content = parseAddonGapsInContent(el.content);
+        }
+        return model;
+    };
+
+    function parseAddonGapsInContent (text) {
+        return text.replace(/\\addon{([^\s-]*?)}/g, '<div id="addonGap-$1">$1</div>');
+    }
 
     presenter.removeNonVisibleInnerHTML = function () {
         presenter.removeNonVisibleInnerHTMLForRoot($(presenter.view));
@@ -395,6 +416,7 @@ function AddonConnection_create() {
 
     presenter.createPreview = function (view, model) {
         presenter.view = view;
+        model = presenter.parseAddonGaps(model);
         presenter.model = model;
         presenter.initialize(presenter.view, presenter.model, true);
     };
@@ -548,7 +570,10 @@ function AddonConnection_create() {
     presenter.drawInitialValues = function () {
         this.lineStack.setSendEvents(false);
 
-        presenter.initialValues.forEach(presenter.drawInitialValue);
+        if (!presenter.lineStack.length()) {
+            presenter.initialValues.forEach(presenter.drawInitialValue);
+        }
+
         presenter.redraw();
 
         this.lineStack.setSendEvents(true);
@@ -630,19 +655,24 @@ function AddonConnection_create() {
         // isNotActivty may not exist
         presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity'] || 'False');
 
+        const $connectionContainer = $(".connectionContainer");
+
         if (isPreview) {
-            presenter.initializeView(view, model);
+            waitForLoad($connectionContainer, () => {
+                presenter.initializeView(view, model);
+                presenter.drawConfiguredConnections();
+            })
             presenter.removeNonVisibleInnerHTML();
-            presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
-                presenter.initializeView(view, model);
+                waitForLoad($connectionContainer, () => {
+                    presenter.initializeView(view, model);
+                    presenter.drawInitialValues();
+                    presenter.addDisabledElementsFromInitialValues();
+                    presenter.mathJaxLoaders.runLoaded = true;
+                    deferredCommandQueue.resolve();
+                })
                 presenter.registerListeners(presenter.view);
-                presenter.drawInitialValues();
-                presenter.addDisabledElementsFromInitialValues();
-
-                presenter.mathJaxLoaders.runLoader = true;
-                deferredCommandQueue.resolve();
             });
         }
 
@@ -895,6 +925,7 @@ function AddonConnection_create() {
                             return false;
                         }
                         ui.helper.css("visibility", "hidden");
+                        ui.helper.find(".inner_addon").css("display","none");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
 
@@ -1292,7 +1323,7 @@ function AddonConnection_create() {
 
     presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
         var offset = element.offset();
-        var scale = playerController.getScaleInformation();
+        var scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
         var snapPoint = [0, 0];
 
         var elementWidth = element.outerWidth(true) * scale.scaleX;
@@ -1388,7 +1419,7 @@ function AddonConnection_create() {
         var from = presenter.getElementSnapPoint(line.from);
         var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
-        var scale = playerController.getScaleInformation();
+        var scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
 
         canvasOffset.left /= scale.scaleX;
         canvasOffset.top /= scale.scaleY;
@@ -1546,7 +1577,11 @@ function AddonConnection_create() {
         presenter.lineStack.clear();
         presenter.redraw();
 
+        while(itemIndex < presenter.GSAcounter || !presenter.elementIsShowAnswersViable(itemIndex)) {
+            itemIndex++;
+        }
         presenter.addCorrectAnswersToLineStack(itemIndex + 1);
+        presenter.GSAcounter = itemIndex + 1;
 
         presenter.redrawShowAnswers();
         presenter.lineStack.clear();
@@ -1560,25 +1595,34 @@ function AddonConnection_create() {
         presenter.keyboardControllerObject.selectEnabled(true);
         presenter.redraw();
         isSelectionPossible = true;
+        presenter.GSAcounter = 0;
+    }
+
+    presenter.elementIsShowAnswersViable = function(index) {
+        var viableElement = false;
+        var connects = presenter.elements[index].connects;
+        for(var i = 0; i < connects.length; i++) {
+            if(connects[i] !== "" && $.inArray(connects[i], presenter.uniqueIDs) >= 0) {
+                viableElement = true;
+                break;
+            }
+        }
+        return viableElement;
     }
 
     presenter.getActivitiesCount = function () {
-        var lineCounter = 0;
+        var counter = 0;
         for (var i = 0; i < presenter.elements.length; i++) {
-            lineCounter += presenter.elements[i].connects
-                .split(',')
-                .filter(function(element) {
-                    return element !== ""
-                }).length;
+            if (presenter.elementIsShowAnswersViable(i)) counter++;
         }
-        return lineCounter;
+        return counter;
     }
 
     presenter.getState = function () {
         // this is needed because run/setState method waits for MathJax process to be finished
         // if getState is called before MathJax EndProcess callback then state would be lost
         // this fix that problem
-        if (!presenter.mathJaxLoaders.setStateLoader && presenter.initialState !== null) {
+        if (!presenter.mathJaxLoaders.setStateLoaded && presenter.initialState !== null) {
             return presenter.initialState;
         }
 
@@ -1595,7 +1639,7 @@ function AddonConnection_create() {
     presenter.setState = function (state) {
         var hookExecuted = false;
         presenter.initialState = state;
-        presenter.mathJaxLoaders.setStateLoader = false;
+        presenter.mathJaxLoaders.setStateLoaded = false;
 
         presenter.mathJaxProcessEnded.then(function () {
             if (state !== '' && !hookExecuted) {
@@ -1618,11 +1662,10 @@ function AddonConnection_create() {
 
                 presenter.lineStack.setSendEvents(true);
                 presenter.redraw();
+                presenter.mathJaxLoaders.setStateLoaded = true;
                 deferredCommandQueue.resolve();
             }
-
             presenter.initialState = null;
-            presenter.mathJaxLoaders.setStateLoader = true;
             hookExecuted = true;
         });
     };

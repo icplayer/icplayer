@@ -28,15 +28,17 @@ public class TextPrintable {
 		}
 
 		String parsedText = model.parsedText;
-		
+
+		parsedText = removeTextAudio(parsedText);
+
 		// Convert all inputs with initial text to a printer friendly format
 		parsedText = makePrintableInput(parsedText, showAnswers);
-		
+
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 
 		parsedText = makePrintableMathInput(parsedText, showAnswers);
-		
+
 		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
 		return result;
@@ -58,7 +60,10 @@ public class TextPrintable {
 		} else {
 			NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
 			for (int i = 0; i < inputs.getLength(); i++) {
-				gaps.add(inputs.getItem(i));
+				Element input = inputs.getItem(i);
+				if (input.getClassName().indexOf("ic_addon_gap") == -1) {
+					gaps.add(input);
+				}
 			}
 		}
 
@@ -71,6 +76,43 @@ public class TextPrintable {
 
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
+
+		return parsedText;
+	}
+
+	private boolean hasElementTypeOfButton(Element element) {
+	    return element.hasAttribute("type") && element.getAttribute("type").equals("button");
+	}
+
+	private String removeTextAudio(String parsedText) {
+	    parsedText = removeTextAudioInfo(parsedText);
+	    parsedText = removeTextAudioAudio(parsedText);
+	    return parsedText;
+	}
+
+	private String removeTextAudioInfo(String parsedText) {
+	    HTML html = new HTML(parsedText);
+	    NodeList<Element> inputs
+	        = html.getElement().getElementsByTagName("input");
+	    for (int i = 0; i < inputs.getLength(); i++) {
+            Element item = inputs.getItem(i);
+            if (hasElementTypeOfButton(item)) {
+                String oldValue = item.getString();
+			    parsedText = parsedText.replace(oldValue, "");
+            }
+        }
+		return parsedText;
+	}
+
+	private String removeTextAudioAudio(String parsedText) {
+	    HTML html = new HTML(parsedText);
+	    NodeList<Element> audioElements
+	        = html.getElement().getElementsByTagName("audio");
+	    for (int i = 0; i < audioElements.getLength(); i++) {
+            Element item = audioElements.getItem(i);
+            String oldValue = item.getString();
+			parsedText = parsedText.replace(oldValue, "");
+        }
 
 		return parsedText;
 	}

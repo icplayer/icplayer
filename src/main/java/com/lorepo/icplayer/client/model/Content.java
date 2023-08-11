@@ -15,6 +15,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.metadata.IMetadata;
 import com.lorepo.icplayer.client.metadata.Metadata;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -29,7 +30,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public final static String version = "3";
+	public final static String version = "5";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -48,6 +49,9 @@ public class Content implements IContentBuilder, IContent {
 	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 	private ArrayList<Integer> pagesMapping = new ArrayList<Integer>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
+
+	private HashMap<String, HashMap<String, String>> ttsDictionary = new HashMap<String, HashMap<String, String>>();
+	private HashMap<String, String> defaultTTSTitlesDictionary = new HashMap<String, String>();
 
 	private int maxPagesCount = 100;
 
@@ -104,18 +108,8 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public void addAsset(IAsset asset){
-
-		String href = asset.getHref();
-
-		if(href == null){
-			return;
-		}
-
-		String escaped = StringUtils.escapeHTML(href);
-		if(escaped.compareTo(href) != 0){
-			return;
-		}
-
+		if (!isAssetHrefValid(asset)) return;
+		
 		boolean foundURL = false;
 
 		for(IAsset a : assets){
@@ -125,10 +119,44 @@ public class Content implements IContentBuilder, IContent {
 			}
 		}
 
-		if(	!foundURL){
-
+		if(!foundURL){
 			assets.add(asset);
 		}
+	}
+
+	public void addAsset(ScriptAsset asset){
+		if (!isAssetHrefValid(asset)) return;
+
+		boolean foundURL = false;
+
+		for(int i = 0; i < assets.size(); i++) {
+			IAsset a = assets.get(i);
+			if(a.getHref().compareTo(asset.getHref()) == 0){
+				foundURL = true;
+				if (a.getType() != asset.getType()) {
+					asset.setContentType(a.getContentType());
+					asset.setFileName(a.getFileName());
+					asset.setTitle(a.getTitle());
+					asset.setOrderNumber(a.getOrderNumber());
+					assets.set(i, asset);
+				}
+				break;
+			}
+		}
+
+		if(!foundURL){
+			assets.add(asset);
+		}
+	}
+
+	private boolean isAssetHrefValid(IAsset asset) {
+		String href = asset.getHref();
+		if(href == null) return false;
+
+		String escaped = StringUtils.escapeHTML(href);
+		if(escaped.compareTo(href) != 0) return false;
+		
+		return true;
 	}
 
 	public void setPagesSubsetMap(ArrayList<Integer> mapping) {
@@ -220,6 +248,7 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += "</styles>";
 
+		// Layouts
 		Document xmlDocument = XMLParser.createDocument();
 		Element layouts = xmlDocument.createElement("layouts");
 		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
@@ -242,6 +271,10 @@ public class Content implements IContentBuilder, IContent {
 		xml += "<adaptive><![CDATA[";
 		xml += adaptiveStructure;
 		xml += 	"]]></adaptive>";
+
+		// TTS Dictionary
+		xml += this.createDictionaryStructure();
+		xml += this.parseDefaultTTSTitlesDictionaryToXML();
 
 		xml += 	"</interactiveContent>";
 		return xml;
@@ -281,6 +314,31 @@ public class Content implements IContentBuilder, IContent {
 	@Override
 	public void setAdaptiveStructure(String structure) {
 		this.adaptiveStructure = structure;
+	}
+
+	public HashMap<String, HashMap<String, String>> getDictionaryStructure() {
+		return this.ttsDictionary;
+	}
+
+	@Override
+	public void setDictionaryStructure(HashMap<String, HashMap<String, String>> dictionary) {
+		for (String addonName : dictionary.keySet()) {
+			HashMap<String, String> properties = dictionary.get(addonName);
+			HashMap<String, String> copiedProperties = new HashMap<String, String>();
+			copiedProperties.putAll(properties);
+	
+			this.ttsDictionary.put(addonName, copiedProperties);
+		}
+	}
+
+	public HashMap<String, String> getDefaultTTSTitlesDictionary() {
+		return this.defaultTTSTitlesDictionary;
+	}
+
+	@Override
+	public void setDefaultTTSTitlesDictionary(HashMap<String, String> dictionary) {
+		this.defaultTTSTitlesDictionary = new HashMap<String, String>();
+		this.defaultTTSTitlesDictionary.putAll(dictionary);
 	}
 
 	@Override
@@ -522,6 +580,10 @@ public class Content implements IContentBuilder, IContent {
 		return setsLayouts;
 	}
 
+	public PageLayout getActualSemiResponsiveLayout() {
+		return this.layoutsContainer.getActualLayout();
+	}
+
 	public String getDefaultSemiResponsiveLayoutID() {
 		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
 	}
@@ -537,6 +599,10 @@ public class Content implements IContentBuilder, IContent {
 	
 	public String getLayoutIDByName(String layoutName) {
 		return this.layoutsContainer.getLayoutIDByName(layoutName);
+	}
+
+	public String getLayoutNameByID(String layoutID) {
+		return this.layoutsContainer.getLayoutNameByID(layoutID);
 	}
 
 	public void setDefaultCSSStyle(String cssStyleID) {
@@ -603,4 +669,64 @@ public class Content implements IContentBuilder, IContent {
 	public boolean isCommonPage(Page page) {
 		return this.getCommonPages().contains(page);
 	}
+
+	private String createDictionaryStructure() {
+		Document document = XMLParser.createDocument();
+		Element dictionary = document.createElement("dictionary");
+		
+		if (this.ttsDictionary.isEmpty()) {
+			return dictionary.toString();
+		}
+
+		for (String addonName : this.ttsDictionary.keySet()) {
+			ModuleXMLElement module = new ModuleXMLElement(addonName);
+			HashMap<String, String> properties = this.ttsDictionary.get(addonName);
+
+			for(String propertyName : properties.keySet()) {
+				SpeechTextXMLElement speechText = new SpeechTextXMLElement(propertyName, properties.get(propertyName));
+				module.addSpeechTextElement(speechText.toXML());
+			}
+
+			dictionary.appendChild(module.toXML());
+		}
+
+		return dictionary.toString();
+	}
+
+	private String parseDefaultTTSTitlesDictionaryToXML() {
+		Document document = XMLParser.createDocument();
+		Element dictionary = document.createElement("defaultTTSTitlesDictionary");
+
+		if (this.defaultTTSTitlesDictionary.isEmpty()) {
+			return dictionary.toString();
+		}
+
+		for (String addonName : this.defaultTTSTitlesDictionary.keySet()) {
+			String defaultTitle = this.defaultTTSTitlesDictionary.get(addonName);
+
+			Element module = document.createElement("module");
+			module.setAttribute("type", addonName);
+			module.setAttribute("value", defaultTitle);
+			dictionary.appendChild(module);
+		}
+
+		return dictionary.toString();
+	}
+
+	public void setDefaultGridSize() {
+		int defaultGridSize;
+		try {
+			defaultGridSize = Integer.valueOf(this.metadata.getValue("gridSize"));
+		} catch (Exception e) {
+			defaultGridSize = 25;
+		}
+
+		for(PageLayout layout : this.getLayouts().values()) {
+			int gridSize = layout.getGridSize();
+			if (gridSize == 0) {
+				layout.setGridSize(defaultGridSize);
+			}
+		}
+	}
+
 }

@@ -13,7 +13,6 @@
 
 div.addon-audio-playlist-controls {
     padding: 10px 25px;
-    height: 40px;
     position: relative;
     border: 1px solid black;
     border-radius: 30px;
@@ -38,7 +37,6 @@ button.audio-playlist-control-btn {
     cursor: pointer;
     border: 0;
     background-color: white;
-
 }
 
 button.audio-playlist-next-btn {
@@ -264,4 +262,23 @@ div.audio-playlist-max-time {
     height: 40px;
     background: url('resources/audio-slider-btn.png') no-repeat center;
     margin-left: -10px;
+}
+
+.audio-speed-controller {
+    float: left;
+    margin-top: 10px;
+    height: 30px;
+    width: 60px;
+    line-height: 16px;
+    padding-right: 10px;
+    background-color: inherit;
+}
+
+.audio-speed-controller select {
+    width: 100%;
+    font-size: 14px;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: grey;
+    border: 0;
+    background-color: inherit;
 }

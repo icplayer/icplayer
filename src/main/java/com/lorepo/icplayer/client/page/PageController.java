@@ -179,7 +179,9 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
-			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontMoveModules);
+			if (this.isIntendedForCurrentLayout(data.layoutName)) {
+				this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontMoveModules);
+			}
 		}
 	}
 
@@ -198,10 +200,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 		scriptingEngine.reset();
 		
 		for(Group group : currentPage.getGroupedModules()) {
-			GroupView groupView = moduleFactory.createView(group);
 			GroupPresenter presenter = moduleFactory.createPresenter(group);
-			pageView.addGroupView(groupView);
-			presenter.addView(groupView);
 			groupPresenters.add(presenter);
 		}
 		
@@ -212,10 +211,16 @@ public class PageController implements ITextToSpeechController, IPageController 
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			GroupPresenter groupPresenter = findGroupPresenter(module); 
 			
-			if(groupPresenter != null) {
-				if(groupPresenter.getGroup().isDiv()) {
+			if (groupPresenter != null) {
+				if (!groupPresenter.hasView()) {
+					GroupView groupView = moduleFactory.createView(groupPresenter.getGroup());
+					pageView.addGroupView(groupView);
+					groupPresenter.addView(groupView);
+				}
+
+				if (groupPresenter.getGroup().isDiv()) {
 					pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
-				}else {
+				} else {
 					pageView.addModuleView(moduleView, module);
 				}
 				groupPresenter.addPresenter(presenter);
@@ -465,7 +470,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getId() + statefulObj.getSerialId();
 				String moduleState = state.get(key);
-				if (moduleState != null) {
+				if (moduleState != null && !moduleState.isEmpty()) {
 					statefulObj.setState(moduleState);
 				}
 			}
@@ -608,10 +613,27 @@ public class PageController implements ITextToSpeechController, IPageController 
 		return null;
 	}
 
-	public void outstretchHeight(int y, int height, boolean dontMoveModules) {
-		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
-		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
-		this.playerController.fireOutstretchHeightEvent();
+	public void outstretchHeight(int y, int height, boolean dontMoveModules, String layoutName) {
+		if (this.isIntendedForCurrentLayout(layoutName)) {
+			this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
+			this.playerController.fireOutstretchHeightEvent();
+		}
+
+		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules, layoutName);
+	}
+
+	private boolean isIntendedForCurrentLayout(String layoutName) {
+		String currentLayoutName = this.getCurrentPageCurrentLayoutName();
+		return currentLayoutName.equals(layoutName) || layoutName.isEmpty();
+	}
+
+	private String getCurrentPageCurrentLayoutName() {
+		String layoutID = this.getCurrentPageCurrentLayoutID();
+		return this.contentModel.getLayoutNameByID(layoutID);
+	}
+	
+	private String getCurrentPageCurrentLayoutID() {
+		return currentPage.getSemiResponsiveLayoutID();
 	}
 
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
@@ -647,6 +669,18 @@ public class PageController implements ITextToSpeechController, IPageController 
 	
 	public void readPageTitle () {
 		TextToSpeechAPI.playPageTitle(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public void readNextSentence () {
+		TextToSpeechAPI.playNextSentence(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public void readPrevSentence () {
+		TextToSpeechAPI.playPrevSentence(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public void saveNextSentences () {
+		TextToSpeechAPI.saveNextSentences(this.getTextToSpeechAPIJavaScriptObject());
 	}
 
 	public List<NavigationModuleIndentifier> getModulesOrder () {

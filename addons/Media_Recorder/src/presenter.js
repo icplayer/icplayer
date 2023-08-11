@@ -60,11 +60,46 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var CSS_CLASSES = exports.CSS_CLASSES = {
+    PLAYER_WRAPPER: "media-recorder-player-wrapper",
+    PLAYER_LOADER: "media-recorder-player-loader",
+    AUDIO_LOADER: "audio-loader",
+    WRAPPER: "media-recorder-wrapper",
+    WRAPPER_BROWSER_NOT_SUPPORTED: "media-recorder-wrapper-browser-not-supported",
+    DEFAULT_RECORDING_PLAY_BUTTON: "media-recorder-default-recording-play-button",
+    RECORDING_BUTTON: "media-recorder-recording-button",
+    PLAY_BUTTON: "media-recorder-play-button",
+    RESET_BUTTON: "media-recorder-reset-button",
+    DOWNLOAD_BUTTON: "media-recorder-download-button",
+    PROGRESS_BAR: "media-recorder-progress-bar",
+    PROGRESS_BAR_SLIDER: "media-recorder-progress-bar-slider",
+    TIMER: "media-recorder-timer",
+    SOUND_INTENSITY: "media-recorder-sound-intensity",
+    DOTTED_SOUND_INTENSITY: "media-recorder-dotted-sound-intensity",
+    TALL_DOT: "tall-dot",
+    SHORT_DOT: "short-dot",
+    SOUND_INTENSITY_DOT: "sound-intensity-dot",
+    RESET_DIALOG: "media-recorder-reset-dialog",
+    DIALOG_TEXT: "dialog-text",
+    CONFIRM_BUTTON: "confirm-button",
+    DENY_BUTTON: "deny-button",
+    EXTENDED_MODE: "extended-mode",
+    SELECTED: "selected",
+    DISABLED: "disabled"
+};
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -122,8 +157,8 @@ var Button = exports.Button = function () {
 }();
 
 /***/ }),
-/* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -135,7 +170,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -154,6 +191,8 @@ var RecordButton = exports.RecordButton = function (_Button) {
 
         var _this = _possibleConstructorReturn(this, (RecordButton.__proto__ || Object.getPrototypeOf(RecordButton)).call(this, $view));
 
+        _this._keyboardController = null;
+
         _this.state = state;
         return _this;
     }
@@ -162,18 +201,19 @@ var RecordButton = exports.RecordButton = function (_Button) {
         key: "destroy",
         value: function destroy() {
             _get(RecordButton.prototype.__proto__ || Object.getPrototypeOf(RecordButton.prototype), "destroy", this).call(this);
+            this._keyboardController = null;
             this.state = null;
         }
     }, {
         key: "reset",
         value: function reset() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onResetCallback();
         }
     }, {
         key: "setUnclickView",
         value: function setUnclickView() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
         }
     }, {
         key: "_eventHandler",
@@ -183,14 +223,19 @@ var RecordButton = exports.RecordButton = function (_Button) {
     }, {
         key: "_startRecording",
         value: function _startRecording() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartRecordingCallback();
         }
     }, {
         key: "_stopRecording",
         value: function _stopRecording() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopRecordingCallback();
+        }
+    }, {
+        key: "setKeyboardController",
+        value: function setKeyboardController(keyboardController) {
+            this._keyboardController = keyboardController;
         }
     }, {
         key: "onStartRecording",
@@ -213,7 +258,7 @@ var RecordButton = exports.RecordButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -224,6 +269,146 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var BlobService = exports.BlobService = function () {
+    function BlobService() {
+        _classCallCheck(this, BlobService);
+    }
+
+    _createClass(BlobService, null, [{
+        key: "serialize",
+        value: function serialize(blob) {
+            return new Promise(function (resolve) {
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    return resolve(reader.result);
+                };
+                reader.readAsDataURL(blob);
+            });
+        }
+    }, {
+        key: "deserialize",
+        value: function deserialize(base64Data) {
+            var mediaSourceData = base64Data.split(",");
+            var recording = mediaSourceData[1];
+            var contentType = mediaSourceData[0].replace(";base64", "").replace("data:", "");
+            return this._b64toBlob(recording, contentType);
+        }
+    }, {
+        key: "_b64toBlob",
+        value: function _b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNumbers);
+
+                byteArrays.push(byteArray);
+            }
+
+            return new Blob(byteArrays, { type: contentType });
+        }
+    }, {
+        key: "getMp3BlobFromDecodedDataByWorker",
+        value: function getMp3BlobFromDecodedDataByWorker(worker, decodedData) {
+            var buffers = this.prepareSampleBuffers(decodedData);
+            var left = buffers[0];
+            var right = buffers[1];
+
+            return worker.execute(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+        }
+    }, {
+        key: "getMp3BlobFromDecodedData",
+        value: function getMp3BlobFromDecodedData(decodedData) {
+            var buffers = this.prepareSampleBuffers(decodedData);
+            var left = buffers[0];
+            var right = buffers[1];
+
+            return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+        }
+    }, {
+        key: "prepareSampleBuffers",
+        value: function prepareSampleBuffers(decodedData) {
+            var left = this._convertFloat32ToInt16Array(decodedData.getChannelData(0));
+            var right = left;
+            if (decodedData.numberOfChannels === 2) {
+                right = this._convertFloat32ToInt16Array(decodedData.getChannelData(1));
+            }
+            return [left, right];
+        }
+    }, {
+        key: "_encode",
+        value: function _encode(channels, sampleRate, sampleLen, left, right) {
+            var buffer = [];
+            var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+
+            var maxSamples = 1152;
+            for (var i = 0; i < sampleLen; i += maxSamples) {
+                var leftChunk = left.subarray(i, i + maxSamples);
+                var rightChunk = right.subarray(i, i + maxSamples);
+
+                var mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);
+                if (mp3buf.length > 0) {
+                    buffer.push(new Int8Array(mp3buf));
+                }
+            }
+            var d = mp3enc.flush();
+            if (d.length > 0) {
+                buffer.push(new Int8Array(d));
+            }
+
+            var blob = new Blob(buffer, { type: 'audio/mpeg-3' });
+            return blob;
+        }
+
+        //lamejs require int16 array
+        //see more at - https://github.com/zhuker/lamejs/issues/10#issuecomment-141718262
+
+    }, {
+        key: "_convertFloat32ToInt16Array",
+        value: function _convertFloat32ToInt16Array(data) {
+            var len = data.length,
+                i = 0;
+            var dataAsInt16Array = new Int16Array(len);
+
+            while (i < len) {
+                dataAsInt16Array[i] = convert(data[i++]);
+            }
+            function convert(n) {
+                var v = n < 0 ? n * 32768 : n * 32767; // convert in range [-32768, 32767]
+                return Math.max(-32768, Math.min(32768, v)); // clamp
+            }
+            return dataAsInt16Array;
+        }
+    }]);
+
+    return BlobService;
+}();
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.SoundIntensity = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var SoundIntensity = exports.SoundIntensity = function () {
     function SoundIntensity($view) {
         _classCallCheck(this, SoundIntensity);
@@ -231,9 +416,23 @@ var SoundIntensity = exports.SoundIntensity = function () {
         this.$view = $view;
         this.volumeLevels = 6;
         this.interval = null;
+        this.enableAnalyser = true;
+        this.shouldBeVisible = true;
     }
 
     _createClass(SoundIntensity, [{
+        key: 'setEnableAnalyser',
+        value: function setEnableAnalyser(enableAnalyser) {
+            this.enableAnalyser = enableAnalyser;
+            if (this.shouldBeVisible) {
+                if (this.enableAnalyser) {
+                    this.show();
+                } else {
+                    this.hide();
+                }
+            }
+        }
+    }, {
         key: 'startAnalyzing',
         value: function startAnalyzing(analyser) {
             var _this = this;
@@ -259,12 +458,16 @@ var SoundIntensity = exports.SoundIntensity = function () {
     }, {
         key: 'show',
         value: function show() {
-            this.$view.css('display', '');
+            if (this.enableAnalyser) {
+                this.$view.css('display', '');
+            }
+            this.shouldBeVisible = true;
         }
     }, {
         key: 'hide',
         value: function hide() {
             this.$view.css('display', 'none');
+            this.shouldBeVisible = false;
         }
     }, {
         key: 'setEventBus',
@@ -355,7 +558,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
             for (var currentLevel = 1; currentLevel <= intensity; currentLevel++) {
                 var levelId = "#sound-intensity-" + currentLevel;
                 var $level = this.$view.find(levelId);
-                $level.addClass("selected");
+                $level.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             }
         }
     }, {
@@ -364,7 +567,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
             for (var currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
                 var levelId = "#sound-intensity-" + currentLevel;
                 var $level = this.$view.find(levelId);
-                $level.removeClass("selected");
+                $level.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             }
         }
     }]);
@@ -373,19 +576,397 @@ var SoundIntensity = exports.SoundIntensity = function () {
 }();
 
 /***/ }),
-/* 4 */,
-/* 5 */,
-/* 6 */,
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.BaseKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BaseKeyboardController = exports.BaseKeyboardController = function (_KeyboardController) {
+    _inherits(BaseKeyboardController, _KeyboardController);
+
+    function BaseKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
+        _classCallCheck(this, BaseKeyboardController);
+
+        var _this = _possibleConstructorReturn(this, (BaseKeyboardController.__proto__ || Object.getPrototypeOf(BaseKeyboardController)).call(this, elements, columnsCount));
+
+        _this._isRecording = false;
+        _this.DEFAULT_TTS_PHRASES = {
+            DEFAULT_RECORDING_PLAY_BUTTON: "Default recording play button",
+            RECORDING_BUTTON: "Recording button",
+            PLAY_BUTTON: "Play button",
+            RESET_BUTTON: "Reset button",
+            DOWNLOAD_BUTTON: "Download button",
+            RESET_DIALOG: "Reset dialog",
+            START_RECORDING: "Start recording",
+            STOP_RECORDING: "Recording stopped",
+            DISABLED: "Disabled"
+        };
+
+
+        if (_this.constructor === BaseKeyboardController) throw new Error("Cannot create an instance of KeyboardController abstract class");
+
+        _this._langTag = model.langAttribute;
+        _this._mediaState = mediaState;
+        _this._activationState = activationState;
+        _this._speak = speak;
+        _this._speakAndExecuteCallback = speakAndExecuteCallback;
+        return _this;
+    }
+
+    _createClass(BaseKeyboardController, [{
+        key: "setSpeechTexts",
+        value: function setSpeechTexts(speechTexts) {
+            this.speechTexts = {
+                DefaultRecordingPlayButton: this.DEFAULT_TTS_PHRASES.DEFAULT_RECORDING_PLAY_BUTTON,
+                RecordingButton: this.DEFAULT_TTS_PHRASES.RECORDING_BUTTON,
+                PlayButton: this.DEFAULT_TTS_PHRASES.PLAY_BUTTON,
+                ResetButton: this.DEFAULT_TTS_PHRASES.RESET_BUTTON,
+                DownloadButton: this.DEFAULT_TTS_PHRASES.DOWNLOAD_BUTTON,
+                ResetDialog: this.DEFAULT_TTS_PHRASES.RESET_DIALOG,
+                StartRecording: this.DEFAULT_TTS_PHRASES.START_RECORDING,
+                StopRecording: this.DEFAULT_TTS_PHRASES.STOP_RECORDING,
+                Disabled: this.DEFAULT_TTS_PHRASES.DISABLED
+            };
+
+            if (!speechTexts || $.isEmptyObject(speechTexts)) {
+                return;
+            };
+
+            this.speechTexts = {
+                DefaultRecordingPlayButton: TTSUtils.getSpeechTextProperty(speechTexts.DefaultRecordingPlayButton.DefaultRecordingPlayButton, this.speechTexts.DefaultRecordingPlayButton),
+                RecordingButton: TTSUtils.getSpeechTextProperty(speechTexts.RecordingButton.RecordingButton, this.speechTexts.RecordingButton),
+                PlayButton: TTSUtils.getSpeechTextProperty(speechTexts.PlayButton.PlayButton, this.speechTexts.PlayButton),
+                ResetButton: TTSUtils.getSpeechTextProperty(speechTexts.ResetButton.ResetButton, this.speechTexts.ResetButton),
+                DownloadButton: TTSUtils.getSpeechTextProperty(speechTexts.DownloadButton.DownloadButton, this.speechTexts.DownloadButton),
+                ResetDialog: TTSUtils.getSpeechTextProperty(speechTexts.ResetDialog.ResetDialog, this.speechTexts.ResetDialog),
+                StartRecording: TTSUtils.getSpeechTextProperty(speechTexts.StartRecording.StartRecording, this.speechTexts.StartRecording),
+                StopRecording: TTSUtils.getSpeechTextProperty(speechTexts.StopRecording.StopRecording, this.speechTexts.StopRecording),
+                Disabled: TTSUtils.getSpeechTextProperty(speechTexts.Disabled.Disabled, this.speechTexts.Disabled)
+            };
+        }
+    }, {
+        key: "getTarget",
+        value: function getTarget(element, willBeClicked) {
+            return $(element);
+        }
+    }, {
+        key: "switchElement",
+        value: function switchElement(move) {
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "switchElement", this).call(this, move);
+            if (!this._isCurrentElementNotDisplayed()) {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "nextElement",
+        value: function nextElement(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(1);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextElement();
+            }
+        }
+    }, {
+        key: "previousElement",
+        value: function previousElement(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(-1);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.previousElement();
+            }
+        }
+    }, {
+        key: "nextRow",
+        value: function nextRow(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(this.columnsCount);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextRow();
+            }
+        }
+    }, {
+        key: "previousRow",
+        value: function previousRow(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this._isKeyboardNavigationBlocked()) {
+                return;
+            }
+
+            this.switchElement(-this.columnsCount);
+
+            if (this._isCurrentElementNotDisplayed()) {
+                this.previousRow();
+            }
+        }
+    }, {
+        key: "enter",
+        value: function enter(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (!this.keyboardNavigationActive) {
+                this._performFirstEnterEvent();
+            } else {
+                this._performNotFirstEnterEvent();
+            }
+        }
+    }, {
+        key: "_performFirstEnterEvent",
+        value: function _performFirstEnterEvent() {
+            this.keyboardNavigationActive = true;
+
+            if (this._isKeyboardNavigationBlocked()) {
+                this._markActiveElement();
+            } else {
+                this._markAndReadFirstDisplayedElement();
+            }
+        }
+    }, {
+        key: "_markActiveElement",
+        value: function _markActiveElement() {
+            if (this._mediaState.isPlayingDefaultRecording()) {
+                this.markDefaultRecordingPlayButton();
+            } else if (this._mediaState.isRecording() || this._isRecording) {
+                this.markRecordingButton();
+            } else if (this._mediaState.isPlaying()) {
+                this.markPlayButton();
+            }
+        }
+    }, {
+        key: "markDefaultRecordingPlayButton",
+        value: function markDefaultRecordingPlayButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "_markAndReadFirstDisplayedElement",
+        value: function _markAndReadFirstDisplayedElement() {
+            this.markCurrentElement(0);
+            if (this._isCurrentElementNotDisplayed()) {
+                this.nextElement();
+            } else {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "_performNotFirstEnterEvent",
+        value: function _performNotFirstEnterEvent() {
+            if (!this._isKeyboardNavigationBlocked()) {
+                this.readCurrentElement();
+            }
+        }
+    }, {
+        key: "select",
+        value: function select(event) {
+            if (this._isAddonDisabled() && !this._getCurrentElement().hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                var textVoiceObject = [];
+
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+
+                this._speak(textVoiceObject);
+            }
+
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "select", this).call(this, event);
+        }
+    }, {
+        key: "exitWCAGMode",
+        value: function exitWCAGMode() {
+            this._isRecording = false;
+            _get(BaseKeyboardController.prototype.__proto__ || Object.getPrototypeOf(BaseKeyboardController.prototype), "exitWCAGMode", this).call(this);
+        }
+    }, {
+        key: "_isAddonDisabled",
+        value: function _isAddonDisabled() {
+            return this._activationState.isInactive();
+        }
+    }, {
+        key: "_isKeyboardNavigationBlocked",
+        value: function _isKeyboardNavigationBlocked() {
+            return this._mediaState.isPlayingDefaultRecording() || this._mediaState.isRecording() || this._mediaState.isPlaying() || this._isRecording;
+        }
+    }, {
+        key: "_isCurrentElementNotDisplayed",
+        value: function _isCurrentElementNotDisplayed() {
+            return this._getCurrentElement().style("display") === "none";
+        }
+    }, {
+        key: "_getCurrentElement",
+        value: function _getCurrentElement() {
+            return this.getTarget(this.keyboardNavigationCurrentElement, false);
+        }
+    }, {
+        key: "readCurrentElement",
+        value: function readCurrentElement() {
+            this.readElement(this.keyboardNavigationCurrentElement);
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            throw new Error("readElement method is not implemented");
+        }
+    }, {
+        key: "_speakRecordingButtonTTS",
+        value: function _speakRecordingButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.RecordingButton);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakPlayButtonTTS",
+        value: function _speakPlayButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.PlayButton);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "onStartRecording",
+        value: function onStartRecording(callbackFunction) {
+            this._isRecording = true;
+            this._speakStartRecordingTTS(callbackFunction);
+        }
+    }, {
+        key: "onStartRecordingWhenSoundEffect",
+        value: function onStartRecordingWhenSoundEffect() {
+            this._isRecording = true;
+        }
+    }, {
+        key: "_speakStartRecordingTTS",
+        value: function _speakStartRecordingTTS(callbackFunction) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StartRecording);
+
+            this._speakAndExecuteCallback(textVoiceObject, callbackFunction);
+        }
+    }, {
+        key: "onStopRecording",
+        value: function onStopRecording() {
+            this._isRecording = false;
+            this._speakStopRecordingTTS();
+        }
+    }, {
+        key: "onStopRecordingWhenSoundEffect",
+        value: function onStopRecordingWhenSoundEffect() {
+            this._isRecording = false;
+        }
+    }, {
+        key: "_speakStopRecordingTTS",
+        value: function _speakStopRecordingTTS() {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StopRecording);
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushDisabledMessageToTextVoiceObject",
+        value: function _pushDisabledMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObjectWithLanguageFromLesson",
+        value: function _pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+            this._pushMessageToTextVoiceObject(textVoiceObject, message, false);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObjectWithLanguageFromPresenter",
+        value: function _pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+            this._pushMessageToTextVoiceObject(textVoiceObject, message, true);
+        }
+    }, {
+        key: "_pushMessageToTextVoiceObject",
+        value: function _pushMessageToTextVoiceObject(textVoiceObject, message) {
+            var usePresenterLangTag = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+            if (usePresenterLangTag) {
+                textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, this._langTag));
+            } else {
+                textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+            }
+        }
+    }]);
+
+    return BaseKeyboardController;
+}(KeyboardController);
+
+/***/ }),
 /* 7 */,
 /* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
 /* 12 */,
-/* 13 */
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _MediaRecorder = __webpack_require__(14);
+var _MediaRecorder = __webpack_require__(17);
 
 function AddonMedia_Recorder_create() {
 
@@ -407,6 +988,14 @@ function AddonMedia_Recorder_create() {
         presenter.view = view;
         presenter.mediaRecorder.createPreview(view, model);
         handleDestroyEvent(view);
+    };
+
+    presenter.isEmpty = function isEmpty() {
+        return presenter.mediaRecorder.isEmpty();
+    };
+
+    presenter.getMP3File = function getMP3File() {
+        return presenter.mediaRecorder.getMP3File();
     };
 
     presenter.getState = function getState() {
@@ -463,6 +1052,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.activate();
     };
 
+    presenter.setWCAGStatus = function (isWCAGOn) {
+        presenter.mediaRecorder.setWCAGStatus(isWCAGOn);
+    };
+
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
     };
@@ -471,8 +1064,16 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.enable();
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return true;
+    };
+
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
+    };
+
+    presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+        presenter.mediaRecorder.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.executeCommand = function executeCommand(name, params) {
@@ -521,7 +1122,7 @@ function AddonMedia_Recorder_create() {
 window.AddonMedia_Recorder_create = AddonMedia_Recorder_create;
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -531,61 +1132,73 @@ exports.MediaRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _validateModel = __webpack_require__(15);
+var _validateModel = __webpack_require__(18);
 
-var _ActivationState = __webpack_require__(17);
+var _ActivationState = __webpack_require__(20);
 
-var _MediaState = __webpack_require__(18);
+var _MediaState = __webpack_require__(21);
 
-var _Errors = __webpack_require__(19);
+var _Errors = __webpack_require__(22);
 
-var _PlayButton = __webpack_require__(20);
+var _PlayButton = __webpack_require__(23);
 
-var _RecordButton = __webpack_require__(2);
+var _RecordButton = __webpack_require__(3);
 
-var _ResetButton = __webpack_require__(21);
+var _ResetButton = __webpack_require__(24);
 
-var _ResetDialog = __webpack_require__(22);
+var _ResetDialog = __webpack_require__(25);
 
-var _DownloadButton = __webpack_require__(23);
+var _DownloadButton = __webpack_require__(26);
 
-var _Timer = __webpack_require__(24);
+var _Timer = __webpack_require__(27);
 
-var _ProgressBar = __webpack_require__(25);
+var _ProgressBar = __webpack_require__(28);
 
-var _AddonState = __webpack_require__(26);
+var _AddonState = __webpack_require__(29);
 
-var _RecordingTimeLimiter = __webpack_require__(28);
+var _RecordingTimeLimiter = __webpack_require__(30);
 
-var _SoundIntensity = __webpack_require__(3);
+var _SoundIntensity = __webpack_require__(5);
 
-var _DottedSoundIntensity = __webpack_require__(29);
+var _DottedSoundIntensity = __webpack_require__(31);
 
-var _MediaAnalyserService = __webpack_require__(30);
+var _MediaAnalyserService = __webpack_require__(32);
 
-var _AudioLoader = __webpack_require__(32);
+var _AudioLoader = __webpack_require__(34);
 
-var _SoundEffect = __webpack_require__(34);
+var _SoundEffect = __webpack_require__(36);
 
-var _RecordButtonSoundEffect = __webpack_require__(35);
+var _RecordButtonSoundEffect = __webpack_require__(37);
 
-var _AddonViewService = __webpack_require__(36);
+var _AddonViewService = __webpack_require__(38);
 
-var _AudioResourcesProvider = __webpack_require__(37);
+var _AudioResourcesProvider = __webpack_require__(39);
 
-var _AudioRecorder = __webpack_require__(39);
+var _AudioRecorder = __webpack_require__(41);
 
-var _AudioPlayer = __webpack_require__(42);
+var _AudioPlayer = __webpack_require__(44);
 
-var _DefaultRecordingPlayButton = __webpack_require__(45);
+var _DefaultRecordingPlayButton = __webpack_require__(47);
 
-var _SafariRecorderState = __webpack_require__(46);
+var _DefaultKeyboardController = __webpack_require__(48);
+
+var _ExtendedKeyboardController = __webpack_require__(49);
+
+var _CssClasses = __webpack_require__(0);
+
+var _MP3ConvertHandler = __webpack_require__(50);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MediaRecorder = exports.MediaRecorder = function () {
     function MediaRecorder() {
         _classCallCheck(this, MediaRecorder);
+
+        this.enableAnalyser = true;
+        this.isMlibro = false;
+        this.isWCAGOn = false;
+        this.keyboardControllerObject = null;
+        this.mp3ConvertHandler = null;
     }
 
     _createClass(MediaRecorder, [{
@@ -594,11 +1207,24 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var upgradedModel = this._upgradeModel(model);
             var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
+            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+            if (isSafari) {
+                this.enableAnalyser = false;
+            }
+
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
-            } else if (validatedModel.isValid) this._runAddon(view, validatedModel.value);else this._showError(view, validatedModel);
+            } else if (validatedModel.isValid) {
+                this.mp3ConvertHandler = new _MP3ConvertHandler.MP3ConvertHandler(this.playerController);
+                this._runAddon(view, validatedModel.value);
+            } else {
+                this._showError(view, validatedModel);
+            }
 
             this._executeNotification(JSON.stringify({ type: "platform", target: this.model.ID }));
+            this._buildKeyboardController();
+            this.keyboardControllerObject.setSpeechTexts(upgradedModel['speechTexts']);
+            this.recordButton.setKeyboardController(this.keyboardControllerObject);
         }
     }, {
         key: "createPreview",
@@ -621,9 +1247,19 @@ var MediaRecorder = exports.MediaRecorder = function () {
             }
         }
     }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.addonState.isEmpty();
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            return this.addonState.getMP3File();
+        }
+    }, {
         key: "getState",
         value: function getState() {
-            return JSON.stringify(this.addonState);
+            return this.addonState.getState();
         }
     }, {
         key: "setState",
@@ -633,7 +1269,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             Object.assign(this.addonState, JSON.parse(state));
             this.addonState.getRecordingBlob().then(function (blob) {
                 _this.mediaState.setLoading();
-                var recording = URL.createObjectURL(blob);
+                var recording = void 0;
+                if (_this.addonState.isMP3Format(blob)) {
+                    var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 _this.player.setRecording(recording);
                 if (_this.model.extendedMode) {
                     _this.setEMRecordedStateView();
@@ -685,8 +1327,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaAnalyserService.destroy();
             this.addonState.destroy();
             this.mediaState.destroy();
-            this.safariRecorderState.destroy();
             this.activationState.destroy();
+            this.mp3ConvertHandler.destroy();
 
             this.viewHandlers = null;
             this.defaultRecordingPlayButton = null;
@@ -712,6 +1354,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.extendedModeButtonList = null;
 
             this.playerController = null;
+            this.keyboardControllerObject = null;
+            this.mp3ConvertHandler = null;
             this.view = null;
             this.model = null;
         }
@@ -746,6 +1390,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "reset",
         value: function reset() {
             this.deactivate();
+            if (this.model.isResetRemovesRecording) {
+                this.resetRecording();
+            }
             this.activate();
             this.setVisibility(this.model["Is Visible"]);
             this._setEnableState(!this.model.isDisabled);
@@ -753,6 +1400,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "resetRecording",
         value: function resetRecording() {
+            this.recordButton.reset();
             this.player.reset();
             this.addonState.reset();
             this.timer.reset();
@@ -816,32 +1464,32 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaState = new _MediaState.MediaState();
             this.activationState = new _ActivationState.ActivationState();
             this.addonState = new _AddonState.AddonState();
-            this.safariRecorderState = new _SafariRecorderState.SafariRecorderState();
+            this.addonState.setMP3ConvertHandler(this.mp3ConvertHandler);
         }
     }, {
         key: "_loadViewHandlers",
         value: function _loadViewHandlers(view) {
             return {
-                $wrapperView: $(view).find(".media-recorder-wrapper"),
-                $playerView: $(view).find(".media-recorder-player-wrapper"),
-                $loaderView: $(view).find(".media-recorder-player-loader"),
-                $defaultRecordingPlayButtonView: $(view).find(".media-recorder-default-recording-play-button"),
-                $recordButtonView: $(view).find(".media-recorder-recording-button"),
-                $playButtonView: $(view).find(".media-recorder-play-button"),
-                $timerView: $(view).find(".media-recorder-timer"),
-                $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
-                $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
-                $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
-                $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
-                $resetButtonView: $(view).find(".media-recorder-reset-button"),
-                $downloadButtonView: $(view).find(".media-recorder-download-button"),
-                $resetDialogView: $(view).find(".media-recorder-reset-dialog")
+                $wrapperView: $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER),
+                $playerView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAYER_WRAPPER),
+                $loaderView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAYER_LOADER),
+                $defaultRecordingPlayButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON),
+                $recordButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON),
+                $playButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.PLAY_BUTTON),
+                $timerView: $(view).find("." + _CssClasses.CSS_CLASSES.TIMER),
+                $soundIntensityView: $(view).find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY),
+                $dottedSoundIntensityView: $(view).find("." + _CssClasses.CSS_CLASSES.DOTTED_SOUND_INTENSITY),
+                $progressBarWrapperView: $(view).find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR),
+                $progressBarSliderView: $(view).find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR_SLIDER),
+                $resetButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.RESET_BUTTON),
+                $downloadButtonView: $(view).find("." + _CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON),
+                $resetDialogView: $(view).find("." + _CssClasses.CSS_CLASSES.RESET_DIALOG)
             };
         }
     }, {
         key: "_prepareExtendedModeView",
         value: function _prepareExtendedModeView() {
-            this.viewHandlers.$wrapperView.addClass('extended-mode');
+            this.viewHandlers.$wrapperView.addClass(_CssClasses.CSS_CLASSES.EXTENDED_MODE);
             this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
         }
     }, {
@@ -855,9 +1503,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "_loadMediaElements",
         value: function _loadMediaElements() {
             this.recorder = new _AudioRecorder.AudioRecorder();
-            this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
+            this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.player.setIsMlibro(this.isMlibro);
-            this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView);
+            this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
             if (this.playerController) this._loadEventBus();
         }
@@ -913,6 +1561,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.eventBus && this.model.enableIntensityChangeEvents) {
                 this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
             }
+            this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
             this._hideSelectedElements();
         }
@@ -985,17 +1634,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.recordButton.onStartRecording = function () {
                 _this2.mediaState.setBlocked();
-                if (_this2.safariRecorderState.isAvailableResources()) {
-                    var stream = _this2.resourcesProvider.getStream();
-                    _this2._handleRecording(stream);
-                } else if (_this2.platform === 'mlibro') {
+                if (_this2.platform === 'mlibro') {
                     _this2._handleMlibroStartRecording();
                 } else {
                     _this2.resourcesProvider.getMediaResources().then(function (stream) {
                         var isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-                        if (isSafari && _this2.safariRecorderState.isUnavailableResources()) {
-                            _this2._handleSafariRecordingInitialization();
-                            return;
+                        if (isSafari) {
+                            _this2.mediaState.setBlockedSafari();
                         }
                         _this2._handleRecording(stream);
                     });
@@ -1008,18 +1653,24 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.timer.stopCountdown();
                     _this2.recordingTimeLimiter.stopCountdown();
                     _this2.soundIntensity.stopAnalyzing();
-                    _this2.mediaAnalyserService.closeAnalyzing();
-                    _this2.player.stopStreaming();
+                    if (_this2.enableAnalyser) {
+                        _this2.mediaAnalyserService.closeAnalyzing();
+                    }
                     if (!_this2.model.disableRecording) {
                         _this2.recorder.stopRecording().then(function (blob) {
                             _this2.addonState.setRecordingBlob(blob);
                             var recording = URL.createObjectURL(blob);
                             _this2.player.reset();
                             _this2.player.setRecording(recording);
-                        });
+
+                            return blob;
+                        }).then(function (wavBlob) {
+                            return _this2.addonState.convertWavBlobToMP3BlobByWorker(wavBlob);
+                        }).then(function (mp3Blob) {
+                            _this2.addonState.setRecordingBlob(mp3Blob);
+                        }, function () {});
                     }
                     _this2.resourcesProvider.destroy();
-                    _this2.safariRecorderState.setUnavailableResources();
                 }
                 if (_this2.model.extendedMode) {
                     if (_this2.model.disableRecording) {
@@ -1038,8 +1689,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.timer.stopCountdown();
                 _this2.recordingTimeLimiter.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
-                _this2.player.stopStreaming();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
                 _this2.recorder.stopRecording();
                 _this2.resourcesProvider.destroy();
             };
@@ -1047,6 +1699,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.model.extendedMode) {
                 this.resetButton.onReset = function () {
                     _this2.resetDialog.open();
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForResetDialogKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markDialogTextAndReadResetDialogTTS();
+                    }
                 };
                 this.resetDialog.onConfirm = function () {
                     _this2.timer.startCountdown();
@@ -1055,6 +1711,18 @@ var MediaRecorder = exports.MediaRecorder = function () {
                         _this2.setEMDefaultStateView();
                     }
                     _this2.progressBar.setProgress(0.0);
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markRecordingButton();
+                        _this2.keyboardControllerObject.readCurrentElement();
+                    }
+                };
+                this.resetDialog.onDeny = function () {
+                    _this2.keyboardControllerObject.setElements(_this2._getElementsForExtendedKeyboardNavigation());
+                    if (_this2.keyboardControllerObject.keyboardNavigationActive) {
+                        _this2.keyboardControllerObject.markResetButton();
+                        _this2.keyboardControllerObject.readCurrentElement();
+                    }
                 };
 
                 this.progressBar.onStartDragging = function () {
@@ -1071,11 +1739,15 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.playButton.onStartPlaying = function () {
                 _this2.mediaState.setPlaying();
-                _this2.player.startPlaying().then(function (htmlMediaElement) {
-                    return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                        return _this2.soundIntensity.startAnalyzing(analyser);
+                if (_this2.enableAnalyser) {
+                    _this2.player.startPlaying().then(function (htmlMediaElement) {
+                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
+                            return _this2.soundIntensity.startAnalyzing(analyser);
+                        });
                     });
-                });
+                } else {
+                    _this2.player.startPlaying();
+                }
             };
 
             this.playButton.onStopPlaying = function () {
@@ -1086,30 +1758,40 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.player.stopPlaying();
                 }
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
             };
 
             this.defaultRecordingPlayButton.onStartPlaying = function () {
                 _this2.mediaState.setPlayingDefaultRecording();
                 _this2.timer.setDuration(_this2.defaultRecordingPlayer.duration);
                 _this2.timer.startCountdown();
-                _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
-                    return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                        return _this2.soundIntensity.startAnalyzing(analyser);
+                if (_this2.enableAnalyser) {
+                    _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
+                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
+                            return _this2.soundIntensity.startAnalyzing(analyser);
+                        });
                     });
-                });
+                } else {
+                    _this2.defaultRecordingPlayer.startPlaying();
+                }
             };
 
             this.defaultRecordingPlayButton.onStopPlaying = function () {
                 if (_this2.player.hasRecording) {
-                    _this2.timer.setDuration(_this2.player.duration);
                     _this2.mediaState.setLoaded();
-                } else _this2.mediaState.setLoadedDefaultRecording();
+                    _this2.timer.setDuration(_this2.player.duration);
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
 
                 _this2.defaultRecordingPlayer.stopPlaying();
                 _this2.timer.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
+                if (_this2.enableAnalyser) {
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                }
             };
 
             this.player.onStartLoading = function () {
@@ -1153,7 +1835,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.defaultRecordingPlayer.onEndLoading = function () {
-                if (_this2.player.hasRecording) _this2.mediaState.setLoaded();else _this2.mediaState.setLoadedDefaultRecording();
+                if (_this2.player.hasRecording) {
+                    _this2.mediaState.setLoaded();
+                } else {
+                    _this2.mediaState.setLoadedDefaultRecording();
+                }
                 _this2.loader.hide();
             };
 
@@ -1174,16 +1860,17 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var _this3 = this;
 
             this.mediaState.setRecording();
-            this.player.startStreaming(stream);
             if (!this.model.disableRecording) {
                 this.recorder.startRecording(stream);
                 this.timer.reset();
                 this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
                 this.recordingTimeLimiter.startCountdown();
             }
-            this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
-                return _this3.soundIntensity.startAnalyzing(analyser);
-            });
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
+                    return _this3.soundIntensity.startAnalyzing(analyser);
+                });
+            }
         }
     }, {
         key: "_loadDefaultRecording",
@@ -1201,7 +1888,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "_activateButtons",
         value: function _activateButtons() {
             this.recordButton.activate();
-            this.playButton.activate();
+            if (!this.model.disableRecording) {
+                this.playButton.activate();
+            }
             this.defaultRecordingPlayButton.activate();
             if (this.model.extendedMode) {
                 for (var i = 0; i < this.extendedModeButtonList.length; i++) {
@@ -1224,12 +1913,18 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "_stopActions",
         value: function _stopActions() {
-            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
-                this.resetRecording();
-            } else this.recordButton.forceClick();
-            if (this.mediaState.isPlaying()) this.playButton.forceClick();
-            if (this.mediaState.isPlayingDefaultRecording()) this.defaultRecordingPlayButton.forceClick();
+            if (this.mediaState.isRecording()) {
+                this.recordButton.forceClick();
+            }
+            if (this.mediaState.isPlaying()) {
+                this.playButton.forceClick();
+            }
+            if (this.mediaState.isPlayingDefaultRecording()) {
+                this.defaultRecordingPlayButton.forceClick();
+            }
+            if (this.mediaState.isLoaded()) {
+                this.timer.setTime(0);
+            }
         }
     }, {
         key: "_internalElements",
@@ -1237,6 +1932,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             return {
                 validateModel: _validateModel.validateModel,
                 ActivationState: _ActivationState.ActivationState,
+                AddonState: _AddonState.AddonState,
                 AudioLoader: _AudioLoader.AudioLoader,
                 PlayButton: _PlayButton.PlayButton,
                 RecordButton: _RecordButton.RecordButton,
@@ -1244,7 +1940,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 MediaState: _MediaState.MediaState,
                 Timer: _Timer.Timer,
                 AudioPlayer: _AudioPlayer.AudioPlayer,
-                DownloadButton: _DownloadButton.DownloadButton
+                DownloadButton: _DownloadButton.DownloadButton,
+                SoundIntensity: _SoundIntensity.SoundIntensity,
+                MP3ConvertHandler: _MP3ConvertHandler.MP3ConvertHandler
             };
         }
     }, {
@@ -1255,20 +1953,20 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "_showBrowserError",
         value: function _showBrowserError(view) {
-            var $wrapper = $(view).find(".media-recorder-wrapper");
-            $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
+            var $wrapper = $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER);
+            $wrapper.addClass(_CssClasses.CSS_CLASSES.WRAPPER_BROWSER_NOT_SUPPORTED);
             $wrapper.text(_Errors.Errors["not_supported_browser"] + window.DevicesUtils.getBrowserVersion());
         }
     }, {
         key: "_updatePreview",
         value: function _updatePreview(view, validatedModel) {
             var valid_model = validatedModel.value;
-            var timerViewHandler = $(view).find(".media-recorder-timer");
-            var defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
-            var $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
-            var intensityView = $(view).find(".media-recorder-sound-intensity");
-            var dottedSoundIntensityView = $(view).find(".media-recorder-dotted-sound-intensity");
-            var playButton = $(view).find('.media-recorder-play-button');
+            var timerViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.TIMER);
+            var defaultButtonViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON);
+            var $wrapperViewHandler = $(view).find("." + _CssClasses.CSS_CLASSES.WRAPPER);
+            var intensityView = $(view).find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY);
+            var dottedSoundIntensityView = $(view).find("." + _CssClasses.CSS_CLASSES.DOTTED_SOUND_INTENSITY);
+            var playButton = $(view).find("." + _CssClasses.CSS_CLASSES.PLAY_BUTTON);
 
             if (valid_model.extendedMode) {
                 intensityView.css('display', 'none');
@@ -1276,7 +1974,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 dottedSoundIntensityView.css('display', '');
                 defaultButtonViewHandler.hide();
                 timerViewHandler.text('00:00');
-                $wrapperViewHandler.addClass('extended-mode');
+                $wrapperViewHandler.addClass(_CssClasses.CSS_CLASSES.EXTENDED_MODE);
             } else {
                 intensityView.css('display', '');
                 dottedSoundIntensityView.css('display', 'none');
@@ -1310,14 +2008,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (window.DevicesUtils.isInternetExplorer()) return true;
 
             return false;
-        }
-    }, {
-        key: "_handleSafariRecordingInitialization",
-        value: function _handleSafariRecordingInitialization() {
-            this.mediaState.setBlockedSafari();
-            this.safariRecorderState.setAvailableResources();
-            this.recordButton.setUnclickView();
-            alert(_Errors.Errors["safari_select_recording_button_again"]);
         }
     }, {
         key: "_loadWebViewMessageListener",
@@ -1411,6 +2101,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
             upgradedModel = this._upgradeResetDialog(upgradedModel);
             upgradedModel = this._upgradeDisableRecording(upgradedModel);
             upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
+            upgradedModel = this._upgradeLangTag(upgradedModel);
+            upgradedModel = this._upgradeSpeechTexts(upgradedModel);
             return upgradedModel;
         }
     }, {
@@ -1489,13 +2181,123 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             return upgradedModel;
         }
+    }, {
+        key: "_upgradeLangTag",
+        value: function _upgradeLangTag(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["langAttribute"]) {
+                upgradedModel["langAttribute"] = "";
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeSpeechTexts",
+        value: function _upgradeSpeechTexts(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["speechTexts"]) {
+                upgradedModel["speechTexts"] = {};
+            }
+            if (!upgradedModel["speechTexts"]["DefaultRecordingPlayButton"]) {
+                upgradedModel["speechTexts"]["DefaultRecordingPlayButton"] = { DefaultRecordingPlayButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["RecordingButton"]) {
+                upgradedModel["speechTexts"]["RecordingButton"] = { RecordingButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["PlayButton"]) {
+                upgradedModel["speechTexts"]["PlayButton"] = { PlayButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["ResetButton"]) {
+                upgradedModel["speechTexts"]["ResetButton"] = { ResetButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["DownloadButton"]) {
+                upgradedModel["speechTexts"]["DownloadButton"] = { DownloadButton: "" };
+            }
+            if (!upgradedModel["speechTexts"]["ResetDialog"]) {
+                upgradedModel["speechTexts"]["ResetDialog"] = { ResetDialog: "" };
+            }
+            if (!upgradedModel["speechTexts"]["StartRecording"]) {
+                upgradedModel["speechTexts"]["StartRecording"] = { StartRecording: "" };
+            }
+            if (!upgradedModel["speechTexts"]["StopRecording"]) {
+                upgradedModel["speechTexts"]["StopRecording"] = { StopRecording: "" };
+            }
+            if (!upgradedModel["speechTexts"]["Disabled"]) {
+                upgradedModel["speechTexts"]["Disabled"] = { Disabled: "" };
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "setWCAGStatus",
+        value: function setWCAGStatus(isWCAGOn) {
+            this.isWCAGOn = isWCAGOn;
+        }
+    }, {
+        key: "_buildKeyboardController",
+        value: function _buildKeyboardController() {
+            var columnsCount = 1;
+            var model = this.model;
+            var mediaState = this.mediaState;
+            var activationState = this.activationState;
+            var speak = this._speak.bind(this);
+            var speakAndExecuteCallback = this._speakAndExecuteCallback.bind(this);
+
+            if (this.model.extendedMode) {
+                this.keyboardControllerObject = new _ExtendedKeyboardController.ExtendedKeyboardController(this._getElementsForExtendedKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
+            } else {
+                this.keyboardControllerObject = new _DefaultKeyboardController.DefaultKeyboardController(this._getElementsForDefaultKeyboardNavigation(), columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback);
+            }
+        }
+    }, {
+        key: "getKeyboardController",
+        value: function getKeyboardController() {
+            return this.keyboardControllerObject;
+        }
+    }, {
+        key: "_getElementsForDefaultKeyboardNavigation",
+        value: function _getElementsForDefaultKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.PLAY_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_getElementsForExtendedKeyboardNavigation",
+        value: function _getElementsForExtendedKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.RECORDING_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.PLAY_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.RESET_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_getElementsForResetDialogKeyboardNavigation",
+        value: function _getElementsForResetDialogKeyboardNavigation() {
+            return $(this.view).find("\n            ." + _CssClasses.CSS_CLASSES.DIALOG_TEXT + ",\n            ." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON + ",\n            ." + _CssClasses.CSS_CLASSES.DENY_BUTTON + "\n        ");
+        }
+    }, {
+        key: "_speak",
+        value: function _speak(data) {
+            var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+            if (tts && this.isWCAGOn) {
+                tts.speak(data);
+            }
+        }
+    }, {
+        key: "_speakAndExecuteCallback",
+        value: function _speakAndExecuteCallback(data, callbackFunction) {
+            var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+            if (tts && this.isWCAGOn) {
+                tts.speakWithCallback(data, callbackFunction);
+            } else {
+                callbackFunction();
+            }
+        }
     }]);
 
     return MediaRecorder;
 }();
 
 /***/ }),
-/* 15 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1503,7 +2305,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateModel = validateModel;
 
-var _DefaultValues = __webpack_require__(16);
+var _DefaultValues = __webpack_require__(19);
 
 function validateModel(model) {
     var modelValidator = new ModelValidator();
@@ -1525,11 +2327,14 @@ function validateModel(model) {
         'resetDialogText': [ModelValidators.String('resetDialogLabel', { default: 'Are you sure you want to reset the recording?' })],
         'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', { default: 'Yes' })],
         'resetDialogDeny': [ModelValidators.String('resetDialogLabel', { default: 'No' })]
+    }), ModelValidators.String("langAttribute", {
+        trim: true,
+        default: ""
     })]);
 }
 
 /***/ }),
-/* 16 */
+/* 19 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1541,7 +2346,7 @@ var DefaultValues = exports.DefaultValues = {
 };
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1596,7 +2401,7 @@ var ActivationState = exports.ActivationState = function () {
 }();
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1728,7 +2533,7 @@ var MediaState = exports.MediaState = function () {
 }();
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1744,7 +2549,7 @@ var Errors = exports.Errors = {
 };
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1756,7 +2561,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1793,13 +2600,13 @@ var PlayButton = exports.PlayButton = function (_Button) {
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartPlayingCallback();
         }
     }, {
         key: "_stopPlaying",
         value: function _stopPlaying() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopPlayingCallback();
         }
     }, {
@@ -1818,7 +2625,7 @@ var PlayButton = exports.PlayButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 21 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1828,7 +2635,7 @@ exports.ResetButton = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1863,14 +2670,17 @@ var ResetButton = exports.ResetButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports) {
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ResetDialog = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1902,16 +2712,16 @@ var ResetDialog = exports.ResetDialog = function () {
     }, {
         key: '_createView',
         value: function _createView() {
-            this.$view.find('.dialog-text').text(this.labels.text);
-            this.$view.find('.confirm-button').text(this.labels.confirm);
-            this.$view.find('.deny-button').text(this.labels.deny);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DIALOG_TEXT).text(this.labels.text);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON).text(this.labels.confirm);
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DENY_BUTTON).text(this.labels.deny);
             this.$view.draggable({});
             var self = this;
-            this.$view.find('.confirm-button').click(function () {
+            this.$view.find("." + _CssClasses.CSS_CLASSES.CONFIRM_BUTTON).click(function () {
                 self.close();
                 if (self.onConfirmCallback) self.onConfirmCallback();
             });
-            this.$view.find('.deny-button').click(function () {
+            this.$view.find("." + _CssClasses.CSS_CLASSES.DENY_BUTTON).click(function () {
                 self.close();
                 if (self.onDenyCallback) self.onDenyCallback();
             });
@@ -1932,7 +2742,7 @@ var ResetDialog = exports.ResetDialog = function () {
 }();
 
 /***/ }),
-/* 23 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1942,7 +2752,9 @@ exports.DownloadButton = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _BlobService = __webpack_require__(4);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1977,17 +2789,21 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
         value: function downloadRecording() {
             var element = document.createElement("a");
             element.setAttribute("id", "dl");
-            element.setAttribute("download", "recording.wav");
+            element.setAttribute("download", "recording.mp3");
             element.setAttribute("href", "#");
-            var base64Recording = this.addonState.recording;
-            function handleDownloadRecording() {
-                var data = base64Recording;
-                data = data.replace(/^data:audio\/[^;]*/, 'data:application/octet-stream');
-                data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.wav');
-                this.href = data;
-            }
-            element.onclick = handleDownloadRecording;
-            element.click();
+
+            this.addonState.getMP3Blob().then(function (mp3Blob) {
+                return _BlobService.BlobService.serialize(mp3Blob);
+            }).then(function (b64Recording) {
+                function handleDownloadRecording() {
+                    var data = b64Recording;
+                    data = data.replace(/^data:audio\/[^;]*/, 'data:application/octet-stream');
+                    data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.mp3');
+                    this.href = data;
+                }
+                element.onclick = handleDownloadRecording;
+                element.click();
+            });
         }
     }]);
 
@@ -1995,7 +2811,7 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 24 */
+/* 27 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2145,14 +2961,17 @@ var Timer = exports.Timer = function () {
 }();
 
 /***/ }),
-/* 25 */
-/***/ (function(module, exports) {
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ProgressBar = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2162,7 +2981,7 @@ var ProgressBar = exports.ProgressBar = function () {
 
         this.$view = $view;
         this.progress = 0.0;
-        this.$slider = $view.find('.media-recorder-progress-bar-slider');
+        this.$slider = $view.find("." + _CssClasses.CSS_CLASSES.PROGRESS_BAR_SLIDER);
         this.maxWidth = $view[0].offsetWidth - this.$slider[0].offsetWidth;
         var self = this;
         this.$slider.draggable({
@@ -2236,7 +3055,7 @@ var ProgressBar = exports.ProgressBar = function () {
 }();
 
 /***/ }),
-/* 26 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2246,7 +3065,7 @@ exports.AddonState = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BlobService = __webpack_require__(27);
+var _BlobService = __webpack_require__(4);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2257,9 +3076,15 @@ var AddonState = exports.AddonState = function () {
         this.recording = null;
         this.visibility = null;
         this.enabled = null;
+        this.mp3ConvertHandler = null;
     }
 
     _createClass(AddonState, [{
+        key: "setMP3ConvertHandler",
+        value: function setMP3ConvertHandler(handler) {
+            this.mp3ConvertHandler = handler;
+        }
+    }, {
         key: "setRecordingBlob",
         value: function setRecordingBlob(blob) {
             var _this = this;
@@ -2280,6 +3105,98 @@ var AddonState = exports.AddonState = function () {
 
             return new Promise(function (resolve) {
                 if (_this2.recording) resolve(_BlobService.BlobService.deserialize(_this2.recording));
+            });
+        }
+    }, {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return this.recording == null;
+        }
+    }, {
+        key: "isMP3Format",
+        value: function isMP3Format(blob) {
+            return !this.isEmpty() && blob.type.includes("audio/mpeg");
+        }
+    }, {
+        key: "isWAVFormat",
+        value: function isWAVFormat(blob) {
+            return !this.isEmpty() && blob.type.includes("audio/wav");
+        }
+    }, {
+        key: "getMP3File",
+        value: function getMP3File() {
+            return this.getMP3Blob().then(function (mp3Blob) {
+                return new File([mp3Blob], "recording.mp3");
+            });
+        }
+    }, {
+        key: "getMP3Blob",
+        value: function getMP3Blob() {
+            var _this3 = this;
+
+            return this.getRecordingBlob().then(function (blob) {
+                if (_this3.isMP3Format(blob)) {
+                    return blob;
+                }
+                if (!!_this3.mp3ConvertHandler && _this3.mp3ConvertHandler.isSupported() && _this3.mp3ConvertHandler.isValid && !_this3.mp3ConvertHandler.isWorkerExist()) {
+                    return _this3.convertWavBlobToMP3BlobByWorker(blob);
+                }
+                return _this3.convertWavBlobToMP3Blob(blob);
+            });
+        }
+    }, {
+        key: "convertWavBlobToMP3BlobByWorker",
+        value: function convertWavBlobToMP3BlobByWorker(wavBlob) {
+            var _this4 = this;
+
+            return this.decodeVawBlobData(wavBlob).then(function (decodedData) {
+                return _BlobService.BlobService.getMp3BlobFromDecodedDataByWorker(_this4.mp3ConvertHandler, decodedData);
+            });
+        }
+    }, {
+        key: "convertWavBlobToMP3Blob",
+        value: function convertWavBlobToMP3Blob(wavBlob) {
+            return this.decodeVawBlobData(wavBlob).then(function (decodedData) {
+                return _BlobService.BlobService.getMp3BlobFromDecodedData(decodedData);
+            });
+        }
+    }, {
+        key: "decodeVawBlobData",
+        value: function decodeVawBlobData(wavBlob) {
+            var _this5 = this;
+
+            return new Promise(function (resolve) {
+                resolve(wavBlob);
+            }).then(function (wavBlob) {
+                File.prototype.arrayBuffer = File.prototype.arrayBuffer || _this5._fixArrayBuffer;
+                Blob.prototype.arrayBuffer = Blob.prototype.arrayBuffer || _this5._fixArrayBuffer;
+
+                return wavBlob.arrayBuffer();
+            }).then(function (arrayBuffer) {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                var context = new AudioContext();
+                return new Promise(function (resolve) {
+                    context.decodeAudioData(arrayBuffer, function (buffer) {
+                        resolve(buffer);
+                    });
+                });
+            });
+        }
+
+        //for some reason there is a bug in some lower Safari versions <14, it cause arrayBuffer() undefined
+        //https://gist.github.com/hanayashiki/8dac237671343e7f0b15de617b0051bd
+
+    }, {
+        key: "_fixArrayBuffer",
+        value: function _fixArrayBuffer() {
+            var _this6 = this;
+
+            return new Promise(function (resolve) {
+                var fr = new FileReader();
+                fr.onload = function () {
+                    resolve(fr.result);
+                };
+                fr.readAsArrayBuffer(_this6);
             });
         }
     }, {
@@ -2309,6 +3226,16 @@ var AddonState = exports.AddonState = function () {
             });
         }
     }, {
+        key: "getState",
+        value: function getState() {
+            var state = {
+                recording: this.recording,
+                visibility: this.visibility,
+                enabled: this.enabled
+            };
+            return JSON.stringify(state);
+        }
+    }, {
         key: "reset",
         value: function reset() {
             this.recording = null;
@@ -2321,6 +3248,7 @@ var AddonState = exports.AddonState = function () {
             this.recording = null;
             this.visibility = null;
             this.enabled = null;
+            this.mp3ConvertHandler = null;
         }
     }]);
 
@@ -2328,72 +3256,7 @@ var AddonState = exports.AddonState = function () {
 }();
 
 /***/ }),
-/* 27 */
-/***/ (function(module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var BlobService = exports.BlobService = function () {
-    function BlobService() {
-        _classCallCheck(this, BlobService);
-    }
-
-    _createClass(BlobService, null, [{
-        key: "serialize",
-        value: function serialize(blob) {
-            return new Promise(function (resolve) {
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    return resolve(reader.result);
-                };
-                reader.readAsDataURL(blob);
-            });
-        }
-    }, {
-        key: "deserialize",
-        value: function deserialize(base64Data) {
-            var mediaSourceData = base64Data.split(",");
-            var recording = mediaSourceData[1];
-            var contentType = mediaSourceData[0].replace(";base64", "").replace("data:", "");
-            return this._b64toBlob(recording, contentType);
-        }
-    }, {
-        key: "_b64toBlob",
-        value: function _b64toBlob(b64Data, contentType, sliceSize) {
-            contentType = contentType || '';
-            sliceSize = sliceSize || 512;
-
-            var byteCharacters = atob(b64Data);
-            var byteArrays = [];
-
-            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-                var byteNumbers = new Array(slice.length);
-                for (var i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-
-                var byteArray = new Uint8Array(byteNumbers);
-
-                byteArrays.push(byteArray);
-            }
-
-            return new Blob(byteArrays, { type: contentType });
-        }
-    }]);
-
-    return BlobService;
-}();
-
-/***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2458,7 +3321,7 @@ var RecordingTimeLimiter = exports.RecordingTimeLimiter = function () {
 }();
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2468,7 +3331,9 @@ exports.DottedSoundIntensity = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _SoundIntensity2 = __webpack_require__(3);
+var _SoundIntensity2 = __webpack_require__(5);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2486,7 +3351,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
     }
 
     _createClass(DottedSoundIntensity, [{
-        key: '_setIntensity',
+        key: "_setIntensity",
         value: function _setIntensity(intensity) {
             this._clearIntensity();
             var cappedIntensity = intensity;
@@ -2495,13 +3360,13 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
             var heightDiff = heightPercent * (this.$view[0].offsetHeight - 6);
             var tallDotNewHeight = Math.round(6 + heightDiff);
             var shortDotNewHeight = Math.round(6 + heightDiff / 2);
-            this.$view.find('.tall-dot').css('height', tallDotNewHeight + 'px');
-            this.$view.find('.short-dot').css('height', shortDotNewHeight + 'px');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.TALL_DOT).css('height', tallDotNewHeight + 'px');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.SHORT_DOT).css('height', shortDotNewHeight + 'px');
         }
     }, {
-        key: '_clearIntensity',
+        key: "_clearIntensity",
         value: function _clearIntensity() {
-            this.$view.find('.sound-intensity-dot').css('height', '');
+            this.$view.find("." + _CssClasses.CSS_CLASSES.SOUND_INTENSITY_DOT).css('height', '');
         }
     }]);
 
@@ -2509,7 +3374,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
 }(_SoundIntensity2.SoundIntensity);
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2519,7 +3384,7 @@ exports.MediaAnalyserService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _AnalyserProvider = __webpack_require__(31);
+var _AnalyserProvider = __webpack_require__(33);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2527,7 +3392,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
     function MediaAnalyserService() {
         _classCallCheck(this, MediaAnalyserService);
 
-        this.audioContext = new (AudioContext || webkitAudioContext)();
+        this.audioContext = AudioContextSingleton.getOrCreate();
         this.mediaStreamSource = null;
         this.mediaElementSource = null;
     }
@@ -2576,9 +3441,9 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
         key: "destroy",
         value: function destroy() {
             this.closeAnalyzing();
-            this.audioContext.close();
-            this.mediaElementSource = null;
+            AudioContextSingleton.close();
             this.audioContext = null;
+            this.mediaElementSource = null;
             this.mediaStreamSource = null;
         }
     }]);
@@ -2587,7 +3452,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
 }();
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2622,7 +3487,7 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
 }();
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2632,7 +3497,9 @@ exports.AudioLoader = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Loader2 = __webpack_require__(33);
+var _Loader2 = __webpack_require__(35);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2652,12 +3519,12 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
     _createClass(AudioLoader, [{
         key: "show",
         value: function show() {
-            this.$view.addClass("audio-loader");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.AUDIO_LOADER);
         }
     }, {
         key: "hide",
         value: function hide() {
-            this.$view.removeClass("audio-loader");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.AUDIO_LOADER);
         }
     }]);
 
@@ -2665,7 +3532,7 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
 }(_Loader2.Loader);
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2707,7 +3574,7 @@ var Loader = exports.Loader = function () {
 }();
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2796,7 +3663,7 @@ var SoundEffect = exports.SoundEffect = function () {
 }();
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2808,7 +3675,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _RecordButton2 = __webpack_require__(2);
+var _RecordButton2 = __webpack_require__(3);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2832,7 +3699,13 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
     _createClass(RecordButtonSoundEffect, [{
         key: "_startRecording",
         value: function _startRecording() {
-            if (this.startRecordingSoundEffect.isValid()) this._recordWithSoundEffect();else _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
+            if (this.startRecordingSoundEffect.isValid()) {
+                this._recordWithSoundEffect();
+            } else if (this._isKeyboardControllerNavigationActive()) {
+                this._recordWithTTS();
+            } else {
+                _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
+            }
         }
     }, {
         key: "_recordWithSoundEffect",
@@ -2841,6 +3714,10 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
             this.startRecordingSoundEffect.onStopCallback = function () {};
             _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).call(this);
             this._playStartRecordingSoundEffect();
+
+            if (this._isKeyboardControllerNavigationActive()) {
+                this._keyboardController.onStartRecordingWhenSoundEffect();
+            }
         }
     }, {
         key: "_playStartRecordingSoundEffect",
@@ -2852,9 +3729,21 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
             }, 1000);else this.startRecordingSoundEffect.playSound();
         }
     }, {
+        key: "_recordWithTTS",
+        value: function _recordWithTTS() {
+            var callbackFunction = _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_startRecording", this).bind(this);
+            this._keyboardController.onStartRecording(callbackFunction);
+        }
+    }, {
         key: "_stopRecording",
         value: function _stopRecording() {
-            if (this.stopRecordingSoundEffect.isValid()) this._onStopRecordingWithSoundEffect();else _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            if (this.stopRecordingSoundEffect.isValid()) {
+                this._onStopRecordingWithSoundEffect();
+            } else if (this._isKeyboardControllerNavigationActive()) {
+                this._onStopRecordingWithTTS();
+            } else {
+                _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            }
         }
     }, {
         key: "_onStopRecordingWithSoundEffect",
@@ -2869,6 +3758,21 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
                 _this3.activate();
             };
             this.stopRecordingSoundEffect.playSound();
+
+            if (this._isKeyboardControllerNavigationActive()) {
+                this._keyboardController.onStopRecordingWhenSoundEffect();
+            }
+        }
+    }, {
+        key: "_onStopRecordingWithTTS",
+        value: function _onStopRecordingWithTTS() {
+            _get(RecordButtonSoundEffect.prototype.__proto__ || Object.getPrototypeOf(RecordButtonSoundEffect.prototype), "_stopRecording", this).call(this);
+            this._keyboardController.onStopRecording();
+        }
+    }, {
+        key: "_isKeyboardControllerNavigationActive",
+        value: function _isKeyboardControllerNavigationActive() {
+            return this._keyboardController.keyboardNavigationActive === true;
         }
     }]);
 
@@ -2876,14 +3780,17 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
 }(_RecordButton2.RecordButton);
 
 /***/ }),
-/* 36 */
-/***/ (function(module, exports) {
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.AddonViewService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2898,16 +3805,17 @@ var AddonViewService = exports.AddonViewService = function () {
         key: 'setVisibility',
         value: function setVisibility(isVisible) {
             this.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+            this.$view.parent().css('visibility', isVisible ? 'visible' : 'hidden');
         }
     }, {
         key: 'activate',
         value: function activate() {
-            this.$view.removeClass("disabled");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.DISABLED);
         }
     }, {
         key: 'deactivate',
         value: function deactivate() {
-            this.$view.addClass("disabled");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.DISABLED);
         }
     }, {
         key: 'destroy',
@@ -2920,7 +3828,7 @@ var AddonViewService = exports.AddonViewService = function () {
 }();
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2930,7 +3838,7 @@ exports.AudioResourcesProvider = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ResourcesProvider2 = __webpack_require__(38);
+var _ResourcesProvider2 = __webpack_require__(40);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2962,7 +3870,7 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
 }(_ResourcesProvider2.ResourcesProvider);
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3024,7 +3932,7 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
 }();
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3034,7 +3942,7 @@ exports.AudioRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseRecorder2 = __webpack_require__(40);
+var _BaseRecorder2 = __webpack_require__(42);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3052,12 +3960,11 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
     }
 
     _createClass(AudioRecorder, [{
-        key: "_getOptions",
+        key: '_getOptions',
         value: function _getOptions() {
             var isEdge = DevicesUtils.isEdge();
-            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
 
-            var options = {
+            return {
                 type: 'audio',
                 mimeType: 'audio/wav',
                 numberOfAudioChannels: isEdge ? 1 : 2,
@@ -3066,13 +3973,6 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
                 disableLogs: true,
                 recorderType: RecordRTC.StereoAudioRecorder
             };
-
-            if (isSafari) {
-                options.bufferSize = 4096;
-                options.sampleRate = 44100;
-            }
-
-            return options;
         }
     }]);
 
@@ -3080,7 +3980,7 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 }(_BaseRecorder2.BaseRecorder);
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3090,7 +3990,7 @@ exports.BaseRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Recorder2 = __webpack_require__(41);
+var _Recorder2 = __webpack_require__(43);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3117,10 +4017,15 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     _createClass(BaseRecorder, [{
         key: "startRecording",
         value: function startRecording(stream) {
+            var _this2 = this;
+
             this._clearRecorder();
+            var audioContext = AudioContextSingleton.getOrCreate();
             this.recorder = RecordRTC(stream, this._getOptions());
-            this.recorder.startRecording();
-            this._onStartRecordingCallback();
+            audioContext.resume().then(function () {
+                _this2.recorder.startRecording();
+                _this2._onStartRecordingCallback();
+            });
         }
     }, {
         key: "stopRecording",
@@ -3195,7 +4100,7 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
 }(_Recorder2.Recorder);
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3239,7 +4144,7 @@ var Recorder = exports.Recorder = function () {
 }();
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3249,7 +4154,7 @@ exports.AudioPlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BasePlayer2 = __webpack_require__(43);
+var _BasePlayer2 = __webpack_require__(45);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3260,10 +4165,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
     _inherits(AudioPlayer, _BasePlayer);
 
-    function AudioPlayer($view) {
+    function AudioPlayer($view, isMlibro) {
         _classCallCheck(this, AudioPlayer);
 
-        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view));
+        var _this = _possibleConstructorReturn(this, (AudioPlayer.__proto__ || Object.getPrototypeOf(AudioPlayer)).call(this, $view, isMlibro));
 
         _this.mediaNode.style.display = "hidden";
         return _this;
@@ -3280,7 +4185,7 @@ var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
 }(_BasePlayer2.BasePlayer);
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3290,7 +4195,7 @@ exports.BasePlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Player2 = __webpack_require__(44);
+var _Player2 = __webpack_require__(46);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3301,13 +4206,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var BasePlayer = exports.BasePlayer = function (_Player) {
     _inherits(BasePlayer, _Player);
 
-    function BasePlayer($view) {
+    function BasePlayer($view, isMlibro) {
         _classCallCheck(this, BasePlayer);
 
         var _this = _possibleConstructorReturn(this, (BasePlayer.__proto__ || Object.getPrototypeOf(BasePlayer)).call(this));
 
         if (_this.constructor === BasePlayer) throw new Error("Cannot create an instance of BasePlayer abstract class");
-
+        _this.isMlibro = isMlibro;
         _this.$view = $view;
         _this.hasRecording = false;
         _this.duration = null;
@@ -3328,10 +4233,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             var _this2 = this;
 
             this.mediaNode.src = source;
+            this.hasRecording = true;
             this._getDuration().then(function (duration) {
                 _this2.onDurationChangeCallback(duration);
                 _this2.duration = duration;
-                _this2.hasRecording = true;
+            }).catch(function (e) {
+                _this2.hasRecording = false;
             });
         }
     }, {
@@ -3342,8 +4249,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             return new Promise(function (resolve) {
                 _this3.mediaNode.muted = false;
                 if (_this3.onTimeUpdateCallback) {
-                    _this3.mediaNode.addEventListener('timeupdate', _this3.onTimeUpdateCallback);
-                    _this3.mediaNode.addEventListener('ended', _this3.onTimeUpdateCallback);
+                    _this3._enableTimerEventsHandling();
                 }
                 if (_this3._isNotOnlineResources(_this3.mediaNode.src)) resolve(_this3.mediaNode);
                 _this3.mediaNode.play();
@@ -3358,11 +4264,22 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 _this4.mediaNode.pause();
                 _this4.mediaNode.currentTime = 0;
                 if (_this4.onTimeUpdateCallback) {
-                    _this4.mediaNode.removeEventListener('timeupdate', _this4.onTimeUpdateCallback);
-                    _this4.mediaNode.removeEventListener('ended', _this4.onTimeUpdateCallback);
+                    _this4._disableTimerEventsHandling();
                 }
                 resolve();
             });
+        }
+    }, {
+        key: "_enableTimerEventsHandling",
+        value: function _enableTimerEventsHandling() {
+            this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+        }
+    }, {
+        key: "_disableTimerEventsHandling",
+        value: function _disableTimerEventsHandling() {
+            this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+            this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
         }
     }, {
         key: "pausePlaying",
@@ -3387,27 +4304,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 _this6.mediaNode.currentTime = Math.round(_this6.duration * progress);
                 resolve();
             });
-        }
-    }, {
-        key: "startStreaming",
-        value: function startStreaming(stream) {
-            this._disableEventsHandling();
-            setSrcObject(stream, this.mediaNode);
-            this.mediaNode.muted = true;
-            this.mediaNode.play();
-        }
-    }, {
-        key: "stopStreaming",
-        value: function stopStreaming() {
-            // for some reason Edge doesn't send pause event in stopPlaying
-            // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-            // same as above but with mLibro on android
-            if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
-                this.stopNextStopEvent = true;
-            }
-
-            this.stopPlaying();
-            this._enableEventsHandling();
         }
     }, {
         key: "reset",
@@ -3457,7 +4353,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _enableEventsHandling() {
             var _this7 = this;
 
-            var self = this;
             this.mediaNode.onloadstart = function () {
                 return _this7.onStartLoadingCallback();
             };
@@ -3471,11 +4366,15 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 return _this7._onPausedCallback();
             };
 
-            if (this._isMobileSafari()) this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };else this.mediaNode.oncanplay = function () {
-                return _this7.onEndLoadingCallback();
-            };
+            if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+                this.mediaNode.onloadedmetadata = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            } else {
+                this.mediaNode.oncanplay = function () {
+                    return _this7.onEndLoadingCallback();
+                };
+            }
         }
     }, {
         key: "_disableEventsHandling",
@@ -3513,9 +4412,25 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             });
         }
     }, {
+        key: "_isIOSWebViewUsingAppleWebKit",
+        value: function _isIOSWebViewUsingAppleWebKit() {
+            var userAgent = window.navigator.userAgent.toLowerCase(),
+                safari = /safari/.test(userAgent),
+                ios = /iphone|ipod|ipad/.test(userAgent),
+                appleWebKit = /applewebkit/.test(userAgent);
+            var webView = ios && !safari;
+
+            return webView && appleWebKit;
+        }
+    }, {
         key: "_isMobileSafari",
         value: function _isMobileSafari() {
             return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
+        }
+    }, {
+        key: "_isIosMlibro",
+        value: function _isIosMlibro() {
+            return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
         }
     }, {
         key: "_isNotOnlineResources",
@@ -3530,11 +4445,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_onPausedCallback",
         value: function _onPausedCallback() {
-            if (this.stopNextStopEvent) {
-                this.stopNextStopEvent = false;
-            } else {
-                this._sendEventCallback('stop');
-            }
+            this._sendEventCallback('stop');
         }
     }, {
         key: "_sendEventCallback",
@@ -3567,7 +4478,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
 }(_Player2.Player);
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3686,7 +4597,7 @@ var Player = exports.Player = function () {
 }();
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3698,7 +4609,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Button2 = __webpack_require__(0);
+var _Button2 = __webpack_require__(1);
+
+var _CssClasses = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3737,13 +4650,13 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            this.$view.addClass("selected");
+            this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartPlayingCallback();
         }
     }, {
         key: "_stopPlaying",
         value: function _stopPlaying() {
-            this.$view.removeClass("selected");
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStopPlayingCallback();
         }
     }, {
@@ -3762,7 +4675,300 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 }(_Button2.Button);
 
 /***/ }),
-/* 46 */
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DefaultKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _BaseKeyboardController = __webpack_require__(6);
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DefaultKeyboardController = exports.DefaultKeyboardController = function (_BaseKeyboardControll) {
+    _inherits(DefaultKeyboardController, _BaseKeyboardControll);
+
+    function DefaultKeyboardController() {
+        _classCallCheck(this, DefaultKeyboardController);
+
+        return _possibleConstructorReturn(this, (DefaultKeyboardController.__proto__ || Object.getPrototypeOf(DefaultKeyboardController)).apply(this, arguments));
+    }
+
+    _createClass(DefaultKeyboardController, [{
+        key: "markDefaultRecordingPlayButton",
+        value: function markDefaultRecordingPlayButton() {
+            this.markCurrentElement(0);
+        }
+    }, {
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            this.markCurrentElement(1);
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            this.markCurrentElement(2);
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            var $element = this.getTarget(element, false);
+
+            if ($element.hasClass(_CssClasses.CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON)) {
+                this._speakDefaultRecordingPlayButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.RECORDING_BUTTON)) {
+                this._speakRecordingButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.PLAY_BUTTON)) {
+                this._speakPlayButtonTTS($element);
+            }
+        }
+    }, {
+        key: "_speakDefaultRecordingPlayButtonTTS",
+        value: function _speakDefaultRecordingPlayButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.DefaultRecordingPlayButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }]);
+
+    return DefaultKeyboardController;
+}(_BaseKeyboardController.BaseKeyboardController);
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ExtendedKeyboardController = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _BaseKeyboardController = __webpack_require__(6);
+
+var _CssClasses = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ExtendedKeyboardController = exports.ExtendedKeyboardController = function (_BaseKeyboardControll) {
+    _inherits(ExtendedKeyboardController, _BaseKeyboardControll);
+
+    function ExtendedKeyboardController(elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback) {
+        _classCallCheck(this, ExtendedKeyboardController);
+
+        var _this = _possibleConstructorReturn(this, (ExtendedKeyboardController.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController)).call(this, elements, columnsCount, model, mediaState, activationState, speak, speakAndExecuteCallback));
+
+        _this._resetDialogLabels = model.resetDialogLabels;
+        _this._disableRecording = model.disableRecording;
+        return _this;
+    }
+
+    _createClass(ExtendedKeyboardController, [{
+        key: "markRecordingButton",
+        value: function markRecordingButton() {
+            this.markCurrentElement(0);
+        }
+    }, {
+        key: "markPlayButton",
+        value: function markPlayButton() {
+            this.markCurrentElement(1);
+        }
+    }, {
+        key: "markResetButton",
+        value: function markResetButton() {
+            this.markCurrentElement(2);
+        }
+    }, {
+        key: "markDownloadButton",
+        value: function markDownloadButton() {
+            this.markCurrentElement(3);
+        }
+    }, {
+        key: "_performFirstEnterEvent",
+        value: function _performFirstEnterEvent() {
+            this.keyboardNavigationActive = true;
+            var $element = this.getTarget(this.keyboardNavigationElements[0], false);
+
+            if (this._isKeyboardNavigationBlocked()) {
+                this._markActiveElement();
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                this.markDialogTextAndReadResetDialogTTS();
+            } else {
+                this._markAndReadFirstDisplayedElement();
+            }
+        }
+    }, {
+        key: "markDialogTextAndReadResetDialogTTS",
+        value: function markDialogTextAndReadResetDialogTTS() {
+            this.markCurrentElement(0);
+            this._speakResetDialogTTS();
+        }
+    }, {
+        key: "readElement",
+        value: function readElement(element) {
+            var $element = this.getTarget(element, false);
+
+            if ($element.hasClass(_CssClasses.CSS_CLASSES.RECORDING_BUTTON)) {
+                this._speakRecordingButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.PLAY_BUTTON)) {
+                this._speakPlayButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.RESET_BUTTON)) {
+                this._speakResetButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DOWNLOAD_BUTTON)) {
+                this._speakDownloadButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DIALOG_TEXT)) {
+                this._speakDialogTextTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.CONFIRM_BUTTON)) {
+                this._speakConfirmButtonTTS($element);
+            } else if ($element.hasClass(_CssClasses.CSS_CLASSES.DENY_BUTTON)) {
+                this._speakDenyButtonTTS($element);
+            }
+        }
+    }, {
+        key: "_speakResetButtonTTS",
+        value: function _speakResetButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.ResetButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakDownloadButtonTTS",
+        value: function _speakDownloadButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.DownloadButton);
+
+            if (this._activationState.isInactive()) {
+                this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.Disabled);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakResetDialogTTS",
+        value: function _speakResetDialogTTS() {
+            var textVoiceObject = [];
+
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_speakDialogTextTTS",
+        value: function _speakDialogTextTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.ResetDialog);
+
+            this._pushResetDialogTextMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogTextMessageToTextVoiceObject",
+        value: function _pushResetDialogTextMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogText.resetDialogLabel);
+        }
+    }, {
+        key: "_speakConfirmButtonTTS",
+        value: function _speakConfirmButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogConfirmMessageToTextVoiceObject",
+        value: function _pushResetDialogConfirmMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogConfirm.resetDialogLabel);
+        }
+    }, {
+        key: "_speakDenyButtonTTS",
+        value: function _speakDenyButtonTTS($element) {
+            var textVoiceObject = [];
+
+            this._pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject);
+
+            if (this._isAddonDisabled()) {
+                this._pushDisabledMessageToTextVoiceObject(textVoiceObject);
+            }
+
+            this._speak(textVoiceObject);
+        }
+    }, {
+        key: "_pushResetDialogDenyMessageToTextVoiceObject",
+        value: function _pushResetDialogDenyMessageToTextVoiceObject(textVoiceObject) {
+            this._pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, this._resetDialogLabels.resetDialogDeny.resetDialogLabel);
+        }
+    }, {
+        key: "onStopRecording",
+        value: function onStopRecording() {
+            _get(ExtendedKeyboardController.prototype.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController.prototype), "onStopRecording", this).call(this);
+
+            if (!this._disableRecording) {
+                this.nextElement();
+            }
+        }
+    }, {
+        key: "onStopRecordingWhenSoundEffect",
+        value: function onStopRecordingWhenSoundEffect() {
+            _get(ExtendedKeyboardController.prototype.__proto__ || Object.getPrototypeOf(ExtendedKeyboardController.prototype), "onStopRecordingWhenSoundEffect", this).call(this);
+
+            if (!this._disableRecording) {
+                this.nextElement();
+            }
+        }
+    }]);
+
+    return ExtendedKeyboardController;
+}(_BaseKeyboardController.BaseKeyboardController);
+
+/***/ }),
+/* 50 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3773,47 +4979,127 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SafariRecorderState = exports.SafariRecorderState = function () {
-    function SafariRecorderState() {
-        _classCallCheck(this, SafariRecorderState);
+var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
+    function MP3ConvertHandler(playerController) {
+        _classCallCheck(this, MP3ConvertHandler);
 
-        this.values = {
-            UNAVAILABLE_RESOURCES: 0,
-            AVAILABLE_RESOURCES: 1
-        };
+        this.worker = null;
+        this.scriptURL = null;
+        this.isValid = false;
+        this.validationTimoutID = null;
 
-        this._value = this.values.UNAVAILABLE_RESOURCES;
+        if (!this.isSupported()) {
+            console.log('Your browser doesn\'t support web workers.');
+            return;
+        }
+
+        var scriptBlob = this.createBlobWithScript();
+        this.scriptURL = URL.createObjectURL(scriptBlob);
+        this._validateScript();
     }
 
-    _createClass(SafariRecorderState, [{
-        key: "isUnavailableResources",
-        value: function isUnavailableResources() {
-            return this._value === this.values.UNAVAILABLE_RESOURCES;
+    _createClass(MP3ConvertHandler, [{
+        key: 'isSupported',
+        value: function isSupported() {
+            return !!window.Worker;
         }
     }, {
-        key: "isAvailableResources",
-        value: function isAvailableResources() {
-            return this._value === this.values.AVAILABLE_RESOURCES;
+        key: 'isWorkerExist',
+        value: function isWorkerExist() {
+            return !!this.worker;
         }
     }, {
-        key: "setUnavailableResources",
-        value: function setUnavailableResources() {
-            this._value = this.values.UNAVAILABLE_RESOURCES;
+        key: '_validateScript',
+        value: function _validateScript() {
+            var _this = this;
+
+            var self = this;
+            return new Promise(function (resolve) {
+                _this.worker = new Worker(_this.scriptURL);
+                _this.worker.onmessage = function (e) {
+                    if (e.data === "WORKER STARTED") {
+                        self.isValid = true;
+                        resolve(true);
+                    } else {
+                        console.log('Error occurred for Web worker in Media Recorder: ' + e.data);
+                        self.isValid = false;
+                        resolve(false);
+                    }
+                };
+                _this.worker.postMessage({
+                    cmd: "validate",
+                    origin: document.location.origin
+                });
+                _this.validationTimoutID = setTimeout(function () {
+                    if (!self.isValid) {
+                        console.log('Lib for web worker in Media Recorder is unreachable.');
+                        self.isValid = false;
+                        _this.terminateWorkerProcess();
+                        resolve(false);
+                    }
+                }, 5000);
+            });
         }
     }, {
-        key: "setAvailableResources",
-        value: function setAvailableResources() {
-            this._value = this.values.AVAILABLE_RESOURCES;
+        key: 'execute',
+        value: function execute(numberOfChannels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
+            var _this2 = this;
+
+            return new Promise(function (resolve, reject) {
+                if (!_this2.isValid) {
+                    reject("Not valid worker");
+                }
+                if (_this2.isWorkerExist()) {
+                    _this2.terminateWorkerProcess();
+                }
+                _this2.worker = new Worker(_this2.scriptURL);
+                _this2.worker.onmessage = function (e) {
+                    resolve(e.data);
+                };
+                _this2.worker.postMessage({
+                    cmd: "start",
+                    data: {
+                        numberOfChannels: numberOfChannels,
+                        sampleRate: sampleRate,
+                        sampleLength: sampleLength,
+                        leftChannelData: leftChannelData,
+                        rightChannelData: rightChannelData
+                    },
+                    origin: document.location.origin
+                });
+            });
         }
     }, {
-        key: "destroy",
+        key: 'createBlobWithScript',
+        value: function createBlobWithScript() {
+            var script = '\n            addEventListener("message", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage("Unknown origin");\n                    return;\n                }\n\n                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";\n                try {\n                    importScripts(lameScriptURL);\n                } catch (e) {\n                    postMessage("Library lame.min.js is unreachable");\n                    return;\n                }\n\n                switch (data.cmd) {\n                    case "validate":\n                        postMessage("WORKER STARTED");\n                        break;\n                    case "start":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage("Unknown command: " + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: "audio/mpeg-3"});\n            }\n        ';
+            return new Blob([script], { type: 'application/javascript' });
+        }
+    }, {
+        key: 'destroy',
         value: function destroy() {
-            this._value = null;
-            this.values = null;
+            if (this.isWorkerExist()) {
+                this.terminateWorkerProcess();
+            }
+            if (this.scriptURL) {
+                URL.revokeObjectURL(this.scriptURL);
+                this.scriptURL = null;
+            }
+            if (this.validationTimoutID) {
+                clearTimeout(this.validationTimoutID);
+                this.validationTimoutID = null;
+            }
+            this.isValid = false;
+        }
+    }, {
+        key: 'terminateWorkerProcess',
+        value: function terminateWorkerProcess() {
+            this.worker.terminate();
+            this.worker = null;
         }
     }]);
 
-    return SafariRecorderState;
+    return MP3ConvertHandler;
 }();
 
 /***/ })

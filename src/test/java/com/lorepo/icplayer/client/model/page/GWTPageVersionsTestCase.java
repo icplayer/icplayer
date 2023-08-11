@@ -36,6 +36,9 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	Page page = null;
 	private String semiResponsiveLayoutID = "default";
 	private int pageWeight = 1;
+	private boolean randomizeInPrint = true;
+	private boolean notAssignable = false;
+	private boolean isSplitInPrintBlocked = false;
 	
 	private String getFromFile(String path) throws IOException {
 		InputStream xmlStream = getClass().getResourceAsStream(path);
@@ -74,50 +77,48 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	// Checking updating xmls
 	@Test
 	public void updatingVersion2PageWithNoHeaders() throws IOException, SAXException {
-		String expected = getFromFile("testdata/PageVersion6NoHeaders.xml");
-
+		String expectedXML = getFromFile("testdata/PageVersion8NoHeaders.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2HeadersFalse.xml");
 		
 		String result = page.toXML();
 		
-		Diff diff = new Diff(expected, result);
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
-	
+
 	@Test
 	public void updatingVersion2Page() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6.xml");
-
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2.xml");
+
 		String result = page.toXML();
-		
-		Diff diff = new Diff(pageXML, result);
+
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingPageWithoutVersion() throws IOException, SAXException {
-		String expectedXML = getFromFile("testdata/PageVersion6.xml");
-
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersion.xml");
+
 		String result = this.page.toXML();
 		
 		Diff diff = new Diff(expectedXML, result);
-		
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingPageVersion3ToHeadersVersion() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersInModel.xml");
 		
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
-		
+
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
-	
+
 	@Test
 	public void updatingVersion2CheckingLayout() throws IOException, SAXException {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2.xml");
@@ -130,18 +131,18 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingVersion2WithoutHeadersInModel() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2NoHeadersInModel.xml");
 		
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
-		
+
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingVersion2NoClassAndLayout() throws IOException, SAXException {
-		String expectedXML = getFromFile("testdata/PageVersion6NoClassAndLayout.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8NoClassAndLayout.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion2NoClassAndLayout.xml");	
 		
 		String result = this.page.toXML();
@@ -152,28 +153,68 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingWithoutVersionNoClassAndLayout() throws IOException, SAXException {
-		String expectedXML = getFromFile("testdata/PageVersion6NoClassAndLayout.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8NoClassAndLayout.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersionNoClassAndLayout.xml");
 		
 		String result = this.page.toXML();
 		
 		Diff diff = new Diff(expectedXML, result);
-		
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingPageVersion3WithManyLayouts() throws SAXException, IOException {
+		String expectedXML = getFromFile("testdata/PageVersion8ManyLayouts.xml");
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersManyLayouts.xml");
-		String expectedXML = getFromFile("testdata/PageVersion6ManyLayouts.xml");
 		
 		String result = this.page.toXML();
+
 		Diff diff = new Diff(expectedXML, result);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	// Checking page attributes
+
+	@Test
+	public void checkingIfUpdatedVersion7WillHaveAttributes() throws Exception {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion7NoHeadersInModel.xml");
+
+		Size returnedSize = Whitebox.invokeMethod(this.page, "getDefaultSize");
+		Size defaultSize = this.getDefaultSize();
+
+		assertTrue(this.page.hasHeader());
+		assertTrue(this.page.hasFooter());
+
+		assertEquals(defaultSize.getID(), returnedSize.getID());
+		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
+		assertEquals(defaultSize.getWidth(), returnedSize.getWidth());
+		assertTrue(returnedSize.isDefault());
+
+		assertEquals(this.randomizeInPrint, this.page.getRandomizeInPrint());
+		assertEquals(this.notAssignable, this.page.isNotAssignable());
+	}
+
+	@Test
+	public void checkingIfUpdatedVersion8WillHaveAttributes() throws Exception {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion8NoHeadersInModel.xml");
+
+		Size returnedSize = Whitebox.invokeMethod(this.page, "getDefaultSize");
+		Size defaultSize = this.getDefaultSize();
+
+		assertTrue(this.page.hasHeader());
+		assertTrue(this.page.hasFooter());
+
+		assertEquals(defaultSize.getID(), returnedSize.getID());
+		assertEquals(defaultSize.getHeight(), returnedSize.getHeight());
+		assertEquals(defaultSize.getWidth(), returnedSize.getWidth());
+		assertTrue(returnedSize.isDefault());
+
+		assertEquals(this.randomizeInPrint, this.page.getRandomizeInPrint());
+		assertEquals(this.notAssignable, this.page.isNotAssignable());
+		assertEquals(this.isSplitInPrintBlocked, this.page.isSplitInPrintBlocked());
+	}
+
 	@Test
 	public void checkingIfUpdatedVersion3WillHaveAttributes() throws Exception {
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion3NoHeadersInModel.xml");
@@ -282,7 +323,6 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		String secondXML = pageV4.toXML();
 		XMLAssert.assertXMLEqual(firstXML, secondXML);
-		
 	}
 	
 	@Test 
@@ -438,23 +478,23 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingVersion4Page() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion4.xml");
 		String result = page.toXML();
 		
-		Diff diff = new Diff(pageXML, result);
+		Diff diff = new Diff(expectedXML, result);
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
 	@Test
 	public void updatingVersion4PageManyLayouts() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6ManyLayouts2.xml");
+		String expectedXML = getFromFile("testdata/PageVersion8ManyLayouts2.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion4ManyLayouts2.xml");
 		String result = page.toXML();
 
-		Diff diff = new Diff(sortLayouts(pageXML), sortLayouts(result));
+		Diff diff = new Diff(sortLayouts(expectedXML), sortLayouts(result));
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
@@ -482,7 +522,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingVersion5Page() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion6.xml");
+		String pageXML = getFromFile("testdata/PageVersion8.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion5.xml");
 		String result = page.toXML();
@@ -497,5 +537,61 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		assertTrue(this.page.getRandomizeInPrint());
 	}
-	
+
+	@Test
+	public void updatingVersion6Page() throws IOException, SAXException {
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion6.xml");
+
+		String result = page.toXML();
+
+		Diff diff = new Diff(expectedXML, result);
+		XMLAssert.assertXMLEqual(diff, true);
+	}
+
+	@Test
+	public void pageVersion7RandomizedInPrint() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion7RandomizedInPrint.xml");
+
+		assertTrue(this.page.getRandomizeInPrint());
+	}
+
+	@Test
+	public void pageVersion7NotAssignable() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion7NotAssignable.xml");
+
+		assertTrue(this.page.isNotAssignable());
+	}
+
+	@Test
+	public void updatingVersion7Page() throws IOException, SAXException {
+		String expectedXML = getFromFile("testdata/PageVersion8.xml");
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion7.xml");
+
+		String result = page.toXML();
+
+		Diff diff = new Diff(expectedXML, result);
+		XMLAssert.assertXMLEqual(diff, true);
+	}
+
+	@Test
+	public void pageVersion8RandomizedInPrint() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion8RandomizedInPrint.xml");
+
+		assertTrue(this.page.getRandomizeInPrint());
+	}
+
+	@Test
+	public void pageVersion8NotAssignable() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion8NotAssignable.xml");
+
+		assertTrue(this.page.isNotAssignable());
+	}
+
+	@Test
+	public void pageVersion8IsSplitInPrintBlocked() throws SAXException, IOException {
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion8IsSplitInPrintBlocked.xml");
+
+		assertTrue(this.page.isSplitInPrintBlocked());
+	}
 }

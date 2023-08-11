@@ -23,7 +23,7 @@ public interface IPlayerCommands {
 	public void	gotoPageId(String pageId);
 	//public void showPopup(String pageName, String additinalClasses);
 	public void closePopup();
-
+	public void setAllPagesAsVisited();
 	public void executeEventCode(String code);
 	
 	public void sendPageAllOkOnValueChanged(boolean sendEvent);

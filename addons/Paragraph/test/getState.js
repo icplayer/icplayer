@@ -7,7 +7,8 @@ TestCase("[Paragraph] getState method", {
                 return;
             }
         };
-
+        this.presenter.hideAnswers = sinon.spy();
+        this.presenter.showAnswers = sinon.spy();
         this.stubs = {
             getContent: sinon.stub(this.presenter.editor, 'getContent')
         };
@@ -26,6 +27,21 @@ TestCase("[Paragraph] getState method", {
         assertEquals("Content", state.tinymceState);
     },
 
+    'test getState given editor exists when show answers active then hide answers': function () {
+        this.presenter.isShowAnswersActive = true;
+        this.presenter.getState();
+
+        sinon.assert.calledOnce(this.presenter.hideAnswers);
+    },
+
+    'test given presenter with showAnswers active when getState called then showAnswers should be called': function () {
+        this.presenter.isShowAnswersActive = true;
+
+        this.presenter.getState();
+
+        sinon.assert.calledOnce(this.presenter.showAnswers);
+    },
+
     'test getState for incomplete editor': function () {
         delete this.presenter.editor["id"];
 
@@ -33,6 +49,7 @@ TestCase("[Paragraph] getState method", {
 
         assertEquals("", state.tinymceState);
     },
+
     'test getState for non existed editor': function () {
         this.presenter.editor = undefined;
 

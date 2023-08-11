@@ -1,0 +1,23 @@
+.lottie-player-invalid-configuration {
+    border: 3px solid red !important;
+    color: red;
+    line-height: 18px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2px
+}
+
+.lottie-player-visible-animation {
+    display: flex;
+}
+
+.lottie-player-invisible-animation {
+    display: none;
+}
+
+lottie-player::part(keyboard_navigation_active_element)  {
+    border: 1px dotted grey;
+}

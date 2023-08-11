@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Automatic_Feedback' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="ActivityModuleID" nameLabel="Automatic_Feedback_property_activity_module_id" type="string" />
+		<property name="ActivityType" nameLabel="Automatic_Feedback_property_activity_type" type="{Default}" />
+		<property name="CorrectFeedback" nameLabel="Automatic_Feedback_property_correct_feedback" type="list">
+			<property name="ActivityItem" nameLabel="Automatic_Feedback_property_activity_item" type="string" />
+			<property name="Feedback" nameLabel="Automatic_Feedback_property_feedback" type="html" />
+		</property>
+		<property name="IncorrectFeedback" nameLabel="Automatic_Feedback_property_incorrect_feedback" type="list">
+			<property name="ActivityItem" nameLabel="Automatic_Feedback_property_activity_item" type="string" />
+			<property name="Feedback" nameLabel="Automatic_Feedback_property_feedback" type="html" />
+		</property>
+		<property name="EmptyFeedback" nameLabel="Automatic_Feedback_property_empty_feedback" type="list">
+			<property name="ActivityItem" nameLabel="Automatic_Feedback_property_activity_item" type="string" />
+			<property name="Feedback" nameLabel="Automatic_Feedback_property_feedback" type="html" />
+		</property>
+		<property name="PartialFeedback" nameLabel="Automatic_Feedback_property_partial_feedback" type="list">
+			<property name="ActivityItem" nameLabel="Automatic_Feedback_property_activity_item" type="string" />
+			<property name="Feedback" nameLabel="Automatic_Feedback_property_feedback" type="html" />
+		</property>
+		<property name="ResetResponseOnPageChange" nameLabel="Automatic_Feedback_property_reset_response_on_page_change" type="boolean" />
+		<property name="Display" nameLabel="Automatic_Feedback_property_display_mode" type="{block,tooltips,popup}" />
+		<property name="DisplayFeedbackButtons" nameLabel="Automatic_Feedback_property_display_feedback_buttons" type="boolean" />
+		<property name="ReactTo" nameLabel="Automatic_Feedback_property_react_to" type="{Check,ValueChanged,Script}" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Automatic_Feedback_property_lang_attribute" type="string" />
+	</model>
+</addon>

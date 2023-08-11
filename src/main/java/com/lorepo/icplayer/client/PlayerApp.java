@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Random;
@@ -16,6 +17,7 @@ import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -146,7 +148,7 @@ public class PlayerApp {
 	}
 
 	public static native int getScreenHeight() /*-{
-		if ($wnd.isFrameInDifferentDomain) {
+		if (!$wnd.isFrameInDifferentDomain) {
 			var offsetIframe = $wnd.iframeSize.offsetTop;
 			return $wnd.parent.innerHeight - offsetIframe;
 		} else {
@@ -178,7 +180,7 @@ public class PlayerApp {
 
 			try {
 				var currentLocation = $wnd.location.href;
-				
+
 				$wnd.parent.$('iframe').each(function() {
 					if (this.contentWindow === $wnd) {
 						$wnd.playerIFrame = $wnd.$(this);
@@ -279,7 +281,9 @@ public class PlayerApp {
 			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe
 					- icFooterHeight;
 
-			$wnd.$(".ic_static_footer").css("top", sum + "px");
+			if (sum >= 0) {
+				$wnd.$(".ic_static_footer").css("top", sum + "px");
+			}
 
 			$wnd
 					.addEventListener(
@@ -527,7 +531,6 @@ public class PlayerApp {
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
 		playerController.getPlayerServices().setApplication(this);
-
 		EnableTabindex.getInstance().create(contentModel.getMetadataValue("enableTabindex").compareTo("true") == 0);
 
 		playerController.addPageLoadListener(new ILoadListener() {
@@ -553,10 +556,10 @@ public class PlayerApp {
 				JavaScriptUtils.log("Loading pages error: " + error);
 			}
 		});
-
 		contentModel.setPlayerController(getPlayerServices());
 		RootPanel.get(divId).add(playerView);
 		this.loadActualLayoutCSSStyles();
+		this.loadAttachedLibraries();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
@@ -589,6 +592,18 @@ public class PlayerApp {
 		String cssValue = actualStyle.getValue();
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(this.getCurrentUserStyles());
+	}
+
+	private void loadAttachedLibraries() {
+		Map<String, ScriptAsset> attachedLibraries = playerController.getAssetsService().getAttachedLibraries();
+		String baseUrl = contentModel.getBaseUrl();
+		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
+			DOMInjector.injectLibrary(
+				URLUtils.resolveURL(baseUrl, libraryAsset.getHref()),
+				libraryAsset.getFileName(),
+				libraryAsset.isModule()
+			);
+		}
 	}
 
 	private void makeHeaderStatic() {

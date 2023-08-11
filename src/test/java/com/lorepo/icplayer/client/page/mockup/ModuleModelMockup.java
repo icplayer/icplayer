@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.xml.client.Element;
@@ -253,13 +254,11 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public void load(Element node, String baseURL, String version) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSemiResponsiveLayoutID(String semiResponsiveLayoutID) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -305,6 +304,28 @@ public class ModuleModelMockup implements IModuleModel {
 
 	}
 
+	@Override
+	public boolean shouldOmitInTTS() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setOmitInTTS(boolean value) {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public String getTTSTitle() {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	public void setTTSTitle(String title) {
+		// TODO Auto-generated method stub
+	}
+	
 	@Override
 	public void translateSemiResponsiveIDs(
 			HashMap<String, String> translationMap) {
@@ -386,6 +407,16 @@ public class ModuleModelMockup implements IModuleModel {
 
 	@Override
 	public IMetadata getMetadata() {
+		return null;
+	}
+
+	@Override
+	public List<String> getNameProperties() {
+		return null;
+	}
+
+	@Override
+	public List<IProperty> getProperties() {
 		return null;
 	}
 }

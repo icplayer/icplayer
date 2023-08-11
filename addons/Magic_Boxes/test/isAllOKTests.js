@@ -1,4 +1,4 @@
-TestCase("IsAllOK test", {
+TestCase("[Magic Boxes] IsAllOK test", {
     setUp: function () {
         this.presenter = AddonMagic_Boxes_create();
         sinon.stub(this.presenter, 'getMaxScore');
@@ -51,6 +51,6 @@ TestCase("IsAllOK test", {
 
         this.presenter.isSelectionPossible = false;
 
-        assertEquals(undefined, this.presenter.isAllOK());
+        assertEquals(false, this.presenter.isAllOK());
     }
 });

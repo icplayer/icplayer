@@ -9,6 +9,7 @@ import com.lorepo.icf.utils.UUID;
 public class PageLayout implements PageLayoutBuilder {
 	
 	public static int MAX_TRESHOLD = 800;
+	public static int DEFAULT_GRID_SIZE = 25;
 	private String name;
 	private String id;
 	private int threshold;
@@ -16,7 +17,8 @@ public class PageLayout implements PageLayoutBuilder {
 	private boolean isDefault = false;
 	private boolean useDeviceOrientation = false;
 	private DeviceOrientation deviceOrientation = DeviceOrientation.vertical;
-	
+	private int gridSize;
+
 	public PageLayout(String id, String name) {
 		this.id = id;
 		this.name = name;
@@ -30,7 +32,15 @@ public class PageLayout implements PageLayoutBuilder {
 		this.threshold = threshold;
 		this.styleID = id;
 	}
-	
+
+	public PageLayout(String id, String name, int threshold, int gridSize) {
+		this.id = id;
+		this.name = name;
+		this.threshold = threshold;
+		this.styleID = id;
+		this.gridSize = gridSize;
+	}
+
 	public static PageLayout copy(PageLayout pageLayoutToCopy) {
 		PageLayout copy = new PageLayout(pageLayoutToCopy.getID(), pageLayoutToCopy.getName());
 		copy.setThreshold(pageLayoutToCopy.getThreshold());
@@ -67,7 +77,19 @@ public class PageLayout implements PageLayoutBuilder {
 		
 		return newPageLayout;
 	}
-	
+
+	public static PageLayout createPageLayout(String name, int treshold, boolean useDeviceOrientation, DeviceOrientation deviceOrientation, int gridSize) {
+		String id = UUID.uuid();
+		PageLayout newPageLayout = new PageLayout(id, name);
+		newPageLayout.setCssID(id);
+		newPageLayout.setThreshold(treshold);
+		newPageLayout.useDeviceOrientation(useDeviceOrientation);
+		newPageLayout.setDeviceOrientation(deviceOrientation);
+		newPageLayout.setGridSize(gridSize);
+
+		return newPageLayout;
+	}
+
 	public String getStyleID () {
 		return this.styleID;
 	}
@@ -107,7 +129,19 @@ public class PageLayout implements PageLayoutBuilder {
 	public String getID() {
 		return this.id;
 	}
-	
+
+	public int getGridSize() {
+		return this.gridSize;
+	}
+
+	public void setGridSize(int gridSize) {
+		if (gridSize == 0) {
+			this.gridSize = DEFAULT_GRID_SIZE;
+		} else {
+			this.gridSize = gridSize;
+		}
+	}
+
 	public boolean isThisCssStyle(String styleID) {
 		return this.styleID.compareTo(styleID) == 0;
 	}
@@ -129,7 +163,11 @@ public class PageLayout implements PageLayoutBuilder {
 		Element tresholdNode = doc.createElement("threshold");
 		tresholdNode.setAttribute("width", Integer.toString(this.threshold));
 		layout.appendChild(tresholdNode);
-		
+
+		Element gridSizeNode = doc.createElement("gridSize");
+		gridSizeNode.setAttribute("value", Integer.toString(this.gridSize));
+		layout.appendChild(gridSizeNode);
+
 		if (this.useDeviceOrientation) {
 			Element deviceOrientation = doc.createElement("deviceOrientation");
 			deviceOrientation.setAttribute("value", this.deviceOrientation.toString());

@@ -4,9 +4,8 @@ export class AudioRecorder extends BaseRecorder {
 
     _getOptions() {
         const isEdge = DevicesUtils.isEdge();
-        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
 
-        let options = {
+        return {
             type: 'audio',
             mimeType: 'audio/wav',
             numberOfAudioChannels: isEdge ? 1 : 2,
@@ -15,12 +14,5 @@ export class AudioRecorder extends BaseRecorder {
             disableLogs: true,
             recorderType: RecordRTC.StereoAudioRecorder,
         };
-
-        if (isSafari) {
-            options.bufferSize = 4096;
-            options.sampleRate = 44100;
-        }
-
-        return options;
     }
 }

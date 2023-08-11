@@ -10,7 +10,9 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.user.client.ui.ResetButton;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -20,6 +22,9 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.button.ButtonModule;
+import com.lorepo.icplayer.client.module.button.ButtonView;
+import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 
 /*
 	Usage:
@@ -55,6 +60,8 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 	//state
 	private PresenterEntry savedEntry = null;
+
+	private static final int KEY_SPACE_BAR = 32;
 	
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
@@ -140,8 +147,28 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		}
 		this.selectCurrentModule();
 	}
+
+	private boolean isResetButton() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
+			try {
+				PresenterEntry presenterEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
+				IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
+				ButtonModule buttonModule = (ButtonModule) iPresenter.getModel();
+				ButtonType type = buttonModule.getType();
+				
+				return type == ButtonType.reset;
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		return false;
+	}
 	
 	private boolean isModuleButton() {
+		if (this.isResetButton()) {
+			return false;
+		}
+
 		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
 			return true;
 		}
@@ -305,6 +332,23 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		this.mainPageController.playTitle(area, id, "");
 	}
 
+	private native void dispatchEnterEvent(Element el) /*-{
+		var e = new KeyboardEvent('keydown', {keyCode: 13, bubbles: true});
+		el.dispatchEvent(e);
+	}-*/;
+
+	private void readNextSentence () {
+		this.mainPageController.saveNextSentences();
+		dispatchEnterEvent(RootPanel.get().getElement());
+		this.mainPageController.readNextSentence();
+	}
+
+	private void readPrevSentence () {
+		this.mainPageController.saveNextSentences();
+		dispatchEnterEvent(RootPanel.get().getElement());
+		this.mainPageController.readPrevSentence();
+	}
+
 	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
 		boolean isSpeechTextOn = this.isWCAGSupportOn && this.modeOn;
@@ -347,7 +391,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-				
+
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
@@ -367,7 +411,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == 32 && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
+				if (event.getNativeKeyCode() == KEY_SPACE_BAR && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
 					event.preventDefault();
 				}
 
@@ -383,6 +427,20 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
+				}
+
+				if (modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_UP || event.getNativeKeyCode() == KeyCodes.KEY_LEFT)
+						&& event.isAltKeyDown() && moduleIsActivated && !isModuleButton()) {
+					event.preventDefault();
+					readPrevSentence();
+					return;
+				}
+
+				if (modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_DOWN || event.getNativeKeyCode() == KeyCodes.KEY_RIGHT)
+						&& event.isAltKeyDown() && moduleIsActivated && !isModuleButton()) {
+					event.preventDefault();
+					readNextSentence();
+					return;
 				}
 
 	            if (modeOn && moduleIsActivated) {
@@ -500,7 +558,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					wcagWidget.tab(event);
 				}
 				break;
-			case 32:
+			case KEY_SPACE_BAR:
 				wcagWidget.space(event);
 				break;
 			default:
@@ -623,9 +681,12 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		if (this.presenters.size() == 0 && this.presentersOriginalOrder.size() == 0) {
 			return;
 		}
-		
-		final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0 ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
-		final boolean isCommonModuleActivatedWCAGNavigation = this.presenters.size() > 0 ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+        	final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0
+            		? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
+            		: false;
+		final boolean isCommonModuleActivatedWCAGNavigation = this.presenters.size() > 0 &&  ((this.presenters.size() - 1) >= this.actualSelectedModuleIndex)
+            		? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated()
+            		: false;
 		
 		if (!isCommonModuleActivatedOriginalNavigation && !isCommonModuleActivatedWCAGNavigation) {
 			this.moduleIsActivated = false;

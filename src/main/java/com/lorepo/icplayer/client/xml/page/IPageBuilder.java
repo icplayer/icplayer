@@ -37,4 +37,6 @@ public interface IPageBuilder {
 	public void setInlineStyles(HashMap<String, String> inlineStyles);
 	public void setStylesClasses(HashMap<String, String> stylesClasses);
 	public void setRandomizeInPrint(boolean value);
+	public void setSplitInPrintBlocked(boolean value);
+	public void setNotAssignable(boolean value);
 }

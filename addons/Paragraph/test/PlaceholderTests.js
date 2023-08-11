@@ -7,6 +7,7 @@ TestCase("[Paragraph] Reset method", {
         };
         this.spies = {
             setContent: sinon.spy(),
+            setStyles: sinon.spy(),
             setVisibility: sinon.stub(this.presenter, 'setVisibility'),
             removePlaceholder: sinon.spy(),
             addPlaceholder: sinon.spy()
@@ -23,6 +24,7 @@ TestCase("[Paragraph] Reset method", {
             addPlaceholder: this.spies.addPlaceholder
         }
 
+        this.presenter.setStyles = this.spies.setStyles;
 
     },
 
@@ -32,6 +34,14 @@ TestCase("[Paragraph] Reset method", {
         this.presenter.reset();
 
         assertEquals("", this.spies.setContent.getCall(0).args[0]);
+    },
+
+    'test when placeholder is not editable on reset set old styles back': function () {
+        this.presenter.configuration.isPlaceholderEditable = false;
+
+        this.presenter.reset();
+
+        assertEquals(true, this.spies.setStyles.calledOnce);
     },
 
     'test when placeholder is editable on reset set content to placeholder text': function () {

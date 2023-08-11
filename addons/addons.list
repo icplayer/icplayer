@@ -6,6 +6,7 @@ Animation
 Assessments_Navigation_Bar
 Audio
 AudioPlaylist
+Automatic_Feedback
 Basic_Math_Gaps
 BlocklyCodeEditor
 Board_Game
@@ -32,10 +33,12 @@ Event_Sender
 External_Link_Button
 feedback
 FigureDrawing
+File_Sender
 FlashCards
 Fractions
 FractionsBinder
 gamememo
+Gap_Binder
 Glossary
 graph
 Grid_Scene
@@ -62,6 +65,7 @@ Line
 Line_Number
 Line_Selection
 Logger
+LottiePlayer
 Magic_Boxes
 Math
 Maze
@@ -97,6 +101,7 @@ Show_Answers
 Single_State_Button
 Slider
 Slideshow
+Speechace
 Standard_Shapes
 Submit
 Sudoku

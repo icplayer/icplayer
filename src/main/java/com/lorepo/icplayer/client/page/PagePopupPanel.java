@@ -235,8 +235,8 @@ public class PagePopupPanel extends DialogBox {
 			}
 
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
-				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
+				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
 				setPopupPosition(propertyLeft, propertyTop);
 			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
 				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
@@ -260,14 +260,6 @@ public class PagePopupPanel extends DialogBox {
  
       return isValidInteger;
 	}
-	
-	private native int getTopWindowScroll()/*-{
-		return $wnd.$(top.window).scrollTop();
-	}-*/;
-	
-	private native void setTopWindowScroll(int scroll)/*-{
-		$wnd.$(top.window).scrollTop(scroll);
-	}-*/;
 	
 	private void compensateHeightBorder(){
 		int popupHeight = this.pageWidget.getOffsetHeight();

@@ -1,4 +1,4 @@
-TestCase("[Crossword] Model validation", {
+TestCase("[Crossword] Model validation tests", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
 
@@ -17,7 +17,8 @@ TestCase("[Crossword] Model validation", {
             "Letter cells border width": "1",
             "Word numbers": "",
             "Marked column index": "4",
-            "Marked row index": ""
+            "Marked row index": "",
+            "autoNavigation": "Simple"
         };
 
         sinon.stub(this.presenter, 'isBlockWrongAnswers');
@@ -28,9 +29,6 @@ TestCase("[Crossword] Model validation", {
     },
 
     'test proper model': function() {
-        window.ModelValidationUtils = {
-            validateBoolean: sinon.stub(),
-        };
         var validatedModel = this.presenter.readConfiguration(this.model);
         assertFalse(validatedModel.isError);
     },
@@ -126,27 +124,81 @@ TestCase("[Crossword] Model validation", {
         assertEquals(this.presenter.ERROR_MESSAGES.EXCLAMATION_MARK_BEFORE_EMPTY_FIELD, validatedModel.errorMessage);
     },
 
+    'test given isAnswerVisibleByDefault when answer is filled then return true': function() {
+        const answer = "!N!E!W";
+
+        const actual = this.presenter.isAnswerVisibleByDefault(answer);
+        const expected = true;
+
+        assertEquals(expected, actual);
+    },
+
     'test prepareCorrectAnswers prepares correct Answers': function () {
         this.presenter.rowCount = 5;
         this.presenter.columnCount = 7;
         this.presenter.wordNumbersHorizontal = true;
         this.presenter.wordNumbersVertical = true;
         this.presenter.crossword = [
-            ["E", "N", "G", "L", "I", "S", "H"],
-            [" ", " ", " ", "O", " ", " ", " "],
-            [" ", "N", "E", "V", "E", "R", " "],
-            [" ", "E", " ", "E", " ", " ", " "],
+            ["!E", "!N", "!G", "!L", "!I", "!S", "!H"],
+            [" ", " ", " ", "!O", " ", " ", " "],
+            [" ", "N", "E", "!V", "E", "R", " "],
+            [" ", "E", " ", "!E", " ", " ", " "],
             [" ", "W", " ", " ", " ", " ", " "],
         ];
 
-        let expectedPreparedAnswers = [
-            { answer: "ENGLISH", isHorizontal: true, position: { x: 0, y: 0 } },
-            { answer: "LOVE", isHorizontal: false, position: { x: 3, y: 0 } },
-            { answer: "NEVER", isHorizontal: true, position: { x: 1, y: 2 } },
-            { answer: "NEW", isHorizontal: false, position: { x: 1, y: 2 } },
-        ];
         this.presenter.prepareCorrectAnswers();
-        assertEquals(JSON.stringify(this.presenter.correctAnswers), JSON.stringify(expectedPreparedAnswers));
+
+        const actual = JSON.stringify(this.presenter.correctAnswers);
+        const expected = JSON.stringify([
+            { answer: "NE!VER", position: { x: 1, y: 2 }, isHorizontal: true },
+            { answer: "NEW", position: { x: 1, y: 2 }, isHorizontal: false },
+        ]);
+
+        assertEquals(expected, actual);
     },
 
+    'test given empty auto navigation property in model when reading configuration then return validation error': function() {
+        this.model["autoNavigation"] = "";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals(this.presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE, validatedModel.errorMessage);
+    },
+
+    'test given not valid value in auto navigation property in model when reading configuration then raise validation error': function() {
+        this.model["autoNavigation"] = "Turbo";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals(this.presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE, validatedModel.errorMessage);
+    },
+
+    'test given "Extended" value in auto navigation property in model when reading configuration then set extended auto navigation mode': function() {
+        this.model["autoNavigation"] = "Extended";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInExtendedMode());
+    },
+
+    'test given "Simple" value in auto navigation property in model when reading configuration then set simple auto navigation mode': function() {
+        this.model["autoNavigation"] = "Simple";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInSimpleMode());
+    },
+
+    'test given "Off" value in auto navigation property in model when reading configuration then set off auto navigation mode': function() {
+        this.model["autoNavigation"] = "Off";
+
+        var validatedModel = this.presenter.readConfiguration(this.model);
+
+        assertFalse(validatedModel.isError);
+        assertTrue(this.presenter.isAutoNavigationInOffMode());
+    },
 });

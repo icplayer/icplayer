@@ -17,6 +17,10 @@ function AddonText_To_Speech_create() {
 
     var presenter = function () {};
 
+    presenter.savedSentences = [];
+    presenter.savedSentencesIndex = -1;
+    presenter.saveNextSentences = false;
+
     presenter.messagesQueue = [];
 
     presenter.ERROR_CODES = {
@@ -225,6 +229,7 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.intervalId = null;
+    presenter.intervalResume = null;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts, finalCallback) {
@@ -236,6 +241,19 @@ function AddonText_To_Speech_create() {
         }
         var onStartExecuted = false;
         // Fix for running speak method after cancelling SpeechSynthesis queue
+        if(presenter.intervalResume != null) {
+            clearInterval(presenter.intervalResume);
+            presenter.intervalResume = undefined;
+        }
+
+        // Necessary for Chrome browser because instead stop reading
+        if (isChrome()) {
+                presenter.intervalResume = setInterval(function () {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }, 3000);
+        }
+
         presenter.intervalId = setInterval(function() {
 
             if (window.speechSynthesis.speaking) {
@@ -246,6 +264,9 @@ function AddonText_To_Speech_create() {
             if (textsObjects.length === 0) {
                 clearInterval(presenter.intervalId);
                 presenter.intervalId = undefined;
+
+                clearInterval(presenter.intervalResume);
+                presenter.intervalResume = undefined;
                 return;
             }
             if (presenter.intervalId == null) return;
@@ -382,66 +403,204 @@ function AddonText_To_Speech_create() {
     };
 
     function splitByPunctuationSigns(text) {
-        return text.split(/[.,:;!?\/\\()]/);
+        let splitIndexes = findPunctuationSignsIndexes(text);
+        return splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes);
+    }
+
+    function findPunctuationSignsIndexes(text) {
+        const regexp = /[.,:;!?\/\\()]/g;
+        return Array.from(text.matchAll(regexp)).map(x => x.index);
+    }
+
+    function splitByEndOfSentenceSigns(text) {
+        let splitIndexes = findEndOfSentenceSignsIndexes(text);
+        return splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes);
+    }
+
+    function findEndOfSentenceSignsIndexes(text) {
+        const regexp = /[.?!;]/g;
+        return Array.from(text.matchAll(regexp)).map(x => x.index);
+    }
+
+    function protectTimeSyntaxInText(text, splitIndexes) {
+        protectAMAndPMSyntaxInText(text, splitIndexes);
+        protectDigitHourSyntaxInText(text, splitIndexes);
+    }
+
+    function protectAMAndPMSyntaxInText(text, splitIndexes) {
+        const regexp = /(at[\s]+[\d]{1,2}[\s]+)([ap].[m].)/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    function protectDigitHourSyntaxInText(text, splitIndexes) {
+        const regexp = /([\s]+)([\d]{1,2}:[\d]{2})/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    function protectNumberSyntaxInText(text, splitIndexes) {
+        const regexp = /()([0-9]*[.!?;][0-9])/g;
+        let matches = text.matchAll(regexp);
+        filterSplittingIndexes(matches, splitIndexes);
+    }
+
+    /**
+    * Leaves the indexes that are not between the range of the matches' second groups
+    * @param matches - RegExp matches, where second groups are texts protected from splitting
+    * @param splitIndexes - List of indexes (breaking points) to split text
+    * @return undefined
+    **/
+    function filterSplittingIndexes(matches, splitIndexes) {
+        for (const match of matches) {
+            const startIndex = match.index + match[1].length;
+            const endIndex = startIndex + match[2].length - 1;
+            for (let i = 0; i < splitIndexes.length; i++) {
+                if (startIndex <= splitIndexes[i] && splitIndexes[i] <= endIndex) {
+                    splitIndexes.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    }
+
+    /**
+    * Split text considering protected syntax using given indexes.
+    * @param text - Text to split
+    * @param splitIndexes - List of indexes (breaking points) to split text. A breakpoint will have no effect when referring to a protected syntax.
+    * @return split text
+    **/
+    function splitByIndexesInConsiderationOfProtectedSyntax(text, splitIndexes) {
+        protectTimeSyntaxInText(text, splitIndexes);
+        protectNumberSyntaxInText(text, splitIndexes);
+        return splitByIndexes(text, splitIndexes);
+    }
+
+    /**
+    * Split text using given indexes.
+    * @param text - Text to split
+    * @param splitIndexes - List of indexes (breaking points) to split text
+    * @return split text
+    **/
+    function splitByIndexes(text, splitIndexes) {
+        splitIndexes.unshift(-1);
+        splitIndexes.push(text.length);
+        let splitText = [];
+        for (let i = 1; i < splitIndexes.length; i++) {
+            let textFragment = text.slice(splitIndexes[i-1] + 1, splitIndexes[i]);
+            if (textFragment.trim().length > 0) {
+                splitText.push(textFragment);
+            }
+        }
+        return splitText;
+    }
+
+    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
+    presenter.splitLongTexts = function (texts) {
+        let finalSplitTexts = [];
+        texts.forEach(text => {
+            if (text === null || text === undefined) {
+                return;
+            }
+
+            const textLen = text.text.trim().length;
+            if (textLen === 0) {
+                return;
+            }
+
+            if (textLen < presenter.maxUtteranceLength) {
+                finalSplitTexts.push(text);
+            } else {
+                let textFragments = splitLongText(text.text, text.lang);
+                finalSplitTexts = finalSplitTexts.concat(textFragments);
+            }
+        })
+        return finalSplitTexts;
+    }
+    
+    function splitLongText(text, lang) {
+        return minSplitHandler(text, lang, splitByEndOfSentenceSigns, splitLongSentence);
+    }
+
+    function splitLongSentence (sentence, lang) {
+        return minSplitHandler(sentence, lang, splitByPunctuationSigns, splitLongSentenceByMaxUtterances);
+    }
+    
+    function minSplitHandler (text, lang, currentSplitFunc, nextSplitFunc) {
+        let finalSplitTexts = [];
+        let splitTexts = currentSplitFunc(text);
+        splitTexts.forEach((splitText) => {
+            const textLength = splitText.trim().length;
+            if (textLength === 0) {
+                return;
+            }
+
+            if (textLength < presenter.maxUtteranceLength) {
+                finalSplitTexts.push({
+                    text: splitText,
+                    lang: lang
+                });
+            } else {
+                let textFragments = nextSplitFunc(splitText, lang);
+                finalSplitTexts = finalSplitTexts.concat(textFragments);
+            }
+        })
+        return finalSplitTexts;
     }
 
     // creates an array of utterances from a single text that exceeds max utterance length and has no natural break points
-    function splitLongSentence (sentence, lang) {
-        var newTexts = [];
-        var sentenceLen = sentence.trim().length;
-        var maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
-        var workString = '';
-        var words = sentence.split(/\s/);
-        for (var k = 0; k < words.length; k++) {
+    function splitLongSentenceByMaxUtterances (sentence, lang) {
+        let finalSplitTexts = [];
+        let sentenceLen = sentence.trim().length;
+        let maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
+        let workString = '';
+        let words = sentence.split(/\s/);
+        for (let k = 0; k < words.length; k++) {
             workString += words[k] + ' ';
             if (workString.length > maxSplitLen) {
-                newTexts.push({
+                finalSplitTexts.push({
                     text: workString,
                     lang: lang
                 });
                 workString = '';
             }
         }
-        newTexts.push({
+        finalSplitTexts.push({
             text: workString,
             lang: lang
         });
-        return newTexts;
+        return finalSplitTexts;
     }
-
-    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
-    presenter.splitLongTexts = function (texts) {
-        var newTexts = [];
-        for (var i = 0; i < texts.length; i++) {
-            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0) {
-                if (texts[i].text.trim().length > presenter.maxUtteranceLength) {
-                    var sentences = splitByPunctuationSigns(texts[i].text);
-                    for (var j = 0; j < sentences.length; j++) {
-                        var sentenceLen = sentences[j].trim().length;
-                        if (sentenceLen > 0) {
-                            if (sentenceLen < presenter.maxUtteranceLength) {
-                                newTexts.push({
-                                    text: sentences[j],
-                                    lang: texts[i].lang
-                                });
-                            } else {
-                                var splitSentences = splitLongSentence(sentences[j], texts[i].lang);
-                                newTexts = newTexts.concat(splitSentences);
-                            }
-                        }
-                    }
-                } else {
-                    newTexts.push(texts[i]);
-                }
-            }
-        }
-        return newTexts;
-    }
-
 
     presenter.speakWithCallback = function (texts, callback) {
-
         texts = presenter.parseAltTexts(texts);
+        presenter.saveSentences(texts);
+        if (isChrome()) {
+            presenter.amplifyABeforeColon(texts);
+        }
+        presenter.readText(texts, callback);
+    };
+
+    /**
+    * Amplify the letter 'A' or 'a' before colon
+    * @param texts
+    * @return
+    **/
+    presenter.amplifyABeforeColon = function (texts) {
+        const regex = /([Aa][\s]*?):/;
+        for (let i = 0; i < texts.length; i++) {
+            texts[i].text = texts[i].text.replace(regex, "$1,");
+        }
+    }
+
+    function isChrome () {
+        const isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
+        const isOpera = !!window.opera || navigator.userAgent.indexOf('OPR/') !== -1;
+        const isSafari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+        return (!isOpera && !isEdge && !!navigator.webkitGetUserMedia) || isElectron() || isSafari;
+    }
+
+    presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
@@ -544,6 +703,66 @@ function AddonText_To_Speech_create() {
         });
     };
 
+    presenter.saveSentences = function(texts) {
+        if (!presenter.saveNextSentences) return;
+        presenter.saveNextSentences = false;
+        let textVoices = [];
+        for (let i = 0; i < texts.length; i++) {
+            let speechText = texts[i];
+            let splitSpeechTexts = splitLongText(speechText.text, speechText.lang);
+            for (let j = 0; j < splitSpeechTexts.length; j++) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(splitSpeechTexts[j].text, speechText.lang));
+            }
+        }
+        if (!presenter.compareSentences(presenter.savedSentences, textVoices)) {
+            presenter.savedSentences = textVoices;
+            presenter.savedSentencesIndex = -1;
+        }
+    }
+
+    presenter.clearSavedSentences = function() {
+        presenter.savedSentences = [];
+        presenter.savedSentencesIndex = -1;
+        presenter.saveNextSentences = false;
+    }
+
+    presenter.setSaveNextSentences = function(value) {
+        presenter.saveNextSentences = value;
+    }
+
+    presenter.readNextSavedSentence = function() {
+        if (presenter.savedSentences.length == 0) {
+            presenter.savedSentencesIndex = -1;
+            return;
+        }
+        presenter.savedSentencesIndex += 1;
+        if (presenter.savedSentencesIndex >= presenter.savedSentences.length) presenter.savedSentencesIndex = presenter.savedSentences.length - 1;
+        presenter.readCurrentSavedSentence();
+    }
+
+    presenter.readPrevSavedSentence = function() {
+        if (presenter.savedSentences.length == 0) {
+            presenter.savedSentencesIndex = -1;
+            return;
+        }
+        presenter.savedSentencesIndex -= 1;
+        if (presenter.savedSentencesIndex < 0) presenter.savedSentencesIndex = 0;
+        presenter.readCurrentSavedSentence();
+    }
+
+    presenter.readCurrentSavedSentence = function() {
+        presenter.readText([presenter.savedSentences[presenter.savedSentencesIndex]], null);
+    }
+
+    presenter.compareSentences = function(sentences1, sentences2) {
+        if (sentences1.length != sentences2.length) return false;
+        for (var i = 0; i < sentences1.length; i++) {
+            if (sentences1[i].lang != sentences2[i].lang) return false;
+            if (sentences1[i].text != sentences2[i].text) return false;
+        }
+        return true;
+    }
+
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
@@ -627,6 +846,9 @@ function AddonText_To_Speech_create() {
         if(presenter.speechSynthInterval!==null){
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
+
+            clearInterval(presenter.intervalResume);
+            presenter.intervalResume = undefined;
         }
     };
 

@@ -22,22 +22,41 @@ import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
 import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
 import {AudioPlayer} from "./player/AudioPlayer.jsm";
 import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButton.jsm";
-import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
+import {DefaultKeyboardController} from "./keyboard_navigation/DefaultKeyboardController.jsm";
+import {ExtendedKeyboardController} from "./keyboard_navigation/ExtendedKeyboardController.jsm";
+import {CSS_CLASSES} from "./view/CssClasses.jsm";
+import {MP3ConvertHandler} from "./worker/MP3ConvertHandler.jsm";
 
 export class MediaRecorder {
+
+    enableAnalyser = true;
+    isMlibro = false;
+    isWCAGOn = false;
+    keyboardControllerObject = null;
+    mp3ConvertHandler = null;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
 
+        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+        if (isSafari) {
+            this.enableAnalyser = false;
+        }
+
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
-        } else if (validatedModel.isValid)
+        } else if (validatedModel.isValid) {
+            this.mp3ConvertHandler = new MP3ConvertHandler(this.playerController);
             this._runAddon(view, validatedModel.value);
-        else
+        } else {
             this._showError(view, validatedModel);
+        }
 
         this._executeNotification(JSON.stringify({type: "platform", target: this.model.ID}));
+        this._buildKeyboardController();
+        this.keyboardControllerObject.setSpeechTexts(upgradedModel['speechTexts']);
+        this.recordButton.setKeyboardController(this.keyboardControllerObject);
     }
 
     createPreview(view, model) {
@@ -62,8 +81,16 @@ export class MediaRecorder {
         }
     }
 
+    isEmpty() {
+        return this.addonState.isEmpty();
+    }
+
+    getMP3File() {
+        return this.addonState.getMP3File();
+    }
+
     getState() {
-        return JSON.stringify(this.addonState);
+        return this.addonState.getState();
     }
 
     setState(state) {
@@ -71,7 +98,13 @@ export class MediaRecorder {
         this.addonState.getRecordingBlob()
             .then(blob => {
                 this.mediaState.setLoading();
-                let recording = URL.createObjectURL(blob);
+                let recording;
+                if (this.addonState.isMP3Format(blob)) {
+                    let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
+                    recording = URL.createObjectURL(tmpFile);
+                } else {
+                    recording = URL.createObjectURL(blob);
+                }
                 this.player.setRecording(recording);
                 if (this.model.extendedMode) {
                     this.setEMRecordedStateView();
@@ -124,8 +157,8 @@ export class MediaRecorder {
         this.mediaAnalyserService.destroy();
         this.addonState.destroy();
         this.mediaState.destroy();
-        this.safariRecorderState.destroy();
         this.activationState.destroy();
+        this.mp3ConvertHandler.destroy();
 
         this.viewHandlers = null;
         this.defaultRecordingPlayButton = null;
@@ -151,6 +184,8 @@ export class MediaRecorder {
         this.extendedModeButtonList = null;
 
         this.playerController = null;
+        this.keyboardControllerObject = null;
+        this.mp3ConvertHandler = null;
         this.view = null;
         this.model = null;
     }
@@ -180,12 +215,16 @@ export class MediaRecorder {
 
     reset() {
         this.deactivate();
+        if (this.model.isResetRemovesRecording) {
+            this.resetRecording();
+        }
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
         this._setEnableState(!this.model.isDisabled);
     }
 
     resetRecording() {
+        this.recordButton.reset();
         this.player.reset();
         this.addonState.reset();
         this.timer.reset();
@@ -244,30 +283,30 @@ export class MediaRecorder {
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
         this.addonState = new AddonState();
-        this.safariRecorderState = new SafariRecorderState();
+        this.addonState.setMP3ConvertHandler(this.mp3ConvertHandler);
     }
 
     _loadViewHandlers(view) {
         return {
-            $wrapperView: $(view).find(".media-recorder-wrapper"),
-            $playerView: $(view).find(".media-recorder-player-wrapper"),
-            $loaderView: $(view).find(".media-recorder-player-loader"),
-            $defaultRecordingPlayButtonView: $(view).find(".media-recorder-default-recording-play-button"),
-            $recordButtonView: $(view).find(".media-recorder-recording-button"),
-            $playButtonView: $(view).find(".media-recorder-play-button"),
-            $timerView: $(view).find(".media-recorder-timer"),
-            $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
-            $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
-            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
-            $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
-            $resetButtonView: $(view).find(".media-recorder-reset-button"),
-            $downloadButtonView: $(view).find(".media-recorder-download-button"),
-            $resetDialogView: $(view).find(".media-recorder-reset-dialog")
+            $wrapperView: $(view).find("." + CSS_CLASSES.WRAPPER),
+            $playerView: $(view).find("." + CSS_CLASSES.PLAYER_WRAPPER),
+            $loaderView: $(view).find("." + CSS_CLASSES.PLAYER_LOADER),
+            $defaultRecordingPlayButtonView: $(view).find("." + CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON),
+            $recordButtonView: $(view).find("." + CSS_CLASSES.RECORDING_BUTTON),
+            $playButtonView: $(view).find("." + CSS_CLASSES.PLAY_BUTTON),
+            $timerView: $(view).find("." + CSS_CLASSES.TIMER),
+            $soundIntensityView: $(view).find("." + CSS_CLASSES.SOUND_INTENSITY),
+            $dottedSoundIntensityView: $(view).find("." + CSS_CLASSES.DOTTED_SOUND_INTENSITY),
+            $progressBarWrapperView: $(view).find("." + CSS_CLASSES.PROGRESS_BAR),
+            $progressBarSliderView: $(view).find("." + CSS_CLASSES.PROGRESS_BAR_SLIDER),
+            $resetButtonView: $(view).find("." + CSS_CLASSES.RESET_BUTTON),
+            $downloadButtonView: $(view).find("." + CSS_CLASSES.DOWNLOAD_BUTTON),
+            $resetDialogView: $(view).find("." + CSS_CLASSES.RESET_DIALOG)
         };
     }
 
     _prepareExtendedModeView() {
-        this.viewHandlers.$wrapperView.addClass('extended-mode');
+        this.viewHandlers.$wrapperView.addClass(CSS_CLASSES.EXTENDED_MODE);
         this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
     }
 
@@ -279,9 +318,9 @@ export class MediaRecorder {
 
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
-        this.player = new AudioPlayer(this.viewHandlers.$playerView);
+        this.player = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.player.setIsMlibro(this.isMlibro);
-        this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView);
+        this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
         if (this.playerController)
             this._loadEventBus();
@@ -336,6 +375,7 @@ export class MediaRecorder {
         if (this.eventBus && this.model.enableIntensityChangeEvents) {
             this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
         }
+        this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
         this._hideSelectedElements();
     }
@@ -401,17 +441,13 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
-            if (this.safariRecorderState.isAvailableResources()) {
-                const stream = this.resourcesProvider.getStream();
-                this._handleRecording(stream);
-            } else if (this.platform === 'mlibro') {
+            if (this.platform === 'mlibro') {
                 this._handleMlibroStartRecording();
             } else {
                 this.resourcesProvider.getMediaResources().then(stream => {
                     const isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-                    if (isSafari && this.safariRecorderState.isUnavailableResources()) {
-                        this._handleSafariRecordingInitialization();
-                        return;
+                    if (isSafari) {
+                        this.mediaState.setBlockedSafari();
                     }
                     this._handleRecording(stream);
                 });
@@ -426,8 +462,9 @@ export class MediaRecorder {
                 this.timer.stopCountdown();
                 this.recordingTimeLimiter.stopCountdown();
                 this.soundIntensity.stopAnalyzing();
-                this.mediaAnalyserService.closeAnalyzing();
-                this.player.stopStreaming();
+                if (this.enableAnalyser) {
+                    this.mediaAnalyserService.closeAnalyzing();
+                }
                 if (!this.model.disableRecording) {
                     this.recorder.stopRecording()
                         .then(blob => {
@@ -435,10 +472,17 @@ export class MediaRecorder {
                             let recording = URL.createObjectURL(blob);
                             this.player.reset();
                             this.player.setRecording(recording);
-                        });
+
+                            return blob;
+                        })
+                        .then(wavBlob => {
+                            return this.addonState.convertWavBlobToMP3BlobByWorker(wavBlob);
+                        })
+                        .then(mp3Blob => {
+                            this.addonState.setRecordingBlob(mp3Blob);
+                        }, () => {});
                 }
                 this.resourcesProvider.destroy();
-                this.safariRecorderState.setUnavailableResources();
             }
             if (this.model.extendedMode) {
                 if (this.model.disableRecording) {
@@ -458,8 +502,9 @@ export class MediaRecorder {
             this.timer.stopCountdown();
             this.recordingTimeLimiter.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
-            this.player.stopStreaming();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
             this.recorder.stopRecording();
             this.resourcesProvider.destroy();
         };
@@ -467,6 +512,10 @@ export class MediaRecorder {
         if (this.model.extendedMode) {
             this.resetButton.onReset = () => {
                 this.resetDialog.open();
+                this.keyboardControllerObject.setElements(this._getElementsForResetDialogKeyboardNavigation());
+                if (this.keyboardControllerObject.keyboardNavigationActive) {
+                    this.keyboardControllerObject.markDialogTextAndReadResetDialogTTS();
+                }
             }
             this.resetDialog.onConfirm = () => {
                 this.timer.startCountdown();
@@ -475,6 +524,18 @@ export class MediaRecorder {
                     this.setEMDefaultStateView();
                 }
                 this.progressBar.setProgress(0.0);
+                this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
+                if (this.keyboardControllerObject.keyboardNavigationActive) {
+                    this.keyboardControllerObject.markRecordingButton();
+                    this.keyboardControllerObject.readCurrentElement();
+                }
+            }
+            this.resetDialog.onDeny = () => {
+                this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
+                if (this.keyboardControllerObject.keyboardNavigationActive) {
+                    this.keyboardControllerObject.markResetButton();
+                    this.keyboardControllerObject.readCurrentElement();
+                }
             }
 
             this.progressBar.onStartDragging = () => {
@@ -491,9 +552,13 @@ export class MediaRecorder {
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.player.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.player.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.player.startPlaying();
+            }
         };
 
         this.playButton.onStopPlaying = () => {
@@ -504,29 +569,38 @@ export class MediaRecorder {
                 this.player.stopPlaying();
             }
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.defaultRecordingPlayButton.onStartPlaying = () => {
             this.mediaState.setPlayingDefaultRecording();
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
             this.timer.startCountdown();
-            this.defaultRecordingPlayer.startPlaying()
-                .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                    .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            if (this.enableAnalyser) {
+                this.defaultRecordingPlayer.startPlaying()
+                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
+            } else {
+                this.defaultRecordingPlayer.startPlaying();
+            }
         };
 
         this.defaultRecordingPlayButton.onStopPlaying = () => {
             if (this.player.hasRecording) {
-                this.timer.setDuration(this.player.duration);
                 this.mediaState.setLoaded();
-            } else
+                this.timer.setDuration(this.player.duration);
+            } else {
                 this.mediaState.setLoadedDefaultRecording();
+            }
 
             this.defaultRecordingPlayer.stopPlaying();
             this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.closeAnalyzing();
+            }
         };
 
         this.player.onStartLoading = () => {
@@ -564,10 +638,11 @@ export class MediaRecorder {
         };
 
         this.defaultRecordingPlayer.onEndLoading = () => {
-            if (this.player.hasRecording)
+            if (this.player.hasRecording) {
                 this.mediaState.setLoaded();
-            else
+            } else {
                 this.mediaState.setLoadedDefaultRecording();
+            }
             this.loader.hide();
         };
 
@@ -579,15 +654,16 @@ export class MediaRecorder {
 
     _handleRecording(stream) {
         this.mediaState.setRecording();
-        this.player.startStreaming(stream);
         if (!this.model.disableRecording) {
             this.recorder.startRecording(stream);
             this.timer.reset();
             this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
             this.recordingTimeLimiter.startCountdown();
         }
-        this.mediaAnalyserService.createAnalyserFromStream(stream)
-            .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        if (this.enableAnalyser) {
+            this.mediaAnalyserService.createAnalyserFromStream(stream)
+                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+        }
     };
 
     _loadDefaultRecording(model) {
@@ -603,7 +679,9 @@ export class MediaRecorder {
 
     _activateButtons() {
         this.recordButton.activate();
-        this.playButton.activate();
+        if (!this.model.disableRecording) {
+            this.playButton.activate();
+        }
         this.defaultRecordingPlayButton.activate();
         if (this.model.extendedMode) {
             for (var i=0; i < this.extendedModeButtonList.length; i++) {
@@ -623,24 +701,27 @@ export class MediaRecorder {
         }
     }
 
+
     _stopActions() {
-        if (this.mediaState.isRecording())
-            if (this.model.isResetRemovesRecording) {
-                this.recordButton.reset();
-                this.resetRecording();
-            }
-            else
-                this.recordButton.forceClick();
-        if (this.mediaState.isPlaying())
+        if (this.mediaState.isRecording()) {
+            this.recordButton.forceClick();
+        }
+        if (this.mediaState.isPlaying()) {
             this.playButton.forceClick();
-        if (this.mediaState.isPlayingDefaultRecording())
+        }
+        if (this.mediaState.isPlayingDefaultRecording()) {
             this.defaultRecordingPlayButton.forceClick();
+        }
+        if (this.mediaState.isLoaded()) {
+            this.timer.setTime(0);
+        }
     }
 
     _internalElements() {
         return {
             validateModel: validateModel,
             ActivationState: ActivationState,
+            AddonState: AddonState,
             AudioLoader: AudioLoader,
             PlayButton: PlayButton,
             RecordButton: RecordButton,
@@ -648,7 +729,9 @@ export class MediaRecorder {
             MediaState: MediaState,
             Timer: Timer,
             AudioPlayer: AudioPlayer,
-            DownloadButton: DownloadButton
+            DownloadButton: DownloadButton,
+            SoundIntensity: SoundIntensity,
+            MP3ConvertHandler: MP3ConvertHandler,
         }
     }
 
@@ -657,19 +740,19 @@ export class MediaRecorder {
     }
 
     _showBrowserError(view) {
-        let $wrapper = $(view).find(".media-recorder-wrapper");
-        $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
+        let $wrapper = $(view).find("." + CSS_CLASSES.WRAPPER);
+        $wrapper.addClass(CSS_CLASSES.WRAPPER_BROWSER_NOT_SUPPORTED);
         $wrapper.text(Errors["not_supported_browser"] + window.DevicesUtils.getBrowserVersion());
     }
 
     _updatePreview(view, validatedModel) {
         let valid_model = validatedModel.value;
-        let timerViewHandler = $(view).find(".media-recorder-timer");
-        let defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
-        let $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
-        let intensityView = $(view).find(".media-recorder-sound-intensity");
-        let dottedSoundIntensityView = $(view).find(".media-recorder-dotted-sound-intensity");
-        let playButton = $(view).find('.media-recorder-play-button');
+        let timerViewHandler = $(view).find("." + CSS_CLASSES.TIMER);
+        let defaultButtonViewHandler = $(view).find("." + CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON);
+        let $wrapperViewHandler = $(view).find("." + CSS_CLASSES.WRAPPER);
+        let intensityView = $(view).find("." + CSS_CLASSES.SOUND_INTENSITY);
+        let dottedSoundIntensityView = $(view).find("." + CSS_CLASSES.DOTTED_SOUND_INTENSITY);
+        let playButton = $(view).find("." + CSS_CLASSES.PLAY_BUTTON);
 
         if (valid_model.extendedMode) {
             intensityView.css('display', 'none');
@@ -677,7 +760,7 @@ export class MediaRecorder {
             dottedSoundIntensityView.css('display','');
             defaultButtonViewHandler.hide();
             timerViewHandler.text('00:00');
-            $wrapperViewHandler.addClass('extended-mode');
+            $wrapperViewHandler.addClass(CSS_CLASSES.EXTENDED_MODE);
         } else {
             intensityView.css('display', '');
             dottedSoundIntensityView.css('display','none');
@@ -722,12 +805,6 @@ export class MediaRecorder {
         return false;
     }
 
-    _handleSafariRecordingInitialization() {
-        this.mediaState.setBlockedSafari();
-        this.safariRecorderState.setAvailableResources();
-        this.recordButton.setUnclickView();
-        alert(Errors["safari_select_recording_button_again"]);
-    }
 
     _loadWebViewMessageListener() {
         window.addEventListener('message', event => {
@@ -810,6 +887,8 @@ export class MediaRecorder {
         upgradedModel = this._upgradeResetDialog(upgradedModel);
         upgradedModel = this._upgradeDisableRecording(upgradedModel);
         upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
+        upgradedModel = this._upgradeLangTag(upgradedModel);
+        upgradedModel = this._upgradeSpeechTexts(upgradedModel);
         return upgradedModel;
     };
 
@@ -881,5 +960,135 @@ export class MediaRecorder {
         }
 
         return upgradedModel;
+    };
+
+    _upgradeLangTag(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    _upgradeSpeechTexts(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["DefaultRecordingPlayButton"]) {
+            upgradedModel["speechTexts"]["DefaultRecordingPlayButton"]
+              = {DefaultRecordingPlayButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["RecordingButton"]) {
+            upgradedModel["speechTexts"]["RecordingButton"]
+              = {RecordingButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["PlayButton"]) {
+            upgradedModel["speechTexts"]["PlayButton"]
+              = {PlayButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["ResetButton"]) {
+            upgradedModel["speechTexts"]["ResetButton"]
+              = {ResetButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["DownloadButton"]) {
+            upgradedModel["speechTexts"]["DownloadButton"]
+              = {DownloadButton: ""};
+        }
+        if (!upgradedModel["speechTexts"]["ResetDialog"]) {
+            upgradedModel["speechTexts"]["ResetDialog"]
+              = {ResetDialog: ""};
+        }
+        if (!upgradedModel["speechTexts"]["StartRecording"]) {
+            upgradedModel["speechTexts"]["StartRecording"]
+              = {StartRecording: ""};
+        }
+        if (!upgradedModel["speechTexts"]["StopRecording"]) {
+            upgradedModel["speechTexts"]["StopRecording"]
+              = {StopRecording: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Disabled"]) {
+            upgradedModel["speechTexts"]["Disabled"]
+              = {Disabled: ""};
+        }
+
+        return upgradedModel;
+    };
+
+    setWCAGStatus(isWCAGOn) {
+        this.isWCAGOn = isWCAGOn;
+    };
+
+    _buildKeyboardController() {
+        const columnsCount = 1;
+        const model = this.model;
+        const mediaState = this.mediaState;
+        const activationState = this.activationState;
+        const speak = this._speak.bind(this);
+        const speakAndExecuteCallback = this._speakAndExecuteCallback.bind(this);
+
+        if (this.model.extendedMode) {
+            this.keyboardControllerObject = new ExtendedKeyboardController(
+                this._getElementsForExtendedKeyboardNavigation(),
+                columnsCount, model, mediaState, activationState,
+                speak, speakAndExecuteCallback,
+            );
+        } else {
+            this.keyboardControllerObject = new DefaultKeyboardController(
+                this._getElementsForDefaultKeyboardNavigation(),
+                columnsCount, model, mediaState, activationState,
+                speak, speakAndExecuteCallback,
+            );
+        }
+    };
+
+    getKeyboardController() {
+        return this.keyboardControllerObject;
+    };
+
+    _getElementsForDefaultKeyboardNavigation() {
+        return $(this.view).find(`
+            .${CSS_CLASSES.DEFAULT_RECORDING_PLAY_BUTTON},
+            .${CSS_CLASSES.RECORDING_BUTTON},
+            .${CSS_CLASSES.PLAY_BUTTON}
+        `);
+    };
+
+    _getElementsForExtendedKeyboardNavigation() {
+        return $(this.view).find(`
+            .${CSS_CLASSES.RECORDING_BUTTON},
+            .${CSS_CLASSES.PLAY_BUTTON},
+            .${CSS_CLASSES.RESET_BUTTON},
+            .${CSS_CLASSES.DOWNLOAD_BUTTON}
+        `);
+    };
+
+    _getElementsForResetDialogKeyboardNavigation() {
+        return $(this.view).find(`
+            .${CSS_CLASSES.DIALOG_TEXT},
+            .${CSS_CLASSES.CONFIRM_BUTTON},
+            .${CSS_CLASSES.DENY_BUTTON}
+        `);
+    };
+
+    _speak(data) {
+        let tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+        if (tts && this.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    _speakAndExecuteCallback(data, callbackFunction) {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(this.playerController);
+        if (tts && this.isWCAGOn) {
+            tts.speakWithCallback(data, callbackFunction);
+        } else {
+            callbackFunction();
+        }
     };
 }

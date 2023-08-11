@@ -2,7 +2,9 @@ function AddonAssessments_Navigation_Bar_create(){
 
     var presenter = function(){};
 
+    presenter.isWCAGOn = false;
     presenter.SECTION_NAME_HEIGHT = 20;
+    presenter.isFirstEnter = true;
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -15,11 +17,33 @@ function AddonAssessments_Navigation_Bar_create(){
         S_07: "Number of buttons property have to be an integer",
         S_08: "Number of buttons can't be greater than number of pages in sections",
         S_09: "Buttons width property can't be equal or below 0.",
-        S_10: "Buttons width property have to be an integer"
+        S_10: "Buttons width property have to be an integer",
+        S_11: "Pages CSS classes are invalid on section: %section% in sections property. Number of CSS classes is too small.",
+        S_12: "Pages CSS classes are invalid on section: %section% in sections property. At least one of CSS classes is invalid.",
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        PreviousPage: "Go to previous page",
+        ShowPreviousPages: "Show previous pages",
+        Title: "Title",
+        GoToPage: "Go to page",
+        ShowNextPages: "Show next pages",
+        NextPage: "Go to next page",
     };
 
     presenter.CSS_CLASSES = {
-        ALL_ATTEMPTED: "all-attempted"
+        ALL_ATTEMPTED: "all-attempted",
+        PREVIOUS: "previous",
+        BUTTON_TEXT: "button_text",
+        SECTION_NAME: "section_name",
+        NEXT: "next",
+        BUTTON: "button",
+        ELEMENT: "element",
+        TURN_BACK: "turn_back",
+        TURN_FORWARD: "turn_forward",
+        CURRENT_PAGE: "current_page",
+        BOOKMARK: "bookmark",
+        INACTIVE: "inactive"
     };
 
     presenter.attemptedButtons = [];
@@ -98,9 +122,14 @@ function AddonAssessments_Navigation_Bar_create(){
          }
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
+        presenter.addEventListeners();
+    };
 
+    presenter.addEventListeners = function () {
         presenter.eventBus.addEventListener('PageLoaded', this);
         presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.changeToPage = function (index) {
@@ -192,8 +221,9 @@ function AddonAssessments_Navigation_Bar_create(){
         return a;
     }
 
-    presenter.Button = function (view_description) {
-        this.description = view_description;
+    presenter.Button = function (viewDescription, customCssClassNames) {
+        this.description = viewDescription;
+        this.customCssClassNames = customCssClassNames;
         this.$view = this.createView();
         this.$view_text;
         this.actualCommand;
@@ -201,7 +231,6 @@ function AddonAssessments_Navigation_Bar_create(){
         this.isActualButton = false;
 
         this.connectEvents();
-        this.$view.addClass("element");
     };
 
     presenter.Button.prototype.connectEvents = function () {
@@ -253,15 +282,19 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.Button.prototype.setAsCurrent = function () {
         this.isActualButton = true;
-        this.$view.addClass("current_page");
+        this.$view.addClass(presenter.CSS_CLASSES.CURRENT_PAGE);
     };
 
     presenter.Button.prototype.addBookmark = function () {
-        this.$view.addClass("bookmark");
+        this.$view.addClass(presenter.CSS_CLASSES.BOOKMARK);
     };
 
     presenter.Button.prototype.removeBookmark = function () {
-        this.$view.removeClass("bookmark");
+        this.$view.removeClass(presenter.CSS_CLASSES.BOOKMARK);
+    };
+
+    presenter.Button.prototype.removeAttempted = function () {
+        this.$view.removeClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
     };
 
     presenter.Button.prototype.createView = function () {
@@ -273,11 +306,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         this.$view_text = $('<div></div>');
         this.$view_text.text(this.description);
-        this.$view_text.addClass("button_text");
+        this.$view_text.addClass(presenter.CSS_CLASSES.BUTTON_TEXT);
 
         $view.append(this.$view_text);
+        $view.addClass(presenter.CSS_CLASSES.BUTTON);
+        $view.addClass(presenter.CSS_CLASSES.ELEMENT);
 
-        $view.addClass("button");
+        if (this.customCssClassNames && this.customCssClassNames.length !== 0) {
+            this.customCssClassNames.map((cssClassName) => {
+                $view.addClass(cssClassName);
+            })
+        }
 
         return $view;
     };
@@ -287,17 +326,17 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Button.prototype.addInactiveClass = function () {
-        this.$view.addClass("inactive");
+        this.$view.addClass(presenter.CSS_CLASSES.INACTIVE);
     };
 
     presenter.Button.prototype.removeInactiveClass = function () {
-        this.$view.removeClass("inactive");
+        this.$view.removeClass(presenter.CSS_CLASSES.INACTIVE);
     };
 
     presenter.NavigationButtonLeft = function () {
         presenter.Button.call(this, "<");
-        this.$view.removeClass("button");
-        this.$view.addClass("previous");
+        this.$view.removeClass(presenter.CSS_CLASSES.BUTTON);
+        this.$view.addClass(presenter.CSS_CLASSES.PREVIOUS);
         this.setCommand(function () {
             presenter.navigationManager.goLeft();
         });
@@ -308,8 +347,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationButtonRight = function () {
         presenter.Button.call(this, ">");
-        this.$view.addClass("next");
-        this.$view.removeClass("button");
+        this.$view.addClass(presenter.CSS_CLASSES.NEXT);
+        this.$view.removeClass(presenter.CSS_CLASSES.BUTTON);
         this.setCommand(function () {
             presenter.navigationManager.goRight();
         });
@@ -321,7 +360,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.HellipButton = function (hellipFunction, className) {
         presenter.Button.call(this, "&hellip;"); // ...
         this.$view_text.html(this.description);
-        this.$view.removeClass("button");
+        this.$view.removeClass(presenter.CSS_CLASSES.BUTTON);
         this.$view.addClass(className);
 
         this.setCommand(hellipFunction);
@@ -330,12 +369,13 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.HellipButton.prototype = Object.create(presenter.Button.prototype);
     presenter.HellipButton.constructor = presenter.HellipButton;
 
-    presenter.Page = function (page, view_description, sectionName, sectionCssClass) {
+    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames) {
         this.description = view_description;
         this.page = page;
         this.isBookmarkOn = false;
         this.sectionName = sectionName;
         this.sectionCssClass = sectionCssClass;
+        this.buttonCssClassNames = buttonCssClassNames;
     };
 
     presenter.Page.prototype.setBookmarkOn = function (bookmark) {
@@ -361,9 +401,10 @@ function AddonAssessments_Navigation_Bar_create(){
         return presenter.currentPageIndex === this.page;
     };
 
-    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName) {
+    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames) {
         this.name = sectionName;
-        this.cssClass = sectionCssClassName;
+        this.cssClassName = sectionCssClassName;
+        this.buttonsCssClassNames = buttonsCssClassNames;
         this.pages = this.createPages(pages, pagesDescriptions);
     };
 
@@ -383,7 +424,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
         return pagesToCreate.map(function (page, index) {
             if (page == -1) return null;
-            return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
+            return new presenter.Page(
+                page, pagesDescriptions[index], this.name,
+                this.cssClassName, this.buttonsCssClassNames
+            );
         }, this).filter(function(page) {
             return page != null;
         });
@@ -407,6 +451,10 @@ function AddonAssessments_Navigation_Bar_create(){
         if (attempted_page_index !== -1) {
             this.attemptedPages.splice(attempted_page_index, 1);
         }
+    };
+
+    presenter.Sections.prototype.markAllPagesAsNotAttempted = function () {
+        this.attemptedPages = [];
     };
 
     presenter.Sections.prototype.getPagesIndexes = function (pages) {
@@ -546,7 +594,11 @@ function AddonAssessments_Navigation_Bar_create(){
         return sections.map(
             function (section, index) {
                 var sectionCssClass = "section_" + index;
-                return new presenter.Section(section.pages, section.sectionName, section.pagesDescriptions, sectionCssClass);
+                return new presenter.Section(
+                    section.pages, section.sectionName,
+                    section.pagesDescriptions, sectionCssClass,
+                    section.sectionButtonsCssClassNames
+                );
         });
     };
 
@@ -587,9 +639,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.bookmarkCurrentButton = function () {
-        this.buttons.filter(function (element) {
+        var currentButton = this.buttons.filter(function (element) {
             return element.isActualButton;
-        })[0].addBookmark();
+        })[0];
+        if (currentButton !== undefined) currentButton.addBookmark();
     };
 
     presenter.NavigationManager.prototype.removeBookmarksFromButtons = function () {
@@ -603,9 +656,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.removeBookmarkFromCurrentButton = function () {
-        this.buttons.filter(function (element) {
+        var currentButton = this.buttons.filter(function (element) {
             return element.isActualButton;
-        })[0].removeBookmark();
+        })[0];
+        if (currentButton !== undefined) currentButton.removeBookmark();
     };
 
     presenter.NavigationManager.prototype.markButtonsWithAttempted = function (attemptedPages) {
@@ -614,6 +668,13 @@ function AddonAssessments_Navigation_Bar_create(){
         }).forEach(function (button) {
             button.addCssClass(presenter.CSS_CLASSES.ALL_ATTEMPTED);
         });
+    };
+
+    presenter.NavigationManager.prototype.removeAttemptedFromButtons = function () {
+        this.buttons.forEach(function(button) {
+            button.removeAttempted();
+        });
+        presenter.sections.markAllPagesAsNotAttempted();
     };
 
     presenter.NavigationManager.prototype.initView = function () {
@@ -653,7 +714,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsFirst = function () {
-        var $navigationButtonsFirst = $('<div></div>');
+        const $navigationButtonsFirst = $('<div></div>');
         $navigationButtonsFirst.addClass("navigation-buttons-first");
 
         this.navigationButtonLeft = new presenter.NavigationButtonLeft();
@@ -664,7 +725,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.appendNavigationButtonsLast = function () {
-        var $navigationButtonsLast = $('<div></div>');
+        const $navigationButtonsLast = $('<div></div>');
         $navigationButtonsLast.addClass("navigation-buttons-last");
 
         this.navigationButtonRight = new presenter.NavigationButtonRight();
@@ -689,7 +750,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addLeftHellip = function () {
         if (this.shouldAddLeftHellip()) {
-            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), "turn_back");
+            this.getHellip($.fn.append.bind(this.$navigationButtonsFirst), this.shiftPagesToLeft.bind(this), presenter.CSS_CLASSES.TURN_BACK);
             return 1;
         }
 
@@ -698,7 +759,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.addRightHellip = function () {
         if (this.shouldAddRightHellip()) {
-            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), "turn_forward");
+            this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), presenter.CSS_CLASSES.TURN_FORWARD);
             return 1
         }
 
@@ -758,7 +819,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.moveToCurrentPageLogic = function () {
         for (var i = 0; i < this.actualPages.length; i++) {
-            if (this.actualPages[i].isActualPage()) {
+            var page = this.actualPages[i];
+            if (page != undefined && page.isActualPage != undefined && page.isActualPage()) {
                 return;
             }
         }
@@ -768,8 +830,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.removeHellips = function () {
-        presenter.$wrapper.find(".turn_forward").remove();
-        presenter.$wrapper.find(".turn_back").remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).remove();
+        presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).remove();
         delete this.rightHellip;
     };
 
@@ -866,7 +928,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.getPageButton = function (page) {
-        var button = new presenter.Button(page.description);
+        var button = new presenter.Button(page.description, page.buttonCssClassNames);
         button.setCommand(page.getChangeToPageCommand());
         button.setNavigateToPage(page.page);
 
@@ -902,7 +964,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         var $sectionName = $('<div></div>');
         $sectionName.text(sectionName);
-        $sectionName.addClass("section_name");
+        $sectionName.addClass(presenter.CSS_CLASSES.SECTION_NAME);
 
         var $sectionButtons = $('<div></div>');
         $sectionButtons.addClass("buttons");
@@ -945,7 +1007,9 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeNumberAndWidthOfButtons(model);
-        return presenter.upgradeDefaultOrder(upgradedModel);
+        upgradedModel = presenter.upgradeDefaultOrder(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeNumberAndWidthOfButtons = function (model) {
@@ -974,6 +1038,84 @@ function AddonAssessments_Navigation_Bar_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                PreviousPage: {PreviousPage: ""},
+                ShowPreviousPages: {ShowPreviousPages: ""},
+                Title: {Title: ""},
+                GoToPage: {GoToPage: ""},
+                ShowNextPages: {ShowNextPages: ""},
+                NextPage: {NextPage: ""},
+            }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            PreviousPage: presenter.DEFAULT_TTS_PHRASES.PreviousPage,
+            ShowPreviousPages: presenter.DEFAULT_TTS_PHRASES.ShowPreviousPages,
+            Title: presenter.DEFAULT_TTS_PHRASES.Title,
+            GoToPage: presenter.DEFAULT_TTS_PHRASES.GoToPage,
+            ShowNextPages: presenter.DEFAULT_TTS_PHRASES.ShowNextPages,
+            NextPage: presenter.DEFAULT_TTS_PHRASES.NextPage,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            PreviousPage: presenter.getSpeechTextProperty(
+                speechTexts.PreviousPage.PreviousPage,
+                presenter.speechTexts.PreviousPage),
+            ShowPreviousPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowPreviousPages.ShowPreviousPages,
+                presenter.speechTexts.ShowPreviousPages),
+            Title: presenter.getSpeechTextProperty(
+                speechTexts.Title.Title,
+                presenter.speechTexts.Title),
+            GoToPage: presenter.getSpeechTextProperty(
+                speechTexts.GoToPage.GoToPage,
+                presenter.speechTexts.GoToPage),
+            ShowNextPages: presenter.getSpeechTextProperty(
+                speechTexts.ShowNextPages.ShowNextPages,
+                presenter.speechTexts.ShowNextPages),
+            NextPage: presenter.getSpeechTextProperty(
+                speechTexts.NextPage.NextPage,
+                presenter.speechTexts.NextPage)
+        };
+    };
+
+    presenter.getSpeechTextProperty = function (rawValue, defaultValue) {
+        if (rawValue === undefined || rawValue === null) {
+            return defaultValue;
+        }
+
+        var value = rawValue.trim();
+        if (value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    };
+
     presenter.runLogic = function (view, model) {
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
@@ -987,6 +1129,7 @@ function AddonAssessments_Navigation_Bar_create(){
             return;
         }
 
+        presenter.setSpeechTexts(model['speechTexts']);
         presenter.configuration = validatedModel;
         DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$wrapper);
 
@@ -1054,7 +1197,7 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.calculateObjectsSizes =   function() {
-        var $element = presenter.$wrapper.find(".previous");
+        var $element = presenter.$wrapper.find("." + presenter.CSS_CLASSES.PREVIOUS);
 
         var elementDimensions = DOMOperationsUtils.getOuterDimensions($element);
         var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
@@ -1248,6 +1391,38 @@ function AddonAssessments_Navigation_Bar_create(){
         };
     }
 
+    presenter.parseSectionButtonsCssClassNames = function (cssClasses, sectionIndex) {
+        if (ModelValidationUtils.isStringEmpty(cssClasses)) {
+            return getErrorObject("S_11", {section: sectionIndex});
+        }
+
+        var parsedCssClasses = cssClasses.split(",").map(getTrimmedStringElement);
+        var cssClassesWithoutDuplication = removeDuplicatedCssClassNames(parsedCssClasses);
+
+        for (var i = 0; i < cssClassesWithoutDuplication.length; i++) {
+            if (ModelValidationUtils.isStringEmpty(cssClassesWithoutDuplication[i])) {
+                return getErrorObject("S_11", {section: sectionIndex});
+            }
+
+            if (!isValidClassName(cssClassesWithoutDuplication[i])) {
+                return getErrorObject("S_12", {section: sectionIndex});
+            }
+        }
+
+        return {
+            isValid: true,
+            cssClasses: cssClassesWithoutDuplication
+        };
+    }
+
+    function removeDuplicatedCssClassNames(cssClassNames) {
+        return [...new Set(cssClassNames)];
+    }
+
+    function isValidClassName(className) {
+        return /^[a-z_-][a-z\d_-]*$/i.test(className);
+    }
+
     function changeToStringOneBigger (element) {
         return ((element + 1) + "");
     }
@@ -1257,6 +1432,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var len = section.length;
         var sectionName = "";
         var descriptions = [];
+        var sectionButtonsCssClassNames = {cssClasses: []};
 
         var pages = presenter.parsePagesFromRange(section[0], (sectionIndex + 1));
 
@@ -1279,11 +1455,19 @@ function AddonAssessments_Navigation_Bar_create(){
             };
         }
 
+        if (len > 3) {
+            sectionButtonsCssClassNames = presenter.parseSectionButtonsCssClassNames(section[3], (sectionIndex + 1));
+            if (!sectionButtonsCssClassNames.isValid) {
+                return sectionButtonsCssClassNames;
+            }
+        }
+
         return {
             isValid: true,
             pages: pages.pages,
             sectionName: sectionName,
-            pagesDescriptions: descriptions.descriptions
+            pagesDescriptions: descriptions.descriptions,
+            sectionButtonsCssClassNames: sectionButtonsCssClassNames.cssClasses,
         }
     }
 
@@ -1365,6 +1549,7 @@ function AddonAssessments_Navigation_Bar_create(){
                 description: page.description,
                 sectionName: page.sectionName,
                 sectionCssClass: page.sectionCssClass,
+                buttonCssClassNames: page.buttonCssClassNames,
                 isBookmarkOn: page.isBookmarkOn
             };
         });
@@ -1379,7 +1564,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     function getRestorePagesObjectArray (pages) {
         var restoredPages = pages.map(function (page) {
-            var restoredPage = new presenter.Page(page.page, page.description, page.sectionName, page.sectionCssClass);
+            var restoredPage = new presenter.Page(
+                page.page, page.description, page.sectionName,
+                page.sectionCssClass, page.buttonCssClassNames
+            );
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
             return restoredPage;
@@ -1424,7 +1612,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
             var keyboardElements = presenter.keyboardControllerObject.keyboardNavigationElements;
             for (var i = 0; i < keyboardElements.length; i++) {
-                if ($(keyboardElements[i]).hasClass('current_page')) {
+                if ($(keyboardElements[i]).hasClass(presenter.CSS_CLASSES.CURRENT_PAGE)) {
                     presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = i;
                 }
             }
@@ -1435,7 +1623,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.upgradeState = function (state) {
-        return presenter.upgradeAttemptedPages(state);
+        var upgradedState = presenter.upgradeAttemptedPages(state);
+        return presenter.upgradePagesButtonCssClassNames(upgradedState);
     };
 
     presenter.upgradeAttemptedPages = function (state) {
@@ -1444,6 +1633,21 @@ function AddonAssessments_Navigation_Bar_create(){
 
         if(state.attemptedPages === undefined) {
             upgradedState["attemptedPages"] = [];
+        }
+
+        return upgradedState;
+    };
+
+    presenter.upgradePagesButtonCssClassNames = function (state) {
+        var upgradedState = {};
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
+
+        if (upgradedState.pages) {
+            upgradedState.pages.map(function (page) {
+                if(page.buttonCssClassNames === undefined) {
+                    page["buttonCssClassNames"] = [];
+                }
+            });
         }
 
         return upgradedState;
@@ -1484,20 +1688,9 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     function areAllModulesAttempted(modules) {
-        if(modules.length == 0){
-            return false;
-        }
+        if(modules.length === 0) return false;
 
-        var areAllAttempted = true;
-
-        $.each(modules, function() {
-            if (!this.isAttempted()) {
-                areAllAttempted = false;
-                return false; // break;
-            }
-        });
-
-        return areAllAttempted;
+        return modules.every(module => module.isAttempted());
     }
 
     presenter.areAllModulesAttempted = function () {
@@ -1509,24 +1702,31 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.onEventReceived = function(eventName, eventData) {
-        if (eventName == 'PageLoaded' && presenter.configuration.addClassAreAllAttempted) {
+        switch (eventName) {
+            case "PageLoaded":
+                if (presenter.configuration.addClassAreAllAttempted) {
+                    presenter.areAllModulesAttempted();
+                }
+                break;
+            case "ValueChanged":
+                presenter.handleValueChanged(eventData);
+                break;
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.handleValueChanged = function (eventData) {
+        if (presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
             presenter.areAllModulesAttempted();
         }
-
-        if (eventName == "ValueChanged" && presenter.configuration.addClassAreAllAttempted && !presenter.isShowAnswersActive) {
-            presenter.areAllModulesAttempted();
-        }
-
-        if (eventName == "ValueChanged" && eventData.item == "Lesson Reset") {
+        if (eventData.item === "Lesson Reset") {
             presenter.navigationManager.removeBookmarksFromButtons();
-        }
-
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+            presenter.navigationManager.removeAttemptedFromButtons();
         }
     };
 
@@ -1546,24 +1746,111 @@ function AddonAssessments_Navigation_Bar_create(){
     AssesmentsNavigationKeyboardController.prototype.constructor = AssesmentsNavigationKeyboardController;
 
     AssesmentsNavigationKeyboardController.prototype.selectAction = function () {
-        this.getTarget(this.keyboardNavigationCurrentElement, true)[0].click();
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        $element[0].click();
+        if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK) || $element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            AssesmentsNavigationKeyboardController.prototype.setNewElements.call(this);
+        };
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.setNewElements = function () {
+          if (presenter.isTTS()) {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+          } else {
+              KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+          }
     };
 
     AssesmentsNavigationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
         return $(element);
     };
 
+    AssesmentsNavigationKeyboardController.prototype.switchElement = function (move) {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
+            KeyboardController.prototype.markCurrentElement.call(this, new_position_index);
+        }
+        this.readCurrentElement();
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.enter = function (event) {
+        if (presenter.isTTS() && presenter.isFirstEnter) {
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.isFirstEnter = false;
+        }
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.isFirstEnter = true;
+        KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
+        KeyboardController.prototype.exitWCAGMode.call(this);
+    };
+
     presenter.buildKeyboardController = function () {
         presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
 
+    presenter.getElementsForTTS = function () {
+        return this.$view.find(".element:visible, .section_name:visible").filter(":not(.inactive)");
+    };
+
     presenter.getElementsForKeyboardNavigation = function () {
-        var elements = this.$view.find(".element:visible");
-        return elements;
+        return this.$view.find(".element:visible").filter(":not(.inactive)");
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
         presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
+    };
+
+    AssesmentsNavigationKeyboardController.prototype.readCurrentElement = function () {
+        var $element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        if ($element.hasClass(presenter.CSS_CLASSES.PREVIOUS)) {
+            presenter.speak(presenter.speechTexts.PreviousPage);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_BACK)) {
+            presenter.speak(presenter.speechTexts.ShowPreviousPages);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.SECTION_NAME)) {
+            presenter.speak(getSpeechForSectionName($element));
+        } else if ($element.hasClass(presenter.CSS_CLASSES.BUTTON)) {
+            presenter.speak(getSpeechForGoToPage($element));
+        } else if ($element.hasClass(presenter.CSS_CLASSES.TURN_FORWARD)) {
+            presenter.speak(presenter.speechTexts.ShowNextPages);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.NEXT)) {
+            presenter.speak(presenter.speechTexts.NextPage);
+        }
+    };
+
+    getSpeechForSectionName = function (element) {
+        return `${presenter.speechTexts.Title} ${element[0].innerText}`;
+    };
+
+    getSpeechForGoToPage = function (element) {
+        let pageName = element.find("." + presenter.CSS_CLASSES.BUTTON_TEXT).val();
+        return `${presenter.speechTexts.GoToPage} ${element[0].innerText}`;
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Assessments_Navigation_Bar_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function Assessments_Navigation_Bar_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.isTTS = function () {
+        return presenter.getTextToSpeechOrNull(presenter.playerController) && presenter.isWCAGOn;
     };
 
     return presenter;

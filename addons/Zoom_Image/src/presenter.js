@@ -5,9 +5,9 @@ function AddonZoom_Image_create() {
     var playerController = null;
     var isWCAGOn = false;
     var oldFocus = null;
-    presenter.isOpened = false;
     var backgroundColorStyle;
     var opacity;
+
     function setup_presenter() {
         presenter.$player = null;
         presenter.view = null;
@@ -17,6 +17,7 @@ function AddonZoom_Image_create() {
         presenter.bigImageCreated = null;
         presenter.bigImageLoaded = null;
         presenter.createPopUp = null;
+        presenter.isOpened = false;
     }
 
     setup_presenter();
@@ -153,20 +154,31 @@ function AddonZoom_Image_create() {
         }
 
         presenter.speechTexts = {
-            closed:    getSpeechTextProperty(speechTexts['Closed']['Closed'], presenter.speechTexts.closed)
+            closed: getSpeechTextProperty(speechTexts['Closed']['Closed'], presenter.speechTexts.closed)
         };
     }
 
     presenter.destroy = function () {
+        if (presenter.isOpened) {
+            presenter.removeOpenedDialog();
+            presenter.$image.dialog("close");
+        }
+        presenter.unbindEvents();
+
+        setup_presenter();
+        setup_presenter = null;
+    };
+
+    presenter.unbindEvents = function () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$view.find(".icon").off(presenter.eventType, presenter.createPopUp);
         if (presenter.$image !== null) {
+            if (presenter.isOpened) {
+                presenter.$view.find('.close-button-ui-dialog').off('click', presenter.removeOpenedDialog);
+            }
             presenter.$image.off();
         }
-        setup_presenter();
-        setup_presenter = null;
-
-    };
+    }
 
     presenter.run = function(view, model) {
         presenter.$view = $(view);
@@ -193,17 +205,19 @@ function AddonZoom_Image_create() {
         var dialog = {};
         var x = image.width;
         var y = image.height;
-        var xProportion = x / $player.width();
-        var yProportion = y / $player.height();
+        var playerWidth = $player[0].getBoundingClientRect()?.width || $player.width();
+        var playerHeight = $player[0].getBoundingClientRect()?.height || $player.height();
+        var xProportion = x / playerWidth;
+        var yProportion = y / playerHeight;
 
         if (xProportion < 1 && yProportion < 1) {
             dialog.width = x;
             dialog.height = y;
         } else if (xProportion > yProportion) {
-            dialog.width = $player.width();
+            dialog.width = playerWidth;
             dialog.height = y / xProportion;
         } else {
-            dialog.height = $player.height();
+            dialog.height = playerHeight;
             dialog.width = x / yProportion;
         }
 
@@ -287,7 +301,7 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
-                opacity =  $('.ui-widget-overlay').css("opacity");
+                opacity = $('.ui-widget-overlay').css("opacity");
                 backgroundColorStyle = $('.ui-widget-overlay').css("background");
                 $('.ui-widget-overlay').css("background", "black");
                 $('.ui-widget-overlay').css("opacity", "0.7");
@@ -424,6 +438,19 @@ function AddonZoom_Image_create() {
     };
 
     presenter.isEnterable = function() {return presenter.isOpened};
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+        var $root = $('<div></div>');
+        $root.attr('id',model.ID);
+        $root.addClass('printable_addon_Zoom_Image');
+
+
+        var $img = $('<img></img>');
+        $img.attr('src', model['Full Screen image']);
+        $root.append($img);
+        return $root[0].outerHTML;
+    }
 
     return presenter;
 }

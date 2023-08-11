@@ -39,6 +39,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 
 	private boolean isVertical = true;
+	private boolean disableAxisLock = false;
 	private final int maxScore = 1;
 	private final ArrayList<OrderingItem> items = new ArrayList<OrderingItem>();
 	private IListProperty itemsProperty;
@@ -78,6 +79,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyLangAttribute();
 		addPropertyPrintable();
 		addPropertyIsSplitInPrintBlocked();
+		addPropertyDisableAxisLock();
 	}
 
 	public void validate() {
@@ -173,6 +175,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 			printableValue = XMLUtils.getAttributeAsString(ordering, "printable");
 			isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(ordering, "isSplitInPrintBlocked");
+			disableAxisLock = XMLUtils.getAttributeAsBoolean(ordering, "disableAxisLock");
 			
 		}
 
@@ -181,7 +184,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 		for(int i = 0; i < optionNodes.getLength(); i++) {
 
-			Element element = (Element)optionNodes.item(i);
+			Element element = (Element) optionNodes.item(i);
 			String text = XMLUtils.getCharacterDataFromElement(element);
 			if (text == null) {
 				text = StringUtils.unescapeXML(XMLUtils.getText(element));
@@ -280,6 +283,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		ordering.setAttribute("wrong", this.speechTextItems.get(4).getText());
 		ordering.setAttribute("printable", printableValue);
 		XMLUtils.setBooleanAttribute(ordering, "isSplitInPrintBlocked", isSplitInPrintBlocked);
+		XMLUtils.setBooleanAttribute(ordering, "disableAxisLock", disableAxisLock);
 		
 		orderingModule.appendChild(ordering);
 
@@ -398,6 +402,12 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			public boolean isDefault() {
 				return true;
 			}
+
+			@Override
+			public void moveChild(int prevIndex, int nextIndex) {
+				moveItem(prevIndex, nextIndex);
+				sendPropertyChangedEvent(this);
+			}
 		};
 
 		addProperty(itemsProperty);
@@ -433,6 +443,11 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			OrderingItem item = items.remove(index);
 			items.add(index + 1, item);
 		}
+	}
+
+	private void moveItem(int prevIndex, int nextIndex) {
+		OrderingItem item = items.remove(prevIndex);
+		items.add(nextIndex, item);
 	}
 
 	private void addPropertyOptionalOrder() {
@@ -1048,6 +1063,47 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public boolean isSplitInPrintBlocked() {
 		return isSplitInPrintBlocked;
 	}
+
+	private void addPropertyDisableAxisLock() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != disableAxisLock) {
+					disableAxisLock = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return disableAxisLock ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("ordering_disable_axis_lock");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("ordering_disable_axis_lock");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean isAxisLockDisabled() { return disableAxisLock; }
 
 	@Override
 	public void setPrintableState(String state) {

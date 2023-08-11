@@ -32,7 +32,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
     'test should return Alternative Page 3 when not looking for chapter': function () {
         var lookingForChapter = false;
 
-        var result = this.presenter.findAlternativeName(3, lookingForChapter);
+        var result = this.presenter.findAlternativeName(2, lookingForChapter);
 
         assertEquals("Alternative Page 3", result);
     },
@@ -62,7 +62,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.configuration.alternativePageTitles.push(chapter);
         var lookingForChapter = true;
 
-        var result = this.presenter.findAlternativeName(1, lookingForChapter);
+        var result = this.presenter.findAlternativeName(0, lookingForChapter);
 
         assertEquals("Chapter 1", result);
     },
@@ -76,7 +76,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.configuration.alternativePageTitles.splice(1, 0, chapter);
         var lookingForChapter = false;
 
-        var result = this.presenter.findAlternativeName(3, lookingForChapter);
+        var result = this.presenter.findAlternativeName(2, lookingForChapter);
 
         assertEquals("Alternative Page 3", result);
     },
@@ -90,7 +90,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.configuration.alternativePageTitles.splice(1, 0, chapter);
         var lookingForChapter = true;
 
-        var result = this.presenter.findAlternativeName(1, lookingForChapter);
+        var result = this.presenter.findAlternativeName(0, lookingForChapter);
 
         assertEquals("Chapter 1", result);
     },
@@ -115,7 +115,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         setPrintableStateMode(this.presenter);
         var lookingForChapter = false;
 
-        var result = this.presenter.findAlternativeName(3, lookingForChapter);
+        var result = this.presenter.findAlternativeName(2, lookingForChapter);
 
         assertEquals("Alternative Printable Page 3", result);
     },
@@ -148,7 +148,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.printableConfiguration.alternativePageTitles.push(chapter);
         var lookingForChapter = true;
 
-        var result = this.presenter.findAlternativeName(1, lookingForChapter);
+        var result = this.presenter.findAlternativeName(0, lookingForChapter);
 
         assertEquals("Chapter 1", result);
     },
@@ -163,7 +163,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.printableConfiguration.alternativePageTitles.splice(1, 0, chapter);
         var lookingForChapter = false;
 
-        var result = this.presenter.findAlternativeName(3, lookingForChapter);
+        var result = this.presenter.findAlternativeName(2, lookingForChapter);
 
         assertEquals("Alternative Printable Page 3", result);
     },
@@ -178,7 +178,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         this.presenter.printableConfiguration.alternativePageTitles.splice(1, 0, chapter);
         var lookingForChapter = true;
 
-        var result = this.presenter.findAlternativeName(1, lookingForChapter);
+        var result = this.presenter.findAlternativeName(0, lookingForChapter);
 
         assertEquals("Chapter 1", result);
     }

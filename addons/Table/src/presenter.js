@@ -133,7 +133,7 @@ function AddonTable_create() {
             $(presenter.$view).find('input').each(function () {
                 $(this).replaceWith(
                     generateMathGap(
-                        $(this).attr('id'),
+                        window.xssUtils.sanitize($(this).attr('id')),
                         presenter.configuration.gapWidth.value
                     )
                 );
@@ -211,7 +211,7 @@ function AddonTable_create() {
             presenter.mathJaxProcessEnded.then(function() {
                 MathJax.CallBack.Queue().Push(function () {
                     if(!isPreview){
-                        MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
+                        presenter.renderMathJax();
                         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
                         var checkSelector = setInterval(function () {
                             if ($(presenter.$view).find('input').length > 0) {
@@ -297,6 +297,7 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+        presenter.eventBus.addEventListener('ItemConsumed', this);
         presenter.eventBus.addEventListener('GradualShowAnswers', this);
         presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
@@ -421,7 +422,8 @@ function AddonTable_create() {
 
     presenter.parseDefinitionLinks = function () {
         $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            $(element).html(presenter.textParser.parse($(element).html()));
+            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
+            $(element).html(sanitizedLink);
         });
 
         presenter.textParser.connectLinks(presenter.$view);
@@ -869,11 +871,13 @@ function AddonTable_create() {
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.enableAllGaps();
     };
 
     presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.disableAllGaps();
     };
 
     presenter.getGapText = function (gapIndex) {
@@ -1010,6 +1014,7 @@ function AddonTable_create() {
     };
 
     presenter.getScore = function () {
+        return 0;
         if (presenter.configuration.isNotActivity) {
             return 0;
         }
@@ -1073,22 +1078,40 @@ function AddonTable_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName === "ShowAnswers") {
-            presenter.showAnswers();
-        } else if (eventName === "HideAnswers") {
-            presenter.hideAnswers();
-        } else if (eventName === "ItemSelected") {
-            presenter.lastDraggedItem = eventData;
-        } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
-            }
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (!presenter.isGradualShowAnswersActive) {
+                    presenter.isGradualShowAnswersActive = true;
+                }
+                if (eventData.moduleID === presenter.configuration.addonID) {
+                    presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
+            case "ItemSelected":
+                if(presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = eventData;
+                }
+                break;
+            case "ItemConsumed":
+                const isEqualToDraggedValue = presenter.lastDraggedItem.value && eventData.value === presenter.lastDraggedItem.value
+                const isEqualToDraggedItem = presenter.lastDraggedItem.item && eventData.item === presenter.lastDraggedItem.item
 
-            if (eventData.moduleID === presenter.configuration.addonID) {
-                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
-            }
-        } else if (eventName === "GradualHideAnswers") {
-            presenter.gradualHideAnswers();
+                if (isEqualToDraggedValue  && isEqualToDraggedItem && presenter.configuration.isVisible) {
+                    presenter.lastDraggedItem = {};
+                }
+                break;
+            default:
+                break;
+            
         }
     };
 
@@ -1098,9 +1121,18 @@ function AddonTable_create() {
             presenter.isShowAnswersActive = true;
             presenter.isSetShowErrorsMode = false;
             presenter.renderMathJax();
-        } else if (isConnectedWithMath) {
-            presenter.isShowAnswersActive = true;
-            presenter.isSetShowErrorsMode = false;
+        } else {
+            if (presenter.isSetShowErrorsMode) {
+                 presenter.setWorkMode();
+                
+                if (isConnectedWithMath) {
+                    presenter.disableAllGaps();
+                }
+            }
+            if (isConnectedWithMath) {
+                presenter.isShowAnswersActive = true;
+                presenter.isSetShowErrorsMode = false;
+            }
         }
     };
 
@@ -1108,10 +1140,9 @@ function AddonTable_create() {
         if (!presenter.isShowAnswersActive) {
             return;
         }
-
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             presenter.gapsContainer.hideAnswers();
-            if(isConnectedWithMath){
+            if (isConnectedWithMath){
                 presenter.gapsContainer.unlockAllGaps();
             }
             presenter.isShowAnswersActive = false;
@@ -1183,7 +1214,7 @@ function AddonTable_create() {
             value = value.replace(/\W/g, '');
         }
 
-        return value;
+        return value.trim();
     };
 
     presenter.GapUtils.prototype.isValueEmpty = function () {
@@ -1370,7 +1401,7 @@ function AddonTable_create() {
         var value = configuration.value;
         var source = configuration.source;
         var isEnabled = configuration.isEnabled;
-        var droppedElement = configuration.droppable;
+        var droppedElement = configuration.droppedElement;
         this.isAttempted = configuration.isAttempted === undefined ? false : configuration.isAttempted;
 
         if (presenter.configuration.gapType === "draggable") {
@@ -1644,6 +1675,7 @@ function AddonTable_create() {
         this.notify();
 
         presenter.renderMathJax();
+        presenter.rerenderMathJax();
     };
 
     presenter.DraggableDroppableGap.prototype.makeGapEmpty = function () {
@@ -1960,6 +1992,12 @@ function AddonTable_create() {
         });
     };
 
+    presenter.rerenderMathJax = function () {
+        MathJax.CallBack.Queue().Push(function () {
+            MathJax.Hub.Rerender(presenter.$view.find(".table-addon-wrapper")[0]);
+        });
+    };
+
     function TableKeyboardController (elements, columnsCount, rowsCount) {
         var newElements = accountForMergedCells(elements, columnsCount, rowsCount);
         KeyboardController.call(this, newElements, columnsCount);
@@ -2021,6 +2059,7 @@ function AddonTable_create() {
 
     TableKeyboardController.prototype.select = function (event) {
         event.preventDefault();
+        presenter.addWhiteSpaceToValue();
         if (presenter.gapNavigation && presenter.configuration.gapType === 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 
@@ -2043,6 +2082,18 @@ function AddonTable_create() {
             }
         }
     };
+
+    presenter.addWhiteSpaceToValue = function () {
+        if (!presenter.getGap(presenter.gapIndex)) return;
+
+        var gap = presenter.getGap(presenter.gapIndex)[0];
+        var classNames = ['ic_filled_gap', 'ic_gap'];
+        var isInputTypeGap = classNames.some(className => gap.classList.contains(className));
+        if (!gap || !isInputTypeGap) return;
+
+        var oldValue = gap.value;
+        $(gap).val(`${oldValue} `);
+    }
 
     TableKeyboardController.prototype.mark =  function (element) {
         KeyboardController.prototype.mark.call(this, element);
@@ -2335,7 +2386,7 @@ function AddonTable_create() {
     };
 
     presenter.getCurrentGapsNumber = function() {
-        return $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice').length;
+        return $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap').length;
     };
 
     presenter.clearCurrentCell = function() {
@@ -2347,7 +2398,7 @@ function AddonTable_create() {
     };
 
     presenter.getGap = function (index) {
-        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap');
         if ($gaps.length === 0) return;
         if (index < 0) index = 0;
         if (index >= $gaps.length) index = $gaps.length-1;
@@ -2355,7 +2406,7 @@ function AddonTable_create() {
     };
 
     presenter.selectGap = function(index) {
-        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice, .ic_filled_gap');
         if ($gaps.length === 0) return;
         if(index < 0) index = 0;
         if(index >= $gaps.length) index = $gaps.length - 1;

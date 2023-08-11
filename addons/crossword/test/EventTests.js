@@ -1,4 +1,4 @@
-TestCase("[Crossword] Events test", {
+TestCase("[Crossword] Events tests", {
     setUp: function() {
         this.presenter = Addoncrossword_create();
         this.presenter.addonID = 'crossword1';
@@ -10,7 +10,8 @@ TestCase("[Crossword] Events test", {
         this.spies = {
             showAnswers: sinon.spy(this.presenter, 'showAnswers'),
             hideAnswers: sinon.spy(this.presenter, 'hideAnswers'),
-            gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers')
+            gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers'),
+            resetDirection: sinon.spy(this.presenter, 'resetDirection')
         }
     },
 
@@ -61,6 +62,8 @@ TestCase("[Crossword] Events test", {
     },
 
     'test GHA event calls the right method and changes isGradualShowAnswersActive to false': function () {
+        this.presenter.$view = { find: () => ({ removeClass: () => null }) };
+        this.presenter.isWordNumbersCorrect = () => true;
         this.presenter.isGradualShowAnswersActive = true;
         var eventName = "GradualHideAnswers";
         var eventData = {};
@@ -68,5 +71,63 @@ TestCase("[Crossword] Events test", {
 
         assertTrue(this.spies.hideAnswers.called);
         assertFalse(this.presenter.isGradualShowAnswersActive);
-    }
+    },
+
+    'test given editable cell when triggered click event on it then resetDirections should be called': function () {
+        this.buildCrossword();
+        var cellInput = this.getCellInputElement(3, 4);
+
+        $(cellInput).trigger('click');
+
+        assertTrue(this.presenter.resetDirection.calledOnce);
+    },
+
+    'test given Show Answers when gaps edited then user answers are properly saved': function () {
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.buildCrossword();
+
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
+        this.presenter.showAnswers();
+
+        const expected = "A";
+        const actual = this.presenter.userAnswers[5][5];
+
+        assertTrue(expected === actual);
+    },
+
+    'test given Hide Answers when user filled gaps then user answers are properly brought back': function () {
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.buildCrossword();
+
+        this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val("A");
+
+        this.presenter.showAnswers();
+        this.presenter.hideAnswers();
+
+        const expected = "A";
+        const actual = this.presenter.$view.find('.cell_' + 5 + 'x' + 5 + ' input').val();
+
+        assertTrue(expected === actual);
+    },
+
+    'test given constant cell when triggered click event on it then resetDirections should not be called': function () {
+        this.buildCrossword();
+        var cellInput = this.getCellInputElement(3, 3);
+
+        $(cellInput).trigger('click');
+
+        assertFalse(this.presenter.resetDirection.called);
+    },
+
+    getCellInputElement: function (x, y) {
+        return this.presenter.$view.find(`.cell_row_${y}.cell_column_${x}`).find("input")[0];
+    },
+
+    buildCrossword: function() {
+        this.presenter.rowCount = 9;
+        this.presenter.columnCount = 10;
+        this.presenter.crossword = getCrosswordForNavigationTests();
+        this.presenter.$view = $(document.createElement('div'));
+        this.presenter.createGrid();
+    },
 });

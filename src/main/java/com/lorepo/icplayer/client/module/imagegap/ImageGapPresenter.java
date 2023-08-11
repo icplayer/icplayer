@@ -566,7 +566,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		setState(value);
 	}
 
-	private boolean isActivity() {
+	@Override
+	public boolean isActivity() {
 		return model.isActivity();
 	}
 
@@ -820,7 +821,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		boolean isEnabled = !this.model.isDisabled();
+		boolean isEnabled = (!this.model.isDisabled()) || isTextToSpeechOn;
 		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return isVisible && isEnabled && !isGroupDivHidden;
 	}

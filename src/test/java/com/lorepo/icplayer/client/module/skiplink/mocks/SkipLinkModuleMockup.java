@@ -126,6 +126,24 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
     }
 
     @Override
+	public boolean shouldOmitInTTS() {
+		return false;
+	}
+
+	@Override
+	public void setOmitInTTS(boolean value) {}
+
+    @Override
+    public String getTTSTitle() {
+        return "";
+    }
+
+    @Override
+    public void setTTSTitle(String title) {
+
+    }
+
+    @Override
     public void setContentDefaultLayoutID(String layoutID) {
 
     }
@@ -342,6 +360,16 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
 
     @Override
     public LayoutDefinition getCurrentLayoutDefinition() {
+        return null;
+    }
+
+    @Override
+    public List<String> getNameProperties() {
+        return null;
+    }
+
+    @Override
+    public List<IProperty> getProperties() {
         return null;
     }
 }

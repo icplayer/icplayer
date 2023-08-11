@@ -2,11 +2,11 @@ import {Player} from "./Player.jsm";
 
 export class BasePlayer extends Player {
 
-    constructor($view) {
+    constructor($view, isMlibro) {
         super();
         if (this.constructor === BasePlayer)
             throw new Error("Cannot create an instance of BasePlayer abstract class");
-
+        this.isMlibro = isMlibro;
         this.$view = $view;
         this.hasRecording = false;
         this.duration = null;
@@ -22,11 +22,13 @@ export class BasePlayer extends Player {
 
     setRecording(source) {
         this.mediaNode.src = source;
+        this.hasRecording = true;
         this._getDuration()
             .then(duration => {
                 this.onDurationChangeCallback(duration);
                 this.duration = duration;
-                this.hasRecording = true;
+            }).catch(e => {
+                this.hasRecording = false
             });
     }
 
@@ -34,8 +36,7 @@ export class BasePlayer extends Player {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
             if (this.onTimeUpdateCallback) {
-                this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
-                this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+                this._enableTimerEventsHandling();
             }
             if (this._isNotOnlineResources(this.mediaNode.src))
                 resolve(this.mediaNode);
@@ -48,11 +49,20 @@ export class BasePlayer extends Player {
             this.mediaNode.pause();
             this.mediaNode.currentTime = 0;
             if (this.onTimeUpdateCallback) {
-                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
-                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+                this._disableTimerEventsHandling();
             }
             resolve();
         });
+    }
+
+    _enableTimerEventsHandling() {
+        this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+        this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+    }
+
+    _disableTimerEventsHandling() {
+        this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+        this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
     }
 
     pausePlaying() {
@@ -71,25 +81,6 @@ export class BasePlayer extends Player {
             this.mediaNode.currentTime = Math.round(this.duration * progress);
             resolve();
         });
-    }
-
-    startStreaming(stream) {
-        this._disableEventsHandling();
-        setSrcObject(stream, this.mediaNode);
-        this.mediaNode.muted = true;
-        this.mediaNode.play();
-    }
-
-    stopStreaming() {
-        // for some reason Edge doesn't send pause event in stopPlaying
-        // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
-        // same as above but with mLibro on android
-        if (!this.mediaNode.paused && !DevicesUtils.isEdge() && !this.isMlibro) {
-            this.stopNextStopEvent = true;
-        }
-
-        this.stopPlaying();
-        this._enableEventsHandling();
     }
 
     reset() {
@@ -131,18 +122,16 @@ export class BasePlayer extends Player {
     }
 
     _enableEventsHandling() {
-        const self = this;
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobileSafari())
-            this.mediaNode.onloadedmetadata = function () {
-                self.onEndLoadingCallback();
-            };
-        else
+        if (this._isMobileSafari() || this._isIosMlibro() || this._isIOSWebViewUsingAppleWebKit()) {
+            this.mediaNode.onloadedmetadata = () => this.onEndLoadingCallback();
+        } else  {
             this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
+        }
     }
 
     _disableEventsHandling() {
@@ -174,8 +163,22 @@ export class BasePlayer extends Player {
         )
     }
 
+    _isIOSWebViewUsingAppleWebKit() {
+        const userAgent = window.navigator.userAgent.toLowerCase(),
+            safari = /safari/.test( userAgent ),
+            ios = /iphone|ipod|ipad/.test( userAgent ),
+            appleWebKit = /applewebkit/.test( userAgent );
+        const webView = ios && !safari;
+
+        return webView && appleWebKit;
+    }
+
     _isMobileSafari() {
         return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
+    }
+
+    _isIosMlibro() {
+        return this.isMlibro && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     _isNotOnlineResources(source) {
@@ -189,11 +192,7 @@ export class BasePlayer extends Player {
     }
 
     _onPausedCallback() {
-        if (this.stopNextStopEvent) {
-            this.stopNextStopEvent = false;
-        } else {
-            this._sendEventCallback('stop');
-        }
+        this._sendEventCallback('stop');
     }
 
     _sendEventCallback(value) {

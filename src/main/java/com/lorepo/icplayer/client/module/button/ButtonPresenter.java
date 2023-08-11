@@ -10,6 +10,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -24,7 +25,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
+public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton, IEnterable {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
@@ -259,7 +260,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isHidden = this.getView().getStyle().getVisibility().equals("hidden");
 		boolean isNone = this.getView().getStyle().getDisplay().equals("none");
-		boolean isEnabled = this.view.isEnabled();
+		boolean isEnabled = this.view.isEnabled() || isTextToSpeechOn;
 		boolean isGroupDivHidden  = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		
 		boolean isVisible = !isHidden && !isNone && isEnabled && !isGroupDivHidden;
@@ -269,5 +270,14 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
+	}
+
+	@Override
+	public boolean isEnterable() {
+		if (model.getType() == ButtonType.reset) {
+			ButtonView buttonView = (ButtonView) view;
+			return model.getConfirmReset() && !buttonView.shouldSkipOpeninDialog();
+		}
+		return false;
 	}
 }

@@ -23,7 +23,7 @@
         <property name="scoredisabled" displayName="Disable score on pages" nameLabel="Hierarchical_Lesson_Report_property_score_disabled" type="string" />
         <property name="enablePages" displayName="Enable pages" nameLabel="Hierarchical_Lesson_Report_property_enable_pages" type="string" />
 
-        <property name="alternativePageTitles" displayName="Alternative page titles" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_titles" type="list" isLocalized="true">
+        <property name="alternativePageTitles" displayName="Alternative page titles" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_titles" type="list">
 			<property name="alternativePageNumber" displayName="Index" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_number" type="string" isLocalized="true" />
             <property name='alternativePageIsChapter' displayName="Is chapter" nameLabel="Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter" type="boolean" />
 			<property name="alternativePageName" displayName="Page name" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_name" type="html" isLocalized="true" />
@@ -68,5 +68,6 @@
             </property>
         </property>
         <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
+        <property name='isWeightedArithmeticMean' displayName="Use weighted arithmetic mean" nameLabel="Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean" type="boolean" />
     </model>
 </addon>

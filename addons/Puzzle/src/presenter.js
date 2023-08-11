@@ -213,7 +213,7 @@ function AddonPuzzle_create() {
                 Container.append(puzzle);
 
                 // first add it to DOM, then apply draggable, so that it won't add position: relative to element
-                AddDraggableDroppable(puzzle);
+                addDraggableDroppable(puzzle);
             }
         }
 
@@ -226,13 +226,15 @@ function AddonPuzzle_create() {
         Shuffle();
     }
 
-    function AddDraggableDroppable(puzzle) {
+    function addDraggableDroppable(puzzle) {
         puzzle.draggable({
             delay: 150, // to give more time before drag starts, to prevent drags when clicking
             // don't use container or revert, as those options are bugged in subtle ways
             start: function(event,ui) {
                 // clear state if it was clicked before
                 clickNumber = 0;
+
+                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
                 if (PieceOld)
                     PieceOld.removeClass('selected');
 
@@ -241,12 +243,24 @@ function AddonPuzzle_create() {
                 ui.helper.off("click");
 
                 DraggedPiece = ui.helper;
+                DraggedPiece.addClass( hoverClass );
+
                 DragStartPos = presenter.getPiecePositionData(DraggedPiece);
 
-                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
-                DraggedPiece.addClass( hoverClass );
-              },
+                ui.position.left = 0;
+                ui.position.top = 0;
+            },
+            drag : function(event, ui) {
+                const scale = getScale();
+                const changeLeft = ui.position.left - ui.originalPosition.left;  // find change in left
+                const newLeft = ui.originalPosition.left + changeLeft / scale.X; // adjust new left by our zoomScale
 
+                const changeTop = ui.position.top - ui.originalPosition.top;  // find change in top
+                const newTop = ui.originalPosition.top + changeTop / scale.Y; // adjust new top by our zoomScale
+
+                ui.position.left = newLeft;
+                ui.position.top = newTop;
+            },
             stop: function(event,ui) {
 
                 if (DraggedPiece) {
@@ -275,8 +289,13 @@ function AddonPuzzle_create() {
         });
 
         puzzle.droppable({
-            tolerance: "intersect",
-
+            activate: function (event, ui) {
+                const scale = getScale();
+                // add marker to currently dragged element to scale its proportions
+                if (presenter.$view.find( "." + hoverClass ).length > 0 && scale.X !== 1 && scale.Y !== 1) {
+                    $.ui.ddmanager.current.useScaledProportions = true;
+                }
+            },
             drop: function (event, ui) {
                 if (!DragStartPos)
                     return;
@@ -304,7 +323,6 @@ function AddonPuzzle_create() {
 
                 DraggedPiece = null;
                 DragStartPos = null;
-
             },
             over: function (event, ui) {
                 $(this).addClass(hoveredOverByOtherClass);
@@ -314,6 +332,21 @@ function AddonPuzzle_create() {
                 $(this).removeClass(hoveredOverByOtherClass);
             }
         });
+    }
+
+    function getScale() {
+        let $content = $("#content");
+        if ($content.size() > 0) {
+            const contentElem = $content[0];
+            const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X: scaleX, Y: scaleY};
+        } else if (playerController) {
+            const scale = playerController.getScaleInformation();
+            return {X: scale.scaleX, Y: scale.scaleY};
+        } else {
+            return {X: 1.0, Y: 1.0};
+        }
     }
 
     presenter.getPiecePositionData = function(piece) {
@@ -670,12 +703,18 @@ function AddonPuzzle_create() {
     };
 
     presenter.getMaxScore = function () {
+        if (presenter.isPreview || presenter.configuration.isNotActivity) {
+            return 0;
+        }
         return 1;
     };
 
     presenter.getScore = function () {
         if (!presenter.isFullyLoaded()) {
             return presenter.previousScore;
+        }
+        if(presenter.configuration.isNotActivity) {
+            return 0;
         }
 
         var rows = presenter.configuration.rows,
@@ -696,6 +735,9 @@ function AddonPuzzle_create() {
     presenter.getErrorCount = function () {
         if (!presenter.isFullyLoaded()) {
             return presenter.previousErrors;
+        }
+        if(presenter.configuration.isNotActivity) {
+            return 0;
         }
 
         var rows = presenter.configuration.rows,
@@ -718,6 +760,9 @@ function AddonPuzzle_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if(presenter.configuration.isNotActivity) {
+            return 0;
+        }
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -765,7 +810,8 @@ function AddonPuzzle_create() {
         eventBus = playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
-        presenter.configuration = presenter.validateModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.isPreview = false;
         InitPuzzleBoard()
 
@@ -788,6 +834,7 @@ function AddonPuzzle_create() {
 
     presenter.validateModel = function (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        var isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         LoadedPromise(this, {
             'image' : true
         });
@@ -799,6 +846,7 @@ function AddonPuzzle_create() {
             shouldCalcScore: false,
             columns: presenter.validatePuzzleDimension(model.Columns),
             rows: presenter.validatePuzzleDimension(model.Rows),
+            isNotActivity: isNotActivity,
             addonID: model.ID
         };
     };
@@ -807,6 +855,21 @@ function AddonPuzzle_create() {
         var validatedRange = ModelValidationUtils.validateIntegerInRange(dimension, 10, 1);
 
         return validatedRange.isValid ? validatedRange.value : 4;
+    };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeIsNotActivity(model);
+    };
+
+    presenter.upgradeIsNotActivity = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['isNotActivity'] === undefined) {
+            upgradedModel['isNotActivity'] = 'False';
+        }
+
+        return upgradedModel;
     };
 
     presenter.createPreview = function (view, model) {
@@ -896,6 +959,9 @@ function AddonPuzzle_create() {
     }
 
     presenter.showAnswers = function () {
+        if(presenter.configuration.isNotActivity) {
+            return;
+        }
         presenter.isShowAnswersActive = true;
         presenter.saveBoard();
         presenter.setWorkMode();

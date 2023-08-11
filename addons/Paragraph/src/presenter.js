@@ -11,9 +11,13 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
+    presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
+    presenter.currentGSAIndex = 0;
+    presenter.savedInitializedSA = null;
 
     presenter.isEditorLoaded = false;
+    presenter.isEditorReadOnly = false;
 
     presenter.toolbarChangeHeightTimeoutID = null;
 
@@ -39,6 +43,33 @@ function AddonParagraph_create() {
 
     presenter.ERROR_CODES = {
         'W_01': 'Weight must be a positive number between 0 and 100'
+    };
+
+    presenter.TOOLBAR_ARIAS = {
+        bold: "bold",
+        italic: "italic",
+        underline: "underline",
+        alignleft: "alignLeft",
+        aligncenter: "alignCenter",
+        alignright: "alignRight",
+        justify: "justify"
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        selected: "selected",
+        deselected:"deselected",
+        paragraphContent: "paragraph content",
+        bold: "bold",
+        italic: "italic",
+        underline: "underline",
+        alignLeft: "align left",
+        alignCenter: "align center",
+        alignRight: "align right",
+        justify: "justify"
+    };
+
+    presenter.keys = {
+        ESCAPE: 27
     };
 
     function isIOSSafari() {
@@ -76,7 +107,14 @@ function AddonParagraph_create() {
                 return false;
             }
         }
-        return $(presenter.editor.getContent({format: 'raw'})).text() != '';
+
+        const editorContent = presenter.getText();
+        if (presenter.configuration.isPlaceholderSet
+            && !presenter.configuration.isPlaceholderEditable) {
+            return !isPlaceholderClassInHTML(editorContent);
+        }
+        const textToCompare = presenter.configuration.isPlaceholderSet ? presenter.configuration.placeholderText : "";
+        return $(editorContent).text() != textToCompare;
     };
 
     presenter.getText = function AddonParagraph_getText() {
@@ -92,6 +130,13 @@ function AddonParagraph_create() {
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.removeFocusFromDisabledElement = function () {
+        if (presenter.isEditorReadOnly) {
+            const iframe = presenter.$view.find('iframe');
+            iframe.blur();
+        }
     };
 
     presenter.setVisibility = function AddonParagraph_setVisibility(isVisible) {
@@ -137,43 +182,68 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.getActivitiesCount = function () {
-        return 1;
+    presenter.enableEdit = function () {
+        if(presenter.isEditorReadOnly) {
+            presenter.editor.setMode('design');
+            presenter.isEditorReadOnly = false;
+        }
     }
 
-    presenter.disableParagraph = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
-
-        if(!paragraph.hasClass('disabled')) {
-            paragraph.addClass('disabled');
+    presenter.disableEdit = function () {
+        if(!presenter.isEditorReadOnly) {
+            presenter.editor.setMode('readonly');
+            presenter.isEditorReadOnly = true;
         }
     }
 
     presenter.showAnswers = function () {
-        if (presenter.isShowAnswersActive) { return; }
+        if (presenter.isShowAnswersActive) return;
 
-        presenter.disableParagraph();
-        var elements = presenter.getParagraphs();
+        const elements = presenter.getParagraphs();
+        presenter.initializeShowAnswers(elements);
+        presenter.savedInitializedSA = presenter.getText();
+        var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
+        presenter.editor.setContent(modelAnswer);
+        presenter.setStyles();
         presenter.isShowAnswersActive = true;
+        presenter.isErrorCheckingMode = false;
+    };
 
-        for (var [key, value] of Object.entries(elements)) {
-            if (+key > -1) {
-                presenter.cachedAnswer.push(value.innerHTML);
-                if (+key === 0) {
-                    value.innerHTML = presenter.configuration.modelAnswer;
-                } else {
-                    value.innerHTML = '';
-                }
-            }
+    presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
+        presenter.disableEdit();
+        presenter.cacheAnswersAndClearParagraphs(elements);
+    };
+
+    presenter.cacheAnswersAndClearParagraphs = function (elements) {
+        $(elements).each((index, element) => {
+            presenter.cachedAnswer.push(element.innerHTML);
+            element.innerHTML = "";
+        })
+    };
+
+    function combineAnswers(answersArray) {
+        var newText = "";
+        if (answersArray.length > 0) {
+           newText += answersArray[0].Text;
         }
+        for (var answerID = 1; answerID < answersArray.length; answerID++) {
+           newText += "<div></div><br>" + answersArray[answerID].Text;
+        }
+        return newText;
     }
 
     presenter.hideAnswers = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
-        var elements = presenter.getParagraphs();
+        if (presenter.savedInitializedSA) {
+            presenter.setText(presenter.savedInitializedSA);
+            presenter.savedInitializedSA = null;
+        }
+        const elements = presenter.getParagraphs();
 
-        paragraph.removeClass('disabled');
+        presenter.enableEdit();
         presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
+        presenter.isErrorCheckingMode = false;
+        presenter.currentGSAIndex = 0;
 
         if (presenter.cachedAnswer.length) {
             for (var [key, value] of Object.entries(elements)) {
@@ -186,17 +256,51 @@ function AddonParagraph_create() {
     }
 
     presenter.gradualShowAnswers = function (data) {
-        presenter.disableParagraph();
+        presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) { return; }
-        presenter.showAnswers();
-    }
+
+        const elements = presenter.getParagraphs();
+        if (!presenter.isGradualShowAnswersActive) {
+            presenter.initializeShowAnswers(elements);
+            presenter.isGradualShowAnswersActive = true;
+        }
+        presenter.isErrorCheckingMode = false;
+
+        if (presenter.currentGSAIndex !== 0) {
+            elements[0].innerHTML += "<div></div><br>";
+        }
+        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
+        presenter.currentGSAIndex++;
+    };
+
+    presenter.setShowErrorsMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        if (!presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
+            presenter.isErrorCheckingMode = true;
+            presenter.disableEdit();
+        }
+    };
+
+    presenter.setWorkMode = function () {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+
+        if (presenter.isErrorCheckingMode && presenter.configuration.isBlockedInErrorCheckingMode) {
+            presenter.isErrorCheckingMode = false;
+            presenter.enableEdit();
+        }
+    };
 
     presenter.getParagraphs = function () {
-        var paragraph = presenter.$view.find(".paragraph-wrapper"),
-            iframe = paragraph.find("iframe"),
-            body = $(iframe).contents().find("#tinymce");
+        const $paragraph = presenter.$view.find(".paragraph-wrapper"),
+            $iframe = $paragraph.find("iframe"),
+            $iframeBody = $iframe.contents().find("#tinymce");
 
-        return body.find("p");
+        return $iframeBody.children();
     }
 
     presenter.run = function AddonParagraph_run(view, model) {
@@ -223,7 +327,7 @@ function AddonParagraph_create() {
             e.preventDefault();
         });
 
-        presenter.$view.find('.paragraph-wrapper').attr('id', presenter.configuration.ID + '-wrapper');
+        presenter.setWrapperID();
 
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
@@ -240,7 +344,15 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+
+            presenter.editor.on('focus', function () {
+                presenter.removeFocusFromDisabledElement();
+            });
+
             presenter.isEditorLoaded = true;
+            presenter.setStyles();
+            presenter.setSpeechTexts(upgradedModel["speechTexts"]);
+            presenter.buildKeyboardController();
         });
 
         if(isIOSSafari()) {
@@ -249,6 +361,11 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
+    };
+
+    presenter.setWrapperID = function AddonParagraph_setWrapperID() {
+        var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
+        $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -417,7 +534,9 @@ function AddonParagraph_create() {
             title: title,
             manualGrading: manualGrading,
             weight: weight,
-            modelAnswer: modelAnswer
+            modelAnswer: modelAnswer,
+            langTag: model["langAttribute"],
+            isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
         };
     };
 
@@ -435,7 +554,7 @@ function AddonParagraph_create() {
             plugins.push("textcolor");
         }
 
-        if(presenter.configuration.isPlaceholderSet) {
+        if (presenter.configuration.isPlaceholderSet) {
             plugins.push(presenter.configuration.pluginName);
         }
 
@@ -443,12 +562,15 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradePlaceholderText(model);
-            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
-            upgradedModel = presenter.upgradeTitle(upgradedModel);
-            upgradedModel = presenter.upgradeWeight(upgradedModel);
-            upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
-        return presenter.upgradeEditablePlaceholder(upgradedModel);
+        let upgradedModel = presenter.upgradePlaceholderText(model);
+        upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+        upgradedModel = presenter.upgradeTitle(upgradedModel);
+        upgradedModel = presenter.upgradeWeight(upgradedModel);
+        upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
+        upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeBlockInErrorCheckingMode(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -472,18 +594,103 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModelAnswer = function (model) {
-        return presenter.upgradeAttribute(model, "Show Answers", "");
+        const upgradedModel = presenter.upgradeAttribute(model, "Show Answers", [{Text: ""}]);
+
+        // for backward compatibility where modal answer was single string and now is Array of strings we need to upgrade model
+        if (!Array.isArray(upgradedModel["Show Answers"])) {
+            upgradedModel["Show Answers"] = [{Text: upgradedModel["Show Answers"]}];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        return presenter.upgradeAttribute(model, "langAttribute", "");
+    };
+
+    presenter.upgradeBlockInErrorCheckingMode = function (model) {
+        return presenter.upgradeAttribute(model, "Block in error checking mode", "False");
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        let defaultValue = {
+            Bold: {Bold: ""},
+            Italic: {Italic: ""},
+            Underline: {Underline: ""},
+            AlignLeft: {AlignLeft: ""},
+            AlignCenter: {AlignCenter: ""},
+            AlignRight: {AlignRight: ""},
+            Justify: {Justify: ""}
+        };
+
+        const upgradedModel = presenter.upgradeAttribute(model, "speechTexts", defaultValue);
+        if (!upgradedModel.speechTexts.hasOwnProperty("Selected")) {
+            upgradedModel.speechTexts.Selected = {Selected: ""};
+        }
+
+        if (!upgradedModel.speechTexts.hasOwnProperty("ParagraphContent")) {
+            upgradedModel.speechTexts.ParagraphContent = {ParagraphContent: ""};
+        }
+
+        if (!upgradedModel.speechTexts.hasOwnProperty("Deselected")) {
+            upgradedModel.speechTexts.Deselected = {Deselected: ""};
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model[attrName] == undefined) {
+        if (!upgradedModel.hasOwnProperty(attrName)) {
             upgradedModel[attrName] = defaultValue;
         }
 
         return upgradedModel;
+    };
+
+    presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            ...presenter.DEFAULT_TTS_PHRASES,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.deselected),
+            paragraphContent: TTSUtils.getSpeechTextProperty(
+                speechTexts.ParagraphContent.ParagraphContent,
+                presenter.speechTexts.paragraphContent),
+            bold : TTSUtils.getSpeechTextProperty(
+                speechTexts.Bold.Bold,
+                presenter.speechTexts.bold),
+            italic: TTSUtils.getSpeechTextProperty(
+                speechTexts.Italic.Italic,
+                presenter.speechTexts.italic),
+            underline : TTSUtils.getSpeechTextProperty(
+                speechTexts.Underline.Underline,
+                presenter.speechTexts.underline),
+            alignLeft: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignLeft.AlignLeft,
+                presenter.speechTexts.alignLeft),
+            alignCenter: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignCenter.AlignCenter,
+                presenter.speechTexts.alignCenter),
+            alignRight: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignRight.AlignRight,
+                presenter.speechTexts.alignRight),
+            justify: TTSUtils.getSpeechTextProperty(
+                speechTexts.Justify.Justify,
+                presenter.speechTexts.justify)
+        };
     };
 
     presenter.onDestroy = function AddonParagraph_destroy() {
@@ -527,6 +734,7 @@ function AddonParagraph_create() {
             presenter.editor = null;
             presenter.playerController = null;
             presenter.LANGUAGES = null;
+            presenter.setWrapperID = null;
         } catch (e) {
             // In case that the first layout is different than the default one
             // the addon may not fully initialize before onDestroy is called
@@ -594,6 +802,7 @@ function AddonParagraph_create() {
         this.el = presenter.editor.dom.add(this.contentAreaContainer, "placeholder", this.attrs, this.placeholderText);
         presenter.editor.dom.addClass(this.el, "placeholder");
         this.isSet = true;
+        presenter.setStyles();
     };
 
     presenter.placeholderElement.prototype.setPlaceholderAfterEditorChange = function AddonParagraph_setPlaceholderAfterEditorChange() {
@@ -705,12 +914,8 @@ function AddonParagraph_create() {
             hasDefaultFontSize = presenter.configuration.hasDefaultFontSize,
             hasContentCss = !ModelValidationUtils.isStringEmpty(presenter.configuration.content_css);
 
-        if (presenter.editor.dom.$("placeholder").length > 0) {
-            return;
-        }
-
         if (!hasDefaultFontFamily || !hasDefaultFontSize || !hasContentCss) {
-            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul')];
+            var elements = [ presenter.editor.dom.$('p'), presenter.editor.dom.$('ol'), presenter.editor.dom.$('ul'), presenter.editor.dom.$("placeholder")];
 
             for (var i = 0; i < elements.length; i++) {
                 if (elements[i].length == 0) {
@@ -803,6 +1008,32 @@ function AddonParagraph_create() {
         if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
             presenter.setText(presenter.configuration.placeholderText);
         }
+
+        presenter.addEventListenerOnKeyEscapeToEditorMCE();
+    };
+
+    presenter.addEventListenerOnKeyEscapeToEditorMCE = function EditableWindow_addEventListenerOnKeyEscapeToEditorMCE (){
+        const mceIframe = presenter.$view.find('.mce-edit-area')[0].childNodes[0];
+        const content = (mceIframe.contentDocument || mceIframe.contentWindow.document).documentElement;
+        const escapeKeyCallback = function (e) {
+            if (e.keyCode === presenter.keys.ESCAPE && presenter.keyboardControllerObject.keyboardNavigationActive) {
+                presenter.dispatchEscapeKeydownEvent();
+                document.activeElement.blur();
+            }
+        };
+
+        content.addEventListener("keydown", escapeKeyCallback);
+    };
+
+    presenter.dispatchEscapeKeydownEvent = function EditableWindow_dispatchEscapeKeydownEvent () {
+        const event = new KeyboardEvent('keydown', {
+            code: 'Escape',
+            key: 'Escape',
+            charCode: presenter.keys.ESCAPE,
+            keyCode: presenter.keys.ESCAPE,
+            bubbles: true
+        });
+        document.body.dispatchEvent(event);
     };
 
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
@@ -814,7 +1045,10 @@ function AddonParagraph_create() {
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
+                const isShowAnswersActive = presenter.isShowAnswersActive;
+                if (isShowAnswersActive) presenter.hideAnswers();
                 tinymceState = presenter.editor.getContent({format : 'raw'});
+                if (isShowAnswersActive) presenter.showAnswers();
             }catch(err) {
                 return  presenter.state;
             }
@@ -842,7 +1076,7 @@ function AddonParagraph_create() {
         presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        if (tinymceState!=undefined && tinymceState!="" && tinymceState.indexOf("class=\"placeholder\"") == -1) {
+        if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderClassInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
@@ -859,6 +1093,10 @@ function AddonParagraph_create() {
         }
     };
 
+    function isPlaceholderClassInHTML (html) {
+        return html.indexOf("class=\"placeholder\"") !== -1;
+    }
+
     presenter.reset = function AddonParagraph_reset() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.placeholder.removePlaceholder();
@@ -866,6 +1104,7 @@ function AddonParagraph_create() {
             presenter.setText(presenter.configuration.placeholderText);
         } else {
             presenter.editor.setContent('');
+            presenter.setStyles();
         }
         presenter.placeholder.addPlaceholder();
         if (presenter.isLocked) {
@@ -915,7 +1154,7 @@ function AddonParagraph_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
-        var modelAnswer = configuration.modelAnswer;
+        var modelAnswers = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -932,7 +1171,9 @@ function AddonParagraph_create() {
 
         var innerText = "";
         if (showAnswers) {
-            innerText = modelAnswer;
+            modelAnswers.forEach((answer) => {
+                innerText += answer.Text += "<div></div><br>";
+            });
         }
         if (presenter.printableState) {
             innerText = presenter.printableState;
@@ -957,7 +1198,145 @@ function AddonParagraph_create() {
     presenter.didUserAnswer = function (usersAnswer) {
         var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
         return !!parsedAnswer;
+    };
+    
+    function ParagraphKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
     }
+
+    ParagraphKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ParagraphKeyboardController.prototype.constructor = ParagraphKeyboardController;
+
+    presenter.buildKeyboardController = function Paragraph_buildKeyboardController () {
+        presenter.keyboardControllerObject = new ParagraphKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function Paragraph_getElementsForKeyboardNavigation() {
+        return this.$view.find(".mce-btn, .mce-edit-area");
+    };
+
+    presenter.keyboardController = function Paragraph_keyboardController (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    ParagraphKeyboardController.prototype.selectAction = function () {
+        if (presenter.isShowAnswersActive
+            || presenter.isGradualShowAnswersActive
+            || presenter.isErrorCheckingMode) {
+            return;
+        }
+
+        const el = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        if (el.hasClass("mce-edit-area")) {
+            presenter.editor.execCommand('mceCodeEditor');
+        } else {
+            el[0].click();
+            document.activeElement.blur();
+            presenter.speakSelectedOnAction(el);
+        }
+        this.mark(this.keyboardNavigationCurrentElement);
+    };
+
+    presenter.speakSelectedOnAction = function Paragraph_speakSelectedOnAction (el) {
+        if (el.hasClass("mce-active")) {
+            presenter.speak(presenter.speechTexts.selected);
+        } else {
+            presenter.speak(presenter.speechTexts.deselected);
+        }
+    };
+
+    ParagraphKeyboardController.prototype.mark = function (element) {
+        var target = this.getTarget(element, false);
+        target.addClass('keyboard_navigation_active_element_important');
+        if (target.hasClass("mce-edit-area")) {
+            target.addClass('keyboard-navigation-margin');
+        }
+    };
+
+    ParagraphKeyboardController.prototype.unmark = function (element) {
+        var target = this.getTarget(element, false);
+        target.removeClass('keyboard_navigation_active_element_important');
+        if (target.hasClass("mce-edit-area")) {
+            target.removeClass('keyboard-navigation-margin');
+        }
+    };
+
+    ParagraphKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    ParagraphKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        this.readCurrentElement();
+    };
+
+    ParagraphKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    ParagraphKeyboardController.prototype.readCurrentElement = function () {
+        const element = this.getTarget(this.keyboardNavigationCurrentElement, false);
+        let ariaLabel = element[0].getAttribute("aria-label");
+        let text = "";
+        if (element.hasClass("mce-btn") && ariaLabel) {
+            const label = ariaLabel.toLowerCase().replace(/\s/gm, "");
+            const ttsKey = presenter.TOOLBAR_ARIAS[label];
+            if (ttsKey) {
+                text = presenter.speechTexts[ttsKey];
+            } else {
+                text = ariaLabel;
+            }
+            text = element.hasClass("mce-active") ? `${text} ${presenter.speechTexts.selected}` : text;
+        } else if (element.hasClass("mce-edit-area")) {
+            let contentToRead = $(presenter.editor.getContent({format : 'html'}));
+            if (contentToRead.text().trim().length === 0) {
+                text = presenter.speechTexts.paragraphContent;
+            } else {
+                text = TTSUtils.getTextVoiceArrayFromElement(contentToRead, presenter.configuration.langTag);
+            }
+        } else {
+            let content;
+            try {
+                content = element[0].textContent;
+            } catch (error) {
+                console.error(error);
+                content = "element";
+            }
+            text = content;
+        }
+
+        presenter.speak(text);
+    };
+
+    presenter.speak = function Paragraph_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function Paragraph_setWCAGStatus(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Paragraph_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.getActivitiesCount = function Paragraph_getActivitiesCount () {
+        let answersCount = 0;
+        presenter.configuration.modelAnswer.forEach(answer => {
+            if (answer.Text.replace("<br>", "") !== "") {
+                answersCount++;
+            }
+        });
+        return answersCount;
+    };
 
     return presenter;
 }

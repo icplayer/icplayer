@@ -34,6 +34,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.choice.IOptionListener;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.module.text.AudioInfo;
 
 public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
@@ -55,6 +56,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void hideItem(String id);
 		public void showItem(String id);
 		void connectDOMNodeRemovedEvent(String id);
+		public void rerenderMath();
 	}
 
 	private final int stateVersion = 1;
@@ -504,6 +506,16 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	}
 
+	@Override
+	public void onAudioButtonClicked(AudioInfo audioInfo) {
+	    //not implemented
+	}
+
+	@Override
+	public void onAudioEnded(AudioInfo audioInfo) {
+	    //not implemented
+	}
+
 	private void show() {
 		isVisible = true;
 		if(view != null){
@@ -590,6 +602,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			deselectCurrentItem(true);
 			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
 			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
+			view.rerenderMath();
 		}
 	}
 
@@ -616,5 +629,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private void setStateV2(HashMap<String, String> decodedState) {
 		isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
 		this.items = JSONUtils.decodeSet(decodedState.get("items"));
+	}
+
+	@Override
+	public boolean isActivity() {
+		return true;
 	}
 }

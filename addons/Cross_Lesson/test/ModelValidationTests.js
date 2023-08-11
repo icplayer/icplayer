@@ -10,7 +10,11 @@ TestCase("[Cross Lesson] Model validation", {
             CourseID: "1234567",
             LessonID: "testLesson",
             Page: "xQNFEDISERT",
-            Type: "lesson"
+            Type: "lesson",
+            OpenLessonInCurrentTab: "True",
+            langAttribute: "PL-pl",
+            CheckForAccess: "True",
+            AccessIDs: "1234, 5678"
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -21,7 +25,11 @@ TestCase("[Cross Lesson] Model validation", {
         assertEquals("1234567", validatedModel.courseID);
         assertEquals("testLesson", validatedModel.lessonID);
         assertEquals("xQNFEDISERT", validatedModel.page);
-        assertEquals("lesson", validatedModel.type)
+        assertEquals("lesson", validatedModel.type);
+        assertEquals(true, validatedModel.openLessonInCurrentTab);
+        assertEquals("PL-pl", validatedModel.langTag);
+        assertEquals(true, validatedModel.checkForAccess);
+        assertEquals([1234, 5678], validatedModel.accessIds);
     },
 
     'test given model without lesson ID when validating then return correct error code': function () {
@@ -72,6 +80,66 @@ TestCase("[Cross Lesson] Model validation", {
         assertEquals("V_03", validatedModel.errorCode);
     },
 
+    'test given model with checkForAccess not selected and filled accessIds when validation then return error code V_04': function () {
+        const model = {
+            Text: "Go to lesson",
+            Image: "/file/server/123456",
+            CourseID: "1234567",
+            LessonID: "testLesson",
+            Page: "xQNFEDISERT",
+            Type: "lesson",
+            OpenLessonInCurrentTab: "True",
+            langAttribute: "PL-pl",
+            CheckForAccess: "False",
+            AccessIDs: "1234"
+        };
+
+        const validatedModel = this.presenter.validateModel(model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals("V_04", validatedModel.errorCode);
+    },
+
+    'test given model with checkForAccess selected and filled improperly accessIds when validation then return error code V_05': function () {
+        const model = {
+            Text: "Go to lesson",
+            Image: "/file/server/123456",
+            CourseID: "1234567",
+            LessonID: "testLesson",
+            Page: "xQNFEDISERT",
+            Type: "lesson",
+            OpenLessonInCurrentTab: "True",
+            langAttribute: "PL-pl",
+            CheckForAccess: "True",
+            AccessIDs: "12e34s"
+        };
+
+        const validatedModel = this.presenter.validateModel(model);
+
+        assertTrue(validatedModel.isError);
+        assertEquals("V_05", validatedModel.errorCode);
+    },
+
+    'test given model with checkForAccess selected and empty accessIds and CourseID when validation then return valid': function () {
+        const model = {
+            Text: "Go to lesson",
+            Image: "/file/server/123456",
+            CourseID: "",
+            LessonID: "testLesson",
+            Page: "xQNFEDISERT",
+            Type: "lesson",
+            OpenLessonInCurrentTab: "True",
+            langAttribute: "PL-pl",
+            CheckForAccess: "True",
+            AccessIDs: ""
+        };
+
+        const validatedModel = this.presenter.validateModel(model);
+
+        assertTrue(!validatedModel.isError);
+    },
+
+
     'test given model without resource type when validating then set type to lesson': function () {
         var model = {
             Text: "Go to lesson",
@@ -79,7 +147,9 @@ TestCase("[Cross Lesson] Model validation", {
             CourseID: "1234567",
             LessonID: "testLesson",
             Page: "xQNFEDISERT",
-            Type: ""
+            Type: "",
+            CheckForAccess: "False",
+            AccessIDs: "",
         };
 
         var validatedModel = this.presenter.validateModel(model);

@@ -19,6 +19,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	private String placeHolder = "";
 	private String langTag = null;
 	private boolean isNumericOnly = false;
+	private boolean wasReset = false;
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
@@ -103,19 +104,31 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return correct;
 	}
 
-	public boolean isTextOnlyPlaceholder(String text, boolean ignorePlaceholderWhenChecking) {
-	    text = getCleanedText(text);
-	    if (textEqualsPlaceholder(text) && ignorePlaceholderWhenChecking) {
+    public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
+        if (getPlaceHolder().trim().isEmpty()) {
             return true;
-		}
-		return false;
-	}
+        }
+
+        if (ignorePlaceholderWhenChecking && !hasGapBeenAccessed) {
+            return false;
+        }
+
+        return true;
+    }
 	
 	/**
 	 * @return id
 	 */
 	public String getId() {
 		return id;
+	}
+
+	public boolean getResetStatus() {
+		return wasReset;
+	}
+
+	public void setResetStatus(boolean wasReset) {
+		this.wasReset = wasReset;
 	}
 
 	public int getValue() {
@@ -170,11 +183,6 @@ public class GapInfo implements IGapCommonUtilsProvider {
         text = cleanStringAccordingToSettings(text);
 		return AlternativeTextService.getVisibleText(text);
     }
-
-	private boolean textEqualsPlaceholder(String text) {
-	    String placeholder = cleanStringAccordingToSettings(getPlaceHolder());
-	    return placeholder.length() > 0 && text.equals(placeholder);
-	}
 
 	private String cleanStringAccordingToSettings(String text) {
 	    if (!isCaseSensitive) {

@@ -37,68 +37,90 @@ public class GapInfoTestCase {
     }
 
     @Test
-    public void givenEmptyPlaceholderAndIgnorePlaceholderFalseWhenIsTextOnlyPlaceholderThenFalse() {
-        boolean ignorePlaceholder = false;
-        String text = "SomeWrongAnswer";
+    public void givenNoPlaceholderAndIgnorePlaceholderFalseAndGapNotAccessedWhenIsValueCheckableThenTrue() {
         this.gapInfo.setPlaceHolder("");
+        boolean ignorePlaceholder = false;
+        boolean hasGapBeenAccessed = false;
 
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
 
-        assertFalse(response);
+        assertTrue(isValueCheckable);
     }
 
     @Test
-    public void givenEmptyPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenFalse() {
-        boolean ignorePlaceholder = true;
-        String text = "SomeWrongAnswer";
+    public void givenNoPlaceholderAndIgnorePlaceholderTrueAndGapNotAccessedWhenIsValueCheckableThenTrue() {
         this.gapInfo.setPlaceHolder("");
-
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
-
-        assertFalse(response);
-    }
-
-    @Test
-    public void givenPlaceholderAndIgnorePlaceholderFalseWhenCheckingIsOnlyPlaceholderThenFalse() {
-        boolean ignorePlaceholder = false;
-        String text = "SomeWrongAnswer";
-        this.gapInfo.setPlaceHolder("Ans");
-
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
-
-        assertFalse(response);
-    }
-
-    @Test
-    public void givenPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenFalse() {
         boolean ignorePlaceholder = true;
-        String text = "SomeWrongAnswer";
-        this.gapInfo.setPlaceHolder("Ans");
+        boolean hasGapBeenAccessed = false;
 
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
 
-        assertFalse(response);
+        assertTrue(isValueCheckable);
     }
 
     @Test
-    public void givenTextThatEqualsPlaceholderAndIgnorePlaceholderFalseWhenCheckingIsOnlyPlaceholderThenFalse() {
+    public void givenNoPlaceholderAndIgnorePlaceholderFalseAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
         boolean ignorePlaceholder = false;
-        String text = "Ans";
-        this.gapInfo.setPlaceHolder("Ans");
+        boolean hasGapBeenAccessed = true;
 
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
 
-        assertFalse(response);
+        assertTrue(isValueCheckable);
     }
 
     @Test
-    public void givenTextThatEqualsPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenTrue() {
+    public void givenNoPlaceholderAndIgnorePlaceholderTrueAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("");
         boolean ignorePlaceholder = true;
-        String text = "Ans";
-        this.gapInfo.setPlaceHolder("Ans");
+        boolean hasGapBeenAccessed = true;
 
-        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
 
-        assertTrue(response);
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenIgnorePlaceholderFalseAndGapNotAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
+        boolean ignorePlaceholder = false;
+        boolean hasGapBeenAccessed = false;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenIgnorePlaceholderFalseAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
+        boolean ignorePlaceholder = false;
+        boolean hasGapBeenAccessed = true;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenIgnorePlaceholderTrueAndGapAccessedWhenIsValueCheckableThenTrue() {
+        this.gapInfo.setPlaceHolder("Anything");
+        boolean ignorePlaceholder = true;
+        boolean hasGapBeenAccessed = true;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertTrue(isValueCheckable);
+    }
+
+    @Test
+    public void givenIgnorePlaceholderTrueAndGapNotAccessedWhenIsValueCheckableThenFalse() {
+        this.gapInfo.setPlaceHolder("Anything");
+        boolean ignorePlaceholder = true;
+        boolean hasGapBeenAccessed = false;
+
+        boolean isValueCheckable = this.gapInfo.isValueCheckable(ignorePlaceholder, hasGapBeenAccessed);
+
+        assertFalse(isValueCheckable);
     }
 }

@@ -23,6 +23,10 @@ public class LayoutsContainer {
 		return this.actualLayoutID;
 	}
 
+	public PageLayout getActualLayout() {
+		return this.layoutsMap.get(this.getActualSemiResponsiveLayoutID());
+	}
+
 	public void removeFromLayoutsStyle(CssStyle styleToDelete, HashMap<String, CssStyle> styles) {
 		String defaultCssStyle = "";
 		
@@ -88,6 +92,16 @@ public class LayoutsContainer {
 		for(PageLayout pageLayout : this.layoutsMap.values()) {
 			if (pageLayout.getName().equals(layoutName)) {
 				return pageLayout.getID();
+			}
+		}
+		
+		return "";
+	}
+
+	public String getLayoutNameByID(String layoutID) {
+		for(PageLayout pageLayout : this.layoutsMap.values()) {
+			if (pageLayout.getID().equals(layoutID)) {
+				return pageLayout.getName();
 			}
 		}
 		

@@ -23,9 +23,11 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 
 
-public class GapWidget extends TextBox implements TextElementDisplay {
+
+public class GapWidget extends TextBox implements TextElementDisplay, NavigationTextElement {
 	private boolean isDisabled = false;
 	private String gapId = "";
 	private String text = "";
@@ -35,7 +37,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
 	private boolean ignorePlaceholder = false;
-
+	private boolean gapHasBeenAccessed = false;
 	private final String expNotationPattern = "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
 	
 	protected final GapInfo gapInfo;
@@ -70,7 +72,15 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public void setIgnorePlaceholder(boolean ignore) {
 	    this.ignorePlaceholder = ignore;
 	}
-	
+
+	public void markGapAsAccessed() {
+	    this.gapHasBeenAccessed = true;
+	}
+
+	public boolean hasGapBeenAccessed() {
+	    return this.gapHasBeenAccessed;
+	}
+
 	private final void initialize (ITextViewListener listener) {
 
 		setStylePrimaryName("ic_gap");
@@ -208,10 +218,13 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean shouldSendEvent() {
 		String value = getText();
 		String gapID = gapInfo.getId();
-		if (value != this.text || gapID != this.gapId || this.firstSend) {
+		boolean wasReset = gapInfo.getResetStatus();
+
+		if (value != this.text || gapID != this.gapId || this.firstSend || wasReset) {
 			this.text = value;
 			this.gapId = gapID;
 			this.firstSend = false;
+			gapInfo.setResetStatus(false);
 			return true;
 		}
 		
@@ -229,28 +242,26 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 
 	@Override
     public void setShowErrorsMode(boolean isActivity) {
+    	setEnabled(false);
     	if (isActivity) {
-			String text = getText();
-			String placeholder = this.gapInfo.getPlaceHolder().trim();
-			boolean isTextOnlyPlaceholder = this.ignorePlaceholder && text == placeholder;
+			String text = getText().trim();
+			boolean ignoreCheckingIfCorrect = !this.gapInfo.isValueCheckable(this.ignorePlaceholder, this.gapHasBeenAccessed);
 			this.isWorkingMode = false;
-			text = text.trim();
 
-			if (text.length() > 0 && !isTextOnlyPlaceholder) {
-				if (gapInfo.isCorrect(text)) {
-					addStyleDependentName("correct");
-					this.gapState = 1;
-				} else {
-					addStyleDependentName("wrong");
-					this.gapState = 2;
-				}
-			} else {
+			if (text.length() <= 0 || ignoreCheckingIfCorrect) {
 				addStyleDependentName("empty");
 				this.gapState = 3;
+				return;
 			}
-		}
+			if (gapInfo.isCorrect(text)) {
+				addStyleDependentName("correct");
+				this.gapState = 1;
+			} else {
+				addStyleDependentName("wrong");
+				this.gapState = 2;
+			}
 
-		setEnabled(false);
+		}
 	}
 
 	@Override
@@ -266,10 +277,9 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public void reset() {
 		setText("");
+		gapInfo.setResetStatus(true);
 		this.setWorkMode();
-		this.text = "";
-		this.gapId = "";
-		this.firstSend = true;
+		this.gapHasBeenAccessed = false;
 		removeStyleDependentName("correct-answer");
 	}
 
@@ -312,6 +322,9 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 
 	@Override
 	public boolean isAttempted() {
+	    if (this.ignorePlaceholder && this.gapInfo.getPlaceHolder().length() > 0) {
+	        return this.gapHasBeenAccessed;
+	    }
 		return (getText().trim().length() > 0);
 	}
 
@@ -365,6 +378,16 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean getResetStatus() {
+		return gapInfo.getResetStatus();
+	}
+
+	@Override
+	public void setResetStatus(boolean wasReset) {
+		gapInfo.setResetStatus(wasReset);
+	}
+
+	@Override
 	public void setFocusGap(boolean focus) {
 		if (focus) {
 			this.select();
@@ -388,6 +411,21 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public void showAnswers() {
 		setText(gapInfo.getFirstCorrectAnswer());
 		addStyleDependentName("correct-answer");
+	}
+
+	@Override
+	public void setElementFocus(boolean focus) {
+		if (focus) {
+			this.select();
+		} else {
+			this.deselect();
+		}
+		setFocus(focus);
+	}
+
+	@Override
+	public String getElementType() {
+		return "gap";
 	}
 
 	public void select() {

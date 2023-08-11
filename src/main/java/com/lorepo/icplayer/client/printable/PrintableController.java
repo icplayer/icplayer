@@ -53,6 +53,10 @@ public class PrintableController {
 	public String getPageName() {
 		return page.getName();
 	}
+
+	public boolean isSplitInPrintBlocked() {
+		return page.isSplitInPrintBlocked();
+	}
 	
 	private native JavaScriptObject initJSObject(PrintableController x) /*-{
 		var controller = function() {};
@@ -84,6 +88,10 @@ public class PrintableController {
 		controller.getPageName = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPageName()();
 		}
+		
+		controller.getPageMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPageMaxScore()();
+		}
 
 		return controller;
 	}-*/;
@@ -91,7 +99,11 @@ public class PrintableController {
 	public String getPageId () {
 		return page.getId();
 	}
-
+	
+	public int getPageMaxScore() {
+		return page.getModulesMaxScore();
+	}
+	
 	public void setScore(String score) {
 		this.scoreJS = parseJson(score);
 	}

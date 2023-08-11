@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
+import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
@@ -113,6 +114,7 @@ public class TextParser {
 				}
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
+				parserResult.parsedText = parseAddonGap(parserResult.parsedText, false);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -176,6 +178,7 @@ public class TextParser {
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
+		result.parsedText = parseAddonGap(result.parsedText, true);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -829,6 +832,7 @@ public class TextParser {
 			replaceText = this.getReplaceText(id, linkText, expression, type);
 			
 			LinkInfo pli = new LinkInfo(id, type, pageName, "");
+			pli.setLang(this.langTag);
 			parserResult.linkInfos.add(pli);
 		}
 
@@ -889,6 +893,7 @@ public class TextParser {
 		String target = (openLinksinNewTab) ? "_blank" : "_self";
 		
 		LinkInfo pli = new LinkInfo(id, LinkType.EXTERNAL, href, target);
+		pli.setLang(this.langTag);
 		parserResult.linkInfos.add(pli);
 		replaceText = "<a id='" + id +  "' target='" + target + "' href='" + href + "'";
 		
@@ -985,6 +990,38 @@ public class TextParser {
 		audioElement.setHTMLAttribute("src", filePath);
 
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
+	}
+
+	private String parseAddonGap(String srcText, boolean isEditorMode) {
+		final String patternString = "\\\\addon\\{(.+?)\\}";
+		RegExp regexp = RegExp.compile(patternString);
+		MatchResult matchResult;
+
+		String input = srcText;
+		String output = "";
+
+		while ((matchResult = regexp.exec(input)) != null) {
+			if (matchResult.getGroupCount() > 0) {
+				String group = matchResult.getGroup(0);
+				String addonID = matchResult.getGroup(1);
+				int lastIndex = matchResult.getIndex();
+				int groupLength = group.length();
+
+				output += input.substring(0, lastIndex);
+				input = input.substring(lastIndex + groupLength);
+				if (isEditorMode) {
+					output += NestedAddonUtils.getPlaceholderInEditorMode(addonID).getString();
+				} else {
+					output += NestedAddonUtils.getPlaceholder(addonID).getString();
+				}
+			} else {
+				break;
+			}
+
+		}
+		output += input;
+
+		return output;
 	}
 
 	public String parseAltText(String srcText) {

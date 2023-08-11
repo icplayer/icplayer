@@ -94,7 +94,7 @@ function AddonQuiz_create() {
         };
     };
 
-    function validateQuestions(questions, helpButtons) {
+    function validateQuestions(questions, helpButtons, helpButtonsMode) {
         if (questions.length < 1) {
             throw ConfigurationError('QUESTION_REQUIRED');
         }
@@ -110,7 +110,7 @@ function AddonQuiz_create() {
             ) {
                 throw ConfigurationError('MISSING_WRONG_ANSWER');
             }
-            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint)) {
+            if (helpButtons && ModelValidationUtils.isHtmlEmpty(q.Hint) && helpButtonsMode !== '50/50') {
                 throw ConfigurationError('MISSING_HINT');
             }
         }
@@ -196,7 +196,7 @@ function AddonQuiz_create() {
         presenter.setSpeechTexts(model['speechTexts']);
         presenter.config = {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            questions: validateQuestions(model['Questions'], helpButtons),
+            questions: validateQuestions(model['Questions'], helpButtons, model["HelpButtonsMode"]),
             helpButtons: helpButtons,
             nextLabel: model['NextLabel'] || '',
             gameLostMessage: model['GameLostMessage'],
@@ -211,6 +211,7 @@ function AddonQuiz_create() {
             testMode: ModelValidationUtils.validateBoolean(model['TestMode']),
             showSummary: ModelValidationUtils.validateBoolean(model['ShowSummary']),
             langTag: model["langAttribute"],
+            helpButtonsMode: model["HelpButtonsMode"]
         }
     };
 
@@ -240,10 +241,14 @@ function AddonQuiz_create() {
         var wrapper = $('<div class="game-won-message-wrapper"></div>');
         var message = $(`<div class="${CSS_CLASSES.GAME_WON_MESSAGE}"></div>`);
         if(presenter.config.showSummary) {
-            message.html(presenter.config.gameWonMessage +
-                '<div>' + presenter.config.gameSummaryMessage + '<div>' + presenter.config.correctGameMessage + ': ' + getScore() + '</div><div>' + presenter.config.wrongGameMessage + ': ' + (presenter.config.questions.length - getScore()) + '</div>' + '</div>');
-        }else{
-            message.html(presenter.config.gameWonMessage);
+            message.html(window.xssUtils.sanitize(
+                parseAltText(presenter.config.gameWonMessage) +
+                '<div>' + parseAltText(presenter.config.gameSummaryMessage) +
+                '<div>' + parseAltText(presenter.config.correctGameMessage) + ': ' + getScore() +
+                '</div><div>' + parseAltText(presenter.config.wrongGameMessage) + ': ' + (presenter.config.questions.length - getScore()) +
+                '</div>' + '</div>'));
+        } else {
+            message.html(window.xssUtils.sanitize(parseAltText(presenter.config.gameWonMessage)));
         }
         wrapper.append(message);
         showInHintArea(wrapper);
@@ -253,22 +258,22 @@ function AddonQuiz_create() {
         var wrapper = $('<div class="game-lost-message-wrapper"></div>');
         var message = $(`<div class="${CSS_CLASSES.GAME_LOST_MESSAGE}"></div>`);
         if(presenter.config.showSummary) {
-            message.html(presenter.config.gameLostMessage +
-                '<div>' + presenter.config.gameSummaryMessage + '<div>' + presenter.config.correctGameMessage + ': ' + getScore() + '</div><div>' + presenter.config.wrongGameMessage + ': ' + (presenter.config.questions.length - getScore()) + '</div>' + '</div>');
+            message.html(window.xssUtils.sanitize(
+                parseAltText(presenter.config.gameLostMessage) +
+                '<div>' + parseAltText(presenter.config.gameSummaryMessage) +
+                '<div>' + parseAltText(presenter.config.correctGameMessage) + ': ' + getScore() +
+                '</div><div>' + parseAltText(presenter.config.wrongGameMessage) + ': ' + (presenter.config.questions.length - getScore()) +
+                '</div>' + '</div>'));
         }else{
-            message.html(presenter.config.gameLostMessage);
+            message.html(window.xssUtils.sanitize(parseAltText(presenter.config.gameLostMessage)));
         }
         wrapper.append(message);
         showInHintArea(wrapper);
     };
 
-    function gameSummary() {
-        var wrapper = $('<div class="game-summary-message-wrapper"></div>');
-        var message = $('<div class="game-summary-message"></div>');
-        message.html(presenter.config.gameSummaryMessage + '<div>' + presenter.config.correctGameMessage + ': ' + getScore() + '</div><div>' + presenter.config.wrongGameMessage + ': ' + (presenter.config.questions.length - getScore()) + '</div>');
-        wrapper.append(message);
-        showInHintArea(wrapper);
-    };
+    function parseAltText(text) {
+        return presenter.preview ? window.TTSUtils.parsePreviewAltText(text) : presenter.textParser.parse(text);
+    }
 
     function getSelectItemAction(answer, $this) {
         var isCorrect = answer == getCurrentQuestion().CorrectAnswer;
@@ -420,7 +425,8 @@ function AddonQuiz_create() {
     };
 
     function showHint() {
-        var $hint = $(`<div class="${CSS_CLASSES.QUESTION_HINT}"></div>`).html(getCurrentQuestion().Hint);
+        var $hint = $(`<div class="${CSS_CLASSES.QUESTION_HINT}"></div>`);
+        $hint.html(window.xssUtils.sanitize(parseAltText(getCurrentQuestion().Hint)));
         showInHintArea($hint);
         presenter.$view.find('.hint-button').addClass('used');
     }
@@ -470,13 +476,12 @@ function AddonQuiz_create() {
         var $title = $(`<div class="${CSS_CLASSES.QUESTION_TITLE}"></div>`);
         var $tips = $('<div class="question-tips"></div>');
         var $nextButton = $(`<div class="${CSS_CLASSES.NEXT_QUESTION_BUTTON}"></div>`);
-        $nextButton.text(presenter.config.nextLabel);
+        $nextButton.html(window.xssUtils.sanitize(parseAltText(presenter.config.nextLabel)));
         $nextButton.clickAction = nextButtonAction;
-
 
         cleanWorkspace();
 
-        $title.html(q.Question);
+        $title.html(window.xssUtils.sanitize(parseAltText(q.Question)));
 
         var tempAnswers = [q.CorrectAnswer];
         [q.WrongAnswer1, q.WrongAnswer2, q.WrongAnswer3].forEach(function (wrongAnswer) {
@@ -520,7 +525,7 @@ function AddonQuiz_create() {
 
             var label = labels[i];
             $headersOfAnswer.text(label);
-            $divAnswers.text(answer || '');
+            $divAnswers.html(window.xssUtils.sanitize(parseAltText(answer || '')));
             if (answer === null) {
                 $tip.addClass(CSS_CLASSES.REMOVED);
                 $tip.clickAction = function () {
@@ -559,28 +564,9 @@ function AddonQuiz_create() {
         $q.append($buttons);
         presenter.hintWrapper = $(`<div class="${CSS_CLASSES.QUESTION_HINT_WRAPPER}"></div>`);
         $q.append(presenter.hintWrapper);
-        if (presenter.config.helpButtons) {
-            var $fiftyFifty = $(`<div class="${CSS_CLASSES.FIFTY_FIFTY}"></div>`);
-            var $hintButton = $(`<div class="${CSS_CLASSES.HINT_BUTTON}"></div>`);
-            $fiftyFifty.clickAction = fiftyFiftyAction;
-            $hintButton.clickAction = hintAction;
-            $buttons.append($fiftyFifty);
-            $buttons.append($hintButton);
-            presenter.activeElements.push($fiftyFifty);
-            presenter.activeElements.push($hintButton);
-            $q.addClass('with-hint');
-            if (state.fiftyFiftyUsed) {
-                $fiftyFifty.addClass('used');
-            }
-            if (state.hintUsed) {
-                $hintButton.addClass('used');
-                if (state.hintUsed == state.currentQuestion) {
-                    showHint();
-                }
-            }
-        } else {
-            $q.addClass('without-hint');
-        }
+
+        presenter.displayHint($q, $buttons);
+
         presenter.activeElements.push($nextButton);
         presenter.nextButton = $nextButton;
         if (!presenter.config.nextAfterSelect) {
@@ -598,7 +584,42 @@ function AddonQuiz_create() {
         if (presenter.keyboardControllerObject) {
             presenter.reloadKeyboardController();
         }
-    };
+    }
+
+    presenter.displayHint = function ($q, $buttons) {
+        if (presenter.config.helpButtons) {
+            var $fiftyFifty = $(`<div class="${CSS_CLASSES.FIFTY_FIFTY}"></div>`);
+            var $hintButton = $(`<div class="${CSS_CLASSES.HINT_BUTTON}"></div>`);
+            $fiftyFifty.clickAction = fiftyFiftyAction;
+            $hintButton.clickAction = hintAction;
+
+            if (presenter.config.helpButtonsMode === 'Hint') {
+                $buttons.append($hintButton);
+                presenter.activeElements.push($hintButton);
+            } else if (presenter.config.helpButtonsMode === '50/50') {
+                $buttons.append($fiftyFifty);
+                presenter.activeElements.push($fiftyFifty);
+            } else {
+                $buttons.append($fiftyFifty);
+                $buttons.append($hintButton);
+                presenter.activeElements.push($fiftyFifty);
+                presenter.activeElements.push($hintButton);
+            }
+
+            $q.addClass('with-hint');
+            if (state.fiftyFiftyUsed) {
+                $fiftyFifty.addClass('used');
+            }
+            if (state.hintUsed) {
+                $hintButton.addClass('used');
+                if (state.hintUsed == state.currentQuestion) {
+                    showHint();
+                }
+            }
+        } else {
+            $q.addClass('without-hint');
+        }
+    }
 
     function haveWon() {
         var q = getCurrentQuestion();
@@ -608,6 +629,7 @@ function AddonQuiz_create() {
     function initializeLogic(view, model, preview) {
         setupDefaults();
         presenter.$view = $(view);
+        presenter.preview = preview;
         try {
             presenter.setupConfig(model);
             presenter.showCurrentQuestion();
@@ -647,6 +669,8 @@ function AddonQuiz_create() {
 
     presenter.setPlayerController = function AddonQuiz_setPlayerController(controller) {
         playerController = controller;
+
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.setVisibility = function AddonQuiz_setVisibility(isVisible) {
@@ -838,6 +862,7 @@ function AddonQuiz_create() {
         var upgradedModel = presenter.upgradeAcceptWrongAnswers(model);
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addSpeechTexts(upgradedModel);
+        upgradedModel = presenter.addHelpButtonsMode(upgradedModel);
 
         return upgradedModel;
     };
@@ -866,6 +891,17 @@ function AddonQuiz_create() {
         return upgradedModel;
     };
 
+    presenter.addHelpButtonsMode = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('HelpButtonsMode')) {
+            upgradedModel['HelpButtonsMode'] =  'Both';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.addSpeechTexts = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
@@ -888,6 +924,7 @@ function AddonQuiz_create() {
         }
         return upgradedModel;
    };
+
 
     presenter.onEventReceived = function AddonQuiz_onEventReceived(eventName) {
         if (eventName == "ShowAnswers") {

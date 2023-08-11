@@ -7,6 +7,8 @@ function AddonAudio_create(){
     var currentTimeAlreadySent;
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var audioIsLoaded = false;
+    var fetchedAudioData;
+    var isReadyToReplay = true;
 
     presenter.playbackRate = 1.0;
     var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -29,10 +31,18 @@ function AddonAudio_create(){
     presenter.mouseData = {};
 
     presenter.onEventReceived = function AddonAudio_onEventReceived (eventName, eventData) {
-        if(eventData.value == 'dropdownClicked' && !presenter.audio.playing) {
+        if (eventData.value == 'dropdownClicked' && !presenter.audio.playing && !isTemporarilyPaused()) {
             presenter.audio.load();
         }
     };
+
+    function isTemporarilyPaused() {
+        return (presenter.audio.paused
+            && presenter.audio.readyState > 2
+            && presenter.audio.currentTime > 0
+            && !presenter.audio.ended
+        );
+    }
 
     presenter.setPlayerController = function AddonAudio_setPlayerController (controller) {
         presenter.playerController = controller;
@@ -103,6 +113,10 @@ function AddonAudio_create(){
     function addonAudio_formatTime (seconds) {
         return StringUtils.timeFormat(seconds);
     }
+
+    presenter.AddonAudio_onProgressedCallback = function () {
+        deferredSyncQueue.resolve();
+    };
 
     presenter.AddonAudio_onLoadedMetadataCallback = function () {
         var duration = parseInt(presenter.audio.duration, 10);
@@ -387,7 +401,7 @@ function AddonAudio_create(){
         var $select = $('<select>');
         for (var i = 0; i < playbackRateList.length; i++) {
             var $option = $('<option>');
-            $option.text('×' + playbackRateList[i]);
+            $option.text(playbackRateList[i]);
             $option.attr('value', playbackRateList[i]);
             if (playbackRateList[i] == 1) {
                 $option.attr('selected', 'selected');
@@ -417,7 +431,7 @@ function AddonAudio_create(){
                 $select.val(presenter.playbackRate);
             } else {
                 var $customOption = $('<option>');
-                $customOption.text('×' + presenter.playbackRate);
+                $customOption.text(presenter.playbackRate);
                 $customOption.attr('value', presenter.playbackRate);
                 $customOption.addClass('custom-option');
                 $select.append($customOption);
@@ -510,6 +524,41 @@ function AddonAudio_create(){
         audio.addEventListener('click', AddonAudio_onAudioClick, false);
         audio.addEventListener('playing', AddonAudio_onAudioPlaying, false);
         audio.addEventListener('pause', AddonAudio_onAudioPause, false);
+
+        if (isMobileIOS()) {
+            AddonAudio_attachEventListenersForIOS(audio);
+        }
+    }
+
+    function AddonAudio_attachEventListenersForIOS(audio) {
+        if (presenter.configuration.forceLoadAudio) {
+            audio.addEventListener('progress', presenter.AddonAudio_onProgressedCallback, { once: true });
+        }
+    }
+
+    function AddonAudio_removeEventListeners(audio) {
+        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
+        presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
+        presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
+        presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
+        presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
+        presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
+        presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
+        presenter.audio.removeEventListener('pause', AddonAudio_onAudioPause, false);
+
+        if (isMobileIOS()) {
+            AddonAudio_removeEventListenersForIOS(audio);
+        }
+    }
+
+    function AddonAudio_removeEventListenersForIOS(audio) {
+        if (presenter.configuration.forceLoadAudio) {
+            audio.removeEventListener('progress', presenter.AddonAudio_onProgressedCallback, { once: true });
+        }
+    }
+
+    function isMobileIOS() {
+        return window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     function AddonAudio_onAudioEnded () {
@@ -538,8 +587,8 @@ function AddonAudio_create(){
 
     presenter.loadAudioDataFromRequest = function (event) {
         if (event.currentTarget.status == 200) {
-            var audioData = event.currentTarget.response;
-            presenter.audio.src = URL.createObjectURL(audioData);
+            fetchedAudioData = event.currentTarget.response;
+            presenter.audio.src = URL.createObjectURL(fetchedAudioData);
             audioIsLoaded = true;
         }
     };
@@ -548,6 +597,8 @@ function AddonAudio_create(){
         var canPlayMp3 = false;
         var canPlayOgg = false;
         var audio = presenter.audio;
+
+        AddonAudio_attachEventListeners(audio);
 
         if(audio.canPlayType) {
             canPlayMp3 = audio.canPlayType && "" != audio.canPlayType('audio/mpeg');
@@ -571,8 +622,6 @@ function AddonAudio_create(){
         }
 
         $(audio).load();
-
-        AddonAudio_attachEventListeners(audio);
     }
 
     presenter.run = function AddonAudio_run (view, model){
@@ -616,14 +665,10 @@ function AddonAudio_create(){
 
         presenter.playerController = null;
 
-        presenter.audio.removeEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
-        presenter.audio.removeEventListener('loadeddata', presenter.AddonAudio_onLoadedMetadataCallback, false);
-        presenter.audio.removeEventListener('timeupdate', AddonAudio_onTimeUpdateCallback, false);
-        presenter.audio.removeEventListener('volumechange', AddonAudio_onVolumeChanged, false);
-        presenter.audio.removeEventListener('ended', AddonAudio_onAudioEnded , false);
-        presenter.audio.removeEventListener('click', AddonAudio_onAudioClick, false);
-        presenter.audio.removeEventListener('playing', AddonAudio_onAudioPlaying, false);
-        presenter.audio.removeEventListener('pause', AddonAudio_onAudioPause, false);
+        AddonAudio_removeEventListeners(presenter.audio);
+        if (presenter.configuration.forceLoadAudio && audioIsLoaded) {
+            URL.revokeObjectURL(presenter.audio.src);
+        }
         presenter.audio.setAttribute('src', '');
         presenter.audio.load();
         presenter.audio = null;
@@ -717,6 +762,9 @@ function AddonAudio_create(){
     presenter.play = deferredSyncQueue.decorate(function() {
         if (!presenter.audio) return;
         if(presenter.audio.src && presenter.audio.paused) {
+            if (!isReadyToReplay) {
+                prepareToReplay();
+            }
             presenter.audio.play();
             if (presenter.configuration.isHtmlPlayer) {
                 presenter.$playPauseBtn.
@@ -740,9 +788,24 @@ function AddonAudio_create(){
         }
     });
 
+    function prepareToReplay() {
+        if (isMobileIOS()) {
+            prepareToReplayOnMobileIOS()
+        }
+        isReadyToReplay = true;
+    }
+
+    function prepareToReplayOnMobileIOS() {
+        if (presenter.configuration.forceLoadAudio) {
+            URL.revokeObjectURL(presenter.audio.src);
+            presenter.audio.src = URL.createObjectURL(fetchedAudioData);
+        }
+    }
+
     presenter.stop = deferredSyncQueue.decorate(function AddonAudio_stop () {
         if (!presenter.audio) return;
         if(presenter.audio.readyState > 0) {
+            isReadyToReplay = false;
             presenter.pause();
             presenter.audio.currentTime = 0;
         }

@@ -79,7 +79,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.addElement(this.gapWidget);
 		
 		this.textView.setWCAGStatus(true);
-		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
 		
 		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.tab(eventMock);
@@ -117,6 +117,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 	public void testDropdownKeyboardControlsInWCAG() throws Exception {
 		InlineChoiceWidget choiceMock = mock(InlineChoiceWidget.class);
 		when(choiceMock.getGapType()).thenReturn("dropdown");
+		when(choiceMock.getElementType()).thenReturn("dropdown");
 		when(choiceMock.getWCAGTextValue()).thenReturn("content");
 		this.textView.addElement(choiceMock);
 		

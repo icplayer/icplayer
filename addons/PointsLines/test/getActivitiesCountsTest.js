@@ -1,4 +1,4 @@
-TestCase("[PointLines] getActivitiesCount function", {
+TestCase("[PointsLines] getActivitiesCount function", {
   setUp: function () {
     this.presenter = AddonPointsLines_create();
 

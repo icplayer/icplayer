@@ -14,6 +14,7 @@ function AddonText_Selection_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.activeGradualShowAnswersItems = [];
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -30,6 +31,17 @@ function AddonText_Selection_create() {
     var PHRASE_END = "&\n&PHRASE_END&\n&";
 
     var MATH_JAX_MARKER = 'MATHJAX';
+
+    var DEFAULT_TTS_PHRASES = {
+        selectedSectionStart: 'start of selected section',
+        selectedSectionEnd: 'end of selected section',
+        selected: 'selected',
+        deselected: 'deselected',
+        wrong: 'wrong',
+        correct: 'correct',
+        phrase: 'phrase',
+        phraseEnd: 'end of phrase',
+    };
 
     var CSS_CLASSES = {
         SELECTABLE: "selectable",
@@ -166,124 +178,115 @@ function AddonText_Selection_create() {
         }
     };
 
-    presenter.startSelection = function (et) {
-        first = parseInt($(et).attr('number'), 10);
-        if (isNaN(first)) first = parseInt($(et).attr('left'), 10);
-        if (isNaN(first)) first = parseInt($(et).closest('.selectable').attr('number'), 10);
-        if (isNaN(first)) {
-            $(et).nextAll('div').each(function () {
-                first = parseInt($(this).children('span.selectable').attr('number'), 10);
-                if (!isNaN(first)) {
-                    beforeActive = true;
-                    return false;
-                }
-            });
+    presenter.getSpanByNumber = function (number) {
+        return presenter.$view.find('.text_selection').find(`span[number='${number}']`);
+    };
+
+    presenter.handleSingleSelection = function () {
+        if (presenter.configuration.selection_type === 'SINGLESELECT') {
+            presenter.handleSingleSelectionSingleSelect();
+        } else if (presenter.configuration.selection_type === 'MULTISELECT') {
+            presenter.handleSingleSelectionMultiSelect();
         }
-        if ($(et).hasClass('text_selection') && isNaN(first)) {
-            beforeActive = true;
-            first = parseInt(presenter.$view.find('.text_selection').find('span.selectable').first().attr('number'), 10);
+
+        const $span = presenter.getSpanByNumber(first);
+        if ($span.hasClass('selectable')) {
+            presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), true);
         }
     };
 
-    presenter.endSelection = function (et) {
-        var last = parseInt($(et).attr('number'), 10),
-            tmp = 0,
-            i,
-            $span = null,
-            element = null;
+    presenter.handleSingleSelectionSingleSelect = function() {
+        const selected = presenter.$view.find('.text_selection').find('.selected');
+        const $span = presenter.getSpanByNumber(first);
 
-        if (isNaN(last)) last = parseInt($(et).attr('right'), 10);
-        if (isNaN(last)) last = parseInt($(et).closest('.selectable').attr('number'), 10);
-        if (isNaN(last)) {
-            $(et).nextAll('div').each(function () {
-                last = parseInt($(this).children('span.selectable').attr('number'), 10);
-                if (!isNaN(last)) {
-                    return false;
-                }
-            });
-        }
-        if ($(et).hasClass('text_selection')) {
-            last = first;
-        }
-        var selected = presenter.$view.find('.text_selection').find('.selected');
-
-        if (first !== last) {
-            if (first > last) {
-                tmp = first;
-                first = last;
-                last = tmp;
+        if (selected.length === 0) {
+            if ($span.hasClass('selectable')) {
+                $span.addClass('selected');
             }
-
-            if (presenter.configuration.selection_type === 'SINGLESELECT') {
-
-                if (selected.length === 0) {
-                    for (i = first; i < last + 1; i++) {
-                        element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                        if (element.hasClass('selectable')) {
-                            element.toggleClass('selected');
-                            break;
-                        }
-                    }
-                } else if (selected.length === 1) {
-                    for (i = first; i < last + 1; i++) {
-                        element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                        if (element.hasClass('selectable')) {
-                            $(selected).removeClass('selected');
-                            element.addClass('selected');
-                            break;
-                        }
-                    }
-                } else {
-                    $(selected).removeClass('selected');
-                }
-            } else if (presenter.configuration.selection_type === 'MULTISELECT') {
-
-                for (i = first; i < last + 1; i++) {
-                    element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                    if (element.hasClass('selectable')) {
-                        element.toggleClass('selected');
-                    }
-                }
-
-            }
-
-            for (i = first; i < last + 1; i++) {
-                element = presenter.$view.find('.text_selection').find("span[number='" + i + "']");
-                if (element.hasClass('selectable')) {
-                    presenter.sendEvent(element.attr('number'), element.hasClass('selected'), isCorrect(element), i === last);
-                }
-            }
-
-        } else if (first === last && !beforeActive) {
-            $span = presenter.$view.find('.text_selection').find("span[number='" + first + "']");
-
-            if (presenter.configuration.selection_type === 'SINGLESELECT') {
-
-                if (selected.length == 0) {
-                    if ($span.hasClass('selectable')) {
-                        $span.addClass('selected');
-                    }
-                } else if (selected.length == 1) {
-                    if (parseInt(selected.attr('number'), 10) === parseInt(first, 10)) {
-                        selected.removeClass('selected');
-                    } else {
-                        if ($span.hasClass('selectable')) {
-                            selected.removeClass('selected');
-                            $span.toggleClass('selected');
-                        }
-                    }
-                }
-
-            } else if (presenter.configuration.selection_type === 'MULTISELECT') {
-
+        } else if (selected.length === 1) {
+            if (parseInt(selected.attr('number'), 10) === parseInt(first, 10)) {
+                selected.removeClass('selected');
+            } else {
                 if ($span.hasClass('selectable')) {
+                    selected.removeClass('selected');
                     $span.toggleClass('selected');
                 }
             }
+        }
+    };
 
+    presenter.handleSingleSelectionMultiSelect = function() {
+        const $span = presenter.getSpanByNumber(first);
+
+        if ($span.hasClass('selectable')) {
+            $span.toggleClass('selected');
+        }
+    };
+
+    presenter.handleMultipleSelection = function (last) {
+        const isSelectedRightToLeft = first > last;
+        if (isSelectedRightToLeft) [first, last] = [last, first];
+
+        if (presenter.configuration.selection_type === 'SINGLESELECT') {
+            presenter.handleMultipleSelectionSingleSelect(last, isSelectedRightToLeft);
+        } else if (presenter.configuration.selection_type === 'MULTISELECT') {
+            presenter.handleMultipleSelectionMultiSelect(last);
+        }
+
+        for (let i = first; i < last + 1; i++) {
+            const $span = presenter.getSpanByNumber(i);
             if ($span.hasClass('selectable')) {
-                presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), true);
+                presenter.sendEvent($span.attr('number'), $span.hasClass('selected'), isCorrect($span), i === last);
             }
+        }
+    };
+
+    presenter.handleMultipleSelectionSingleSelect = function (last, isSelectedRightToLeft) {
+        const selected = presenter.$view.find('.text_selection').find('.selected');
+        const $span = isSelectedRightToLeft ? this.getSpanByNumber(first) : this.getSpanByNumber(last);
+        if ($span.hasClass('selectable')) {
+            if (selected.length === 1) $(selected).removeClass('selected');
+            $span.toggleClass('selected');
+        }
+    };
+
+    presenter.handleMultipleSelectionMultiSelect = function (last) {
+        for (let i = first; i < last + 1; i++) {
+            const $span = presenter.getSpanByNumber(i);
+            if ($span.hasClass('selectable')) {
+                $span.toggleClass('selected');
+            }
+        }
+    };
+
+    presenter.getNumberAttribute = function (et) {
+        const elementNumber = parseInt($(et).attr('number'), 10);
+        const parentNumber = parseInt($(et).closest('span.selectable').attr('number'), 10);
+
+        return isNaN(elementNumber) ? parentNumber : elementNumber;
+    }
+
+    presenter.startSelection = function (et) {
+        first = presenter.getNumberAttribute(et);
+    };
+
+    presenter.endSelection = function (et) {
+        if (isNaN(first)) {
+            first = 0;
+            return false;
+        }
+
+        let last = presenter.getNumberAttribute(et);
+        const isMultipleSelected = first !== last;
+
+        if ($(et).hasClass('text_selection')) {
+            last = first;
+        }
+
+        if (isMultipleSelected) {
+            presenter.handleMultipleSelection(last);
+        } else if (!beforeActive) {
+            presenter.handleSingleSelection();
         }
 
         first = 0;
@@ -417,8 +420,8 @@ function AddonText_Selection_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelEnableScrollProperty(model);
-        upgradedModel = presenter.upgradeModelAddTTS(upgradedModel);
-        return upgradedModel;
+        upgradedModel = upgradeLangTag(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     function upgradeModelEnableScrollProperty(model) {
@@ -432,25 +435,55 @@ function AddonText_Selection_create() {
         return upgradedModel;
     }
 
-
-    presenter.upgradeModelAddTTS = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
+    function upgradeLangTag(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
 
         if (!upgradedModel["langAttribute"]) {
-            upgradedModel["langAttribute"] = 'pl';
+            upgradedModel["langAttribute"] = "";
         }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
         if (!upgradedModel["speechTexts"]) {
-            upgradedModel["speechTexts"] = {
-                selectedSectionStart: {selectedSectionStart: 'start of selected section'},
-                selectedSectionEnd: {selectedSectionEnd: 'end of selected section'},
-                selected: {selected: 'selected'},
-                deselected: {deselected: 'deselected'},
-                wrong: {wrong: 'wrong'},
-                correct: {correct: 'correct'},
-                phrase: {phrase: 'phrase'},
-                phraseEnd: {phraseEnd: 'end of phrase'}
-            };
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["selectedSectionStart"]) {
+            upgradedModel["speechTexts"]["selectedSectionStart"]
+              = {selectedSectionStart: ""};
+        }
+        if (!upgradedModel["speechTexts"]["selectedSectionEnd"]) {
+            upgradedModel["speechTexts"]["selectedSectionEnd"]
+              = {selectedSectionEnd: ""};
+        }
+        if (!upgradedModel["speechTexts"]["selected"]) {
+            upgradedModel["speechTexts"]["selected"]
+              = {selected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["deselected"]) {
+            upgradedModel["speechTexts"]["deselected"]
+              = {deselected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["wrong"]) {
+            upgradedModel["speechTexts"]["wrong"]
+              = {wrong: ""};
+        }
+        if (!upgradedModel["speechTexts"]["correct"]) {
+            upgradedModel["speechTexts"]["correct"]
+              = {correct: ""};
+        }
+        if (!upgradedModel["speechTexts"]["phrase"]) {
+            upgradedModel["speechTexts"]["phrase"]
+              = {phrase: ""};
+        }
+        if (!upgradedModel["speechTexts"]["phraseEnd"]) {
+            upgradedModel["speechTexts"]["phraseEnd"]
+              = {phraseEnd: ""};
         }
 
         return upgradedModel;
@@ -468,29 +501,45 @@ function AddonText_Selection_create() {
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
-                selectedSectionStart: 'start of selected section',
-                selectedSectionEnd: 'end of selected section',
-                selected: 'selected',
-                deselected: 'deselected',
-                wrong: 'wrong',
-                correct: 'correct',
-                phrase: 'phrase',
-                phraseEnd: 'end of phrase'
+            selectedSectionStart: DEFAULT_TTS_PHRASES.selectedSectionStart,
+            selectedSectionEnd: DEFAULT_TTS_PHRASES.selectedSectionEnd,
+            selected: DEFAULT_TTS_PHRASES.selected,
+            deselected: DEFAULT_TTS_PHRASES.deselected,
+            wrong: DEFAULT_TTS_PHRASES.wrong,
+            correct: DEFAULT_TTS_PHRASES.correct,
+            phrase: DEFAULT_TTS_PHRASES.phrase,
+            phraseEnd: DEFAULT_TTS_PHRASES.phraseEnd
         };
 
-        if (!speechTexts) {
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
             return;
         }
 
         presenter.speechTexts = {
-            selectedSectionStart:    getSpeechTextProperty(speechTexts['selectedSectionStart']['selectedSectionStart'], presenter.speechTexts.selectedSectionStart),
-            selectedSectionEnd: getSpeechTextProperty(speechTexts['selectedSectionEnd']['selectedSectionEnd'], presenter.speechTexts.selectedSectionEnd),
-            correct:     getSpeechTextProperty(speechTexts['correct']['correct'], presenter.speechTexts.correct),
-            wrong:   getSpeechTextProperty(speechTexts['wrong']['wrong'], presenter.speechTexts.wrong),
-            selected:      getSpeechTextProperty(speechTexts['selected']['selected'], presenter.speechTexts.selected),
-            deselected:      getSpeechTextProperty(speechTexts['deselected']['deselected'], presenter.speechTexts.deselected),
-            phrase:      getSpeechTextProperty(speechTexts['phrase']['phrase'], presenter.speechTexts.phrase),
-            phraseEnd:      getSpeechTextProperty(speechTexts['phraseEnd']['phraseEnd'], presenter.speechTexts.phraseEnd)
+            selectedSectionStart: getSpeechTextProperty(
+                speechTexts.selectedSectionStart.selectedSectionStart,
+                presenter.speechTexts.selectedSectionStart),
+            selectedSectionEnd: getSpeechTextProperty(
+                speechTexts.selectedSectionEnd.selectedSectionEnd,
+                presenter.speechTexts.selectedSectionEnd),
+            correct: getSpeechTextProperty(
+                speechTexts.correct.correct,
+                presenter.speechTexts.correct),
+            wrong: getSpeechTextProperty(
+                speechTexts.wrong.wrong,
+                presenter.speechTexts.wrong),
+            selected: getSpeechTextProperty(
+                speechTexts.selected.selected,
+                presenter.speechTexts.selected),
+            deselected: getSpeechTextProperty(
+                speechTexts.deselected.deselected,
+                presenter.speechTexts.deselected),
+            phrase: getSpeechTextProperty(
+                speechTexts.phrase.phrase,
+                presenter.speechTexts.phrase),
+            phraseEnd: getSpeechTextProperty(
+                speechTexts.phraseEnd.phraseEnd,
+                presenter.speechTexts.phraseEnd)
         };
     };
 
@@ -1005,7 +1054,7 @@ function AddonText_Selection_create() {
                     spansMarkedWrong.push(spanIndex);
                 } else {
                     previewHTML += match[4];
-                    runHTML += match[4];
+                    runHTML += wrapText(match[4], [], spanIndex);
                 }
                 spanIndex++;
             } else { // spaces
@@ -1086,6 +1135,7 @@ function AddonText_Selection_create() {
             presenter.hideAnswers();
         }
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.selected_elements = null;
 
         presenter.$view.find('.text_selection').find('.selected').removeClass('selected');
@@ -1095,18 +1145,25 @@ function AddonText_Selection_create() {
     };
 
     presenter.getState = function () {
+        let returnToShowAnswers = false;
+        let returnToGradualShowAnswers = false;
         if (presenter.isShowAnswers) {
             presenter.hideAnswers();
+            returnToShowAnswers = true;
         } else if (presenter.isGradualShowAnswersActive) {
             presenter.gradualHideAnswers();
+            returnToGradualShowAnswers = true;
         }
 
-        var allSelected = presenter.$view.find('.text_selection').find('.selected');
-        var numberSelected = [];
+        const allSelected = presenter.$view.find('.text_selection').find('.selected');
+        const numberSelected = [];
 
-        for (var i = 0; i < allSelected.length; i++) {
+        for (let i = 0; i < allSelected.length; i++) {
             numberSelected.push($(allSelected[i]).attr('number'));
         }
+
+        if (returnToShowAnswers) presenter.showAnswers();
+        if (returnToGradualShowAnswers) presenter.restoreGradualShowAnswers();
 
         return JSON.stringify({
             numbers: numberSelected,
@@ -1303,6 +1360,7 @@ function AddonText_Selection_create() {
 
         presenter.turnOnEventListeners();
 
+        presenter.activeGradualShowAnswersItems = [];
         presenter.isShowAnswers = false;
         presenter.restoreSelection();
     };
@@ -1330,6 +1388,7 @@ function AddonText_Selection_create() {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
             }
         } else if (eventName === "GradualHideAnswers") {
+            presenter.activeGradualShowAnswersItems = [];
             presenter.gradualHideAnswers();
         }
     };
@@ -1407,14 +1466,40 @@ function AddonText_Selection_create() {
 
         if ($element.length === 0) return;
 
-        var textVoices = presenter.getElementTextVoice($element);
-
+        var textVoices = presenter.getElementTextVoices($element);
         speak(textVoices);
-
     };
 
-    presenter.getElementTextVoice = function($element) {
+    presenter.getElementTextVoices = function($element) {
         var textVoices = [];
+
+        var readPhrases = presenter.configuration.mode != "ALL_SELECTABLE" && !presenter.areAllPhrasesSingleWord;
+        if (readPhrases) {
+            addTextVoiceForSelectableSpans(textVoices, $element);
+        }
+
+        addTextVoiceForElement(textVoices, $element);
+
+        if (readPhrases) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.phraseEnd);
+        }
+
+        if ($element.hasClass('selected')) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selected);
+        }
+
+        if ($element.hasClass('correct')) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.correct);
+        } else if ($element.hasClass('wrong')) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.wrong);
+        } else if ($element.hasClass('correct-answer')) {
+            addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selected);
+        }
+
+        return textVoices;
+    };
+
+    function addTextVoiceForElement(textVoices, $element) {
         var contentText = '';
         var langTag = '';
         var $ariaLabel = $element.closest('.addon_Text_Selection span[aria-label]:has(span[aria-hidden="true"])');
@@ -1428,53 +1513,35 @@ function AddonText_Selection_create() {
             contentText = presenter.getTextFromElementWithAltTexts($element);
             langTag = presenter.configuration.langTag;
         }
+        textVoices.push(window.TTSUtils.getTextVoiceObject(contentText, langTag));
+    }
 
-        var readPhrases = presenter.configuration.mode != "ALL_SELECTABLE" && !presenter.areAllPhrasesSingleWord;
-        if (readPhrases) {
-            var elementIndex = -1;
+    function addTextVoiceForSelectableSpans(textVoices, $element) {
+        var elementIndex = -1;
 
-            var selectables = presenter.$view.find('.selectable');
-            var selectablesSize = selectables.size();
-            if (selectablesSize > 0) {
-                for (var i = 0; i < selectablesSize; i++){
-                    if($(selectables[i]).is($element)){
-                        elementIndex = i + 1;
-                    }
+        var selectables = presenter.$view.find('.selectable');
+        var selectablesSize = selectables.size();
+        if (selectablesSize > 0) {
+            for (var i = 0; i < selectablesSize; i++) {
+                if ($(selectables[i]).is($element)) {
+                    elementIndex = i + 1;
                 }
             }
-            var phraseText = presenter.speechTexts.phrase;
-            if(elementIndex > 0) {
-                phraseText += ' ' + elementIndex;
-            }
-            textVoices.push(window.TTSUtils.getTextVoiceObject(phraseText));
         }
 
-        textVoices.push(window.TTSUtils.getTextVoiceObject(contentText, langTag));
-
-        if(readPhrases){
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.phraseEnd));
+        var phraseText = presenter.speechTexts.phrase;
+        if (elementIndex > 0) {
+            phraseText += ' ' + elementIndex;
         }
-        if ($element.hasClass('selected')) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
-        }
-        if ($element.hasClass('correct')) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
-        } else if ($element.hasClass('wrong')) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
-        } else if ($element.hasClass('correct-answer')) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
-        }
-
-        return textVoices;
-    };
+        addTextVoiceWithLanguageFromLesson(textVoices, phraseText);
+    }
 
     presenter.readSelection = function(selected) {
         var textVoices = [];
-        if (selected) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
-        } else {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselected));
-        }
+        var speechText = selected
+            ? presenter.speechTexts.selected
+            : presenter.speechTexts.deselected;
+        addTextVoiceWithLanguageFromLesson(textVoices, speechText);
         speak(textVoices);
     };
 
@@ -1488,12 +1555,13 @@ function AddonText_Selection_create() {
             textVoices = presenter.getPhrasesTextVoices(presenter.$view);
         }
         speak(textVoices);
-
     };
 
     presenter.getWordsTextVoices = function($element) {
-        var $clone = $element.clone();
-        $clone.find('.selectable').each(function(){
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
+
+        $($sanitizedElement).find('.selectable').each(function(){
             var $this = $(this);
 
             if ($this.hasClass('selected')) {
@@ -1508,20 +1576,20 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
         for(var i = 0; i < textArray.length; i++) {
             if(textArray[i].trim().length == 0) continue;
             if (0 === textArray[i].localeCompare(SELECTED)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selected);
             } else if (0 === textArray[i].localeCompare(CORRECT)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.correct);
             } else if (0 === textArray[i].localeCompare(WRONG)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.wrong);
             } else {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i], presenter.configuration.langTag));
+                addTextVoiceWithLanguageFromPresenter(textVoices, textArray[i]);
             }
         }
 
@@ -1529,10 +1597,12 @@ function AddonText_Selection_create() {
     };
 
     presenter.getPhrasesTextVoices = function($element) {
-        var $clone = $element.clone();
+        var sanitizedHTML = window.xssUtils.sanitize($element[0].outerHTML);
+        var $sanitizedElement = $(sanitizedHTML);
 
-        $clone.find('.selectable').each(function(index){
+        $sanitizedElement.find('.selectable').each(function(index){
             var $this = $(this);
+
             $this.html(SPLIT + PHRASE + ' ' + (index+1) + SPLIT + $this.html() + SPLIT + PHRASE_END + SPLIT );
 
             if ($this.hasClass('selected')) {
@@ -1547,7 +1617,7 @@ function AddonText_Selection_create() {
             }
         });
 
-        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+        var textArray = presenter.getTextFromElementWithAltTexts($sanitizedElement).split(SPLIT);
 
         var textVoices = [];
 
@@ -1556,15 +1626,15 @@ function AddonText_Selection_create() {
             if (-1 !== textArray[i].indexOf(PHRASE)) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i].replace(PHRASE, presenter.speechTexts.phrase)));
             } else if (0 === textArray[i].localeCompare(PHRASE_END)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.phraseEnd));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.phraseEnd);
             } else if (0 === textArray[i].localeCompare(SELECTED)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selected);
             } else if (0 === textArray[i].localeCompare(CORRECT)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.correct);
             } else if (0 === textArray[i].localeCompare(WRONG)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.wrong);
             } else {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i], presenter.configuration.langTag));
+                addTextVoiceWithLanguageFromPresenter(textVoices, textArray[i]);
             }
         }
 
@@ -1581,7 +1651,6 @@ function AddonText_Selection_create() {
     }
 
     presenter.getSectionsTextVoices = function($element) {
-
         var $clone = $element.clone();
 
         $clone.find('.selectable').each(function(){
@@ -1619,15 +1688,15 @@ function AddonText_Selection_create() {
         for(var i = 0; i < textArray.length; i++) {
             if(textArray[i].trim().length == 0) continue;
             if (0 === textArray[i].localeCompare(SELECTED_SECTION_START)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectedSectionStart));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selectedSectionStart);
             } else if (0 === textArray[i].localeCompare(SELECTED_SECTION_END)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectedSectionEnd));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.selectedSectionEnd);
             } else if (0 === textArray[i].localeCompare(CORRECT)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.correct);
             } else if (0 === textArray[i].localeCompare(WRONG)) {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+                addTextVoiceWithLanguageFromLesson(textVoices, presenter.speechTexts.wrong);
             } else {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i],presenter.configuration.langTag));
+                addTextVoiceWithLanguageFromPresenter(textVoices, textArray[i]);
             }
         }
 
@@ -1650,6 +1719,22 @@ function AddonText_Selection_create() {
 
     function replaceAll(source, search, replace) {
         return source.replace(new RegExp(search, 'g'), replace);
+    }
+
+    function addTextVoiceWithLanguageFromLesson(textVoices, message) {
+        addTextVoice(textVoices, message, false);
+    }
+
+    function addTextVoiceWithLanguageFromPresenter(textVoices, message) {
+        addTextVoice(textVoices, message, true);
+    }
+
+    function addTextVoice(textVoices, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+        } else {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(message));
+        }
     }
 
     presenter.getTextToSpeechOrNull = function (playerController) {
@@ -1884,14 +1969,26 @@ function AddonText_Selection_create() {
             presenter.saveAndRemoveSelection();
             presenter.isGradualShowAnswersActive = true;
         }
+        presenter.activeGradualShowAnswersItems.push(item);
         presenter.showCorrectAnswer(item);
     };
+
+   presenter.restoreGradualShowAnswers = function () {
+       if (!presenter.activeGradualShowAnswersItems.length) return;
+       if (presenter.configuration.areEventListenersOn) {
+                presenter.turnOffEventListeners();
+            }
+        presenter.saveAndRemoveSelection();
+        presenter.isGradualShowAnswersActive = true;
+        for (const item in presenter.activeGradualShowAnswersItems) {
+            presenter.showCorrectAnswer(item);
+       }
+   }
 
     presenter.gradualHideAnswers = function () {
         presenter.isGradualShowAnswersActive = false;
         presenter.turnOnEventListeners();
         presenter.restoreSelection();
-
     };
 
     return presenter;

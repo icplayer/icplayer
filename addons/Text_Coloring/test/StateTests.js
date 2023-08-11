@@ -44,12 +44,14 @@ TestCase("[Text_Coloring] getState/setState", {
 
         this.stubs = {
             colorAllMarkedTokens: sinon.stub(this.presenter, 'colorAllMarkedTokens'),
+            show: sinon.stub(this.presenter, 'show'),
             hide: sinon.stub(this.presenter, 'hide')
         };
     },
 
     tearDown: function () {
         this.presenter.colorAllMarkedTokens.restore();
+        this.presenter.show.restore();
         this.presenter.hide.restore();
     },
 
@@ -105,10 +107,10 @@ TestCase("[Text_Coloring] getState/setState", {
         assertFalse(this.presenter.configuration.isVisible);
     },
 
-    'test set state should not hide if addon is visible': function () {
+    'test set state should show if addon is visible': function () {
         this.presenter.setState(this.stringifiedStateVisible);
 
-        assertFalse(this.stubs.hide.called);
+        assertTrue(this.stubs.show.calledOnce);
         assertTrue(this.presenter.configuration.isVisible);
     }
 });

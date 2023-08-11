@@ -1,9 +1,24 @@
+import {CSS_CLASSES} from "./CssClasses.jsm";
+
 export class SoundIntensity {
 
     constructor($view) {
         this.$view = $view;
         this.volumeLevels = 6;
         this.interval = null;
+        this.enableAnalyser = true;
+        this.shouldBeVisible = true;
+    }
+
+    setEnableAnalyser(enableAnalyser) {
+        this.enableAnalyser = enableAnalyser;
+        if (this.shouldBeVisible) {
+            if (this.enableAnalyser) {
+                this.show();
+            } else {
+                this.hide();
+            }
+        }
     }
 
     startAnalyzing(analyser) {
@@ -24,11 +39,15 @@ export class SoundIntensity {
     }
 
     show() {
-        this.$view.css('display', '');
+        if (this.enableAnalyser) {
+            this.$view.css('display', '');
+        }
+        this.shouldBeVisible = true;
     }
 
     hide() {
         this.$view.css('display','none');
+        this.shouldBeVisible = false;
     }
 
     setEventBus(eventBus, sourceID) {
@@ -91,7 +110,7 @@ export class SoundIntensity {
         for (let currentLevel = 1; currentLevel <= intensity; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
             let $level = this.$view.find(levelId);
-            $level.addClass("selected");
+            $level.addClass(CSS_CLASSES.SELECTED);
         }
     }
 
@@ -99,7 +118,7 @@ export class SoundIntensity {
         for (let currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
             let $level = this.$view.find(levelId);
-            $level.removeClass("selected");
+            $level.removeClass(CSS_CLASSES.SELECTED);
         }
     }
 }

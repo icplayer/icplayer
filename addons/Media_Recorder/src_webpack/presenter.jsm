@@ -23,6 +23,14 @@ function AddonMedia_Recorder_create() {
         handleDestroyEvent(view);
     };
 
+    presenter.isEmpty = function isEmpty() {
+        return presenter.mediaRecorder.isEmpty();
+    };
+
+    presenter.getMP3File = function getMP3File() {
+        return presenter.mediaRecorder.getMP3File();
+    }
+
     presenter.getState = function getState() {
         return presenter.mediaRecorder.getState();
     };
@@ -77,6 +85,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.activate();
     };
 
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.mediaRecorder.setWCAGStatus(isWCAGOn);
+    };
+
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
     };
@@ -85,8 +97,16 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.enable();
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        return true;
+    }
+
     presenter.disable = function disable() {
         presenter.mediaRecorder.disable();
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.mediaRecorder.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.executeCommand = function executeCommand(name, params) {

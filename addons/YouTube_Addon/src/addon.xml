@@ -7,5 +7,7 @@
 		<property name='URL' nameLabel="YouTube_Addon_property_url" type='string'/>
         <property name='Offline message' nameLabel="YouTube_Addon_property_offline_message" type='string'/>
         <property name='Disable Fullscreen' nameLabel="YouTube_Addon_property_disable_fullscreen" type='boolean'/>
+		<property name='Time start' nameLabel="YouTube_Addon_property_time_start" type="integer"/>
+		<property name='Autoplay' nameLabel="YouTube_Addon_property_autoplay" type="boolean"/>
 	</model>
 </addon>

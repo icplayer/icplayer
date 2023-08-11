@@ -16,5 +16,7 @@
         <property name="onCustomButtonSelected" nameLabel="IWB_Toolbar_property_on_custom_button_selected" type="event" isDefault="true" />
         <property name="onCustomButtonDeselected" nameLabel="IWB_Toolbar_property_on_custom_button_deselected" type="event" />
         <property name="enableUndoRedo" nameLabel="IWB_Toolbar_property_enable_undo_redo" type="boolean" />
+        <property name="disableModuleZoom" nameLabel="IWB_Toolbar_property_disable_module_zoom" type="boolean" />
+        <property name="defaultZoom" nameLabel="IWB_Toolbar_property_default_zoom" type="string" />
     </model>
 </addon>

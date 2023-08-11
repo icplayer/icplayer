@@ -2,14 +2,19 @@ package com.lorepo.icplayer.client.module.limitedreset;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -20,8 +25,9 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class LimitedResetPresenter implements IPresenter, IStateful, ICommandReceiver, IButton {
+public class LimitedResetPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
@@ -30,6 +36,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		void setDisabled(boolean isDisabled);
 		boolean isDisabled();
 		public void setShowAnswersMode(boolean b);
+		public void setLimitedShowAnswersMode(Set<String> m);
 	}
 	
 	private LimitedResetModule model;
@@ -37,7 +44,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 	private IPlayerServices playerServices;
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
-	
+	private Set<String> activeShowAnswersModules = new HashSet<String>();
 	public LimitedResetPresenter(LimitedResetModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
@@ -88,6 +95,12 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 			show();
 		} else if(commandName.compareTo("hide") == 0) {
 			hide();
+		} else if(commandName.compareTo("getWorksWithModulesList") == 0) {
+			// the returned value is different from what is being returned by presenter.getWorksWithModulesList method.
+			// This is because executeCommand can only return a String. There is little practical reason to make such
+			// a command to get those values (an AC/custom addon script would use the method call instead) in the first
+			// place, so this command was mostly added to avoid errors if anyone tried anyway
+			value = model.getModules().toString();
 		}
 		
 		return value;
@@ -208,6 +221,10 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};
+
+		presenter.getWorksWithModulesList = function() {
+			return x.@com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter::getWorksWithModulesList()();
+		}
 		
 		return presenter;
 	}-*/;
@@ -220,6 +237,23 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		return null;
 	}
 
+	private JavaScriptObject getWorksWithModulesList() {
+		JavaScriptObject array = JavaScriptUtils.createEmptyJsArray();
+		for(String moduleId: model.getModules()) JavaScriptUtils.addElementToJSArray(array, moduleId);
+		return array;
+	}
+
+    private void handleLimitedShowAnswersEvent(HashMap<String, String> data) {
+        Set<String> activeLimitedShowModules = JSONUtils.decodeSet(data.get("item"));
+        for (String moduleID : activeLimitedShowModules) {
+            if (model.getModules().contains(moduleID)) {
+                activeShowAnswersModules.add(data.get("source"));
+                break;
+            }
+        }
+        view.setLimitedShowAnswersMode(activeShowAnswersModules);
+    };
+
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		if (eventName.equals("ShowAnswers")) {
@@ -227,6 +261,34 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 			view.setDisabled(false);
 		} else if (eventName.equals("HideAnswers")) {
 			view.setShowAnswersMode(false);
+		} else if (eventName.equals("LimitedShowAnswers")) {
+			handleLimitedShowAnswersEvent(data);
+		} else if (eventName.equals("LimitedHideAnswers")) {
+			activeShowAnswersModules.remove(data.get("source"));
+			view.setLimitedShowAnswersMode(activeShowAnswersModules);
 		}
 	}
+
+    @Override
+    public IWCAG getWCAGController() {
+        return (IWCAG) this.view;
+    }
+
+    @Override
+    public void selectAsActive(String className) {
+        this.view.getElement().addClassName(className);
+    }
+
+    @Override
+    public void deselectAsActive(String className) {
+        this.view.getElement().removeClassName(className);
+    }
+
+    @Override
+    public boolean isSelectable(boolean isTextToSpeechOn) {
+        boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden")
+                && !this.getView().getStyle().getDisplay().equals("none")
+                && !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+        return isVisible;
+    }
 }

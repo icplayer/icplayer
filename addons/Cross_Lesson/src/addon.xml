@@ -9,5 +9,13 @@
 		<property name='Page' nameLabel="Cross_Lesson_property_Page" type='string' />
 		<property name='Type' nameLabel="Cross_Lesson_property_type" type='{lesson, ebook, course}' />
 		<property name="OpenLessonInCurrentTab" nameLabel="Cross_Lesson_property_open_in_current_tab" type="boolean"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Cross_Lesson_property_lang_attribute" type="string"/>
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Cross_Lesson_property_speech_texts" type="staticlist">
+            <property name="GoToLesson" nameLabel="Cross_Lesson_property_go_to_lesson" type="staticrow">
+                <property name="GoToLesson" nameLabel="Cross_Lesson_property_go_to_lesson" type="string"/>
+            </property>
+        </property>
+		<property name="CheckForAccess" displayName="Check for access" nameLabel="Cross_Lesson_property_check_for_access" type="boolean"/>
+		<property name="AccessIDs" displayName="List of IDs required for access" nameLabel="Cross_Lesson_property_access_ids" type="string"/>
 	</model>
 </addon>
