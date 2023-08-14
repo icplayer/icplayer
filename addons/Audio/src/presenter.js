@@ -586,7 +586,7 @@ function AddonAudio_create(){
     };
 
     presenter.loadAudioDataFromRequest = function (event) {
-        if (event.currentTarget.status == 200) {
+        if (event.currentTarget.status == 200 && (isMobileIOS() && event.currentTarget.status == 0)) {
             fetchedAudioData = event.currentTarget.response;
             presenter.audio.src = URL.createObjectURL(fetchedAudioData);
             audioIsLoaded = true;
