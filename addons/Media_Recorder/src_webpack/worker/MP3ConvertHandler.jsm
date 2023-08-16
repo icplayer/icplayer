@@ -121,7 +121,7 @@ export class MP3ConvertHandler {
 
             function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
                 let buffer = [];
-                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 96); //third value determinate bitrate
 
                 const maxSamples = 1152;
                 for (let i = 0; i < sampleLength; i += maxSamples) {

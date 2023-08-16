@@ -39,19 +39,42 @@ export class BlobService {
     }
 
     static getMp3BlobFromDecodedDataByWorker(worker, decodedData) {
-        let buffers = this.prepareSampleBuffers(decodedData);
-        let left = buffers[0];
-        let right = buffers[1];
+        const newSampleRate = 22050;
+        const buffers = this.prepareSampleBuffers(decodedData);
+        const left = this._interpolateArray(buffers[0], newSampleRate, decodedData.sampleRate);
+        const right = this._interpolateArray(buffers[1], newSampleRate, decodedData.sampleRate);
 
-        return worker.execute(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+        return worker.execute(decodedData.numberOfChannels, newSampleRate, decodedData.length, left, right);
     }
 
     static getMp3BlobFromDecodedData(decodedData) {       
-        let buffers = this.prepareSampleBuffers(decodedData);
-        let left = buffers[0];
-        let right = buffers[1];
+        const newSampleRate = 22050;
+        const buffers = this.prepareSampleBuffers(decodedData);
+        const left = this._interpolateArray(buffers[0], newSampleRate, decodedData.sampleRate);
+        const right = this._interpolateArray(buffers[1], newSampleRate, decodedData.sampleRate);
 
-        return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);       
+        return this._encode(decodedData.numberOfChannels, newSampleRate, decodedData.length, left, right);
+    }
+
+    static _interpolateArray(data, newSampleRate, oldSampleRate) {
+        const fitCount = Math.round(data.length * (newSampleRate / oldSampleRate));
+        const newData = new Int16Array(fitCount - 1);
+        const springFactor = Number((data.length - 1) / (fitCount - 1));
+        newData[0] = data[0];
+        for (let i = 1; i < fitCount - 1; i++) {
+            const tmp = i * springFactor;
+            const before = Number(Math.floor(tmp)).toFixed();
+            const after = Number(Math.ceil(tmp)).toFixed();
+            const atPoint = tmp - before;
+            newData[i] = this._linearInterpolate(data[before], data[after], atPoint);
+        }
+        newData[fitCount - 1] = data[data.length - 1];
+
+        return newData;
+    }
+
+    static _linearInterpolate(before, after, atPoint) {
+        return before + (after - before) * atPoint;
     }
 
     static prepareSampleBuffers(decodedData) {
@@ -65,7 +88,7 @@ export class BlobService {
 
     static _encode(channels, sampleRate, sampleLen, left, right) {
         var buffer = [];
-        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+        var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 96); //third value determinate bitrate
 
         var maxSamples = 1152;
         for (var i = 0; i < sampleLen; i += maxSamples) {
