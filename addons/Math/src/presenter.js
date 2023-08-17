@@ -466,7 +466,7 @@ function AddonMath_create() {
 
     presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswers) {
-            presenter.toggleAnswers(false);
+            presenter.toggleAnswers(false, true);
         }
 
         presenter.isErrorMode = true;
@@ -561,7 +561,7 @@ function AddonMath_create() {
     };
 
     presenter.getErrorCount = function () {
-        if(presenter.configuration.isError){
+        if (presenter.configuration.isError){
             return;
         }
 
@@ -669,7 +669,7 @@ function AddonMath_create() {
         return { isValid: true, gaps: notAttemptedGaps };
     };
 
-    presenter.toggleAnswers = function (on) {
+    presenter.toggleAnswers = function (on, blockUnlocking = false) {
         presenter.isShowAnswers = on;
         for (var i=0; i<presenter.configuration.answers.length; i++) {
             var answer = presenter.configuration.answers[i];
@@ -692,7 +692,7 @@ function AddonMath_create() {
                     module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.moduleAnswersCounter(moduleReference.moduleID));
                 } else {
                     module.setUserValue(moduleReference.gapIndex, answer.users);
-                    if (module.hasOwnProperty('enableGap')) module.enableGap(moduleReference.gapIndex);
+                    if (!blockUnlocking && module.hasOwnProperty('enableGap')) module.enableGap(moduleReference.gapIndex);
                 }
             }
         }

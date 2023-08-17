@@ -1122,8 +1122,8 @@ function AddonTable_create() {
             presenter.renderMathJax();
         } else {
             if (presenter.isSetShowErrorsMode) {
-                 presenter.setWorkMode();
-                
+                presenter.setWorkMode();
+
                 if (isConnectedWithMath) {
                     presenter.disableAllGaps();
                 }
