@@ -495,17 +495,27 @@ function AddonText_To_Speech_create() {
         return splitText;
     }
 
-    presenter.removeLonelyPunctuationMarks = function (texts) {
-        const punctuationMarks = ['.', ',', ';', '?', '!', '(', ')', "[", ']', '{', '}', '-', '"', '\''];
-        return texts.filter(function (value) {
-            const textWithoutWhiteSpaces = value.text.replace(/\s/g, '');
-            for (let i = 0; i < textWithoutWhiteSpaces.length; i++) {
-                if (!punctuationMarks.includes(textWithoutWhiteSpaces[i])) {
-                    return true;
+    presenter.removeUnnecessaryPunctuationMarks = function (texts) {
+        texts.forEach(text => {
+            const splittedWords = text.text.split(" ");
+            const newSentence = [];
+            splittedWords.forEach((word) => {
+                if (word.trim().length) {
+                    const match = word.match(/(\w\W)[.,?!]+/); // regex captures at least 2 special characters after word
+                    const match2 = word.match(/(^|\s)[.,?!]+/); // regex captures at least 1 special separated character or character at the beginning of sentence
+                    if (match) {
+                        newSentence.push(word.replace(match[0], match[1]));
+                    } else if (match2) {
+                        return;
+                    } else {
+                        newSentence.push(word);
+                    }
                 }
-            }
-            return false;
+            });
+            text.text = newSentence.join(" ");
         });
+
+        return texts.filter(text => text.text.length);
     };
 
     // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
@@ -616,7 +626,7 @@ function AddonText_To_Speech_create() {
     presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
         if (isChrome()) {
-            texts = presenter.removeLonelyPunctuationMarks(texts);
+            texts = presenter.removeUnnecessaryPunctuationMarks(texts);
         }
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);

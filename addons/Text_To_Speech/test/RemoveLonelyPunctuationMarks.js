@@ -36,7 +36,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "lang": ""
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -51,7 +51,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "text": "?",
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -65,7 +65,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "text": ".",
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -79,7 +79,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "lang": ""
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -94,7 +94,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "lang": ""
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -109,7 +109,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "lang": ""
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(6, result.length);
@@ -124,7 +124,7 @@ TestCase('[Text_To_Speech] Remove Lonely Punctuation Marks tests', {
             "lang": ""
         });
 
-        let result = this.presenter.removeLonelyPunctuationMarks(this.textVoices);
+        let result = this.presenter.removeUnnecessaryPunctuationMarks(this.textVoices);
 
         assertEquals(7, this.textVoices.length);
         assertEquals(7, result.length);
