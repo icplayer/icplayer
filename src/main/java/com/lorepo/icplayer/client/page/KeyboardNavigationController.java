@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.ResetButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
@@ -46,6 +47,8 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	private PageController mainPageController;
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
+	private HandlerRegistration keyDownHandler = null;
+	private JavaScriptObject messageHandler = null;
 
 	private PageController headerController = null;
 	private PageController footerController = null;
@@ -97,8 +100,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	private native void waitOnMessages (KeyboardNavigationController x) /*-{
-		$wnd.addEventListener("message", receiveMessage);
-		function receiveMessage(event) {
+		var receiveMessage = function (event) {
 			try {
 				var eventData = JSON.parse(event.data);
 				if (eventData.type == "SCROLL_Y_AND_OFFSET") {
@@ -120,6 +122,9 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			} catch (e) {
 			}
 		}
+		x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::messageHandler = receiveMessage;
+		$wnd.addEventListener("message", receiveMessage);
+
 	}-*/;
 
 	private void initialSelect() {
@@ -392,7 +397,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
 
-		RootPanel.get().addDomHandler(new KeyDownHandler() {
+		this.keyDownHandler = RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
@@ -896,5 +901,19 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		selectCurrentModule();
 		readTitle();
 	}
+
+	public void clearEventListeners() {
+		if (this.keyDownHandler != null) {
+			this.keyDownHandler.removeHandler();
+			clearMessageListener(this);
+		}
+	}
+
+	private native void clearMessageListener(KeyboardNavigationController x)/*-{
+		var receiveMessage = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::messageHandler;
+		if (receiveMessage) {
+			$wnd.removeEventListener("message", receiveMessage);
+		}
+	}-*/;
 	
 }
