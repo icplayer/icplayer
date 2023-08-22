@@ -2826,7 +2826,9 @@ function StereoAudioRecorder(mediaStream, config) {
     };
 
     if (!Storage.AudioContextConstructor) {
-        Storage.AudioContextConstructor = new Storage.AudioContext();
+        Storage.AudioContextConstructor = new Storage.AudioContext({
+            sampleRate: 22050
+        });
     }
 
     var context = Storage.AudioContextConstructor;
@@ -5066,7 +5068,9 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
     function getMixedAudioStream() {
         // via: @pehrsons
         if (!Storage.AudioContextConstructor) {
-            Storage.AudioContextConstructor = new Storage.AudioContext();
+            Storage.AudioContextConstructor = new Storage.AudioContext({
+                sampleRate: 22050
+            });
         }
 
         self.audioContext = Storage.AudioContextConstructor;
