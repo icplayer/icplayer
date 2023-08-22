@@ -75,10 +75,18 @@ export class MediaRecorder {
             this._loadEventBus()
 
         var context = playerController.getContextMetadata();
-        this.isMlibro = false;
-        if (context != null && "ismLibro" in context) {
-            this.isMlibro = context["ismLibro"];
+        this.isMlibro = this.isMLibroApp(context);
+    }
+
+    isMLibroApp(context) {
+        if (!context) {
+            return false;
         }
+
+        var hasNameInRootDir = context.hasOwnProperty('rootDirectory') && context['rootDirectory'].toLowerCase().includes('mlibro');
+        var hasPropertyInContext = context.hasOwnProperty('ismLibro') && context["ismLibro"];
+
+        return hasNameInRootDir || hasPropertyInContext;
     }
 
     isEmpty() {
@@ -505,7 +513,13 @@ export class MediaRecorder {
             if (this.enableAnalyser) {
                 this.mediaAnalyserService.closeAnalyzing();
             }
-            this.recorder.stopRecording();
+
+            if (this.isMlibro) {
+                this._handleMlibroStopRecording();
+            } else if (this.recorder) {
+                this.recorder.stopRecording();
+            }
+
             this.resourcesProvider.destroy();
         };
 
