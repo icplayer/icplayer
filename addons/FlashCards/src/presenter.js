@@ -297,10 +297,12 @@ function AddonFlashCards_create(){
                 presenter.isFrontPlaying = true;
                 presenter.audioElementFront.play();
                 $(presenter.flashcardsCardAudioButtonFront).addClass("playing");
+                presenter.sendPlayEvent();
             }else{
                 presenter.isFrontPlaying = false;
                 presenter.audioElementFront.pause();
                 $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+                presenter.sendPauseEvent();
             }
         });
         $(presenter.flashcardsCardAudioButtonBack).click(function () {
@@ -310,10 +312,12 @@ function AddonFlashCards_create(){
                 presenter.isBackPlaying = true;
                 presenter.audioElementBack.play();
                 $(presenter.flashcardsCardAudioButtonBack).addClass("playing");
+                presenter.sendPlayEvent();
             }else{
                 presenter.isBackPlaying = false;
                 presenter.audioElementBack.pause();
                 $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+                presenter.sendPauseEvent();
             }
         });  
     };
@@ -322,11 +326,13 @@ function AddonFlashCards_create(){
          presenter.audioElementFront.onended = function () {
              $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
              presenter.isFrontPlaying = false;
+             presenter.sendEndedEvent();
          };
 
          presenter.audioElementBack.onended = function () {
              $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
              presenter.isBackPlaying = false;
+             presenter.sendEndedEvent();
          };
      };
     
@@ -350,6 +356,10 @@ function AddonFlashCards_create(){
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").show();
         $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
     };
+
+    presenter.isFrontVisible = function() {
+        return !$(presenter.$view.find(".flashcards-card").get(0)).hasClass("flashcards-card-reversed");
+    }
 
     presenter.prevCard = function () {
         presenter.removeActiveElementClass();
@@ -587,7 +597,10 @@ function AddonFlashCards_create(){
             'resetFavourites': presenter.resetFavourites,
             'ShowOnlyFavourites': presenter.showOnlyFavourites,
             'ShowAllCards': presenter.showAllCards,
-            'countFavourites': presenter.countFavourites
+            'countFavourites': presenter.countFavourites,
+            'play': presenter.play,
+            'pause': presenter.pause,
+            'stop': presenter.stop
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -619,6 +632,77 @@ function AddonFlashCards_create(){
         $(presenter.flashcardsNext).unbind();
         
     };
+
+    presenter.sendAudioEvent = function(eventName) {
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': eventName,
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.sendPlayEvent = function() {presenter.sendAudioEvent("playing")};
+
+    presenter.sendPauseEvent = function() {presenter.sendAudioEvent("pause")};
+
+    presenter.sendEndedEvent = function() {presenter.sendAudioEvent("ended")};
+
+    presenter.play = function() {
+        presenter.audioCommand("play");
+    };
+
+    presenter.pause = function() {
+        presenter.audioCommand("pause");
+    };
+
+    presenter.stop = function() {
+        presenter.audioCommand("stop");
+    };
+
+    presenter.audioCommand = function(command) {
+        if (presenter.isErrorMode) return;
+
+        var currentCard = presenter.Cards[presenter.state.currentCard - 1];
+        if (presenter.isFrontVisible()) {
+            if (currentCard.AudioFront != "") {
+                if (command == "play") {
+                    if (presenter.isFrontPlaying == true) return;
+                    presenter.isFrontPlaying = true;
+                    presenter.audioElementFront.play();
+                    $(presenter.flashcardsCardAudioButtonFront).addClass("playing");
+                    presenter.sendPlayEvent();
+                }else{
+                    if (command == "stop") presenter.audioElementFront.currentTime = 0;
+                    if (presenter.isFrontPlaying == false) return;
+                    presenter.isFrontPlaying = false;
+                    presenter.audioElementFront.pause();
+                    $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+                    presenter.sendPauseEvent();
+                }
+            }
+        } else {
+            if (currentCard.AudioBack != "") {
+                presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
+                if (command == "play") {
+                    if (presenter.isBackPlaying == true) return;
+                    presenter.isBackPlaying = true;
+                    presenter.audioElementBack.play();
+                    $(presenter.flashcardsCardAudioButtonBack).addClass("playing");
+                    presenter.sendPlayEvent();
+                }else{
+                    if (command == "stop") presenter.audioElementBack.currentTime = 0;
+                    if (presenter.isBackPlaying == false) return;
+                    presenter.isBackPlaying = false;
+                    presenter.audioElementBack.pause();
+                    $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+                    presenter.sendPauseEvent();
+                }
+            }
+        }
+    }
 
     presenter.setWCAGStatus = function(isOn) {
         isWCAGOn = isOn;
