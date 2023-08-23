@@ -497,15 +497,18 @@ function AddonText_To_Speech_create() {
 
     presenter.removeUnnecessaryPunctuationMarks = function (texts) {
         texts.forEach(text => {
-            const splittedWords = text.text.split(" ");
+            const splittedWords = text.text
+                .replaceAll(" \/", ",")
+                .split(" ");
+
             const newSentence = [];
-            splittedWords.forEach((word) => {
+            splittedWords.forEach(word => {
                 if (word.trim().length) {
-                    const match = word.match(/(\w\W)[.,?!]+/); // regex captures at least 2 special characters after word
-                    const match2 = word.match(/(^|\s)[.,?!]+/); // regex captures at least 1 special separated character or character at the beginning of sentence
-                    if (match) {
-                        newSentence.push(word.replace(match[0], match[1]));
-                    } else if (match2) {
+                    const matchAfterLetter = word.match(/(\w\W)[.,?!]+/); // regex captures at least 2 special characters after word
+                    const matchAloneOrSeparated = word.match(/(^|\s)[.,?!(){}\\\/\-\[\]]+/); // regex captures at least 1 special separated character or character at the beginning of sentence
+                    if (matchAfterLetter) {
+                        newSentence.push(word.replace(matchAfterLetter[0], matchAfterLetter[1]));
+                    } else if (matchAloneOrSeparated) {
                         return;
                     } else {
                         newSentence.push(word);
@@ -625,9 +628,8 @@ function AddonText_To_Speech_create() {
 
     presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
-        if (isChrome()) {
-            texts = presenter.removeUnnecessaryPunctuationMarks(texts);
-        }
+        texts = presenter.removeUnnecessaryPunctuationMarks(texts);
+
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
             return;
