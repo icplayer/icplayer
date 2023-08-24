@@ -636,7 +636,7 @@ function AddonFlashCards_create(){
     presenter.sendAudioEvent = function(eventName) {
         var eventData = {
             'source': presenter.configuration.addonID,
-            'item': '',
+            'item': presenter.state.currentCard,
             'value': eventName,
             'score': ''
         };
