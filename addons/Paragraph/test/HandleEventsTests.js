@@ -36,7 +36,10 @@ TestCase("[Paragraph] handle events related to showing model answer", {
         this.stubs = {
             addEventListenerStub: sinon.stub(),
             getParagraphs: sinon.stub(),
-            setMode: sinon.stub()
+            setMode: sinon.stub(),
+            getContent: sinon.stub(),
+            setContent: sinon.stub(),
+            setStyles: sinon.stub()
         };
 
         this.presenter.eventBus = {
@@ -45,7 +48,12 @@ TestCase("[Paragraph] handle events related to showing model answer", {
 
         this.stubs.getParagraphs.returns([document.createElement("p")]);
         this.presenter.getParagraphs = this.stubs.getParagraphs;
-        this.presenter.editor = {setMode: this.stubs.setMode};
+        this.presenter.editor = {
+            setMode: this.stubs.setMode,
+            getContent: this.stubs.getContent,
+            setContent: this.stubs.setContent
+        };
+        this.presenter.setStyles = this.stubs.setStyles;
     },
 
     'test add events listener on setEventBus invoke': function () {
@@ -67,7 +75,7 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     },
 
     'test invoke gradualShowAnswers method on GradualShowAnswers event': function () {
-        this.presenter.configuration.ID = 'Paragraph1'
+        this.presenter.configuration.ID = 'Paragraph1';
         this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Paragraph1'});
 
         assertTrue(this.spies.gradualShowAnswers.called);
@@ -75,7 +83,7 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     },
 
     'test given different module ID the instance ID when GradualShowAnswers was occurred should not show answers': function () {
-        this.presenter.configuration.ID = 'Paragraph1'
+        this.presenter.configuration.ID = 'Paragraph1';
         this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Paragraph2'});
 
         assertTrue(this.spies.gradualShowAnswers.called);
