@@ -135,7 +135,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				String longestAnswer = gi.getLongestAnswer();
 				String fontSize = getFontSize(gap.getId());
 				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
-				gap.setWidth(calculatedGapWidth + "px");
+
+				if (calculatedGapWidth > 0) {
+					gap.setWidth(calculatedGapWidth + "px");
+				}
 			}
 
 			gap.setDisabled(module.isDisabled());
@@ -159,7 +162,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					String longestAnswer = gi.getLongestAnswer();
 					String fontSize = getFontSize(gap.getId());
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
-					gap.setWidth(calculatedGapWidth + "px");
+
+					if (calculatedGapWidth > 0) {
+						gap.setWidth(calculatedGapWidth + "px");
+					}
 				}
 
 				if (!module.isOldGapSizeCalculation()) {
@@ -193,7 +199,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					String longestAnswer = gi.getLongestAnswer();
 					String fontSize = getFontSize(gap.getId());
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
-					gap.setWidth(calculatedGapWidth + "px");
+					
+					if (calculatedGapWidth > 0) {
+						gap.setWidth(calculatedGapWidth + "px");
+					}
 				}
 
 				gap.setDisabled(module.isDisabled());
