@@ -81,18 +81,24 @@ public class InlineChoiceInfo implements IGapCommonUtilsProvider {
 		return value;
 	}
 
-
 	@Override
-	public int getLongestAnswerLength() {
-		int longestAnswer = getAnswer().length();
+	public String getLongestAnswer() {
+		int longestAnswerLength = getAnswer().length();;
+		String longestAnswer = "";
 		
-		for (String option : distractors) {
-			if (longestAnswer < option.length()) {
-				longestAnswer = option.length();
+		for (String answer : distractors) {
+			if (longestAnswerLength < answer.length()) {
+				longestAnswerLength = answer.length();
+				longestAnswer = answer;
 			}
 		}
 		
 		return longestAnswer;
+	}
+	
+	@Override
+	public int getLongestAnswerLength() {
+		return getLongestAnswer().length();
 	}
 
 	@Override
