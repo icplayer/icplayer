@@ -8,11 +8,12 @@ export class AudioRecorder extends BaseRecorder {
         return {
             type: 'audio',
             mimeType: 'audio/wav',
-            numberOfAudioChannels: isEdge ? 1 : 2,
+            numberOfAudioChannels: 1,
             checkForInactiveTracks: true,
             bufferSize: 16384,
             disableLogs: true,
             recorderType: RecordRTC.StereoAudioRecorder,
+            desiredSampRate: 22050
         };
     }
 }

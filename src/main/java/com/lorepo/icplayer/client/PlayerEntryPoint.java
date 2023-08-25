@@ -201,6 +201,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
+		clearBeforeReload();
 		this.theApplication.load(url, pageIndex);
 	}
 
@@ -208,6 +209,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		if (pageIndex < 0) {
 			pageIndex = 0;
 		}
+		clearBeforeReload();
 		this.theApplication.loadCommonPage(url, pageIndex);
 	}
 
@@ -380,5 +382,22 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setScoreWithMetadata(String state) {
 		this.theApplication.setScoreWithMetadata(state);
+	}
+
+	private void clearBeforeReload() {
+		if (theApplication != null && theApplication.isContentModelLoaded()) {
+			clearMetadata();
+			theApplication.clearBeforeReload();
+		}
+	}
+
+	private void clearMetadata() {
+		pageLoadedListener = null;
+		externalEventListener = null;
+		pageScrollToListener = null;
+		statusChangedListener = null;
+		outstretchHeightListener = null;
+		contextMetadata = null;
+		externalVariables = null;
 	}
 }

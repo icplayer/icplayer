@@ -5,10 +5,15 @@ export class MP3ConvertHandler {
         this.scriptURL = null;
         this.isValid = false;
         this.validationTimoutID = null;
+        this.origin = document.location.origin;
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
             return;
+        }
+        let context = playerController.getContextMetadata();
+        if (context != null && "rootDirectory" in context) {
+            this.origin = context["rootDirectory"];
         }
 
         let scriptBlob = this.createBlobWithScript();
@@ -40,7 +45,7 @@ export class MP3ConvertHandler {
             }
             this.worker.postMessage({
                 cmd: "validate",
-                origin: document.location.origin
+                origin: self.origin
             });
             this.validationTimoutID = setTimeout(() => {
                 if (!self.isValid) {
@@ -74,7 +79,7 @@ export class MP3ConvertHandler {
                     leftChannelData: leftChannelData,
                     rightChannelData: rightChannelData
                 },
-                origin: document.location.origin
+                origin: this.origin
             });
         })
     }
@@ -116,7 +121,7 @@ export class MP3ConvertHandler {
 
             function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
                 let buffer = [];
-                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 96); //third value determinate bitrate
 
                 const maxSamples = 1152;
                 for (let i = 0; i < sampleLength; i += maxSamples) {

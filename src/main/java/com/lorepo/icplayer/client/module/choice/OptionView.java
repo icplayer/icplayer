@@ -72,7 +72,12 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
-			if ($wnd.$(e.target).is('input')) return;
+			var isFromInsertedAudio = $wnd.$(e.target).is("input");
+			if (isFromInsertedAudio) return;
+			
+			var isFromAddedAudio = $wnd.$(e.target).parents().hasClass("inner_addon");
+			if (isFromAddedAudio) return;
+			
 			e.preventDefault();
 			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
 			if(isEnabled){
@@ -80,7 +85,6 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 			}
 		});
 	}-*/;
-	
 	
 	@Override
 	public void onBrowserEvent(Event event) {
