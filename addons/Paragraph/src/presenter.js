@@ -187,14 +187,14 @@ function AddonParagraph_create() {
             presenter.editor.setMode('design');
             presenter.isEditorReadOnly = false;
         }
-    }
+    };
 
     presenter.disableEdit = function () {
         if(!presenter.isEditorReadOnly) {
             presenter.editor.setMode('readonly');
             presenter.isEditorReadOnly = true;
         }
-    }
+    };
 
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) return;
@@ -253,7 +253,7 @@ function AddonParagraph_create() {
             }
             presenter.cachedAnswer = [];
         }
-    }
+    };
 
     presenter.gradualShowAnswers = function (data) {
         presenter.disableEdit();
@@ -301,7 +301,7 @@ function AddonParagraph_create() {
             $iframeBody = $iframe.contents().find("#tinymce");
 
         return $iframeBody.children();
-    }
+    };
 
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
@@ -1073,8 +1073,8 @@ function AddonParagraph_create() {
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
 
-        presenter.configuration.isVisible = parsedState.isVisible;
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isVisibleValue = parsedState.isVisible;
+        presenter.setVisibility(presenter.isVisibleValue);
 
         if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderClassInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {
@@ -1113,17 +1113,15 @@ function AddonParagraph_create() {
     };
 
     presenter.show = function AddonParagraph_show() {
-        presenter.configuration.isVisible = true;
         presenter.setVisibility(true);
     };
 
     presenter.hide = function AddonParagraph_hide() {
-        presenter.configuration.isVisible = false;
         presenter.setVisibility(false);
     };
 
     presenter.isVisible = function AddonParagraph_isVisible() {
-        return presenter.configuration.isVisible;
+        return presenter.isVisibleValue;
     };
 
     presenter.setText = function(text) {
