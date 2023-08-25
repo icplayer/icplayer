@@ -7,7 +7,6 @@ public class AddonParamFactory {
 	public IAddonParam createAddonParam(AddonModel parent, String type){
 		
 		String lowerCaseType = type.trim().toLowerCase();
-
 		if (lowerCaseType.compareTo("audio") == 0) {
 			return new AudioAddonParam(parent, type);
 		} if (lowerCaseType.compareTo("video") == 0) {
@@ -46,7 +45,9 @@ public class AddonParamFactory {
 			return new MathTextParam(parent, type);
 		} else if(lowerCaseType.startsWith("mathanswer")) {
 			return new MathAnswerParam(parent, type);
-		}
+		} else if(lowerCaseType.compareTo("editablescript") == 0) {
+			return new EditableScriptAddonParam(parent, type);
+        }
 		
 		return new StringAddonParam(parent, type);
 	}

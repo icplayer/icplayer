@@ -1,4 +1,15 @@
-2023-08-09 Correct calculating gap width
+2023-08-25 Correct calculating gap width
+2023-08-25 Fixed issue with show answers mode in Table+Math
+2023-08-25 Fixed reset in Paragraph to restore original visibility
+2023-08-25 Removed reading punctuation marks in the wrong places in chrome
+2023-08-22 Fixed issues caused by loading new content using the same player
+2023-08-16 Fixed issue with the Audio addon not playing on new iOS devices
+2023-08-08 Added reducing audio file in MediaRecorder
+2023-08-07 Fixed issues with rounding score in progress bar and lesson report
+2023-08-07 Removed capitalization of letter ß in Magic Boxes
+2023-08-03 Fixed storing current visibility status in Puzzle
+2023-07-24 Changed editor in Advance Connector addon
+2023-07-20 Fixed counting score when the Crossword has sample answers
 2023-07-19 Restored page numbering from 1 in Hierarchical Lesson Report
 2023-07-19 Fixed added audio in Choice not working on mobile
 2023-07-19 Fixed the isAllOK function in the Magic Boxes

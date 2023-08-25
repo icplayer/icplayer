@@ -297,7 +297,7 @@ public class ProgressBar extends Widget /*implements ResizableWidget*/ {
     this.curProgress = Math.max(minProgress, Math.min(maxProgress, curProgress));
 
     // Calculate percent complete
-    int percent = (int) (100 * getPercent());
+    int percent = Math.round(100*(float)getPercent());
     DOM.setStyleAttribute(barElement, "width", percent + "%");
     DOM.setElementProperty(textElement, "innerHTML", generateText(curProgress));
     updateTextStyle(percent);
@@ -357,7 +357,7 @@ public class ProgressBar extends Widget /*implements ResizableWidget*/ {
     if (textFormatter != null) {
       return textFormatter.getText(this, curProgress);
     } else {
-      return (int) (100 * getPercent()) + "%";
+      return Math.round((100 * (float)getPercent())) + "%";
     }
   }
 

@@ -79,7 +79,6 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public String getModuleName() {
 		return getModuleTypeName();
 	}
-
 	
 	@Override
 	public String getProviderName() {
@@ -92,7 +91,6 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		addonId = rootElement.getAttribute("addonId");
 		loadProperties(rootElement);
 	}
-
 	
 	private void loadProperties(Element rootElement) {
 		AddonParamFactory paramFactory = new AddonParamFactory();
@@ -105,15 +103,24 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	
 				Node node = optionNodes.item(i);
 				if(node instanceof Element && node.getNodeName().compareTo("property") == 0){
-					Element element = (Element)node;
-					String type = XMLUtils.getAttributeAsString(element, "type");
-					IAddonParam addonParam = paramFactory.createAddonParam(this, type);
-
+					Element element = (Element) node;
+					IAddonParam addonParam = this.createAddonParam(paramFactory, element);
 					addonParam.load(element, this.getBaseURL());
 					addAddonParam(addonParam);
 				}
 			}
 		}
+	}
+
+	private IAddonParam createAddonParam(AddonParamFactory paramFactory, Element element) {
+		String name = XMLUtils.getAttributeAsString(element, "name");
+		
+		String type = XMLUtils.getAttributeAsString(element, "type");
+		if (addonId.compareTo("Advanced_Connector") == 0 && name.compareTo("Scripts") == 0) {
+			type = "editablescript";
+		}
+		
+		return paramFactory.createAddonParam(this, type);
 	}
 
 	@Override

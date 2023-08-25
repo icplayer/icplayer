@@ -495,6 +495,32 @@ function AddonText_To_Speech_create() {
         return splitText;
     }
 
+    presenter.removeUnnecessaryPunctuationMarks = function (texts) {
+        texts.forEach(text => {
+            const splittedWords = text.text
+                .replaceAll(" \/", ",")
+                .split(" ");
+
+            const newSentence = [];
+            splittedWords.forEach(word => {
+                if (word.trim().length) {
+                    const matchAfterLetter = word.match(/(\w\W)[.,?!]+/); // regex captures at least 2 special characters after word
+                    const matchAloneOrSeparated = word.match(/(^|\s)[.,?!(){}\\\/\-\[\]]+/); // regex captures at least 1 special separated character or character at the beginning of sentence
+                    if (matchAfterLetter) {
+                        newSentence.push(word.replace(matchAfterLetter[0], matchAfterLetter[1]));
+                    } else if (matchAloneOrSeparated) {
+                        return;
+                    } else {
+                        newSentence.push(word);
+                    }
+                }
+            });
+            text.text = newSentence.join(" ");
+        });
+
+        return texts.filter(text => text.text.length);
+    };
+
     // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
     presenter.splitLongTexts = function (texts) {
         let finalSplitTexts = [];
@@ -602,6 +628,8 @@ function AddonText_To_Speech_create() {
 
     presenter.readText = function(texts, callback) {
         texts = presenter.splitLongTexts(texts);
+        texts = presenter.removeUnnecessaryPunctuationMarks(texts);
+
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
             return;

@@ -3,11 +3,11 @@ TestCase('[Text_To_Speech] Amplify A before colon tests', {
         this.presenter = AddonText_To_Speech_create();
         this.textVoices = [];
         this.whitespaceChars = [
-            " ", this.getNonBrakingSpace(), "\n", "\t"
+            " ", this.getNonBreakingSpace(), "\n", "\t"
         ]
     },
 
-    getNonBrakingSpace: function () {
+    getNonBreakingSpace: function () {
         return String.fromCharCode(160);
     },
 

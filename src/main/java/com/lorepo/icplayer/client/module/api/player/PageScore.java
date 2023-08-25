@@ -71,7 +71,10 @@ public class PageScore {
 	public int getPercentageScore() {
 
 		if (maxScore > 0) {
-			return (int) (score*100/maxScore);
+			int percentageScore = Math.round(score*100/maxScore);
+			if (percentageScore == 100 && score != maxScore) return 99;
+			if (percentageScore == 0 && score != 0) return 1;
+			return percentageScore;
 		}
 
 		return hasScore ? 100 : 0;
