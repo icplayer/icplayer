@@ -1,4 +1,5 @@
-2023-08-24 Fixed reset in Paragraph to restore original visibility
+2023-08-25 Fixed reset in Paragraph to restore original visibility
+2023-08-25 Removed reading punctuation marks in the wrong places in chrome
 2023-08-22 Fixed issues caused by loading new content using the same player
 2023-08-16 Fixed issue with the Audio addon not playing on new iOS devices
 2023-08-08 Added reducing audio file in MediaRecorder
