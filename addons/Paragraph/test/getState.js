@@ -29,6 +29,7 @@ TestCase("[Paragraph] getState method", {
 
     'test getState given editor exists when show answers active then hide answers': function () {
         this.presenter.isShowAnswersActive = true;
+
         this.presenter.getState();
 
         sinon.assert.calledOnce(this.presenter.hideAnswers);
@@ -56,6 +57,15 @@ TestCase("[Paragraph] getState method", {
         var state = JSON.parse(this.presenter.getState());
 
         assertEquals("", state.tinymceState);
+    },
+
+    'test addon with presenter.configuration.isVisible set to true and presenter.isVisibleValue set to false when setState executed then isVisible in returned state have value from presenter.isVisibleValue': function () {
+        this.presenter.configuration = { isVisible: true };
+        this.presenter.isVisibleValue = false;
+
+        var state = JSON.parse(this.presenter.getState());
+
+        assertFalse(state.isVisible);
     }
 });
 
