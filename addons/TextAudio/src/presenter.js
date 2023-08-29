@@ -2141,7 +2141,7 @@ function AddonTextAudio_create() {
 
     TextAudioKeyboardController.prototype.scrollVertically = function ($textElement) {
         let pos = $textElement.position().top;
-        const $slideWithElement = $textElement.parents().find(`.textaudio-text`);
+        const $slideWithElement = $textElement.closest(`.textaudio-text`);
         const currentScroll = $slideWithElement.scrollTop();
         const divHeight =  $slideWithElement.height();
 
