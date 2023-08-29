@@ -34,6 +34,7 @@ export class MediaRecorder {
     isWCAGOn = false;
     keyboardControllerObject = null;
     mp3ConvertHandler = null;
+    isRecording = false;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
@@ -224,7 +225,20 @@ export class MediaRecorder {
     reset() {
         this.deactivate();
         if (this.model.isResetRemovesRecording) {
-            this.resetRecording();
+            if (this.isRecording) {
+                this.resetRecording();
+            } else {
+                this.resetRecording();
+                if (this.model.extendedMode) {
+                    this.setEMDefaultStateView();
+                }
+                this.progressBar.setProgress(0.0);
+                this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
+                if (this.keyboardControllerObject.keyboardNavigationActive) {
+                    this.keyboardControllerObject.markRecordingButton();
+                    this.keyboardControllerObject.readCurrentElement();
+                }
+            }
         }
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
@@ -449,6 +463,7 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
+            this.isRecording = true;
             if (this.platform === 'mlibro') {
                 this._handleMlibroStartRecording();
             } else {
@@ -502,6 +517,11 @@ export class MediaRecorder {
             if (this.model.disableRecording) {
                 this.mediaState.setLoaded();
             }
+
+            const _self = this;
+            setTimeout(() => {
+                _self.isRecording = false;
+            }, 200);
         };
 
 
