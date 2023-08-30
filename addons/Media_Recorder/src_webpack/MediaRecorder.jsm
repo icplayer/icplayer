@@ -225,14 +225,16 @@ export class MediaRecorder {
     reset() {
         this.deactivate();
         if (this.model.isResetRemovesRecording) {
-            if (this.isRecording) {
-                this.resetRecording();
-            } else {
-                this.resetRecording();
+            this.resetRecording();
+            if (!this.isRecording) {
                 if (this.model.extendedMode) {
                     this.setEMDefaultStateView();
                 }
-                this.progressBar.setProgress(0.0);
+                
+                if (this.progressBar) {
+                    this.progressBar.setProgress(0.0);
+                }
+                
                 this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
                 if (this.keyboardControllerObject.keyboardNavigationActive) {
                     this.keyboardControllerObject.markRecordingButton();
