@@ -1449,7 +1449,7 @@ function AddonEditableWindow_create() {
             text = presenter.speechTexts.closeFullscreen;
         } else if(element.hasClass("addon-editable-close-button")) {
             text = presenter.speechTexts.closeWindow;
-        } else if(element.hasClass("mce-btn")) {
+        } else if(element.hasClass("mce-btn") && !presenter.isElementHidden(element)) {
             text = presenter.speechTexts.textTool;
         } else if(presenter.isColorHighlightElement()) {
             text = presenter.speechTexts.highlightSelect;
@@ -1460,7 +1460,7 @@ function AddonEditableWindow_create() {
             text = presenter.speechTexts[key];
         } else if(element.hasClass("mce-edit-area")) {
             text = presenter.getContentToRead();
-        } else if(element.hasClass("addon-editable-reset-button")) {
+        } else if(element.hasClass("addon-editable-reset-button") && !presenter.isElementHidden(element)) {
             text = presenter.speechTexts.reset;
         } else if(element[0].nodeName === "AUDIO") {
             text = presenter.speechTexts.audio;
@@ -1470,6 +1470,15 @@ function AddonEditableWindow_create() {
 
         presenter.speak(text);
     };
+
+    presenter.isElementHidden = function (HTMLElement) {
+        const elementHeight = HTMLElement[0].offsetHeight;
+        const elementWidth = HTMLElement[0].offsetWidth;
+        const isDisplayed = $(HTMLElement).css('display') !== 'none';
+        const isVisible = $(HTMLElement).css('visibility') === 'visible';
+
+        return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
+    }
 
     //images are temporarily replaced with it's alt text wrapped in paragraph in purpose to getContent with text- this allows to avoid manual parsing HTML
     //after all, originalContent is being restored to editor
