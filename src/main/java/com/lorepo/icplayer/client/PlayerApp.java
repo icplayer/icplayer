@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
@@ -47,6 +48,8 @@ public class PlayerApp {
 	private boolean isStaticHeader = false;
 	private static boolean isAnimationRunning = false;
 	private String lastSentLayoutID = "";
+	private boolean isContentModelLoaded = false;
+	private static JavaScriptObject iframeHandlers = null;
 
 	public PlayerApp(String id, PlayerEntryPoint entryPoint) {
 		this.divId = id;
@@ -54,7 +57,7 @@ public class PlayerApp {
 	}
 
 	public static native int getIFrameSize(boolean isCommonPage, PlayerApp instance) /*-{
-		$wnd.addEventListener('message', function(event) {
+		var frameSizesHandler = function(event) {
 			var data = event.data;
 
 			if ((typeof data == 'string' || data instanceof String)
@@ -62,8 +65,10 @@ public class PlayerApp {
 				$wnd.iframeSize = JSON
 						.parse(data.replace('I_FRAME_SIZES:', ''));
 			}
-		}, false);
-
+		};
+		$wnd.addEventListener('message', frameSizesHandler, false);
+		if (!@com.lorepo.icplayer.client.PlayerApp::iframeHandlers) @com.lorepo.icplayer.client.PlayerApp::iframeHandlers = [];
+		@com.lorepo.icplayer.client.PlayerApp::iframeHandlers.push(frameSizesHandler);
 		$wnd.isFrameInDifferentDomain = false;
 		$wnd.iframeSize = $wnd.iframeSize || {
 			offsetTop : 0,
@@ -84,6 +89,10 @@ public class PlayerApp {
 		return playerController.getScoreService();
 	}
 
+	public boolean isContentModelLoaded() {
+		return isContentModelLoaded;
+	}
+
 	/**
 	 * Load content from given URL
 	 * 
@@ -95,10 +104,11 @@ public class PlayerApp {
 		startPageIndex = pageIndex;
 
 		IXMLFactory contentFactory = ContentFactory.getInstance(this.pagesSubset);
-
+		isContentModelLoaded = false;
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
+				isContentModelLoaded = true;
 				initPlayer(isCommonPage);
 			}
 
@@ -206,27 +216,27 @@ public class PlayerApp {
 		$wnd.$(".ic_header").parent().addClass("ic_static_header");
 		$wnd.$(".ic_static_header").css("width", page.css("width"));
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
-			$wnd
-					.addEventListener(
-							'message',
-							function(event) {
-								if ((typeof event.data == 'string' || event.data instanceof String)
-										&& event.data.indexOf('I_FRAME_SIZES:') === 0) {
-									var scroll = $wnd.iframeSize.offsetTop;
-									var playerOffset = $wnd.iframeSize.frameOffset || 64;
-									if ($wnd.iframeSize.isEditorPreview) {
-										playerOffset = 0;
-									}
-									var iframeScale = 1.0;
-									if ($wnd.iframeSize.frameScale != null) {
-										iframeScale = $wnd.iframeSize.frameScale;
-									}
-									var top = scroll > playerOffset ? (scroll - playerOffset)
-											/ iframeScale
-											: 0;
-									$wnd.$(".ic_static_header").css("top", top);
-								}
-							});
+			var headerScrollHandler = function(event) {
+				if ((typeof event.data == 'string' || event.data instanceof String)
+						&& event.data.indexOf('I_FRAME_SIZES:') === 0) {
+					var scroll = $wnd.iframeSize.offsetTop;
+					var playerOffset = $wnd.iframeSize.frameOffset || 64;
+					if ($wnd.iframeSize.isEditorPreview) {
+						playerOffset = 0;
+					}
+					var iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null) {
+						iframeScale = $wnd.iframeSize.frameScale;
+					}
+					var top = scroll > playerOffset ? (scroll - playerOffset)
+							/ iframeScale
+							: 0;
+					$wnd.$(".ic_static_header").css("top", top);
+				}
+			};
+			$wnd.addEventListener('message', headerScrollHandler);
+			if (!@com.lorepo.icplayer.client.PlayerApp::iframeHandlers) @com.lorepo.icplayer.client.PlayerApp::iframeHandlers = [];
+			@com.lorepo.icplayer.client.PlayerApp::iframeHandlers.push(headerScrollHandler);
 		} else {
 			var logoHeight = $wnd.$("#_icplayer").offset().top;
 
@@ -284,31 +294,30 @@ public class PlayerApp {
 			if (sum >= 0) {
 				$wnd.$(".ic_static_footer").css("top", sum + "px");
 			}
-
-			$wnd
-					.addEventListener(
-							'message',
-							function(event) {
-								if ((typeof event.data == 'string' || event.data instanceof String)
-										&& event.data.indexOf('I_FRAME_SIZES:') === 0) {
-									var scroll = $wnd.iframeSize.offsetTop;
-									offsetIframe = $wnd.iframeSize.notScaledOffset;
-									iframeScale = 1.0;
-									if ($wnd.iframeSize.frameScale != null) {
-										iframeScale = $wnd.iframeSize.frameScale;
-									}
-									sum = ($wnd.iframeSize.windowInnerHeight
-											- icFooterHeight + scroll)
-											/ iframeScale - offsetIframe;
-									if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
-										$wnd.$(".ic_static_footer").css("top",
-												"auto");
-									} else {
-										$wnd.$(".ic_static_footer").css("top",
-												sum + "px");
-									}
-								}
-							});
+			var footerScrollHandler = function(event) {
+				if ((typeof event.data == 'string' || event.data instanceof String)
+						&& event.data.indexOf('I_FRAME_SIZES:') === 0) {
+					var scroll = $wnd.iframeSize.offsetTop;
+					offsetIframe = $wnd.iframeSize.notScaledOffset;
+					iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null) {
+						iframeScale = $wnd.iframeSize.frameScale;
+					}
+					sum = ($wnd.iframeSize.windowInnerHeight
+							- icFooterHeight + scroll)
+							/ iframeScale - offsetIframe;
+					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
+						$wnd.$(".ic_static_footer").css("top",
+								"auto");
+					} else {
+						$wnd.$(".ic_static_footer").css("top",
+								sum + "px");
+					}
+				}
+			};
+			$wnd.addEventListener('message', footerScrollHandler);
+			if (!@com.lorepo.icplayer.client.PlayerApp::iframeHandlers) @com.lorepo.icplayer.client.PlayerApp::iframeHandlers = [];
+			@com.lorepo.icplayer.client.PlayerApp::iframeHandlers.push(footerScrollHandler);
 		} else {
 			var referrer = $doc.referrer;
 
@@ -557,6 +566,7 @@ public class PlayerApp {
 			}
 		});
 		contentModel.setPlayerController(getPlayerServices());
+		RootPanel.get(divId).clear();
 		RootPanel.get(divId).add(playerView);
 		this.loadActualLayoutCSSStyles();
 		this.loadAttachedLibraries();
@@ -860,4 +870,35 @@ public class PlayerApp {
 		playerController.getScoreWithMetadataService().setScoreWithMetadata(state);
 		playerController.updateState();
 	}
+
+	public void clearBeforeReload() {
+		clearGlobalAddonVariables();
+		removeStaticFooter();
+		clearMediaRecorders();
+		getPlayerServices().getCommands().closePopup();
+		playerController.disableKeyboardNavigation();
+		playerController.setTextReading(false);
+		playerController.clearKeyboardNavigationListeners();
+		clearIframeHandlers();
+
+	}
+
+	private native void clearGlobalAddonVariables()/*-{
+		$wnd.savedPanel = null; //IWB_Toolbar
+	}-*/;
+
+	private native void clearMediaRecorders()/*-{
+		// unless removed manually, it may take some time for the recorder to be destroyed
+		$wnd.$('.ic_player .addon_Media_Recorder').remove();
+	}-*/;
+
+	private native void clearIframeHandlers()/*-{
+		var iframeHandlers = @com.lorepo.icplayer.client.PlayerApp::iframeHandlers;
+		@com.lorepo.icplayer.client.PlayerApp::iframeHandlers = [];
+		if (iframeHandlers) {
+			for(var i = 0; i < iframeHandlers.length; i++) {
+				$wnd.removeEventListener("message", iframeHandlers[i]);
+			}
+		}
+	}-*/;
 }

@@ -1,4 +1,10 @@
-2023-08-22 Fixed resetting of recordings in the mLibro application
+2023-08-30 Fixed resetting of recordings in the mLibro application
+2023-08-25 Correct calculating gap width
+2023-08-25 Fixed issue with show answers mode in Table+Math
+2023-08-25 Fixed reset in Paragraph to restore original visibility
+2023-08-25 Removed reading punctuation marks in the wrong places in chrome
+2023-08-22 Fixed issues caused by loading new content using the same player
+2023-08-16 Fixed issue with the Audio addon not playing on new iOS devices
 2023-08-08 Added reducing audio file in MediaRecorder
 2023-08-07 Fixed issues with rounding score in progress bar and lesson report
 2023-08-07 Removed capitalization of letter ß in Magic Boxes

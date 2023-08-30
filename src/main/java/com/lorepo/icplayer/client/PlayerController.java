@@ -851,4 +851,16 @@ public class PlayerController implements IPlayerController {
 			}
 		}
 	}
+
+	public void setTextReading(boolean isWCAGOn) {
+		if (this.pageController1 != null) {
+			this.pageController1.setTextReading(isWCAGOn);
+		}
+	}
+
+	public void clearKeyboardNavigationListeners() {
+		if (this.keyboardController != null) {
+			this.keyboardController.clearEventListeners();
+		}
+	}
 }

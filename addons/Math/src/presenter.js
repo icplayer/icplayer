@@ -466,7 +466,7 @@ function AddonMath_create() {
 
     presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswers) {
-            presenter.toggleAnswers(false);
+            presenter.toggleAnswers(false, true);
         }
 
         presenter.isErrorMode = true;
@@ -561,22 +561,27 @@ function AddonMath_create() {
     };
 
     presenter.getErrorCount = function () {
-        if(presenter.configuration.isError){
+        if (presenter.configuration.isError){
             return;
         }
 
-        if (presenter.isShowAnswers) {
+        var isShowAnswers = presenter.isShowAnswers;
+        if (isShowAnswers) {
             presenter.toggleAnswers(false);
         }
 
         var variables = presenter.configuration.variables,
             emptyGaps = presenter.getEmptyGaps(variables);
 
-        if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) return 0;
+        if (!emptyGaps.isValid || emptyGaps.gaps.length !== 0) {
+            if (isShowAnswers) presenter.toggleAnswers(true);
+            return 0;
+        }
 
         var separators = presenter.configuration.separators,
             expressions = presenter.configuration.expressions,
             evaluationResult = presenter.evaluateAllExpressions(expressions, variables, separators);
+        if (isShowAnswers) presenter.toggleAnswers(true);
 
         if (evaluationResult.isError) return;
 
@@ -664,7 +669,7 @@ function AddonMath_create() {
         return { isValid: true, gaps: notAttemptedGaps };
     };
 
-    presenter.toggleAnswers = function (on) {
+    presenter.toggleAnswers = function (on, blockUnlocking = false) {
         presenter.isShowAnswers = on;
         for (var i=0; i<presenter.configuration.answers.length; i++) {
             var answer = presenter.configuration.answers[i];
@@ -687,7 +692,7 @@ function AddonMath_create() {
                     module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.moduleAnswersCounter(moduleReference.moduleID));
                 } else {
                     module.setUserValue(moduleReference.gapIndex, answer.users);
-                    if (module.hasOwnProperty('enableGap')) module.enableGap(moduleReference.gapIndex);
+                    if (!blockUnlocking && module.hasOwnProperty('enableGap')) module.enableGap(moduleReference.gapIndex);
                 }
             }
         }
