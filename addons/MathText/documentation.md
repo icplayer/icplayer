@@ -1,13 +1,8 @@
 ## Description
 
-MathText is an addon that allows the use of MathType for Office Tools packages and WirisQuizzes.
+MathText (WIRIS) is an addon that allows the use of MathType for Office Tools packages and WirisQuizzes.
 
-With MathType for Office Tools packages it is possible to create or edit mathematical equations using a special 
-WYSIWYG formula editor, also known as equation editor. In the WIRIS editor, it is possible to use method known as 
-Hand - input method for writing mathematics in handwriting mode, which is provided by WIRIS. 
-The resulting output of Hand is the equivalent presentation MathML of the formula handwritten by the user. 
-Depending on the type selected in the addon's settings, math equations in the player can be edited or available 
-only in SVG form.
+With MathType for Office Tools packages it is possible to create or edit mathematical equations using a special WYSIWYG formula editor, also known as equation editor. In the WIRIS editor, it is possible to use method known as Hand - input method for writing mathematics in handwriting mode, which is provided by WIRIS. The resulting output of Hand is the equivalent presentation MathML of the formula handwritten by the user. Depending on the type selected in the addon's settings, math equations in the player can be edited or available only in SVG form.
 
 ## Properties
 
