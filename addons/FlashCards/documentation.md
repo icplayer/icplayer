@@ -106,8 +106,8 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>play</td>
-        <td>-</td>
-        <td>Plays the audio file of the currently selected card and side. If there is no audio file associated with the visible side of the currently selected card, the method does nothing.</td>
+        <td>cardNumber, reverse</td>
+        <td>Plays the audio file of the indicated card and side. If no argument is provided, the method will play the audio associated with the currently visible card and side. If there is no audio file associated with the selected card and side, the method does nothing. </td>
     </tr>
     <tr>
         <td>pause</td>
