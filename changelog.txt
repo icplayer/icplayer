@@ -1,3 +1,4 @@
+2023-09-01 Fixed sending event after leaving gap when TTS is activated
 2023-08-25 Correct calculating gap width
 2023-08-25 Fixed issue with show answers mode in Table+Math
 2023-08-25 Fixed reset in Paragraph to restore original visibility

@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.page.PageController;
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay, NavigationTextElement {
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
+	private boolean shouldSendChangeEvent = false;
 	private String value = "";
 	private boolean clicked = false;
 	private PageController pageController;
@@ -253,7 +254,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		} else {
 			this.deselect();
 		}
-		if( !getView().isWCAGon() ){
+		if( !isWCAGon() ){
 			setFocus(focus);
 		}
 	}
@@ -265,7 +266,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		} else {
 			this.deselect();
 		}
-		if( !getView().isWCAGon() ){
+		if( !isWCAGon() ){
 			setFocus(focus);
 		}
 	}
@@ -296,10 +297,19 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 	@Override
 	public void deselect() {
+		if (isWCAGon() && this.shouldSendChangeEvent) {
+			fireChangeEvent();
+			updateSendingEventStatus(false);
+		}
+
 		this.removeStyleName("keyboard_navigation_active_element");
 		this.removeStyleName("keyboard_navigation_active_element_text");
 		this.isSelected = false;
 		DOM.getElementById(this.getId()).blur();
+	}
+
+	public void updateSendingEventStatus(boolean status) {
+		this.shouldSendChangeEvent = status;
 	}
 
     public boolean isSelected() {
@@ -343,9 +353,21 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 			if(selectedIndex != originalIndex) {
 				this.setSelectedIndex( selectedIndex );
-				fireChangeEvent();
+				handleSendingChangeEvent();
 			}
 		}
+	}
+
+	private void handleSendingChangeEvent() {
+		if (isWCAGon()) {
+			updateSendingEventStatus(true);
+		} else {
+			fireChangeEvent();
+		}
+	}
+
+	public boolean isWCAGon() {
+		return getView().isWCAGon();
 	}
 	
 	public void fireChangeEvent() {
