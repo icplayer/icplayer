@@ -34,6 +34,7 @@ export class MediaRecorder {
     isWCAGOn = false;
     keyboardControllerObject = null;
     mp3ConvertHandler = null;
+    isRecording = false;
 
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
@@ -75,10 +76,18 @@ export class MediaRecorder {
             this._loadEventBus()
 
         var context = playerController.getContextMetadata();
-        this.isMlibro = false;
-        if (context != null && "ismLibro" in context) {
-            this.isMlibro = context["ismLibro"];
+        this.isMlibro = this.isMLibroApp(context);
+    }
+
+    isMLibroApp(context) {
+        if (!context) {
+            return false;
         }
+
+        var hasNameInRootDir = context.hasOwnProperty('rootDirectory') && context['rootDirectory'].toLowerCase().includes('mlibro');
+        var hasPropertyInContext = context.hasOwnProperty('ismLibro') && context["ismLibro"];
+
+        return hasNameInRootDir || hasPropertyInContext;
     }
 
     isEmpty() {
@@ -217,6 +226,21 @@ export class MediaRecorder {
         this.deactivate();
         if (this.model.isResetRemovesRecording) {
             this.resetRecording();
+            if (!this.isRecording) {
+                if (this.model.extendedMode) {
+                    this.setEMDefaultStateView();
+                }
+                
+                if (this.progressBar) {
+                    this.progressBar.setProgress(0.0);
+                }
+                
+                this.keyboardControllerObject.setElements(this._getElementsForExtendedKeyboardNavigation());
+                if (this.keyboardControllerObject.keyboardNavigationActive) {
+                    this.keyboardControllerObject.markRecordingButton();
+                    this.keyboardControllerObject.readCurrentElement();
+                }
+            }
         }
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
@@ -441,6 +465,7 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
+            this.isRecording = true;
             if (this.platform === 'mlibro') {
                 this._handleMlibroStartRecording();
             } else {
@@ -494,6 +519,11 @@ export class MediaRecorder {
             if (this.model.disableRecording) {
                 this.mediaState.setLoaded();
             }
+
+            const _self = this;
+            setTimeout(() => {
+                _self.isRecording = false;
+            }, 200);
         };
 
 
@@ -505,7 +535,13 @@ export class MediaRecorder {
             if (this.enableAnalyser) {
                 this.mediaAnalyserService.closeAnalyzing();
             }
-            this.recorder.stopRecording();
+
+            if (this.isMlibro) {
+                this._handleMlibroStopRecording();
+            } else if (this.recorder) {
+                this.recorder.stopRecording();
+            }
+
             this.resourcesProvider.destroy();
         };
 
