@@ -49,25 +49,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 				@Override
 				public void onChange (ChangeEvent event) {
-					int index = getSelectedIndex();
-					if (index > 0) {
-						value = StringUtils.unescapeXML(getValue(index));
-						removeStyleName("ic_inlineChoice-default");
-					} else {
-						value = "---";
-						addStyleName("ic_inlineChoice-default");
-					}
-					listener.onInlineValueChanged(choiceInfo.getId(), value);
-					TextView view = getView();
-					if(view.isWCAGon()){
-						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-						if (index == 0) {
-							textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
-						} else {
-							textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
-						} 
-						getPageController().speak(textVoices);
-					}
+					handleChangingEvent(listener);
+					readSelectedElement();
 				}
 			});
 
@@ -87,6 +70,35 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 				}
 			});
 		}
+	}
+
+	private void readSelectedElement() {
+		int index = getSelectedIndex();
+		if (index > 0) {
+			value = StringUtils.unescapeXML(getValue(index));
+		} else {
+			value = "---";
+		}
+		TextView view = getView();
+		if(view.isWCAGon()){
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			if (index == 0) {
+				textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
+			} else {
+				textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
+			} 
+			getPageController().speak(textVoices);
+		}
+	}
+
+	private void handleChangingEvent(ITextViewListener listener) {
+		int index = getSelectedIndex();
+		if (index > 0) {
+			removeStyleName("ic_inlineChoice-default");
+		} else {
+			addStyleName("ic_inlineChoice-default");
+		}
+		listener.onInlineValueChanged(choiceInfo.getId(), value);
 	}
 
 	public boolean hasId(String id) {
@@ -361,6 +373,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 	private void handleSendingChangeEvent() {
 		if (isWCAGon()) {
 			updateSendingEventStatus(true);
+			readSelectedElement();
 		} else {
 			fireChangeEvent();
 		}
