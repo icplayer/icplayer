@@ -1305,6 +1305,41 @@ function AddonEditableWindow_create() {
         this.readCurrentElement();
     };
 
+    EditableWindowKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(1);
+
+        if(this.isElementHidden(this.getCurrentElement())) {
+            this.nextElement(event);
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(-1);
+
+        if(this.isElementHidden(this.getCurrentElement())) {
+            this.previousElement(event);
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.isElementHidden = function (element) {
+        const elementHeight = element[0].offsetHeight;
+        const elementWidth = element[0].offsetWidth;
+        const isDisplayed = $(element).css('display') !== 'none';
+        const isVisible = $(element).css('visibility') === 'visible';
+
+        return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
+    };
+
+    EditableWindowKeyboardController.prototype.getCurrentElement = function () {
+		return this.getTarget(this.keyboardNavigationCurrentElement, false);
+	};
+
     EditableWindowKeyboardController.prototype.enter = function EditableWindow_enter (event) {
         KeyboardController.prototype.enter.call(this, event);
         if(this.keyboardNavigationCurrentElementIndex === 0) {
@@ -1449,7 +1484,7 @@ function AddonEditableWindow_create() {
             text = presenter.speechTexts.closeFullscreen;
         } else if(element.hasClass("addon-editable-close-button")) {
             text = presenter.speechTexts.closeWindow;
-        } else if(element.hasClass("mce-btn") && !presenter.isElementHidden(element)) {
+        } else if(element.hasClass("mce-btn")) {
             text = presenter.speechTexts.textTool;
         } else if(presenter.isColorHighlightElement()) {
             text = presenter.speechTexts.highlightSelect;
@@ -1460,7 +1495,7 @@ function AddonEditableWindow_create() {
             text = presenter.speechTexts[key];
         } else if(element.hasClass("mce-edit-area")) {
             text = presenter.getContentToRead();
-        } else if(element.hasClass("addon-editable-reset-button") && !presenter.isElementHidden(element)) {
+        } else if(element.hasClass("addon-editable-reset-button")) {
             text = presenter.speechTexts.reset;
         } else if(element[0].nodeName === "AUDIO") {
             text = presenter.speechTexts.audio;
@@ -1470,15 +1505,6 @@ function AddonEditableWindow_create() {
 
         presenter.speak(text);
     };
-
-    presenter.isElementHidden = function (HTMLElement) {
-        const elementHeight = HTMLElement[0].offsetHeight;
-        const elementWidth = HTMLElement[0].offsetWidth;
-        const isDisplayed = $(HTMLElement).css('display') !== 'none';
-        const isVisible = $(HTMLElement).css('visibility') === 'visible';
-
-        return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
-    }
 
     //images are temporarily replaced with it's alt text wrapped in paragraph in purpose to getContent with text- this allows to avoid manual parsing HTML
     //after all, originalContent is being restored to editor
