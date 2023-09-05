@@ -1,4 +1,5 @@
-2023-08-29 Removed navigation on invisible elements in AudioText addon when TTS or keyboard navigation is active
+2023-08-31 Removed navigation on invisible elements in AudioText addon when TTS or keyboard navigation is active
+2023-08-31 Added documentation to MathText
 2023-08-25 Correct calculating gap width
 2023-08-25 Fixed issue with show answers mode in Table+Math
 2023-08-25 Fixed reset in Paragraph to restore original visibility
