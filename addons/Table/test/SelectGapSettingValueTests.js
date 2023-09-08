@@ -4,7 +4,8 @@ TestCase("[Table] Select gap show answers tests", {
         this.presenter.configuration = {
             addonID: 'id',
             gapWidth: { isSet: false },
-            isActivity: true
+            isActivity: true,
+            gapMaxLength: {value: 12}
         };
         this.presenter.eventBus = sinon.spy();
 
@@ -12,7 +13,7 @@ TestCase("[Table] Select gap show answers tests", {
             escapeXMLEntities: sinon.stub()
         };
 
-        this.gap = new this.presenter.SelectGap("gapId", "correctAnswer", 1);
+        this.gap = new this.presenter.SelectGap("gapId", ["correctAnswer"], 1);
 
         this.stubs = {
             setViewValueStub: sinon.stub(this.gap.$view, "val")
