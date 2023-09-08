@@ -35,9 +35,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private ArrayList<NavigationTextElement> navigationTextElements = new ArrayList<NavigationTextElement>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int activeGapIndex = -1;
-	private int activeNavigationGapIndex = -1; //to distinct the active index of navigation text elements (includes links)
-	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
@@ -46,7 +43,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
-	private NavigationTextElement activatedNavigationElement = null;
+
+	// active index of navigation text elements (including links). The order follows the order of navigation elements.
+	private int keyboardNavigationCurrentElementIndex = -1;
+	private NavigationTextElement keyboardNavigationCurrentElement = null;
+	private TextElementDisplay activeGap = null;
 
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
@@ -130,6 +131,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
+			} else {
+				String longestAnswer = gi.getLongestAnswer();
+				String fontSize = getFontSize(gap.getId());
+				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
+
+				if (calculatedGapWidth > 0) {
+					gap.setWidth(calculatedGapWidth + "px");
+				}
 			}
 
 			gap.setDisabled(module.isDisabled());
@@ -149,6 +158,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
+				} else {
+					String longestAnswer = gi.getLongestAnswer();
+					String fontSize = getFontSize(gap.getId());
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
+
+					if (calculatedGapWidth > 0) {
+						gap.setWidth(calculatedGapWidth + "px");
+					}
 				}
 
 				if (!module.isOldGapSizeCalculation()) {
@@ -178,6 +195,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				FilledGapWidget gap = new FilledGapWidget(gi, listener);
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
+				} else {
+					String longestAnswer = gi.getLongestAnswer();
+					String fontSize = getFontSize(gap.getId());
+					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
+					
+					if (calculatedGapWidth > 0) {
+						gap.setWidth(calculatedGapWidth + "px");
+					}
 				}
 
 				gap.setDisabled(module.isDisabled());
@@ -292,6 +317,29 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			audioIndex += 1;
 		}
 	}
+
+	private native String getFontSize(String gapId) /*-{
+		var divElement = $wnd.document.getElementById("editor-" + gapId);
+		if (!divElement) {
+			return "18px";
+		}
+		var cssObject = window.getComputedStyle(divElement, null);
+		var fontSize = cssObject.getPropertyValue("font-size");
+
+		return fontSize;
+	}-*/;
+
+	private native int getCalculatedGapWidth(String text, String fontSize) /*-{
+		var canvas = document.createElement("canvas");
+		var fontFamily = 'Arial';
+		var fontOptions = fontSize.concat(" ", fontFamily);
+		var context = canvas.getContext("2d");
+		context.font =  fontOptions;
+		
+		var metrics = context.measureText(text);
+
+		return Math.ceil(metrics.width);
+	}-*/;
 
 	private native void addAudioUpdateTimeEventListener (AudioInfo info) /*-{
 		var audioWidget = info.@com.lorepo.icplayer.client.module.text.AudioInfo::getAudio()();
@@ -561,11 +609,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void handleWCAGExit() {
-        this.removeNavigationElementSelections();
-        activeGapIndex = -1;
-        activeNavigationGapIndex = -1;
-        activeGap = null;
-        moduleHasFocus = false;
+		this.removeNavigationElementSelections();
+		activeGap = null;
+		keyboardNavigationCurrentElementIndex = -1;
+		keyboardNavigationCurrentElement = null;
+		moduleHasFocus = false;
 	}
 
 	public void enter (KeyDownEvent event, boolean isExiting) {
@@ -573,73 +621,97 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			handleWCAGExit();
 		} else {
 			if (activeGap == null) {
-				if (textElements.size() > 0) {
-					activeGap = textElements.get(0);
+				if (navigationTextElements.size() > 0) {
+					NavigationTextElement navigationElement = navigationTextElements.get(0);
+					activeGap = findDisplayElementForNavigationElement(navigationElement);
 				}
 			} else {
 				if (!moduleHasFocus) {
-					activeGap.setFocusGap(true);
-					moduleHasFocus = true;
+					move(true);
 				}
 			}
 			this.readTextContent();
 		}
 	}
 
-	private void focusOnNextGap() {
-		activeGapIndex++;
-		activeGap = textElements.get(activeGapIndex);
-	}
-
-	private void focusOnPrevGap() {
-		activeGapIndex--;
-		activeGap = textElements.get(activeGapIndex);
-	}
-
 	private void move (boolean goNext) {
-		int size = navigationTextElements.size();
-		boolean hasAchievedMaximum = false;
-
-		if (size == 0) {
+		int keyboardNavigationElementsLen = navigationTextElements.size();
+		if (keyboardNavigationElementsLen == 0) {
 			return;
 		}
 
+		int keyboardNavigationNextElementIndex = goNext
+			? keyboardNavigationCurrentElementIndex + 1
+			: keyboardNavigationCurrentElementIndex - 1;
+		if (keyboardNavigationNextElementIndex >= keyboardNavigationElementsLen) {
+			keyboardNavigationNextElementIndex = keyboardNavigationElementsLen - 1;
+		} else if (keyboardNavigationNextElementIndex < 0) {
+			keyboardNavigationNextElementIndex = 0;
+		}
+
 		this.removeNavigationElementSelections();
-		int nextGapIndex = goNext ? activeNavigationGapIndex + 1 : activeNavigationGapIndex - 1;
+		this.keyboardNavigationCurrentElementIndex = keyboardNavigationNextElementIndex;
+		this.keyboardNavigationCurrentElement = navigationTextElements.get(keyboardNavigationNextElementIndex);
+		this.keyboardNavigationCurrentElement.setElementFocus(true);
+		this.moduleHasFocus = true;
 
-		if (nextGapIndex >= size) {
-			nextGapIndex = size - 1;
-			hasAchievedMaximum = true;
+		adjustActiveGapInformation();
+	}
+
+	private void adjustActiveGapInformation() {
+		if (this.keyboardNavigationCurrentElement instanceof LinkWidget) {
+			return;
 		}
 
-		if (nextGapIndex < 0) {
-			nextGapIndex = 0;
+		TextElementDisplay nextGap = findDisplayElementForNavigationElement(this.keyboardNavigationCurrentElement);
+		if (nextGap == null) {
+			return;
 		}
 
-		NavigationTextElement activeElement = navigationTextElements.get(nextGapIndex);
-		if (goNext && !hasAchievedMaximum) {
-			activeNavigationGapIndex++;
-			if (!(activeElement instanceof LinkWidget)) {
-				focusOnNextGap();
+		this.activeGap = nextGap;
+	}
+
+	private TextElementDisplay findDisplayElementForNavigationElement(NavigationTextElement navigationElement) {
+		String searchId = navigationElement.getId();
+		for (int i = 0; i < textElements.size(); i++) {
+			TextElementDisplay displayElement = textElements.get(i);
+			if (searchId == displayElement.getId()) {
+				return displayElement;
 			}
+		}
+		return null;
+	}
 
-		} else if (!goNext && activeNavigationGapIndex > 0) {
-			activeNavigationGapIndex--;
-			if (!(activeElement instanceof LinkWidget)) {
-				focusOnPrevGap();
+	/**
+	 * Find the index of the active gap.
+	 * - When counting the index, links are not taken into account.
+	 * - The index is calculated relative to the position of the gap relative to other gaps counting from the top down.
+	 * - The type of the gap does not matter.
+	 */
+	private int findActiveGapIndex() {
+		if (activeGap == null) {
+			return -1;
+		}
+		
+		String searchId = activeGap.getId();
+		int relativeIndex = 0;
+		for (int i = 0; i < navigationTextElements.size(); i++) {
+			NavigationTextElement navigationTextElement = navigationTextElements.get(i);
+			if (searchId == navigationTextElement.getId()) {
+				return relativeIndex;
+			}
+			
+			if (!(navigationTextElement instanceof LinkWidget)) {
+				relativeIndex++;
 			}
 		}
-
-		this.activatedNavigationElement = activeElement;
-		activeElement.setElementFocus(true);
-		moduleHasFocus = true;
-
-		this.readNavigationText(activeElement, activeGapIndex);
+		return -1;
 	}
 
 	@Override
 	public void tab (KeyDownEvent event) {
 		this.move(true);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
@@ -651,6 +723,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
+		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
@@ -665,7 +738,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void down (KeyDownEvent event) {
-		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
 
@@ -674,7 +747,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void up (KeyDownEvent event) {
-		if(moduleHasFocus == false  ||  (activatedNavigationElement != null && activatedNavigationElement.getElementType().equals("dropdown") )){
+		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
 
@@ -683,10 +756,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void space(KeyDownEvent event) {
-		boolean isActivatedLinkWidget = activatedNavigationElement != null && activatedNavigationElement.getElementType() == "link";
+		boolean isActivatedLinkWidget = keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType() == "link";
 
 		if(WCAGUtils.hasLinks(this.module) && isActivatedLinkWidget) {
-			LinkWidget linkWidget = (LinkWidget) activatedNavigationElement;
+			LinkWidget linkWidget = (LinkWidget) keyboardNavigationCurrentElement;
 			LinkInfo linkInfo = linkWidget.getLinkInfo();
 
 			if (listener != null) {
@@ -738,8 +811,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
-		if (isWCAGon && activatedNavigationElement!=null && activatedNavigationElement.getElementType().equals("dropdown")) {
-			InlineChoiceWidget icw = (InlineChoiceWidget) activatedNavigationElement;
+		if (isWCAGon && keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) keyboardNavigationCurrentElement;
 			if (icw.getPageController() == null){
 				icw.setPageController(this.pageController);
 			};

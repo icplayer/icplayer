@@ -1,6 +1,8 @@
 function AddonTimer_create(){
 
 	var presenter = function(){};
+	presenter.keyboardControllerObject = null;
+	presenter.isWCAGOn = false;
 
 	presenter.configuration = {
 		isValid: true,
@@ -26,6 +28,28 @@ function AddonTimer_create(){
 		showHours: false
 	};
 
+	presenter.ERROR_CODES = {
+		"Z01": "None",
+        "T01": "Wrong time"
+    };
+
+	presenter.MODE = {
+        'Timer': 'Timer',
+		'Stopwatch': 'Stopwatch',
+        DEFAULT: 'Timer'
+    };
+
+	presenter.DEFAULT_TTS_PHRASES = {
+        TIMER_STARTED: "Timer started",
+        TIMER_STOPPED: "Timer stopped",
+        TIMER_ENDED: "Timer ended",
+        STOPWATCH_STARTED: "Stopwatch started",
+        STOPWATCH_STOPPED: "Stopwatch stopped",
+        HOURS: "Hours",
+        MINUTES: "Minutes",
+        SECONDS: "Seconds"
+    };
+
 	presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -41,11 +65,9 @@ function AddonTimer_create(){
 	presenter.triggerEvent = function(value) {
         var eventData = presenter.createEventData(value);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    };
-
-	presenter.ERROR_CODES = {
-		"Z01": "None",
-        "T01": "Wrong time"
+		if (value === 'end') {
+			presenter.readOnEnd();
+		}
     };
 
 	presenter.executeCommand = function (name, params) {
@@ -66,21 +88,21 @@ function AddonTimer_create(){
 		Commands.dispatch(commands, name, params, presenter);
 	};
 
-	presenter.MODE = {
-        'Timer': 'Timer',
-		'Stopwatch': 'Stopwatch',
-        DEFAULT: 'Timer'
-    };
-
-	presenter.start = function() {
+	presenter.start = function(shouldReadTTS = true) {
         presenter.countDown();
 		presenter.state.nowStart = true;
+		if (shouldReadTTS) {
+			presenter.readOnStart();
+		}
     };
 
-	presenter.stop = function() {
+	presenter.stop = function(shouldReadTTS = true) {
         clearInterval(presenter.state.interval);
 		presenter.state.isFired = false;
 		presenter.state.nowStart = false;
+		if (shouldReadTTS) {
+			presenter.readOnStop();
+		}
     };
 
 	presenter.show = function() {
@@ -246,6 +268,31 @@ function AddonTimer_create(){
 		}
 	};
 
+	presenter.upgradeModel = function (model) {
+		return presenter.upgradeModelWithSpeechTexts(model);
+	};
+
+	presenter.upgradeModelWithSpeechTexts = function (model) {
+		const upgradedModel = {};
+		const defaultValue = {
+			TimerStarted: {TimerStarted: ''},
+			TimerStopped: {TimerStopped: ''},
+			TimerEnded: {TimerEnded: ''},
+			StopwatchStarted: {StopwatchStarted: ''},
+			StopwatchStopped: {StopwatchStopped: ''},
+			Hours: {Hours: ''},
+			Minutes: {Minutes: ''},
+			Seconds: {Seconds: ''}
+		};
+        $.extend(true, upgradedModel, model);
+
+		if (!upgradedModel.hasOwnProperty('speechTexts')) {
+			upgradedModel['speechTexts'] = defaultValue;
+		}
+
+		return upgradedModel;
+	};
+
 	presenter.validateModel = function(model) {
 		var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
 		var validatedTime = validateTime(mode,model['Time'],false);
@@ -253,14 +300,14 @@ function AddonTimer_create(){
 			return {
 				isValid: false,
 				errorCode: validatedTime.errorCode
-			}
+			};
 		}
 		var validatedAlarm = validateTime(mode,model['Time'],true);
 		if (!validatedAlarm.isValid) {
 			return {
 				isValid: false,
 				errorCode: validatedAlarm.errorCode
-			}
+			};
 		}
 		return {
 			isValid: true,
@@ -274,11 +321,12 @@ function AddonTimer_create(){
 			showHours: ModelValidationUtils.validateBoolean(model["Show hours"]),
 			enableReset: ModelValidationUtils.validateBoolean(model["Enable reset"]),
 			addonID: model['ID']
-		}
+		};
 	};
 
 	presenter.initiate = function(view, model, isPreview) {
-		var validatedModel = presenter.validateModel(model);
+		const upgradedModel = presenter.upgradeModel(model);
+		const validatedModel = presenter.validateModel(model);
 		if (!validatedModel.isValid) {
 			DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
 			return;
@@ -303,6 +351,8 @@ function AddonTimer_create(){
                 presenter.destroy();
             }
         });
+		presenter.setSpeechTexts(upgradedModel);
+		presenter.buildKeyboardController();
 	};
 
 	presenter.destroy = function (event) {
@@ -347,15 +397,208 @@ function AddonTimer_create(){
 		presenter.displayhhmmss(presenter.state.currentTime);
 		presenter.state.nowStart = parsedState.nowStart;
 		if (presenter.state.nowStart) {
-			presenter.start()
+			presenter.start(false);
 		} else {
-			presenter.stop();
+			presenter.stop(false);
 		}
 		presenter.updateVisibility();
 		if (presenter.state.isVisible && presenter.state.showHours) {
 			presenter.showHoursPart();
 		}
 	};
+
+	presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+	presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+		presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+	};
+	
+	presenter.buildKeyboardController = function () {
+		const elements = presenter.getElementsForKeyboardNavigation();
+		presenter.keyboardControllerObject =
+			new TimerKeyboardController(elements);
+	};
+
+	presenter.setSpeechTexts = function (model) {
+		const speechTexts = model['speechTexts'];
+		presenter.speechTexts = {
+			TimerStarted: presenter.DEFAULT_TTS_PHRASES.TIMER_STARTED,
+			TimerStopped: presenter.DEFAULT_TTS_PHRASES.TIMER_STOPPED,
+			TimerEnded: presenter.DEFAULT_TTS_PHRASES.TIMER_ENDED,
+			StopwatchStarted: presenter.DEFAULT_TTS_PHRASES.STOPWATCH_STARTED,
+			StopwatchStopped: presenter.DEFAULT_TTS_PHRASES.STOPWATCH_STOPPED,
+			Hours: presenter.DEFAULT_TTS_PHRASES.HOURS,
+			Minutes: presenter.DEFAULT_TTS_PHRASES.MINUTES,
+			Seconds: presenter.DEFAULT_TTS_PHRASES.SECONDS,
+		};
+
+		if(!speechTexts || $.isEmptyObject(speechTexts)) {
+			return;
+		}
+
+		presenter.speechTexts = {
+			TimerStarted: TTSUtils.getSpeechTextProperty(
+				speechTexts.TimerStarted.TimerStarted,
+				presenter.speechTexts.TimerStarted
+			),
+			TimerStopped: TTSUtils.getSpeechTextProperty(
+				speechTexts.TimerStopped.TimerStopped,
+				presenter.speechTexts.TimerStopped
+			),
+			TimerEnded: TTSUtils.getSpeechTextProperty(
+				speechTexts.TimerEnded.TimerEnded,
+				presenter.speechTexts.TimerEnded
+			),
+			StopwatchStarted: TTSUtils.getSpeechTextProperty(
+				speechTexts.StopwatchStarted.StopwatchStarted,
+				presenter.speechTexts.StopwatchStarted
+			),
+			StopwatchStopped: TTSUtils.getSpeechTextProperty(
+				speechTexts.StopwatchStopped.StopwatchStopped,
+				presenter.speechTexts.StopwatchStopped
+			),
+			Hours: TTSUtils.getSpeechTextProperty(
+				speechTexts.Hours.Hours,
+				presenter.speechTexts.Hours
+			),
+			Minutes: TTSUtils.getSpeechTextProperty(
+				speechTexts.Minutes.Minutes,
+				presenter.speechTexts.Minutes
+			),
+			Seconds: TTSUtils.getSpeechTextProperty(
+				speechTexts.Seconds.Seconds,
+				presenter.speechTexts.Seconds
+			),
+		};
+	};
+
+	presenter.getElementsForKeyboardNavigation = function () {
+		return presenter.$view.find('.timer-wrapper');
+	};
+
+	function TimerKeyboardController(elements) {
+		KeyboardController.call(this, elements, 1);
+	}
+
+	TimerKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+	TimerKeyboardController.prototype.constructor = TimerKeyboardController;
+
+	TimerKeyboardController.prototype.getCurrentElement = function () {
+		return this.getTarget(this.keyboardNavigationCurrentElement, false);
+	};
+
+	TimerKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+	TimerKeyboardController.prototype.select = function (event) {
+		if (event){
+			event.preventDefault();
+		}
+
+		this.selectAction();
+	};
+
+	TimerKeyboardController.prototype.enter = function (event) {
+		KeyboardController.prototype.enter.call(this, event);
+		this.readCurrentElement();
+	};
+
+	TimerKeyboardController.prototype.readCurrentElement = function () {
+		presenter.speak(presenter.getTextToRead());
+	};
+
+	presenter.readOnStart = function () {
+		const textToRead = presenter.configuration.mode === 'Timer' ?
+			presenter.speechTexts.TimerStarted : presenter.speechTexts.StopwatchStarted;
+
+		presenter.speak(textToRead, true);
+	};
+
+
+	presenter.readOnEnd = function () {
+		presenter.speak(presenter.speechTexts.TimerEnded);
+	};
+
+	presenter.readOnStop = function () {
+		const textToRead = presenter.configuration.mode === 'Timer' ?
+			presenter.speechTexts.TimerStopped : presenter.speechTexts.StopwatchStopped;
+
+		presenter.speak(textToRead, true);
+	};
+	
+	presenter.speak = function (data, shouldRunWithOffset = false) {
+		const tts = presenter.getTextToSpeechOrNull();
+		const isWCAGActive = presenter.playerController.isWCAGOn();
+		if (!(tts && isWCAGActive)) { return; }
+
+		if (shouldRunWithOffset) {
+			setTimeout(() => {
+				presenter.waitForEndSpeaking(tts.speak, data);
+			}, 400);
+		} else {
+			tts.speak(data);
+		}
+	};
+
+	presenter.waitForEndSpeaking = function(callback, data, timeout = 5000) {
+        const startTime = Date.now();
+
+        let interval = setInterval(() => {
+            if (!window.speechSynthesis.speaking) {
+                clearInterval(interval);
+                callback(data);
+            } else if (Date.now() - startTime > timeout) {
+                clearInterval(interval);
+            }
+        }, 100);
+    };
+
+	presenter.getTextToSpeechOrNull = function () {
+		if (presenter.playerController) {
+			return presenter.playerController.getModule('Text_To_Speech1');
+		}
+
+		return null;
+	};
+
+	presenter.getTextToRead = function () {
+		if (presenter.state.currentTime === 0) {
+			return `0 ${presenter.speechTexts.Seconds}`;
+		}
+
+		const timerValues = presenter.getTime().split(':');
+		let hours, minutes, seconds = 0;
+		let text = '';
+		if (timerValues.length > 2) {
+			hours = +timerValues[0];
+			minutes = +timerValues[1];
+			seconds = +timerValues[2];
+		} else {
+			minutes = +timerValues[0];
+			seconds = +timerValues[1];
+		}
+
+		if (hours && +hours > 0) {
+			text += `${hours} ${presenter.speechTexts.Hours},`;
+		}
+
+		if (minutes && +minutes > 0 || !text) {
+			text += `${minutes} ${presenter.speechTexts.Minutes},`;
+		}
+
+		if (seconds && +seconds > 0 || !text) {
+			text += `${seconds} ${presenter.speechTexts.Seconds}`;
+		}
+
+		return text;
+	};
+
+	presenter.isSelectable = function(isWCAGOn) {
+	    return isWCAGOn;
+	}
 
 	return presenter;
 }

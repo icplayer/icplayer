@@ -54,7 +54,16 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 
 	public boolean hasSpeechTextProp() {
 		for(AddonProperty property : properties) {
-			if (property.getName().replaceAll("\\s", "").toLowerCase().contains("speechtexts")) {
+			if (property.getName().replaceAll("_", "").replaceAll("\\s", "").toLowerCase().contains("speechtext")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean hasLangTagProp() {
+		for(AddonProperty property : properties) {
+			if (property.getName().replaceAll("_", "").replaceAll("\\s", "").toLowerCase().contains("langattr")) {
 				return true;
 			}
 		}

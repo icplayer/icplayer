@@ -595,18 +595,21 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getErrorCount = function(){
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
         if (presenter.configuration.isShowAnswersActive) {
             presenter.hideAnswers();
         }
 
+        const errorCount = _getErrorCount();
+        wasShowAnswersActive && presenter.showAnswers();
+        return errorCount;
+    };
+
+    function _getErrorCount () {
         if (presenter.cantCheck()) {
             return 0;
         }
 
-        return _getErrorCount();
-    };
-
-    function _getErrorCount () {
         var validated = presenter.validateScore();
 
         if (presenter.configuration.isEquation) {
@@ -753,10 +756,17 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getScore = function () {
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
         if (presenter.configuration.isShowAnswersActive) {
             presenter.hideAnswers();
         }
 
+        const score = _getScore();
+        wasShowAnswersActive && presenter.showAnswers();
+        return score;
+    };
+
+    function _getScore() {
         if (presenter.cantCheck()) {
             return 0;
         }
@@ -776,7 +786,7 @@ function AddonBasic_Math_Gaps_create(){
         } else {
             return validated.validGapsCount;
         }
-    };
+    }
 
     presenter.cantCheck = function () {
         if (presenter.configuration.isNotActivity
@@ -789,6 +799,10 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.getState = function(){
+        const wasShowAnswersActive = presenter.configuration.isShowAnswersActive;
+        if (presenter.configuration.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         var state = {
             'values' : presenter.gapsContainer.getValues(),
             'sources': presenter.gapsContainer.getSources(),
@@ -797,6 +811,7 @@ function AddonBasic_Math_Gaps_create(){
             'droppedElements' : presenter.gapsContainer.getDroppedElements()
         };
 
+        wasShowAnswersActive && presenter.showAnswers();
         return JSON.stringify(state);
     };
 
