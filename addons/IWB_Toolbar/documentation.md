@@ -39,6 +39,10 @@ IWB Toolbar is a set of tools to help teachers in conducting lessons and giving 
         <td>Closed panel drawing</td>
         <td>This property allows to draw when the panel is closed</td>
     </tr>
+    <tr>
+        <td>Expansion direction</td>
+        <td>Indicates in which direction the panel will expand when opened. </td>
+    </tr>
 </table>
 
 ## Supported commands

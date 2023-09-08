@@ -12,6 +12,13 @@
     background-repeat: no-repeat;
 }
 
+.iwb-toolbar-panel.vertical {
+    padding: 25px 5px;
+    height: 30px;
+    background-position: center bottom, center top;
+    background-repeat: no-repeat;
+}
+
 .iwb-toolbar-panel.running {
     z-index: 1001;
     position: fixed;
@@ -23,6 +30,14 @@
     height: 30px;
     background-color: rgba(150, 150, 150, 0.6);
     margin-left: 5px;
+}
+
+.iwb-toolbar-panel.vertical .button-separator {
+    width: 30px;
+    float: inherit;
+    height: 1px;
+    margin-top: 5px;
+    margin-left: 0px;
 }
 
 .iwb-toolbar-panel .button.clicked {
@@ -47,12 +62,22 @@
     cursor: pointer;
 }
 
+.iwb-toolbar-panel.vertical .button, .iwb-toolbar-panel.vertical .button-drawing-details, .iwb-toolbar-panel.vertical .button-floating-image {
+    float: inherit;
+    margin-top: 5px;
+    margin-left: 0px;
+}
+
 .iwb-toolbar-panel .button.hidden, .iwb-toolbar-panel .button-separator.hidden {
     display: none;
 }
 
 .iwb-toolbar-panel .button.first {
     margin-left: 0px;
+}
+
+.iwb-toolbar-panel.vertical .button.first {
+    margin-top: 0px;
 }
 
 .iwb-toolbar-panel .button.hovered {
