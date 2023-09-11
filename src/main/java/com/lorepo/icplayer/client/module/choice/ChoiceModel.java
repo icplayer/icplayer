@@ -697,6 +697,19 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
+
+	@Override
+	public boolean isNeededToAdjustToPrintableLessonHTML() {
+	    return false;
+	}
+
+	@Override
+	public void setPrintableAdjustId(String id) {};
+
+	@Override
+	public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
+	    return null;
+	}
 	
 	@Override
 	public boolean isSection() {

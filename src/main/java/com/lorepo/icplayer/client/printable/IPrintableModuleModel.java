@@ -6,7 +6,7 @@ import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 public interface IPrintableModuleModel {
 
 	String getPrintableHTML(boolean showAnswers);
-	PrintableMode getPrintableMode();	
+	PrintableMode getPrintableMode();
 	JavaScriptObject getPrintableContext();
 	void setPrintableController(PrintableController controller);
 	boolean isSection();
@@ -14,4 +14,7 @@ public interface IPrintableModuleModel {
 	void setPrintableState(String state);
 	boolean isPrintableAsync();
 	void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener);
+	boolean isNeededToAdjustToPrintableLessonHTML();
+	void setPrintableAdjustId(String id);
+	String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML);
 }

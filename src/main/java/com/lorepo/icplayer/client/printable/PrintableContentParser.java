@@ -54,9 +54,25 @@ public class PrintableContentParser {
 	JavaScriptObject parsedModuleCallback = null;
 	int asyncModuleCounter = 0;
 	int asyncModuleIDCounter = 0;
+	int adjustIDCounter = 0;
 	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
 	ArrayList<HashMap<String, String>> contentInformation = new ArrayList<HashMap<String, String>>();
-	
+	ArrayList<PrintableConfiguration> printableConfigsToAdjust = new ArrayList<PrintableConfiguration>();
+
+	private class PrintableConfiguration {
+	    private boolean showAnswers;
+	    private IPrintableModuleModel printableModuleModel;
+
+	    public PrintableConfiguration(IPrintableModuleModel printableModuleModel, boolean showAnswers) {
+	        this.printableModuleModel = printableModuleModel;
+	        this.showAnswers = showAnswers;
+	    };
+
+	    public String adjustToPrintableLessonHTML(String printableLessonHTML) {
+	        return this.printableModuleModel.adjustToPrintableLessonHTML(this.showAnswers, printableLessonHTML);
+	    };
+	}
+
 	private static class SplitResult extends JavaScriptObject {
 		
 		protected SplitResult() {};
@@ -289,6 +305,19 @@ public class PrintableContentParser {
 				return finalParsed;
 			}
 
+            @Override
+            public boolean isNeededToAdjustToPrintableLessonHTML() {
+                return false;
+            }
+
+            @Override
+	        public void setPrintableAdjustId(String id) {};
+
+			@Override
+			public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
+			    return null;
+            }
+
 			@Override
 			public PrintableMode getPrintableMode() {
 				return group.getPrintable();
@@ -369,6 +398,13 @@ public class PrintableContentParser {
 		}
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
+			if (printable.isNeededToAdjustToPrintableLessonHTML()) {
+			    PrintableConfiguration config = new PrintableConfiguration(printable, showAnswers);
+			    printableConfigsToAdjust.add(config);
+			    String adjustID = "module-to-adjust-" + Integer.toString(this.adjustIDCounter);
+			    this.adjustIDCounter += 1;
+			    printable.setPrintableAdjustId(adjustID);
+			}
 			result += getPrintableModuleHTML(printable, showAnswers, pagePrintableController);
 		}
 		return result;
@@ -471,8 +507,23 @@ public class PrintableContentParser {
 		updateImageSizes(element, maxHeight, maxWidth);
 		List<String> pageHTMLs = getModuleHTMLsFromWrapper(element);
 		String result = paginatePageHTMLs(pageHTMLs);
+		result = adjustToPrintableLessonHTML(result);
 		removeJSElement(element);
 		listener.onParsed(result);
+	}
+
+	private String adjustToPrintableLessonHTML(String printableLessonHTML) {
+	    for (int i = 0; i < printableConfigsToAdjust.size(); i++) {
+	        PrintableConfiguration config = printableConfigsToAdjust.get(i);
+	        String result = config.adjustToPrintableLessonHTML(printableLessonHTML);
+	        if (result == null || result.length() == 0) {
+	            continue;
+	        }
+	        printableLessonHTML = result;
+	    }
+	    this.adjustIDCounter = 0;
+	    printableConfigsToAdjust.clear();
+	    return printableLessonHTML;
 	}
 
 	private void updateAsyncModules(JavaScriptObject element) {
@@ -665,6 +716,8 @@ public class PrintableContentParser {
 	}
 
 	public void generatePrintableHTML(Content contentModel, ArrayList<Integer> pageSubset) {
+		this.adjustIDCounter = 0;
+		this.printableConfigsToAdjust.clear();
 		List<Page> pages;
 		if (pageSubset == null) {
 			pages = contentModel.getPages().getAllPages();
@@ -934,7 +987,7 @@ public class PrintableContentParser {
 				loadCounter = 0;
 				loadCallback();
 			}
-		}, 20000);
+		}, 30000);
 
 		$_('body').append($outerLessonWrapper);
 
