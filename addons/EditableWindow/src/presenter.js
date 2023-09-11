@@ -1305,6 +1305,19 @@ function AddonEditableWindow_create() {
         this.readCurrentElement();
     };
 
+    EditableWindowKeyboardController.prototype.switchToFirstVisibleElement = function () {
+        for(let i=0; i<this.keyboardNavigationElementsLen; i++) {
+            const element = this.keyboardNavigationElements[i];
+            if(this.isElementHidden(element)) {
+                this.lastVisibleElementIndex = i;
+                this.keyboardNavigationCurrentElementIndex = i;
+                this.keyboardNavigationCurrentElement = element;
+                this.mark(element);
+                return;
+            }
+        }
+    };
+
     EditableWindowKeyboardController.prototype.nextElement = function (event) {
         if (event) {
             event.preventDefault();
@@ -1347,6 +1360,14 @@ function AddonEditableWindow_create() {
         }
         this.readCurrentElement();
     };
+
+    EditableWindowKeyboardController.prototype.setElements = function EditableWindow_setElements (elements) {
+        KeyboardController.prototype.setElements.call(this, elements);
+
+        if (this.keyboardNavigationActive) {
+            this.switchToFirstVisibleElement();
+        }
+    }
 
     EditableWindowKeyboardController.prototype.select = function EditableWindow_select (event) {
         const element = this.getTarget(this.keyboardNavigationCurrentElement);
