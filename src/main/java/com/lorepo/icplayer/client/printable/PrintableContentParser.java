@@ -765,7 +765,7 @@ public class PrintableContentParser {
 	}
 
 	public static String[] getPrintableModuleAdditionalClassNames(String className, boolean isSplittable) {
-	    String tempContent = "<div></div>";
+		String tempContent = "<div></div>";
 		String tempContentWithClasses = PrintableContentParser.addClassToPrintableModule(tempContent, className, isSplittable);
 		Element element = (new HTML(tempContentWithClasses)).getElement().getFirstChildElement();
 		return element.getClassName().split(" ");
@@ -1020,15 +1020,15 @@ public class PrintableContentParser {
 	};
 
 	private String createTemplateOfPrintableLesson() {
-	    int pageMaxHeight = getA4HeightInPixels(10);
+		int pageMaxHeight = getA4HeightInPixels(10);
 		int pageWidth = getA4WidthInPixels(10);
 		String content = "<div id=\"printable_placeholder\"/>";
-
+		
 		int previousContentHeight = contentHeight;
-	    contentHeight = pageMaxHeight - footerHeight - headerHeight;
+		contentHeight = pageMaxHeight - footerHeight - headerHeight;
 		String printablePage = wrapPrintablePage(content, pageWidth, pageMaxHeight);
-	    contentHeight = previousContentHeight;
-	    return "<div class='printable_lesson'>" + printablePage + "</div>";
+		contentHeight = previousContentHeight;
+		return "<div class='printable_lesson'>" + printablePage + "</div>";
 	};
 
 }

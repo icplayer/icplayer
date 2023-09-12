@@ -2224,17 +2224,13 @@ function AddonConnection_create() {
         var rightTotalSize = 0;
         var leftPos = 0;
         var rightPos = 0;
-        var leftElement;
-        var rightElement;
 
         for (var i = 0; i < presenter.elements.length; i++) {
 
             if (presenter.elements[i].id == leftID) {
                 leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
-                leftElement = presenter.elements[i];
             } else if (presenter.elements[i].id == rightID) {
                 rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
-                rightElement = presenter.elements[i];
             }
 
             if (i < leftSize) {

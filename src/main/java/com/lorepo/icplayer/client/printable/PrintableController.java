@@ -153,11 +153,11 @@ public class PrintableController {
 	}-*/;
 
 	public void setLessonTemplate(String printableLessonTemplate) {
-        lessonTemplate = printableLessonTemplate;
+		lessonTemplate = printableLessonTemplate;
 	}
 
 	public String getLessonTemplate() {
-        return lessonTemplate;
+		return lessonTemplate;
 	}
 
 }

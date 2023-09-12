@@ -192,7 +192,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	}
 
 	public String[] getPrintableModuleAdditionalClassNames() {
-	    String className = this.getStyleClass();
+		String className = this.getStyleClass();
 		return PrintableContentParser.getPrintableModuleAdditionalClassNames(className, !isSplitInPrintBlocked());
 	}
 
@@ -213,7 +213,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		}
 
 		if (presenter.hasOwnProperty("setPrintableClassNames") && controller != null) {
-            var classNames = x.@com.lorepo.icplayer.client.module.addon.AddonModel::getPrintableModuleAdditionalClassNames()();
+			var classNames = x.@com.lorepo.icplayer.client.module.addon.AddonModel::getPrintableModuleAdditionalClassNames()();
 			presenter.setPrintableClassNames(classNames);
 		}
 
