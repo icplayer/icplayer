@@ -508,7 +508,7 @@ function AddonText_To_Speech_create() {
                     const matchAloneOrSeparated = word.match(/(^|\s)[.,?!(){}\\\/\-\[\]]+/); // regex captures at least 1 special separated character or character at the beginning of sentence
                     if (matchAfterLetter) {
                         newSentence.push(word.replace(matchAfterLetter[0], matchAfterLetter[1]));
-                    } else if (matchAloneOrSeparated) {
+                    } else if (matchAloneOrSeparated && !presenter.isMatchContainSentence(matchAloneOrSeparated)) {
                         return;
                     } else {
                         newSentence.push(word);
@@ -520,6 +520,14 @@ function AddonText_To_Speech_create() {
 
         return texts.filter(text => text.text.length);
     };
+
+    presenter.isMatchContainSentence = function (word) {
+        if (!word) {
+            return;
+        }
+
+        return word['input'].match(/[a-zA-Z0-9]+/);
+    }
 
     // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
     presenter.splitLongTexts = function (texts) {
