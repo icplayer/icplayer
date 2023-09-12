@@ -332,19 +332,6 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 	}
 
 	@Override
-	public boolean isNeededToAdjustToPrintableLessonHTML() {
-	    return false;
-	}
-
-	@Override
-	public void setPrintableAdjustId(String id) {};
-
-	@Override
-	public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
-	    return null;
-	}
-
-	@Override
 	public boolean isSection() {
 		return false;
 	}

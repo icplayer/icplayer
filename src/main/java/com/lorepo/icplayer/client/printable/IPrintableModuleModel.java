@@ -14,7 +14,4 @@ public interface IPrintableModuleModel {
 	void setPrintableState(String state);
 	boolean isPrintableAsync();
 	void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener);
-	boolean isNeededToAdjustToPrintableLessonHTML();
-	void setPrintableAdjustId(String id);
-	String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML);
 }

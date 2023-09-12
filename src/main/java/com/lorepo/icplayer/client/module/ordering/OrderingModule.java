@@ -895,19 +895,6 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	}
 
 	@Override
-	public boolean isNeededToAdjustToPrintableLessonHTML() {
-	    return false;
-	}
-
-	@Override
-	public void setPrintableAdjustId(String id) {};
-
-	@Override
-	public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
-	    return null;
-	}
-	
-	@Override
 	public boolean isSection() {
 		return false;
 	}

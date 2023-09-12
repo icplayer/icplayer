@@ -18,6 +18,7 @@ public class PrintableController {
 	private JsArray<JavaScriptObject> contentInformation = null;
 	private IPrintableTextParser textParser;
 	private boolean preview = false;
+	private String lessonTemplate = "";
 	
 	PrintableController(Page page) {
 		this.page = page;
@@ -93,6 +94,10 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPageMaxScore()();
 		}
 
+		controller.getLessonTemplate = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::getLessonTemplate()();
+		}
+
 		return controller;
 	}-*/;
 
@@ -146,5 +151,13 @@ public class PrintableController {
 			return null;
 		}
 	}-*/;
+
+	public void setLessonTemplate(String printableLessonTemplate) {
+        lessonTemplate = printableLessonTemplate;
+	}
+
+	public String getLessonTemplate() {
+        return lessonTemplate;
+	}
 
 }

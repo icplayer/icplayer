@@ -1293,19 +1293,6 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		return getPrintable();
 	}
 
-	@Override
-	public boolean isNeededToAdjustToPrintableLessonHTML() {
-	    return false;
-	}
-
-	@Override
-	public void setPrintableAdjustId(String id) {};
-
-	@Override
-	public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
-	    return null;
-	}
-	
 	private void addPropertyIsSection() {
 
 		IProperty property = new IBooleanProperty() {

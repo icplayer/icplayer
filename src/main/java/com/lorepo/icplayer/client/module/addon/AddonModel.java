@@ -30,7 +30,6 @@ import com.lorepo.icplayer.client.printable.Printable;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class AddonModel extends BasicModuleModel implements IPrintableModuleModel {
 
@@ -40,8 +39,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	private PrintableContentParser.ParsedListener printableAsyncCallback = null;
 	private String printableAsyncID = "";
 	private String printableState = "";
-	private String printableAdjustID = "";
-	
+
 	public interface OnAddonReleaseAction {
 		public void onRelease();
 	}
@@ -182,7 +180,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		JavaScriptObject jsModel = createJsModel(this);
 		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
-		String result = getPrintableHTML(this, addonName, jsModel, printController, printableState, printableAsyncID, printableAsyncCallback, showAnswers, printableAdjustID);
+		String result = getPrintableHTML(this, addonName, jsModel, printController, printableState, printableAsyncID, printableAsyncCallback, showAnswers);
 		if (result == null || result.length() == 0) return null;
 		result = addClassToPrinatableModule(result);
 		return result;
@@ -192,10 +190,15 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		String className = this.getStyleClass();
 		return PrintableContentParser.addClassToPrintableModule(html, className, !isSplitInPrintBlocked());
 	}
-	
+
+	public String[] getPrintableModuleAdditionalClassNames() {
+	    String className = this.getStyleClass();
+		return PrintableContentParser.getPrintableModuleAdditionalClassNames(className, !isSplitInPrintBlocked());
+	}
+
 	private native String getPrintableHTML(AddonModel x, String addonName, JavaScriptObject model, JavaScriptObject controller,
 										   String state, String asyncID, PrintableContentParser.ParsedListener
-												   parsedCallbackObject, boolean showAnswers, String printableAdjustID) /*-{
+												   parsedCallbackObject, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -209,6 +212,11 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			presenter.setPrintableController(controller);
 		}
 
+		if (presenter.hasOwnProperty("setPrintableClassNames") && controller != null) {
+            var classNames = x.@com.lorepo.icplayer.client.module.addon.AddonModel::getPrintableModuleAdditionalClassNames()();
+			presenter.setPrintableClassNames(classNames);
+		}
+
 		if (presenter.hasOwnProperty("setPrintableAsyncCallback") && parsedCallbackObject != null) {
 			var asyncCallback = function (result) {
 				result = x.@com.lorepo.icplayer.client.module.addon.AddonModel::addClassToPrinatableModule(Ljava/lang/String;)(result);
@@ -217,88 +225,11 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			presenter.setPrintableAsyncCallback(asyncID, asyncCallback);
 		}
 
-		if (presenter.hasOwnProperty("setPrintableAdjustId")) {
-			presenter.setPrintableAdjustId(printableAdjustID);
-		}
-
 		if (presenter.hasOwnProperty("setPrintableState") && state != null && state.length > 0) {
-			console.log("setPrintableState in getPrintableHTML");
 			presenter.setPrintableState(state);
 		}
 		
 		return presenter.getPrintableHTML(model, showAnswers);
-	}-*/;
-
-	@Override
-	public boolean isNeededToAdjustToPrintableLessonHTML(){
-		String addonName = "Addon" + getAddonId() + "_create";
-		return isNeededToAdjustToPrintableLessonHTML(addonName);
-	}
-
-	public native boolean isNeededToAdjustToPrintableLessonHTML(String addonName)/*-{
-		if ($wnd.window[addonName] == null){
-			return false;
-		}
-		var presenter = $wnd.window[addonName]();
-
-		if (!presenter.hasOwnProperty("isNeededToAdjustToPrintableLessonHTML")) {
-			return false;
-		}
-
-		return presenter.isNeededToAdjustToPrintableLessonHTML();
-	}-*/;
-
-	@Override
-	public void setPrintableAdjustId(String id) {;
-		this.printableAdjustID = id;
-	}
-
-    /**
-	 * Adjust the HTML of the addon relative to the HTML of the lesson.
-	 *
-	 * This method is designed to fix errors caused by applied CSS styles, a impact of which began to take effect
-	 * on HTML after the execution of getPrintableHTML.
-	 * Usage example: Re-generate lines in SVG after changing page width and height
-	 *
-	 * @return Adjusted Printable Lesson HTML if the correction is needed, otherwise null
-	 */
-    @Override
-	public String adjustToPrintableLessonHTML(boolean showAnswers, String printableLessonHTML) {
-	    if (getPrintableMode() == PrintableMode.NO) return null;
-
-		String addonName = "Addon" + getAddonId() + "_create";
-		JavaScriptObject jsModel = createJsModel(this);
-		JavaScriptObject printController = getPrintableControllerAsJsObject();
-
-		String result = adjustToPrintableLessonHTML(addonName, jsModel, printController, printableState, printableAdjustID, showAnswers, printableLessonHTML);
-		if (result == null || result.length() == 0) return null;
-		return result;
-	}
-
-	private native String adjustToPrintableLessonHTML(String addonName, JavaScriptObject model, JavaScriptObject controller, String state, String printableAdjustID, boolean showAnswers, String printableLessonHTML) /*-{
-		if ($wnd.window[addonName] == null){
-			return null;
-		}
-		var presenter = $wnd.window[addonName]();
-
-		if (!presenter.hasOwnProperty("adjustToPrintableLessonHTML")) {
-			return null;
-		}
-
-		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
-			presenter.setPrintableController(controller);
-		}
-
-		if (presenter.hasOwnProperty("setPrintableAdjustId")) {
-			presenter.setPrintableAdjustId(printableAdjustID);
-		}
-
-		if (presenter.hasOwnProperty("setPrintableState") && state != null && state.length > 0) {
-		    console.log("setPrintableState in adjustToPrintableLessonHTML");
-			presenter.setPrintableState(state);
-		}
-
-		return presenter.adjustToPrintableLessonHTML(model, showAnswers, printableLessonHTML);
 	}-*/;
 
 	@Override

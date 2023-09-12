@@ -35,8 +35,7 @@ function AddonConnection_create() {
     presenter.printableState = null;
     presenter.printableParserID = "";
     presenter.printableParserCallback = null;
-    presenter.printableAdjustID = "";
-
+    presenter.printableClassNames = [];
 
     presenter.mathJaxLoaders = {
         runLoaded: false,
@@ -2225,13 +2224,17 @@ function AddonConnection_create() {
         var rightTotalSize = 0;
         var leftPos = 0;
         var rightPos = 0;
+        var leftElement;
+        var rightElement;
 
         for (var i = 0; i < presenter.elements.length; i++) {
 
             if (presenter.elements[i].id == leftID) {
                 leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+                leftElement = presenter.elements[i];
             } else if (presenter.elements[i].id == rightID) {
                 rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+                rightElement = presenter.elements[i];
             }
 
             if (i < leftSize) {
@@ -2333,6 +2336,7 @@ function AddonConnection_create() {
 
         const root = createPrintableBaseView(model);
         const $root = $(root);
+        const $printableWrapper = wrapInPrintableLessonTemplate($root);
 
         loadElementsToPrintableView(root, model);
         this.setColumnsWidth(root, model["Columns width"]);
@@ -2342,10 +2346,13 @@ function AddonConnection_create() {
         const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
         isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
 
-        $root.css("visibility", "hidden");
-        $("body").append($root);
+        $printableWrapper.css("visibility", "hidden");
+        let height;
+        $("body").append($printableWrapper);
         waitForLoad($root, function(){
-            presenter.preserveHeightOfPrintableItems($root);
+            $printableWrapper.css("visibility", "");
+
+            root.classList.add(...presenter.printableClassNames);
             if (connectionsInformation.length > 0) {
                 const connectionsSVG = $root.find("svg");
                 for (let connection, i = 0; i < connectionsInformation.length; i++) {
@@ -2353,89 +2360,42 @@ function AddonConnection_create() {
                     drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
                 }
             }
-            $root.detach();
-            $root.css("visibility", '');
-            const height = getPrintableTableHeight($root);
+
+            root.classList.remove(...presenter.printableClassNames);
+            $printableWrapper.detach();
+            height = getPrintableTableHeight($root);
             $root.css("height", height+"px");
-            const parsedView = $root[0].outerHTML;
+            const parsedView = root.outerHTML;
             $root.remove();
+            $printableWrapper.remove();
             presenter.printableParserCallback(parsedView);
         });
 
         const $clone = $root.clone();
         $clone.attr("id", presenter.printableParserID);
-        $clone.css("visibility", '');
+        $clone.css("visibility", "");
         const result = $clone[0].outerHTML;
         $clone.remove();
 
         return result;
     };
 
-    presenter.isNeededToAdjustToPrintableLessonHTML = function () {
-        return true;
-    };
-
-    presenter.setPrintableAdjustId = function (id) {
-        presenter.printableAdjustID = id;
-    };
-
-    presenter.adjustToPrintableLessonHTML = function (model, showAnswers, printableLessonHTML) {
-        chosePrintableStateMode(showAnswers);
-        model = presenter.upgradeModel(model);
-
-        const $printableLessonHTML = $(printableLessonHTML);
-        const previousVisibility = $printableLessonHTML.css("visibility");
-        $printableLessonHTML.css("visibility", "hidden");
-        $("body").append($printableLessonHTML);
-        const $root = $printableLessonHTML.find('div[printableAdjustID="' + presenter.printableAdjustID + '"]');
-        if (!$root) {
-            return null;
-        }
-
-        const $clone = $root.clone();
-
-        loadElementsToPrintableView($clone[0], model);
-        updateElementsBaseOnView($root);
-        const correctAnswers = getCorrectAnswersObject(model);
-        const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
-        if (connectionsInformation.length > 0) {
-            const $connectionsSVG = $root.find("svg");
-            $connectionsSVG.empty();
-            for (let connection, i = 0; i < connectionsInformation.length; i++) {
-                connection = connectionsInformation[i];
-                drawSVGLine($connectionsSVG, connection.from, connection.to, connection.correct, model);
-            }
-        }
-
-        $printableLessonHTML.css("visibility", previousVisibility);
-        const result = $printableLessonHTML[0].outerHTML;
-        $printableLessonHTML.remove();
-
-        return result;
+    presenter.setPrintableClassNames = function (classNames) {
+        presenter.printableClassNames = classNames;
     }
 
-    presenter.preserveHeightOfPrintableItems = function ($view) {
-        const $images = $view.find('img');
-        $images.each(function(){
-            const $this = $(this);
-            if (this.complete && this.naturalHeight !== 0) {
-                const $connectionItem = $this.closest(".connectionItem");
-                $connectionItem.css("height", $connectionItem[0].getBoundingClientRect().height);
-            }
-        });
-    };
-
-    function updateElementsBaseOnView($root) {
-        for (let element, i = 0; i < presenter.elements.length; i++) {
-            element = presenter.elements[i];
-            element.element = $root.find("#" + element.element.attr('id') + ".connectionItem");
-        }
+    function wrapInPrintableLessonTemplate($view) {
+        const $lessonTemplate = $(presenter.printableController.getLessonTemplate());
+        const $placeholder = $lessonTemplate.find("#printable_placeholder");
+        const $placeholderParent = $placeholder.parent();
+        $placeholderParent.append($view);
+        $placeholder.remove();
+        return $lessonTemplate;
     }
 
     function createPrintableBaseView(model) {
         const view = document.createElement("div");
         view.id = model.ID;
-        view.setAttribute("printableAdjustID", presenter.printableAdjustID);
         view.classList.add("printable_addon_Connection");
         view.setAttribute("max-width", model.Width + "px");
 
