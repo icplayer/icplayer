@@ -1,3 +1,4 @@
+2023-09-13 Fixed sending event after leaving gap when TTS is activated
 2023-09-13 Fixed skipping sentence after special characters
 2023-09-13 Fixed reading hidden elements in the EditableWindow
 2023-08-31 Removed navigation on invisible elements in AudioText addon when TTS or keyboard navigation is active
