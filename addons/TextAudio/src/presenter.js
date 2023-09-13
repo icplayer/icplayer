@@ -2063,7 +2063,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        var elements;
+        let elements;
         switch (presenter.configuration.controls) {
             case controls.CUSTOM:
                 elements = [
@@ -2088,13 +2088,13 @@ function AddonTextAudio_create() {
 
     presenter.actualizeKeyboardControllerElements = function () {
         if (presenter.keyboardControllerObject) {
-            var elements = presenter.getElementsForKeyboardNavigation();
+            const elements = presenter.getElementsForKeyboardNavigation();
             presenter.keyboardControllerObject.setElements(elements);
         }
     };
 
     presenter.buildKeyboardController = function () {
-        var elements = presenter.getElementsForKeyboardNavigation();
+        const elements = presenter.getElementsForKeyboardNavigation();
         presenter.keyboardControllerObject = new TextAudioKeyboardController(elements, 1);
     }
 
@@ -2119,6 +2119,13 @@ function AddonTextAudio_create() {
         this.mapping[window.KeyboardControllerKeys.ARROW_DOWN] = this.down;
     };
 
+    TextAudioKeyboardController.prototype.setElements = function (elements) {
+        KeyboardController.prototype.setElements.call(this, elements);
+        if (this.keyboardNavigationActive) {
+            this.switchWithoutReadingToFirstVisibleElement();
+        }
+    };
+
     TextAudioKeyboardController.prototype.getCurrentElement = function () {
         return $(this.getTarget(this.keyboardNavigationCurrentElement, false));
     };
@@ -2126,13 +2133,33 @@ function AddonTextAudio_create() {
     TextAudioKeyboardController.prototype.mark = function (element) {
         KeyboardController.prototype.mark.call(this, element);
 
-        var $element = this.getCurrentElement();
-
-        $element[0].scrollIntoView();
+        const $currentElement = this.getCurrentElement();
+        if ($currentElement.is('[class^="textelement"]') && this.isElementVisible($currentElement)) {
+            this.scrollVertically($currentElement);
+        }
     };
 
+    TextAudioKeyboardController.prototype.scrollVertically = function ($textElement) {
+        let pos = $textElement.position().top;
+        const $slideWithElement = $textElement.closest(`.textaudio-text`);
+        const currentScroll = $slideWithElement.scrollTop();
+        const divHeight =  $slideWithElement.height();
+
+        pos = (pos + currentScroll) - (divHeight / 2);
+
+        $slideWithElement.scrollTop(pos);
+    }
+
     TextAudioKeyboardController.prototype.enter = function (event) {
-        KeyboardController.prototype.enter.call(this, event);
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (!this.keyboardNavigationActive) {
+            this.keyboardNavigationActive = true;
+            this.switchWithoutReadingToFirstVisibleElement();
+        }
+
         if (presenter.isWCAGOn) {
             this.speakCurrentElement();
         }
@@ -2143,18 +2170,18 @@ function AddonTextAudio_create() {
             this.selectedMode = true;
         }
         KeyboardController.prototype.select.call(this, event);
-    }
+    };
 
     TextAudioKeyboardController.prototype.up = function (event) {
         if (event) {
             event.preventDefault();
         }
 
-        var $currentElement = this.getCurrentElement();
+        const $currentElement = this.getCurrentElement();
         if (this.isElementActiveForAfterSelectionAction($currentElement)) {
             presenter.changePlaybackRate(presenter.OPERATION_TYPE.INCREASE);
         } else {
-            this.switchElement(-this.columnsCount);
+            this.previousRow(event);
         }
     };
 
@@ -2163,11 +2190,11 @@ function AddonTextAudio_create() {
             event.preventDefault();
         }
 
-        var $currentElement = this.getCurrentElement();
+        const $currentElement = this.getCurrentElement();
         if (this.isElementActiveForAfterSelectionAction($currentElement)) {
             presenter.changePlaybackRate(presenter.OPERATION_TYPE.DECREASE);
         } else {
-            this.switchElement(this.columnsCount);
+            this.nextRow(event);
         }
     };
 
@@ -2176,15 +2203,88 @@ function AddonTextAudio_create() {
             && this.selectedMode
             && $element.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)
         );
-    }
+    };
+
+    TextAudioKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(1);
+
+        if (!this.isCurrentElementVisible() && !this.isLastVisibleElementEqualsCurrentElement()) {
+            this.nextElement(event);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(-1);
+
+        if (!this.isCurrentElementVisible() && !this.isLastVisibleElementEqualsCurrentElement()) {
+            this.previousElement(event);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.nextRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(this.columnsCount);
+
+        if (!this.isCurrentElementVisible() && !this.isLastVisibleElementEqualsCurrentElement()) {
+            this.nextRow(event);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.previousRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(-this.columnsCount);
+
+        if (!this.isCurrentElementVisible() && !this.isLastVisibleElementEqualsCurrentElement()) {
+            this.previousRow(event);
+        }
+    };
+
+    TextAudioKeyboardController.prototype.switchWithoutReadingToFirstVisibleElement = function () {
+        for (let i = 0; i < this.keyboardNavigationElementsLen; i++) {
+            let $nextElement = this.keyboardNavigationElements[i];
+            if (this.isElementVisible($nextElement)) {
+                this.lastVisibleElementIndex = i;
+                this.keyboardNavigationCurrentElementIndex = i;
+                this.keyboardNavigationCurrentElement = $nextElement;
+                this.mark($nextElement);
+                return;
+            }
+        }
+    };
+
+    TextAudioKeyboardController.prototype.isCurrentElementVisible = function () {
+        return this.isElementVisible(this.getCurrentElement());
+    };
+
+    TextAudioKeyboardController.prototype.isElementVisible = function ($element) {
+        const style = window.getComputedStyle($element[0]);
+        return style.display !== 'none' && style.visibility === 'visible';
+    };
+
+    TextAudioKeyboardController.prototype.isLastVisibleElementEqualsCurrentElement = function () {
+        return this.lastVisibleElementIndex === this.keyboardNavigationCurrentElementIndex;
+    };
 
     TextAudioKeyboardController.prototype.switchElement = function (move) {
         this.selectedMode = false;
         KeyboardController.prototype.switchElement.call(this, move);
-        if (presenter.isWCAGOn) {
-            this.speakCurrentElement();
+        if (this.isCurrentElementVisible()) {
+            this.lastVisibleElementIndex = this.keyboardNavigationCurrentElementIndex;
+            if (presenter.isWCAGOn) {
+                this.speakCurrentElement();
+            }
         }
-    }
+    };
 
     TextAudioKeyboardController.prototype.escape = function (event) {
         presenter.pause();
@@ -2202,7 +2302,7 @@ function AddonTextAudio_create() {
     };
 
     TextAudioKeyboardController.prototype.speakCurrentElement = function () {
-        var $currentElement = this.getCurrentElement();
+        const $currentElement = this.getCurrentElement();
 
         if ($currentElement.hasClass(presenter.CSS_CLASSES.PLAY_PAUSE_BUTTON)) {
             this.speakForPlayPauseButton();
@@ -2229,12 +2329,12 @@ function AddonTextAudio_create() {
     };
 
     function speakMessage(message) {
-        var speechTextVoices = [TTSUtils.getTextVoiceObject(message)];
+        const speechTextVoices = [TTSUtils.getTextVoiceObject(message)];
         presenter.speak(speechTextVoices);
     }
 
     presenter.speak = function (data) {
-        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        const tts = presenter.getTextToSpeechOrNull(presenter.playerController);
         if (tts && presenter.isWCAGOn) {
             tts.speak(data);
         }

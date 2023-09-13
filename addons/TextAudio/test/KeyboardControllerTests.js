@@ -118,6 +118,7 @@ TestCase("[TextAudio] Keyboard controller and TTS activation tests", {
             speakCurrentElementStub: sinon.stub(),
             selectActionStub: sinon.stub(),
             changePlaybackRateStub: sinon.stub(),
+            isCurrentElementVisibleStub: sinon.stub()
         };
 
         let elements = this.getElementsForKeyboardNavigation();
@@ -130,6 +131,9 @@ TestCase("[TextAudio] Keyboard controller and TTS activation tests", {
         this.presenter.changePlaybackRate = this.stubs.changePlaybackRateStub;
         this.keyboardControllerObject.speakCurrentElement = this.stubs.speakCurrentElementStub;
         this.keyboardControllerObject.selectAction = this.stubs.selectActionStub;
+
+        this.stubs.isCurrentElementVisibleStub.returns(true);
+        this.keyboardControllerObject.isCurrentElementVisible = this.stubs.isCurrentElementVisibleStub;
 
         this.spies = {
             switchElementSpy: sinon.spy(this.keyboardControllerObject, 'switchElement'),
@@ -578,6 +582,32 @@ TestCase("[TextAudio] Keyboard controller and TTS activation tests", {
 
         this.validateIfOnlySlideHasKeyboardNavigationActiveClass();
     },
+
+    'test given view, keyboard navigation is active and all elements are hidden when activated tab then move on every element and stop after' : function() {
+        this.activateKeyboardNavigation();
+        this.moveToPlayButton();
+        this.stubs.isCurrentElementVisibleStub.returns(false);
+        this.keyboardControllerObject.lastVisibleElementIndex = 0
+
+        activateTabEvent(this.presenter);
+
+        this.verifyIfNotExecutedReadMethod();
+        assertEquals(this.spies.switchElementSpy.callCount, this.keyboardControllerObject.keyboardNavigationElementsLen);
+        assertEquals(this.keyboardControllerObject.lastVisibleElementIndex, this.keyboardControllerObject.keyboardNavigationCurrentElementIndex);
+    },
+
+    'test given view, TTS navigation is active and all elements are hidden when activated tab then move on every element and stop after' : function() {
+        this.activateTTSWithoutReading();
+        this.moveToPlayButton();
+        this.stubs.isCurrentElementVisibleStub.returns(false);
+        this.keyboardControllerObject.lastVisibleElementIndex = 0
+
+        activateTabEvent(this.presenter);
+
+        this.verifyIfNotExecutedReadMethod();
+        assertEquals(this.spies.switchElementSpy.callCount, this.keyboardControllerObject.keyboardNavigationElementsLen);
+        assertEquals(this.keyboardControllerObject.lastVisibleElementIndex, this.keyboardControllerObject.keyboardNavigationCurrentElementIndex);
+    }
 });
 
 function hasKeyboardNavigationActiveElementClass($element) {
