@@ -1,3 +1,4 @@
+2023-09-13 Fixed drag & drop in the list of modules to not block ID changes
 2023-08-31 Removed navigation on invisible elements in AudioText addon when TTS or keyboard navigation is active
 2023-08-31 Added documentation to MathText
 2023-08-25 Correct calculating gap width

@@ -76,7 +76,7 @@ public class ModuleList extends ArrayList<IModuleModel> {
 	}
 
 	private void connectModuleListeners(final IModuleModel module) {
-
+        JavaScriptUtils.log("Execute connectModuleListeners on module: " + module.getId());
 		module.addStyleListener(new IStyleListener() {
 			
 			@Override
