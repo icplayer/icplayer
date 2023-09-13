@@ -44,7 +44,8 @@ TestCase("[Table] [Gaps Container Object] replaceDOMViewWithGap / replaceGapsDOM
         this.presenter = AddonTable_create();
         this.presenter.configuration = {
             addonID: "addonID",
-            gapWidth: {isSet: false}
+            gapWidth: {isSet: false},
+            gapMaxLength: {value: 12}
         };
 
         this.presenter.$view = $('<div></div>');
@@ -75,10 +76,11 @@ TestCase("[Table] [Gaps Container Object] replaceDOMViewWithGap / replaceGapsDOM
         this.gapID1 = "asdffdzxvcz";
         this.gapID2 = ";aw3o948vcxz";
         this.gapID3 = ";lvmcaszhij;";
+        this.correctAnswer = ["test"];
 
-        this.gap1 = new this.presenter.EditableInputGap(this.gapID1);
-        this.gap2 = new this.presenter.EditableInputGap(this.gapID2);
-        this.gap3 = new this.presenter.SelectGap(this.gapID3);
+        this.gap1 = new this.presenter.EditableInputGap(this.gapID1, this.correctAnswer);
+        this.gap2 = new this.presenter.EditableInputGap(this.gapID2, this.correctAnswer);
+        this.gap3 = new this.presenter.SelectGap(this.gapID3, this.correctAnswer);
 
         this.expectedID1 = "#" + this.gapID1;
         this.expectedID2 = "#" + this.gapID2;

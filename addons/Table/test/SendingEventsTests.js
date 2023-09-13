@@ -4,8 +4,11 @@ TestCase("[Table] Value Change Event Sendings", {
         this.presenter.eventBus = function () {};
 
         this.presenter.configuration = {
-            addonID: "addonID"
+            addonID: "addonID",
+            gapMaxLength: {value: 12}
         };
+
+        this.correctAnswer = ["test"];
 
         this.stubs = {
             validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration'),
@@ -22,8 +25,8 @@ TestCase("[Table] Value Change Event Sendings", {
             createViewDDG: sinon.stub(this.presenter.DraggableDroppableGap.prototype, 'createView')
         };
 
-        this.inputGap = new this.presenter.EditableInputGap({});
-        this.draggableGap = new this.presenter.DraggableDroppableGap({});
+        this.inputGap = new this.presenter.EditableInputGap('inputGap', this.correctAnswer);
+        this.draggableGap = new this.presenter.DraggableDroppableGap('draggableGap', this.correctAnswer);
         this.renderMathJax = sinon.stub(this.presenter, 'renderMathJax');
         this.rerenderMathJax = sinon.stub(this.presenter, 'rerenderMathJax');
     },
