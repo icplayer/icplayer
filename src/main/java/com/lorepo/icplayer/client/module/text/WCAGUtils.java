@@ -98,8 +98,12 @@ public class WCAGUtils {
 			return "";
 		}
 		TextElementDisplay _element = (TextElementDisplay) element;
-		return _element != null ? _element.getWCAGTextValue() : "";
+		return _element != null ? decodeString(_element.getWCAGTextValue()) : "";
 	}
+
+	private static String decodeString (String text) {
+		return text.replaceAll("&apos;", "\'");
+	} 
 	
 	// TODO change to ENUM
 	private static TextToSpeechVoice getElementStatus (TextElementDisplay element, TextModel model) {
