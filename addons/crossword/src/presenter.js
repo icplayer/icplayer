@@ -1829,10 +1829,15 @@ function Addoncrossword_create(){
     };
 
     presenter.gradualShowAnswers = function (data) {
-        presenter.isGradualShowAnswersActive = true;
-        if (data.moduleID !== presenter.addonID) return;
-        if (!presenter.isWordNumbersCorrect()) return;
+        if (data.moduleID !== presenter.addonID) {
+            return;
+        }
 
+        if (!presenter.isWordNumbersCorrect()) {
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = true;
         if (presenter.showAllAnswersInGradualShowAnswersMode === "True") {
             presenter.showAnswers();
         } else {
@@ -1841,16 +1846,16 @@ function Addoncrossword_create(){
             presenter.GSAcounter = itemIndex;
             const answerData = presenter.correctAnswers[itemIndex];
 
-            if(itemIndex === 0) presenter.prepareCrosswordForGSA();
+            if (itemIndex === 0) presenter.prepareCrosswordForGSA();
             presenter.fillRowGaps(answerData);
         }
     }
 
     presenter.restoreGradualShowAnswers = function () {
+        presenter.isGradualShowAnswersActive = true;
         if (presenter.showAllAnswersInGradualShowAnswersMode === "True") {
             presenter.showAnswers();
         } else {
-            presenter.isGradualShowAnswersActive = true;
             for (let i = 0; i <= presenter.GSAcounter; i++) {
                 presenter.$view.find(".cell_letter input").addClass('crossword_cell_show-answers');
                 const answerData = presenter.correctAnswers[i];

@@ -1,3 +1,4 @@
+2023-09-14 Fixed work of addon Connection with GSA when page is reportable
 2023-08-31 Removed navigation on invisible elements in AudioText addon when TTS or keyboard navigation is active
 2023-08-31 Added documentation to MathText
 2023-08-25 Correct calculating gap width
