@@ -150,17 +150,23 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	public String getPlaceHolder() {
 		return placeHolder;
 	}
-	
-	public int getLongestAnswerLength() {
-		int longestAnswer = 0;
+
+	public String getLongestAnswer() {
+		int longestAnswerLength = 0;
+		String longestAnswer = "";
 		
 		for (String answer : answers) {
-			if (longestAnswer < answer.length()) {
-				longestAnswer = answer.length();
+			if (longestAnswerLength < answer.length()) {
+				longestAnswerLength = answer.length();
+				longestAnswer = answer;
 			}
 		}
 		
 		return longestAnswer;
+	}
+	
+	public int getLongestAnswerLength() {
+		return getLongestAnswer().length();
 	}
 
 	@Override

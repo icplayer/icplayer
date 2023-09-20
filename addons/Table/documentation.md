@@ -50,10 +50,18 @@ This addon allows users to add simple tables into presentations. With this funct
         <td>Gap width</td>
         <td>Indicates gaps' width in pixels.</td>
     </tr>
-
     <tr>
         <td>Gap Type</td>
         <td>The property defines the type of gaps to be rendered. The available options are: "editable" or "draggable."</td>
+    </tr>
+    <tr>
+        <td>Gap max length</td>
+        <td>
+            This property allows defining a maximum amount of chars available to be put in each gap. If this property 
+            is set to zero, no restriction will be applied. If a gap's right answer is longer than the Gap max length 
+            property, the restriction for this gap will automatically increase to this length. For filled gaps, the 
+            length of placeholder is also taken into account in determining the maximum number of characters.
+        </td>
     </tr>
 </table>
 

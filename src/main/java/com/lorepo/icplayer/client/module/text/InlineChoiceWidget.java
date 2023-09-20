@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.page.PageController;
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay, NavigationTextElement {
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
+	private boolean shouldSendChangeEvent = false;
 	private String value = "";
 	private boolean clicked = false;
 	private PageController pageController;
@@ -48,25 +49,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 				@Override
 				public void onChange (ChangeEvent event) {
-					int index = getSelectedIndex();
-					if (index > 0) {
-						value = StringUtils.unescapeXML(getValue(index));
-						removeStyleName("ic_inlineChoice-default");
-					} else {
-						value = "---";
-						addStyleName("ic_inlineChoice-default");
-					}
-					listener.onInlineValueChanged(choiceInfo.getId(), value);
-					TextView view = getView();
-					if(view.isWCAGon()){
-						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-						if (index == 0) {
-							textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
-						} else {
-							textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
-						} 
-						getPageController().speak(textVoices);
-					}
+					handleChangingEvent(listener);
+					readSelectedElement();
 				}
 			});
 
@@ -86,6 +70,35 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 				}
 			});
 		}
+	}
+
+	private void readSelectedElement() {
+		int index = getSelectedIndex();
+		if (index > 0) {
+			value = StringUtils.unescapeXML(getValue(index));
+		} else {
+			value = "---";
+		}
+		TextView view = getView();
+		if(view.isWCAGon()){
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			if (index == 0) {
+				textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
+			} else {
+				textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
+			} 
+			getPageController().speak(textVoices);
+		}
+	}
+
+	private void handleChangingEvent(ITextViewListener listener) {
+		int index = getSelectedIndex();
+		if (index > 0) {
+			removeStyleName("ic_inlineChoice-default");
+		} else {
+			addStyleName("ic_inlineChoice-default");
+		}
+		listener.onInlineValueChanged(choiceInfo.getId(), value);
 	}
 
 	public boolean hasId(String id) {
@@ -253,7 +266,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		} else {
 			this.deselect();
 		}
-		if( !getView().isWCAGon() ){
+		if( !isWCAGon() ){
 			setFocus(focus);
 		}
 	}
@@ -265,7 +278,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		} else {
 			this.deselect();
 		}
-		if( !getView().isWCAGon() ){
+		if( !isWCAGon() ){
 			setFocus(focus);
 		}
 	}
@@ -296,10 +309,19 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 	@Override
 	public void deselect() {
+		if (isWCAGon() && this.shouldSendChangeEvent) {
+			fireChangeEvent();
+			updateSendingEventStatus(false);
+		}
+
 		this.removeStyleName("keyboard_navigation_active_element");
 		this.removeStyleName("keyboard_navigation_active_element_text");
 		this.isSelected = false;
 		DOM.getElementById(this.getId()).blur();
+	}
+
+	public void updateSendingEventStatus(boolean status) {
+		this.shouldSendChangeEvent = status;
 	}
 
     public boolean isSelected() {
@@ -343,9 +365,22 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 			if(selectedIndex != originalIndex) {
 				this.setSelectedIndex( selectedIndex );
-				fireChangeEvent();
+				handleSendingChangeEvent();
 			}
 		}
+	}
+
+	private void handleSendingChangeEvent() {
+		if (isWCAGon()) {
+			updateSendingEventStatus(true);
+			readSelectedElement();
+		} else {
+			fireChangeEvent();
+		}
+	}
+
+	public boolean isWCAGon() {
+		return getView().isWCAGon();
 	}
 	
 	public void fireChangeEvent() {

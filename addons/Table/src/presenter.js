@@ -141,7 +141,9 @@ function AddonTable_create() {
         }
 
         presenter.gapsContainer.replaceDOMViewWithGap();
+        presenter.gapsContainer.updateGapMaxLength();
         presenter.setGapsClassAndWidth();
+        presenter.gapsContainer.addMaxLengthParamToGaps();
     };
 
     /**
@@ -709,6 +711,8 @@ function AddonTable_create() {
 
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
 
+        const gapMaxLength = ModelValidationUtils.validatePositiveInteger(model["GapMaxLength"]);
+
         return {
             addonID: model.ID,
             isValid: true,
@@ -725,6 +729,7 @@ function AddonTable_create() {
             newWidthCalculate: ModelValidationUtils.validateBoolean(model["newWidthCalculate"]),
             gapWidth: gapWidth,
             gapType: model["Gap Type"],
+            gapMaxLength: gapMaxLength,
             isTabindexEnabled: isTabindexEnabled,
             columnsCount: validatedColumns.value,
             rowsCount: validatedRows.value,
@@ -852,6 +857,17 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
+    presenter.addGapMaxLength = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('GapMaxLength')) {
+            upgradedModel['GapMaxLength'] = '0';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
         upgradedModel = presenter.addRowHeights(upgradedModel);
@@ -861,6 +877,7 @@ function AddonTable_create() {
         upgradedModel = presenter.addKeepOriginalOrder(upgradedModel);
         upgradedModel = presenter.addHeaders(upgradedModel);
         upgradedModel = presenter.addSpanSpeechTexts(upgradedModel);
+        upgradedModel = presenter.addGapMaxLength(upgradedModel);
         return upgradedModel;
     };
 
@@ -1044,6 +1061,11 @@ function AddonTable_create() {
         }
 
         if (isConnectedWithMath) {
+            if(presenter.isShowAnswersActive) {
+                presenter.gapsContainer.gaps.forEach(function(gap) {
+                    gap.onHideAnswers();
+                })
+            }
             presenter.gapsContainer.unlockAllGaps();
             presenter.gapsContainer.lockAllNotEmptyGaps();
         }
@@ -1118,10 +1140,14 @@ function AddonTable_create() {
         } else {
             if (presenter.isSetShowErrorsMode) {
                 presenter.setWorkMode();
-                
+
                 if (isConnectedWithMath) {
                     presenter.disableAllGaps();
                 }
+            }
+            if (isConnectedWithMath) {
+                presenter.isShowAnswersActive = true;
+                presenter.isSetShowErrorsMode = false;
             }
         }
     };
@@ -1439,7 +1465,8 @@ function AddonTable_create() {
             connectEvents: presenter.SelectGap.prototype.connectEvents,
             setViewValue: presenter.SelectGap.prototype.setViewValue,
 
-            gapScore: gapScore
+            gapScore: gapScore,
+            maxLength: presenter.getMaxLength(correctAnswer)
         };
 
         presenter.GapUtils.call(this, configuration);
@@ -1505,7 +1532,8 @@ function AddonTable_create() {
             connectEvents: this.connectEvents,
             setViewValue: presenter.EditableInputGap.prototype.setViewValue,
 
-            gapScore: gapScore
+            gapScore: gapScore,
+            maxLength: presenter.getMaxLength(correctAnswer)
         };
 
         presenter.GapUtils.call(this, configuration);
@@ -1625,7 +1653,8 @@ function AddonTable_create() {
             fillGap: presenter.DraggableDroppableGap.prototype.fillGap,
             makeGapEmpty: presenter.DraggableDroppableGap.prototype.makeGapEmpty,
 
-            gapScore: gapScore
+            gapScore: gapScore,
+            maxLength: presenter.getMaxLength(correctAnswers)
         };
 
         presenter.GapUtils.call(this, configuration);
@@ -1675,6 +1704,18 @@ function AddonTable_create() {
         this.notify();
     };
 
+    presenter.getMaxLength = function (correctAnswers) {
+        let maxLength = presenter.configuration.gapMaxLength.value;
+
+        correctAnswers.forEach(answers => {
+            if (answers.length > maxLength) {
+                maxLength = answers.length;
+            }
+        });
+
+        return maxLength;
+    };
+
     presenter.GapsContainerObject = function () {
         this.gaps = [];
     };
@@ -1697,6 +1738,29 @@ function AddonTable_create() {
                 element.attr("placeholder", placeholder);
                 element.removeClass("ic_gap").addClass("ic_filled_gap");
             }
+        });
+    };
+
+    presenter.GapsContainerObject.prototype.updateGapMaxLength = function () {
+        this.gaps.filter(function (gap) {
+            return gap.gapType === presenter.GapUtils.GAP_TYPE.NORMAL;
+        }).forEach(gap => {
+            const gapMaxLength = gap.getGapMaxLength();
+            const element = presenter.$view.find(`#${gap.getObjectID()}`);
+            const placeholder = element.attr('placeholder');
+            const placeholderLength = placeholder ? placeholder.length : 0;
+
+            gap.setGapMaxLength(Math.max(gapMaxLength, placeholderLength));
+        });
+    };
+
+    presenter.GapsContainerObject.prototype.addMaxLengthParamToGaps = function () {
+        this.gaps.filter(gap => {
+            return gap.gapType === presenter.GapUtils.GAP_TYPE.NORMAL;
+        }).forEach(gap => {
+            const gapMaxLength = gap.getGapMaxLength();
+            const element = presenter.$view.find(`#${gap.getObjectID()}`);
+            $(element).attr('maxlength', gapMaxLength);
         });
     };
 
