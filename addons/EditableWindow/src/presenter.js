@@ -1305,6 +1305,54 @@ function AddonEditableWindow_create() {
         this.readCurrentElement();
     };
 
+    EditableWindowKeyboardController.prototype.switchToFirstVisibleElement = function () {
+        for(let i=0; i<this.keyboardNavigationElementsLen; i++) {
+            const element = this.keyboardNavigationElements[i];
+            if(this.isElementHidden(element)) {
+                this.lastVisibleElementIndex = i;
+                this.keyboardNavigationCurrentElementIndex = i;
+                this.keyboardNavigationCurrentElement = element;
+                this.mark(element);
+                return;
+            }
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(1);
+
+        if(this.isElementHidden(this.getCurrentElement())) {
+            this.nextElement(event);
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(-1);
+
+        if(this.isElementHidden(this.getCurrentElement())) {
+            this.previousElement(event);
+        }
+    };
+
+    EditableWindowKeyboardController.prototype.isElementHidden = function (element) {
+        const elementHeight = element[0].offsetHeight;
+        const elementWidth = element[0].offsetWidth;
+        const isDisplayed = $(element).css('display') !== 'none';
+        const isVisible = $(element).css('visibility') === 'visible';
+
+        return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
+    };
+
+    EditableWindowKeyboardController.prototype.getCurrentElement = function () {
+		return this.getTarget(this.keyboardNavigationCurrentElement, false);
+	};
+
     EditableWindowKeyboardController.prototype.enter = function EditableWindow_enter (event) {
         KeyboardController.prototype.enter.call(this, event);
         if(this.keyboardNavigationCurrentElementIndex === 0) {
@@ -1312,6 +1360,14 @@ function AddonEditableWindow_create() {
         }
         this.readCurrentElement();
     };
+
+    EditableWindowKeyboardController.prototype.setElements = function EditableWindow_setElements (elements) {
+        KeyboardController.prototype.setElements.call(this, elements);
+
+        if (this.keyboardNavigationActive) {
+            this.switchToFirstVisibleElement();
+        }
+    }
 
     EditableWindowKeyboardController.prototype.select = function EditableWindow_select (event) {
         const element = this.getTarget(this.keyboardNavigationCurrentElement);

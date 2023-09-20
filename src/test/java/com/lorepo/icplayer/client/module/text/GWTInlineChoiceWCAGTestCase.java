@@ -56,6 +56,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 		choiceInfo.addDistractor("option 2");
 		choiceInfo.addDistractor("option 3");
 		this.choiceWidget = new InlineChoiceWidget(choiceInfo, listenerMock, this.textView);
+		this.choiceWidget.updateSendingEventStatus(true);
 	}
 	
 	@Test
@@ -64,6 +65,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 		doNothing().when(choiceSpy).fireChangeEvent();
 		doReturn(0).when(choiceSpy).getSelectedIndex();
 		doReturn(4).when(choiceSpy).getItemCount();
+		doReturn(false).when(choiceSpy).isWCAGon();
 		doNothing().when(choiceSpy).setSelectedIndex(any(Integer.class));
 		
 		choiceSpy.setWorkMode();
@@ -86,6 +88,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 		doNothing().when(choiceSpy).fireChangeEvent();
 		doReturn(0).when(choiceSpy).getSelectedIndex();
 		doReturn(4).when(choiceSpy).getItemCount();
+		doReturn(false).when(choiceSpy).isWCAGon();
 		doNothing().when(choiceSpy).setSelectedIndex(any(Integer.class));
 		
 		choiceSpy.setWorkMode();
