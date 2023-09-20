@@ -39,7 +39,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	private PrintableContentParser.ParsedListener printableAsyncCallback = null;
 	private String printableAsyncID = "";
 	private String printableState = "";
-	
+
 	public interface OnAddonReleaseAction {
 		public void onRelease();
 	}
@@ -190,7 +190,12 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		String className = this.getStyleClass();
 		return PrintableContentParser.addClassToPrintableModule(html, className, !isSplitInPrintBlocked());
 	}
-	
+
+	public String[] getPrintableModuleAdditionalClassNames() {
+		String className = this.getStyleClass();
+		return PrintableContentParser.getPrintableModuleAdditionalClassNames(className, !isSplitInPrintBlocked());
+	}
+
 	private native String getPrintableHTML(AddonModel x, String addonName, JavaScriptObject model, JavaScriptObject controller,
 										   String state, String asyncID, PrintableContentParser.ParsedListener
 												   parsedCallbackObject, boolean showAnswers) /*-{
@@ -205,6 +210,11 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
 			presenter.setPrintableController(controller);
+		}
+
+		if (presenter.hasOwnProperty("setPrintableClassNames") && controller != null) {
+			var classNames = x.@com.lorepo.icplayer.client.module.addon.AddonModel::getPrintableModuleAdditionalClassNames()();
+			presenter.setPrintableClassNames(classNames);
 		}
 
 		if (presenter.hasOwnProperty("setPrintableAsyncCallback") && parsedCallbackObject != null) {

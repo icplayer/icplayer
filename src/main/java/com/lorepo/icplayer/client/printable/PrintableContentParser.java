@@ -56,7 +56,7 @@ public class PrintableContentParser {
 	int asyncModuleIDCounter = 0;
 	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
 	ArrayList<HashMap<String, String>> contentInformation = new ArrayList<HashMap<String, String>>();
-	
+
 	private static class SplitResult extends JavaScriptObject {
 		
 		protected SplitResult() {};
@@ -335,6 +335,8 @@ public class PrintableContentParser {
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
 		pagePrintableController.setPreview(this.preview);
+		String printableLessonTemplate = createTemplateOfPrintableLesson();
+		pagePrintableController.setLessonTemplate(printableLessonTemplate);
 		if (this.rawScore != null && this.rawScore.length() > 0) {
 			pagePrintableController.setScore(this.rawScore);
 		}
@@ -761,6 +763,13 @@ public class PrintableContentParser {
 		}
 		return element.getString();
 	}
+
+	public static String[] getPrintableModuleAdditionalClassNames(String className, boolean isSplittable) {
+		String tempContent = "<div></div>";
+		String tempContentWithClasses = PrintableContentParser.addClassToPrintableModule(tempContent, className, isSplittable);
+		Element element = (new HTML(tempContentWithClasses)).getElement().getFirstChildElement();
+		return element.getClassName().split(" ");
+	}
 	
 	public int getA4WidthInPixels(int margin) {
 		double A4WidthInMM = 210 - margin*2;
@@ -1008,6 +1017,18 @@ public class PrintableContentParser {
 
 	public void setPreview(boolean preview) {
 	  this.preview = preview;
+	};
+
+	private String createTemplateOfPrintableLesson() {
+		int pageMaxHeight = getA4HeightInPixels(10);
+		int pageWidth = getA4WidthInPixels(10);
+		String content = "<div id=\"printable_placeholder\"/>";
+		
+		int previousContentHeight = contentHeight;
+		contentHeight = pageMaxHeight - footerHeight - headerHeight;
+		String printablePage = wrapPrintablePage(content, pageWidth, pageMaxHeight);
+		contentHeight = previousContentHeight;
+		return "<div class='printable_lesson'>" + printablePage + "</div>";
 	};
 
 }
