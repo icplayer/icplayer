@@ -35,7 +35,7 @@ function AddonConnection_create() {
     presenter.printableState = null;
     presenter.printableParserID = "";
     presenter.printableParserCallback = null;
-
+    presenter.printableClassNames = [];
 
     presenter.mathJaxLoaders = {
         runLoaded: false,
@@ -2257,16 +2257,16 @@ function AddonConnection_create() {
         if (state === null || ModelValidationUtils.isStringEmpty(state))
             return;
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     presenter.isPrintableAsync = function() {
         return true;
-    }
+    };
 
     presenter.setPrintableAsyncCallback = function(id, callback) {
         presenter.printableParserID = id;
         presenter.printableParserCallback = callback;
-    }
+    };
 
     function getCorrectAnswersObject(model) {
         var correctAnswers = [];
@@ -2329,125 +2329,177 @@ function AddonConnection_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
-        var savedState = presenter.printableState;
-        var isCheckAnswers = isPrintableCheckAnswersStateMode();
-        var answerLeftColumn = isCheckAnswers ? 
-        '<td class="answersLeftColumn">' +
-            '<table class="content"></table>' +
-        '</td>' : ''
 
-        var answerRightColumn = isCheckAnswers ? 
-        '<td class="answersRightColumn">' +
-            '<table class="content"></table>' +
-        '</td>' : ''
-        
-        var $root = $("<div></div>");
-        $root.attr('id', model.ID);
-        $root.addClass('printable_addon_Connection');
-        $root.css("max-width", model["Width"]+"px");
-        $root.html(
-            '<table class="connectionContainer">' +
-                '<tr>' +
-                    answerLeftColumn +
-                    '<td class="connectionLeftColumn">' +
-                        '<table class="content"></table>' +
-                    '</td>' +
-                    '<td class="connectionMiddleColumn">' +
-                        '<svg class="connections"></svg>' +
-                    '</td>' +
-                    '<td class="connectionRightColumn">' +
-                        '<table class="content"></table>' +
-                    '</td>' +
-                    answerRightColumn +
-                '</tr>' +
-            '</table>');
+        const root = createPrintableBaseView(model);
+        const $root = $(root);
+        const $printableWrapper = wrapInPrintableLessonTemplate($root);
 
-        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
-        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
-        if (!isRandomLeft) {
-            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false, isCheckAnswers);
-        } else {
-            this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
-        }
-        if (!isRandomRight) {
-            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true, isCheckAnswers);
-        } else {
-            this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
-        }
-        this.setColumnsWidth($root[0], model["Columns width"]);
-        presenter.removeNonVisibleInnerHTMLForRoot($root);
+        loadElementsToPrintableView(root, model);
+        this.setColumnsWidth(root, model["Columns width"]);
+        this.removeNonVisibleInnerHTMLForRoot($root);
 
-        var correctAnswers = getCorrectAnswersObject(model);
+        const correctAnswers = getCorrectAnswersObject(model);
+        const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
+        isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
 
-        if (isCheckAnswers) {
-            presenter.addAnswersElements($root[0], model, correctAnswers);
-        }
+        $printableWrapper.css("visibility", "hidden");
+        let height;
+        $("body").append($printableWrapper);
+        waitForLoad($root, function(){
+            $printableWrapper.css("visibility", "");
 
-        var connected = [];
+            root.classList.add(...presenter.printableClassNames);
+            if (connectionsInformation.length > 0) {
+                const connectionsSVG = $root.find("svg");
+                for (let connection, i = 0; i < connectionsInformation.length; i++) {
+                    connection = connectionsInformation[i];
+                    drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
+                }
+            }
+
+            root.classList.remove(...presenter.printableClassNames);
+            $printableWrapper.detach();
+            height = getPrintableTableHeight($root);
+            $root.css("height", height+"px");
+            const parsedView = root.outerHTML;
+            $root.remove();
+            $printableWrapper.remove();
+            presenter.printableParserCallback(parsedView);
+        });
+
+        const $clone = $root.clone();
+        $clone.attr("id", presenter.printableParserID);
+        $clone.css("visibility", "");
+        const result = $clone[0].outerHTML;
+        $clone.remove();
+
+        return result;
+    };
+
+    presenter.setPrintableClassNames = function (classNames) {
+        presenter.printableClassNames = classNames;
+    }
+
+    function wrapInPrintableLessonTemplate($view) {
+        const $lessonTemplate = $(presenter.printableController.getLessonTemplate());
+        const $placeholder = $lessonTemplate.find("#printable_placeholder");
+        const $placeholderParent = $placeholder.parent();
+        $placeholderParent.append($view);
+        $placeholder.remove();
+        return $lessonTemplate;
+    }
+
+    function createPrintableBaseView(model) {
+        const view = document.createElement("div");
+        view.id = model.ID;
+        view.classList.add("printable_addon_Connection");
+        view.setAttribute("max-width", model.Width + "px");
+
+        const connectionContainer = createPrintableConnectionContainer();
+        view.append(connectionContainer);
+
+        return view;
+    }
+
+    function createPrintableConnectionContainer() {
+        const isCheckAnswers = isPrintableCheckAnswersStateMode();
+
+        const connectionContainer = document.createElement("table");
+        connectionContainer.classList.add("connectionContainer");
+
+        const tr = document.createElement("tr");
+        connectionContainer.append(tr);
+
+        isCheckAnswers && tr.append(createPrintableColumn("answersLeftColumn"));
+        tr.append(createPrintableColumn("connectionLeftColumn"));
+        tr.append(createPrintableConnectionMiddleColumn());
+        tr.append(createPrintableColumn("connectionRightColumn"));
+        isCheckAnswers && tr.append(createPrintableColumn("answersRightColumn"));
+
+        return connectionContainer;
+    }
+
+    function createPrintableColumn(className) {
+        const column = document.createElement("td");
+        column.classList.add(className);
+
+        const content = document.createElement("table");
+        content.classList.add("content");
+
+        column.append(content);
+        return column;
+    }
+
+    function createPrintableConnectionMiddleColumn() {
+        const column = document.createElement("td");
+        column.classList.add("connectionMiddleColumn");
+
+        const content = document.createElement("svg");
+        content.classList.add("connections");
+
+        column.append(content);
+        return column;
+    }
+
+    function loadElementsToPrintableView(view, model) {
+        const isCheckAnswers = isPrintableCheckAnswersStateMode();
+
+        const isRandomLeft = ModelValidationUtils.validateBoolean(model["Random order left column"]);
+        const loadLeftElements = isRandomLeft ? presenter.loadRandomElementsLeft : presenter.loadElements;
+        loadLeftElements(view, model, "connectionLeftColumn", "Left column", false, isCheckAnswers);
+
+        const isRandomRight = ModelValidationUtils.validateBoolean(model["Random order right column"]);
+        const loadRightElements = isRandomRight ? presenter.loadRandomElementsRight : presenter.loadElements;
+        loadRightElements(view, model, "connectionRightColumn", "Right column", true, isCheckAnswers);
+    }
+
+    function getPrintableConnectionsInformation(correctAnswers) {
+        const information = [];
+
         if (isPrintableShowAnswersStateMode()) {
-            for (var i = 0; i < correctAnswers.length; i++) {
+            for (let i = 0; i < correctAnswers.length; i++) {
                 if (correctAnswers[i].answer) {
-                    connected.push({
+                    information.push({
                         from: correctAnswers[i].id,
                         to: correctAnswers[i].answer,
                         correct: true
                     });
                 }
             }
-        } else if (isPrintableShowUserAnswersStateMode()) {
-            for (var i = 0; i < savedState.id.length; i++) {
-                var pair = savedState.id[i].split(':');
-                connected.push({
+            return information;
+        }
+
+        if (isPrintableShowUserAnswersStateMode()) {
+            for (let i = 0; i < presenter.printableState.id.length; i++) {
+                const pair = presenter.printableState.id[i].split(':');
+                information.push({
                     from: pair[0],
                     to: pair[1],
                     correct: true
                 });
             }
-        } else if (isCheckAnswers) {
-            for (var i = 0; i < savedState.id.length; i++) {
-                var pair = savedState.id[i].split(':');
-                connected.push({
+            return information;
+        }
+
+        if (isPrintableCheckAnswersStateMode()) {
+            for (let i = 0; i < presenter.printableState.id.length; i++) {
+                const pair = presenter.printableState.id[i].split(':');
+                information.push({
                     from: pair[0],
                     to: pair[1],
                     correct: isCorrectConnection(correctAnswers, pair)
                 });
             }
+            return information;
         }
-
-        $root.css('visibility', 'hidden');
-        $('body').append($root);
-        waitForLoad($root, function(){
-            if (connected.length > 0) {
-                var connectionsSVG = $root.find('svg');
-                for (var i = 0; i < connected.length; i++) {
-                    var connection = connected[i];
-                    drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
-                }
-            }
-            $root.detach();
-            $root.css('visibility', '');
-            var height = getPrintableTableHeight($root);
-            $root.css("height", height+"px");
-            var parsedView = $root[0].outerHTML;
-            $root.remove();
-            presenter.printableParserCallback(parsedView);
-        });
-
-        var $clone = $root.clone();
-        $clone.attr('id', presenter.printableParserID);
-        $clone.css('visibility', '');
-        var result = $clone[0].outerHTML;
-        $clone.remove();
-
-
-        return result;
-    };
+        return information;
+    }
 
     function waitForLoad($element, callback) {
         var $imgs = $element.find('img');
         var loadCounter = $imgs.length + 2;
-        var timeout = null;
         var continuedParsing = false;
+        var isReady = false;
 
         var loadCallback = function(){
             loadCounter -= 1;

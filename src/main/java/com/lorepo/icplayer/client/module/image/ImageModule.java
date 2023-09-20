@@ -326,12 +326,10 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 		return result;
 	}
 
-
 	@Override
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
-
 
 	@Override
 	public boolean isSection() {

@@ -1292,7 +1292,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
-	
+
 	private void addPropertyIsSection() {
 
 		IProperty property = new IBooleanProperty() {
