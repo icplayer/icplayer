@@ -1,4 +1,5 @@
-2023-09-15 Fixed work of addon Connection with GSA when page is reportable
+2023-09-20 Fixed work of addon Connection with GSA when page is reportable
+2023-09-18 Fixed dropdown value in Text not being saved correctly in state
 2023-09-13 Fixed sending event after leaving gap when TTS is activated
 2023-09-13 Fixed skipping sentence after special characters
 2023-09-13 Fixed reading hidden elements in the EditableWindow
