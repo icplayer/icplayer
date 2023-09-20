@@ -399,11 +399,12 @@ function AddonFlashCards_create(){
         presenter.showCard(presenter.state.currentCard);
     };
 
+    presenter.originalCard = null;
     presenter.nextCard = function (disregardNoLoop) {
-        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != originalCard) {
+        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
             presenter.sendEndedEvent();
         }
-        var originalCard = presenter.state.currentCard;
+        presenter.originalCard = presenter.state.currentCard;
         presenter.removeActiveElementClass();
         if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
@@ -680,10 +681,7 @@ function AddonFlashCards_create(){
         }
         if ((!reverse && card.AudioFront != "") || (reverse && card.AudioBack != "")){
             if (presenter.audioElementHidden.canPlayType("audio/mpeg")) {
-                var audioSrc = card.AudioFront;
-                if (reverse) {
-                    audioSrc = card.AudioBack;
-                }
+                var audioSrc = reverse ? card.AudioBack : card.AudioFront;
                 if (presenter.lastHiddenAudio.cardIndex != cardIndex || presenter.lastHiddenAudio.reverse != reverse) {
                     presenter.lastHiddenAudio.cardIndex = cardIndex;
                     presenter.lastHiddenAudio.reverse = reverse;
@@ -755,15 +753,16 @@ function AddonFlashCards_create(){
     };
 
     presenter.audioCommand = function(command) {
+        console.log("audio command");
         if (presenter.isErrorMode) return;
         if (presenter.isHiddenPlaying && command != "play") {
             if (command == "stop" && presenter.audioElementHidden.currentTime > 0) {
                 presenter.audioElementHidden.currentTime = 0;
-                presenter.sendEndedEvent();
+                presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
             }
             presenter.audioElementHidden.pause();
             if (command == "pause") {
-                presenter.sendPauseEvent();
+                presenter.sendPauseEvent(presenter.lastHiddenAudio.cardIndex + 1);
             }
             presenter.isHiddenPlaying = false;
             return;
