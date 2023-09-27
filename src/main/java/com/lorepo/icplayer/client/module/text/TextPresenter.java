@@ -458,7 +458,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				view.setValue(id, value);
 			}
 			if (!view.isBlockedDraggableGapsExtension()) {
-			    view.enableDraggableGapExtension(id);
+				view.enableDraggableGapExtension(id);
 			}
 		}
 
@@ -990,11 +990,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
-
+		
 		view.setValue(gapId, draggableItem.getValue());
-        if (!view.isBlockedDraggableGapsExtension()) {
-            view.enableDraggableGapExtension(gapId);
-        }
+		if (!view.isBlockedDraggableGapsExtension()) {
+			view.enableDraggableGapExtension(gapId);
+		}
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1030,8 +1030,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 		if (!view.isBlockedDraggableGapsExtension()) {
-		    view.disableDraggableGapExtension(gapId);
-        }
+			view.disableDraggableGapExtension(gapId);
+		}
 
 		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);

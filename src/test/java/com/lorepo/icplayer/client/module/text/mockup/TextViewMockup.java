@@ -217,10 +217,10 @@ public class TextViewMockup implements IDisplay {
 	public List<ScoreWithMetadata> getScoreWithMetadata() {
 		return null;
 	}
-
+	
 	@Override
 	public boolean isBlockedDraggableGapsExtension() {
-	    return true;
+		return true;
 	};
 
 	@Override
