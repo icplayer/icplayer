@@ -219,6 +219,11 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
+	public boolean isBlockedDraggableGapsExtension() {
+	    return true;
+	};
+
+	@Override
 	public void enableDraggableGapExtension(String gapId) {};
 
 	@Override

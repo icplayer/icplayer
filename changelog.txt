@@ -1,3 +1,4 @@
+2023-09-27 Fixed issue with width of draggable elements in Text when gap width is not equal 0
 2023-09-20 Fixed issue with too long draggable elements in Text
 2023-09-20 Fixed problem with line display in addon connection
 2023-09-20 Fixed work of addon Connection with GSA when page is reportable

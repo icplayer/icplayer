@@ -335,7 +335,6 @@ hr, table, fieldset {
 }
 
 .ic_draggableGapEmpty{
-	width:100px;
 	border:1px solid gray;
 	display:inline-block;
 }
@@ -358,7 +357,6 @@ hr, table, fieldset {
 }
 
 .ic_draggableGapFilled{
-	width:100px;
 	display:inline-block;
 	border: 1px solid green;
 	background-color: PaleGreen;

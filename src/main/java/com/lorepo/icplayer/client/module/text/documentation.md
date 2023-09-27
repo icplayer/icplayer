@@ -621,8 +621,7 @@ border: 2px solid #f74224;
 }
 
 **4.1. Draggable Gap Empty:**  
-.ic_draggableGapEmpty{  
-width:100px;  
+.ic_draggableGapEmpty{
 height: 25px;  
 line-height: 23px;  
 border: 1px solid #9e9e9e;  
@@ -632,8 +631,7 @@ text-align: center;
 }  
 
 **4.2. Draggable Gap Filled:**  
-.ic_draggableGapFilled{  
-     width:100px;  
+.ic_draggableGapFilled{
 height: 25px;  
 margin-right: 0px;  
 line-height: 23px;  
