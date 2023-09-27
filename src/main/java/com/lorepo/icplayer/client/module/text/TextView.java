@@ -993,6 +993,36 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return content;
 	}
 
+	@Override
+	public void enableDraggableGapExtension(String gapId) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(gapId) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				String width = e.getStyle().getWidth();
+				if (width.trim().length() > 0) {
+					e.getStyle().setProperty("min-width", width);
+					e.getStyle().setProperty("width", "");
+				}
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void disableDraggableGapExtension(String gapId) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(gapId) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				String minWidth = e.getStyle().getProperty("min-width");
+				if (minWidth.trim().length() > 0) {
+					e.getStyle().setProperty("min-width", "");
+					e.getStyle().setProperty("width", minWidth);
+				}
+				break;
+			}
+		}
+	}
+
 	private String getLinkTitle(NavigationTextElement element) {
 		LinkWidget linkWidget = (LinkWidget) element;
 		String href = linkWidget.getHref();

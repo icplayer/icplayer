@@ -893,7 +893,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
-	
+
 	@Override
 	public boolean isSection() {
 		return false;

@@ -218,6 +218,12 @@ public class TextViewMockup implements IDisplay {
 		return null;
 	}
 
+	@Override
+	public void enableDraggableGapExtension(String gapId) {};
+
+	@Override
+	public void disableDraggableGapExtension(String gapId) {};
+
     public void setGapWidget(GapWidget gw) {
         gapWidget = gw;
     }

@@ -97,6 +97,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setShowErrorsMode();
 		void setValue(String text);
 		List<ScoreWithMetadata> getScoreWithMetadata();
+		void enableDraggableGapExtension(String gapId);
+		void disableDraggableGapExtension(String gapId);
 	}
 
 	public interface NavigationTextElement {
@@ -454,6 +456,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			} else {
 				view.setValue(id, value);
 			}
+			view.enableDraggableGapExtension(id);
 		}
 
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
@@ -986,6 +989,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
 
 		view.setValue(gapId, draggableItem.getValue());
+		view.enableDraggableGapExtension(gapId);
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1020,6 +1024,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
+		view.disableDraggableGapExtension(gapId);
 
 		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);
