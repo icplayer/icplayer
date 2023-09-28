@@ -1,3 +1,4 @@
+2023-09-28 Added getFullPresentationScore method to player-utils
 2023-09-20 Fixed issue with too long draggable elements in Text
 2023-09-20 Fixed problem with line display in addon connection
 2023-09-20 Fixed work of addon Connection with GSA when page is reportable
