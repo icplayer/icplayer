@@ -68,6 +68,7 @@
                 sumOfMistakes = 0,
                 sumOfWeights = 0,
                 pageScaledScore = 0,
+                reportableCount = 0,
                 count = 0, i, page, score,
                 paginatedResults = [];
 
@@ -109,6 +110,7 @@
                         paginatedResults[count]["reportable"] = true;
                     }
                     count += 1;
+                    reportableCount += 1;
                 } else if (includeNonReportable) {
                     var pageTime = this.timeService.getPageTimeById(page.getId());
                     paginatedResults[count] = {
@@ -141,7 +143,7 @@
 
             return {
                 minScore: 0,
-                maxScore: count,
+                maxScore: reportableCount,
                 rawScore: sumOfScaledScore,
                 scaledScore: scaledScore,
                 errorsCount: sumOfErrors,
