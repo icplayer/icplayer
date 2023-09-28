@@ -1,3 +1,4 @@
+2023-09-27 Fixed mathjax issue in Text when a page has been reloaded in quick succession
 2023-09-20 Fixed issue with too long draggable elements in Text
 2023-09-20 Fixed problem with line display in addon connection
 2023-09-20 Fixed work of addon Connection with GSA when page is reportable
