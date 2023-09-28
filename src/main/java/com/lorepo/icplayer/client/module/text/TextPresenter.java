@@ -97,6 +97,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setShowErrorsMode();
 		void setValue(String text);
 		List<ScoreWithMetadata> getScoreWithMetadata();
+		boolean isBlockedDraggableGapsExtension();
 		void enableDraggableGapExtension(String gapId);
 		void disableDraggableGapExtension(String gapId);
 	}
@@ -456,7 +457,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			} else {
 				view.setValue(id, value);
 			}
-			view.enableDraggableGapExtension(id);
+			if (!view.isBlockedDraggableGapsExtension()) {
+				view.enableDraggableGapExtension(id);
+			}
 		}
 
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
@@ -987,9 +990,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
-
+		
 		view.setValue(gapId, draggableItem.getValue());
-		view.enableDraggableGapExtension(gapId);
+		if (!view.isBlockedDraggableGapsExtension()) {
+			view.enableDraggableGapExtension(gapId);
+		}
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1024,7 +1029,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
-		view.disableDraggableGapExtension(gapId);
+		if (!view.isBlockedDraggableGapsExtension()) {
+			view.disableDraggableGapExtension(gapId);
+		}
 
 		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);

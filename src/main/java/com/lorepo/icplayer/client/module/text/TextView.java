@@ -992,6 +992,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 		return content;
 	}
+	
+	@Override
+	public boolean isBlockedDraggableGapsExtension() {
+		return module.getGapWidth() > 0;
+	}
 
 	@Override
 	public void enableDraggableGapExtension(String gapId) {
