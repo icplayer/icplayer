@@ -198,7 +198,6 @@ Normally, the addon has a custom class set by the Player but in this addon the v
     cursor: move;
     border-radius: 3px;
     min-width: 30px;
-    width: 30px;
     min-height: 30px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
     background-color: rgba(255, 255, 255, 0.8);
@@ -207,17 +206,43 @@ Normally, the addon has a custom class set by the Player but in this addon the v
     background-repeat: no-repeat;
 }
 
+.iwb-toolbar-panel.right {
+    width: 30px;
+}
+
+.iwb-toolbar-panel.left {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    width: 30px;
+}
+
+.iwb-toolbar-panel.up {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: wrap;
+    height: 30px;
+}
+
+.iwb-toolbar-panel.down {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: 30px;
+}
+
 .iwb-toolbar-panel.running {
     z-index: 1001;
     position: fixed;
 }
 
-.iwb-toolbar-panel .button-separator {
-    width: 1px;
-    float: left;
-    height: 30px;
-    background-color: rgba(150, 150, 150, 0.6);
-    margin-left: 5px;
+.iwb-toolbar-panel.up .button-separator,
+.iwb-toolbar-panel.down .button-separator {
+    width: 30px;
+    float: inherit;
+    height: 1px;
+    margin-top: 5px;
+    margin-left: 0px;
 }
 
 .iwb-toolbar-panel .button.clicked {
@@ -246,8 +271,25 @@ Normally, the addon has a custom class set by the Player but in this addon the v
     display: none;
 }
 
-.iwb-toolbar-panel .button.first {
+.iwb-toolbar-panel.up .button,
+.iwb-toolbar-panel.up .button-drawing-details,
+.iwb-toolbar-panel.up .button-floating-image,
+.iwb-toolbar-panel.down .button,
+.iwb-toolbar-panel.down .button-drawing-details,
+.iwb-toolbar-panel.down .button-floating-image {
+    float: inherit;
+    margin-top: 5px;
     margin-left: 0px;
+}
+
+.iwb-toolbar-panel.left .button.first,
+.iwb-toolbar-panel.right .button.first {
+    margin-left: 0px;
+}
+
+.iwb-toolbar-panel.up .button.first,
+.iwb-toolbar-panel.down .button.first{
+    margin-top: 0px;
 }
 
 .iwb-toolbar-panel .button.hovered {
@@ -282,17 +324,62 @@ Normally, the addon has a custom class set by the Player but in this addon the v
     position: absolute;
 }
 
-.iwb-toolbar-panel .bottom-panel .container {
+.iwb-toolbar-panel.right .bottom-panel .container {
     float: right;
     margin-top: 5px;
 }
 
-.iwb-toolbar-panel .bottom-panel-floating-image {
+.iwb-toolbar-panel.left .bottom-panel .container {
+    display: flex;
+    flex-direction: row-reverse;
+    float: right;
+    margin-top: 5px;
+}
+
+.iwb-toolbar-panel.up .bottom-panel .container {
+    display: flex;
+    flex-direction: column-reverse;
+    float: right;
+    margin-left: 5px;
+}
+
+.iwb-toolbar-panel.down .bottom-panel .container {
+    display: flex;
+    flex-direction: column;
+    float: right;
+    margin-left: 5px;
+}
+
+.iwb-toolbar-panel.right .bottom-panel-floating-image {
     margin-right: 77px;
+}
+
+.iwb-toolbar-panel.left .bottom-panel-floating-image {
+    margin-left: 77px;
+}
+
+.iwb-toolbar-panel.up .bottom-panel-floating-image {
+    margin-top: 77px;
+}
+
+.iwb-toolbar-panel.down .bottom-panel-floating-image {
+    margin-bottom: 77px;
 }
 
 .iwb-toolbar-panel .bottom-panel {
     display: none;
+}
+
+.iwb-toolbar-panel.left .bottom-panel {
+    margin-right: auto;
+}
+
+.iwb-toolbar-panel.up .bottom-panel {
+    margin-bottom: auto;
+}
+
+.iwb-toolbar-panel.down .bottom-panel {
+    margin-top: auto;
 }
 
 .iwb-toolbar-panel .button.close, .iwb-toolbar-panel .button.open {
