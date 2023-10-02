@@ -8,7 +8,8 @@ TestCase("[Table] GetScore / GetMaxScore / GetErrorCount", {
             isNotActivity: false,
             isCaseSensitive: false,
             isPunctuationIgnored: false,
-            addonID: "Table1"
+            addonID: "Table1",
+            gapMaxLength: {value: 12}
         };
 
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();

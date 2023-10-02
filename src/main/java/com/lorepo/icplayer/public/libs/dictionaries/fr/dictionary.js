@@ -1388,6 +1388,7 @@ var ice_dictionary_fr = {
     "Table_property_ignore_punctuation": "Ignorer la ponctuation",
     "Table_property_gap_width": "Largeur du champ",
     "Table_property_gap_type": "Type de champ",
+    "Table_property_gap_max_length": "Gap max length",
 	"Table_property_keep_order": "Keep original order",
 	"Table_property_first_row_is_header": "First row is a header",
 	"Table_property_first_column_is_header": "First column is a header",

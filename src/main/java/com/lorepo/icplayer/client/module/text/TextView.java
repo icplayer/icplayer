@@ -213,8 +213,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
+	private native boolean isElementContainedInBody(Element e)/*-{
+		return $doc.body.contains(e);
+	}-*/;
+
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
+		// Stop if Text view is no longer part of the DOM
+		if (!isElementContainedInBody(getElement())) return;
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
 			if (gi.getId().equals(id)) {
@@ -985,6 +991,41 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		return content;
+	}
+	
+	@Override
+	public boolean isBlockedDraggableGapsExtension() {
+		return module.getGapWidth() > 0;
+	}
+
+	@Override
+	public void enableDraggableGapExtension(String gapId) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(gapId) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				String width = e.getStyle().getWidth();
+				if (width.trim().length() > 0) {
+					e.getStyle().setProperty("min-width", width);
+					e.getStyle().setProperty("width", "");
+				}
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void disableDraggableGapExtension(String gapId) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(gapId) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				String minWidth = e.getStyle().getProperty("min-width");
+				if (minWidth.trim().length() > 0) {
+					e.getStyle().setProperty("min-width", "");
+					e.getStyle().setProperty("width", minWidth);
+				}
+				break;
+			}
+		}
 	}
 
 	private String getLinkTitle(NavigationTextElement element) {
