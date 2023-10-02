@@ -12,8 +12,8 @@ IWB Toolbar is a set of tools to help teachers in conducting lessons and giving 
     <tr>
         <td>Floating Images (optional)</td>
         <td>Here you can change the default Floating Images.
-<p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
-</td>
+            <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
+        </td>
     </tr>
 	<tr>
         <td>Width When Opened (optional)</td>
@@ -25,23 +25,23 @@ IWB Toolbar is a set of tools to help teachers in conducting lessons and giving 
     </tr>
     <tr>
         <td>Show for pen</td>
-        <td>You can choose the default panel (one of three options: None, Color Panel or Thickness Panel) which will be displayed after clicking on a pen drawing tool icon</td>
+        <td>You can choose the default panel (one of three options: None, Color Panel or Thickness Panel) which will be displayed after clicking on a pen drawing tool icon.</td>
     </tr>
     <tr>
         <td>Show for marker</td>
-        <td>You can choose the default panel (one of three options: None, Color Panel or Thickness Panel) which will be displayed afterclicking on a marker drawing tool icon</td>
+        <td>You can choose the default panel (one of three options: None, Color Panel or Thickness Panel) which will be displayed afterclicking on a marker drawing tool icon.</td>
     </tr>
     <tr>
         <td>Keep state and position</td>
-        <td>The checked property sets IWB in the same position as on a previously visited page. When the property is unchecked, it means that the addon's position is rememberd independently on each page.</td>
+        <td>The checked property sets IWB in the same position as on a previously visited page. When the property is unchecked, it means that the addon's position is remembered independently on each page.</td>
     </tr>
     <tr>
         <td>Closed panel drawing</td>
-        <td>This property allows to draw when the panel is closed</td>
+        <td>This property allows to draw when the panel is closed.</td>
     </tr>
     <tr>
         <td>Expansion direction</td>
-        <td>Indicates in which direction the panel will expand when opened. </td>
+        <td>Indicates in which direction the panel will expand when opened.</td>
     </tr>
 </table>
 

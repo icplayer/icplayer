@@ -1,4 +1,4 @@
-2023-09-08 Added Expansion Direction property to the IWB Toolbar addon
+2023-10-02 Added Expansion Direction property to the IWB Toolbar addon
 2023-08-25 Correct calculating gap width
 2023-08-25 Fixed issue with show answers mode in Table+Math
 2023-08-25 Fixed reset in Paragraph to restore original visibility
