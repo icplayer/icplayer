@@ -659,7 +659,6 @@
     display: none;
     opacity: 1;
     position: absolute;
-    top: -20px;
     font-size: 8px;
     line-height: 8px;
     min-width: 30px;
@@ -667,6 +666,16 @@
     border-radius: 2px;
     background-color: rgba(255, 255, 255, 0.5);
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+}
+
+.iwb-toolbar-panel.right .button .tooltip,
+.iwb-toolbar-panel.left .button .tooltip{
+    top: -20px;
+}
+
+.iwb-toolbar-panel.up .button .tooltip,
+.iwb-toolbar-panel.down .button .tooltip{
+    left: -30px;
 }
 
 .iwb-toolbar-panel .button.default .tooltip span:after {

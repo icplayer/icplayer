@@ -3119,7 +3119,7 @@ function AddonIWB_Toolbar_create() {
         if (presenter.config.expansionDirection == "left" || presenter.config.expansionDirection == "right") {
             presenter.$panel.width(presenter.trueClosedPanelSize.width + 'px');
         } else {
-            presenter.$panel.css({"min-width": presenter.trueClosedPanelSize.width + 'px'});
+            presenter.$panel.css("min-width", presenter.trueClosedPanelSize.width + 'px');
         }
 
         window.savedPanel = window.savedPanel || {};
