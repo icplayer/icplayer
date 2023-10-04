@@ -131,14 +131,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
-			} else {
-				String longestAnswer = gi.getLongestAnswer();
-				String fontSize = getFontSize(gap.getId());
-				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
-
-				if (calculatedGapWidth > 0) {
-					gap.setWidth(calculatedGapWidth + "px");
-				}
 			}
 
 			gap.setDisabled(module.isDisabled());
@@ -158,13 +150,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
-				} else {
+				} else if (module.getGapType().equals("Editable")) {
 					String longestAnswer = gi.getLongestAnswer();
 					String fontSize = getFontSize(gap.getId());
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 
 					if (calculatedGapWidth > 0) {
-						gap.setWidth(calculatedGapWidth + "px");
+						setGapWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -201,7 +193,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 					
 					if (calculatedGapWidth > 0) {
-						gap.setWidth(calculatedGapWidth + "px");
+						setGapWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -216,6 +208,22 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private native boolean isElementContainedInBody(Element e)/*-{
 		return $doc.body.contains(e);
 	}-*/;
+
+	private void setGapWidth(GapWidget gap, int width) {
+		String minWidth = Integer.toString(width) + "px";
+		Element gapElement = gap.getElement();
+
+		DOM.setStyleAttribute(gapElement, "min-width", minWidth);
+		this.updateParentProperty(gapElement);
+	}
+
+	private void updateParentProperty(Element child) {
+		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
+
+		if (parentElement !=null ) {
+			parentElement.getStyle().setProperty("text-wrap", "nowrap");
+		}
+	}
 
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
