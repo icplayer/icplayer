@@ -156,7 +156,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 
 					if (calculatedGapWidth > 0) {
-						setGapWidth(gap, calculatedGapWidth);
+						changeGapMinWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -193,7 +193,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 					
 					if (calculatedGapWidth > 0) {
-						setGapWidth(gap, calculatedGapWidth);
+						changeGapMinWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -209,12 +209,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return $doc.body.contains(e);
 	}-*/;
 
-	private void setGapWidth(GapWidget gap, int width) {
+	private void changeGapMinWidth(GapWidget gap, int width) {
 		String minWidth = Integer.toString(width) + "px";
 		Element gapElement = gap.getElement();
 
-		DOM.setStyleAttribute(gapElement, "min-width", minWidth);
-		this.updateParentProperty(gapElement);
+		if (gapElement != null) {
+			DOM.setStyleAttribute(gapElement, "min-width", minWidth);
+			this.updateParentProperty(gapElement);
+		}
 	}
 
 	private void updateParentProperty(Element child) {
