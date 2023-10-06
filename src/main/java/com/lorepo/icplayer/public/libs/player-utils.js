@@ -43,6 +43,24 @@
      @return {Object} returns current presentation score (min, max, raw and scaled), errors count and checks count
      */
     window.PlayerUtils.prototype.getPresentationScore = function(presentation) {
+        return this.getPresentationScoreBase(presentation, false);
+    }
+
+/**
+     Returns Presentation score object, including non reportable pages
+
+     @param {Object} presentation current presentation object
+
+     @method getPresentation
+
+     @return {Object} returns current presentation score (min, max, raw and scaled), errors count, checks count and time,
+     as well as the time spent on non reportable pages
+     */
+    window.PlayerUtils.prototype.getFullPresentationScore = function(presentation) {
+            return this.getPresentationScoreBase(presentation, true);
+        }
+
+    window.PlayerUtils.prototype.getPresentationScoreBase = function(presentation, includeNonReportable) {
         if (this.hasOwnProperty('scoreService')) {
             var sumOfScore = 0.0, sumOfErrors = 0, sumOfChecks = 0,
                 sumOfMaxScore = 0.0,
@@ -50,6 +68,7 @@
                 sumOfMistakes = 0,
                 sumOfWeights = 0,
                 pageScaledScore = 0,
+                reportableCount = 0,
                 count = 0, i, page, score,
                 paginatedResults = [];
 
@@ -87,7 +106,26 @@
                         "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
                         "time": score['time'] ? parseInt(score['time'], 10) : 0
                     };
-
+                    if (includeNonReportable) {
+                        paginatedResults[count]["reportable"] = true;
+                    }
+                    count += 1;
+                    reportableCount += 1;
+                } else if (includeNonReportable) {
+                    var pageTime = this.timeService.getPageTimeById(page.getId());
+                    paginatedResults[count] = {
+                        "page_number": (i + 1),
+                        "page_name": page.getName(),
+                        "page_id": page.getId(),
+                        "score": 0.0,
+                        "absolute_score": 0,
+                        "max_score": 0,
+                        "errors_count": 0,
+                        "checks_count": 0,
+                        "mistake_count": 0,
+                        "time": pageTime ? parseInt(pageTime, 10) : 0,
+                        "reportable": false
+                    };
                     count += 1;
                 }
             }
@@ -105,7 +143,7 @@
 
             return {
                 minScore: 0,
-                maxScore: count,
+                maxScore: reportableCount,
                 rawScore: sumOfScaledScore,
                 scaledScore: scaledScore,
                 errorsCount: sumOfErrors,
