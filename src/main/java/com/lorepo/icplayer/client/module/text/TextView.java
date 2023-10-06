@@ -213,8 +213,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
+	private native boolean isElementContainedInBody(Element e)/*-{
+		return $doc.body.contains(e);
+	}-*/;
+
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
+		// Stop if Text view is no longer part of the DOM
+		if (!isElementContainedInBody(getElement())) return;
 		while (giIterator.hasNext()) {
 			GapInfo gi = giIterator.next();
 			if (gi.getId().equals(id)) {
@@ -985,6 +991,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		return content;
+	}
+	
+	@Override
+	public boolean isBlockedDraggableGapsExtension() {
+		return module.getGapWidth() > 0;
 	}
 
 	@Override
