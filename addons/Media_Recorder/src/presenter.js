@@ -320,20 +320,45 @@ var BlobService = exports.BlobService = function () {
     }, {
         key: "getMp3BlobFromDecodedDataByWorker",
         value: function getMp3BlobFromDecodedDataByWorker(worker, decodedData) {
+            var newSampleRate = 22050;
             var buffers = this.prepareSampleBuffers(decodedData);
-            var left = buffers[0];
-            var right = buffers[1];
+            var left = this._interpolateArray(buffers[0], newSampleRate, decodedData.sampleRate);
+            var right = this._interpolateArray(buffers[1], newSampleRate, decodedData.sampleRate);
 
-            return worker.execute(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+            return worker.execute(decodedData.numberOfChannels, newSampleRate, decodedData.length, left, right);
         }
     }, {
         key: "getMp3BlobFromDecodedData",
         value: function getMp3BlobFromDecodedData(decodedData) {
+            var newSampleRate = 22050;
             var buffers = this.prepareSampleBuffers(decodedData);
-            var left = buffers[0];
-            var right = buffers[1];
+            var left = this._interpolateArray(buffers[0], newSampleRate, decodedData.sampleRate);
+            var right = this._interpolateArray(buffers[1], newSampleRate, decodedData.sampleRate);
 
-            return this._encode(decodedData.numberOfChannels, decodedData.sampleRate, decodedData.length, left, right);
+            return this._encode(decodedData.numberOfChannels, newSampleRate, decodedData.length, left, right);
+        }
+    }, {
+        key: "_interpolateArray",
+        value: function _interpolateArray(data, newSampleRate, oldSampleRate) {
+            var fitCount = Math.round(data.length * (newSampleRate / oldSampleRate));
+            var newData = new Int16Array(fitCount - 1);
+            var springFactor = Number((data.length - 1) / (fitCount - 1));
+            newData[0] = data[0];
+            for (var i = 1; i < fitCount - 1; i++) {
+                var tmp = i * springFactor;
+                var before = Number(Math.floor(tmp)).toFixed();
+                var after = Number(Math.ceil(tmp)).toFixed();
+                var atPoint = tmp - before;
+                newData[i] = this._linearInterpolate(data[before], data[after], atPoint);
+            }
+            newData[fitCount - 1] = data[data.length - 1];
+
+            return newData;
+        }
+    }, {
+        key: "_linearInterpolate",
+        value: function _linearInterpolate(before, after, atPoint) {
+            return before + (after - before) * atPoint;
         }
     }, {
         key: "prepareSampleBuffers",
@@ -349,7 +374,7 @@ var BlobService = exports.BlobService = function () {
         key: "_encode",
         value: function _encode(channels, sampleRate, sampleLen, left, right) {
             var buffer = [];
-            var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);
+            var mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 96); //third value determinate bitrate
 
             var maxSamples = 1152;
             for (var i = 0; i < sampleLen; i += maxSamples) {
@@ -3967,11 +3992,12 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
             return {
                 type: 'audio',
                 mimeType: 'audio/wav',
-                numberOfAudioChannels: isEdge ? 1 : 2,
+                numberOfAudioChannels: 1,
                 checkForInactiveTracks: true,
                 bufferSize: 16384,
                 disableLogs: true,
-                recorderType: RecordRTC.StereoAudioRecorder
+                recorderType: RecordRTC.StereoAudioRecorder,
+                desiredSampRate: 22050
             };
         }
     }]);
@@ -4987,10 +5013,15 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
         this.scriptURL = null;
         this.isValid = false;
         this.validationTimoutID = null;
+        this.origin = document.location.origin;
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
             return;
+        }
+        var context = playerController.getContextMetadata();
+        if (context != null && "rootDirectory" in context) {
+            this.origin = context["rootDirectory"];
         }
 
         var scriptBlob = this.createBlobWithScript();
@@ -4999,17 +5030,17 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
     }
 
     _createClass(MP3ConvertHandler, [{
-        key: 'isSupported',
+        key: "isSupported",
         value: function isSupported() {
             return !!window.Worker;
         }
     }, {
-        key: 'isWorkerExist',
+        key: "isWorkerExist",
         value: function isWorkerExist() {
             return !!this.worker;
         }
     }, {
-        key: '_validateScript',
+        key: "_validateScript",
         value: function _validateScript() {
             var _this = this;
 
@@ -5028,7 +5059,7 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
                 };
                 _this.worker.postMessage({
                     cmd: "validate",
-                    origin: document.location.origin
+                    origin: self.origin
                 });
                 _this.validationTimoutID = setTimeout(function () {
                     if (!self.isValid) {
@@ -5041,7 +5072,7 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
             });
         }
     }, {
-        key: 'execute',
+        key: "execute",
         value: function execute(numberOfChannels, sampleRate, sampleLength, leftChannelData, rightChannelData) {
             var _this2 = this;
 
@@ -5065,18 +5096,18 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
                         leftChannelData: leftChannelData,
                         rightChannelData: rightChannelData
                     },
-                    origin: document.location.origin
+                    origin: _this2.origin
                 });
             });
         }
     }, {
-        key: 'createBlobWithScript',
+        key: "createBlobWithScript",
         value: function createBlobWithScript() {
-            var script = '\n            addEventListener("message", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage("Unknown origin");\n                    return;\n                }\n\n                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";\n                try {\n                    importScripts(lameScriptURL);\n                } catch (e) {\n                    postMessage("Library lame.min.js is unreachable");\n                    return;\n                }\n\n                switch (data.cmd) {\n                    case "validate":\n                        postMessage("WORKER STARTED");\n                        break;\n                    case "start":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage("Unknown command: " + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 320);\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: "audio/mpeg-3"});\n            }\n        ';
+            var script = "\n            addEventListener(\"message\", function(e) {\n                let data = e.data;\n                if (!data.origin) {\n                    postMessage(\"Unknown origin\");\n                    return;\n                }\n\n                const lameScriptURL = data.origin + \"/media/icplayer/libs/lame.min.js\";\n                try {\n                    importScripts(lameScriptURL);\n                } catch (e) {\n                    postMessage(\"Library lame.min.js is unreachable\");\n                    return;\n                }\n\n                switch (data.cmd) {\n                    case \"validate\":\n                        postMessage(\"WORKER STARTED\");\n                        break;\n                    case \"start\":\n                        postMessage(_encode(\n                            data.data.numberOfChannels,\n                            data.data.sampleRate,\n                            data.data.sampleLength,\n                            data.data.leftChannelData,\n                            data.data.rightChannelData\n                        ));\n                        break;\n                    default:\n                        postMessage(\"Unknown command: \" + data.cmd);\n                };\n            }, false);\n\n            function _encode(channels, sampleRate, sampleLength, leftChannelData, rightChannelData) {\n                let buffer = [];\n                let mp3enc = new lamejs.Mp3Encoder(channels, sampleRate, 96); //third value determinate bitrate\n\n                const maxSamples = 1152;\n                for (let i = 0; i < sampleLength; i += maxSamples) {\n                    let leftChunk = leftChannelData.subarray(i, i + maxSamples);\n                    let rightChunk = rightChannelData.subarray(i, i + maxSamples);\n\n                    let mp3buf = mp3enc.encodeBuffer(leftChunk, rightChunk);\n                    if (mp3buf.length > 0) {\n                        buffer.push(new Int8Array(mp3buf));\n                    }\n                }\n                let d = mp3enc.flush();\n                if (d.length > 0){\n                    buffer.push(new Int8Array(d));\n                }\n\n                return new Blob(buffer, {type: \"audio/mpeg-3\"});\n            }\n        ";
             return new Blob([script], { type: 'application/javascript' });
         }
     }, {
-        key: 'destroy',
+        key: "destroy",
         value: function destroy() {
             if (this.isWorkerExist()) {
                 this.terminateWorkerProcess();
@@ -5092,7 +5123,7 @@ var MP3ConvertHandler = exports.MP3ConvertHandler = function () {
             this.isValid = false;
         }
     }, {
-        key: 'terminateWorkerProcess',
+        key: "terminateWorkerProcess",
         value: function terminateWorkerProcess() {
             this.worker.terminate();
             this.worker = null;
