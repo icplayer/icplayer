@@ -20,6 +20,7 @@ import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter;
@@ -581,11 +582,21 @@ public class JavaScriptPlayerServices {
 	}
 
     private JavaScriptObject getPageByIndex(int index) {
-        return playerServices.getModel().getPage(index).toJavaScript();
+		IPage page = playerServices.getModel().getPage(index);
+		if (page == null) {
+			return null;
+		} else {
+			return page.toJavaScript();
+		}
     }
 
 	private JavaScriptObject getPageById(String id) {
-		return playerServices.getModel().getPageById(id).toJavaScript();
+		IPage page = playerServices.getModel().getPageById(id);
+		if (page == null) {
+			return null;
+		} else {
+			return page.toJavaScript();
+		}
 	}
 
 	private int getCurrentPageIndex(){
