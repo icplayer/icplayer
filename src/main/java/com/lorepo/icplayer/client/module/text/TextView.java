@@ -131,12 +131,29 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
+			} else {
+				String longestAnswer = gi.getLongestAnswer();
+				String fontSize = getFontSize(gap.getId());
+				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
+				Element gapElement = gap.getElement();
+				Boolean gapHasWrapper = this.hasDraggableWrapper(gapElement);
+
+				if (gapElement != null && calculatedGapWidth > 0 && !gapHasWrapper) {
+					String minWidth = Integer.toString(calculatedGapWidth) + "px";
+					DOM.setStyleAttribute(gapElement, "min-width", minWidth);
+				}
 			}
 
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 			navigationTextElements.add(gap);
 		}
+	}
+
+	private Boolean hasDraggableWrapper(Element child) {
+		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
+		
+		return parentElement.getClassName().contains("draggable");
 	}
 
 	@Override
@@ -213,10 +230,18 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		String minWidth = Integer.toString(width) + "px";
 		Element gapElement = gap.getElement();
 
-		if (gapElement != null) {
+		if (gapElement == null) return;
+
+		com.google.gwt.dom.client.Element parentElement = gapElement.getParentElement();
+		int parentWidth = parentElement.getClientWidth();
+
+		if (parentWidth < 1.3 * width) {
+			DOM.setStyleAttribute(gapElement, "width", minWidth);
+		} else {
 			DOM.setStyleAttribute(gapElement, "min-width", minWidth);
-			this.updateParentProperty(gapElement);
 		}
+		
+		this.updateParentProperty(gapElement);
 	}
 
 	private void updateParentProperty(Element child) {
