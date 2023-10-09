@@ -227,7 +227,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}-*/;
 
 	private void changeGapMinWidth(GapWidget gap, int width) {
-		String minWidth = Integer.toString(width) + "px";
+		String minWidth = Double.toString(1.1 * width) + "px";
 		Element gapElement = gap.getElement();
 
 		if (gapElement == null) return;
@@ -235,7 +235,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		com.google.gwt.dom.client.Element parentElement = gapElement.getParentElement();
 		int parentWidth = parentElement.getClientWidth();
 
-		if (parentWidth < 1.3 * width) {
+		if (parentWidth < 1.6 * width) {
 			DOM.setStyleAttribute(gapElement, "width", minWidth);
 		} else {
 			DOM.setStyleAttribute(gapElement, "min-width", minWidth);
