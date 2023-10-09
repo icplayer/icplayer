@@ -140,7 +140,7 @@ In this case, the getGapText(8) method returns text of a draggable gap, not the 
     <tr>
         <td>setGapText</td>
         <td>index - 1-based index of gap in table</td> 
-        <td>Changes the text inside the gap.</td> 
+        <td>Changes the text inside the gap. Command supported only when "editable" is selected as "Gap Type".</td> 
     </tr>
     <tr>
         <td>getGapValue</td>

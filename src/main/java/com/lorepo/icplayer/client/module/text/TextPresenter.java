@@ -1577,7 +1577,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.setValue(gapID, text);
 			view.refreshMath();
 			values.put(gapID, text);
-			fireItemConsumedEvent();
 		}
 	}
 
