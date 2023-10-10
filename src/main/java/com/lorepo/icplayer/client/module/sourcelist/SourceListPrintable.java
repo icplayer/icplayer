@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -16,9 +20,9 @@ public class SourceListPrintable {
 		
 		String result = "<div class=\"printable_ic_sourceList\" id=\"" + model.getId() +"\">";
 		result += "<ul>";
-		int itemCount = model.getItemCount();
-		for (int i = 0; i < itemCount; i++) {
-			result += "<li>" + model.getItem(i) + "</li>";
+		List<Integer> orderedIndexes = this.getOrderedIndexes();
+		for (Integer index : orderedIndexes) {
+			result += "<li>" + model.getItem(index) + "</li>";
 		}
 		result += "</ul>";
 		result += "</div>";
@@ -26,5 +30,18 @@ public class SourceListPrintable {
 		result = PrintableContentParser.addClassToPrintableModule(result, className, model.isSplitInPrintBlocked());
 		
 		return result;
+	}
+	
+	private List<Integer> getOrderedIndexes() {
+		List<Integer> orderedIndexes;
+		if (this.model.isRandomOrder()) {
+			orderedIndexes = RandomUtils.singlePermutation(model.getItemCount());
+		} else {
+			orderedIndexes = new ArrayList<Integer>();
+			for (int i = 0; i < model.getItemCount(); i++) {
+				orderedIndexes.add(i);
+			}
+		}
+		return orderedIndexes;
 	}
 }
