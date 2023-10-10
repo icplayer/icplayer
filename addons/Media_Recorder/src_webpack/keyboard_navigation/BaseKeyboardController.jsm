@@ -251,12 +251,18 @@ export class BaseKeyboardController extends KeyboardController {
     };
 
     readCurrentElement() {
+        if (this._isCurrentElementDisabled()) return;
+
         this.readElement(this.keyboardNavigationCurrentElement);
     };
 
     readElement(element) {
         throw new Error("readElement method is not implemented");
     };
+
+    _isCurrentElementDisabled() {
+        return this._getCurrentElement().hasClass(CSS_CLASSES.DISABLE_RECORD_BUTTON);
+    }
 
     _speakRecordingButtonTTS($element) {
         let textVoiceObject = [];

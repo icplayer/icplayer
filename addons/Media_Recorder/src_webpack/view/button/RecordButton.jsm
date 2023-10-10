@@ -38,7 +38,7 @@ export class RecordButton extends Button {
     _startRecording() {
         this.$view.addClass(CSS_CLASSES.SELECTED);
         this.onStartRecordingCallback();
-        this._handleDisablingPlayButton();
+        this._handleDisablingRecordButton();
     }
 
     _stopRecording() {
@@ -48,20 +48,20 @@ export class RecordButton extends Button {
         }
     }
 
-    _handleDisablingPlayButton() {
-        this._disablePlayButton();
+    _handleDisablingRecordButton() {
+        this._disableRecordButton();
         _self = this;
         this._timeoutID = setTimeout(() => {
-            _self._enablePlayButton();
+            _self._enableRecordButton();
         }, 1000);
     }
 
-    _disablePlayButton() {
-        this.$view.addClass(CSS_CLASSES.DISABLE_PLAY_BUTTON);
+    _disableRecordButton() {
+        this.$view.addClass(CSS_CLASSES.DISABLE_RECORD_BUTTON);
     }
 
-    _enablePlayButton() {
-        this.$view.removeClass(CSS_CLASSES.DISABLE_PLAY_BUTTON);
+    _enableRecordButton() {
+        this.$view.removeClass(CSS_CLASSES.DISABLE_RECORD_BUTTON);
         this._clearTimeout();
     }
 

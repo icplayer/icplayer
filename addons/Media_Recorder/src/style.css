@@ -267,7 +267,7 @@
     cursor: pointer;
 }
 
-.disable-play-button {
+.disable-record-button {
     pointer-events: none;
   	cursor: default;
 	opacity: 0.5;
