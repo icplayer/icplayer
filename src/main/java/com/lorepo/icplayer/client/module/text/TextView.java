@@ -56,7 +56,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
 
 	public TextView (TextModel module, boolean isPreview) {
-		JavaScriptUtils.log("run 1");
 		this.module = module;
 		this.isPreview = isPreview;
 		createUI(isPreview);
