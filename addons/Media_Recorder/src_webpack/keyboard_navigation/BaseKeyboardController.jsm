@@ -251,8 +251,6 @@ export class BaseKeyboardController extends KeyboardController {
     };
 
     readCurrentElement() {
-        if (this._isCurrentElementDisabled()) return;
-
         this.readElement(this.keyboardNavigationCurrentElement);
     };
 
@@ -321,6 +319,8 @@ export class BaseKeyboardController extends KeyboardController {
     };
 
     _speakStopRecordingTTS() {
+        if (this._isCurrentElementDisabled()) return;
+
         let textVoiceObject = [];
 
         this._pushMessageToTextVoiceObjectWithLanguageFromLesson(
