@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -43,6 +44,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
+	private double widthGapMultiplier = 2.5;
 
 	// active index of navigation text elements (including links). The order follows the order of navigation elements.
 	private int keyboardNavigationCurrentElementIndex = -1;
@@ -54,6 +56,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
 
 	public TextView (TextModel module, boolean isPreview) {
+		JavaScriptUtils.log("run 1");
 		this.module = module;
 		this.isPreview = isPreview;
 		createUI(isPreview);
@@ -235,7 +238,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		com.google.gwt.dom.client.Element parentElement = gapElement.getParentElement();
 		int parentWidth = parentElement.getClientWidth();
 
-		if (parentWidth < 1.6 * width) {
+		if (parentWidth < this.widthGapMultiplier * width) {
 			DOM.setStyleAttribute(gapElement, "width", minWidth);
 		} else {
 			DOM.setStyleAttribute(gapElement, "min-width", minWidth);
