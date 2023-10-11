@@ -107,7 +107,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     <tr>
         <td>play</td>
         <td>cardNumber, reverse</td>
-        <td>Plays the audio file of the indicated card and side. If no argument is provided, the method will play the audio associated with the currently visible card and side. If there is no audio file associated with the selected card and side, the method does nothing. </td>
+        <td>Plays the audio file of the indicated card and side. If no argument is provided, the method will play the audio associated with the currently visible card and side. If there is no audio file associated with the selected card and side, the method does nothing. The reverse argument should be a boolean (only if used within an Advanced Connector script or a custom addon, but not an onClick property of another addon), or a string with a value of "front", "reverse", "true", or "false".</td>
     </tr>
     <tr>
         <td>pause</td>

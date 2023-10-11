@@ -667,6 +667,10 @@ function AddonFlashCards_create(){
     };
 
     presenter.playHiddenCardAudio = function (cardIndex, reverse) {
+        if (typeof reverse == 'string') {
+            reverse = reverse.toLowerCase() == 'reverse' || reverse.toLowerCase() == 'true';
+        }
+        reverse = !!reverse;
         var card = presenter.Cards[cardIndex];
         if (!card) return;
         if (presenter.isFrontPlaying) {
@@ -731,8 +735,8 @@ function AddonFlashCards_create(){
     presenter.play = function(cardIndex = -1, reverse = false) {
         if (Array.isArray(cardIndex)) {
             if (cardIndex.length > 0) {
-                cardIndex = cardIndex[0];
                 if (cardIndex.length > 1) reverse = cardIndex[1];
+                cardIndex = cardIndex[0];
             } else {
                 cardIndex = -1;
             }
@@ -753,7 +757,6 @@ function AddonFlashCards_create(){
     };
 
     presenter.audioCommand = function(command) {
-        console.log("audio command");
         if (presenter.isErrorMode) return;
         if (presenter.isHiddenPlaying && command != "play") {
             if (command == "stop" && presenter.audioElementHidden.currentTime > 0) {
