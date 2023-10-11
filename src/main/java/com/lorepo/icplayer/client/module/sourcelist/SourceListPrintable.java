@@ -49,7 +49,7 @@ public class SourceListPrintable {
 	}
 	
 	private void randomizeOrder(List<Integer> itemsIndexes) {
-		for(int index = 0; index < itemsIndexes.size(); index += 1) {
+		for (int index = 0; index < itemsIndexes.size(); index += 1) {
 			int secondElementIndex = index + nextInt(itemsIndexes.size() - index);
 			Collections.swap(itemsIndexes, index, secondElementIndex);
 		}
