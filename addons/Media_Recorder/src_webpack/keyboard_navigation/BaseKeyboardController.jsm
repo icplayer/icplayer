@@ -258,7 +258,7 @@ export class BaseKeyboardController extends KeyboardController {
         throw new Error("readElement method is not implemented");
     };
 
-    _isCurrentElementDisabled() {
+    isCurrentElementDisabled() {
         return this._getCurrentElement().hasClass(CSS_CLASSES.DISABLE_RECORD_BUTTON);
     }
 
@@ -319,7 +319,7 @@ export class BaseKeyboardController extends KeyboardController {
     };
 
     _speakStopRecordingTTS() {
-        if (this._isCurrentElementDisabled()) return;
+        if (this.isCurrentElementDisabled()) return;
 
         let textVoiceObject = [];
 
