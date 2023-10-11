@@ -1,4 +1,7 @@
-2023-10-10 Added support for random order in Source List module
+2023-10-11 Added support for random order in Source List module
+2023-10-06 Changed getPage and getPageById to return null for non-existent index/id, rather than throw and error
+2023-10-06 Added getFullPresentationScore method to player-utils
+2023-10-05 Changed Cross Lesson to cache course access request results
 2023-09-27 Fixed issue with width of draggable elements in Text when gap width is not equal 0
 2023-09-27 Fixed mathjax issue in Text when a page has been reloaded in quick succession
 2023-09-20 Fixed issue with too long draggable elements in Text
