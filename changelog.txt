@@ -1,3 +1,4 @@
+2023-10-12 Fixed sending event about the correct word when a letter from outside the word was entered
 2023-09-27 Fixed issue with width of draggable elements in Text when gap width is not equal 0
 2023-09-27 Fixed mathjax issue in Text when a page has been reloaded in quick succession
 2023-09-20 Fixed issue with too long draggable elements in Text
