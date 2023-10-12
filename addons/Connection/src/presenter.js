@@ -2393,7 +2393,7 @@ function AddonConnection_create() {
         const view = document.createElement("div");
         view.id = model.ID;
         view.classList.add("printable_addon_Connection");
-        view.setAttribute("max-width", model.Width + "px");
+        view.style.maxWidth = model.Width + "px";
 
         const connectionContainer = createPrintableConnectionContainer();
         view.append(connectionContainer);
@@ -2407,8 +2407,11 @@ function AddonConnection_create() {
         const connectionContainer = document.createElement("table");
         connectionContainer.classList.add("connectionContainer");
 
+        const tbody = document.createElement("tbody");
+        connectionContainer.append(tbody);
+
         const tr = document.createElement("tr");
-        connectionContainer.append(tr);
+        tbody.append(tr);
 
         isCheckAnswers && tr.append(createPrintableColumn("answersLeftColumn"));
         tr.append(createPrintableColumn("connectionLeftColumn"));
