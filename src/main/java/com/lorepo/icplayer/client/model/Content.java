@@ -354,7 +354,9 @@ public class Content implements IContentBuilder, IContent {
 
 	@Override
 	public IPage getPage(int index) {
-		return pages.getAllPages().get(index);
+		List<Page> pagesList = pages.getAllPages();
+		if (index < 0 || index >= pagesList.size()) return null;
+		return pagesList.get(index);
 	}
 
 	public IPage getCommonPage(int index) {

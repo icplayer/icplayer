@@ -18,5 +18,6 @@
         <property name="enableUndoRedo" nameLabel="IWB_Toolbar_property_enable_undo_redo" type="boolean" />
         <property name="disableModuleZoom" nameLabel="IWB_Toolbar_property_disable_module_zoom" type="boolean" />
         <property name="defaultZoom" nameLabel="IWB_Toolbar_property_default_zoom" type="string" />
+        <property name="expansionDirection" displayName="Expansion direction" nameLabel="IWB_Toolbar_expansion_direction" type="{right, left, up, down}" />
     </model>
 </addon>
