@@ -1,3 +1,4 @@
+2023-10-13 Added support for random order in Source List module
 2023-10-13 Fixed creating empty recording in Media Recorder
 2023-10-13 Added Expansion Direction property to the IWB Toolbar addon
 2023-10-06 Fixed bug with inability to record in Media Recording addon in FireFox
