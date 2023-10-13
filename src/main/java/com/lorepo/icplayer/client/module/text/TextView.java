@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -43,6 +44,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	private boolean isPreview = false;
+	private double widthGapMultiplier = 2.5;
 
 	// active index of navigation text elements (including links). The order follows the order of navigation elements.
 	private int keyboardNavigationCurrentElementIndex = -1;
@@ -135,9 +137,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				String longestAnswer = gi.getLongestAnswer();
 				String fontSize = getFontSize(gap.getId());
 				int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
+				Element gapElement = gap.getElement();
+				Boolean gapHasWrapper = this.hasDraggableWrapper(gapElement);
 
-				if (calculatedGapWidth > 0) {
-					gap.setWidth(calculatedGapWidth + "px");
+				if (gapElement != null && calculatedGapWidth > 0 && !gapHasWrapper) {
+					String minWidth = Integer.toString(calculatedGapWidth) + "px";
+					DOM.setStyleAttribute(gapElement, "min-width", minWidth);
 				}
 			}
 
@@ -145,6 +150,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			textElements.add(gap);
 			navigationTextElements.add(gap);
 		}
+	}
+
+	private Boolean hasDraggableWrapper(Element child) {
+		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
+		
+		return parentElement.getClassName().contains("draggable");
 	}
 
 	@Override
@@ -158,13 +169,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
-				} else {
+				} else if (module.getGapType().equals("Editable")) {
 					String longestAnswer = gi.getLongestAnswer();
 					String fontSize = getFontSize(gap.getId());
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 
 					if (calculatedGapWidth > 0) {
-						gap.setWidth(calculatedGapWidth + "px");
+						changeGapMinWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -201,7 +212,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					int calculatedGapWidth = getCalculatedGapWidth(longestAnswer, fontSize);
 					
 					if (calculatedGapWidth > 0) {
-						gap.setWidth(calculatedGapWidth + "px");
+						changeGapMinWidth(gap, calculatedGapWidth);
 					}
 				}
 
@@ -216,6 +227,32 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private native boolean isElementContainedInBody(Element e)/*-{
 		return $doc.body.contains(e);
 	}-*/;
+
+	private void changeGapMinWidth(GapWidget gap, int width) {
+		String minWidth = Double.toString(1.1 * width) + "px";
+		Element gapElement = gap.getElement();
+
+		if (gapElement == null) return;
+
+		com.google.gwt.dom.client.Element parentElement = gapElement.getParentElement();
+		int parentWidth = parentElement.getClientWidth();
+
+		if (parentWidth < this.widthGapMultiplier * width) {
+			DOM.setStyleAttribute(gapElement, "width", minWidth);
+		} else {
+			DOM.setStyleAttribute(gapElement, "min-width", minWidth);
+		}
+		
+		this.updateParentProperty(gapElement);
+	}
+
+	private void updateParentProperty(Element child) {
+		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
+
+		if (parentElement !=null ) {
+			parentElement.getStyle().setProperty("text-wrap", "nowrap");
+		}
+	}
 
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {

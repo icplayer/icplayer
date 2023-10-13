@@ -63,7 +63,7 @@ TestCase("[Media Recorder] Record Button", {
     },
 
     "test view style is correct when button has been triggered and media state is set to new": function () {
-        let styleClass = "selected";
+        let styleClass = "selected disable-record-button";
         this.state.isNew = () => true;
         this.state.isLoaded = () => false;
 
@@ -74,7 +74,7 @@ TestCase("[Media Recorder] Record Button", {
     },
 
     "test view style is correct when button has been triggered and media state is set to loaded": function () {
-        let styleClass = "selected";
+        let styleClass = "selected disable-record-button";
         this.state.isNew = () => false;
         this.state.isLoaded = () => true;
 
