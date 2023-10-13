@@ -885,6 +885,7 @@ public class PlayerApp {
 
 	private native void clearGlobalAddonVariables()/*-{
 		$wnd.savedPanel = null; //IWB_Toolbar
+		$wnd.crossLessonAccessCache = null; //Cross_Lesson
 	}-*/;
 
 	private native void clearMediaRecorders()/*-{
