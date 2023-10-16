@@ -480,7 +480,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		SourceListPrintable printable = new SourceListPrintable(this);
+		SourceListPrintable printable = new SourceListPrintable(this, printableController);
 		String className = this.getStyleClass();
 		String result = printable.getPrintableHTML(className, showAnswers);
 		return result;
@@ -510,7 +510,6 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	@Override
 	public void setPrintableController(PrintableController controller) {
 		this.printableController = controller;
-		
 	}
 	
 	private void addPropertyIsSplitInPrintBlocked() {

@@ -343,6 +343,16 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addProperty(property);
 	}
 
+	public String getGapType() {
+		if(useDraggableGaps){
+			return "Draggable";
+		} else if (useMathGaps) {
+			return "Math";
+		} else {
+			return "Editable";
+		}
+	}
+
 	private void addPropertyGapType() {
 		IProperty property = new IEnumSetProperty() {
 
