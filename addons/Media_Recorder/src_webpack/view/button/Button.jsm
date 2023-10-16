@@ -9,7 +9,15 @@ export class Button {
     }
 
     activate() {
-        this.$view.click(() => this._eventHandler());
+        this.$view.click((event) => {
+            if (!this.isDoubleClick(event)) {
+                this._eventHandler();
+            }
+        });
+    }
+
+    isDoubleClick(event) {
+        return event.originalEvent && event.originalEvent.detail > 1;
     }
 
     deactivate() {

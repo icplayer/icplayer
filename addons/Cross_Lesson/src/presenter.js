@@ -44,7 +44,7 @@ function AddonCross_Lesson_create(){
             presenter.createErrorView(view, presenter.configuration.errorCode);
             return;
         }
-
+        presenter.accessCacheId = presenter.generateAccessCacheId();
         presenter.createView(view);
         presenter.connectHandlers();
         presenter.setSpeechTexts(upgradedModel["speechTexts"]);
@@ -217,8 +217,21 @@ function AddonCross_Lesson_create(){
             if (value !== 'true') {
                 presenter.hide();
             }
+            presenter.updateAccessCache(value == 'true');
         }
     };
+
+    presenter.updateAccessCache = function(hasAccess) {
+        if (presenter.configuration.accessIds.length == 0) return;
+        if (window.crossLessonAccessCache == null) window.crossLessonAccessCache = {};
+        window.crossLessonAccessCache[presenter.accessCacheId] = hasAccess;
+    }
+
+    presenter.generateAccessCacheId = function() {
+        if (presenter.configuration.accessIds.length == 0) return '';
+        var sortedIds = presenter.configuration.accessIds.toSorted();
+        return sortedIds.toString();
+    }
 
     presenter.requestCrossLesson = function () {
        const data = presenter.getExternalEventData();
@@ -258,6 +271,15 @@ function AddonCross_Lesson_create(){
 
         if (!presenter.configuration.checkForAccess) {
             return;
+        }
+
+        if (window.crossLessonAccessCache != null) {
+            if (window.crossLessonAccessCache[presenter.accessCacheId] !== undefined) {
+                if (!window.crossLessonAccessCache[presenter.accessCacheId]) {
+                    presenter.hide();
+                }
+                return;
+            }
         }
 
         const data = {

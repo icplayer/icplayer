@@ -457,9 +457,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			} else {
 				view.setValue(id, value);
 			}
-			if (!view.isBlockedDraggableGapsExtension()) {
-				view.enableDraggableGapExtension(id);
-			}
 		}
 
 		ArrayList<Boolean> stateDisabled = JSONUtils.decodeArray(state.get("disabled"));
@@ -992,9 +989,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
 		
 		view.setValue(gapId, draggableItem.getValue());
-		if (!view.isBlockedDraggableGapsExtension()) {
-			view.enableDraggableGapExtension(gapId);
-		}
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1029,9 +1023,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
-		if (!view.isBlockedDraggableGapsExtension()) {
-			view.disableDraggableGapExtension(gapId);
-		}
 
 		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);
