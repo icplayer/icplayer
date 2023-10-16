@@ -3014,7 +3014,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.run = function(view, model) {
-        console.log("modified IWB toolbar 3");
         Kinetic.pixelRatio = 1;
         model = presenter.upgradeModel(model);
         presenter.model = model;
