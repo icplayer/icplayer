@@ -39,7 +39,7 @@ TestCase("[Crossword] Events tests", {
         var eventData = {};
         this.presenter.onEventReceived(eventName, eventData);
 
-        assertTrue(this.spies.showAnswers.called);
+        assertTrue(this.spies.showAnswers.calledOnce);
     },
 
     'test hideAnswers event calls the right method': function () {
@@ -47,17 +47,37 @@ TestCase("[Crossword] Events tests", {
         var eventData = {};
         this.presenter.onEventReceived(eventName, eventData);
 
-        assertTrue(this.spies.hideAnswers.called);
+        assertTrue(this.spies.hideAnswers.calledOnce);
     },
 
     'test GSA event calls the right method and changes isGradualShowAnswersActive to true': function () {
+        this.presenter.$view = { find: () => ({ removeClass: () => null, addClass: () => null }) };
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.presenter.fillRowGaps = () => null;
         var eventName = "GradualShowAnswers";
         var eventData = {
-            moduleID: 'crossword1'
+            moduleID: 'crossword1',
+            item: "1"
         };
+
         this.presenter.onEventReceived(eventName, eventData);
 
-        assertTrue(this.spies.gradualShowAnswers.called);
+        assertTrue(this.spies.gradualShowAnswers.calledOnce);
+        assertTrue(this.presenter.isGradualShowAnswersActive);
+    },
+
+    'test GSA event calls the right method and changes isGradualShowAnswersActive to true when showAllAnswersInGradualShowAnswersMode set to true': function () {
+        this.presenter.isWordNumbersCorrect = () => true;
+        this.presenter.showAllAnswersInGradualShowAnswersMode = "True";
+        this.presenter.showAnswers = () => undefined;
+        var eventName = "GradualShowAnswers";
+        var eventData = {
+            moduleID: 'crossword1',
+        };
+
+        this.presenter.onEventReceived(eventName, eventData);
+
+        assertTrue(this.spies.gradualShowAnswers.calledOnce);
         assertTrue(this.presenter.isGradualShowAnswersActive);
     },
 
@@ -69,7 +89,7 @@ TestCase("[Crossword] Events tests", {
         var eventData = {};
         this.presenter.onEventReceived(eventName, eventData);
 
-        assertTrue(this.spies.hideAnswers.called);
+        assertTrue(this.spies.hideAnswers.calledOnce);
         assertFalse(this.presenter.isGradualShowAnswersActive);
     },
 

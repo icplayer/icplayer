@@ -97,6 +97,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setShowErrorsMode();
 		void setValue(String text);
 		List<ScoreWithMetadata> getScoreWithMetadata();
+		boolean isBlockedDraggableGapsExtension();
+		void enableDraggableGapExtension(String gapId);
+		void disableDraggableGapExtension(String gapId);
 	}
 
 	public interface NavigationTextElement {
@@ -453,6 +456,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				elem.setValue(value);
 			} else {
 				view.setValue(id, value);
+			}
+			if (!view.isBlockedDraggableGapsExtension()) {
+				view.enableDraggableGapExtension(id);
 			}
 		}
 
@@ -984,8 +990,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
-
+		
 		view.setValue(gapId, draggableItem.getValue());
+		if (!view.isBlockedDraggableGapsExtension()) {
+			view.enableDraggableGapExtension(gapId);
+		}
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1020,6 +1029,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
+		if (!view.isBlockedDraggableGapsExtension()) {
+			view.disableDraggableGapExtension(gapId);
+		}
 
 		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);

@@ -697,7 +697,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
-	
+
 	@Override
 	public boolean isSection() {
 		return false;

@@ -217,6 +217,17 @@ public class TextViewMockup implements IDisplay {
 	public List<ScoreWithMetadata> getScoreWithMetadata() {
 		return null;
 	}
+	
+	@Override
+	public boolean isBlockedDraggableGapsExtension() {
+		return true;
+	};
+
+	@Override
+	public void enableDraggableGapExtension(String gapId) {};
+
+	@Override
+	public void disableDraggableGapExtension(String gapId) {};
 
     public void setGapWidget(GapWidget gw) {
         gapWidget = gw;

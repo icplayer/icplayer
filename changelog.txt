@@ -1,4 +1,10 @@
 2023-09-20 Added play, pause and stop commands to Flash Cards
+2023-09-27 Fixed issue with width of draggable elements in Text when gap width is not equal 0
+2023-09-27 Fixed mathjax issue in Text when a page has been reloaded in quick succession
+2023-09-20 Fixed issue with too long draggable elements in Text
+2023-09-20 Fixed problem with line display in addon connection
+2023-09-20 Fixed work of addon Connection with GSA when page is reportable
+2023-09-18 Fixed dropdown value in Text not being saved correctly in state
 2023-09-13 Fixed sending event after leaving gap when TTS is activated
 2023-09-13 Fixed skipping sentence after special characters
 2023-09-13 Fixed reading hidden elements in the EditableWindow

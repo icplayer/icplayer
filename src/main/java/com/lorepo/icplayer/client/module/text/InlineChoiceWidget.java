@@ -49,6 +49,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 
 				@Override
 				public void onChange (ChangeEvent event) {
+					updateValue();
 					handleChangingEvent(listener);
 					readSelectedElement();
 				}
@@ -72,13 +73,17 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		}
 	}
 
-	private void readSelectedElement() {
+	private void updateValue() {
 		int index = getSelectedIndex();
 		if (index > 0) {
 			value = StringUtils.unescapeXML(getValue(index));
 		} else {
 			value = "---";
 		}
+	}
+
+	private void readSelectedElement() {
+		int index = getSelectedIndex();
 		TextView view = getView();
 		if(view.isWCAGon()){
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
