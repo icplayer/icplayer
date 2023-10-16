@@ -1933,36 +1933,40 @@ function AddonIWB_Toolbar_create() {
             lastScrollTop = 0,
             panelTop = 0;
         if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) return;
-
+        var $defaultScrollElement = $(window.parent.document);
+        var $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+        var scrollElements = [$defaultScrollElement, $mCourserScrollElement];
         try {
-            $(window.parent.document).scroll(function () {
-                if (presenter.isOnScreen(presenter.$view.parent(), window)) {
-                    var containerHeight = presenter.$pagePanel.outerHeight(true),
-                        scrollTop = $(this).scrollTop(),
-                        min = presenter.$pagePanel.offset().top,
-                        headerHeight = $('.ic_header').outerHeight(true) - 20,
-                        max = containerHeight + headerHeight,
-                        zoomHeightScale = presenter.getZoomHeightScale();
-                    difference = scrollTop - lastScrollTop;
+            for (var i = 0; i < scrollElements.length; i++) {
+                scrollElements[i].scroll(function () {
+                    if (presenter.isOnScreen(presenter.$view.parent(), window)) {
+                        var containerHeight = presenter.$pagePanel.outerHeight(true),
+                            scrollTop = $(this).scrollTop(),
+                            min = presenter.$pagePanel.offset().top,
+                            headerHeight = $('.ic_header').outerHeight(true) - 20,
+                            max = containerHeight + headerHeight,
+                            zoomHeightScale = presenter.getZoomHeightScale();
+                        difference = scrollTop - lastScrollTop;
 
-                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale;
-                    lastScrollTop = scrollTop;
+                        panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale;
+                        lastScrollTop = scrollTop;
 
-                    if (panelTop && (panelTop) > min && (panelTop) < max) {
-                        presenter.$panel.css({
-                            'top': (panelTop) + 'px'
-                        });
-                    } else if (panelTop && (panelTop) >= max) {
-                        presenter.$panel.css({
-                            'top': (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
-                        });
-                    } else if (panelTop && (panelTop) <= min) {
-                        presenter.$panel.css({
-                            'top': min + 'px'
-                        });
+                        if (panelTop && (panelTop) > min && (panelTop) < max) {
+                            presenter.$panel.css({
+                                'top': (panelTop) + 'px'
+                            });
+                        } else if (panelTop && (panelTop) >= max) {
+                            presenter.$panel.css({
+                                'top': (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
+                            });
+                        } else if (panelTop && (panelTop) <= min) {
+                            presenter.$panel.css({
+                                'top': min + 'px'
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch(e) {}
     }
 
@@ -2940,6 +2944,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.run = function(view, model) {
+        console.log("modified IWB toolbar 3");
         Kinetic.pixelRatio = 1;
         model = presenter.upgradeModel(model);
         presenter.model = model;
