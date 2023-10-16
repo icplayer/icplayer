@@ -354,7 +354,7 @@ function AddonFlashCards_create(){
 
         presenter.audioElementHidden.onended = function () {
             presenter.isHiddenPlaying = false;
-            presenter.sendEndedEvent();
+            presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
         };
      };
     
