@@ -3576,6 +3576,7 @@ function AddonIWB_Toolbar_create() {
          */
          if (presenter.playerController && !presenter.playerController.isPlayerInCrossDomain()) {
              $(window.parent.document).unbind('scroll');
+             $(window.parent.document).find('#lesson-view > div > div').unbind('scroll');
          }
 
         /***
