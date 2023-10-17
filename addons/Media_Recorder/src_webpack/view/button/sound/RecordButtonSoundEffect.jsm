@@ -44,6 +44,8 @@ export class RecordButtonSoundEffect extends RecordButton {
     }
 
     _stopRecording() {
+        if (this._keyboardController.isCurrentElementDisabled()) return;
+
         if (this.stopRecordingSoundEffect.isValid()) {
             this._onStopRecordingWithSoundEffect();
         } else if (this._isKeyboardControllerNavigationActive()) {

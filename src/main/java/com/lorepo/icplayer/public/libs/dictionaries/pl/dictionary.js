@@ -1853,6 +1853,7 @@ var ice_dictionary_pl = {
 	"IWB_Toolbar_property_enable_undo_redo": "Enable Undo/Redo buttons",
 	"IWB_Toolbar_property_disable_module_zoom": "Disable module zoom",
     "IWB_Toolbar_property_default_zoom": "Default zoom",
+    "IWB_Toolbar_expansion_direction": "Expansion direction",
 	"SVG2_info" : "Pozwala wstawić do prezentacji obraz w formacie SVG.",
 	"SVG2_name" : "Obraz SVG",
 	"SVG2_property_svg_file": "Plik SVG",
