@@ -23,8 +23,28 @@
 
 .connectionContainer .connectionRightColumn {
     width: 33%;
-    padding: 0px;
     height: 100%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionTopRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionMiddleRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
+    overflow: hidden;
+    overflow-y: visible;
+}
+
+.connectionContainer .connectionBottomRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
 }
 
 .connectionContainer .connections {
@@ -32,12 +52,22 @@
     height: 100%;
 }
 
-.connectionContainer .connectionItem {
-    width: 100%;
+.connectionContainer .connectionItem{
     padding: 0px;
     border-collapse:collapse;
     border-spacing: 0px;
     border: solid 1px black;
+}
+
+.connectionContainer .connectionLeftColumn .connectionItem,
+.connectionContainer .connectionRightColumn .connectionItem,
+.connectionContainer .connectionTopRow .connectionItem,
+.connectionContainer .connectionBottomRow .connectionItem {
+    width: 100%;
+}
+
+.connectionContainer .connectionMiddleRow > td {
+    display: flex;
 }
 
 .connectionContainer .answerItem {

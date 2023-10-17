@@ -1,11 +1,17 @@
 ## Description
-The Connection module allows defining two columns of items which match one another. All the elements can be determined both by texts and by images. The activity can work either in a single connection mode where each item on the left matches one corresponding item on the right, or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
+// TODO UPDATE Description in langs
+
+The Connection module allows defining two sides of items which match one another. All the elements can be determined both by texts and by images. The activity can work either in a single connection mode where each item on the left/top matches one corresponding item on the right/bottom, or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
 
 It supports formatted html items (including images), styling of elements and connections.
 
-The Addon allows creating a connection activity only in a vertical mode. In order to build a horizontal connection, it is possible to use the [Points and Lines](/doc/en/page/Points-and-Lines "Points and Lines") Addon.
+The module allows creating a connection activity in vertical and horizontal modes. This module allows to select the orientation for each layout separately. By default, each layout has a vertical orientation selected.
+
+Printable version is only in a vertical mode.
 
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
 <tbody>
@@ -14,69 +20,31 @@ The Addon allows creating a connection activity only in a vertical mode. In orde
         <th>Description</th>
     </tr>
     <tr>
-        <td>Single connection mode</td>
-        <td>If checked, every item can be part of only one connection. Otherwise, each item can be used in many connections.</td>
-    </tr>
-    <tr>
-        <td>Left column</td>
-        <td>A list of items in left column. Each item should have: id, content, connect to (id of the corresponding item on the right) and additional class. See section "configuration" for more details.</td>
-    </tr>
-    <tr>
-        <td>Right column</td>
-        <td>List of items in right column. Each item should have: id, content, connect to (id of the corresponding item on the right) and additional class. See section "configuration" for more details.</td>
-    </tr>
-    <tr>
-        <td>Columns width</td>
-        <td>Defines columns' width in percentage. It has 3 properties: left, middle and right.</td>
-    </tr>
-    <tr>
-        <td>Default connection color</td>
-        <td>Color of the connection. Can be a word (e.g. black) or hexadecimal definition (#000000)</td>
-    </tr>
-    <tr>
-        <td>Correct connection color</td>
-        <td>Color of the correct connection (in check mode). Can be a word (e.g. green) or hexadecimal definition (#00FF00)</td>
-    </tr>
-    <tr>
-        <td>Incorrect connection color</td>
-        <td>Color of the incorrect connection (in check mode). Can be a word (e.g. red) or hexadecimal definition (#FF0000)</td>
-    </tr>
-    <tr>
-        <td>Connection thickness</td>
-        <td>How thick a line is, e.g. 2</td>
-    </tr>
-    <tr>
         <td>Is not an activity</td>
         <td>With this option, the selected score and errors will not be returned by addon.</td>
     </tr>
     <tr>
-        <td>Random order left column</td>
-        <td>With this option checked, elements in left column will be arranged randomly.</td>
+        <td>Single connection mode</td>
+        <td>If checked, every item can be part of only one connection. Otherwise, each item can be used in many connections.</td>
     </tr>
     <tr>
-        <td>Random order right column</td>
-        <td>With this option checked, elements in right column will be arranged randomly.</td>
+        <td>First side</td>
+        <td>A list of items in left column or top row. Each item should have: id, content, connect to (id of the corresponding item on the right/bottom side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
-        <td>Show answers line color</td>
-        <td>Color of the connection lines in Show Answers mode.</td>
+        <td>Second side</td>
+        <td>List of items in right column or bottom row. Each item should have: id, content, connect to (id of the corresponding item on the left/top side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
-        <td>Block wrong answers</td>
-        <td>With this option checked, wrong answers are removed and the "on wrong" event is sent.</td>
-    </tr>
-    <tr>
-        <td>Remove dragged element</td>
-        <td>With this option checked, a dragged element is removed from its original position while dragging it.</td>
-    </tr>
-    <tr>
-        <td>Lang attribute</td>
-        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
-    </tr>
-    <tr>
-        <td>Speech texts</td>
-        <td>List of speech texts: Connected, Disconnected, Connected to, Selected, Deselected, Correct, Wrong. <br />
-This texts will be read by Text to Speech addon after a user performs an action.</td> 
+        <td>Columns width/Rows height</td>
+        <td>Defines columns' width or rows height in percentage.<br>
+            It has 3 properties: 
+            <ul>
+                <li>Left/Top,</li>
+                <li>Middle,</li>
+                <li>Right/Bottom.</li>
+            </ul>
+        </td>
     </tr>
     <tr>
         <td>Initial connections</td>
@@ -101,59 +69,127 @@ This texts will be read by Text to Speech addon after a user performs an action.
         </tbody>
         </table></td>
     </tr>
+    <tr>
+        <td>Default connection color</td>
+        <td>Color of the connection. Can be a word (e.g. black) or hexadecimal definition (#000000)</td>
+    </tr>
+    <tr>
+        <td>Correct connection color</td>
+        <td>Color of the correct connection (in check mode). Can be a word (e.g. green) or hexadecimal definition (#00FF00)</td>
+    </tr>
+    <tr>
+        <td>Incorrect connection color</td>
+        <td>Color of the incorrect connection (in check mode). Can be a word (e.g. red) or hexadecimal definition (#FF0000)</td>
+    </tr>
+    <tr>
+        <td>Connection thickness</td>
+        <td>How thick a line is, e.g. 2</td>
+    </tr>
+    <tr>
+        <td>Random order left column (or top row)</td>
+        <td>With this option checked, elements in left column (or in top row) will be arranged randomly.</td>
+    </tr>
+    <tr>
+        <td>Random order right column (or bottom row)</td>
+        <td>With this option checked, elements in right column (or in bottom row) will be arranged randomly.</td>
+    </tr>
+    <tr>
+        <td>Show answers line color</td>
+        <td>Color of the connection lines in Show Answers mode.</td>
+    </tr>
+    <tr>
+        <td>Block wrong answers</td>
+        <td>With this option checked, wrong answers are removed and the "on wrong" event is sent.</td>
+    </tr>
+    <tr>
+        <td>Remove dragged element</td>
+        <td>With this option checked, a dragged element is removed from its original position while dragging it.</td>
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: Connected, Disconnected, Connected to, Selected, Deselected, Correct, Wrong. <br />
+This texts will be read by Text to Speech addon after a user performs an action.</td> 
+    </tr>
+    <tr>
+        <td>Orientations</td>
+        <td>TODO</td>
+    </tr>
 </tbody>
 </table>
 
 ## Configuration
+
+### Vertical orientation
 Items in both columns are spread vertically in equal distances across the column height no matter how many elements there are.
 
-The width of the connections area is calculated based on the width of left and right column. However, you can change this setting in Columns width property.
+The width of the connections' area is calculated based on the width of left and right column. However, you can change this setting in "Columns width/Rows height" property.
 
-If you include images into connection addon and you cannot see right column then you have to set "columns width" property other than empty or auto.
+If you include images into connection addon and you cannot see right column then you have to set "Columns width/Rows height" property other than empty or auto.
 
 To configure which connections are allowed you have to:
 
- * provide a list of items for left column
- * provide a list of items for right column
- * each item should have an id which is unique across all elements in both columns
- * a "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
- * it is enough to define the "connects to" on one side only
- * additional class is not required.
+ * Provide a list of items for left column in "First side" property.
+ * Provide a list of items for right column in "Second side" property.
+ * Each item should have an id which is unique across all elements in both columns.
+ * A "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
+ * It is enough to define the "connects to" on one side only.
+ * Additional class is not required.
+
+### Horizontal orientation
+Items in both rows are spread horizontally in equal distances across the row width no matter how many elements there are.
+
+The height of the connections' area is calculated based on the height of top and bottom row. However, you can change this setting in "Columns width/Rows height" property.
+
+If you include images into connection addon and you cannot see bottom row then you have to set "Columns width/Rows height" property other than empty or auto.
+
+To configure which connections are allowed you have to:
+
+ * Provide a list of items for top row in "First side" property.
+ * Provide a list of items for bottom row in "Second side" property.
+ * Each item should have an id which is unique across all elements in both rows.
+ * A "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
+ * It is enough to define the "connects to" on one side only.
+ * Additional class is not required.
+ * TODO ADD ORIENTATION CONFIGURATION
 
 ## Supported commands
 
- <table border='1'>
-     <tr>
-         <th>Command name</th>
-         <th>Params</th>
-         <th>Description</th>
-     </tr>
-     <tr>
-         <td>isOK</td>
-         <td>id</td>
-         <td>Returns an object that contains information about the connection status and its validity. The response is described below.</td>
-     </tr>
-     <tr>
-         <td>isAllOK</td>
-         <td>---</td>
-         <td>Returns true if all connections are made correctly and there are no mistakes, otherwise false.</td>
-     </tr>
- <tr>
+<table border='1'>
+    <tr>
+        <th>Command name</th>
+        <th>Params</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>isOK</td>
+        <td>id</td>
+        <td>Returns an object that contains information about the connection status and its validity. The response is described below.</td>
+    </tr>
+    <tr>
+        <td>isAllOK</td>
+        <td>---</td>
+        <td>Returns true if all connections are made correctly and there are no mistakes, otherwise false.</td>
+    </tr>
+    <tr>
         <td>isAttempted</td>
         <td>---</td>
         <td>Returns true if any connection is selected.</td>
     </tr>
- <tr>
+    <tr>
         <td>show</td>
         <td>---</td>
         <td>Shows the module.</td>
     </tr>
- <tr>
+    <tr>
         <td>hide</td>
         <td>---</td>
         <td>Hides the module.</td>
     </tr>
- </table>
+</table>
 
 Response of isOK(id) command:
 
@@ -207,44 +243,44 @@ The Connection addon supports Custom Scoring scripts. For more information about
 		to - right column index</td>
         <td>Returns true if the connection is selected, otherwise false.</td>
     </tr>
-	    <tr>
+    <tr>
         <td>markAsCorrect</td>
         <td>from - left column index,<br>
 		to - right column index</td>
         <td>Marks the connection as correct.</td>
     </tr>
-	    <tr>
+    <tr>
         <td>markAsWrong</td>
         <td>from - left column index,<br>
 		to - right column index</td>
         <td>Marks the connection as wrong.</td>
-    
+    </tr>
 </tbody>
 </table>
  
 ## Scoring
  Connection addon allows to create exercises as well as activities.
 
- <table border='1'>
-     <tr>
-         <th>Property</th>
-         <th>Description</th>
-     </tr>
-     <tr>
-         <td>maxScore</td>
-         <td>the number of defined connections</td>
-     </tr>
-     <tr>
-         <td>score</td>
-         <td>1 point for each proper connection</td>
-     </tr>
-     <tr>
-         <td>errorCount</td>
-         <td>1 error point for each connection that hasn't been defined</td>
-     </tr>
- </table>
+<table border='1'>
+    <tr>
+        <th>Property</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>maxScore</td>
+        <td>the number of defined connections</td>
+    </tr>
+    <tr>
+        <td>score</td>
+        <td>1 point for each proper connection</td>
+    </tr>
+    <tr>
+        <td>errorCount</td>
+        <td>1 error point for each connection that hasn't been defined</td>
+    </tr>
+</table>
 
-##Events
+## Events
 
 The Connection addon sends ValueChanged type events to Event Bus when a user creates or removes a connection.
 
@@ -352,6 +388,8 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
 ## Styles from a sample presentation
 
 Here are the styles used in a sample presentation. ConnectionSample style is used on the first page. The second page contains a default styling for the module.
+
+// TODO ADD NEW CLASSES AND UPDATE OLD 
 
     .ConnectionSample {
     }

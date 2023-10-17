@@ -13,8 +13,6 @@ function AddonConnection_create() {
     var isWCAGOn = false;
 
     presenter.uniqueIDs = [];
-    presenter.uniqueElementLeft = [];
-    presenter.uniqueElementRight = [];
     presenter.elements = [];
     presenter.lastClickTime = 0;
     presenter.lastEvent = null;
@@ -31,11 +29,7 @@ function AddonConnection_create() {
     presenter.GSAcounter = 0;
     presenter.isCheckActive = false;
     presenter.initialState = null;
-
-    presenter.printableState = null;
-    presenter.printableParserID = "";
-    presenter.printableParserCallback = null;
-    presenter.printableClassNames = [];
+    presenter.isHorizontal = false;
 
     presenter.mathJaxLoaders = {
         runLoaded: false,
@@ -49,7 +43,30 @@ function AddonConnection_create() {
         CHECK_ANSWERS: 3
     };
 
-    presenter.printableStateMode = 0;
+    presenter.printableState = null;
+    presenter.printableParserID = "";
+    presenter.printableParserCallback = null;
+    presenter.printableClassNames = [];
+    presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+
+    presenter.CSS_CLASSES = {
+        CONNECTION_CONTAINER: "connectionContainer",
+        CONNECTIONS_LEFT_COLUMN: "connectionLeftColumn",
+        CONNECTIONS_MIDDLE_COLUMN: "connectionMiddleColumn",
+        CONNECTIONS_RIGHT_COLUMN: "connectionRightColumn",
+        CONNECTIONS_TOP_ROW: "connectionTopRow",
+        CONNECTIONS_MIDDLE_ROW: "connectionMiddleRow",
+        CONNECTIONS_BOTTOM_ROW: "connectionBottomRow",
+        CONTENT: "content",
+        CONNECTIONS: "connections",
+        CONNECTION_ITEM: "connectionItem",
+        CONNECTION_ITEM_WRAPPER: "connectionItemWrapper",
+        ICON: "icon",
+        ICON_WRAPPER: "iconWrapper",
+        INNER: "inner",
+        INNER_WRAPPER: "innerWrapper",
+        SELECTED: "selected",
+    };
 
     var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
 
@@ -77,6 +94,7 @@ function AddonConnection_create() {
     var CORRECT_ITEM_CLASS = 'connectionItem-correct';
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
+    // TODO
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.',
         'One or two not exist': 'Provided id for initial value doesn\'t exists',
@@ -128,8 +146,9 @@ function AddonConnection_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeFrom_01(model);
+        let upgradedModel = presenter.upgradeFrom_01(model);
         upgradedModel = presenter.upgradeStartValues(upgradedModel);
+        upgradedModel = presenter.upgradeOrientations(upgradedModel);
 
         return upgradedModel;
     };
@@ -158,6 +177,17 @@ function AddonConnection_create() {
                     right: ""
                 }
             ];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeOrientations = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["Orientations"] === undefined) {
+            upgradedModel["Orientations"] = [];
         }
 
         return upgradedModel;
@@ -374,33 +404,29 @@ function AddonConnection_create() {
         });
     };
 
-    presenter.setColumnsWidth = function (view, columnsWidth) {
-        var leftColumn = $(view).find(".connectionLeftColumn:first");
-        var middleColumn = $(view).find(".connectionMiddleColumn:first");
-        var rightColumn = $(view).find(".connectionRightColumn:first");
+    presenter.setLengthOfSideObjects = function (view, lengths) {
+        const $firstSide = $(view).find("." + presenter.getFirstSideCSSClassName() + ":first");
+        const $middleSide = $(view).find("." + presenter.getMiddleSideCSSClassName() + ":first");
+        const $secondSide = $(view).find("." + presenter.getSecondSideCSSClassName() + ":first");
 
-        var leftWidth = columnsWidth[0].left;
-        var middleWidth = columnsWidth[0].middle;
-        var rightWidth = columnsWidth[0].right;
+        let firstSideWidth = lengths[0].left;
+        let middleSideWidth = lengths[0].middle;
+        let secondSideWidth = lengths[0].right;
 
-        if (!leftWidth)
-            leftWidth = "auto";
-        if (!middleWidth)
-            middleWidth = "auto";
-        if (!rightWidth)
-            rightWidth = "auto";
+        if (!firstSideWidth) firstSideWidth = "auto";
+        if (!middleSideWidth) middleSideWidth = "auto";
+        if (!secondSideWidth) secondSideWidth = "auto";
 
-        $(leftColumn).css('width', leftWidth);
-        $(middleColumn).css('width', middleWidth);
-        $(rightColumn).css('width', rightWidth);
+        const propertyName = presenter.isHorizontal ? "height" : "width";
+        $firstSide.css(propertyName, firstSideWidth);
+        $middleSide.css(propertyName, middleSideWidth);
+        $secondSide.css(propertyName, secondSideWidth);
     };
 
     presenter.run = function (view, model) {
-        presenter.view = view;
-        presenter.model = model;
         addonID = model.ID;
 
-        presenter.initialize(presenter.view, presenter.model, false);
+        presenter.initialize(view, model, false);
 
         presenter.parseDefinitionLinks();
     };
@@ -415,10 +441,8 @@ function AddonConnection_create() {
     };
 
     presenter.createPreview = function (view, model) {
-        presenter.view = view;
         model = presenter.parseAddonGaps(model);
-        presenter.model = model;
-        presenter.initialize(presenter.view, presenter.model, true);
+        presenter.initialize(view, model, true);
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -584,10 +608,17 @@ function AddonConnection_create() {
             presenter.lineStack = new LineStack(false);
         }
 
+        presenter.model = model;
         model = presenter.upgradeModel(model);
 
-        presenter.langTag = model['langAttribute'];
+        presenter.view = view;
         presenter.$view = $(view);
+
+        presenter.chooseOrientation(model);
+
+        presenter.setUpViewBody(presenter.view);
+
+        presenter.langTag = model['langAttribute'];
         presenter.$view.attr('lang', presenter.langTag);
 
         setSpeechTexts(model['speechTexts']);
@@ -607,34 +638,16 @@ function AddonConnection_create() {
 
         this.setSingleMode(model['Single connection mode']);
 
-        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
-        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
-
         presenter.validateTabindexEnabled(model);
 
-        if (isPreview) {
-            this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
-            this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
-        } else {
-            if (!isRandomLeft) {
-                this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
-            } else {
-                this.loadRandomElementsLeft(view, model, 'connectionLeftColumn', 'Left column', false);
-            }
-
-            if (!isRandomRight) {
-                this.loadElements(view, model, 'connectionRightColumn', 'Right column', true);
-            } else {
-                this.loadRandomElementsRight(view, model, 'connectionRightColumn', 'Right column', true);
-            }
-        }
+        presenter.loadElements(view, model)
 
         if (!presenter.validateInitialValues()) {
             presenter.isValid = false;
             return;
         }
 
-        this.setColumnsWidth(view, model["Columns width"]);
+        presenter.setLengthOfSideObjects(view, model["Columns width"]);
 
         if (model['Connection thickness'] != '') {
             connectionThickness = model['Connection thickness'];
@@ -679,6 +692,128 @@ function AddonConnection_create() {
         this.gatherCorrectConnections();
         presenter.buildKeyboardController();
     };
+
+    presenter.chooseOrientation = function (model) {
+        if (!playerController) {
+            presenter.isHorizontal = false;
+            return;
+        }
+
+        const currentLayoutName = playerController.getCurrentLayoutName();
+        for (let orientationConfig, i = 0; i < model["Orientations"].length; i++) {
+            orientationConfig = model["Orientations"][i];
+            if (orientationConfig.Layout === currentLayoutName) {
+                presenter.isHorizontal = orientationConfig.Orientation === "Horizontal";
+                return;
+            }
+        }
+    }
+
+    /**
+     * Expand the view with a body consisting of three empty objects (objects without elements):
+     * 1. Object in which the elements from the first side will be placed (left column/top row).
+     * 2. Object for creating connections (middle column/middle row).
+     * 3. Object in which the elements from the second side will be placed (right column/bottom row).
+     * If isHorizontal then sides are created as rows, otherwise as columns.
+     * @return undefined
+    **/
+    presenter.setUpViewBody = function (view) {
+        const elementToExpand = view.getElementsByClassName(presenter.CSS_CLASSES.CONNECTION_CONTAINER)[0];
+        const viewBody = presenter.isHorizontal ? createEmptyHorizontalViewBody() : createEmptyVerticalViewBody();
+        elementToExpand.append(viewBody);
+    }
+
+    function createEmptyHorizontalViewBody() {
+        const viewBody = document.createElement("tbody");
+
+        appendHorizontalViewBodyTopRow(viewBody);
+        appendHorizontalViewBodyMiddleRow(viewBody);
+        appendHorizontalViewBodyBottomRow(viewBody);
+
+        return viewBody;
+    }
+
+    function appendHorizontalViewBodyTopRow(view) {
+        const cellContent = createCellContent();
+        const row = createHorizontalViewBodyRow(presenter.CSS_CLASSES.CONNECTIONS_TOP_ROW, cellContent);
+        view.append(row);
+    }
+
+    function appendHorizontalViewBodyMiddleRow(view) {
+        const cellContent = createCellCanvas();
+        const row = createHorizontalViewBodyRow(presenter.CSS_CLASSES.CONNECTIONS_MIDDLE_ROW, cellContent);
+        view.append(row);
+    }
+
+    function appendHorizontalViewBodyBottomRow(view) {
+        const cellContent = createCellContent();
+        const row = createHorizontalViewBodyRow(presenter.CSS_CLASSES.CONNECTIONS_BOTTOM_ROW, cellContent);
+        view.append(row);
+    }
+
+    function createHorizontalViewBodyRow(className, content) {
+        const row = document.createElement("tr");
+        row.classList.add(className);
+
+        const cell = document.createElement("td");
+        cell.append(content);
+        row.append(cell);
+        return row;
+    }
+
+    function createEmptyVerticalViewBody() {
+        const viewBody = document.createElement("tbody");
+
+        const sharedRow = document.createElement("tr");
+        viewBody.append(sharedRow);
+
+        appendHorizontalViewBodyLeftColumn(sharedRow);
+        appendHorizontalViewBodyMiddleColumn(sharedRow);
+        appendHorizontalViewBodyBottomColumn(sharedRow);
+
+        return viewBody;
+    }
+
+    function appendHorizontalViewBodyLeftColumn(view) {
+        const cellContent = createCellContent();
+        const column = createVerticalViewBodyColumn(presenter.CSS_CLASSES.CONNECTIONS_LEFT_COLUMN, cellContent);
+        view.append(column);
+    }
+
+    function appendHorizontalViewBodyMiddleColumn(view) {
+        const cellContent = createCellCanvas();
+        const column = createVerticalViewBodyColumn(presenter.CSS_CLASSES.CONNECTIONS_MIDDLE_COLUMN, cellContent);
+        view.append(column);
+    }
+
+    function appendHorizontalViewBodyBottomColumn(view) {
+        const cellContent = createCellContent();
+        const column = createVerticalViewBodyColumn(presenter.CSS_CLASSES.CONNECTIONS_RIGHT_COLUMN, cellContent);
+        view.append(column);
+    }
+
+    function createVerticalViewBodyColumn(className, content) {
+        const cell = document.createElement("td");
+        cell.classList.add(className);
+        cell.append(content);
+        return cell;
+    }
+
+    function createCellCanvas() {
+        const canvas = document.createElement("canvas");
+        canvas.classList.add(presenter.CSS_CLASSES.CONNECTIONS);
+        return canvas;
+    }
+
+    function createCellContent() {
+        const content = document.createElement("table");
+        content.classList.add(presenter.CSS_CLASSES.CONTENT);
+
+        const contentBody = document.createElement("tbody");
+        content.append(contentBody);
+
+        return content;
+    }
 
     presenter.buildKeyboardController = function () {
         var elements = [];
@@ -766,6 +901,24 @@ function AddonConnection_create() {
         }
     }
 
+    presenter.getFirstSideCSSClassName = function () {
+        return presenter.isHorizontal
+            ? presenter.CSS_CLASSES.CONNECTIONS_TOP_ROW
+            : presenter.CSS_CLASSES.CONNECTIONS_LEFT_COLUMN;
+    };
+
+    presenter.getMiddleSideCSSClassName = function () {
+        return presenter.isHorizontal
+            ? presenter.CSS_CLASSES.CONNECTIONS_MIDDLE_ROW
+            : presenter.CSS_CLASSES.CONNECTIONS_MIDDLE_COLUMN;
+    };
+
+    presenter.getSecondSideCSSClassName = function () {
+        return presenter.isHorizontal
+            ? presenter.CSS_CLASSES.CONNECTIONS_BOTTOM_ROW
+            : presenter.CSS_CLASSES.CONNECTIONS_RIGHT_COLUMN;
+    };
+
     function basicClickLogic(element) {
         if (!isEnabledOrMultiLineMode(element)) {
             return false;
@@ -788,9 +941,11 @@ function AddonConnection_create() {
             selectedItem = null;
             return;
         }
+        const firstSideClassName = presenter.getFirstSideCSSClassName();
+        const secondSideClassName = presenter.getSecondSideCSSClassName();
         if (selectedItem != null &&
-            ($(element).parents('.connectionLeftColumn').get(0) == selectedItem.parents('.connectionLeftColumn').get(0) ||
-                $(element).parents('.connectionRightColumn').get(0) == selectedItem.parents('.connectionRightColumn').get(0))) {
+            ($(element).parents(`.${firstSideClassName}`).get(0) == selectedItem.parents(`.${firstSideClassName}`).get(0) ||
+                $(element).parents(`.${secondSideClassName}`).get(0) == selectedItem.parents(`.${secondSideClassName}`).get(0))) {
             // element clicked in the same column
             var linesToSwitch = [];
             if (singleMode) {
@@ -876,40 +1031,37 @@ function AddonConnection_create() {
     };
 
     presenter.registerListeners = function (view) {
-
-        presenter.$connectionContainer = $(view).find('.connectionContainer');
-        presenter.$leftColumn = $(view).find('connectionLeftColumn');
-        presenter.$rightColumn = $(view).find('connectionRightColumn');
-
+        presenter.$connectionContainer = $(view).find('.' + presenter.CSS_CLASSES.CONNECTION_CONTAINER);
         presenter.$connectionContainer.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
         });
 
-        presenter.$leftColumn.click(function (e) {
+        const $firstSide = $(view).find('.' + this.getFirstSideCSSClassName());
+        $firstSide.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
         });
 
-        presenter.$rightColumn.click(function (e) {
+        const $secondSide = $(view).find('.' + this.getSecondSideCSSClassName());
+        $secondSide.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
         });
 
-        var element = $(view).find('.connectionItem');
-        var draggedElementColumn;
-
-        element.on('touchstart', function (e) {
+        const $item = $(view).find('.' + presenter.CSS_CLASSES.CONNECTION_ITEM);
+        $item.on('touchstart', function (e) {
             e.preventDefault();
             e.stopPropagation();
             presenter.lastEvent = e;
         });
 
-        var scale = playerController.getScaleInformation();
+        let scale = playerController.getScaleInformation();
+        let draggedElementColumn;
 
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
         if (["4.1.1", "4.2.2", "4.4.2"].indexOf(android_ver) === -1 || window.navigator.userAgent.indexOf('Chrome') > 0) {
-            element.each(function () {
+            $item.each(function () {
                 var e = $(this);
                 e.draggable({
                     revert: presenter.removeDraggedElement ? true : "invalid",
@@ -926,30 +1078,34 @@ function AddonConnection_create() {
                         }
                         ui.helper.css("visibility", "hidden");
                         ui.helper.find(".inner_addon").css("display","none");
-                        var $iconWrapper = $(e).find(".iconWrapper");
+                        var $iconWrapper = $(e).find("." + presenter.CSS_CLASSES.ICON_WRAPPER);
                         scale = playerController.getScaleInformation();
 
-                        presenter.iconTop = $iconWrapper.position().top / scale.scaleY + ($iconWrapper.height() / 2);
-                        presenter.iconLeft = $iconWrapper.position().left / scale.scaleX + $iconWrapper.width();
+                        let height = $iconWrapper.height();
+                        !presenter.isHorizontal && (height /= 2);
+                        let width = $iconWrapper.width();
+                        presenter.isHorizontal && (width /= 2);
+                        presenter.iconTop = $iconWrapper.position().top / scale.scaleY + height;
+                        presenter.iconLeft = $iconWrapper.position().left / scale.scaleX + width;
 
                         if (!isSelectionPossible) {
                             event.stopPropagation();
                             event.preventDefault();
                             return;
                         }
-                        $(element).removeClass('selected');
+                        $item.removeClass(presenter.CSS_CLASSES.SELECTED);
                         selectedItem = null;
                         ui.helper.zIndex(100);
                         clickLogic(this);
                         if (presenter.removeDraggedElement) {
                             ui.helper.find('.icon').hide();
-                            ui.helper.removeClass('selected');
+                            ui.helper.removeClass(presenter.CSS_CLASSES.SELECTED);
                         } else {
                             ui.helper.find('.icon').remove();
                             ui.helper.width($(this).find('.inner').width());
                             ui.helper.height($(this).find('.inner').height());
                         }
-                        if ($(this).parents('.connectionLeftColumn').length) {
+                        if ($(this).parents('.' + presenter.getFirstSideCSSClassName()).length) {
                             draggedElementColumn = 'left';
                         } else {
                             draggedElementColumn = 'right';
@@ -978,55 +1134,55 @@ function AddonConnection_create() {
                 e.droppable({
                     tolerance: "pointer",
                     drop: function (event, ui) {
-                        $(this).removeClass('selected');
+                        $(this).removeClass(presenter.CSS_CLASSES.SELECTED);
                         basicClickLogic(this);
-                        ui.draggable.removeClass('selected');
+                        ui.draggable.removeClass(presenter.CSS_CLASSES.SELECTED);
                         if (presenter.lastEvent) {
                             presenter.lastEvent.type = "touchend";
                         }
                     },
                     over: function (event, ui) {
                         var elementColumn;
-                        if ($(this).parents('.connectionLeftColumn').length) {
+                        if ($(this).parents('.' + presenter.getFirstSideCSSClassName()).length) {
                             elementColumn = 'left';
                         } else {
                             elementColumn = 'right';
                         }
                         if (elementColumn != draggedElementColumn) {
-                            $(this).addClass('selected');
+                            $(this).addClass(presenter.CSS_CLASSES.SELECTED);
                         }
                     },
                     out: function (event, ui) {
-                        $(this).removeClass('selected');
+                        $(this).removeClass(presenter.CSS_CLASSES.SELECTED);
                     }
                 });
             });
         } else {
-            element.on('mouseleave', function (e) {
+            $item.on('mouseleave', function (e) {
                 e.stopPropagation();
             });
 
-            element.on('mouseenter', function (e) {
+            $item.on('mouseenter', function (e) {
                 e.stopPropagation();
             });
 
-            element.on('mouseup', function (e) {
+            $item.on('mouseup', function (e) {
                 e.stopPropagation();
             });
 
-            element.on('mousedown', function (e) {
+            $item.on('mousedown', function (e) {
                 e.stopPropagation();
             });
 
-            element.on('mouseover', function (e) {
+            $item.on('mouseover', function (e) {
                 e.stopPropagation();
             });
 
-            element.on('mouseout', function (e) {
+            $item.on('mouseout', function (e) {
                 e.stopPropagation();
             });
         }
-        element.on('touchend', function (e) {
+        $item.on('touchend', function (e) {
             e.preventDefault();
             e.stopPropagation();
             if (presenter.lastEvent.type != e.type) {
@@ -1036,32 +1192,16 @@ function AddonConnection_create() {
             }
         });
 
-        element.click(function (e) {
+        $item.click(function (e) {
             e.stopPropagation();
             if (!presenter.isClicked) {
                 clickLogic(this);
             }
         });
-
     };
 
     presenter.setSingleMode = function (singleModeString) {
         singleMode = (singleModeString.toLowerCase() === 'true')
-    };
-
-    presenter.addClassToElement = function (element, additionalClass) {
-        if (additionalClass) {
-            $(element).addClass(additionalClass);
-        }
-
-        return element;
-    };
-
-    presenter.loadElements = function (view, model, columnClass, columnModel, isRightColumn) {
-        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
-        for (var i = 0, columnLength = model[columnModel].length; i < columnLength; i++) {
-            presenter.appendElements(i, model, columnModel, column, isRightColumn);
-        }
     };
 
     function isAnswersEqualToCorrectResults (userAnswers, correctAnswers) {
@@ -1160,133 +1300,196 @@ function AddonConnection_create() {
         }
     };
 
-    presenter.addTabindexToElement = function (element, tabindexValue) {
-        element.attr("tabindex", tabindexValue);
+    presenter.loadElements = function (view, model) {
+        loadElementsToFirstSide(view, model);
+        loadElementsToSecondSide(view, model);
     };
 
-    presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
-        presenter.columnSizes[columnModel] = model[columnModel].length;
-        var id = model[columnModel][i]['id'];
-        if (!this.isIDUnique(id)) {
-            return presenter.showErrorMessage('ID not unique');
-        }
-        var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
-        var row = $('<tr></tr>');
-        element.append(row);
-        var innerElement = $('<td class="inner"></td>');
-        var innerWrapper = $('<div class="innerWrapper"></div>');
-        innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
-        $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
-        innerWrapper.html(model[columnModel][i]['content']);
+    function loadElementsToFirstSide(view, model) {
+        loadElementsToSide(view, model, true);
+    }
 
-        if (presenter.isTabindexEnabled) {
-            presenter.addTabindexToElement(innerWrapper, 0);
-        }
+    function loadElementsToSecondSide(view, model) {
+        loadElementsToSide(view, model, false);
+    }
 
-        innerElement.append(innerWrapper);
-        var iconElement = $('<td class="icon"></td>');
-        var iconWrapper = $('<div class="iconWrapper"></div>');
-        iconElement.append(iconWrapper);
-        if (isRightColumn) {
-            row.append(iconElement);
-            row.append(innerElement);
+    function loadElementsToSide(view, model, isFirstSide) {
+        const parentToLoadElements = findParentToLoadElements(view, isFirstSide);
+
+        const itemsModel = model[(isFirstSide ? "Left column" : "Right column")];
+        const itemsInOneSideNumber = itemsModel.length;
+
+        const isRandomOrderKey = isFirstSide ? "Random order left column" : "Random order right column";
+        const isRandomOrder = ModelValidationUtils.validateBoolean(model[isRandomOrderKey]);
+
+        let rowToLoad;
+        const orderedIndexes = getOrderedIndexes(itemsInOneSideNumber, isRandomOrder);
+        for (let nextIndex, i = 0; i < itemsInOneSideNumber; i++) {
+            nextIndex = orderedIndexes[i];
+            if (!presenter.isIDUnique(itemsModel[nextIndex]["id"])) {
+                return presenter.showErrorMessage("ID not unique");
+            }
+
+            if (!presenter.isHorizontal || i === 0) {
+                rowToLoad = document.createElement("tr");
+                parentToLoadElements.append(rowToLoad);
+            }
+
+            loadElement(itemsModel[nextIndex], rowToLoad, isFirstSide);
+        }
+    }
+
+    function findParentToLoadElements(view, isFirstSide) {
+        let parentClassName = presenter.isHorizontal
+            ? (isFirstSide
+                ? presenter.CSS_CLASSES.CONNECTIONS_TOP_ROW
+                : presenter.CSS_CLASSES.CONNECTIONS_BOTTOM_ROW)
+            : (isFirstSide
+                ? presenter.CSS_CLASSES.CONNECTIONS_LEFT_COLUMN
+                : presenter.CSS_CLASSES.CONNECTIONS_RIGHT_COLUMN
+            );
+        return $(view)
+            .find('.' + parentClassName + ':first')
+            .find('.' + presenter.CSS_CLASSES.CONTENT + ':first')
+            .find('tbody:first')[0];
+    }
+
+    function getOrderedIndexes(size, isRandomOrder) {
+        let orderedIndexes = [];
+        if (isRandomOrder) {
+            let counter = 0;
+            while (counter < size) {
+                let nextIndex = nextInt(size);
+                if (orderedIndexes.includes(nextIndex)) {
+                    continue;
+                }
+                orderedIndexes.push(nextIndex);
+                counter++;
+            }
         } else {
-            row.append(innerElement);
-            row.append(iconElement);
-        }
-        presenter.elements.push({
-            element: element,
-            id: id,
-            connects: model[columnModel][i]['connects to']
-        });
-        var newRow = $('<tr></tr>');
-        var newCell = $('<td class="connectionItemWrapper"></td>');
-        newCell.append(element);
-        newRow.append(newCell);
-        column.append(newRow);
-    };
-
-    presenter.loadRandomElementsLeft = function (view, model, columnClass, columnModel, isRightColumn) {
-        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
-        var elementCounterLeft = 0;
-        var columnLength = model[columnModel].length;
-        while (elementCounterLeft < model[columnModel].length) {
-            var i = nextInt(columnLength);
-            if (presenter.isElementLeftUnique(i)) {
-                presenter.appendElements(i, model, columnModel, column, isRightColumn);
-                elementCounterLeft++;
+            for (let i = 0; i < size; i++) {
+                orderedIndexes.push(i);
             }
         }
-    };
-
-    presenter.loadRandomElementsRight = function (view, model, columnClass, columnModel, isRightColumn) {
-        var column = $(view).find('.' + columnClass + ':first').find('.content:first');
-        var elementCounterRight = 0;
-        var columnLength = model[columnModel].length;
-        while (elementCounterRight < model[columnModel].length) {
-            var i = nextInt(columnLength);
-            if (presenter.isElementRightUnique(i)) {
-                presenter.appendElements(i, model, columnModel, column, isRightColumn);
-                elementCounterRight++;
-            }
-        }
-    };
+        return orderedIndexes;
+    }
 
     function nextInt(upperBound) {
         if (presenter.printableController) {
             return presenter.printableController.nextInt(upperBound);
-        } else {
-            return Math.floor((Math.random() * upperBound))
         }
+        return Math.floor((Math.random() * upperBound))
     }
 
-    presenter.isElementLeftUnique = function (element) {
-        var isElement = false;
-        for (var i = 0; i < presenter.uniqueElementLeft.length; i++) {
-            if (presenter.uniqueElementLeft[i] == element) {
-                isElement = true;
-            }
-        }
-        if (isElement) {
-            return false;
-        } else {
-            presenter.uniqueElementLeft.push(element);
-            return true;
-        }
-    };
+    function loadElement(itemModel, parentElement, isFirstSide) {
+        const newCell = document.createElement("td");
+        newCell.classList.add(presenter.CSS_CLASSES.CONNECTION_ITEM_WRAPPER);
+        parentElement.append(newCell);
 
-    presenter.isElementRightUnique = function (element) {
-        var isElement = false;
-        for (var i = 0; i < presenter.uniqueElementRight.length; i++) {
-            if (presenter.uniqueElementRight[i] == element) {
-                isElement = true;
+        const newItem = createConnectionItem(itemModel, isFirstSide);
+        newCell.append(newItem);
+    }
+
+    function createConnectionItem(itemModel, isFirstSection) {
+        const item = document.createElement("table");
+        item.classList.add(presenter.CSS_CLASSES.CONNECTION_ITEM);
+        item.id = "connection-" + itemModel["id"];
+
+        const itemBody = document.createElement("tbody");
+        item.append(itemBody);
+
+        const contentCell = createConnectionItemContentCell(itemModel["content"], itemModel["additional class"]);
+        const iconCell = createConnectionItemIconCell();
+        if (presenter.isHorizontal) {
+            const contentRow = document.createElement("tr");
+            contentRow.append(contentCell);
+            const iconRow = document.createElement("tr");
+            iconRow.append(iconCell);
+            if (isFirstSection) {
+                itemBody.append(contentRow);
+                itemBody.append(iconRow);
+            } else {
+                itemBody.append(iconRow);
+                itemBody.append(contentRow);
+            }
+        } else {
+            const sharedRow = document.createElement("tr");
+            itemBody.append(sharedRow);
+            if (isFirstSection) {
+                sharedRow.append(contentCell);
+                sharedRow.append(iconCell);
+            } else {
+                sharedRow.append(iconCell);
+                sharedRow.append(contentCell);
             }
         }
-        if (isElement) {
-            return false;
-        } else {
-            presenter.uniqueElementRight.push(element);
-            return true;
-        }
-    };
+
+        presenter.elements.push({
+            element: $(item),
+            id: itemModel["id"],
+            connects: itemModel["connects to"]
+        });
+
+        return item;
+    }
+
+    function createConnectionItemContentCell(content, additionalClassName) {
+        const contentElement = document.createElement("td");
+        contentElement.classList.add(presenter.CSS_CLASSES.INNER);
+
+        const contentWrapper = document.createElement("div");
+        contentWrapper.classList.add(presenter.CSS_CLASSES.INNER_WRAPPER);
+        contentWrapper.style.direction = isRTL ? "rtl" : "ltr";
+        // TODO check if save
+        contentWrapper.innerHTML = content;
+        !!additionalClassName && contentWrapper.classList.add(additionalClassName);
+        presenter.isTabindexEnabled && contentWrapper.setAttribute("tabindex", 0);
+        contentElement.append(contentWrapper);
+
+        return contentElement;
+    }
+
+    function createConnectionItemIconCell() {
+        const iconElement = document.createElement("td");
+        iconElement.classList.add(presenter.CSS_CLASSES.ICON);
+
+        const iconWrapper = document.createElement("div");
+        iconWrapper.classList.add(presenter.CSS_CLASSES.ICON_WRAPPER);
+        iconElement.append(iconWrapper);
+
+        return iconElement;
+    }
 
     presenter.initializeView = function (view, model) {
-        var leftColumnHeight = $(view).find('.connectionLeftColumn:first').outerHeight();
-        var rightColumnHeight = $(view).find('.connectionRightColumn:first').outerHeight();
-        var height = model['Height'];// leftColumnHeight > rightColumnHeight ? leftColumnHeight : rightColumnHeight;
-        var leftColumnWidth = $(view).find('.connectionLeftColumn:first').outerWidth(true);
-        var rightColumnWidth = $(view).find('.connectionRightColumn:first').outerWidth(true);
-        var width = model['Width'] - leftColumnWidth - rightColumnWidth;
+        const $firstSideElement = $(view).find("." + this.getFirstSideCSSClassName() + ":first");
+        const firstSideSize = {
+            height: $firstSideElement.outerHeight(true),
+            width: $firstSideElement.outerWidth(true),
+        };
+
+        const $secondSideElement = $(view).find("." + this.getSecondSideCSSClassName() + ":first");
+        const secondSideSize = {
+            height: $secondSideElement.outerHeight(true),
+            width: $secondSideElement.outerWidth(true),
+        };
+
+        let height = model["Height"];// leftColumnHeight > rightColumnHeight ? leftColumnHeight : rightColumnHeight;
+        let width = model["Width"];
+        if (presenter.isHorizontal) {
+            height -= (firstSideSize.height + secondSideSize.height);
+        } else {
+            width -= (firstSideSize.width + secondSideSize.width);
+        }
 
         presenter.height = height;
         presenter.width = width;
 
-        var context = connections[0].getContext('2d');
+        const context = connections[0].getContext('2d');
         context.canvas.width = width;
         context.canvas.height = height;
         connections.css({
-            width: width + 'px',
-            height: height + 'px'
+            width: width + "px",
+            height: height + "px"
         });
         connections.translateCanvas({
             x: 0.5, y: 0.5
@@ -1321,19 +1524,30 @@ function AddonConnection_create() {
         presenter.redraw();
     };
 
-    presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
-        var offset = element.offset();
-        var scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
-        var snapPoint = [0, 0];
+    presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint($element) {
+        const offset = $element.offset();
+        const scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
+        const isFirstSideElement = $element.parents('.' + presenter.getFirstSideCSSClassName()).length > 0;
+        // TODO remove one side ?
+        const isSecondSideElement = $element.parents('.' + presenter.getSecondSideCSSClassName()).length > 0;
 
-        var elementWidth = element.outerWidth(true) * scale.scaleX;
-        var elementHeight = element.outerHeight() * scale.scaleY;
-
-        if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
-        }
-        if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + elementHeight / 2];
+        let snapPoint = [0, 0];
+        if (presenter.isHorizontal) {
+            const elementWidth = $element.outerWidth() * scale.scaleX;
+            const elementHeight = $element.outerHeight(true) * scale.scaleY;
+            if (isFirstSideElement) {
+                snapPoint = [offset.left + elementWidth / 2, offset.top + elementHeight];
+            } else if (isSecondSideElement) {
+                snapPoint = [offset.left + elementWidth / 2, offset.top];
+            }
+        } else {
+            const elementWidth = $element.outerWidth(true) * scale.scaleX;
+            const elementHeight = $element.outerHeight() * scale.scaleY;
+            if (isFirstSideElement) {
+                snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
+            } else if (isSecondSideElement) {
+                snapPoint = [offset.left, offset.top + elementHeight / 2];
+            }
         }
 
         // snapPoint[0] is x offset, [1] is y offset
@@ -1378,10 +1592,10 @@ function AddonConnection_create() {
 
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
         if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
-            $(presenter.view).find('.connections').remove();
+            presenter.$view.find('.connections').remove();
             var canvas2 = $('<canvas></canvas>');
             canvas2.addClass('connections');
-            $(presenter.view).find('.connectionMiddleColumn').append(canvas2);
+            presenter.$view.find('.' + presenter.getMiddleSideCSSClassName()).append(canvas2);
 
             var context = canvas2[0].getContext('2d');
             context.canvas.width = presenter.width;
@@ -1427,8 +1641,10 @@ function AddonConnection_create() {
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
-            x1: to[0] - canvasOffset.left, y1: to[1] - canvasOffset.top,
-            x2: from[0] - canvasOffset.left, y2: from[1] - canvasOffset.top
+            x1: to[0] - canvasOffset.left,
+            y1: to[1] - canvasOffset.top,
+            x2: from[0] - canvasOffset.left,
+            y2: from[1] - canvasOffset.top
         });
     }
 
@@ -2327,15 +2543,17 @@ function AddonConnection_create() {
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
+        // TODO
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
+        presenter.chooseOrientation(model);
 
         const root = createPrintableBaseView(model);
         const $root = $(root);
         const $printableWrapper = wrapInPrintableLessonTemplate($root);
 
-        loadElementsToPrintableView(root, model);
-        this.setColumnsWidth(root, model["Columns width"]);
+        presenter.loadElements(root, model);
+        presenter.setLengthOfSideObjects(root, model["Columns width"]);
         this.removeNonVisibleInnerHTMLForRoot($root);
 
         const correctAnswers = getCorrectAnswersObject(model);
@@ -2407,53 +2625,35 @@ function AddonConnection_create() {
         const connectionContainer = document.createElement("table");
         connectionContainer.classList.add("connectionContainer");
 
-        const tbody = document.createElement("tbody");
-        connectionContainer.append(tbody);
+        const connectionContainerBody = document.createElement("tbody");
+        connectionContainer.append(connectionContainerBody);
 
         const tr = document.createElement("tr");
-        tbody.append(tr);
+        connectionContainerBody.append(tr);
 
         isCheckAnswers && tr.append(createPrintableColumn("answersLeftColumn"));
-        tr.append(createPrintableColumn("connectionLeftColumn"));
+        tr.append(createPrintableColumn(presenter.getFirstSideCSSClassName()));
         tr.append(createPrintableConnectionMiddleColumn());
-        tr.append(createPrintableColumn("connectionRightColumn"));
+        tr.append(createPrintableColumn(presenter.getSecondSideCSSClassName()));
         isCheckAnswers && tr.append(createPrintableColumn("answersRightColumn"));
 
         return connectionContainer;
     }
 
     function createPrintableColumn(className) {
-        const column = document.createElement("td");
-        column.classList.add(className);
-
-        const content = document.createElement("table");
-        content.classList.add("content");
-
-        column.append(content);
-        return column;
+        const cellContent = createCellContent();
+        return createVerticalViewBodyColumn(className, cellContent);
     }
 
     function createPrintableConnectionMiddleColumn() {
         const column = document.createElement("td");
-        column.classList.add("connectionMiddleColumn");
+        column.classList.add(presenter.getMiddleSideCSSClassName());
 
         const content = document.createElement("svg");
         content.classList.add("connections");
 
         column.append(content);
         return column;
-    }
-
-    function loadElementsToPrintableView(view, model) {
-        const isCheckAnswers = isPrintableCheckAnswersStateMode();
-
-        const isRandomLeft = ModelValidationUtils.validateBoolean(model["Random order left column"]);
-        const loadLeftElements = isRandomLeft ? presenter.loadRandomElementsLeft : presenter.loadElements;
-        loadLeftElements(view, model, "connectionLeftColumn", "Left column", false, isCheckAnswers);
-
-        const isRandomRight = ModelValidationUtils.validateBoolean(model["Random order right column"]);
-        const loadRightElements = isRandomRight ? presenter.loadRandomElementsRight : presenter.loadElements;
-        loadRightElements(view, model, "connectionRightColumn", "Right column", true, isCheckAnswers);
     }
 
     function getPrintableConnectionsInformation(correctAnswers) {

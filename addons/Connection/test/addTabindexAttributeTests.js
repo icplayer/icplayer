@@ -28,7 +28,7 @@ TestCase("[Connection] Add tabindex for connection elements", {
                'content': " Grass is ",
                'id': "2"
            }]
-       }
+       };
    },
 
     'test should set tabindex for innerWrapper when tabindex is true': function () {
