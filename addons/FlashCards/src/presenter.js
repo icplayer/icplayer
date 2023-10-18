@@ -386,6 +386,7 @@ function AddonFlashCards_create(){
         return !$(presenter.$view.find(".flashcards-card").get(0)).hasClass("flashcards-card-reversed");
     }
 
+    presenter.originalCard = -1;
     presenter.prevCard = function () {
         if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard > 1) {
             presenter.sendEndedEvent();
@@ -399,22 +400,21 @@ function AddonFlashCards_create(){
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.originalCard = null;
     presenter.nextCard = function (disregardNoLoop) {
-        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
-            presenter.sendEndedEvent();
-        }
-        presenter.originalCard = presenter.state.currentCard;
         presenter.removeActiveElementClass();
         if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
         }else if (presenter.state.noLoop == false || disregardNoLoop){
             presenter.state.currentCard = 1;
         }
+        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
+            presenter.sendEndedEvent();
+        }
         presenter.showCard(presenter.state.currentCard);
     };
 
     presenter.showCard = function (cardNumber) {
+        presenter.originalCard = presenter.state.currentCard;
         cardNumber = parseInt(cardNumber,10);
         if (presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
             if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true){
