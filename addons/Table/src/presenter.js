@@ -911,7 +911,7 @@ function AddonTable_create() {
     };
 
     presenter.setGapText = function (gapIndex, text) {
-        if (presenter.configuration.gapType !== "editable") {
+        if (["draggable", "math"].includes(presenter.configuration.gapType)) {
             return;
         }
 
