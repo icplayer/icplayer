@@ -24,4 +24,5 @@ export const CSS_CLASSES = {
     EXTENDED_MODE: "extended-mode",
     SELECTED: "selected",
     DISABLED: "disabled",
+    DISABLE_RECORD_BUTTON: "disable-record-button"
 };

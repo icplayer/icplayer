@@ -389,14 +389,28 @@ function Addoncrossword_create(){
             cellInput.value = "";
         }
         if (isOk) {
-            var result = presenter.validateWord(pos);
-            if (result.horizontalResult) {
+            const result = presenter.validateWord(pos);
+            const isLetterInVerticalWord = result.verticalResult ?
+                presenter.letterIsInWord(result.verticalResult.start, result.verticalResult.end, pos) : false;
+            const isLetterInHorizontalWord = result.horizontalResult ?
+                presenter.letterIsInWord(result.horizontalResult.start, result.horizontalResult.end, pos) : false;
+
+            if (result.horizontalResult && isLetterInHorizontalWord) {
                 presenter.sendCorrectWordEvent(result.horizontalResult.word, result.horizontalResult.item);
             }
-            if (result.verticalResult) {
+            if (result.verticalResult && isLetterInVerticalWord) {
                 presenter.sendCorrectWordEvent(result.verticalResult.word, result.verticalResult.item);
             }
         }
+    };
+
+    presenter.letterIsInWord = function (startPoint, endPoints, letterPosition) {
+        const startCoordinates = startPoint.split(':');
+        const endCoordinates = endPoints.split(':');
+        const isInXAxis = +startCoordinates[0] <= letterPosition.x && +endCoordinates[0] >= letterPosition.x;
+        const isInYAxis = +startCoordinates[1] <= letterPosition.y && +endCoordinates[1] >= letterPosition.y;
+
+        return isInXAxis && isInYAxis;
     };
 
     presenter.onCellClick = function(event) {
@@ -1725,6 +1739,8 @@ function Addoncrossword_create(){
         var i, k, horizontalResult = {
             word: '',
             item: 0,
+            start: '',
+            end: '',
         };
         var verticalResult = {...horizontalResult};
 
@@ -1741,6 +1757,10 @@ function Addoncrossword_create(){
                         horizontalResult.word = '';
                         break;
                     }
+                    if (!horizontalResult.start) {
+                        horizontalResult.start = `${k}:${max_y}`;
+                    }
+                    horizontalResult.end = `${k}:${max_y}`;
                     horizontalResult.word += presenter.crossword[max_y][k];
                 }
                 horizontalResult.item = presenter.$view.find('.cell_' + max_y + 'x' + i +' .word_number').text();
@@ -1761,6 +1781,10 @@ function Addoncrossword_create(){
                         verticalResult.word = '';
                         break;
                     }
+                    if (!verticalResult.start) {
+                        verticalResult.start = `${max_x}:${k}`;
+                    }
+                    verticalResult.end = `${max_x}:${k}`;
                     verticalResult.word += presenter.crossword[k][max_x];
                 }
                 verticalResult.item = presenter.$view.find('.cell_' + i + 'x' + max_x +' .word_number').text();
