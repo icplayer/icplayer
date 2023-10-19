@@ -70,8 +70,8 @@
         </property>
         <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
         <property name="Orientations" nameLabel="Connection_orientations_list" type="list">
-			<property name="Layout" nameLabel="Connection_orientation_layout" type="string"/>
-			<property name="Orientation" nameLabel="Connection_orientation_name" type="{Vertical, Horizontal}" />
-		</property>
+            <property name="Layout" nameLabel="Connection_orientation_layout" type="string"/>
+            <property name="Orientation" nameLabel="Connection_orientation_name" type="{Vertical, Horizontal}" />
+        </property>
     </model>
 </addon>

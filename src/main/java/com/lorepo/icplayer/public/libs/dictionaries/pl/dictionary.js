@@ -700,7 +700,7 @@ var ice_dictionary_pl = {
 	"Connection_property_random_order_left_column": "Random order left column (or top row)",
 	"Connection_property_random_order_right_column": "Random order right column (or bottom row)",
 	"Connection_property_show_answers_line_color" : "Kolor linii w Pokaż odpowiedzi",
-    "Connection_property_remove_dragged_element": "Usuń przeciągany element",
+	"Connection_property_remove_dragged_element": "Usuń przeciągany element",
 	"Connection_property_initial_connection": "Initial connections",
 	"Connection_property_initial_connection_from": "From ID",
 	"Connection_property_initial_connection_to": "To ID",

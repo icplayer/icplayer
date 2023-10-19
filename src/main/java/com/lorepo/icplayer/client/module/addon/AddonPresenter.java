@@ -725,8 +725,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return true;
 	}
-
-    private String getCurrentLayoutName() {
+	
+	private String getCurrentLayoutName() {
 		return services.getModel().getActualSemiResponsiveLayoutName();
 	}
 }

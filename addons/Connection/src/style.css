@@ -53,17 +53,11 @@
 }
 
 .connectionContainer .connectionItem{
+    width: 100%;
     padding: 0px;
     border-collapse:collapse;
     border-spacing: 0px;
     border: solid 1px black;
-}
-
-.connectionContainer .connectionLeftColumn .connectionItem,
-.connectionContainer .connectionRightColumn .connectionItem,
-.connectionContainer .connectionTopRow .connectionItem,
-.connectionContainer .connectionBottomRow .connectionItem {
-    width: 100%;
 }
 
 .connectionContainer .connectionMiddleRow > td {

@@ -687,7 +687,7 @@ var ice_dictionary_bl = {
 	"Connection_property_random_order_left_column": "Random order left column (or top row)",
 	"Connection_property_random_order_right_column": "Random order right column (or bottom row)",
 	"Connection_property_show_answers_line_color": "Цвят на линиите в режим показване на отговори",
-    "Connection_property_remove_dragged_element": "Махни елемента от началната му позиция при влачене",
+	"Connection_property_remove_dragged_element": "Махни елемента от началната му позиция при влачене",
 	"Connection_property_initial_connection": "Начални връзки",
 	"Connection_property_initial_connection_from": "От ID",
 	"Connection_property_initial_connection_to": "Към ID",

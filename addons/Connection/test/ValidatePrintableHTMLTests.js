@@ -360,6 +360,5 @@ TestCase("[Connection] Connection printable html validation", {
         printableContent.append(printablePlaceholder);
 
         return printableLesson.outerHTML;
-	},
-
+	}
 });
