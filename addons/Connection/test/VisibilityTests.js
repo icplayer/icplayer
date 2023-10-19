@@ -6,7 +6,8 @@ TestCase('[Connection] Visibility tests', {
             upgradeModelStub: sinon.stub(),
             setUpViewBodyStub: sinon.stub(),
             loadElementsStub: sinon.stub(),
-            setLengthOfSideObjectsStub: sinon.stub(),
+            validateModelStub: sinon.stub(),
+            chooseOrientationStub: sinon.stub(),
             initializeViewStub: sinon.stub(),
             removeNonVisibleInnerHTMLStub: sinon.stub(),
             drawConfiguredConnectionsStub: sinon.stub(),
@@ -18,7 +19,8 @@ TestCase('[Connection] Visibility tests', {
         this.presenter.upgradeModel = this.stubs.upgradeModelStub;
         this.presenter.setUpViewBody = this.stubs.setUpViewBodyStub;
         this.presenter.loadElements = this.stubs.loadElementsStub;
-        this.presenter.setLengthOfSideObjects = this.stubs.setLengthOfSideObjectsStub;
+        this.presenter.validateModel = this.stubs.validateModelStub;
+        this.presenter.chooseOrientation = this.stubs.chooseOrientationStub;
         this.presenter.initializeView = this.stubs.initializeViewStub;
         this.presenter.removeNonVisibleInnerHTML = this.stubs.removeNonVisibleInnerHTMLStub;
         this.presenter.drawConfiguredConnections = this.stubs.drawConfiguredConnectionsStub;
@@ -29,6 +31,8 @@ TestCase('[Connection] Visibility tests', {
         this.presenter.mathJaxProcessEnded = {
             'then': function(){}
         };
+
+        this.stubs.validateModelStub.returns({isValid: true});
 
         this.presenter.upgradeModel.returnsArg(0);
 

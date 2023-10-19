@@ -86,6 +86,14 @@
     padding: 0px;
 }
 
+.connectionContainer .connectionTopRow .content .connectionItemWrapper {
+    vertical-align: bottom;
+}
+
+.connectionContainer .connectionBottomRow .content .connectionItemWrapper {
+    vertical-align: top;
+}
+
 .connection_line {
     position: absolute;
     height:2px;

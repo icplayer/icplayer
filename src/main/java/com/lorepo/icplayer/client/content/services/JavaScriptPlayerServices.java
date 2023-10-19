@@ -340,10 +340,6 @@ public class JavaScriptPlayerServices {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
 		};
 
-		playerServices.getCurrentLayoutName = function() {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentLayoutName()();
-		};
-
 		playerServices.getScore = function() {
 			var score = function() {
 			};
@@ -911,10 +907,6 @@ public class JavaScriptPlayerServices {
 
 	private void disableKeyboardNavigation() {
 		playerServices.getCommands().disableKeyboardNavigation();
-	}
-
-	public String getCurrentLayoutName() {
-		return playerServices.getModel().getActualSemiResponsiveLayoutName();
 	}
 	
 	public ScaleInformation getScaleInformation() {

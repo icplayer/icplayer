@@ -1,13 +1,11 @@
 ## Description
-// TODO UPDATE Description in langs
-
-The Connection module allows defining two sides of items which match one another. All the elements can be determined both by texts and by images. The activity can work either in a single connection mode where each item on the left/top matches one corresponding item on the right/bottom, or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
+The Connection module allows defining two sides of items which match one another. All items can be determined both by texts and by images. The activity can work either in a single connection mode where each item on first side matches one corresponding item on the second side, or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
 
 It supports formatted html items (including images), styling of elements and connections.
 
 The module allows creating a connection activity in vertical and horizontal modes. This module allows to select the orientation for each layout separately. By default, each layout has a vertical orientation selected.
 
-Printable version is only in a vertical mode.
+Printable version is always in vertical mode.
 
 ## Properties
 
@@ -29,11 +27,11 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>First side</td>
-        <td>A list of items in left column or top row. Each item should have: id, content, connect to (id of the corresponding item on the right/bottom side) and additional class. See section "configuration" for more details.</td>
+        <td>A list of items in left column (or top row). Each item should have: id, content, connect to (id of the corresponding item on the right/bottom side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
         <td>Second side</td>
-        <td>List of items in right column or bottom row. Each item should have: id, content, connect to (id of the corresponding item on the left/top side) and additional class. See section "configuration" for more details.</td>
+        <td>List of items in right column (or bottom row). Each item should have: id, content, connect to (id of the corresponding item on the left/top side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
         <td>Columns width/Rows height</td>
@@ -116,7 +114,23 @@ This texts will be read by Text to Speech addon after a user performs an action.
     </tr>
     <tr>
         <td>Orientations</td>
-        <td>TODO</td>
+        <td>
+            List of configurations of orientation (vertical and horizontal) of addon depending on a layout. If there is a layout for which no orientation is defined in this list, the vertical orientation will be used.<br>
+            <table>
+                <tr>
+                    <th>Property name</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>Layout</td>
+                    <td>Name of the layout.</td>
+                </tr>
+                <tr>
+                    <td>Orientation</td>
+                    <td>List of options (vertical and horizontal) with orientations to choose from.</td>
+                </tr>
+            </table>
+        </td>
     </tr>
 </tbody>
 </table>
@@ -128,7 +142,7 @@ Items in both columns are spread vertically in equal distances across the column
 
 The width of the connections' area is calculated based on the width of left and right column. However, you can change this setting in "Columns width/Rows height" property.
 
-If you include images into connection addon and you cannot see right column then you have to set "Columns width/Rows height" property other than empty or auto.
+If you include images into connection addon, and you cannot see right column then you have to set "Columns width/Rows height" property other than empty or auto.
 
 To configure which connections are allowed you have to:
 
@@ -144,7 +158,7 @@ Items in both rows are spread horizontally in equal distances across the row wid
 
 The height of the connections' area is calculated based on the height of top and bottom row. However, you can change this setting in "Columns width/Rows height" property.
 
-If you include images into connection addon and you cannot see bottom row then you have to set "Columns width/Rows height" property other than empty or auto.
+If you include images into connection addon, and you cannot see bottom row then you have to set "Columns width/Rows height" property other than empty or auto.
 
 To configure which connections are allowed you have to:
 
@@ -154,7 +168,7 @@ To configure which connections are allowed you have to:
  * A "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
  * It is enough to define the "connects to" on one side only.
  * Additional class is not required.
- * TODO ADD ORIENTATION CONFIGURATION
+ * In "Orientations" property add item with name of layout on which Horizontal orientation should be used. To learn more about layouts visit the [Managing Layouts](https://www.mauthor.com/doc/en/page/Managing-Layouts) section.
 
 ## Supported commands
 
@@ -188,6 +202,26 @@ To configure which connections are allowed you have to:
         <td>hide</td>
         <td>---</td>
         <td>Hides the module.</td>
+    </tr>
+    <tr>
+        <td>showAnswers</td>
+        <td>---</td>
+        <td>Shows the addon answers.</td>
+    </tr>
+    <tr>
+        <td>hideAnswers</td>
+        <td>---</td>
+        <td>Hides the addon answers.</td>
+    </tr>
+    <tr>
+        <td>disable</td>
+        <td>---</td>
+        <td>Disables the addon.</td>
+    </tr>
+    <tr>
+        <td>enable</td>
+        <td>---</td>
+        <td>Enables the addon.</td>
     </tr>
 </table>
 
@@ -259,7 +293,7 @@ The Connection addon supports Custom Scoring scripts. For more information about
 </table>
  
 ## Scoring
- Connection addon allows to create exercises as well as activities.
+Connection addon allows to create exercises as well as activities.
 
 <table border='1'>
     <tr>
@@ -337,15 +371,31 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
     </tr>
     <tr>
         <td>.connectionLeftColumn</td>
-        <td>Table cell that spans left column</td>
+        <td>Table cell that spans left column (available only in vertical orientation)</td>
+    </tr>
+    <tr>
+        <td>.connectionMiddleColumn</td>
+        <td>Table cell that spans middle row (available only in vertical orientation)</td>
     </tr>
     <tr>
         <td>.connectionRightColumn</td>
-        <td>Table cell that spans right column</td>
+        <td>Table cell that spans right column (available only in vertical orientation)</td>
+    </tr>
+    <tr>
+        <td>.connectionTopRow</td>
+        <td>Table row that spans tow row (available only in horizontal orientation)</td>
+    </tr>
+    <tr>
+        <td>.connectionMiddleRow</td>
+        <td>Table row that spans middle row (available only in horizontal orientation)</td>
+    </tr>
+    <tr>
+        <td>.connectionBottomRow</td>
+        <td>Table row that spans bottom row (available only in horizontal orientation)</td>
     </tr>
     <tr>
         <td>.content</td>
-        <td>Table that holds the items inside the one of the above columns. You can set its height to decide if the items should be placed vertically across the whole module (100%) or in a different way (ie. 50%)</td>
+        <td>Table that holds the items inside the one of the above columns (or rows). In vertical orientation you can set its height to decide if the items should be placed vertically across the whole module (100%) or in a different way (ie. 50%)</td>
     </tr>
     <tr>
         <td>.connections</td>
@@ -377,7 +427,7 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
     </tr>
     <tr>
         <td>.connectionItem-correct</td>
-        <td>Additional class  for a correctly matched item in error checking mode.</td>
+        <td>Additional class for a correctly matched item in error checking mode.</td>
     </tr>
     <tr>
         <td>.connectionItem-wrong</td>
@@ -388,8 +438,6 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
 ## Styles from a sample presentation
 
 Here are the styles used in a sample presentation. ConnectionSample style is used on the first page. The second page contains a default styling for the module.
-
-// TODO ADD NEW CLASSES AND UPDATE OLD 
 
     .ConnectionSample {
     }

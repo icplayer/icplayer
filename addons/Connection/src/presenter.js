@@ -11,6 +11,7 @@ function AddonConnection_create() {
     var eventBus;
     var addonID;
     var isWCAGOn = false;
+    var currentLayoutName = "";
 
     presenter.uniqueIDs = [];
     presenter.elements = [];
@@ -18,11 +19,9 @@ function AddonConnection_create() {
     presenter.lastEvent = null;
     presenter.disabledConnections = [];
     presenter.keyboardControllerObject = null;
-    presenter.langTag = '';
     presenter.speechTexts = {};
     presenter.columnSizes = {};
     presenter.lineStackSA = [];
-    presenter.isValid = true;
 
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
@@ -76,29 +75,23 @@ function AddonConnection_create() {
     }
 
     var connections;
-    var singleMode = false;
     var selectedItem = null;
-    presenter.isNotActivity = false;
 
     presenter.lineStack = new LineStack(true);
     presenter.correctConnections = new LineStack(false);
     var isSelectionPossible = true;
     var isRTL = false;
 
-    var connectionColor = "#000";
-    var correctConnection = "#0d0";
-    var incorrectConnection = "#d00";
-    var connectionThickness = "1px";
-    var showAnswersColor = "#0d0";
 
     var CORRECT_ITEM_CLASS = 'connectionItem-correct';
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
-    // TODO
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.',
         'One or two not exist': 'Provided id for initial value doesn\'t exists',
-        'Are from the same column': 'Provided ids for initial value are in the same column'
+        'Are from the same column': 'Provided ids for initial value are in the same column',
+        'Are from the same row': 'Provided ids for initial value are in the same row',
+        'Orientation layout duplication': 'More than one orientation has been assigned for at least one layout.'
     };
 
     presenter.ELEMENT_SIDE = {
@@ -107,14 +100,14 @@ function AddonConnection_create() {
     };
 
     function isEnabledOrMultiLineMode(element) {
-        if (!singleMode) {
+        if (!presenter.configuration.isSingleConnectionMode) {
             return true;
         }
 
         var elementId = convertId($(element).attr('id'));
 
-        for (var i = 0; i < presenter.initialValues.length; i++) {
-            var initialValue = presenter.initialValues[i];
+        for (var i = 0; i < presenter.configuration.initialConnections.length; i++) {
+            var initialValue = presenter.configuration.initialConnections[i];
 
             if (initialValue.from === elementId || initialValue.to === elementId) {
                 return !initialValue.isDisabled;
@@ -134,7 +127,7 @@ function AddonConnection_create() {
         return {
             id1: convertId(id1),
             id2: convertId(id2)
-        }
+        };
     }
 
     function isOneOfValuesEmpty(initialValue) {
@@ -219,7 +212,7 @@ function AddonConnection_create() {
             if (this.sendEvents) {
                 score = presenter.correctConnections.hasLine(line).length > 0 ? 1 : 0;
                 presenter.sendEvent(pair[0], pair[1], 1, score);
-                if (score == 0 && presenter.blockWrongAnswers) {
+                if (score == 0 && presenter.configuration.blockWrongAnswers) {
                     this.shouldFireEvent = false;
                     this.remove(line);
                 }
@@ -324,8 +317,8 @@ function AddonConnection_create() {
         this.isDisabled = function () {
             var ids = convertIds($(this.from).attr('id'), $(this.to).attr('id'));
 
-            for (var i = 0; i < presenter.initialValues.length; i++) {
-                var initialValue = presenter.initialValues[i];
+            for (var i = 0; i < presenter.configuration.initialConnections.length; i++) {
+                var initialValue = presenter.configuration.initialConnections[i];
 
                 var initialValues = [initialValue.from, initialValue.to];
 
@@ -340,17 +333,17 @@ function AddonConnection_create() {
         };
     }
 
-    presenter.showErrorMessage = function (errorCode) {
-        return $(presenter.view).html(presenter.ERROR_MESSAGES[errorCode]);
+    presenter.showErrorMessage = function (view, errorCode) {
+        return $(view).html(presenter.ERROR_MESSAGES[errorCode]);
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
             const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
             $(element).html(sanitizedLink);
         });
 
-        presenter.textParser.connectLinks($(presenter.view));
+        presenter.textParser.connectLinks(presenter.$view);
     };
 
     presenter.parseAddonGaps = function (model) {
@@ -371,11 +364,11 @@ function AddonConnection_create() {
     }
 
     presenter.removeNonVisibleInnerHTML = function () {
-        presenter.removeNonVisibleInnerHTMLForRoot($(presenter.view));
+        presenter.removeNonVisibleInnerHTMLForRoot(presenter.$view);
 
     };
     presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
-        $.each($root.find('.innerWrapper'), function (index, element) {
+        $.each($root.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
@@ -404,14 +397,14 @@ function AddonConnection_create() {
         });
     };
 
-    presenter.setLengthOfSideObjects = function (view, lengths) {
+    presenter.setLengthOfSideObjects = function (view) {
         const $firstSide = $(view).find("." + presenter.getFirstSideCSSClassName() + ":first");
         const $middleSide = $(view).find("." + presenter.getMiddleSideCSSClassName() + ":first");
         const $secondSide = $(view).find("." + presenter.getSecondSideCSSClassName() + ":first");
 
-        let firstSideWidth = lengths[0].left;
-        let middleSideWidth = lengths[0].middle;
-        let secondSideWidth = lengths[0].right;
+        let firstSideWidth = presenter.configuration.columnsWidth.left;
+        let middleSideWidth = presenter.configuration.columnsWidth.middle;
+        let secondSideWidth = presenter.configuration.columnsWidth.right;
 
         if (!firstSideWidth) firstSideWidth = "auto";
         if (!middleSideWidth) middleSideWidth = "auto";
@@ -442,11 +435,12 @@ function AddonConnection_create() {
 
     presenter.createPreview = function (view, model) {
         model = presenter.parseAddonGaps(model);
+        presenter.lineStack = new LineStack(false);
         presenter.initialize(view, model, true);
     };
 
     presenter.setVisibility = function (isVisible) {
-        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     presenter.hide = function () {
@@ -457,10 +451,6 @@ function AddonConnection_create() {
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.isVisible = true;
-    };
-
-    presenter.validateTabindexEnabled = function (model) {
-        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
     };
 
     function getSpeechTextProperty(rawValue, defaultValue) {
@@ -500,7 +490,7 @@ function AddonConnection_create() {
     }
 
     presenter.addDisabledElementsFromInitialValues = function () {
-        presenter.initialValues.forEach(function (initialValue) {
+        presenter.configuration.initialConnections.forEach(function (initialValue) {
             if (initialValue.isDisabled) {
                 presenter.disabledConnections.push({
                     id1: initialValue.from,
@@ -528,7 +518,7 @@ function AddonConnection_create() {
         };
     };
 
-    presenter.validateInitialValue = function (initialValue) {
+    presenter.validateInitialConnection = function (initialValue) {
         function containsID(array, idToFind, toReturn) {
             for (var i = 0; i < array.length; i++) {
                 if (array[i].id === idToFind) {
@@ -561,25 +551,25 @@ function AddonConnection_create() {
 
         if (!isOneOfValuesEmpty(initialValue)) {
             if (!bothExists()) {
-                presenter.showErrorMessage('One or two not exist');
-                return false;
+                return getErrorObject("One or two not exist");
             } else if (!areFromDifferentCols()) {
-                presenter.showErrorMessage('Are from the same column');
-                return false;
+                const errorCode = presenter.isHorizontal ? "Are from the same row" : "Are from the same column";
+                return getErrorObject(errorCode);
             }
         }
 
-        return true;
+        return getValidObject(initialValue);
     };
 
-    presenter.validateInitialValues = function () {
-        for (var i = 0; i < presenter.initialValues.length; i++) {
-            if (!presenter.validateInitialValue(presenter.initialValues[i])) {
-                return false;
+    presenter.validateInitialConnections = function (initialConnections) {
+        for (let validatedInitialValue, i = 0; i < initialConnections.length; i++) {
+            validatedInitialValue = presenter.validateInitialConnection(initialConnections[i]);
+            if (!validatedInitialValue.isValid) {
+                return validatedInitialValue;
             }
         }
 
-        return true;
+        return getValidObject(initialConnections);
     };
 
     /**
@@ -595,7 +585,7 @@ function AddonConnection_create() {
         this.lineStack.setSendEvents(false);
 
         if (!presenter.lineStack.length()) {
-            presenter.initialValues.forEach(presenter.drawInitialValue);
+            presenter.configuration.initialConnections.forEach(presenter.drawInitialValue);
         }
 
         presenter.redraw();
@@ -604,72 +594,29 @@ function AddonConnection_create() {
     };
 
     presenter.initialize = function (view, model, isPreview) {
-        if (isPreview) {
-            presenter.lineStack = new LineStack(false);
-        }
-
-        presenter.model = model;
         model = presenter.upgradeModel(model);
-
+        presenter.model = model;
         presenter.view = view;
         presenter.$view = $(view);
 
-        presenter.chooseOrientation(model);
+        presenter.configuration = presenter.validateModel(model);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_MESSAGES, presenter.configuration.errorCode);
+            return false;
+        }
 
+        presenter.chooseOrientation(model, isPreview);
         presenter.setUpViewBody(presenter.view);
+        connections = presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTIONS + ':first');
 
-        presenter.langTag = model['langAttribute'];
-        presenter.$view.attr('lang', presenter.langTag);
-
-        setSpeechTexts(model['speechTexts']);
-
-        var initialValues = presenter.getInitialValues(model);
-        presenter.initialValues = initialValues.initialConnections;
-        presenter.disabledConnectionColor = initialValues.disabledConnectionColor;
-
-        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible || isPreview);
-
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
-        connections = presenter.$view.find('.connections:first');
 
-        this.setSingleMode(model['Single connection mode']);
+        presenter.loadElements(view, model);
 
-        presenter.validateTabindexEnabled(model);
-
-        presenter.loadElements(view, model)
-
-        if (!presenter.validateInitialValues()) {
-            presenter.isValid = false;
-            return;
-        }
-
-        presenter.setLengthOfSideObjects(view, model["Columns width"]);
-
-        if (model['Connection thickness'] != '') {
-            connectionThickness = model['Connection thickness'];
-        }
-        if (model['Default connection color'] != '') {
-            connectionColor = model['Default connection color'];
-        }
-        if (model['Correct connection color'] != '') {
-            correctConnection = model['Correct connection color'];
-        }
-        if (model['Incorrect connection color'] != '') {
-            incorrectConnection = model['Incorrect connection color'];
-        }
-        if (model['Show answers line color'] != '') {
-            showAnswersColor = model['Show answers line color'];
-        }
-
-        // isNotActivty may not exist
-        presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity'] || 'False');
-
-        const $connectionContainer = $(".connectionContainer");
-
+        const $connectionContainer = $("." + presenter.CSS_CLASSES.CONNECTION_CONTAINER);
         if (isPreview) {
             waitForLoad($connectionContainer, () => {
                 presenter.initializeView(view, model);
@@ -689,17 +636,85 @@ function AddonConnection_create() {
             });
         }
 
-        this.gatherCorrectConnections();
+        setSpeechTexts(model["speechTexts"]);
+        presenter.gatherCorrectConnections();
         presenter.buildKeyboardController();
     };
 
-    presenter.chooseOrientation = function (model) {
-        if (!playerController) {
-            presenter.isHorizontal = false;
+    presenter.validateModel = function (model) {
+        const validatedOrientations = presenter.validateOrientations(model["Orientations"]);
+        if (!validatedOrientations.isValid) {
+            return validatedOrientations;
+        }
+
+        const initialValues = presenter.getInitialValues(model);
+        const validatedInitialConnections = presenter.validateInitialConnections(initialValues.initialConnections)
+        if (!validatedInitialConnections.isValid) {
+            return validatedInitialConnections;
+        }
+
+        return {
+            isValid: true,
+            addonID: model["ID"],
+            langTag: model["langAttribute"],
+            isNotActivity: ModelValidationUtils.validateBoolean(model["isNotActivity"] || "False"),
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
+            removeDraggedElement: ModelValidationUtils.validateBoolean(model.removeDraggedElement),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            connectionThickness: getModelValue(model, "Connection thickness", "1px"),
+            defaultConnectionColor: getModelValue(model, "Default connection color", "#000"),
+            correctConnectionColor: getModelValue(model, "Correct connection color", "#0d0"),
+            incorrectConnectionColor: getModelValue(model, "Incorrect connection color", "#d00"),
+            showAnswersLineColor: getModelValue(model, "Show answers line color", "#0d0"),
+            isSingleConnectionMode: model["Single connection mode"].toLowerCase() === "true",
+            orientations: validatedOrientations.value,
+            initialConnections: initialValues.initialConnections,
+            disabledConnectionColor: initialValues.disabledConnectionColor,
+            columnsWidth: model["Columns width"][0],
+        };
+    };
+
+    function getModelValue(model, modelKey, defaultValue) {
+        return model[modelKey] != '' ? model[modelKey] : defaultValue;
+    }
+
+    presenter.validateOrientations = function (orientations) {
+        const usedLayoutNames = [];
+        for (let orientationConfig, i = 0; i < orientations.length; i++) {
+            orientationConfig = orientations[i];
+            if (usedLayoutNames.includes(orientationConfig.Layout)) {
+                return getErrorObject("Orientation layout duplication");
+            }
+            usedLayoutNames.push(orientationConfig.Layout);
+        }
+        return getValidObject(orientations);
+    }
+
+    function getValidObject(value) {
+        return {
+            isValid: true,
+            value: value
+        }
+    }
+
+    function getErrorObject(errorCode, itemIndex = undefined) {
+        return {
+            isValid: false,
+            errorCode: errorCode,
+            itemIndex: itemIndex
+        }
+    }
+
+    presenter.setCurrentLayoutName = function(layoutName) {
+        currentLayoutName = layoutName;
+    }
+
+    presenter.chooseOrientation = function (model, isPreview) {
+        presenter.isHorizontal = false;
+        if (!playerController && !isPreview) {
             return;
         }
 
-        const currentLayoutName = playerController.getCurrentLayoutName();
         for (let orientationConfig, i = 0; i < model["Orientations"].length; i++) {
             orientationConfig = model["Orientations"][i];
             if (orientationConfig.Layout === currentLayoutName) {
@@ -718,9 +733,13 @@ function AddonConnection_create() {
      * @return undefined
     **/
     presenter.setUpViewBody = function (view) {
+        $(view).attr("lang", presenter.configuration.langTag);
+
         const elementToExpand = view.getElementsByClassName(presenter.CSS_CLASSES.CONNECTION_CONTAINER)[0];
         const viewBody = presenter.isHorizontal ? createEmptyHorizontalViewBody() : createEmptyVerticalViewBody();
         elementToExpand.append(viewBody);
+
+        presenter.setLengthOfSideObjects(view);
     }
 
     function createEmptyHorizontalViewBody() {
@@ -930,14 +949,14 @@ function AddonConnection_create() {
         var delta = current - presenter.lastClickTime;
         if (!isSelectionPossible || delta < 50) return;
         presenter.lastClickTime = current;
-        if (!$(element).hasClass('selected') && selectedItem == null) { // first element selected
-            $(element).parent().find('.connectionItem').removeClass('selected');
-            $(element).addClass('selected');
+        if (!$(element).hasClass(presenter.CSS_CLASSES.SELECTED) && selectedItem == null) { // first element selected
+            $(element).parent().find('.connectionItem').removeClass(presenter.CSS_CLASSES.SELECTED);
+            $(element).addClass(presenter.CSS_CLASSES.SELECTED);
             selectedItem = $(element);
             return;
         }
         if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) { // clicking the selected element again
-            $(element).removeClass('selected');
+            $(element).removeClass(presenter.CSS_CLASSES.SELECTED);
             selectedItem = null;
             return;
         }
@@ -948,7 +967,7 @@ function AddonConnection_create() {
                 $(element).parents(`.${secondSideClassName}`).get(0) == selectedItem.parents(`.${secondSideClassName}`).get(0))) {
             // element clicked in the same column
             var linesToSwitch = [];
-            if (singleMode) {
+            if (presenter.configuration.isSingleConnectionMode) {
                 for (var i = 0; i < presenter.lineStack.length(); i++) {
                     if (presenter.lineStack.get(i).connects(selectedItem)) {
                         linesToSwitch.push(presenter.lineStack.get(i))
@@ -956,9 +975,9 @@ function AddonConnection_create() {
                 }
             }
 
-            selectedItem.removeClass('selected');
+            selectedItem.removeClass(presenter.CSS_CLASSES.SELECTED);
             if (linesToSwitch.length == 0) {
-                $(element).addClass('selected');
+                $(element).addClass(presenter.CSS_CLASSES.SELECTED);
                 selectedItem = $(element);
                 return;
             } else {
@@ -974,7 +993,7 @@ function AddonConnection_create() {
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
-            if (singleMode) {
+            if (presenter.configuration.isSingleConnectionMode) {
                 var usedInLines = presenter.lineStack.isItemUsed(line);
                 if (usedInLines.length === 2) {
                     shouldDraw = false
@@ -991,8 +1010,8 @@ function AddonConnection_create() {
     }
 
     presenter.drawTempLine = function (x, y) {
-        if ($(presenter.view).find('#connection_line_tmp').length > 0) {
-            $(presenter.view).find('#connection_line_tmp').remove();
+        if (presenter.$view.find('#connection_line_tmp').length > 0) {
+            presenter.$view.find('#connection_line_tmp').remove();
         }
         var m, angle, d, transform,
             x1 = parseInt(presenter.iconLeft, 10),
@@ -1011,12 +1030,12 @@ function AddonConnection_create() {
         div.attr('id', 'connection_line_tmp');
         div.attr('class', 'connection_line');
         div.attr('style', 'left: ' + x1 + 'px; top: ' + y1 + 'px');
-        $(presenter.view).prepend(div);
-        $(presenter.view).find('#connection_line_tmp').css({
+        presenter.$view.prepend(div);
+        presenter.$view.find('#connection_line_tmp').css({
             'left': x1,
             'top': y1,
             'width': d,
-            'background-color': connectionColor,
+            'background-color': presenter.configuration.defaultConnectionColor,
             'transform': 'rotate(' + transform + 'deg)',
             'transform-origin': '0px 0px',
             '-ms-transform': 'rotate(' + transform + 'deg)',
@@ -1064,9 +1083,9 @@ function AddonConnection_create() {
             $item.each(function () {
                 var e = $(this);
                 e.draggable({
-                    revert: presenter.removeDraggedElement ? true : "invalid",
-                    opacity: presenter.removeDraggedElement ? 1 : 0.7,
-                    helper: presenter.removeDraggedElement ? "original" : "clone",
+                    revert: presenter.configuration.removeDraggedElement ? true : "invalid",
+                    opacity: presenter.configuration.removeDraggedElement ? 1 : 0.7,
+                    helper: presenter.configuration.removeDraggedElement ? "original" : "clone",
                     cursorAt: {
                         left: Math.round(e.find('.inner').width() / 2),
                         top: Math.round(e.find('.inner').height() / 2)
@@ -1097,7 +1116,7 @@ function AddonConnection_create() {
                         selectedItem = null;
                         ui.helper.zIndex(100);
                         clickLogic(this);
-                        if (presenter.removeDraggedElement) {
+                        if (presenter.configuration.removeDraggedElement) {
                             ui.helper.find('.icon').hide();
                             ui.helper.removeClass(presenter.CSS_CLASSES.SELECTED);
                         } else {
@@ -1112,21 +1131,21 @@ function AddonConnection_create() {
                         }
                     },
                     drag: function (event, ui) {
-                        presenter.mouseSX = parseInt(event.pageX, 10) - parseInt($(presenter.view).offset().left, 10);
-                        presenter.mouseSY = parseInt(event.pageY, 10) - parseInt($(presenter.view).offset().top, 10);
+                        presenter.mouseSX = parseInt(event.pageX, 10) - parseInt(presenter.$view.offset().left, 10);
+                        presenter.mouseSY = parseInt(event.pageY, 10) - parseInt(presenter.$view.offset().top, 10);
 
                         presenter.drawTempLine(presenter.mouseSX / scale.scaleX, presenter.mouseSY / scale.scaleY);
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
-                        if (presenter.removeDraggedElement) {
+                        if (presenter.configuration.removeDraggedElement) {
                             ui.helper.find('.icon').show();
                         } else {
                             ui.helper.remove();
                         }
                         presenter.redraw();
-                        if ($(presenter.view).find('#connection_line_tmp').length > 0) {
-                            $(presenter.view).find('#connection_line_tmp').remove();
+                        if (presenter.$view.find('#connection_line_tmp').length > 0) {
+                            presenter.$view.find('#connection_line_tmp').remove();
                         }
                     }
                 });
@@ -1198,10 +1217,6 @@ function AddonConnection_create() {
                 clickLogic(this);
             }
         });
-    };
-
-    presenter.setSingleMode = function (singleModeString) {
-        singleMode = (singleModeString.toLowerCase() === 'true')
     };
 
     function isAnswersEqualToCorrectResults (userAnswers, correctAnswers) {
@@ -1316,8 +1331,10 @@ function AddonConnection_create() {
     function loadElementsToSide(view, model, isFirstSide) {
         const parentToLoadElements = findParentToLoadElements(view, isFirstSide);
 
-        const itemsModel = model[(isFirstSide ? "Left column" : "Right column")];
+        const itemsModelKey = isFirstSide ? "Left column" : "Right column";
+        const itemsModel = model[itemsModelKey];
         const itemsInOneSideNumber = itemsModel.length;
+        presenter.columnSizes[itemsModelKey] = model[itemsModelKey].length;
 
         const isRandomOrderKey = isFirstSide ? "Random order left column" : "Random order right column";
         const isRandomOrder = ModelValidationUtils.validateBoolean(model[isRandomOrderKey]);
@@ -1440,10 +1457,9 @@ function AddonConnection_create() {
         const contentWrapper = document.createElement("div");
         contentWrapper.classList.add(presenter.CSS_CLASSES.INNER_WRAPPER);
         contentWrapper.style.direction = isRTL ? "rtl" : "ltr";
-        // TODO check if save
         contentWrapper.innerHTML = content;
         !!additionalClassName && contentWrapper.classList.add(additionalClassName);
-        presenter.isTabindexEnabled && contentWrapper.setAttribute("tabindex", 0);
+        presenter.configuration.isTabindexEnabled && contentWrapper.setAttribute("tabindex", 0);
         contentElement.append(contentWrapper);
 
         return contentElement;
@@ -1528,16 +1544,14 @@ function AddonConnection_create() {
         const offset = $element.offset();
         const scale = playerController ? playerController.getScaleInformation() : { scaleX: 1, scaleY: 1 };
         const isFirstSideElement = $element.parents('.' + presenter.getFirstSideCSSClassName()).length > 0;
-        // TODO remove one side ?
-        const isSecondSideElement = $element.parents('.' + presenter.getSecondSideCSSClassName()).length > 0;
 
-        let snapPoint = [0, 0];
+        let snapPoint;
         if (presenter.isHorizontal) {
             const elementWidth = $element.outerWidth() * scale.scaleX;
             const elementHeight = $element.outerHeight(true) * scale.scaleY;
             if (isFirstSideElement) {
                 snapPoint = [offset.left + elementWidth / 2, offset.top + elementHeight];
-            } else if (isSecondSideElement) {
+            } else {
                 snapPoint = [offset.left + elementWidth / 2, offset.top];
             }
         } else {
@@ -1545,7 +1559,7 @@ function AddonConnection_create() {
             const elementHeight = $element.outerHeight() * scale.scaleY;
             if (isFirstSideElement) {
                 snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
-            } else if (isSecondSideElement) {
+            } else {
                 snapPoint = [offset.left, offset.top + elementHeight / 2];
             }
         }
@@ -1559,7 +1573,7 @@ function AddonConnection_create() {
 
     function pushConnection(line, isPreview) {
         var addLine = true, linesToRemove = [], existingLines;
-        if (singleMode) {
+        if (presenter.configuration.isSingleConnectionMode) {
             existingLines = presenter.lineStack.isItemUsed(line);
             if (existingLines.length > 0) {
                 if (!isPreview) {
@@ -1592,9 +1606,9 @@ function AddonConnection_create() {
 
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
         if (["4.1.1", "4.1.2", "4.2.2", "4.3", "4.4.2"].indexOf(android_ver) !== -1) {
-            presenter.$view.find('.connections').remove();
+            presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTIONS).remove();
             var canvas2 = $('<canvas></canvas>');
-            canvas2.addClass('connections');
+            canvas2.addClass(presenter.CSS_CLASSES.CONNECTIONS);
             presenter.$view.find('.' + presenter.getMiddleSideCSSClassName()).append(canvas2);
 
             var context = canvas2[0].getContext('2d');
@@ -1608,26 +1622,26 @@ function AddonConnection_create() {
                 x: 0.5, y: 0.5
             });
 
-            connections = $(presenter.view).find('.connections');
+            connections = presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTIONS);
         } else {
             connections.clearCanvas();
         }
 
         for (var i = 0; i < presenter.lineStack.length(); i++) {
-            drawLine(presenter.lineStack.get(i), connectionColor)
+            drawLine(presenter.lineStack.get(i), presenter.configuration.defaultConnectionColor)
         }
     };
 
     presenter.redrawShowAnswers = function AddonConnection_redrawShowAnswers() {
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
-            drawLine(presenter.lineStack.get(i), showAnswersColor)
+            drawLine(presenter.lineStack.get(i), presenter.configuration.showAnswersLineColor);
         }
     };
 
     function drawLine(line, color) {
-        if (line.isDisabled() && presenter.disabledConnectionColor !== "") {
-            color = presenter.disabledConnectionColor;
+        if (line.isDisabled() && presenter.configuration.disabledConnectionColor !== "") {
+            color = presenter.configuration.disabledConnectionColor;
         }
 
         var from = presenter.getElementSnapPoint(line.from);
@@ -1640,7 +1654,7 @@ function AddonConnection_create() {
 
         connections.drawLine({
             strokeStyle: color,
-            strokeWidth: connectionThickness,
+            strokeWidth: presenter.configuration.connectionThickness,
             x1: to[0] - canvasOffset.left,
             y1: to[1] - canvasOffset.top,
             x2: from[0] - canvasOffset.left,
@@ -1652,38 +1666,39 @@ function AddonConnection_create() {
         return presenter.isGradualShowAnswersActive || presenter.isShowAnswersActive;
     }
 
-
     presenter.setShowErrorsMode = deferredCommandQueue.decorate(
         function () {
             presenter.isCheckActive = true;
             if (presenter.isShowAnswersActive) {
                 presenter.hideAnswers();
             }
-            if (presenter.isNotActivity) return 0;
+            if (presenter.configuration.isNotActivity) return 0;
 
             connections.clearCanvas();
             for (var i = 0; i < presenter.lineStack.length(); i++) {
                 var line = presenter.lineStack.get(i);
                 if (presenter.correctConnections.hasLine(line).length > 0) {
-                    drawLine(presenter.lineStack.get(i), correctConnection);
-                    var fromElementCorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).from[0].id);
-                    var toElementCorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).to[0].id);
+                    drawLine(presenter.lineStack.get(i), presenter.configuration.correctConnectionColor);
+                    var fromElementCorrect = presenter.$view.find('#' + presenter.lineStack.get(i).from[0].id);
+                    var toElementCorrect = presenter.$view.find('#' + presenter.lineStack.get(i).to[0].id);
                     $(fromElementCorrect).addClass(CORRECT_ITEM_CLASS);
                     $(toElementCorrect).addClass(CORRECT_ITEM_CLASS);
                 } else {
-                    drawLine(presenter.lineStack.get(i), incorrectConnection);
-                    var fromElementIncorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).from[0].id);
-                    var toElementIncorrect = $(presenter.view).find('#' + presenter.lineStack.get(i).to[0].id);
+                    drawLine(presenter.lineStack.get(i), presenter.configuration.incorrectConnectionColor);
+                    var fromElementIncorrect = presenter.$view.find('#' + presenter.lineStack.get(i).from[0].id);
+                    var toElementIncorrect = presenter.$view.find('#' + presenter.lineStack.get(i).to[0].id);
                     $(fromElementIncorrect).addClass(WRONG_ITEM_CLASS);
                     $(toElementIncorrect).addClass(WRONG_ITEM_CLASS);
                 }
             }
-            $(presenter.view).find('.connectionItem').each(function () {
+            presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTION_ITEM).each(function () {
                 if ($(this).hasClass(CORRECT_ITEM_CLASS) && $(this).hasClass(WRONG_ITEM_CLASS)) {
                     $(this).removeClass(CORRECT_ITEM_CLASS);
                 }
             });
-            presenter.$connectionContainer.find('.selected').removeClass('selected');
+            presenter.$connectionContainer
+                .find('.' + presenter.CSS_CLASSES.SELECTED)
+                .removeClass(presenter.CSS_CLASSES.SELECTED);
             selectedItem = null;
             isSelectionPossible = false;
         }
@@ -1694,7 +1709,7 @@ function AddonConnection_create() {
             presenter.isCheckActive = false;
             presenter.gatherCorrectConnections();
             presenter.redraw();
-            $(presenter.view).find('.connectionItem').each(function () {
+            presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTION_ITEM).each(function () {
                 $(this).removeClass(CORRECT_ITEM_CLASS);
                 $(this).removeClass(WRONG_ITEM_CLASS);
             });
@@ -1704,7 +1719,7 @@ function AddonConnection_create() {
 
     presenter.reset = deferredCommandQueue.decorate(
         function (onlyWrongAnswers) {
-            if (!presenter.isValid) {
+            if (!presenter.configuration.isValid) {
                 return;
             }
 
@@ -1733,8 +1748,10 @@ function AddonConnection_create() {
             }
 
             isSelectionPossible = true;
-            presenter.$connectionContainer.find('.selected').removeClass('selected');
-            $(presenter.view).find('.connectionItem').each(function () {
+            presenter.$connectionContainer
+                .find('.' + presenter.CSS_CLASSES.SELECTED)
+                .removeClass(presenter.CSS_CLASSES.SELECTED);
+            presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTION_ITEM).each(function () {
                 $(this).removeClass(CORRECT_ITEM_CLASS);
                 $(this).removeClass(WRONG_ITEM_CLASS);
             });
@@ -1752,7 +1769,7 @@ function AddonConnection_create() {
 
     // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getErrorCount = function () {
-        if (presenter.isNotActivity) return 0;
+        if (presenter.configuration.isNotActivity) return 0;
 
         var errors = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1765,14 +1782,14 @@ function AddonConnection_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (presenter.isNotActivity) return 0;
+        if (presenter.configuration.isNotActivity) return 0;
 
         return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
     // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getScore = function () {
-        if (presenter.isNotActivity) return 0;
+        if (presenter.configuration.isNotActivity) return 0;
 
         var score = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -2016,7 +2033,7 @@ function AddonConnection_create() {
         var line = new Line(leftElement, rightElement);
         presenter.correctConnections.push(line);
         if (presenter.lineStack.hasLine(line))
-            drawLine(line, correctConnection);
+            drawLine(line, presenter.configuration.correctConnectionColor);
 
     };
 
@@ -2031,7 +2048,7 @@ function AddonConnection_create() {
         if (presenter.correctConnections.hasLine(line))
             presenter.correctConnections.remove(line);
         if (presenter.lineStack.hasLine(line))
-            drawLine(line, incorrectConnection);
+            drawLine(line, presenter.configuration.incorrectConnectionColor);
 
     };
 
@@ -2171,7 +2188,7 @@ function AddonConnection_create() {
 
     presenter.showAnswers = deferredCommandQueue.decorate(
         function () {
-            if (presenter.isNotActivity) {
+            if (presenter.configuration.isNotActivity) {
                 return;
             }
 
@@ -2194,7 +2211,7 @@ function AddonConnection_create() {
 
     presenter.hideAnswers = deferredCommandQueue.decorate(
         function () {
-            if (presenter.isNotActivity || !presenter.isShowAnswersActive) {
+            if (presenter.configuration.isNotActivity || !presenter.isShowAnswersActive) {
                 return;
             }
             presenter.keyboardControllerObject.selectEnabled(true);
@@ -2258,7 +2275,7 @@ function AddonConnection_create() {
 
         for (var i = 0; i < connections.length; i++) {
 
-            result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i], presenter.langTag));
+            result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i], presenter.configuration.langTag));
 
             if (connections[i].hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
                 result.push(getTextVoiceObject(presenter.speechTexts.correct));
@@ -2277,9 +2294,9 @@ function AddonConnection_create() {
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
-            var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
+            var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.configuration.langTag);
 
-            if ($active.hasClass('selected') && !presenter.isShowingAnswers()) {
+            if ($active.hasClass(presenter.CSS_CLASSES.SELECTED) && !presenter.isShowingAnswers()) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
 
@@ -2376,13 +2393,13 @@ function AddonConnection_create() {
 
     ConnectionKeyboardController.prototype.select = function (event) {
         event.preventDefault();
-        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+        if (presenter.getCurrentActivatedElement().hasClass(presenter.CSS_CLASSES.SELECTED)) {
             speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
         }
 
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
 
-        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+        if (presenter.getCurrentActivatedElement().hasClass(presenter.CSS_CLASSES.SELECTED)) {
             speak([getTextVoiceObject(presenter.speechTexts.selected)]);
         }
     };
@@ -2543,17 +2560,26 @@ function AddonConnection_create() {
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
-        // TODO
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
-        presenter.chooseOrientation(model);
-
+        presenter.model = model;
         const root = createPrintableBaseView(model);
         const $root = $(root);
+
+        presenter.configuration = presenter.validateModel(model);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(root, presenter.ERROR_MESSAGES, presenter.configuration.errorCode);
+            return $root[0].outerHTML;
+        }
+
+        presenter.chooseOrientation(model, false);
+        const connectionContainer = createPrintableConnectionContainer();
+        root.append(connectionContainer);
+        presenter.setLengthOfSideObjects(root);
+
         const $printableWrapper = wrapInPrintableLessonTemplate($root);
 
         presenter.loadElements(root, model);
-        presenter.setLengthOfSideObjects(root, model["Columns width"]);
         this.removeNonVisibleInnerHTMLForRoot($root);
 
         const correctAnswers = getCorrectAnswersObject(model);
@@ -2612,10 +2638,6 @@ function AddonConnection_create() {
         view.id = model.ID;
         view.classList.add("printable_addon_Connection");
         view.style.maxWidth = model.Width + "px";
-
-        const connectionContainer = createPrintableConnectionContainer();
-        view.append(connectionContainer);
-
         return view;
     }
 
@@ -2650,7 +2672,7 @@ function AddonConnection_create() {
         column.classList.add(presenter.getMiddleSideCSSClassName());
 
         const content = document.createElement("svg");
-        content.classList.add("connections");
+        content.classList.add(presenter.CSS_CLASSES.CONNECTIONS);
 
         column.append(content);
         return column;

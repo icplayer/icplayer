@@ -359,6 +359,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native void run(JavaScriptObject obj, Element element, JavaScriptObject model, String addonId ) /*-{
 
 		try{
+			if (obj.setCurrentLayoutName) {
+				obj.setCurrentLayoutName(this.@com.lorepo.icplayer.client.module.addon.AddonPresenter::getCurrentLayoutName()());
+			}
 			obj.getView = function(){return element};
 			obj.run(element, model);
 		}
@@ -721,5 +724,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			}
 		}
 		return true;
+	}
+
+    private String getCurrentLayoutName() {
+		return services.getModel().getActualSemiResponsiveLayoutName();
 	}
 }

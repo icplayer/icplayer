@@ -46,6 +46,7 @@ TestCase("[Connection] Connection printable html validation", {
                     'content': "c"
                 },
             ],
+            'Single connection mode': "True"
         };
 
         this.stubs = {
