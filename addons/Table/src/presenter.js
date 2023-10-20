@@ -163,6 +163,7 @@ function AddonTable_create() {
         delete presenter.setState;
         delete presenter.getGapTextCommand;
         delete presenter.getGapTextCommand;
+        delete presenter.setGapTextCommand;
         delete presenter.markGapAsEmptyCommand;
         delete presenter.markGapAsCorrectCommand;
         delete presenter.markGapAsWrongCommand;
@@ -909,6 +910,21 @@ function AddonTable_create() {
         return presenter.getGapText(parseInt(params[0], 10));
     };
 
+    presenter.setGapText = function (gapIndex, text) {
+        if (["draggable", "math"].includes(presenter.configuration.gapType)) {
+            return;
+        }
+
+        const validatedGapIndex = presenter.validateGapIndex(gapIndex);
+        if (validatedGapIndex.isValid) {
+            presenter.gapsContainer.setGapTextByIndex(validatedGapIndex.index, text);
+        }
+    };
+
+    presenter.setGapTextCommand = function (params) {
+        presenter.setGapText(parseInt(params[0], 10), params[1]);
+    };
+
     function executeFunctionOnGap(gapIndex, functionToCall) {
         var validatedGapIndex = presenter.validateGapIndex(gapIndex);
 
@@ -994,6 +1010,7 @@ function AddonTable_create() {
             'enableGap': presenter.enableGapCommand,
             'getGapText': presenter.getGapTextCommand,
             'getGapValue': presenter.getGapTextCommand,
+            'setGapText': presenter.setGapTextCommand,
             'getView': presenter.getView,
             'hide': presenter.hide,
             'isAllOK': presenter.isAllOK,
@@ -1860,6 +1877,12 @@ function AddonTable_create() {
 
     presenter.GapsContainerObject.prototype.getGapValueByIndex = function (index) {
         return this.gaps[index].getValue();
+    };
+
+    presenter.GapsContainerObject.prototype.setGapTextByIndex = function (index, text) {
+        this.gaps[index].setValue(text);
+        this.gaps[index].setViewValue(text);
+        this.gaps[index].notifyEdit();
     };
 
     presenter.GapsContainerObject.prototype.setLockGapByIndex = function (index, lock) {
