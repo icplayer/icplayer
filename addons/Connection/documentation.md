@@ -34,14 +34,15 @@ The list starts with the common properties, learn more about them by visiting th
         <td>List of items in right column (or bottom row). Each item should have: id, content, connect to (id of the corresponding item on the left/top side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
-        <td>Columns width/Rows height</td>
-        <td>Defines columns' width or rows height in percentage.<br>
+        <td>Columns width</td>
+        <td>Defines columns' width in percentage.<br>
             It has 3 properties: 
             <ul>
-                <li>Left/Top,</li>
+                <li>Left,</li>
                 <li>Middle,</li>
-                <li>Right/Bottom.</li>
+                <li>Right.</li>
             </ul>
+            The defined values are used only in the vertical view. At the moment, for the horizontal view, no property has been added to set an adequate value, i.e. the height of the rows.
         </td>
     </tr>
     <tr>
@@ -140,9 +141,9 @@ This texts will be read by Text to Speech addon after a user performs an action.
 ### Vertical orientation
 Items in both columns are spread vertically in equal distances across the column height no matter how many elements there are.
 
-The width of the connections' area is calculated based on the width of left and right column. However, you can change this setting in "Columns width/Rows height" property.
+The width of the connections' area is calculated based on the width of left and right column. However, you can change this setting in "Columns width" property.
 
-If you include images into connection addon, and you cannot see right column then you have to set "Columns width/Rows height" property other than empty or auto.
+If you include images into connection addon, and you cannot see right column then you have to set "Columns width" property other than empty or auto.
 
 To configure which connections are allowed you have to:
 
@@ -156,9 +157,7 @@ To configure which connections are allowed you have to:
 ### Horizontal orientation
 Items in both rows are spread horizontally in equal distances across the row width no matter how many elements there are.
 
-The height of the connections' area is calculated based on the height of top and bottom row. However, you can change this setting in "Columns width/Rows height" property.
-
-If you include images into connection addon, and you cannot see bottom row then you have to set "Columns width/Rows height" property other than empty or auto.
+The height of the connections' area is calculated based on the height of top and bottom row.
 
 To configure which connections are allowed you have to:
 
@@ -215,13 +214,15 @@ To configure which connections are allowed you have to:
     </tr>
     <tr>
         <td>disable</td>
-        <td>---</td>
-        <td>Disables the addon.</td>
+        <td>from - first side item index,<br>
+		to - second side item index</td>
+        <td>Disable the connection.</td>
     </tr>
     <tr>
         <td>enable</td>
-        <td>---</td>
-        <td>Enables the addon.</td>
+        <td>from - first side item index,<br>
+		to - second side item index</td>
+        <td>Enable the connection.</td>
     </tr>
 </table>
 
@@ -273,20 +274,20 @@ The Connection addon supports Custom Scoring scripts. For more information about
     </tr>
     <tr>
         <td>isSelected</td>
-        <td>from - left column index,<br>
-		to - right column index</td>
+        <td>from - first side item index,<br>
+		to - second side item index</td>
         <td>Returns true if the connection is selected, otherwise false.</td>
     </tr>
     <tr>
         <td>markAsCorrect</td>
-        <td>from - left column index,<br>
-		to - right column index</td>
+        <td>from - first side item index,<br>
+		to - second side item index</td>
         <td>Marks the connection as correct.</td>
     </tr>
     <tr>
         <td>markAsWrong</td>
-        <td>from - left column index,<br>
-		to - right column index</td>
+        <td>from - first side item index,<br>
+		to - second side item index</td>
         <td>Marks the connection as wrong.</td>
     </tr>
 </tbody>

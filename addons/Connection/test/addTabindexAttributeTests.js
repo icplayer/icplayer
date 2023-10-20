@@ -9,6 +9,7 @@ TestCase("[Connection] Add tabindex for connection elements", {
         this.presenter.setLengthOfSideObjects = this.stubs.setLengthOfSideObjectsStub;
 
         this.presenter.configuration = {};
+        this.presenter.isHorizontal = false;
         this.presenter.model = {
             'Left column': [{
                 'additional class':"",
@@ -33,8 +34,6 @@ TestCase("[Connection] Add tabindex for connection elements", {
                 'id': "d"
             }]
         };
-
-        this.createViewBase();
    },
 
     createViewBase: function() {
@@ -45,6 +44,7 @@ TestCase("[Connection] Add tabindex for connection elements", {
        this.presenter.view.append(connectionContainer);
 
        this.presenter.setUpViewBody(this.presenter.view);
+       this.presenter.loadElements(this.presenter.view, this.presenter.model);
     },
 
     getInnerWrapperOfElementWithId: function (id) {
@@ -61,7 +61,7 @@ TestCase("[Connection] Add tabindex for connection elements", {
     'test should not set tabindex for innerWrapper when tabindex is false': function () {
         this.presenter.configuration.isTabindexEnabled = false;
 
-        this.presenter.loadElements(this.presenter.view, this.presenter.model);
+        this.createViewBase();
         const itemToCheck = this.getInnerWrapperOfElementWithId("1")[0];
 
         assertFalse(itemToCheck.hasAttribute("tabindex"));
@@ -70,7 +70,27 @@ TestCase("[Connection] Add tabindex for connection elements", {
     'test should set tabindex for innerWrapper when tabindex is true': function () {
         this.presenter.configuration.isTabindexEnabled = true;
 
-        this.presenter.loadElements(this.presenter.view, this.presenter.model);
+        this.createViewBase();
+        const itemToCheck = this.getInnerWrapperOfElementWithId("1")[0];
+
+        assertTrue(itemToCheck.hasAttribute("tabindex"));
+    },
+
+    'test should not set tabindex for innerWrapper in horizontal orientation when tabindex is false': function () {
+        this.presenter.isHorizontal = true;
+        this.presenter.configuration.isTabindexEnabled = false;
+
+        this.createViewBase();
+        const itemToCheck = this.getInnerWrapperOfElementWithId("1")[0];
+
+        assertFalse(itemToCheck.hasAttribute("tabindex"));
+    },
+
+    'test should set tabindex for innerWrapper in horizontal orientation when tabindex is true': function () {
+        this.presenter.isHorizontal = true;
+        this.presenter.configuration.isTabindexEnabled = true;
+
+        this.createViewBase();
         const itemToCheck = this.getInnerWrapperOfElementWithId("1")[0];
 
         assertTrue(itemToCheck.hasAttribute("tabindex"));

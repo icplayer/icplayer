@@ -367,12 +367,13 @@ function AddonConnection_create() {
         presenter.removeNonVisibleInnerHTMLForRoot(presenter.$view);
 
     };
+
     presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
         $.each($root.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
-    }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.registerMathJax();
@@ -402,18 +403,25 @@ function AddonConnection_create() {
         const $middleSide = $(view).find("." + presenter.getMiddleSideCSSClassName() + ":first");
         const $secondSide = $(view).find("." + presenter.getSecondSideCSSClassName() + ":first");
 
-        let firstSideWidth = presenter.configuration.columnsWidth.left;
-        let middleSideWidth = presenter.configuration.columnsWidth.middle;
-        let secondSideWidth = presenter.configuration.columnsWidth.right;
+        let firstSideLength, middleSideLength, secondSideLength;
+        if (presenter.isHorizontal) {
+            firstSideLength = "auto";
+            middleSideLength = "auto";
+            secondSideLength = "auto";
+        } else {
+            firstSideLength = presenter.configuration.columnsWidth.left;
+            middleSideLength = presenter.configuration.columnsWidth.middle;
+            secondSideLength = presenter.configuration.columnsWidth.right;
 
-        if (!firstSideWidth) firstSideWidth = "auto";
-        if (!middleSideWidth) middleSideWidth = "auto";
-        if (!secondSideWidth) secondSideWidth = "auto";
+            if (!firstSideLength) firstSideLength = "auto";
+            if (!middleSideLength) middleSideLength = "auto";
+            if (!secondSideLength) secondSideLength = "auto";
+        }
 
         const propertyName = presenter.isHorizontal ? "height" : "width";
-        $firstSide.css(propertyName, firstSideWidth);
-        $middleSide.css(propertyName, middleSideWidth);
-        $secondSide.css(propertyName, secondSideWidth);
+        $firstSide.css(propertyName, firstSideLength);
+        $middleSide.css(propertyName, middleSideLength);
+        $secondSide.css(propertyName, secondSideLength);
     };
 
     presenter.run = function (view, model) {

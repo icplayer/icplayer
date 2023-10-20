@@ -34,8 +34,6 @@ TestCase("[Connection] Additional Class Validation", {
                 'id': "d"
             }]
         };
-
-        this.createViewBase();
    },
 
     createViewBase: function() {
