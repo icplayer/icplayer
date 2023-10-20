@@ -4,6 +4,8 @@ This addon allows users to add simple tables into presentations. With this funct
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
     <tr>
         <th>Property name</th>
@@ -36,11 +38,15 @@ This addon allows users to add simple tables into presentations. With this funct
     </tr>
     <tr>
         <td>Is disabled</td>
-        <td>When this option is selected, all gaps are disabled at startup.</td>
+        <td>Allows disabling the module so that the user is not able to interact with it.</td>
     </tr>
     <tr>
         <td>Case sensitive</td>
         <td>When this option is selected, the answers in gaps are case sensitive in the error checking mode.</td>
+    </tr>
+    <tr>
+        <td>Use numeric keyboard</td>
+        <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td>
     </tr>
     <tr>
         <td>Ignore punctuation</td>
@@ -79,12 +85,11 @@ A table gap consists of the following activity types:
 To insert a gap into a Table cell, enter a simple script into the cell content:
 
 * **editable** and **draggable** gap    
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *\gap{orange}* - will result in a gap for which the correct answer is "orange".
-For multiple answers, just separate them with '|' sign like this:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *\gap{orange|blue|red}*  - will result in a gap for which the correct answers are "orange", "blue" and "red"
+*\gap{orange}* - will result in a gap for which the correct answer is "orange".
+For multiple answers, just separate them with '|' sign like this: *\gap{orange|blue|red}*  - will result in a gap for which the correct answers are "orange", "blue" and "red"
 
 * **drop-down** gap    
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *{{2:blue|yellow|red}}* – will result in a drop-down menu with "blue", "yellow" and "red" options to choose from.
+*{{2:blue|yellow|red}}* – will result in a drop-down menu with "blue", "yellow" and "red" options to choose from.
 The first option is always the correct answer, in this case it is "blue". "2" defines the value of a correct answer.
 
 * **math** gap    
@@ -131,6 +136,11 @@ In this case, the getGapText(8) method returns text of a draggable gap, not the 
         <td>getGapText</td>
         <td>index - 1-based index of gap in table</td>
         <td>Returns gap text entered by user.</td>
+    </tr>
+    <tr>
+        <td>setGapText</td>
+        <td>index - 1-based index of gap in table</td> 
+        <td>Changes the text inside the gap. Command supported only when "editable" is selected as "Gap Type".</td> 
     </tr>
     <tr>
         <td>getGapValue</td>
@@ -184,30 +194,31 @@ In this case, the getGapText(8) method returns text of a draggable gap, not the 
     </tr>
     <tr>
         <td>isAttempted</td>
-        <td>---</td>
-        <td>Returns true if user has interacted with a gap or other command was exectued on the presenter</td>
+        <td>---</td> 
+        <td>Returns true if any gap is filled in. This command will not work properly if the module has the 'Is not an activity' property selected.</td>
     </tr>
 </table>
 
 ## Advanced Connector integration
 Each command supported by the Table addon can be used in the Advanced Connector addon scripts. The below example shows how to show or hide addon accordingly to the Double State Button addon's state.
 
-EVENTSTART
-Source:DoubleStateButton1
-Value:1
-SCRIPTSTART
-var table = presenter.playerController.getModule('Table1');
-table.show();
-SCRIPTEND
-EVENTEND
-EVENTSTART
-Source:DoubleStateButton1
-Value:0
-SCRIPTSTART
-var table = presenter.playerController.getModule('Table1');
-table.hide();
-SCRIPTEND
-EVENTEND
+    EVENTSTART
+    Source:DoubleStateButton1
+    Value:1
+    SCRIPTSTART
+        var table = presenter.playerController.getModule('Table1');
+        table.show();
+    SCRIPTEND
+    EVENTEND
+
+    EVENTSTART
+    Source:DoubleStateButton1
+    Value:0
+    SCRIPTSTART
+        var table = presenter.playerController.getModule('Table1');
+        table.hide();
+    SCRIPTEND
+    EVENTEND
 
 ## Scoring
 Table addon allows to create exercises as well as activities. By default addon is in activity mode, so whenever gaps are included it will report points and errors. To disable excercise mode set 'Is not an activity' property. If Addon is not in excercise mode, all of below methods returns 0!
