@@ -1,3 +1,4 @@
+2023-10-24 Added new container for response mark in the Image Gap
 2023-10-13 Fixed sending event about the correct word when a letter from outside the word was entered
 2023-10-13 Fixed setting width for gaps
 2023-10-13 Added support for random order in Source List module

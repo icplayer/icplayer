@@ -61,6 +61,38 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		getElement().setId(module.getId());
 	}
 
+	public native static void addResponseMarkContainer(Element e) /*-{
+		var parentElement = e.parentElement;
+		var computedStyles = window.getComputedStyle(e, null);
+		var width = computedStyles.getPropertyValue("width");
+		var height = computedStyles.getPropertyValue("height");
+		var top = computedStyles.getPropertyValue("top");
+		var left = computedStyles.getPropertyValue("left");
+		var paddingLeft = computedStyles.getPropertyValue("padding-left");
+		var paddingTop = computedStyles.getPropertyValue("padding-top");
+		var markWrapperElement =  $wnd.document.createElement('div');
+
+		var absoluteTop = parseInt(top) + parseInt(paddingTop) + 'px';
+		var absoluteLeft = parseInt(left) + parseInt(paddingLeft) + 'px';
+
+		markWrapperElement.id = e.id + "-mark-wrapper";
+		markWrapperElement.classList.add('ic_imageGap-mark-wrapper');
+		markWrapperElement.style.width = width;
+		markWrapperElement.style.height = height;
+		markWrapperElement.style.top = absoluteTop;
+		markWrapperElement.style.left = absoluteLeft;
+
+		parentElement.appendChild(markWrapperElement);
+	}-*/;
+
+	public native static void removeResponseMarkContainer(Element e) /*-{
+		var wrapperID = e.id + "-mark-wrapper";
+		var elementToRemove = $wnd.document.getElementById(wrapperID);
+		if (elementToRemove) {
+			elementToRemove.remove();
+		}
+	}-*/;
+
 	private void connectHandlers() {
 		addClickHandler(new ClickHandler() {
 			@Override
@@ -90,6 +122,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	public void showAsError() {
 		String style = getUrl().indexOf(HOLLOW_IMAGE) < 0 ? WRONG_STYLE : EMPTY_STYLE;
 		addStyleDependentName(style);
+
+		if (module.displayResponseContainer()) {
+			addResponseMarkContainer(getElement());
+		}
 	}
 
 	@Override
@@ -100,6 +136,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	@Override
 	public void showAsCorrect() {
 		addStyleDependentName(CORRECT_STYLE);
+
+		if (module.displayResponseContainer()) {
+			addResponseMarkContainer(getElement());
+		}
 	}
 
 	@Override
@@ -109,6 +149,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		removeStyleDependentName(FILLED_STYLE);
 		removeStyleDependentName(EMPTY_STYLE);
 		removeStyleDependentName(SHOW_CORRECT_STYLE);
+		removeResponseMarkContainer(getElement());
 
 		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
 			addStyleDependentName(FILLED_STYLE);

@@ -41,6 +41,10 @@ An Image gap module is an empty box which should be filled in with a relevant it
         <td>Block wrong answers</td>
         <td>With this option checked, wrong answers are removed and the "on wrong" event is sent.</td>
     </tr>
+    <tr>
+        <td>Add container for response mark</td>
+        <td>Attach new HTML element for response mark, when check answers is active. The element overlays image gap.</td>
+    </tr>
 </tbody>
 </table>
 

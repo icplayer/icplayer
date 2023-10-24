@@ -815,6 +815,13 @@ hr, table, fieldset {
 	border: 1px solid red;
 }
 
+.ic_imageGap-mark-wrapper {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
 /**
  * Stylizacja panelu popupa
  */
