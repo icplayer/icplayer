@@ -140,6 +140,22 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
         <td>.ic_imageGap-correct-answer</td>
         <td>indicates the look of an image gap with the correct answer displayed</td>
     </tr>
+    <tr>
+        <td>.ic_imageGap-mark-container</td>
+        <td>indicates the look of a response mark container</td>
+    </tr>
+    <tr>
+        <td>.correct-container</td>
+        <td>indicates the look of a response mark container on correct answer</td>
+    </tr>
+    <tr>
+        <td>.wrong-container</td>
+        <td>indicates the look of a response mark container on wrong answer</td>
+    </tr>
+    <tr>
+        <td>.disabled-container</td>
+        <td>indicates the look of a disabled response mark container</td>
+    </tr>
 </tbody>
 </table>
     

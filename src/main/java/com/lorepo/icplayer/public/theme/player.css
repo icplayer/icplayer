@@ -815,7 +815,7 @@ hr, table, fieldset {
 	border: 1px solid red;
 }
 
-.ic_imageGap-mark-wrapper {
+.ic_imageGap-mark-container {
 	position: absolute;
 	display: flex;
 	align-items: center;
