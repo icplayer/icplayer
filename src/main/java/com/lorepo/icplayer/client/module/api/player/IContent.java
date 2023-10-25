@@ -22,4 +22,5 @@ public interface IContent {
 	public int getCommonPageIndex(String pageId);
 	public List<Integer> getPagesMapping();
 	List<Page> getAllPages();
+	public String getActualSemiResponsiveLayoutName();
 }
