@@ -1,5 +1,5 @@
 ## Description
-The Connection module allows defining two sides of items which match one another. All items can be determined both by texts and by images. The activity can work either in a single connection mode where each item on first side matches one corresponding item on the second side, or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
+The Connection module allows defining two sides of items which match one another. All items can be determined both by texts and by images. The activity can work either in a single connection mode where each item on first side (left column or top row) matches one corresponding item on the second side (right column or bottom row), or multiple connection mode where each item can be used in multiple connections. The aim of the activity is to find all proper connections.
 
 It supports formatted html items (including images), styling of elements and connections.
 
@@ -26,11 +26,11 @@ The list starts with the common properties, learn more about them by visiting th
         <td>If checked, every item can be part of only one connection. Otherwise, each item can be used in many connections.</td>
     </tr>
     <tr>
-        <td>First side</td>
+        <td>Left column (or top row)</td>
         <td>A list of items in left column (or top row). Each item should have: id, content, connect to (id of the corresponding item on the right/bottom side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
-        <td>Second side</td>
+        <td>Right column (or bottom row)</td>
         <td>List of items in right column (or bottom row). Each item should have: id, content, connect to (id of the corresponding item on the left/top side) and additional class. See section "configuration" for more details.</td>
     </tr>
     <tr>
@@ -147,8 +147,8 @@ If you include images into connection addon, and you cannot see right column the
 
 To configure which connections are allowed you have to:
 
- * Provide a list of items for left column in "First side" property.
- * Provide a list of items for right column in "Second side" property.
+ * Provide a list of items for left column in "Left column (or top row)" property.
+ * Provide a list of items for right column in "Right column (or bottom row)" property.
  * Each item should have an id which is unique across all elements in both columns.
  * A "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
  * It is enough to define the "connects to" on one side only.
@@ -161,8 +161,8 @@ The height of the connections' area is calculated based on the height of top and
 
 To configure which connections are allowed you have to:
 
- * Provide a list of items for top row in "First side" property.
- * Provide a list of items for bottom row in "Second side" property.
+ * Provide a list of items for top row in "Left column (or top row)" property.
+ * Provide a list of items for bottom row in "Right column (or bottom row)" property.
  * Each item should have an id which is unique across all elements in both rows.
  * A "connects to" defines a list of comma separated ids of items to which the current item can be connected to. If you provide multiple ids here and select the "single mode" option, only the last one will be used.
  * It is enough to define the "connects to" on one side only.
@@ -214,14 +214,14 @@ To configure which connections are allowed you have to:
     </tr>
     <tr>
         <td>disable</td>
-        <td>from - first side item index,<br>
-		to - second side item index</td>
+        <td>from - left column (or top row) item index,<br>
+		to - right column (or bottom row) item index</td>
         <td>Disable the connection.</td>
     </tr>
     <tr>
         <td>enable</td>
-        <td>from - first side item index,<br>
-		to - second side item index</td>
+        <td>from - left column (or top row) item index,<br>
+		to - right column (or bottom row) item index</td>
         <td>Enable the connection.</td>
     </tr>
 </table>
@@ -274,20 +274,20 @@ The Connection addon supports Custom Scoring scripts. For more information about
     </tr>
     <tr>
         <td>isSelected</td>
-        <td>from - first side item index,<br>
-		to - second side item index</td>
+        <td>from - left column (or top row) item index,<br>
+		to - right column (or bottom row) item index</td>
         <td>Returns true if the connection is selected, otherwise false.</td>
     </tr>
     <tr>
         <td>markAsCorrect</td>
-        <td>from - first side item index,<br>
-		to - second side item index</td>
+        <td>from - left column (or top row) item index,<br>
+		to - right column (or bottom row) item index</td>
         <td>Marks the connection as correct.</td>
     </tr>
     <tr>
         <td>markAsWrong</td>
-        <td>from - first side item index,<br>
-		to - second side item index</td>
+        <td>from - left column (or top row) item index,<br>
+		to - right column (or bottom row) item index</td>
         <td>Marks the connection as wrong.</td>
     </tr>
 </tbody>
