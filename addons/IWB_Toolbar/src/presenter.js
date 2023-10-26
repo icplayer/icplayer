@@ -1998,45 +1998,49 @@ function AddonIWB_Toolbar_create() {
     };
 
     function addScrollHandler() {
-        var difference = 0,
-            lastScrollTop = 0,
-            panelTop = 0;
         if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) return;
         var $defaultScrollElement = $(window.parent.document);
         var $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
-        var scrollElements = [$defaultScrollElement, $mCourserScrollElement];
+        var $mAuthorMobileScrollElement = $(window);
+        var $mCourserMobileScrollElement = $("#content-view");
+        var scrollElements = [$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement, $mCourserMobileScrollElement];
         try {
             for (var i = 0; i < scrollElements.length; i++) {
-                scrollElements[i].scroll(function () {
-                    if (presenter.isOnScreen(presenter.$view.parent(), window)) {
-                        var containerHeight = presenter.$pagePanel.outerHeight(true),
-                            scrollTop = $(this).scrollTop(),
-                            min = presenter.$pagePanel.offset().top,
-                            headerHeight = $('.ic_header').outerHeight(true) - 20,
-                            max = containerHeight + headerHeight,
-                            zoomHeightScale = presenter.getZoomHeightScale();
-                        difference = scrollTop - lastScrollTop;
-
-                        panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale;
-                        lastScrollTop = scrollTop;
-
-                        if (panelTop && (panelTop) > min && (panelTop) < max) {
-                            presenter.$panel.css({
-                                'top': (panelTop) + 'px'
-                            });
-                        } else if (panelTop && (panelTop) >= max) {
-                            presenter.$panel.css({
-                                'top': (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
-                            });
-                        } else if (panelTop && (panelTop) <= min) {
-                            presenter.$panel.css({
-                                'top': min + 'px'
-                            });
-                        }
-                    }
-                });
+                scrollElements[i].scroll(IWB_Toolbar_scrollHandler);
             }
         } catch(e) {}
+    }
+
+    var difference = 0,
+        lastScrollTop = 0,
+        panelTop = 0;
+    function IWB_Toolbar_scrollHandler() {
+        if (presenter.isOnScreen(presenter.$view.parent(), window)) {
+            var containerHeight = presenter.$pagePanel.outerHeight(true),
+                scrollTop = $(this).scrollTop(),
+                baseHeightScale = presenter.playerController.getScaleInformation().scaleY,
+                min = presenter.$pagePanel.offset().top / baseHeightScale,
+                headerHeight = $('.ic_header').outerHeight(true) - 20,
+                max = (containerHeight + headerHeight) / baseHeightScale,
+                zoomHeightScale = presenter.getZoomHeightScale();
+            difference = scrollTop - lastScrollTop;
+            panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale / baseHeightScale;
+            lastScrollTop = scrollTop;
+
+            if (panelTop && (panelTop) > min && (panelTop) < max) {
+                presenter.$panel.css({
+                    'top': (panelTop) + 'px'
+                });
+            } else if (panelTop && (panelTop) >= max) {
+                presenter.$panel.css({
+                    'top': (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
+                });
+            } else if (panelTop && (panelTop) <= min) {
+                presenter.$panel.css({
+                    'top': min + 'px'
+                });
+            }
+        }
     }
 
     function drawSketch() {
@@ -3014,6 +3018,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.run = function(view, model) {
+        console.log("IWB Toolbar with fixes for fixed scroll on mobile (1)");
         Kinetic.pixelRatio = 1;
         model = presenter.upgradeModel(model);
         presenter.model = model;
@@ -3137,7 +3142,7 @@ function AddonIWB_Toolbar_create() {
         presenter.addEventHandlers();
 
 
-        if (presenter.isInFrame && presenter.config.panelPosition == 'fixed') {
+        if ((presenter.isInFrame || MobileUtils.isMobileUserAgent(navigator.userAgent)) && presenter.config.panelPosition == 'fixed') {
             addScrollHandler();
         }
 
@@ -3575,8 +3580,10 @@ function AddonIWB_Toolbar_create() {
          * **************************************************
          */
          if (presenter.playerController && !presenter.playerController.isPlayerInCrossDomain()) {
-             $(window.parent.document).unbind('scroll');
-             $(window.parent.document).find('#lesson-view > div > div').unbind('scroll');
+             $(window.parent.document).unbind('scroll', IWB_Toolbar_scrollHandler);
+             $(window.parent.document).find('#lesson-view > div > div').unbind('scroll', IWB_Toolbar_scrollHandler);
+             $(window).unbind('scroll', IWB_Toolbar_scrollHandler);
+             $("#content-view").unbind('scroll', IWB_Toolbar_scrollHandler);
          }
 
         /***
