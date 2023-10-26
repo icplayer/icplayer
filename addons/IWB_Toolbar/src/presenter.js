@@ -3018,7 +3018,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.run = function(view, model) {
-        console.log("IWB Toolbar with fixes for fixed scroll on mobile (1)");
         Kinetic.pixelRatio = 1;
         model = presenter.upgradeModel(model);
         presenter.model = model;
