@@ -4,8 +4,8 @@ export class BlobService {
         return new Promise(resolve => {
             let reader = new FileReader();
             if (blob instanceof Blob) {
-                const fileReader = reader._realReader;
-                if (fileReader) {
+                const realFileReader = reader._realReader;
+                if (realFileReader) {
                     reader = realFileReader;
                 }
             }
