@@ -207,7 +207,7 @@ This texts will be read by Text to Speech addon after a user performs an action.
     <tr>
         <td>setGapText</td>
         <td>index - 1-based index of gap in text</td> 
-        <td>Changes the text inside the gap</td> 
+        <td>Changes the text inside the gap. Command supported only when "editable" is selected as "Gap Type".</td> 
     </tr>
     <tr>
         <td>markGapAsCorrect</td>

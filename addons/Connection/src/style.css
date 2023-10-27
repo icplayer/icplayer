@@ -23,8 +23,28 @@
 
 .connectionContainer .connectionRightColumn {
     width: 33%;
-    padding: 0px;
     height: 100%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionTopRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
+}
+
+.connectionContainer .connectionMiddleRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
+    overflow: hidden;
+    overflow-y: visible;
+}
+
+.connectionContainer .connectionBottomRow {
+    width: 100%;
+    height: 33%;
+    padding: 0px;
 }
 
 .connectionContainer .connections {
@@ -38,6 +58,10 @@
     border-collapse:collapse;
     border-spacing: 0px;
     border: solid 1px black;
+}
+
+.connectionContainer .connectionMiddleRow > td {
+    display: flex;
 }
 
 .connectionContainer .answerItem {
@@ -54,6 +78,14 @@
 
 .connectionContainer .content .connectionItemWrapper {
     padding: 0px;
+}
+
+.connectionContainer .connectionTopRow .content .connectionItemWrapper {
+    vertical-align: bottom;
+}
+
+.connectionContainer .connectionBottomRow .content .connectionItemWrapper {
+    vertical-align: top;
 }
 
 .connection_line {

@@ -44,7 +44,8 @@ TestCase("[Connection] Upgrade tasks tests", {
             "Incorrect connection color": "",
             "Connection thickness, string": "",
             "disabledConnectionColor": "",
-            "initialConnections": []
+            "initialConnections": [],
+            "Orientations": [],
         };
     },
 
@@ -87,6 +88,30 @@ TestCase("[Connection] Upgrade tasks tests", {
         };
 
         var upgradedModel = this.presenter.upgradeStartValues(modelToUpgrade);
+
+        assertEquals(modelToUpgrade, upgradedModel);
+    },
+
+    'test given empty model when upgradeOrientations is called then returns upgraded model': function () {
+        var emptyModel = {};
+        var expectedModel = {
+            "Orientations": []
+        };
+        var upgradedModel = this.presenter.upgradeOrientations(emptyModel);
+
+        assertNotEquals(emptyModel, upgradedModel);
+        assertEquals(expectedModel, upgradedModel);
+    },
+
+    'test given model with filled Orientations when upgrade model is called then will return the same object': function () {
+        var modelToUpgrade = {
+            "Orientations": [{
+                "Layout": "MOBILE",
+                "Orientation": "Horizontal",
+            }]
+        };
+
+        var upgradedModel = this.presenter.upgradeOrientations(modelToUpgrade);
 
         assertEquals(modelToUpgrade, upgradedModel);
     }
