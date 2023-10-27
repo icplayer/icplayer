@@ -8,7 +8,6 @@ TestCase("[Connection] Drawing initial values", {
             this.getElement("1"),
             this.getElement("2"),
             this.getElement("3")
-
         ];
 
         this.presenter.model = {
@@ -22,13 +21,15 @@ TestCase("[Connection] Drawing initial values", {
                 this.getModelColumnData("2"),
                 this.getModelColumnData("3")
             ]
-        }
+        };
+
+        this.presenter.configuration = {};
     },
 
     'test given initial values when drawInitialValues is called then will disable sendEvents and will enable it': function () {
         var wasEnabled = false;
         this.presenter.lineStack.setSendEvents = sinon.spy();
-        this.presenter.initialValues = [sinon.stub(), sinon.stub(), sinon.stub()];
+        this.presenter.configuration.initialConnections = [sinon.stub(), sinon.stub(), sinon.stub()];
         this.presenter.drawInitialValue = function () {
             // Check if for each drawInitialValue call setSendEvents was only once called
             if (this.presenter.lineStack.setSendEvents.callCount !== 1) {
@@ -47,7 +48,7 @@ TestCase("[Connection] Drawing initial values", {
     },
 
     'test given initial values when drawInitialValues is called then will call drawInitialValue for each value': function () {
-        this.presenter.initialValues = [sinon.stub(), sinon.stub(), sinon.stub()];
+        this.presenter.configuration.initialConnections = [sinon.stub(), sinon.stub(), sinon.stub()];
         this.presenter.drawInitialValue = sinon.stub();
 
         this.presenter.drawInitialValue.onCall(0).returns(true);
@@ -58,9 +59,9 @@ TestCase("[Connection] Drawing initial values", {
 
         this.presenter.drawInitialValues();
 
-        assertEquals(this.presenter.initialValues.length, this.presenter.drawInitialValue.callCount);
-        for (var i = 0; i < this.presenter.initialValues.length; i++) {
-            assertEquals(this.presenter.initialValues[i], this.presenter.drawInitialValue.getCall(i).args[0])
+        assertEquals(this.presenter.configuration.initialConnections.length, this.presenter.drawInitialValue.callCount);
+        for (var i = 0; i < this.presenter.configuration.initialConnections.length; i++) {
+            assertEquals(this.presenter.configuration.initialConnections[i], this.presenter.drawInitialValue.getCall(i).args[0])
         }
     },
 
@@ -69,7 +70,7 @@ TestCase("[Connection] Drawing initial values", {
         this.presenter.drawInitialValue.onCall(0).returns(true);
         this.presenter.drawInitialValue.onCall(1).returns(false);
         this.presenter.drawInitialValue.onCall(2).returns(false);
-        this.presenter.initialValues = [sinon.stub(), sinon.stub(), sinon.stub()];
+        this.presenter.configuration.initialConnections = [sinon.stub(), sinon.stub(), sinon.stub()];
         this.presenter.redraw = sinon.spy();
 
         this.presenter.drawInitialValues();
