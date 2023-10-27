@@ -1,3 +1,4 @@
+2023-10-27 Fixed IWB Toolbar not scrolling when fixed on mCourser
 2023-10-25 Added Orientations property to Connection addon
 2023-10-20 Fixed marking of correct answers in the Ordering while using GSA 
 2023-10-18 Added new method setGapText to the Table addon
