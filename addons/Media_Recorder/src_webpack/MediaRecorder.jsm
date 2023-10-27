@@ -101,7 +101,11 @@ export class MediaRecorder {
                 let recording;
                 if (this.addonState.isMP3Format(blob)) {
                     let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
-                    recording = URL.createObjectURL(tmpFile);
+                    try {
+                        recording = URL.createObjectURL(tmpFile);
+                    } catch (error) {
+                        recording = URL.createObjectURL(blob);
+                    }
                 } else {
                     recording = URL.createObjectURL(blob);
                 }

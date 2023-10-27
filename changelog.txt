@@ -1,3 +1,4 @@
+2023-10-27 Fixed recording malfunction on application
 2023-10-27 Fixed checking correctness of drawing in Shape Tracing for scaled player
 2023-10-27 Removed re-downloading of lesson page XML when changing layout
 2023-10-27 Fixed IWB Toolbar not scrolling when fixed on mCourser
