@@ -386,10 +386,10 @@ function AddonFlashCards_create(){
         return !$(presenter.$view.find(".flashcards-card").get(0)).hasClass("flashcards-card-reversed");
     }
 
-    presenter.originalCard = -1;
+    presenter.originalCard = 1;
     presenter.prevCard = function () {
         if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard > 1) {
-            presenter.sendEndedEvent();
+            presenter.sendEndedEvent(presenter.originalCard);
         }
         presenter.removeActiveElementClass();
         if (presenter.state.currentCard>1){
@@ -408,7 +408,7 @@ function AddonFlashCards_create(){
             presenter.state.currentCard = 1;
         }
         if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
-            presenter.sendEndedEvent();
+            presenter.sendEndedEvent(presenter.originalCard);
         }
         presenter.showCard(presenter.state.currentCard);
     };
@@ -677,11 +677,13 @@ function AddonFlashCards_create(){
             presenter.audioElementFront.pause();
             presenter.audioElementFront.currentTime = 0;
             presenter.isFrontPlaying = false;
+            presenter.sendEndedEvent();
         }
         if (presenter.isBackPlaying) {
             presenter.audioElementBack.pause();
             presenter.audioElementBack.currentTime = 0;
             presenter.isBackPlaying = false;
+            presenter.sendEndedEvent();
         }
         if ((!reverse && card.AudioFront != "") || (reverse && card.AudioBack != "")){
             if (presenter.audioElementHidden.canPlayType("audio/mpeg")) {
@@ -709,6 +711,7 @@ function AddonFlashCards_create(){
         if (presenter.isHiddenPlaying) {
             presenter.isHiddenPlaying = false;
             presenter.audioElementHidden.pause();
+            presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
         }
         presenter.audioElementHidden.currentTime = 0;
     }
