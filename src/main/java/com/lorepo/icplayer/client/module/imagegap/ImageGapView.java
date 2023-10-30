@@ -96,6 +96,21 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		}
 	}-*/;
 
+	@Override
+	public void handleLimitedCheck(int score, int error, boolean hideMarkContainer) {
+		if (hideMarkContainer) {
+			removeResponseMarkContainer(getElement());
+		}
+
+		if (score == 1) {
+			addResponseMarkContainer(getElement(), CORRECT_CONTAINER_STYLE);
+		} else if (error == 1){
+			addResponseMarkContainer(getElement(), WRONG_CONTAINER_STYLE);
+		} else if (score == 0 && error == 0) {
+			addResponseMarkContainer(getElement(), DISABLED_CONTAINER_STYLE);
+		}
+	}
+
 	private void connectHandlers() {
 		addClickHandler(new ClickHandler() {
 			@Override
