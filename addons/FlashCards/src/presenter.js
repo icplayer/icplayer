@@ -369,6 +369,11 @@ function AddonFlashCards_create(){
     presenter.revertCard = function () {
         if (presenter.isFrontPlaying || presenter.isBackPlaying) {
             presenter.sendPauseEvent();
+            if (presenter.isFrontPlaying) {
+                $(presenter.flashcardsCardAudioButtonFront).addClass("paused");
+            } else {
+                $(presenter.flashcardsCardAudioButtonBack).addClass("paused");
+            }
         }
         presenter.isFrontPlaying = false;
         presenter.audioElementFront.pause();
