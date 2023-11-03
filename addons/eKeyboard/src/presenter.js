@@ -375,6 +375,7 @@ function AddoneKeyboard_create(){
                             var $el = $(element);
                             $el.addClass('ui-keyboard-lockedinput');
                             $el.attr('readonly', true);
+                            $el.attr('inputmode', "none");
                         }
                     );
                 }
@@ -431,10 +432,6 @@ function AddoneKeyboard_create(){
             openButtonElement.style.display = 'block';
             actualizeOpenButtonPosition($(lastClickedElement));
         } else {
-            if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
-                // hides native keyboard
-                document.activeElement.blur();
-            }
             presenter.createEKeyboard(this, presenter.display);
             $(this).trigger('showKeyboard');
         }
@@ -493,6 +490,7 @@ function AddoneKeyboard_create(){
 
         $(closeButtonElement).hide();
         $(lastClickedElement).removeAttr("readonly");
+        $(lastClickedElement).removeAttr("inputmode");
         var keyboard = $(lastClickedElement).data('keyboard');
         if (keyboard !== undefined) {
             keyboard.accept();
@@ -800,7 +798,7 @@ function AddoneKeyboard_create(){
 
     function showOpenButtonCallback() {
         hideOpenButton();
-
+        presenter.configuration.$inputs.attr("inputmode", "none");
         presenter.enable();
 
         escClicked = false;
@@ -919,6 +917,7 @@ function AddoneKeyboard_create(){
         presenter.configuration.$inputs.on('focusout', focusoutCallBack);
         presenter.configuration.$inputs.removeClass('ui-keyboard-input ui-keyboard-input-current');
         presenter.configuration.$inputs.removeAttr("readonly");
+        presenter.configuration.$inputs.removeAttr("inputmode");
     };
 
     presenter.enable = function () {
