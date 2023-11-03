@@ -1650,6 +1650,7 @@ var ice_dictionary_mx = {
 	"ConnectingDots_property_image_a": "Imagen inicial",
 	"ConnectingDots_property_image_b": "Imagen final",
 	"ConnectingDots_property_is_disabled": "Inhabilitar",
+	"ConnectingDots_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"Connection_property_block_wrong_answers": "Bloquear respuestas incorrectas",
 	"PointsLines_info": "Es un conjunto de puntos en un plano donde la selección de dos puntos hace que se dibuja o borra un segmento (línea) que conecta estos dos puntos.",
 	"PointsLines_name": "Puntos y lineas",
