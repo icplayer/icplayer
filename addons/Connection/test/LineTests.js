@@ -2,11 +2,13 @@ TestCase("[Connection] Line", {
     setUp: function () {
         debugger;
         this.presenter = AddonConnection_create();
-        this.presenter.initialValues = [
-            this.getInitialValue("a", "1", true),
-            this.getInitialValue("b", "2", false),
-            this.getInitialValue("ab", "3", false)
-        ];
+        this.presenter.configuration = {
+            initialConnections: [
+                this.getInitialValue("a", "1", true),
+                this.getInitialValue("b", "2", false),
+                this.getInitialValue("ab", "3", false)
+            ]
+        };
         var fromElement = $('<div id="connection-1"></div>');
         var toElement = $('<div id="connection-a"></div>');
 
@@ -24,7 +26,7 @@ TestCase("[Connection] Line", {
 
     'test given initial values without disabled path when isDisabled is called then will return false': function () {
         var expectedValue = false;
-        this.presenter.initialValues[0].from = "cc";
+        this.presenter.configuration.initialConnections[0].from = "cc";
 
         var isDisabled = this.line.isDisabled();
 
@@ -33,7 +35,7 @@ TestCase("[Connection] Line", {
 
     'test given initial values with defined path and with enabled connection when isDisabled is called then will return false': function () {
         var expectedValue = false;
-        this.presenter.initialValues[0].isDisabled = false;
+        this.presenter.configuration.initialConnections[0].isDisabled = false;
 
         var isDisabled = this.line.isDisabled();
 
