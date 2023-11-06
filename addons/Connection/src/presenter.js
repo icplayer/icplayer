@@ -369,7 +369,7 @@ function AddonConnection_create() {
     };
 
     presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
-        $.each($root.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
+        $.each($root.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
@@ -623,6 +623,7 @@ function AddonConnection_create() {
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
 
         presenter.loadElements(view, model);
+        presenter.removeNonVisibleInnerHTML();
 
         const $connectionContainer = $("." + presenter.CSS_CLASSES.CONNECTION_CONTAINER);
         if (isPreview) {
@@ -630,7 +631,6 @@ function AddonConnection_create() {
                 presenter.initializeView(view, model);
                 presenter.drawConfiguredConnections();
             })
-            presenter.removeNonVisibleInnerHTML();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
                 waitForLoad($connectionContainer, () => {
