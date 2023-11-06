@@ -347,7 +347,7 @@ function AddonFlashCards_create(){
 
          presenter.audioElementBack.onended = function () {
              $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
-             $(presenter.flashcardsCardAudioButtonFront).removeClass("paused");
+             $(presenter.flashcardsCardAudioButtonBack).removeClass("paused");
              presenter.isBackPlaying = false;
              presenter.sendEndedEvent();
          };
