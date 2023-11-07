@@ -106,7 +106,7 @@ function AddonConnectingDots_create(){
     };
 
     presenter.drawLine = function(i, time, fade, showAnswer) {
-        var m, angle, d, transform, id, line;
+        var m, angle, d, transform, id, line, x1, y1, x2, y2;
         x1 = parseInt(presenter.points[i-1][0],10);
         y1 = parseInt(presenter.points[i-1][1],10);
         x2 = parseInt(presenter.points[i][0],10);
@@ -120,16 +120,21 @@ function AddonConnectingDots_create(){
         } else {
             transform = 180 + angle;
         }
+
+        line = document.createElement("div");
+        line.style = `left: ${x1}px; top: ${y1}px`;
+        line.innerHTML = "&nbsp;";
         if (showAnswer) {
-            id ='line_'+i+'_'+new Date().getTime();
-            line = "<div id='"+id+"'class='line-show-answer' style ='left: "+x1+"px; top: "+y1+"px'>&nbsp;</div>";
+            id ='line_' + i + '_' + new Date().getTime();
+            line.classList.add("line-show-answer");
         } else {
-            id ='line_'+new Date().getTime();
-            line = "<div id='"+id+"'class='line' style ='left: "+x1+"px; top: "+y1+"px'>&nbsp;</div>";
+            id ='line_' + new Date().getTime();
+            line.classList.add("line");
             presenter.lineIds[i] = id;
         }
+        line.id = id;
         presenter.$view.find('.connectingdots').append(line);
-        presenter.$view.find('#'+id).css({
+        $(line).css({
             'left': x1,
             'top': y1,
             'width': '0px',
@@ -145,7 +150,7 @@ function AddonConnectingDots_create(){
             '-o-transform-origin' : '0px 0px'
         });
 
-        presenter.$view.find('#'+id).animate({
+        $(line).animate({
             width: d
         }, time, "linear", function(){
             if (i == (presenter.points).length-1 && !showAnswer) {
@@ -178,7 +183,7 @@ function AddonConnectingDots_create(){
             if (presenter.$view.find('#line_tmp').length > 0) {
                 presenter.$view.find('#line_tmp').remove();
             }
-            var m, angle, d, transform, id, line;
+            var m, angle, d, transform, x1, y1;
             x1 = parseInt(presenter.points[i][0],10);
             y1 = parseInt(presenter.points[i][1],10);
             m = (y-y1)/(x-x1);
@@ -190,7 +195,7 @@ function AddonConnectingDots_create(){
                 transform = 180 + angle;
             }
 
-            div = $('<div>');
+            const div = $('<div>');
             div.attr('id','line_tmp');
             div.attr('class','line');
             div.attr('style','left: '+x1+'px; top: '+y1+'px');
@@ -600,8 +605,8 @@ function AddonConnectingDots_create(){
         const upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if(!upgradedModel["showAllAnswersInGradualShowAnswersMode"]) {
-            upgradedModel["showAllAnswersInGradualShowAnswersMode"] = false;
+        if(!upgradedModel["Show all answers in gradual show answers mode"]) {
+            upgradedModel["Show all answers in gradual show answers mode"] = false;
         }
 
         return upgradedModel;
@@ -693,7 +698,7 @@ function AddonConnectingDots_create(){
             return 0;
         }
 
-        return presenter.points.length === presenter.toSelect ? 1 : 0;
+        return (presenter.points).length === presenter.toSelect ? 1 : 0;
     };
 
     presenter.getErrorCount = function () {
@@ -800,7 +805,7 @@ function AddonConnectingDots_create(){
     function _hideAnswers() {
         presenter.$view.find(".line").removeClass("line-show-answer");
         presenter.$view.find(".line-show-answer").remove();
-        if (presenter.toSelect > 0 && presenter.toSelect < presenter.points.length) {
+        if (presenter.toSelect > 0 && presenter.toSelect < (presenter.points).length) {
             getCurrentDotContainer().addClass("active");
         }
     }
@@ -813,7 +818,7 @@ function AddonConnectingDots_create(){
             return 1;
         }
 
-        return presenter.points.length - 1;
+        return (presenter.points).length - 1;
     };
 
     function getCurrentDotContainer() {
