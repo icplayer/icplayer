@@ -1660,7 +1660,7 @@ var ice_dictionary_en = {
 	"ConnectingDots_property_image_b": "End image",
 	"ConnectingDots_property_is_disabled": "Is disabled",
 	"ConnectingDots_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
-    "Connection_property_block_wrong_answers" : "Block wrong answers",
+	"Connection_property_block_wrong_answers" : "Block wrong answers",
 	"PointsLines_info": "Allows users to present a set of points on a plane where choosing two points causes drawing or removing a segment (line) connecting these two points.",
 	"PointsLines_name": "Points and Lines",
 	"PointsLines_property_points": "Points' coordinates",

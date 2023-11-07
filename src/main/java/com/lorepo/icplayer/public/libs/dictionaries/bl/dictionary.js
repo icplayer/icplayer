@@ -1647,7 +1647,7 @@ var ice_dictionary_bl = {
 	"ConnectingDots_property_image_b": "Изображение в края",
 	"ConnectingDots_property_is_disabled": "Изключи",
 	"ConnectingDots_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
-    "Connection_property_block_wrong_answers" : "Блокирай грешните отговори",
+	"Connection_property_block_wrong_answers" : "Блокирай грешните отговори",
 	"PointsLines_info": "Позволява поставянето на точки върху повърхнина, като при посочване на две точки между тях се появява или изтрива линия.",
 	"PointsLines_name": "Точки и линии",
 	"PointsLines_property_points": "Координати на точките",
