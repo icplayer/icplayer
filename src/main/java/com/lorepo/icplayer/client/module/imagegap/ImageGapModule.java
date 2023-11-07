@@ -35,6 +35,7 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
 	private boolean blockWrongAnswers = false;
+	private boolean displayResponseContainer = false;
 
 	private final HashMap<String, String> events = new HashMap<String, String>();
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
@@ -49,6 +50,7 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyEvent(EVENT_EMPTY);
 		addPropertyIsDisabled();
 		addPropertyBlockWrongAnswers();
+		addPropertyDisplayResponseMarkContainer();
 		addPropertySpeechTexts();
 	}
 
@@ -70,6 +72,7 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(gapElement, "isDisabled", false);
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(gapElement, "blockWrongAnswers", false);
+					displayResponseContainer = XMLUtils.getAttributeAsBoolean(gapElement, "displayResponseContainer", false);
 					this.speechTextItems.get(INSERTED_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "insertedWCAG"));
 					this.speechTextItems.get(REMOVED_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "removedWCAG"));
 					this.speechTextItems.get(CORRECT_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "correctWCAG"));
@@ -123,6 +126,7 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 		gap.setAttribute("isActivity", Boolean.toString(isActivity));
 		gap.setAttribute("isDisabled", Boolean.toString(isDisabled));
 		gap.setAttribute("blockWrongAnswers", Boolean.toString(blockWrongAnswers));
+		gap.setAttribute("displayResponseContainer", Boolean.toString(displayResponseContainer));
 		gap.setAttribute("insertedWCAG", speechTextItems.get(INSERTED_INDEX).getText());
 		gap.setAttribute("removedWCAG", speechTextItems.get(REMOVED_INDEX).getText());
 		gap.setAttribute("correctWCAG", speechTextItems.get(CORRECT_INDEX).getText());
@@ -363,6 +367,10 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 	public boolean shouldBlockWrongAnswers() {
 		return blockWrongAnswers;
 	}
+
+	public boolean displayResponseContainer() {
+		return displayResponseContainer;
+	}
 	
 	private void addPropertySpeechTexts() {
 		IStaticListProperty property = new IStaticListProperty() {
@@ -455,4 +463,41 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 		return text;
 	}
 
+	private void addPropertyDisplayResponseMarkContainer() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != displayResponseContainer) {
+					displayResponseContainer = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return displayResponseContainer ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_gap_add_response_container");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_gap_add_response_container");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
 }

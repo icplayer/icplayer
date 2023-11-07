@@ -1,4 +1,6 @@
 2023-11-07 Added Gradual Show Answers to Connecting Dots
+2023-11-03 Fixed too early launch of blur feedback when using eKeyboard on mobile devices
+2023-11-03 Added new container for response mark in the Image Gap
 2023-10-27 Fixed recording malfunction on application
 2023-10-27 Fixed checking correctness of drawing in Shape Tracing for scaled player
 2023-10-27 Removed re-downloading of lesson page XML when changing layout

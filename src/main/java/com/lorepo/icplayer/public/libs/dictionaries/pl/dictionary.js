@@ -418,6 +418,7 @@ var ice_dictionary_pl = {
 	"image_gap_on_wrong" : "Na źle",
 	"image_gap_on_empty" : "Na opróżnione",
 	"image_gap_is_disabled": "Jest&nbsp;wyłączony",
+	"image_gap_add_response_container": "Add container for response mark",
 	"image_source_module" : "Lista obrazkowa",
 	"image_source_image" : "Obraz",
 	"image_source_removable" : "Usuwalna",

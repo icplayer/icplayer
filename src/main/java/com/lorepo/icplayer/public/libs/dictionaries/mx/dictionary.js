@@ -419,6 +419,7 @@ var ice_dictionary_mx = {
 	"image_gap_on_wrong": "Cuando es incorrecto",
 	"image_gap_on_empty": "Cuando es vacío",
 	"image_gap_is_disabled": "Inhabilitar",
+	"image_gap_add_response_container": "Add container for response mark",
 	"image_source_module": "Imagen arrastrable",
 	"image_source_image": "Imagen",
 	"image_source_removable": "Usar la imagen sólo una vez",

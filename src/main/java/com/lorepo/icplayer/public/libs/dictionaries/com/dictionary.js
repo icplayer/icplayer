@@ -418,6 +418,7 @@ var ice_dictionary_en = {
 	"image_gap_on_wrong" : "onWrong",
 	"image_gap_on_empty" : "onEmpty",
 	"image_gap_is_disabled": "Is&nbsp;Disabled",
+	"image_gap_add_response_container": "Add container for response mark",
 	"image_source_module" : "Image source",
 	"image_source_image" : "Image",
 	"image_source_removable" : "Removable",

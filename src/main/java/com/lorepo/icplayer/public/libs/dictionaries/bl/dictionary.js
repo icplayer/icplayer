@@ -418,6 +418,7 @@ var ice_dictionary_bl = {
 	"image_gap_on_wrong" : "при грешен отговор",
 	"image_gap_on_empty" : "при празно поле",
 	"image_gap_is_disabled": "Изключи",
+	"image_gap_add_response_container": "Add container for response mark",
 	"image_source_module" : "Източник на изображение",
 	"image_source_image" : "Изображение",
 	"image_source_removable" : "Подвижен",
