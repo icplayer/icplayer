@@ -338,7 +338,7 @@ function AddonConnection_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
+        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
             const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
             $(element).html(sanitizedLink);
         });
@@ -623,7 +623,6 @@ function AddonConnection_create() {
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
 
         presenter.loadElements(view, model);
-        presenter.removeNonVisibleInnerHTML();
 
         const $connectionContainer = $("." + presenter.CSS_CLASSES.CONNECTION_CONTAINER);
         if (isPreview) {
@@ -631,6 +630,7 @@ function AddonConnection_create() {
                 presenter.initializeView(view, model);
                 presenter.drawConfiguredConnections();
             })
+            presenter.removeNonVisibleInnerHTML();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
                 waitForLoad($connectionContainer, () => {
