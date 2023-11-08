@@ -47,26 +47,28 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Initial connections</td>
-        <td>List of points connected at the module's start.<table border='1'>
-        <tbody>
-            <tr>
-                <th>Property name</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>From ID</td>
-                <td>Start point of the initial connection</td>
-            </tr>
-            <tr>
-                <td>To ID</td>
-                <td>End point of the initial connection</td>
-            </tr>
-            <tr>
-                <td>Is disabled</td>
-                <td>Disabling a provided connection. If the connection is disabled, it can't be changed by user interaction. Make sure that the disabled connection is connected to a proper path, because a user can't change it.</td>
-            </tr>          
-        </tbody>
-        </table></td>
+        <td>List of points connected at the module's start.
+            <table border='1'>
+                <tbody>
+                    <tr>
+                        <th>Property name</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>From ID</td>
+                        <td>Start point of the initial connection</td>
+                    </tr>
+                    <tr>
+                        <td>To ID</td>
+                        <td>End point of the initial connection</td>
+                    </tr>
+                    <tr>
+                        <td>Is disabled</td>
+                        <td>Disabling a provided connection. If the connection is disabled, it can't be changed by user interaction. Make sure that the disabled connection is connected to a proper path, because a user can't change it.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
     </tr>
     <tr>
         <td>Default connection color</td>
@@ -115,21 +117,22 @@ This texts will be read by Text to Speech addon after a user performs an action.
     </tr>
     <tr>
         <td>Orientations</td>
-        <td>
-            List of configurations of orientation (vertical and horizontal) of addon depending on a layout. If there is a layout for which no orientation is defined in this list, the vertical orientation will be used.<br>
-            <table>
-                <tr>
-                    <th>Property name</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td>Layout</td>
-                    <td>Name of the layout.</td>
-                </tr>
-                <tr>
-                    <td>Orientation</td>
-                    <td>List of options (vertical and horizontal) with orientations to choose from.</td>
-                </tr>
+        <td>List of configurations of orientation (vertical and horizontal) of addon depending on a layout. If there is a layout for which no orientation is defined in this list, the vertical orientation will be used.<br>
+            <table border='1'>
+                <tbody>
+                    <tr>
+                        <th>Property name</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Layout</td>
+                        <td>Name of the layout.</td>
+                    </tr>
+                    <tr>
+                        <td>Orientation</td>
+                        <td>List of options (vertical and horizontal) with orientations to choose from.</td>
+                    </tr>
+                </tbody>
             </table>
         </td>
     </tr>
@@ -384,7 +387,7 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
     </tr>
     <tr>
         <td>.connectionTopRow</td>
-        <td>Table row that spans tow row (available only in horizontal orientation)</td>
+        <td>Table row that spans top row (available only in horizontal orientation)</td>
     </tr>
     <tr>
         <td>.connectionMiddleRow</td>
