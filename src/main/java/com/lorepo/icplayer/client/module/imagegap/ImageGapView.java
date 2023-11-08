@@ -25,6 +25,9 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	private static final String CORRECT_STYLE = "correct";
 	private static final String WRONG_STYLE = "wrong";
 	private static final String DISABLED_STYLE = "disabled";
+	private static final String CORRECT_CONTAINER_STYLE = "correct-container";
+	private static final String WRONG_CONTAINER_STYLE = "wrong-container";
+	private static final String DISABLED_CONTAINER_STYLE = "disabled-container";
 	private static final String EMPTY_STYLE = "empty";
 	private static final String SHOW_CORRECT_STYLE = "correct-answer";
 
@@ -61,6 +64,53 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		getElement().setId(module.getId());
 	}
 
+	public native static void addResponseMarkContainer(Element e, String className) /*-{
+		var parentElement = e.parentElement;
+		var computedStyles = window.getComputedStyle(e, null);
+		var width = computedStyles.getPropertyValue("width");
+		var height = computedStyles.getPropertyValue("height");
+		var top = computedStyles.getPropertyValue("top");
+		var left = computedStyles.getPropertyValue("left");
+		var paddingLeft = computedStyles.getPropertyValue("padding-left");
+		var paddingTop = computedStyles.getPropertyValue("padding-top");
+		var markWrapperElement =  $wnd.document.createElement('div');
+
+		var absoluteTop = parseInt(top) + parseInt(paddingTop) + 'px';
+		var absoluteLeft = parseInt(left) + parseInt(paddingLeft) + 'px';
+
+		markWrapperElement.id = e.id + "-mark-container";
+		markWrapperElement.classList.add('ic_imageGap-mark-container', className);
+		markWrapperElement.style.width = width;
+		markWrapperElement.style.height = height;
+		markWrapperElement.style.top = absoluteTop;
+		markWrapperElement.style.left = absoluteLeft;
+
+		$wnd.$(markWrapperElement).insertAfter('#' + e.id);
+	}-*/;
+
+	public native static void removeResponseMarkContainer(Element e) /*-{
+		var wrapperID = e.id + "-mark-container";
+		var elementToRemove = $wnd.document.getElementById(wrapperID);
+		if (elementToRemove) {
+			elementToRemove.remove();
+		}
+	}-*/;
+
+	@Override
+	public void handleLimitedCheck(int score, int error, boolean hideMarkContainer) {
+		if (hideMarkContainer) {
+			removeResponseMarkContainer(getElement());
+		}
+
+		if (score == 1) {
+			addResponseMarkContainer(getElement(), CORRECT_CONTAINER_STYLE);
+		} else if (error == 1){
+			addResponseMarkContainer(getElement(), WRONG_CONTAINER_STYLE);
+		} else if (score == 0 && error == 0) {
+			addResponseMarkContainer(getElement(), DISABLED_CONTAINER_STYLE);
+		}
+	}
+
 	private void connectHandlers() {
 		addClickHandler(new ClickHandler() {
 			@Override
@@ -90,6 +140,11 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	public void showAsError() {
 		String style = getUrl().indexOf(HOLLOW_IMAGE) < 0 ? WRONG_STYLE : EMPTY_STYLE;
 		addStyleDependentName(style);
+
+		if (module.displayResponseContainer()) {
+			String containerStyle = getUrl().indexOf(HOLLOW_IMAGE) < 0 ? WRONG_CONTAINER_STYLE : DISABLED_CONTAINER_STYLE;
+			addResponseMarkContainer(getElement(), containerStyle);
+		}
 	}
 
 	@Override
@@ -100,6 +155,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	@Override
 	public void showAsCorrect() {
 		addStyleDependentName(CORRECT_STYLE);
+
+		if (module.displayResponseContainer()) {
+			addResponseMarkContainer(getElement(), CORRECT_CONTAINER_STYLE);
+		}
 	}
 
 	@Override
@@ -109,6 +168,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		removeStyleDependentName(FILLED_STYLE);
 		removeStyleDependentName(EMPTY_STYLE);
 		removeStyleDependentName(SHOW_CORRECT_STYLE);
+		removeResponseMarkContainer(getElement());
 
 		if (getUrl().indexOf(HOLLOW_IMAGE) < 0) {
 			addStyleDependentName(FILLED_STYLE);
@@ -126,6 +186,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		} else {
 			removeStyleDependentName(DISABLED_STYLE);
 			reDroppableElement(getElement());
+
+			if (module.displayResponseContainer()) {
+				removeResponseMarkContainer(getElement());
+			}
 		}
 	}
 

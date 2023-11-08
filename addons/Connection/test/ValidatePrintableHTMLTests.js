@@ -10,6 +10,8 @@ TestCase("[Connection] Connection printable html validation", {
         this.presenter.printableState = undefined;
         this.presenter.printableParserCallback = () => true;
         this.presenter.model = {
+            'ID': "Connection1",
+            'Width': "300",
             'Left column': [
                 {
                     'id': "1",
@@ -44,9 +46,16 @@ TestCase("[Connection] Connection printable html validation", {
                     'content': "c"
                 },
             ],
-        }
+            'Single connection mode': "True"
+        };
 
-
+        this.stubs = {
+            getLessonTemplateStub: sinon.stub()
+        };
+        this.stubs.getLessonTemplateStub.returns(this.getLessonTemplate());
+        this.presenter.printableController = {
+            getLessonTemplate: this.stubs.getLessonTemplateStub
+        };
     },
     'test empty printable state': function () {
         // given
@@ -299,10 +308,10 @@ TestCase("[Connection] Connection printable html validation", {
         var answersRightColumn = this.checkUserAnswers ? this.getAnswerElements(false) : '';
 
         var $root = $("<div></div>");
-        $root.addClass('printable_addon_Connection');
-        $root.attr('style', '');
         $root.attr('id', '');
-        $root.css('height', '156px');
+        $root.addClass('printable_addon_Connection');
+        $root.css('max-width', '300px');
+        $root.css('height', '92px');
         $root.html(
             '<table class="connectionContainer">' +
                 '<tr>' + answersLeftColumn +
@@ -321,6 +330,35 @@ TestCase("[Connection] Connection printable html validation", {
                     '</td>' + answersRightColumn +
                 '</tr>' +
             '</table>');
-        return $root
+        return $root;
     },
+
+    getLessonTemplate: function() {
+        const printableLesson = document.createElement("div");
+        printableLesson.classList.add("printable_lesson");
+
+        const printablePage = document.createElement("div");
+        printablePage.classList.add("printable_page");
+        printablePage.setAttribute("style", "width:718px; height:1046px;");
+        printableLesson.append(printablePage);
+
+        const table = document.createElement("table");
+        printablePage.append(table);
+        const tbody = document.createElement("tbody");
+        table.append(tbody);
+        const tr = document.createElement("tr");
+        tbody.append(tr);
+
+        const printableContent = document.createElement("td");
+        printableContent.classList.add("printable_content");
+        printableContent.classList.add("single_column_print");
+        tr.append(printableContent);
+
+        const printablePlaceholder = document.createElement("div");
+        printablePlaceholder.id = "printable_placeholder";
+        printablePlaceholder.setAttribute("style", "vertical-align: top;height: 1046px;width: 100%; columns: 1;-webkit-columns:1;-moz-columns: 1; column-gap: 40px;");
+        printableContent.append(printablePlaceholder);
+
+        return printableLesson.outerHTML;
+	}
 });

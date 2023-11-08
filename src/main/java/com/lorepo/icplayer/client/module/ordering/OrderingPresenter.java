@@ -28,6 +28,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		void setWorkStatus(boolean b);
 		boolean isDisabled();
 		void setCorrectAnswersStyles();
+		void setCorrectAnswersStyles(int index);
 		void setCorrectAnswer();
 		void setCorrectAnswer(int howManyElements);
 		void removeCorrectAnswersStyles();
@@ -619,10 +620,12 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	public void handleGradualShowAnswers(int itemIndex) {
 		view.setCorrectAnswer(itemIndex + 1);
+		view.setCorrectAnswersStyles(itemIndex);
 	}
 
 	public void handleGradualHideAnswers() {
 		isGradualShowAnswers = false;
+		view.removeCorrectAnswersStyles();
 		setState(currentState);
 
 		view.setWorkStatus(true);

@@ -4,10 +4,10 @@ TestCase('[Connection] Visibility tests', {
 
         this.stubs = {
             upgradeModelStub: sinon.stub(),
+            setUpViewBodyStub: sinon.stub(),
             loadElementsStub: sinon.stub(),
-            loadRandomElementsLeftStub: sinon.stub(),
-            loadRandomElementsRightStub: sinon.stub(),
-            setColumnsWidthStub: sinon.stub(),
+            validateModelStub: sinon.stub(),
+            chooseOrientationStub: sinon.stub(),
             initializeViewStub: sinon.stub(),
             removeNonVisibleInnerHTMLStub: sinon.stub(),
             drawConfiguredConnectionsStub: sinon.stub(),
@@ -17,10 +17,10 @@ TestCase('[Connection] Visibility tests', {
         };
 
         this.presenter.upgradeModel = this.stubs.upgradeModelStub;
+        this.presenter.setUpViewBody = this.stubs.setUpViewBodyStub;
         this.presenter.loadElements = this.stubs.loadElementsStub;
-        this.presenter.loadRandomElementsLeft = this.stubs.loadRandomElementsLeftStub;
-        this.presenter.loadRandomElementsRight = this.stubs.loadRandomElementsRightStub;
-        this.presenter.setColumnsWidth = this.stubs.setColumnsWidthStub;
+        this.presenter.validateModel = this.stubs.validateModelStub;
+        this.presenter.chooseOrientation = this.stubs.chooseOrientationStub;
         this.presenter.initializeView = this.stubs.initializeViewStub;
         this.presenter.removeNonVisibleInnerHTML = this.stubs.removeNonVisibleInnerHTMLStub;
         this.presenter.drawConfiguredConnections = this.stubs.drawConfiguredConnectionsStub;
@@ -31,6 +31,8 @@ TestCase('[Connection] Visibility tests', {
         this.presenter.mathJaxProcessEnded = {
             'then': function(){}
         };
+
+        this.stubs.validateModelStub.returns({isValid: true});
 
         this.presenter.upgradeModel.returnsArg(0);
 
