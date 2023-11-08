@@ -1,3 +1,4 @@
+2023-11-08 Fixed displaying geometric devices in IWB Toolbar
 2023-11-08 Added play, pause and stop commands to Flash Cards
 2023-11-03 Fixed too early launch of blur feedback when using eKeyboard on mobile devices
 2023-11-03 Added new container for response mark in the Image Gap

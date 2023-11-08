@@ -1325,13 +1325,17 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.floatingImageClickHandler = function IWB_Toolbar_floatingImageClickHandler(button) {
+        if (isJQueryObject(button) && !isFloatingImageBtnVisible()) {
+            return;
+        }
+
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
 
         presenter.panelView(button);
         $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
             var display = presenter.$pagePanel.find('.floating-image-mask').css('display');
-            if (display == 'none') {
+            if (display === 'none') {
                 presenter.$floatingImageMask.show();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').show();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '1');
@@ -1344,6 +1348,14 @@ function AddonIWB_Toolbar_create() {
             presenter.setImagePosition();
         });
     };
+
+    function isJQueryObject(element) {
+        return !!element[0];
+    }
+
+    function isFloatingImageBtnVisible() {
+        return $('.floating-image').css('display') !== 'none';
+    }
 
     presenter.clockClickHandler = function IWB_Toolbar_clockClickHandler(button) {
         presenter.isZoomActive = false;
