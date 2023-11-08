@@ -737,6 +737,22 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
+	public void setCorrectAnswersStyles(int itemIndex) {
+		for (int i = 0; i <= itemIndex; i++) {
+			if (getWidget(i) instanceof ItemWidget) {
+				ItemWidget itemWidget = (ItemWidget) getWidget(i);
+				itemWidget.addStyleName("correct-answer");
+			}
+		}
+
+
+		if (itemIndex == (getWidgetCount() - 2)) {
+			ItemWidget itemWidget = (ItemWidget) getWidget(getWidgetCount() - 1);
+			itemWidget.addStyleName("correct-answer");
+		}
+	}
+
+	@Override
 	public void removeCorrectAnswersStyles() {
 		for (int i = 0; i < getWidgetCount(); i++) {
 			if (getWidget(i) instanceof ItemWidget) {

@@ -18,22 +18,25 @@ SetColumnsWidthValidation.prototype.testWidthHasBeenSet = function() {
 			</tr>
 		</table>
      */
-	var threeColumnsWidth = [{left: "40%", middle: "30%", right: "30%"}];
+    var expectedColumnsWidth = {left: "40%", middle: "30%", right: "30%"};
+	presenter.configuration = {
+        columnsWidth: expectedColumnsWidth
+    };
     var view = this.view;
     var leftColumn = $(view).find(".connectionLeftColumn:first");
     var middleColumn = $(view).find(".connectionMiddleColumn:first");
     var rightColumn = $(view).find(".connectionRightColumn:first");
     
     // When
-    presenter.setColumnsWidth(view, threeColumnsWidth);
+    presenter.setLengthOfSideObjects(view);
 
     // Then
-    assertTrue("", leftColumn.width() + "%" == threeColumnsWidth[0].left);
-    assertTrue("", middleColumn.width() + "%" == threeColumnsWidth[0].middle);
-    assertTrue("", rightColumn.width() + "%" == threeColumnsWidth[0].right);
+    assertTrue("", leftColumn.width() + "%" == expectedColumnsWidth.left);
+    assertTrue("", middleColumn.width() + "%" == expectedColumnsWidth.middle);
+    assertTrue("", rightColumn.width() + "%" == expectedColumnsWidth.right);
 };
 
-SetColumnsWidthValidation.prototype.testSetWidthWhenOnlyTwoWidthsAreSet = function() {
+SetColumnsWidthValidation.prototype.testSetLengthOfSideObjectsWhenOnlyTwoWidthsAreSet = function() {
 	// Given
 	var presenter = AddonConnection_create();
     /*:DOC view = 
@@ -51,17 +54,20 @@ SetColumnsWidthValidation.prototype.testSetWidthWhenOnlyTwoWidthsAreSet = functi
 			</tr>
 		</table>
      */
-	var threeColumnsWidth = [{left: "40%", middle: "30%", right: ""}];
+	var expectedColumnsWidth = {left: "40%", middle: "30%", right: ""};
+	presenter.configuration = {
+        columnsWidth: expectedColumnsWidth
+    };
     var view = this.view;
     var leftColumn = $(view).find(".connectionLeftColumn:first");
     var middleColumn = $(view).find(".connectionMiddleColumn:first");
     var rightColumn = $(view).find(".connectionRightColumn:first");
     
     // When
-    presenter.setColumnsWidth(view, threeColumnsWidth);
+    presenter.setLengthOfSideObjects(view);
     
     // Then
-    assertTrue("", leftColumn.width() + "%" == threeColumnsWidth[0].left);
-    assertTrue("", middleColumn.width() + "%" == threeColumnsWidth[0].middle);
+    assertTrue("", leftColumn.width() + "%" == expectedColumnsWidth.left);
+    assertTrue("", middleColumn.width() + "%" == expectedColumnsWidth.middle);
     assertTrue("", rightColumn.width() + "%" == "0%");
 };

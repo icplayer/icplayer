@@ -257,8 +257,8 @@ public class PlayerController implements IPlayerController {
 			this.lastVisitedPageIndex = this.currentMainPageIndex;
 			this.currentMainPageIndex = index;
 		}
-
-		this.closeCurrentPages();
+		
+		ArrayList<IPage> closedPages = this.closeCurrentPages();
 		IPage page;
 		if(this.pageController2 != null){
 			if( (!this.showCover && index%2 > 0) ||
@@ -277,20 +277,20 @@ public class PlayerController implements IPlayerController {
 
 		if(this.showCover && index == 0){
 			this.playerView.showSinglePage();
-			this.switchToPage(page, this.pageController1);
+			this.switchToPage(page, closedPages.get(0), this.pageController1);
 		}
 		else{
-			this.switchToPage(page, this.pageController1);
+			this.switchToPage(page, closedPages.get(0), this.pageController1);
 			if(this.pageController2 != null && index+1 < this.contentModel.getPages().getTotalPageCount()){
 				this.playerView.showTwoPages();
 				page = this.contentModel.getPage(index+1);
-				this.switchToPage(page, this.pageController2);
+				this.switchToPage(page, closedPages.get(1), this.pageController2);
 			}
 		}
 	}
 
 	public void switchToCommonPage(int index) {
-		this.closeCurrentPages();
+		ArrayList<IPage> closedPages = this.closeCurrentPages();
 		IPage page;
 		if (this.pageController2 != null) {
 			if ((!this.showCover && index % 2 > 0) || (this.showCover && index % 2 == 0 && index > 0)) {
@@ -306,13 +306,13 @@ public class PlayerController implements IPlayerController {
 
 		if (this.showCover && index == 0) {
 			this.playerView.showSinglePage();
-			this.switchToPage(page, this.pageController1);
+			this.switchToPage(page, closedPages.get(0), this.pageController1);
 		} else {
-			this.switchToPage(page, this.pageController1);
+			this.switchToPage(page, closedPages.get(0), this.pageController1);
 			if (this.pageController2 != null && index+1 < this.contentModel.getCommonPages().getTotalPageCount()) {
 				this.playerView.showTwoPages();
 				page = this.contentModel.getCommonPage(index+1);
-				this.switchToPage(page, this.pageController2);
+				this.switchToPage(page, closedPages.get(1), this.pageController2);
 			}
 		}
 	}
@@ -321,8 +321,7 @@ public class PlayerController implements IPlayerController {
 		return pageId + Long.toString(System.currentTimeMillis());
 	}
 
-
-	private void switchToPage(IPage page, final PageController pageController){
+	private void switchToPage(IPage page, IPage previousPage, final PageController pageController){
 		pageController.getGradualShowAnswersService().hideAll();
 		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
@@ -334,40 +333,48 @@ public class PlayerController implements IPlayerController {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 
         this.playerView.showWaitDialog();
-
-		PageFactory factory = new PageFactory((Page) page);
-		factory.load(url, new IProducingLoadingListener() {
-			@Override
-			public void onFinishedLoading(Object producedItem) {
-				Page page = (Page) producedItem;
-                String isReportable = getReportableService().getStates().get(page.getId());
-				if (isReportable != null) {
-					if (isReportable.toLowerCase() == "true") {
-						page.setAsReportable();
-					} else {
-						page.setAsNonReportable();
-					}
+		
+		if (previousPage != null && previousPage.getHref() == page.getHref()) {
+			onPageFinishedLoading((Object) previousPage, pageController);
+		} else {
+			PageFactory factory = new PageFactory((Page) page);
+			factory.load(url, new IProducingLoadingListener() {
+				@Override
+				public void onFinishedLoading(Object producedItem) {
+					onPageFinishedLoading(producedItem, pageController);
 				}
-				pageLoaded(page, pageController);
-				visitedPages.add(page);
-				if(pageLoadListener != null){
-					pageLoadListener.onFinishedLoading(producedItem);
+				
+				@Override
+				public void onError(String error) {
+					playerView.hideWaitDialog();
+					JavaScriptUtils.log("Can't load page: " + error);
 				}
-				playerView.hideWaitDialog();
-				if(timeStart == 0){
-					timeStart = System.currentTimeMillis();
-				}
-				if (!keyboardController.isModuleActivated()) {
-					scrollViewToBeggining();
-				}
+			});
+		}
+	}
+	
+	private void onPageFinishedLoading(Object producedItem, PageController pageController) {
+		Page page = (Page) producedItem;
+		String isReportable = getReportableService().getStates().get(page.getId());
+		if (isReportable != null) {
+			if (isReportable.toLowerCase() == "true") {
+				page.setAsReportable();
+			} else {
+				page.setAsNonReportable();
 			}
-
-			@Override
-			public void onError(String error) {
-				playerView.hideWaitDialog();
-				JavaScriptUtils.log("Can't load page: " + error);
-			}
-		});
+		}
+		pageLoaded(page, pageController);
+		visitedPages.add(page);
+		if(pageLoadListener != null){
+			pageLoadListener.onFinishedLoading(producedItem);
+		}
+		playerView.hideWaitDialog();
+		if (timeStart == 0){
+			timeStart = System.currentTimeMillis();
+		}
+		if (!keyboardController.isModuleActivated()) {
+			scrollViewToBeggining();
+		}
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
@@ -397,8 +404,9 @@ public class PlayerController implements IPlayerController {
 		});
 	}
 
-	private void closeCurrentPages() {
+	private ArrayList<IPage> closeCurrentPages() {
 		ArrayList<PageController> controllerArrayList = new ArrayList<PageController>();
+		ArrayList<IPage> closedPages = new ArrayList<IPage>();
 		controllerArrayList.add(this.pageController1);
 
 		if (this.isBookMode()) {
@@ -418,8 +426,10 @@ public class PlayerController implements IPlayerController {
 		this.updateState();
 
 		for (PageController controller : controllerArrayList) {
+			closedPages.add(controller.getPage());
 			controller.closePage();
 		}
+		return closedPages;
 	}
 
 	public void updateScore() {
