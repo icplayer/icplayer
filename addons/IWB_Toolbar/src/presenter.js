@@ -1354,7 +1354,7 @@ function AddonIWB_Toolbar_create() {
     }
 
     function isFloatingImageBtnVisible() {
-        return $('.floating-image').css('display') === 'block';
+        return $('.floating-image').css('display') !== 'none';
     }
 
     presenter.clockClickHandler = function IWB_Toolbar_clockClickHandler(button) {
