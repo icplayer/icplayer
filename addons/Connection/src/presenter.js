@@ -338,7 +338,7 @@ function AddonConnection_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
+        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
             const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
             $(element).html(sanitizedLink);
         });
@@ -369,7 +369,7 @@ function AddonConnection_create() {
     };
 
     presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
-        $.each($root.find('.' + presenter.CSS_CLASSES.innerWrapper), function (index, element) {
+        $.each($root.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });

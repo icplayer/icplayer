@@ -104,6 +104,21 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <td>-</td>
         <td>Returns the number of cards marked as favourite.</td>
     </tr>
+    <tr>
+        <td>play</td>
+        <td>cardNumber, reverse</td>
+        <td>Plays the audio file of the indicated card and side. If no argument is provided, the method will play the audio associated with the currently visible card and side. If there is no audio file associated with the selected card and side, the method does nothing. The reverse argument should be a boolean (only if used within an Advanced Connector script or a custom addon, but not an onClick property of another addon), or a string with a value of "front", "reverse", "true", or "false".</td>
+    </tr>
+    <tr>
+        <td>pause</td>
+        <td>-</td>
+        <td>Pauses the audio currently being played.</td>
+    </tr>
+    <tr>
+        <td>stop</td>
+        <td>-</td>
+        <td>Stops (pauses and resets the progress) the audio currently being played.</td>
+    </tr>
 </tbody>
 </table>
 
@@ -121,7 +136,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>value</td>
-        <td>favourite/unfavourite</td>
+        <td>favourite/unfavourite/playing/pause/ended</td>
     </tr>
 </tbody>
 </table>
