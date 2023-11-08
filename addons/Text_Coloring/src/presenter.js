@@ -728,6 +728,7 @@ function AddonText_Coloring_create() {
         var upgradedModel = upgradeModelAddProperties(model);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeIsNotActivity(upgradedModel);
         return upgradedModel;
     };
 
@@ -779,6 +780,17 @@ function AddonText_Coloring_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeIsNotActivity = function AddonText_Coloring_upgradeIsNotActivity (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (!model.hasOwnProperty('isNotActivity')) {
+            upgradedModel['isNotActivity'] = 'False';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.setSpeechTexts = function AddonText_Coloring_setSpeechTexts (speechTexts) {
         presenter.speechTexts = {
             selected: presenter.DEFAULT_TTS_PHRASES.selected,
@@ -813,6 +825,7 @@ function AddonText_Coloring_create() {
 
     presenter.validateModel = function (model) {
         var validatedColors = presenter.validateColors(model.colors);
+        var validatedIsNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         if (validatedColors.isError) {
             return validatedColors;
         }
@@ -846,7 +859,8 @@ function AddonText_Coloring_create() {
             modelText: modelText,
             height: height,
             legendTitle: legendTitle,
-            langTag: model.langAttribute
+            langTag: model.langAttribute,
+            isNotActivity: validatedIsNotActivity
         };
     };
 
@@ -1268,6 +1282,10 @@ function AddonText_Coloring_create() {
     };
 
     presenter.onEventReceived = function (eventName, data) {
+        if (presenter.configuration.isNotActivity) {
+            return;
+        }
+
         if (eventName == "ShowAnswers") {
             presenter.stateMachine.showAnswers();
         }
@@ -1336,6 +1354,10 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+        if(presenter.configuration.isNotActivity) {
+            return 0;
+        }
+
         if (isCheckAnswersActive()) {
             return;
         }
@@ -1500,14 +1522,26 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getMaxScore = function () {
+        if (presenter.configuration.isNotActivity) {
+            return 0;
+        }
+
         return presenter.configuration.filteredTokens.filter(filterSelectablesTokens).length;
     };
 
     presenter.getErrorCount = function () {
+        if (presenter.configuration.isNotActivity) {
+            return 0;
+        }
+
         return presenter.configuration.filteredTokens.filter(filterSelectedTokens).filter(filterWrongTokens).length;
     };
 
     presenter.getScore = function () {
+        if (presenter.configuration.isNotActivity) {
+            return 0;
+        }
+
         return presenter.getMaxScore() - presenter.configuration.filteredTokens.filter(filterSelectablesTokens).filter(filterWrongTokens).length;
     };
 

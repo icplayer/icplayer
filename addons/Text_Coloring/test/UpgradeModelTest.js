@@ -15,5 +15,6 @@ TestCase("[Text_Coloring] Upgrade Text Coloring model", {
         assertTrue(upgradedModel.hasOwnProperty('countErrors'));
         assertTrue(upgradedModel.hasOwnProperty('showAllAnswersInGradualShowAnswersMode'));
         assertTrue(upgradedModel.hasOwnProperty('Legend title'));
+        assertTrue(upgradedModel.hasOwnProperty('isNotActivity'));
     }
 });
