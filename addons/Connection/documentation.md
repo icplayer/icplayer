@@ -376,7 +376,7 @@ When a user makes all connections without any error, the addon sends the 'ALL OK
     </tr>
     <tr>
         <td>.connectionMiddleColumn</td>
-        <td>Table cell that spans middle row (available only in vertical orientation)</td>
+        <td>Table cell that spans middle column (available only in vertical orientation)</td>
     </tr>
     <tr>
         <td>.connectionRightColumn</td>

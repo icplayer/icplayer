@@ -8,5 +8,6 @@
 		<property name="Image A" type="image" displayName="Start image" nameLabel="ConnectingDots_property_image_a"/>
 		<property name="Image B" type="image" displayName="End image" nameLabel="ConnectingDots_property_image_b"/>
 		<property name="Is disabled" type="boolean" nameLabel="ConnectingDots_property_is_disabled"/>
+		<property name="Show all answers in gradual show answers mode" nameLabel="ConnectingDots_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
 	</model>
 </addon>

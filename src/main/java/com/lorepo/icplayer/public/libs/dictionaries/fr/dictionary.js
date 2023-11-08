@@ -1651,6 +1651,7 @@ var ice_dictionary_fr = {
     "ConnectingDots_property_image_a": "Image de début",
     "ConnectingDots_property_image_b": "Image de fin",
     "ConnectingDots_property_is_disabled": "Est désactivé",
+    "ConnectingDots_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
     "Connection_property_block_wrong_answers" : "Bloquer les mauvaises réponses",
     "PointsLines_info" : "Permet aux utilisateurs de présenter un ensemble de points sur un plan. En associant deux points, cela va dessiner une ligne (segment).",
     "PointsLines_name": "Points et lignes",
