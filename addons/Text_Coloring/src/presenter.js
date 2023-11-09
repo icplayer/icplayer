@@ -824,8 +824,8 @@ function AddonText_Coloring_create() {
     };
 
     presenter.validateModel = function (model) {
-        var validatedColors = presenter.validateColors(model.colors);
         var validatedIsNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
+        var validatedColors = presenter.validateColors(model.colors);
         if (validatedColors.isError) {
             return validatedColors;
         }
@@ -1337,6 +1337,10 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setWorkMode = function () {
+        if (presenter.configuration.isNotActivity) {
+            return;
+        }
+
         presenter.stateMachine.hideAnswers();
         presenter.stateMachine.onUnCorrect();
         presenter.stateMachine.notifyEdit();
@@ -1355,7 +1359,7 @@ function AddonText_Coloring_create() {
 
     presenter.setShowErrorsMode = function () {
         if(presenter.configuration.isNotActivity) {
-            return 0;
+            return;
         }
 
         if (isCheckAnswersActive()) {
