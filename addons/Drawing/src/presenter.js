@@ -444,8 +444,8 @@ function AddonDrawing_create() {
         connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
 
         tmp_canvas.addEventListener("click", presenter.onTmpCanvasClick, false);
-        document.addEventListener("mousedown", presenter.embedTextByClickOnDocument, false);
-        document.addEventListener("touchdown", presenter.embedTextByClickOnDocument, false);
+        document.addEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
+        document.addEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
         
         // KEYBOARD DELETE EDIT IMAGE 
         document.addEventListener("keydown", presenter.removeImage, false);
@@ -1375,7 +1375,15 @@ function AddonDrawing_create() {
         return presenter.buildTextEditorResult(textArray, lineHeight, x, y);
     }
 
-    presenter.embedTextByClickOnDocument = function (e) {
+    presenter.embedTextByTouchEndOnDocument = function (e) {
+        presenter.embedTextByEventOnDocument(false, e);
+    }
+
+    presenter.embedTextByMouseDownOnDocument = function (e) {
+        presenter.embedTextByEventOnDocument(true, e);
+    }
+
+    presenter.embedTextByEventOnDocument = function (turnOnOverflow, e) {
         if (!isOnTextEditionMode()) {
             return;
         }
@@ -1390,7 +1398,7 @@ function AddonDrawing_create() {
             return;
         }
 
-        setOverflowWorkAround(true);
+        setOverflowWorkAround(turnOnOverflow);
         presenter.finishEditTextMode();
     }
 
@@ -1402,8 +1410,8 @@ function AddonDrawing_create() {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
         document.removeEventListener("keydown", presenter.removeImage, false);
-        document.removeEventListener("mousedown", presenter.embedTextByClickOnDocument, false);
-        document.removeEventListener("touchdown", presenter.embedTextByClickOnDocument, false);
+        document.removeEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
+        document.removeEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
 
         if (presenter.imageInputElement) presenter.imageInputElement.remove();
         presenter.closeTextFieldPopup();
