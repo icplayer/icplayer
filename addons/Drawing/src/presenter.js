@@ -21,7 +21,7 @@ function AddonDrawing_create() {
     presenter.$textWrapper = null;
 
     function setDefaultAddonMode() {
-        setAddonMode(ModeEnum.pencil)
+        setAddonMode(ModeEnum.pencil);
     }
 
     function setAddonMode(addonMode) {
@@ -443,12 +443,16 @@ function AddonDrawing_create() {
         // MOUSE
         connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
 
-        tmp_canvas.addEventListener('click', function(e) {
-            e.stopPropagation();
-        }, false);
+        tmp_canvas.addEventListener("click", presenter.onTmpCanvasClick, false);
+        document.addEventListener("mousedown", presenter.embedTextByClickOnDocument, false);
+        document.addEventListener("touchdown", presenter.embedTextByClickOnDocument, false);
         
         // KEYBOARD DELETE EDIT IMAGE 
-        document.addEventListener('keydown', presenter.removeImage, false);
+        document.addEventListener("keydown", presenter.removeImage, false);
+    };
+
+    presenter.onTmpCanvasClick = function (event) {
+        event.stopPropagation();
     };
 
     presenter.onMobilePaintWithoutPropagation = function (e) {
@@ -474,7 +478,7 @@ function AddonDrawing_create() {
         }
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.points = [];
-    }
+    };
 
     function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('touchstart', function (e) {
@@ -679,6 +683,7 @@ function AddonDrawing_create() {
         };
 
     presenter.presenterLogic = function(view, model, isPreview) {
+        presenter.view = view;
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
 
@@ -723,6 +728,7 @@ function AddonDrawing_create() {
 
         if (!isPreview) {
             presenter.turnOnEventListeners();
+            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
@@ -784,10 +790,10 @@ function AddonDrawing_create() {
                 }
             }
         }
-    }
+    };
 
     presenter.setEraserOff = function () {
-        setDefaultAddonMode()
+        setDefaultAddonMode();
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -979,15 +985,15 @@ function AddonDrawing_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'uploadImage': presenter.uploadImage,
-            'setColor': presenter.setColor,
-            'addText': presenter.addText,
             'setThickness': presenter.setThickness,
-            'setEraserOn': presenter.setEraserOn,
-            'setEraserThickness': presenter.setEraserThickness,
+            'setColor': presenter.setColor,
             'setOpacity': presenter.setOpacity,
-            'setFont': presenter.setFont,
+            'setEraserOn': presenter.setEraserOn,
             'setEraserOff': presenter.setEraserOff,
+            'setEraserThickness': presenter.setEraserThickness,
+            'addText': presenter.addText,
+            'setFont': presenter.setFont,
+            'uploadImage': presenter.uploadImage,
             'downloadBoard': presenter.downloadBoard
         };
 
@@ -1042,6 +1048,7 @@ function AddonDrawing_create() {
         if (!presenter.isStarted) {
             return;
         }
+
         addImageToCanvasIfOnImageEditionMode();
 
         var addonMode = presenter.configuration.addonMode,
@@ -1052,6 +1059,8 @@ function AddonDrawing_create() {
             data = c.toDataURL("image/png"),
             font = presenter.configuration.font;
 
+        const textEditorResult = presenter.createTextEditorResult();
+
         return JSON.stringify({
             addonMode: addonMode,
             color: color,
@@ -1060,7 +1069,8 @@ function AddonDrawing_create() {
             data: data,
             isVisible: presenter.configuration.isVisible,
             opacity: presenter.configuration.opacity,
-            font: font
+            font: font,
+            textEditorResult: textEditorResult ? textEditorResult.getState() : null
         });
     };
 
@@ -1088,9 +1098,18 @@ function AddonDrawing_create() {
         return parsedState;
     }
 
+    presenter.upgradeTextEditorResult = function (parsedState) {
+        if (parsedState.textEditorResult == undefined) {
+            parsedState.textEditorResult = null;
+        }
+
+        return parsedState;
+    }
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForOpacity(parsedState);
         upgradedState = presenter.upgradeStateForImageAndText(upgradedState);
+        upgradedState = presenter.upgradeTextEditorResult(upgradedState);
         return upgradedState;
     };
 
@@ -1116,9 +1135,19 @@ function AddonDrawing_create() {
         presenter.configuration.pencilThickness = parsedState.pencilThickness;
         presenter.configuration.eraserThickness = parsedState.eraserThickness;
         presenter.configuration.isVisible = parsedState.isVisible;
-        presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
+        presenter.configuration.addonMode = addonMode;
+        if (isOnTextEditionMode()) {
+            setDefaultAddonMode();
+            if (parsedState.textEditorResult) {
+                const textEditorResult = presenter.buildTextEditorResult(
+                    parsedState.textEditorResult.brokenText, parsedState.textEditorResult.lineHeight,
+                    parsedState.textEditorResult.x, parsedState.textEditorResult.y
+                );
+                textEditorResult.embed();
+            }
+        }
         if (isOnPencilMode()) {
             presenter.setColor(color);
         } else {
@@ -1182,6 +1211,7 @@ function AddonDrawing_create() {
         $textarea.css('background-color','#0000');
         $textarea.css('width',textareaWidth + 'px');
         $textarea.on('input', function() {
+            presenter.isStarted = true;
             if ($textarea[0].scrollHeight > $textarea[0].clientHeight) {
                 $textarea.css('height', $textarea[0].scrollHeight+'px');
             }
@@ -1211,16 +1241,15 @@ function AddonDrawing_create() {
     }
 
     presenter.finishEditTextMode = function() {
-        if (presenter.$textWrapper == null) return;
-        var $textarea = presenter.$textWrapper.find('textarea');
-        var textArray = presenter.getBrokenText($textarea);
-        if (textArray.length != 0) {
-            var drawingWrapper = presenter.$view.find('.drawing')[0];
-            var x = presenter.$textWrapper[0].offsetLeft - drawingWrapper.offsetLeft + 1;
-            var y = presenter.$textWrapper[0].offsetTop - drawingWrapper.offsetTop - 1;
-            var lineHeight = presenter.getLineHeight($textarea, textArray.length);
-            presenter.embedText(textArray, x, y, lineHeight);
+        if (presenter.$textWrapper == null) {
+            return;
         }
+
+        const textEditorResult = presenter.createTextEditorResult();
+        if (textEditorResult) {
+            textEditorResult.embed();
+        }
+
         presenter.closeTextFieldPopup();
     }
 
@@ -1302,13 +1331,83 @@ function AddonDrawing_create() {
         return resultArray;
     }
 
-    presenter.destroy = function () {
-        document.removeEventListener('keydown', presenter.removeImage, false);
-        presenter.configuration.tmp_ctx.removeEventListener('click', function(e) {
-            e.stopPropagation();
-        }, false);
-        if (presenter.imageInputElement) presenter.imageInputElement.remove();
+    function TextEditorResult (brokenText, lineHeight, x, y) {
+        this.brokenText = brokenText;
+        this.lineHeight = lineHeight;
+        this.x = x;
+        this.y = y;
     }
+
+    TextEditorResult.prototype = Object.create(Object.prototype);
+    TextEditorResult.prototype.constructor = TextEditorResult;
+
+    TextEditorResult.prototype.embed = function () {
+        presenter.embedText(this.brokenText, this.x, this.y, this.lineHeight);
+    }
+
+    TextEditorResult.prototype.getState = function () {
+        return {
+            brokenText: this.brokenText,
+            lineHeight: this.lineHeight,
+            x: this.x,
+            y: this.y,
+        }
+    }
+
+    presenter.buildTextEditorResult = function (brokenText, lineHeight, x, y) {
+        return new TextEditorResult(brokenText, lineHeight, x, y);
+    }
+
+    presenter.createTextEditorResult = function() {
+        if (presenter.$textWrapper == null) {
+            return;
+        }
+        const $textarea = presenter.$textWrapper.find("textarea");
+        const textArray = presenter.getBrokenText($textarea);
+        if (textArray.length === 0) {
+            return;
+        }
+
+        const drawingWrapper = presenter.$view.find(".drawing")[0];
+        const x = presenter.$textWrapper[0].offsetLeft - drawingWrapper.offsetLeft + 1;
+        const y = presenter.$textWrapper[0].offsetTop - drawingWrapper.offsetTop - 1;
+        const lineHeight = presenter.getLineHeight($textarea, textArray.length);
+        return presenter.buildTextEditorResult(textArray, lineHeight, x, y);
+    }
+
+    presenter.embedTextByClickOnDocument = function (e) {
+        if (!isOnTextEditionMode()) {
+            return;
+        }
+
+        let isTargetInsideAddon = false;
+        for (const child of presenter.view.children) {
+            if (child.contains(e.target)) {
+                isTargetInsideAddon = true;
+            }
+        }
+        if (isTargetInsideAddon) {
+            return;
+        }
+
+        setOverflowWorkAround(true);
+        presenter.finishEditTextMode();
+    }
+
+    presenter.destroy = function (event) {
+        if (event.target !== this) {
+            return;
+        }
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
+        document.removeEventListener("keydown", presenter.removeImage, false);
+        document.removeEventListener("mousedown", presenter.embedTextByClickOnDocument, false);
+        document.removeEventListener("touchdown", presenter.embedTextByClickOnDocument, false);
+
+        if (presenter.imageInputElement) presenter.imageInputElement.remove();
+        presenter.closeTextFieldPopup();
+    };
 
     return presenter;
 }
