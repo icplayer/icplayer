@@ -138,13 +138,18 @@ function AddonImage_Identification_create(){
 
     function loadImage(imageSrc, isPreview) {
         var image = document.createElement('img');
-        $(image).attr('src', imageSrc);
-        $(image).addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+        var $image = $(image);
+        $image.attr('src', imageSrc);
+        $image.addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
         presenter.$view.html(image);
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
-        $(image).load(function () {
+        if (presenter.configuration.altText !== undefined) {
+            $image.attr("alt", presenter.configuration.altText);
+        }
+
+        $image.load(function () {
             var elementDimensions = DOMOperationsUtils.getOuterDimensions(this);
             var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
 
@@ -165,10 +170,6 @@ function AddonImage_Identification_create(){
                 height:$(element).height() + 'px',
                 color: 'rgba(0,0,0,0.0)'
             });
-
-            if(presenter.configuration.altText !== undefined) {
-                $(innerElement).html(presenter.configuration.altText);
-            }
 
             $(element).html(innerElement);
             presenter.$view.html(element);
