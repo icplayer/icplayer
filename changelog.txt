@@ -1,3 +1,4 @@
+2023-11-13 Changed position on collision of eKeyboard from flip to flipfit
 2023-11-08 Added Gradual Show Answers to Connecting Dots
 2023-11-08 Fixed alt text in Connection addon
 2023-11-08 Fixed displaying geometric devices in IWB Toolbar
