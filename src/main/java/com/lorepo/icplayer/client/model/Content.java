@@ -621,6 +621,10 @@ public class Content implements IContentBuilder, IContent {
 		return this.layoutsContainer.getActualSemiResponsiveLayoutID();
 	}
 
+	public String getActualSemiResponsiveLayoutName() {
+		return this.layoutsContainer.getActualSemiResponsiveLayoutName();
+	}
+
 	public JavaScriptObject getSemiResponsiveLayoutsAsJS() {
 		return this.layoutsContainer.toJS();
 	}

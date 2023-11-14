@@ -112,6 +112,124 @@ TestCase("[Table] Commands logic - getGapText / getGapValue", {
     }
 });
 
+TestCase("[Table] Commands logic - setGapText / setGapTextCommand", {
+    setUp: function () {
+        this.presenter = AddonTable_create();
+
+        this.stubs = {
+            createView: sinon.stub(DraggableDroppableObject.prototype, 'createView'),
+            connectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
+            validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration')
+        };
+
+        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
+        this.presenter.configuration = {
+            gapType: "editable"
+        };
+
+        this.gap1 = new this.presenter.GapUtils({});
+        this.gap1.setValue('some value');
+        this.gap1.$view = $(document.createElement("div"));
+        this.gap1.setViewValue('some value');
+
+        this.gap2 = new this.presenter.GapUtils({});
+        this.gap2.setValue('');
+        this.gap2.$view = $(document.createElement("div"));
+        this.gap2.setViewValue('');
+
+        this.gap3 = new this.presenter.GapUtils({});
+        this.gap3.setValue('');
+        this.gap3.$view = $(document.createElement("div"));
+        this.gap3.setViewValue('');
+
+        this.gap4 = new this.presenter.GapUtils({});
+        this.gap4.setValue('another value');
+        this.gap4.$view = $(document.createElement("div"));
+        this.gap4.setViewValue('another value');
+
+        this.presenter.gapsContainer.addGap(this.gap1);
+        this.presenter.gapsContainer.addGap(this.gap2);
+        this.presenter.gapsContainer.addGap(this.gap3);
+        this.presenter.gapsContainer.addGap(this.gap4);
+    },
+
+    tearDown: function () {
+        DraggableDroppableObject.prototype.createView.restore();
+        DraggableDroppableObject._internal.connectEvents.restore();
+        DraggableDroppableObject._internal.validateConfiguration.restore();
+    },
+
+    'test given empty editable gap when executed setGapText on gap number 2 then gap number 2 will have new value': function () {
+        this.presenter.setGapText(2, "New text");
+
+        assertEquals("New text", this.presenter.getGapText(2));
+    },
+
+    'test given empty editable gaps when executed setGapTextCommand on gaps then this gaps will have new values': function () {
+        this.presenter.setGapTextCommand(["2", "New text 1"]);
+        this.presenter.setGapTextCommand([3, "New text 2"]);
+
+        assertEquals("New text 1", this.presenter.getGapText(2));
+        assertEquals("New text 2", this.presenter.getGapText(3));
+    },
+
+    'test given empty math gap when executed setGapText on gap number 2 then do nothing': function () {
+        this.presenter.configuration.gapType = "math";
+
+        this.presenter.setGapText(2, "New text");
+
+        assertEquals("", this.presenter.getGapText(2));
+    },
+
+    'test given empty math gaps when executed setGapTextCommand on gaps then do nothing': function () {
+        this.presenter.configuration.gapType = "math";
+
+        this.presenter.setGapTextCommand(["2", "New text 1"]);
+        this.presenter.setGapTextCommand([3, "New text 2"]);
+
+        assertEquals("", this.presenter.getGapText(2));
+        assertEquals("", this.presenter.getGapText(3));
+    },
+
+    'test given empty draggable gap when executed setGapText on gap number 2 then do nothing': function () {
+        this.presenter.configuration.gapType = "draggable";
+
+        this.presenter.setGapText(2, "New text");
+
+        assertEquals("", this.presenter.getGapText(2));
+    },
+
+    'test given empty draggable gaps when executed setGapTextCommand on gaps then do nothing': function () {
+        this.presenter.configuration.gapType = "draggable";
+
+        this.presenter.setGapTextCommand(["2", "New text 1"]);
+        this.presenter.setGapTextCommand([3, "New text 2"]);
+
+        assertEquals("", this.presenter.getGapText(2));
+        assertEquals("", this.presenter.getGapText(3));
+    },
+
+    'test given table with 4 gaps when setGapText executed then do nothing': function () {
+        this.presenter.setGapTextCommand([0, "New text"]);
+        this.presenter.setGapTextCommand([5, "New text"]);
+
+        assertEquals("some value", this.presenter.getGapText(1));
+        assertEquals("", this.presenter.getGapText(2));
+        assertEquals("", this.presenter.getGapText(3));
+        assertEquals("another value", this.presenter.getGapText(4));
+    },
+
+    'test given table with 4 gaps when setGapTextCommand executed then do nothing': function () {
+        this.presenter.setGapTextCommand(["0", "New text"]);
+        this.presenter.setGapTextCommand(["5", "New text"]);
+
+        assertEquals("some value", this.presenter.getGapText(1));
+        assertEquals("", this.presenter.getGapText(2));
+        assertEquals("", this.presenter.getGapText(3));
+        assertEquals("another value", this.presenter.getGapText(4));
+    }
+});
+
 TestCase("[Table] Commands logic - markGapAsCorrect", {
     setUp: function () {
         this.presenter = AddonTable_create();

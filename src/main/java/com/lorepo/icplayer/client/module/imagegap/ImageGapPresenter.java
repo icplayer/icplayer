@@ -61,6 +61,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public String getLang();
 		public void readInserted();
 		public void readRemoved();
+		public void handleLimitedCheck(int score, int error, boolean hideMarkContainer);
 	}
 
 	private final ImageGapModule model;
@@ -207,6 +208,18 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		setState(currentState);
 		readyToDraggableItem = userReadyToDraggableItem;
 		userReadyToDraggableItem = null;
+	}
+
+	private void handleLimitedCheck(HashMap<String, String> data) {
+		if (!model.displayResponseContainer()) {
+			return;
+		}
+
+		if (data.containsKey("score") && data.containsKey("errors")) {
+			view.handleLimitedCheck(Integer.parseInt(data.get("score")), Integer.parseInt(data.get("errors")), false);
+		} else if (data.containsKey("value")) {
+			view.handleLimitedCheck(-1, -1, true);
+		}
 	}
 
 	@Override
@@ -837,10 +850,12 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
-		if (eventName.equals("ShowAnswers")) {
+		if (eventName == "ShowAnswers") {
 			showAnswers();
-		} else if (eventName.equals("HideAnswers")) {
+		} else if (eventName == "HideAnswers") {
 			hideAnswers();
+		} else if (eventName == "LimitedCheck") {
+			handleLimitedCheck(data);
 		}
 	}
 

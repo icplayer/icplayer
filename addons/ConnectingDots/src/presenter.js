@@ -6,6 +6,7 @@ function AddonConnectingDots_create(){
     presenter.activity = false;
     presenter.error = false;
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
 
     presenter.ERROR_CODES = {
         'PE': 'Points coordinates incorrect!',
@@ -14,12 +15,25 @@ function AddonConnectingDots_create(){
         'IE': 'Indexes incorrect!'
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+    presenter.onEventReceived = function (eventName, data) {
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (!presenter.isGradualShowAnswersActive) {
+                    presenter.isGradualShowAnswersActive = true;
+                }
+                if (data.moduleID === presenter.addonID) {
+                    presenter.gradualShowAnswers(parseInt(data.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
@@ -92,7 +106,7 @@ function AddonConnectingDots_create(){
     };
 
     presenter.drawLine = function(i, time, fade, showAnswer) {
-        var m, angle, d, transform, id, line;
+        var m, angle, d, transform, id, line, x1, y1, x2, y2;
         x1 = parseInt(presenter.points[i-1][0],10);
         y1 = parseInt(presenter.points[i-1][1],10);
         x2 = parseInt(presenter.points[i][0],10);
@@ -106,16 +120,21 @@ function AddonConnectingDots_create(){
         } else {
             transform = 180 + angle;
         }
+
+        line = document.createElement("div");
+        line.style = `left: ${x1}px; top: ${y1}px`;
+        line.innerHTML = "&nbsp;";
         if (showAnswer) {
-            id ='line_'+i+'_'+new Date().getTime();
-            line = "<div id='"+id+"'class='line-show-answer' style ='left: "+x1+"px; top: "+y1+"px'>&nbsp;</div>";
+            id ='line_' + i + '_' + new Date().getTime();
+            line.classList.add("line-show-answer");
         } else {
-            id ='line_'+new Date().getTime();
-            line = "<div id='"+id+"'class='line' style ='left: "+x1+"px; top: "+y1+"px'>&nbsp;</div>";
+            id ='line_' + new Date().getTime();
+            line.classList.add("line");
             presenter.lineIds[i] = id;
         }
+        line.id = id;
         presenter.$view.find('.connectingdots').append(line);
-        presenter.$view.find('#'+id).css({
+        $(line).css({
             'left': x1,
             'top': y1,
             'width': '0px',
@@ -131,7 +150,7 @@ function AddonConnectingDots_create(){
             '-o-transform-origin' : '0px 0px'
         });
 
-        presenter.$view.find('#'+id).animate({
+        $(line).animate({
             width: d
         }, time, "linear", function(){
             if (i == (presenter.points).length-1 && !showAnswer) {
@@ -164,7 +183,7 @@ function AddonConnectingDots_create(){
             if (presenter.$view.find('#line_tmp').length > 0) {
                 presenter.$view.find('#line_tmp').remove();
             }
-            var m, angle, d, transform, id, line;
+            var m, angle, d, transform, x1, y1;
             x1 = parseInt(presenter.points[i][0],10);
             y1 = parseInt(presenter.points[i][1],10);
             m = (y-y1)/(x-x1);
@@ -176,7 +195,7 @@ function AddonConnectingDots_create(){
                 transform = 180 + angle;
             }
 
-            div = $('<div>');
+            const div = $('<div>');
             div.attr('id','line_tmp');
             div.attr('class','line');
             div.attr('style','left: '+x1+'px; top: '+y1+'px');
@@ -215,6 +234,7 @@ function AddonConnectingDots_create(){
                 break;
             case 'enable'.toLowerCase():
                 presenter.enable();
+                break;
             case 'isAttempted'.toLowerCase():
                 presenter.isAttempted();
                 break;
@@ -222,32 +242,26 @@ function AddonConnectingDots_create(){
     };
 
     presenter.hide = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
 
     presenter.show = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
 
     presenter.disable = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.isDisabled = true;
     };
 
     presenter.enable = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.isDisabled = false;
     };
 
@@ -264,9 +278,8 @@ function AddonConnectingDots_create(){
     };
 
     presenter.isAttempted = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
         return (!(presenter.activity) || (presenter.toSelect > 0));
     };
 
@@ -293,6 +306,7 @@ function AddonConnectingDots_create(){
     };
 
     presenter.run = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.randomId = Math.floor(100000*Math.random());
         presenter.$view = $(view);
         presenter.addonID = model.ID;
@@ -315,6 +329,7 @@ function AddonConnectingDots_create(){
         presenter.points = getPoint(con,coords);
         presenter.indexes = checkIndexes(presenter.model['Indexes'],(presenter.points).length);
         presenter.isDisabled = ModelValidationUtils.validateBoolean(presenter.model['Is disabled']);
+        presenter.showAllAnswersInGradualShowAnswersMode = ModelValidationUtils.validateBoolean(presenter.model["Show all answers in gradual show answers mode"]);
         presenter.initIsDisabled = presenter.isDisabled;
 
         var image1 = document.createElement('img');
@@ -356,7 +371,7 @@ function AddonConnectingDots_create(){
             presenter.$view.find('.dot').on('mousedown', function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowingAnswers()) {
                     presenter.isDown = false;
                 }
             });
@@ -364,7 +379,7 @@ function AddonConnectingDots_create(){
             presenter.$view.find('.dot_number').on('mousedown', function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowingAnswers()) {
                     presenter.isDown = false;
                 }
             });
@@ -372,7 +387,7 @@ function AddonConnectingDots_create(){
             presenter.$view.on('mousedown', function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive) {
+                if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowingAnswers()) {
                     presenter.isDown = true;
                 }
             });
@@ -489,11 +504,14 @@ function AddonConnectingDots_create(){
                 presenter.isDown = false;
             });
         }
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        for (let i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.createPreview = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         presenter.addonID = model.ID;
         presenter.model = model;
@@ -579,10 +597,24 @@ function AddonConnectingDots_create(){
 
     };
 
-    presenter.reset = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeShowAllAnswersInGradualShowAnswersMode(model);
+    };
+
+    presenter.upgradeShowAllAnswersInGradualShowAnswersMode = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel["Show all answers in gradual show answers mode"]) {
+            upgradedModel["Show all answers in gradual show answers mode"] = false;
         }
+
+        return upgradedModel;
+    };
+
+    presenter.reset = function() {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
         if (presenter.error != false) {
         } else {
             if (presenter.toSelect > 0) {
@@ -608,19 +640,40 @@ function AddonConnectingDots_create(){
         }
     };
 
-    presenter.getState = function() {
+    function executeWithoutShownAnswers(funcToCall) {
+        let wasShowAnswersActive = false;
+        let wasGradualShowAnswersActive = false;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+            wasShowAnswersActive = true;
+        } else if (presenter.isGradualShowAnswersActive) {
+            presenter.gradualHideAnswers();
+            wasGradualShowAnswersActive = true;
         }
-        var toSelect = presenter.toSelect;
-        var isDisabled = presenter.isDisabled;
-        var isVisible = presenter.isVisible;
+
+        const result = funcToCall();
+
+        if (wasShowAnswersActive) {
+            presenter.showAnswers();
+        } else if (wasGradualShowAnswersActive) {
+            presenter.gradualShowAnswers();
+        }
+
+        return result;
+    }
+
+    presenter.getState = function() {
+        return executeWithoutShownAnswers(getState);
+    };
+
+    function getState() {
         return JSON.stringify({
             toSelect: presenter.toSelect,
-            isDisabled: isDisabled,
-            isVisible: isVisible
+            isDisabled: presenter.isDisabled,
+            isVisible: presenter.isVisible
         });
-    };
+    }
+
     presenter.setState = function(state) {
         presenter.toSelect = JSON.parse(state).toSelect;
         presenter.isVisible = JSON.parse(state).isVisible;
@@ -635,39 +688,31 @@ function AddonConnectingDots_create(){
         }
         presenter.updateVisibility();
     };
-    presenter.getMaxScore = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.activity) return 1;
-        return 0;
-    };
-    presenter.getScore = function (view, model) {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (!presenter.activity || (presenter.error != false)) return 0;
 
-        if ((presenter.points).length == presenter.toSelect) {
-            return 1;
-        } else {
+    presenter.getMaxScore = function () {
+        return presenter.activity ? 1 : 0;
+    };
+
+    presenter.getScore = function (view, model) {
+        if (!presenter.activity || presenter.error != false) {
             return 0;
         }
+
+        return (presenter.points).length === presenter.toSelect ? 1 : 0;
     };
+
     presenter.getErrorCount = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
         if (presenter.toSelect == 0 || (presenter.error != false)) {
             return 0;
         } else {
             return presenter.getMaxScore() - presenter.getScore();
         }
     };
+
     presenter.setShowErrorsMode = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isErrorMode = true;
         if (!presenter.activity) return 0;
         if (presenter.getScore() === presenter.getMaxScore())
@@ -675,6 +720,7 @@ function AddonConnectingDots_create(){
         if (presenter.getErrorCount() > 0)
             presenter.$view.find('.connectingdots').addClass('wrong');
     };
+
     presenter.setWorkMode = function () {
         presenter.isErrorMode = false;
         presenter.$view.find('.connectingdots').removeClass('wrong');
@@ -682,37 +728,106 @@ function AddonConnectingDots_create(){
     };
 
     presenter.showAnswers = function () {
-        if (presenter.activity) {
-            var numberOfPoints = (presenter.points).length;
-            if (presenter.isShowAnswersActive) {
-                presenter.hideAnswers();
+        if (!presenter.activity) {
+            return;
+        }
+
+        presenter.isErrorMode && presenter.setWorkMode();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        presenter.isShowAnswersActive = true;
+        _showAnswers();
+    };
+
+    presenter.gradualShowAnswers = function (itemIndex) {
+        if (!presenter.activity) {
+            return;
+        }
+
+        presenter.isErrorMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+
+        if (presenter.showAllAnswersInGradualShowAnswersMode) {
+            _showAnswers();
+        } else {
+            const isFirstGSA = itemIndex === 0;
+            if (isFirstGSA) {
+                presenter.toSelect > 0 && getCurrentDotContainer().removeClass("active");
+                for (let i = 1; i < presenter.toSelect; i++) {
+                    presenter.$view.find('#' + presenter.lineIds[i]).remove();
+                }
             }
-            presenter.isShowAnswersActive = true;
-            presenter.setWorkMode();
-            presenter.$view.find('.line').addClass('line-show-answer');
-            var i = presenter.toSelect;
-            if (i == 0) {
-                i++;
-            } else {
-                presenter.$view.find('div#dot_container_'+presenter.randomId+'_'+presenter.addonID+'_'+(i-1)).removeClass('active');
-            }
-            for (; i < numberOfPoints; i++) {
-                presenter.drawLine(i,0,true,true);
+            presenter.drawLine(itemIndex + 1,0,true,true);
+        }
+    };
+
+    function _showAnswers() {
+        presenter.$view.find(".line").addClass("line-show-answer");
+
+        let i = presenter.toSelect;
+        if (i === 0) {
+            i++;
+        } else {
+            getCurrentDotContainer().removeClass("active");
+        }
+        for (; i < (presenter.points).length; i++) {
+            presenter.drawLine(i,0,true,true);
+        }
+    }
+
+    presenter.isShowingAnswers = function (){
+        return presenter.isGradualShowAnswersActive || presenter.isShowAnswersActive;
+    }
+
+    presenter.hideAnswers = function () {
+        if (!presenter.activity || !presenter.isShowAnswersActive) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = false;
+        _hideAnswers();
+    };
+
+    presenter.gradualHideAnswers = function () {
+        if (!presenter.activity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = false;
+        _hideAnswers();
+        if (!presenter.showAllAnswersInGradualShowAnswersMode) {
+            for (let i = 1; i < presenter.toSelect; i++) {
+                presenter.drawLine(i,0,true,false);
             }
         }
     };
 
-    presenter.hideAnswers = function () {
-        if (presenter.activity && presenter.isShowAnswersActive) {
-            presenter.isShowAnswersActive = false;
-            presenter.$view.find('.line').removeClass('line-show-answer');
-            presenter.$view.find('.line-show-answer').remove();
-            if (presenter.toSelect > 0 && presenter.toSelect < (presenter.points).length) {
-                var i = presenter.toSelect;
-                presenter.$view.find('div#dot_container_'+presenter.randomId+'_'+presenter.addonID+'_'+(i-1)).addClass('active');
-            }
+    function _hideAnswers() {
+        presenter.$view.find(".line").removeClass("line-show-answer");
+        presenter.$view.find(".line-show-answer").remove();
+        if (presenter.toSelect > 0 && presenter.toSelect < (presenter.points).length) {
+            getCurrentDotContainer().addClass("active");
         }
+    }
+
+    presenter.getActivitiesCount = function () {
+        if (presenter.error) {
+            return 0;
+        }
+        if (presenter.showAllAnswersInGradualShowAnswersMode) {
+            return 1;
+        }
+
+        return (presenter.points).length - 1;
     };
+
+    function getCurrentDotContainer() {
+        return getDotContainer(presenter.toSelect - 1);
+    }
+
+    function getDotContainer(dotIndex) {
+        return presenter.$view.find("div#dot_container_" + presenter.randomId + '_' + presenter.addonID + '_' + dotIndex);
+    }
 
     function scalePoint({x, y}) {
         var scaledPoint = {x: x, y: y};

@@ -45,6 +45,11 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	}
 
 	@Override
+	public void setCorrectAnswersStyles(int itemIndex) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public void setCorrectAnswer() {
 		// TODO Auto-generated method stub
 

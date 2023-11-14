@@ -16,15 +16,17 @@ TestCase('[Connection] Utilities Tests', {
             this.getDisabledValue('g', '22')
         ];
 
-        this.presenter.initialValues = [
-            this.getInitialValue('a', '1', true),
-            this.getInitialValue('b', '2', false),
-            this.getInitialValue('c', '3', true),
-            this.getInitialValue('d', '4', true),
-            this.getInitialValue('e', '5', false),
-            this.getInitialValue('f', '6', false),
-            this.getInitialValue('a', '2', true)
-        ];
+        this.presenter.configuration = {
+            initialConnections: [
+                this.getInitialValue('a', '1', true),
+                this.getInitialValue('b', '2', false),
+                this.getInitialValue('c', '3', true),
+                this.getInitialValue('d', '4', true),
+                this.getInitialValue('e', '5', false),
+                this.getInitialValue('f', '6', false),
+                this.getInitialValue('a', '2', true)
+            ]
+        };
     },
 
     'test get element by id': function() {

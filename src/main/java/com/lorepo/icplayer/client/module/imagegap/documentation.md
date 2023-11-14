@@ -41,6 +41,10 @@ An Image gap module is an empty box which should be filled in with a relevant it
         <td>Block wrong answers</td>
         <td>With this option checked, wrong answers are removed and the "on wrong" event is sent.</td>
     </tr>
+    <tr>
+        <td>Add container for response mark</td>
+        <td>Attach new HTML element for response mark, when check answers is active. The element overlays image gap.</td>
+    </tr>
 </tbody>
 </table>
 
@@ -135,6 +139,22 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
     <tr>
         <td>.ic_imageGap-correct-answer</td>
         <td>indicates the look of an image gap with the correct answer displayed</td>
+    </tr>
+    <tr>
+        <td>.ic_imageGap-mark-container</td>
+        <td>indicates the look of a response mark container</td>
+    </tr>
+    <tr>
+        <td>.correct-container</td>
+        <td>indicates the look of a response mark container on correct answer</td>
+    </tr>
+    <tr>
+        <td>.wrong-container</td>
+        <td>indicates the look of a response mark container on wrong answer</td>
+    </tr>
+    <tr>
+        <td>.disabled-container</td>
+        <td>indicates the look of a disabled response mark container</td>
     </tr>
 </tbody>
 </table>

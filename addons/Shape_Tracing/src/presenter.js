@@ -622,9 +622,10 @@ function AddonShape_Tracing_create() {
     };
 
     function checkCorrectness() {
-        var x = parseInt(presenter.cursorPosition.x, 10);
-        var y = parseInt(presenter.cursorPosition.y, 10);
-        if (presenter.isShapeCoveredInCircle(x, y, presenter.data.pencilThickness / 2)) {
+        const x = parseInt(presenter.cursorPosition.x, 10);
+        const y = parseInt(presenter.cursorPosition.y, 10);
+        const point = scalePoint({x: x, y: y});
+        if (presenter.isShapeCoveredInCircle(point.x, point.y, presenter.data.pencilThickness / 2)) {
             isOutsideShape = false;
         } else {
             if (!isOutsideShape) {
@@ -633,12 +634,26 @@ function AddonShape_Tracing_create() {
             }
         }
 
-        if (presenter.isPositionInDefinedPoint(x, y, presenter.data.pencilThickness / 2)) {
+        if (presenter.isPositionInDefinedPoint(point.x, point.y, presenter.data.pencilThickness / 2)) {
             presenter.data.currentPointNumber++;
             if (presenter.data.currentPointNumber > presenter.configuration.points.length) {
                 presenter.data.isAllPointsChecked = true;
             }
         }
+    }
+
+    function scalePoint({x, y}) {
+        const scaledPoint = {x: x, y: y};
+        if (!presenter.playerController) {
+            return scaledPoint;
+        }
+
+        const scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
+        }
+        return scaledPoint;
     }
 
     function draw(e, notPropagate) {
@@ -712,7 +727,7 @@ function AddonShape_Tracing_create() {
         }
 
         // MOUSE
-        connectMouseEvents($canvas)
+        connectMouseEvents($canvas);
     }
 
     function connectTouchEvents($canvas) {
