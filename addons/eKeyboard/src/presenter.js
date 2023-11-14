@@ -512,7 +512,7 @@ function AddoneKeyboard_create(){
                 at : presenter.configuration.positionAt.value,
                 at2 : presenter.configuration.positionAt.value,
                 offset : presenter.configuration.offset.value,
-                collision: 'flipfit'
+                collision: 'fit'
             },
 
                     // preview added above keyboard if true, original input/textarea used if false
