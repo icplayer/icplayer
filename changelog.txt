@@ -1,4 +1,5 @@
-2023-11-13 Changed position on collision of eKeyboard from flip to flipfit
+2023-11-14 Fixed inability to select text when there is slider addon on page
+2023-11-13 Changed position on collision of eKeyboard from flip to fit
 2023-11-13 Changed Image Identification to set 'Alternative text' as 'alt' attribute
 2023-11-08 Added property isNotActivity to the Text Coloring
 2023-11-08 Added Gradual Show Answers to Connecting Dots
