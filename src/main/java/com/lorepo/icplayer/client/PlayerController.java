@@ -863,4 +863,8 @@ public class PlayerController implements IPlayerController {
 			this.keyboardController.clearEventListeners();
 		}
 	}
+
+	public void setNVDAAvability(boolean shouldUseNVDA) {
+		keyboardController.handleNVDAAvability(shouldUseNVDA);
+	}
 }

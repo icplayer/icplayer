@@ -147,6 +147,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.setScoreWithMetadata = function (state) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(state);
 			};
+
+			player.setNVDAAvability = function(shouldUseNVDA) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setNVDAAvability(Z)(shouldUseNVDA);
+			};
 		}
 
 		// CreatePlayer
@@ -399,5 +403,9 @@ public class PlayerEntryPoint implements EntryPoint {
 		outstretchHeightListener = null;
 		contextMetadata = null;
 		externalVariables = null;
+	}
+
+	private void setNVDAAvability(boolean shouldUseNVDA) {
+		this.theApplication.setNVDAAvability(shouldUseNVDA);
 	}
 }
