@@ -23,6 +23,8 @@ function getMockedView() {
         "<audio class=\"flashcards-card-audio flashcards-card-audio-back\" src=\"//www.mauthor.com/file/serve/5249777514184704\"></audio>" +
         "<div class=\"flashcards-card-audio-button flashcards-card-audio-button-back\"></div>" +
         "</div></div><div class=\"flashcards-button-favourite\"></div></div>" +
+        "<div class='flashcards-card-audio-wrapper flashcards-card-audio-wrapper-hidden'>" +
+        "<audio class='flashcards-card-audio flashcards-card-audio-hidden' src=\"//www.mauthor.com/file/serve/5249777514184704\"></audio></div>" +
         "<div class=\"flashcards-prev-wrapper\"></div>" +
         "</div>" +
         "<div class=\"flashcards-panel\">1/1</div>";

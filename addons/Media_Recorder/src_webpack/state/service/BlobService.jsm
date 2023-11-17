@@ -3,6 +3,12 @@ export class BlobService {
     static serialize(blob) {
         return new Promise(resolve => {
             let reader = new FileReader();
+            if (blob instanceof Blob) {
+                const realFileReader = reader._realReader;
+                if (realFileReader) {
+                    reader = realFileReader;
+                }
+            }
             reader.onloadend = () => resolve(reader.result);
             reader.readAsDataURL(blob);
         });

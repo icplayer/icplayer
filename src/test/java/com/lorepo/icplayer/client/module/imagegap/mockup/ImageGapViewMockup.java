@@ -175,4 +175,10 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void handleLimitedCheck(int score, int error, boolean hideMarkContainer) {
+		// TODO Auto-generated method stub
+		
+	}
 }
