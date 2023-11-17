@@ -60,7 +60,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	private int parentScrollY = 0;
 	private int iframeOffsetTop = 0;
 	private int parentWindowHeight = 0;
-	private boolean isNVDAStatusWasChanged = false;
+	private boolean shouldBlockTTS = false;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -240,10 +240,10 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	// This method is intended to ensure that NVDA doesn't interfere with keyboard control mode
-	private native void setRoleApplication(boolean isSet, boolean isNVDAStatusWasChanged) /*-{
+	private native void setRoleApplication(boolean isSet, boolean shouldBlockTTS) /*-{
 		var $_ = $wnd.$;
 		if( isSet ) {
-			if (!isNVDAStatusWasChanged) {
+			if (!shouldBlockTTS) {
 				$_('#_icplayer').attr("aria-hidden","true");
 			}
 
@@ -258,10 +258,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				$wnd.parent.postMessage("ic_disableAria","*"); 
 			}
 		} else {
-			if (!isNVDAStatusWasChanged) {
-				$_('#_icplayer').removeAttr("aria-hidden");
-			}
-			
+			$_('#_icplayer').removeAttr("aria-hidden");
 			$_('[ic_role_off]').each(function(){
 				var $self = $_(this);
 				var roleValue = $self.attr('ic_role_off');
@@ -294,12 +291,12 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
-				this.setRoleApplication(true, this.isNVDAStatusWasChanged);
+				this.setRoleApplication(true, this.shouldBlockTTS);
 			}
 			
 			if (isWCAGExit) {
 				this.mainPageController.readExitText();
-				this.setRoleApplication(false, this.isNVDAStatusWasChanged);
+				this.setRoleApplication(false, this.shouldBlockTTS);
 			}
 		}
 		
@@ -917,16 +914,13 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	public void handleNVDAAvability(boolean shouldUseNVDA) {
-		this.isNVDAStatusWasChanged = true;
+		this.shouldBlockTTS = shouldUseNVDA;
 		this.setNVDAAvability(shouldUseNVDA);
 	}
 
 	private native void setNVDAAvability(boolean shouldUseNVDA) /*-{
-		var useNVDA = shouldUseNVDA ? "false" : "true";
 		if (shouldUseNVDA) {
-			$wnd.$('#_icplayer').remove("aria-hidden");
-		} else {
-			$wnd.$('#_icplayer').attr("aria-hidden", "true");
+			$wnd.$('#_icplayer').removeAttr("aria-hidden");
 		}
 	}-*/;
 
