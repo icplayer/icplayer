@@ -60,7 +60,6 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	private int parentScrollY = 0;
 	private int iframeOffsetTop = 0;
 	private int parentWindowHeight = 0;
-	private boolean shouldBlockTTS = false;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -240,13 +239,10 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	// This method is intended to ensure that NVDA doesn't interfere with keyboard control mode
-	private native void setRoleApplication(boolean isSet, boolean shouldBlockTTS) /*-{
+	private native void setRoleApplication(boolean isSet) /*-{
 		var $_ = $wnd.$;
 		if( isSet ) {
-			if (!shouldBlockTTS) {
-				$_('#_icplayer').attr("aria-hidden","true");
-			}
-
+			$_('#_icplayer').attr("aria-hidden","true");
 			$_('[role]').each(function(){
 				var $self = $_(this);
 				var roleValue = $self.attr('role');
@@ -291,12 +287,12 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
-				this.setRoleApplication(true, this.shouldBlockTTS);
+				this.setRoleApplication(true);
 			}
 			
 			if (isWCAGExit) {
 				this.mainPageController.readExitText();
-				this.setRoleApplication(false, this.shouldBlockTTS);
+				this.setRoleApplication(false);
 			}
 		}
 		
@@ -914,7 +910,6 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	public void handleNVDAAvability(boolean shouldUseNVDA) {
-		this.shouldBlockTTS = shouldUseNVDA;
 		this.setNVDAAvability(shouldUseNVDA);
 	}
 
