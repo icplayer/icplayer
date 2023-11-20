@@ -380,8 +380,7 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
-
-        paragraphInitTimeoutID = null;
+        presenter.paragraphInitTimeoutID = null;
     }
 
     presenter.setWrapperID = function AddonParagraph_setWrapperID() {
