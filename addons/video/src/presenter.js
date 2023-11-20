@@ -1489,11 +1489,34 @@ function Addonvideo_create() {
     };
 
     presenter.setVideo = function () {
-        if (!window.navigator.onLine && presenter.isOnlineResourceOnly()) {
+        if (!window.navigator.onLine) {
+            isOnlineResourceOnly().then(function (responses){
+                setVideo();
+            }).catch(function(error){
                 presenter.$view.html(presenter.configuration.offlineMessage);
-                return;
+            });
+        } else {
+            setVideo();
         }
+    };
 
+    function isOnlineResourceOnly() {
+        let endpointsToFetch = [];
+        for (let i = 0; i < presenter.configuration.files.length; i++) {
+            const videoFile = presenter.configuration.files[i];
+            !!videoFile["MP4 video"] && endpointsToFetch.push(videoFile["MP4 video"].trim());
+            !!videoFile["Ogg video"] && endpointsToFetch.push(videoFile["Ogg video"].trim());
+            !!videoFile["WebM video"] && endpointsToFetch.push(videoFile["WebM video"].trim());
+        }
+        return Promise.all(endpointsToFetch.map(function(fetchURL) {
+            // method: "Head" - used to check if addon have a connection to video (not for download video)
+            // method: "no-cache" - mLibro has a cache. Added to avoid the situation that once there is video and
+            //      once there is not, when user is offline. Such behavior would be inconsistent with the documentation.
+            return fetch(fetchURL, {method: "Head", cache: "no-cache"});
+        }));
+    }
+
+    function setVideo() {
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
             $(presenter.videoObject).unbind("error");
@@ -1515,8 +1538,8 @@ function Addonvideo_create() {
         var $video = $(presenter.videoObject);
         var files = presenter.configuration.files;
 
-        this.videoContainer.find('source').remove();
-        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
+        presenter.videoContainer.find('source').remove();
+        presenter.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
 
         presenter.setAltText();
         if (presenter.isPreview) {
@@ -1524,9 +1547,9 @@ function Addonvideo_create() {
         } else {
             $video.attr('preload', 'auto');
             for (var vtype in presenter.videoTypes) {
-                if (files[presenter.currentMovie][this.videoTypes[vtype].name] && presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type)) {
+                if (files[presenter.currentMovie][presenter.videoTypes[vtype].name] && presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type)) {
                     var source = $('<source>');
-                    source.attr('type', this.videoTypes[vtype].type);
+                    source.attr('type', presenter.videoTypes[vtype].type);
                     source.attr('src', files[presenter.currentMovie][presenter.videoTypes[vtype].name]);
                     $video.append(source);
                 }
@@ -1535,7 +1558,7 @@ function Addonvideo_create() {
             // "ended" event doesn't work on Safari
             $(presenter.videoObject).unbind('timeupdate');
             $(presenter.videoObject).bind("timeupdate", function () {
-                onTimeUpdate(this);
+                onTimeUpdate(presenter);
             });
 
             $(presenter.videoObject).bind("error", function onError() {
@@ -1586,7 +1609,7 @@ function Addonvideo_create() {
                 });
             }
         }
-    };
+    }
 
     /**
      * Creates DIV element containing caption text.
