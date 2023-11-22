@@ -60,6 +60,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	private int parentScrollY = 0;
 	private int iframeOffsetTop = 0;
 	private int parentWindowHeight = 0;
+	private boolean isNVDAActivate = false;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -238,33 +239,62 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		}
 	}
 
-	// This method is intended to ensure that NVDA doesn't interfere with keyboard control mode
-	private native void setRoleApplication(boolean isSet) /*-{
+	private native void setRoleApplication(boolean isSet, boolean isNVDAActivated) /*-{
 		var $_ = $wnd.$;
 		if( isSet ) {
 			$_('#_icplayer').attr("aria-hidden","true");
-			$_('[role]').each(function(){
-				var $self = $_(this);
-				var roleValue = $self.attr('role');
-				$self.attr('ic_role_off',roleValue);
-				$self.attr('role','presentation');
-			});
+
+			if (!isNVDAActivated) {
+				$_('[role]').each(function(){
+					var $self = $_(this);
+					var roleValue = $self.attr('role');
+					$self.attr('ic_role_off',roleValue);
+					$self.attr('role','presentation');
+				});
+			}
+
 			$_('body').attr("role","application");
 			if ($wnd.parent) { 
 				$wnd.parent.postMessage("ic_disableAria","*"); 
 			}
 		} else {
 			$_('#_icplayer').removeAttr("aria-hidden");
+
+			if (!isNVDAActivated) {
+				$_('[ic_role_off]').each(function(){
+					var $self = $_(this);
+					var roleValue = $self.attr('ic_role_off');
+					$self.attr('role',roleValue);
+					$self.removeAttr('ic_role_off');
+				});
+			}
+
+			$_('body').removeAttr("role");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_enableAria","*"); 			
+			}
+		};
+	}-*/;
+
+	private native void setRolesForNVDA (boolean isNVDAActivated) /*-{
+		var $_ = $wnd.$;
+		if( isNVDAActivated ) {
+			$_('[role]').each(function(){
+				var $self = $_(this);
+				var roleValue = $self.attr('role');
+
+				if (roleValue !== 'application') {
+					$self.attr('ic_role_off',roleValue);
+					$self.removeAttr('role','presentation');
+				}
+			});
+		} else {
 			$_('[ic_role_off]').each(function(){
 				var $self = $_(this);
 				var roleValue = $self.attr('ic_role_off');
 				$self.attr('role',roleValue);
 				$self.removeAttr('ic_role_off');
 			});
-			$_('body').removeAttr("role");
-			if ($wnd.parent) { 
-				$wnd.parent.postMessage("ic_enableAria","*"); 			
-			}
 		};
 	}-*/;
 
@@ -287,12 +317,12 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
-				this.setRoleApplication(true);
+				this.setRoleApplication(true, this.isNVDAActivate);
 			}
 			
 			if (isWCAGExit) {
 				this.mainPageController.readExitText();
-				this.setRoleApplication(false);
+				this.setRoleApplication(false, this.isNVDAActivate);
 			}
 		}
 		
@@ -910,11 +940,13 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	public void handleNVDAAvability(boolean shouldUseNVDA) {
-		this.setNVDAAvability(shouldUseNVDA);
+		this.isNVDAActivate = shouldUseNVDA;
+	    this.setRolesForNVDA(shouldUseNVDA);
+		this.setNVDAAvability(shouldUseNVDA, this.isWCAGOn());
 	}
 
-	private native void setNVDAAvability(boolean shouldUseNVDA) /*-{
-		if (shouldUseNVDA) {
+	private native void setNVDAAvability(boolean shouldUseNVDA, boolean isWCAGOn) /*-{
+		if (shouldUseNVDA && !isWCAGOn) {
 			$wnd.$('#_icplayer').removeAttr("aria-hidden");
 		}
 	}-*/;
