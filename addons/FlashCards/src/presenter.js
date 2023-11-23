@@ -42,6 +42,11 @@ function AddonFlashCards_create(){
         turned: "Turned"
     };
 
+    presenter.lastHiddenAudio = {
+        cardIndex: -1,
+        reverse: false
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -164,7 +169,7 @@ function AddonFlashCards_create(){
         };
     };
 
-    presenter.init = function (view, model) {
+    presenter.init = function (view, model, isPreview) {
         model = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(model);
         presenter.configuration = validatedModel;
@@ -189,6 +194,7 @@ function AddonFlashCards_create(){
         presenter.flashcardsCardAudioButtonBack = presenter.$view.find(".flashcards-card-audio-button-back");
         presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
         presenter.audioElementFront =  presenter.$view.find(".flashcards-card-audio-front").get(0);
+        presenter.audioElementHidden =  presenter.$view.find(".flashcards-card-audio-hidden").get(0);
         
         presenter.model = model;
         presenter.$card = $(presenter.$view.find(".flashcards-card").get(0));
@@ -217,7 +223,10 @@ function AddonFlashCards_create(){
         //audio
         presenter.isFrontPlaying = false;
         presenter.isBackPlaying = false;
-        presenter.addAudioEventHandlers();
+        presenter.isHiddenPlaying = false;
+        if (!isPreview) {
+            presenter.addAudioEventHandlers();
+        }
 
         presenter.isLoaded = true;
     };
@@ -295,12 +304,17 @@ function AddonFlashCards_create(){
             
             if (presenter.isFrontPlaying == false) {
                 presenter.isFrontPlaying = true;
+                presenter.resetHiddenAudio();
                 presenter.audioElementFront.play();
                 $(presenter.flashcardsCardAudioButtonFront).addClass("playing");
+                $(presenter.flashcardsCardAudioButtonFront).removeClass("paused");
+                presenter.sendPlayEvent();
             }else{
                 presenter.isFrontPlaying = false;
                 presenter.audioElementFront.pause();
                 $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+                $(presenter.flashcardsCardAudioButtonFront).addClass("paused");
+                presenter.sendPauseEvent();
             }
         });
         $(presenter.flashcardsCardAudioButtonBack).click(function () {
@@ -308,12 +322,17 @@ function AddonFlashCards_create(){
             presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
             if (presenter.isBackPlaying == false) {
                 presenter.isBackPlaying = true;
+                presenter.resetHiddenAudio();
                 presenter.audioElementBack.play();
                 $(presenter.flashcardsCardAudioButtonBack).addClass("playing");
+                $(presenter.flashcardsCardAudioButtonBack).removeClass("paused");
+                presenter.sendPlayEvent();
             }else{
                 presenter.isBackPlaying = false;
                 presenter.audioElementBack.pause();
                 $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+                $(presenter.flashcardsCardAudioButtonBack).addClass("paused");
+                presenter.sendPauseEvent();
             }
         });  
     };
@@ -321,24 +340,41 @@ function AddonFlashCards_create(){
      presenter.addAudioEventHandlers = function () {
          presenter.audioElementFront.onended = function () {
              $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+             $(presenter.flashcardsCardAudioButtonFront).removeClass("paused");
              presenter.isFrontPlaying = false;
+             presenter.sendEndedEvent();
          };
 
          presenter.audioElementBack.onended = function () {
              $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+             $(presenter.flashcardsCardAudioButtonBack).removeClass("paused");
              presenter.isBackPlaying = false;
+             presenter.sendEndedEvent();
          };
+
+        presenter.audioElementHidden.onended = function () {
+            presenter.isHiddenPlaying = false;
+            presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
+        };
      };
     
     presenter.run = function (view, model) {
-        presenter.init(view, model);
+        presenter.init(view, model, false);
     };
     
     presenter.createPreview = function (view, model) {
-        presenter.init(view, model);
+        presenter.init(view, model, true);
     };
 
     presenter.revertCard = function () {
+        if (presenter.isFrontPlaying || presenter.isBackPlaying) {
+            presenter.sendPauseEvent();
+            if (presenter.isFrontPlaying) {
+                $(presenter.flashcardsCardAudioButtonFront).addClass("paused");
+            } else {
+                $(presenter.flashcardsCardAudioButtonBack).addClass("paused");
+            }
+        }
         presenter.isFrontPlaying = false;
         presenter.audioElementFront.pause();
         $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
@@ -351,7 +387,15 @@ function AddonFlashCards_create(){
         $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
     };
 
+    presenter.isFrontVisible = function() {
+        return !$(presenter.$view.find(".flashcards-card").get(0)).hasClass("flashcards-card-reversed");
+    }
+
+    presenter.originalCard = 1;
     presenter.prevCard = function () {
+        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard > 1) {
+            presenter.sendEndedEvent(presenter.originalCard);
+        }
         presenter.removeActiveElementClass();
         if (presenter.state.currentCard>1){
             presenter.state.currentCard -= 1;
@@ -368,10 +412,14 @@ function AddonFlashCards_create(){
         }else if (presenter.state.noLoop == false || disregardNoLoop){
             presenter.state.currentCard = 1;
         }
+        if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
+            presenter.sendEndedEvent(presenter.originalCard);
+        }
         presenter.showCard(presenter.state.currentCard);
     };
 
     presenter.showCard = function (cardNumber) {
+        presenter.originalCard = presenter.state.currentCard;
         cardNumber = parseInt(cardNumber,10);
         if (presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
             if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true){
@@ -587,7 +635,10 @@ function AddonFlashCards_create(){
             'resetFavourites': presenter.resetFavourites,
             'ShowOnlyFavourites': presenter.showOnlyFavourites,
             'ShowAllCards': presenter.showAllCards,
-            'countFavourites': presenter.countFavourites
+            'countFavourites': presenter.countFavourites,
+            'play': presenter.play,
+            'pause': presenter.pause,
+            'stop': presenter.stop
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -619,6 +670,171 @@ function AddonFlashCards_create(){
         $(presenter.flashcardsNext).unbind();
         
     };
+
+    presenter.playHiddenCardAudio = function (cardIndex, reverse) {
+        if (typeof reverse == 'string') {
+            reverse = reverse.toLowerCase() == 'reverse' || reverse.toLowerCase() == 'true';
+        }
+        reverse = !!reverse;
+        var card = presenter.Cards[cardIndex];
+        if (!card) return;
+        if (presenter.isFrontPlaying) {
+            presenter.audioElementFront.pause();
+            presenter.audioElementFront.currentTime = 0;
+            presenter.isFrontPlaying = false;
+            presenter.sendEndedEvent();
+        }
+        if (presenter.isBackPlaying) {
+            presenter.audioElementBack.pause();
+            presenter.audioElementBack.currentTime = 0;
+            presenter.isBackPlaying = false;
+            presenter.sendEndedEvent();
+        }
+        if ((!reverse && card.AudioFront != "") || (reverse && card.AudioBack != "")){
+            if (presenter.audioElementHidden.canPlayType("audio/mpeg")) {
+                var audioSrc = reverse ? card.AudioBack : card.AudioFront;
+                if (presenter.lastHiddenAudio.cardIndex != cardIndex || presenter.lastHiddenAudio.reverse != reverse) {
+                    presenter.lastHiddenAudio.cardIndex = cardIndex;
+                    presenter.lastHiddenAudio.reverse = reverse;
+                    presenter.audioElementHidden.setAttribute("src", audioSrc);
+                    presenter.audioElementHidden.oncanplay = function () {
+                        presenter.audioElementHidden.play();
+                        presenter.sendPlayEvent(cardIndex + 1);
+                        presenter.isHiddenPlaying = true;
+                        presenter.audioElementHidden.oncanplay = null;
+                    };
+                } else if (!presenter.isHiddenPlaying) {
+                    presenter.audioElementHidden.play();
+                    presenter.sendPlayEvent(cardIndex + 1);
+                    presenter.isHiddenPlaying = true;
+                }
+            }
+        }
+    }
+
+    presenter.resetHiddenAudio = function() {
+        if (presenter.isHiddenPlaying) {
+            presenter.isHiddenPlaying = false;
+            presenter.audioElementHidden.pause();
+            presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
+        }
+        presenter.audioElementHidden.currentTime = 0;
+    }
+
+    presenter.sendAudioEvent = function(eventName, cardNumber) {
+        var item = presenter.state.currentCard;
+        if (cardNumber !== undefined) item = cardNumber;
+        var eventData = {
+            'source': presenter.configuration.addonID,
+            'item': item,
+            'value': eventName,
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.sendPlayEvent = function(cardNumber) {presenter.sendAudioEvent("playing", cardNumber)};
+
+    presenter.sendPauseEvent = function(cardNumber) {presenter.sendAudioEvent("pause", cardNumber)};
+
+    presenter.sendEndedEvent = function(cardNumber) {presenter.sendAudioEvent("ended", cardNumber)};
+
+    presenter.play = function(cardIndex = -1, reverse = false) {
+        if (Array.isArray(cardIndex)) {
+            if (cardIndex.length > 0) {
+                if (cardIndex.length > 1) reverse = cardIndex[1];
+                cardIndex = cardIndex[0];
+            } else {
+                cardIndex = -1;
+            }
+        }
+        if (cardIndex != -1) {
+            presenter.playHiddenCardAudio(cardIndex - 1, reverse);
+        } else {
+            presenter.audioCommand("play");
+        }
+    };
+
+    presenter.pause = function() {
+        presenter.audioCommand("pause");
+    };
+
+    presenter.stop = function() {
+        presenter.audioCommand("stop");
+    };
+
+    presenter.audioCommand = function(command) {
+        if (presenter.isErrorMode) return;
+        if (presenter.isHiddenPlaying && command != "play") {
+            if (command == "stop" && presenter.audioElementHidden.currentTime > 0) {
+                presenter.audioElementHidden.currentTime = 0;
+                presenter.sendEndedEvent(presenter.lastHiddenAudio.cardIndex + 1);
+            }
+            presenter.audioElementHidden.pause();
+            if (command == "pause") {
+                presenter.sendPauseEvent(presenter.lastHiddenAudio.cardIndex + 1);
+            }
+            presenter.isHiddenPlaying = false;
+            return;
+        }
+
+        var currentCard = presenter.Cards[presenter.state.currentCard - 1];
+        if (presenter.isFrontVisible()) {
+            if (currentCard.AudioFront != "") {
+                if (command == "play") {
+                    if (presenter.isFrontPlaying) return;
+                    presenter.isFrontPlaying = true;
+                    presenter.resetHiddenAudio();
+                    presenter.audioElementFront.play();
+                    $(presenter.flashcardsCardAudioButtonFront).addClass("playing");
+                    $(presenter.flashcardsCardAudioButtonFront).removeClass("paused");
+                    presenter.sendPlayEvent();
+                }else{
+                    if (command == "stop" && presenter.audioElementFront.currentTime > 0) {
+                        presenter.audioElementFront.currentTime = 0;
+                        presenter.sendEndedEvent();
+                        $(presenter.flashcardsCardAudioButtonFront).removeClass("paused");
+                    }
+                    if (!presenter.isFrontPlaying) return;
+                    presenter.isFrontPlaying = false;
+                    presenter.audioElementFront.pause();
+                    $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+                    if (command == "pause") {
+                        $(presenter.flashcardsCardAudioButtonFront).addClass("paused");
+                        presenter.sendPauseEvent();
+                    }
+                }
+            }
+        } else {
+            if (currentCard.AudioBack != "") {
+                presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
+                if (command == "play") {
+                    if (presenter.isBackPlaying == true) return;
+                    presenter.isBackPlaying = true;
+                    presenter.resetHiddenAudio();
+                    presenter.audioElementBack.play();
+                    $(presenter.flashcardsCardAudioButtonBack).addClass("playing");
+                    $(presenter.flashcardsCardAudioButtonBack).removeClass("paused");
+                    presenter.sendPlayEvent();
+                }else{
+                    if (command == "stop" && presenter.audioElementBack.currentTime > 0) {
+                        presenter.audioElementBack.currentTime = 0;
+                        presenter.sendEndedEvent();
+                        $(presenter.flashcardsCardAudioButtonBack).removeClass("paused");
+                    }
+                    if (presenter.isBackPlaying == false) return;
+                    presenter.isBackPlaying = false;
+                    presenter.audioElementBack.pause();
+                    $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+                    if (command == "pause") {
+                        $(presenter.flashcardsCardAudioButtonBack).addClass("paused");
+                        presenter.sendPauseEvent();
+                    }
+                }
+            }
+        }
+    }
 
     presenter.setWCAGStatus = function(isOn) {
         isWCAGOn = isOn;
