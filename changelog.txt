@@ -1,4 +1,3 @@
-2023-11-20 Fixed bug in video addon displaying information that video cannot be played even though local resource exists
 2023-11-13 Changed position on collision of eKeyboard from flip to flipfit
 2023-11-13 Changed Image Identification to set 'Alternative text' as 'alt' attribute
 2023-11-08 Added property isNotActivity to the Text Coloring
