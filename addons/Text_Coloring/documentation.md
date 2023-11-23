@@ -69,6 +69,10 @@ You can work in one of two modes:
         <td>Lang attribute</td>
         <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
     </tr>
+    <tr>
+        <td>Is Not Activity</td>
+        <td>Defines if the addon is NOT an activity, which means that it won't be taken into consideration when checking correctness.</td>
+    </tr>
 </table>
 
 ## Configuration

@@ -1,4 +1,7 @@
-2023-11-09 Expanded functionality for the text editor in the Drawing addon
+2023-11-23 Expanded functionality for the text editor in the Drawing addon
+2023-11-13 Changed position on collision of eKeyboard from flip to flipfit
+2023-11-13 Changed Image Identification to set 'Alternative text' as 'alt' attribute
+2023-11-08 Added property isNotActivity to the Text Coloring
 2023-11-08 Added Gradual Show Answers to Connecting Dots
 2023-11-08 Fixed alt text in Connection addon
 2023-11-08 Fixed displaying geometric devices in IWB Toolbar
