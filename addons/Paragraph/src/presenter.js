@@ -20,6 +20,7 @@ function AddonParagraph_create() {
     presenter.isEditorReadOnly = false;
 
     presenter.toolbarChangeHeightTimeoutID = null;
+    presenter.paragraphInitTimeoutID = null;
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
@@ -315,6 +316,7 @@ function AddonParagraph_create() {
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
+        presenter.model = upgradedModel;
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (presenter.configuration.isError) {
@@ -329,6 +331,23 @@ function AddonParagraph_create() {
 
         presenter.setWrapperID();
 
+        if (presenter.playerController) {
+            var paragraphInitDelay = presenter.playerController.getExternalVariable('paragraphInitDelay');
+            if (paragraphInitDelay.length == 0 || isNaN(paragraphInitDelay)) {
+                presenter.initTinymce();
+            } else {
+                presenter.$view.css("visibility", "hidden");
+                presenter.paragraphInitTimeoutID = setTimeout(presenter.initTinymce, Number(paragraphInitDelay));
+            }
+        } else {
+            presenter.initTinymce();
+        }
+    };
+
+    presenter.initTinymce = function() {
+        if (!document.body.contains(presenter.view)) {
+            return;
+        }
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
         presenter.addPlugins();
@@ -351,7 +370,7 @@ function AddonParagraph_create() {
 
             presenter.isEditorLoaded = true;
             presenter.setStyles();
-            presenter.setSpeechTexts(upgradedModel["speechTexts"]);
+            presenter.setSpeechTexts(presenter.model["speechTexts"]);
             presenter.buildKeyboardController();
         });
 
@@ -361,7 +380,8 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
-    };
+        presenter.paragraphInitTimeoutID = null;
+    }
 
     presenter.setWrapperID = function AddonParagraph_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -704,6 +724,7 @@ function AddonParagraph_create() {
             }
 
             clearTimeout(presenter.toolbarChangeHeightTimeoutID);
+            clearTimeout(presenter.paragraphInitTimeoutID);
             presenter.toolbarChangeHeightTimeoutID = null;
 
             presenter.placeholder = null;
@@ -992,6 +1013,9 @@ function AddonParagraph_create() {
         presenter.setStyles();
         if (presenter.configuration.state !== undefined) {
             presenter.editor.setContent(presenter.configuration.state, {format : 'raw'});
+            presenter.setVisibility(presenter.isVisibleValue);
+        } else {
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
@@ -1074,7 +1098,9 @@ function AddonParagraph_create() {
             tinymceState = parsedState.tinymceState;
 
         presenter.isVisibleValue = parsedState.isVisible;
-        presenter.setVisibility(presenter.isVisibleValue);
+        if (presenter.editor != null && presenter.editor.initialized) {
+            presenter.setVisibility(presenter.isVisibleValue);
+        }
 
         if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderClassInHTML(tinymceState)) {
             if (presenter.editor != null && presenter.editor.initialized) {

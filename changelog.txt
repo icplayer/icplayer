@@ -1,3 +1,4 @@
+2023-11-23 Added support for paragraphInitDelay external variable in the Paragraph addon
 2023-11-23 Fixed inability to select text when there is slider addon on page
 2023-11-23 Expanded functionality for the text editor in the Drawing addon
 2023-11-13 Changed position on collision of eKeyboard from flip to fit
