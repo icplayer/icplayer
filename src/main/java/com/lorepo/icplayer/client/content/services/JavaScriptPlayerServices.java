@@ -435,6 +435,10 @@ public class JavaScriptPlayerServices {
 		playerServices.isWCAGOn = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isWCAGOn()();
 		};
+
+		playerServices.getResponsiveVoiceLang = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getResponsiveVoiceLang()();
+		};
 		
 		playerServices.getKeyboardController = function() {
 			var keyboardController = function() {
@@ -924,6 +928,10 @@ public class JavaScriptPlayerServices {
 	
 	public boolean isWCAGOn() {
 		return this.playerServices.isWCAGOn();
+	}
+
+	public String getResponsiveVoiceLang() {
+		return this.playerServices.getResponsiveVoiceLang();
 	}
 
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {

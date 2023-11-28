@@ -156,22 +156,15 @@ function AddonText_To_Speech_create() {
         }
 
         return {title: '', description: ''};
-    }
+    };
 
     function getResponsiveVoiceLanguage (langTag) {
-        if (!langTag) {
-            // get lang from document <html lang="">
-            langTag = document.documentElement.lang;
+        const langDict = JSON.parse(presenter.playerController.getResponsiveVoiceLang());
+        if (langDict && langDict[langTag]) {
+            return langDict[langTag];
         }
 
-        // Tags for Identifying Languages: https://www.ietf.org/rfc/bcp/bcp47.txt
-        var languages = {
-            'en': 'UK English Male',
-            'pl': 'Polish Female',
-            'de': 'Deutsch Female'
-        };
-
-        return languages[langTag] || 'UK English Male';
+        return 'UK English Male';
     }
 
     function getSpeechSynthesisLanguage (langTag) {
