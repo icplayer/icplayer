@@ -148,8 +148,8 @@ public class PlayerEntryPoint implements EntryPoint {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(state);
 			};
 
-			player.setNVDAAvability = function(shouldUseNVDA) {
-				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setNVDAAvability(Z)(shouldUseNVDA);
+			player.setNVDAAvailability = function(shouldUseNVDA) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setNVDAAvailability(Z)(shouldUseNVDA);
 			};
 		}
 
@@ -405,7 +405,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		externalVariables = null;
 	}
 
-	private void setNVDAAvability(boolean shouldUseNVDA) {
-		this.theApplication.setNVDAAvability(shouldUseNVDA);
+	private void setNVDAAvailability(boolean shouldUseNVDA) {
+		this.theApplication.setNVDAAvailability(shouldUseNVDA);
 	}
 }

@@ -883,8 +883,8 @@ public class PlayerApp {
 
 	}
 
-	public void setNVDAAvability(boolean shouldUseNVDA) {
-		playerController.setNVDAAvability(shouldUseNVDA);
+	public void setNVDAAvailability(boolean shouldUseNVDA) {
+		playerController.setNVDAAvailability(shouldUseNVDA);
 	}
 
 	private native void clearGlobalAddonVariables()/*-{

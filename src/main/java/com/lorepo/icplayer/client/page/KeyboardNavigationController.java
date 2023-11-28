@@ -251,6 +251,11 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					$self.attr('ic_role_off',roleValue);
 					$self.attr('role','presentation');
 				});
+			} else {
+				$_('[ic_role_off]').each(function(){
+					var $self = $_(this);
+					$self.attr('role', 'presentation');
+				});
 			}
 
 			$_('body').attr("role","application");
@@ -266,6 +271,15 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 					var roleValue = $self.attr('ic_role_off');
 					$self.attr('role',roleValue);
 					$self.removeAttr('ic_role_off');
+				});
+			} else {
+				$_('[role]').each(function(){
+					var $self = $_(this);
+					var roleValue = $self.attr('ic_role_off');
+					if (roleValue && roleValue !== 'application') {
+						$self.attr('ic_role_off', roleValue);
+						$self.removeAttr('role');
+					}
 				});
 			}
 
@@ -285,7 +299,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 				if (roleValue !== 'application') {
 					$self.attr('ic_role_off',roleValue);
-					$self.removeAttr('role','presentation');
+					$self.removeAttr('role');
 				}
 			});
 		} else {
@@ -939,13 +953,13 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		}
 	}
 
-	public void handleNVDAAvability(boolean shouldUseNVDA) {
+	public void handleNVDAAvailability(boolean shouldUseNVDA) {
 		this.isNVDAActivate = shouldUseNVDA;
 	    this.setRolesForNVDA(shouldUseNVDA);
-		this.setNVDAAvability(shouldUseNVDA, this.isWCAGOn());
+		this.setNVDAAvailability(shouldUseNVDA, this.isWCAGOn());
 	}
 
-	private native void setNVDAAvability(boolean shouldUseNVDA, boolean isWCAGOn) /*-{
+	private native void setNVDAAvailability(boolean shouldUseNVDA, boolean isWCAGOn) /*-{
 		if (shouldUseNVDA && !isWCAGOn) {
 			$wnd.$('#_icplayer').removeAttr("aria-hidden");
 		}
