@@ -8,7 +8,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -249,8 +248,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void updateParentProperty(Element child) {
 		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
 
-		if (parentElement !=null ) {
-			parentElement.getStyle().setProperty("text-wrap", "nowrap");
+		if (parentElement !=null) {
+			double childWidth = child.getClientWidth();
+			double parentWidth = parentElement.getClientWidth();
+			if (parentWidth == 0.0 || childWidth / parentWidth > 0.5) {
+				parentElement.getStyle().setProperty("text-wrap", "nowrap");
+			}
 		}
 	}
 
