@@ -102,7 +102,7 @@ public class PlayerController implements IPlayerController {
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
-		this.responsiveVoice = content.getMetadataValue("responsiveVoice");
+		this.responsiveVoice = content.getMetadataValue("responsiveVoiceLang");
 
 		this.adaptiveLearningService = new AdaptiveLearningService(this, content.getAdaptiveStructure());
 	}

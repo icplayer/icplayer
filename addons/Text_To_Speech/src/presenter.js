@@ -159,7 +159,8 @@ function AddonText_To_Speech_create() {
     };
 
     function getResponsiveVoiceLanguage (langTag) {
-        const langDict = JSON.parse(presenter.playerController.getResponsiveVoiceLang());
+        const languages = presenter.playerController.getResponsiveVoiceLang();
+        const langDict = JSON.parse(languages ? languages : "{}");
         if (langDict && langDict[langTag]) {
             return langDict[langTag];
         }
