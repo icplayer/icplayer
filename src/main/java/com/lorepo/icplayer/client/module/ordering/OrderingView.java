@@ -105,11 +105,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		module.validate();
 
 		if (module.isValid()) {
-			Integer itemWidth = module.getWidth() / module.getItemCount();
-
 			for (int index = 0; index < module.getItemCount(); index++ ) {
 				ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
-				itemWidget.setWidthWithoutMargin(itemWidth);
+				itemWidget.setModuleView(innerCellPanel.getElement());
 
 				if (this.module.isTabindexEnabled()){
 			    	itemWidget.getElement().setTabIndex(0);
@@ -124,6 +122,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
+		if (isPreview && module.doAllElementsHasSameWidth()) {
+			addStyleName("ice_even_width");
+		}
 		StyleUtils.applyInlineStyle(this, module);
 		originalDisplay = getElement().getStyle().getDisplay();
 		if (playerServices != null) {
