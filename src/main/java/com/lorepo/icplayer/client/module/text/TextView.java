@@ -248,14 +248,24 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void updateParentProperty(Element child) {
 		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
 
-		if (parentElement !=null) {
+		if (parentElement !=null && getGapChildrenCount(parentElement) == 1 && !containsNewLine(parentElement)) {
 			double childWidth = child.getClientWidth();
 			double parentWidth = parentElement.getClientWidth();
-			if (parentWidth == 0.0 || childWidth / parentWidth > 0.5) {
+			if (parentWidth == 0.0 || childWidth / parentWidth > 0.7) {
 				parentElement.getStyle().setProperty("text-wrap", "nowrap");
 			}
 		}
 	}
+
+	private native int getGapChildrenCount(com.google.gwt.dom.client.Element parent)/*-{
+		var $parent = $wnd.$(parent);
+		return $parent.find('select, input').length;
+	}-*/;
+
+	private native boolean containsNewLine(com.google.gwt.dom.client.Element parent)/*-{
+		var $parent = $wnd.$(parent);
+		return $parent.find('br, div').length > 0;
+	}-*/;
 
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
