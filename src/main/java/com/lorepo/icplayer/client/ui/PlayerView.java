@@ -12,8 +12,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 
@@ -42,7 +44,7 @@ public class PlayerView extends VerticalPanel{
 		setStyleName("ic_player");
 		getElement().setAttribute("role", "presentation");
 		
-		waitDialog = new WaitDialog();
+		this.createWaitDailog();
 		pageView1 = new PageView("ic_page");
 		contentPanel = new HorizontalPanel();
 		contentPanel.addStyleName("ic_content");
@@ -76,6 +78,10 @@ public class PlayerView extends VerticalPanel{
                 }
 			}
 		});
+	}
+
+	public void createWaitDailog() {
+		waitDialog = new WaitDialog();
 	}
 	
 	protected void nextPage() {
@@ -255,20 +261,7 @@ public class PlayerView extends VerticalPanel{
 	}
 
 	public void showWaitDialog() {
-		waitDialog.setPopupPositionAndShow(new PositionCallback() {
-	
-			public void setPosition(int offsetWidth, int offsetHeight) {
-				int playerHeight = getElement().getClientHeight();
-				int playerWidth = getElement().getClientWidth();
-				
-				Position playerPosition = new Position(getAbsoluteLeft(), getAbsoluteTop());
-				Dimensions clientDimensions = new Dimensions(Window.getClientWidth(), Window.getClientHeight());
-				Dimensions playerDimensions = new Dimensions(playerWidth, playerHeight);
-				Dimensions offsetDimensions = new Dimensions(offsetWidth, offsetHeight);
-				Position popupPosition = PlayerViewUtils.calculatePopupPosition(playerPosition, clientDimensions, playerDimensions, offsetDimensions, getTopWindowInnerHeight());
-				waitDialog.setPopupPosition(popupPosition.getLeft(), popupPosition.getTop());
-			}
-		});
+		waitDialog.show();
 	}
 	
 	native static int getTopWindowInnerHeight() /*-{

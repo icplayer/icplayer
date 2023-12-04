@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.spy;
 import org.powermock.reflect.Whitebox;
 
 import com.google.gwt.dom.client.Style.Visibility;
@@ -42,20 +43,23 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 	private static long idCounter = 0;
 
 	PlayerController playerController = null;
+	PlayerView playerViewMock = null;
 	
 	@Before
 	public void setUp () throws Exception {
 		GWTKeyboardNavigationControllerTestCase.idCounter = 0;
 		Content content = new Content();
-		PlayerView view = new PlayerView();
 		PlayerEntryPoint playerEntryPoint = new PlayerEntryPoint();
 		
 		Page header = new Page("header", "header");
 		Page main = new Page("main", "main");
 		Page footer = new Page("footer", "footer");
 		
-		this.playerController = new PlayerController(content, view, false, playerEntryPoint);
+		this.playerViewMock = Mockito.mock(PlayerView.class);
+		this.playerController = new PlayerController(content, this.playerViewMock, false, playerEntryPoint);
 		this.controller = Whitebox.getInternalState(this.playerController, "keyboardController");
+		PlayerController pcSpy = spy(this.playerController);
+		Whitebox.setInternalState(pcSpy, "playerView", this.playerViewMock);
 
 		this.headerPageController = new PageController(this.playerController);
 		this.mainPageController = new PageController(this.playerController);
