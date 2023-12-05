@@ -12,7 +12,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.DevicesUtils;
