@@ -6,6 +6,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 public class WaitDialog extends DialogBox {
 
@@ -28,7 +29,9 @@ public class WaitDialog extends DialogBox {
 
 	public void centerElement() {
 		center();
-		updateWrapperPosition();
+		if (DevicesUtils.isMobile() || DevicesUtils.isSafariMobile() || DevicesUtils.isIPod()) {
+			updateWrapperPosition();
+		}
 	}
 
 	public static native void updateWrapperPosition() /*-{
