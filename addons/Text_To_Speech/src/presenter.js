@@ -159,13 +159,25 @@ function AddonText_To_Speech_create() {
     };
 
     function getResponsiveVoiceLanguage (langTag) {
+        /* Function at first take language from Responsive Voice text area, next is seeking in Responsive Voice
+        * library script and finally return default language */
         const languages = presenter.playerController.getResponsiveVoiceLang();
         const langDict = JSON.parse(languages ? languages : "{}");
+
         if (langDict && langDict[langTag]) {
             return langDict[langTag];
+        } else if (isLanguageInLibrary(langTag)) {
+            return getLanguageFromLibrary(langTag);
         }
-
         return 'UK English Male';
+    }
+
+    function getLanguageFromLibrary (langTag) {
+        return window.responsiveVoice.responsivevoices.find(responsiveVoice => responsiveVoice.lang.includes(langTag)).name;
+    }
+
+    function isLanguageInLibrary (langTag) {
+        return window.responsiveVoice.responsivevoices.some(responsiveVoice => responsiveVoice.lang.includes(langTag));
     }
 
     function getSpeechSynthesisLanguage (langTag) {
