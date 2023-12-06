@@ -164,6 +164,10 @@ function AddonText_To_Speech_create() {
         const languages = presenter.playerController.getResponsiveVoiceLang();
         const langDict = JSON.parse(languages ? languages : "{}");
 
+        if (!langTag) {
+            langTag = document.documentElement.lang;
+        }
+
         if (langDict && langDict[langTag]) {
             return langDict[langTag];
         } else if (isLanguageInLibrary(langTag)) {
