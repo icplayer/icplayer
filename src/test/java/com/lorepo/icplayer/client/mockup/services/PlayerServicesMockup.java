@@ -107,6 +107,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	}
 
+	@Override
+	public String getResponsiveVoiceLang() {
+		// TODO Auto-generated method stub
+		return "";
+	}
 
 	@Override
 	public boolean isBookMode() {
