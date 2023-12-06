@@ -1499,6 +1499,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 					var currentPageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
 					if (pageStamp === currentPageStamp) {
 						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
+						x.@com.lorepo.icplayer.client.module.text.TextPresenter::restoreGapMode()();
 					}
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});
@@ -1507,6 +1508,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			console.log("Error : " + err);
 		}
 	}-*/;
+
+	private void restoreGapMode() {
+		if (this.isShowErrorsMode) {
+			this.setShowErrorsMode();
+		}
+	}
 	
 	private String getPageStamp() {
 		return this.playerServices.getCommands().getPageStamp();
