@@ -1,4 +1,11 @@
-2023-11-20 Fixed bug in video addon displaying information that video cannot be played even though local resource exists
+2023-12-06 Fixed bug in video addon displaying information that video cannot be played even though local resource exists
+2023-12-06 Added new languages to Responsive Voice
+2023-12-05 Fixed show answers mode not being restored in Text math gaps
+2023-11-23 Fixed width calculation in Ordering module when "Even width for all elements" is checked
+2023-11-23 Added support for paragraphInitDelay external variable in the Paragraph addon
+2023-11-23 Fixed inability to select text when there is slider addon on page
+2023-11-23 Expanded functionality for the text editor in the Drawing addon
+2023-11-15 Added a method enabling the use of NVDA
 2023-11-13 Changed position on collision of eKeyboard from flip to flipfit
 2023-11-13 Changed Image Identification to set 'Alternative text' as 'alt' attribute
 2023-11-08 Added property isNotActivity to the Text Coloring

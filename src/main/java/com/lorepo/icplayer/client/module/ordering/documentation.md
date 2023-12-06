@@ -9,6 +9,8 @@ Adding the audio control is also possible using \audio{URL} syntax, where URL is
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
 <tbody>
     <tr>
@@ -16,11 +18,6 @@ Adding the audio control is also possible using \audio{URL} syntax, where URL is
         <th>Description</th> 
     </tr>
     <tr>
-        <td>Is visible</td>
-        <td>This property allows to hide or show the module depending on the activity requirements.
-        </td> 
-     </tr>
-     <tr>
         <td>Is vertical</td>
         <td>This property indicates whether the Ordering module is in a vertical or horizontal position.
         </td> 
@@ -63,6 +60,10 @@ Adding the audio control is also possible using \audio{URL} syntax, where URL is
         <td>Speech texts</td>
         <td>List of speech texts: Selected, Deselected, Replaced with, Correct, Wrong. <br />
 This texts will be read by Text to Speech addon after a user performs an action.</td> 
+    </tr>
+    <tr>
+        <td>Disable axis lock</td>
+        <td>When selected, it allows the items to be dragged also vertically.</td> 
     </tr>
 </tbody>
 </table>
@@ -133,7 +134,7 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
 
 ## CSS classes
 
- <table border='1'>
+<table border='1'>
 <tbody>
     <tr>
         <th>Class name</th>
@@ -146,22 +147,26 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
                have a complete definition, it should be entered as empty.</td> 
     </tr>
     <tr>
+        <td>.ice_even_width</td>
+        <td>CSS class added to the same element that has the .ic_ordering CSS class when using the presentation's editor and when the property "Even width for all elements" is checked. This class allows to freely change the width and height of the module.</td> 
+    </tr>
+    <tr>
         <td>.ic_ordering-item </td>
         <td>indicates the look of a stationary items</td> 
     </tr>
-<tr>
+    <tr>
         <td>.ic_ordering-item-correct</td>
         <td>indicates the look of an item marked as correct</td> 
     </tr>
-<tr>
+    <tr>
         <td>.ic_ordering-item-wrong</td>
         <td>indicates the look of an item marked as wrong</td> 
     </tr>
-<tr>
+    <tr>
         <td>.ic_drag-source</td>
         <td>indicates the look of a single item ready to be dragged to the proper place</td> 
     </tr>
-<tr>
+    <tr>
         <td>.correct-answer</td>
         <td>indicates the look of an item in show answers mode</td> 
     </tr>

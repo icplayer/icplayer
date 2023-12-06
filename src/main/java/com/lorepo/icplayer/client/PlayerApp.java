@@ -883,6 +883,10 @@ public class PlayerApp {
 
 	}
 
+	public void setNVDAAvailability(boolean shouldUseNVDA) {
+		playerController.setNVDAAvailability(shouldUseNVDA);
+	}
+
 	private native void clearGlobalAddonVariables()/*-{
 		$wnd.savedPanel = null; //IWB_Toolbar
 		$wnd.crossLessonAccessCache = null; //Cross_Lesson

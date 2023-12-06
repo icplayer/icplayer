@@ -533,6 +533,14 @@ hr, table, fieldset {
  * Ordering
  */
 
+.ic_ordering.ice_even_width {
+	display: block;
+}
+
+.ic_ordering.ice_even_width tbody {
+	display: table;
+}
+
 .ic_ordering-item{
 	margin: 4px;
 	padding:4px;
