@@ -78,7 +78,7 @@ public class WaitDialog extends DialogBox {
 			return contentHeight;
 		}
 
-		return documentHeight;
+		return windowHeight;
 	}-*/;
 
 	public native boolean isMobile() /*-{
