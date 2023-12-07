@@ -34,9 +34,6 @@ hr, table, fieldset {
 	opacity:0.75;
 	z-index: 100;
 	position: fixed;
-  	top: 50%;
-  	left: 50%;
-  	transform: translate(-50%, -50%);
 }
 
 .ic_waitImage {
