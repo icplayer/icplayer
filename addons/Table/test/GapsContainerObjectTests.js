@@ -427,7 +427,7 @@ TestCase("[Table] [Gaps Container Object] Get Value By Gap Index", {
     }
 });
 
-TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
+TestCase("[Table] [Gaps Container Object] Enable/Disable Gap By Index", {
     setUp: function () {
         this.presenter = AddonTable_create();
 
@@ -471,7 +471,7 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     },
 
     'test should lock gap of provided index if is not disabled': function () {
-        this.container.lockGapByIndex(0);
+        this.container.disableGapByIndex(0);
 
         assertTrue(this.stubs.gap1Lock.calledOnce);
         assertFalse(this.stubs.gap2Lock.called);
@@ -481,7 +481,7 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     'test should unlock gap of provided index is is disabled': function () {
         this.gap2.isDisabled = true;
 
-        this.container.unlockGapByIndex(1);
+        this.container.enableGapByIndex(1);
 
         assertTrue(this.stubs.gap2Unlock.calledOnce);
         assertFalse(this.stubs.gap1Unlock.called);
@@ -491,7 +491,7 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     'test shouldnt lock gap if its disabled': function () {
         this.gap3.isDisabled = true;
 
-        this.container.lockGapByIndex(2);
+        this.container.disableGapByIndex(2);
 
         assertFalse(this.stubs.gap3Lock.called);
         assertFalse(this.stubs.gap1Lock.called);
@@ -501,7 +501,7 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     'test shouldnt unlock gap if it isnt disabled': function () {
         this.gap2.isDisabled = false;
 
-        this.container.unlockGapByIndex(1);
+        this.container.enableGapByIndex(1);
 
         assertFalse(this.stubs.gap2Unlock.called);
         assertFalse(this.stubs.gap1Unlock.called);
@@ -509,9 +509,9 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     },
 
     'test unlocking should notifyEdit of gap for stateMachine to work correctly': function () {
-        this.container.unlockGapByIndex(0);
-        this.container.unlockGapByIndex(1);
-        this.container.unlockGapByIndex(2);
+        this.container.enableGapByIndex(0);
+        this.container.enableGapByIndex(1);
+        this.container.enableGapByIndex(2);
 
         assertTrue(this.stubs.notifyEdit1.calledOnce);
         assertTrue(this.stubs.notifyEdit2.calledOnce);
@@ -519,9 +519,9 @@ TestCase("[Table] [Gaps Container Object] Lock/Unlock Gap By Index", {
     },
 
     'test locking should notifyEdit of gap for stateMachine to work correctly': function () {
-        this.container.lockGapByIndex(0);
-        this.container.lockGapByIndex(1);
-        this.container.lockGapByIndex(2);
+        this.container.disableGapByIndex(0);
+        this.container.disableGapByIndex(1);
+        this.container.disableGapByIndex(2);
 
         assertTrue(this.stubs.notifyEdit1.calledOnce);
         assertTrue(this.stubs.notifyEdit2.calledOnce);
