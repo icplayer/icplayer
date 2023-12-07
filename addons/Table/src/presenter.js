@@ -1520,13 +1520,11 @@ function AddonTable_create() {
     };
 
     presenter.SelectGap.prototype.lock = function () {
-        console.log("Execute lock");
         this.isDisabled = true;
         this.$view.attr('disabled','disabled');
     };
 
     presenter.SelectGap.prototype.unlock = function () {
-        console.log("Execute unlock");
         this.isDisabled = false;
         this.$view.removeAttr('disabled');
     };
