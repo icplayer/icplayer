@@ -330,9 +330,8 @@ function AddonSlider_create () {
                     }
                 }
             }
-
         }
-        if(eventData.preventDefault) {
+        if (eventData.preventDefault && eventData.target && presenter.$view.find(eventData.target).length) {
             eventData.preventDefault();
         }
     }
@@ -348,7 +347,7 @@ function AddonSlider_create () {
     }
 
     function handleMouseDrag(addonContainer) {
-        var icplayer = $('#_icplayer');
+        const $icplayer = $('#_icplayer');
         presenter.isWindowsMobile = false;
 
         if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
@@ -375,8 +374,8 @@ function AddonSlider_create () {
         }
 
         $(imageElement).mousedown(mouseDownCallback);
-        icplayer.mousemove(mouseMoveCallback);
-        icplayer.mouseup(presenter.mouseUpEventDispatcher);
+        $icplayer.mousemove(mouseMoveCallback);
+        $icplayer.mouseup(presenter.mouseUpEventDispatcher);
         $(document).mouseup(presenter.mouseUpEventDispatcher);
         imageElement.ontouchend = touchEndCallback;
 
@@ -1078,9 +1077,17 @@ function AddonSlider_create () {
         presenter.removeDisabledClass();
     };
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        if (event.target !== this) {
+            return;
+        }
+
+        const $icplayer = $('#_icplayer');
+        $icplayer.off("mousemove", mouseMoveCallback);
+        $icplayer.off("mouseup", presenter.mouseUpEventDispatcher);
         $(document).off('mouseup', presenter.mouseUpEventDispatcher);
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
     };
 
     return presenter;

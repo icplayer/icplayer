@@ -72,6 +72,7 @@ public class PlayerController implements IPlayerController {
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
+	private String responsiveVoice = "";
 	private String lang = "en";
 	private int iframeScroll = 0;
 	private boolean isIframeInCrossDomain = false;
@@ -101,6 +102,7 @@ public class PlayerController implements IPlayerController {
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
+		this.responsiveVoice = content.getMetadataValue("responsiveVoiceLang");
 
 		this.adaptiveLearningService = new AdaptiveLearningService(this, content.getAdaptiveStructure());
 	}
@@ -796,6 +798,10 @@ public class PlayerController implements IPlayerController {
 		return this.lang;
 	}
 
+	public String getResponsiveVoiceLang() {
+		return this.responsiveVoice;
+	}
+
 	public String getPageStamp() {
 		return this.pageStamp;
 	}
@@ -872,5 +878,9 @@ public class PlayerController implements IPlayerController {
 		if (this.keyboardController != null) {
 			this.keyboardController.clearEventListeners();
 		}
+	}
+
+	public void setNVDAAvailability(boolean shouldUseNVDA) {
+		keyboardController.handleNVDAAvailability(shouldUseNVDA);
 	}
 }
