@@ -367,6 +367,15 @@ public class PlayerServices implements IPlayerServices {
 	public boolean isPlayerInCrossDomain() {
 		return this.playerController.isPlayerInCrossDomain();
 	}
+
+	@Override
+	public String getResponsiveVoiceLang() {
+		if(playerController instanceof PlayerController) {
+			PlayerController pc = (PlayerController) playerController;
+			return pc.getResponsiveVoiceLang();
+		}
+		return "";
+	}
 	
 	@Override
 	public boolean isWCAGOn() {
