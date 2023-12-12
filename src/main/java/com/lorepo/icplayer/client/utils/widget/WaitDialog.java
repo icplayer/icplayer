@@ -29,6 +29,7 @@ public class WaitDialog extends DialogBox {
 	public void centerElement() {
 		center();
 		updateWrapperPosition();
+		updateInnerWrapperHeight();
 	};
 
 	public native void updateWrapperPosition() /*-{
@@ -69,19 +70,32 @@ public class WaitDialog extends DialogBox {
 		var documentHeight = $wnd.$($wnd.document).height();
 		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var heightMultiplier = 0.625;
 
-		if (windowHeight && windowHeight < windowWidth && isMobileDevice) {
+		if (windowHeight < windowWidth && isMobileDevice) {
 			return windowHeight;
+		} else if (isMobileDevice) {
+			return heightMultiplier * windowWidth;
 		}
 
 		if (contentHeight && contentHeight > 100 && contentHeight <= documentHeight && !isMobileDevice) {
 			return contentHeight;
 		}
 
-		return windowHeight;
+		return windowWidth > 1200 ? heightMultiplier * 1200 : heightMultiplier * windowWidth;
 	}-*/;
 
 	public native boolean isMobile() /*-{
 		return $wnd.MobileUtils.isMobileUserAgent($wnd.navigator.userAgent) || $wnd.MobileUtils.isSafariMobile($wnd.navigator.userAgent);
+	}-*/;
+
+	public native void updateInnerWrapperHeight() /*-{
+		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var imageHeight = $wnd.$('.ic_waitImage').height();
+		var firstChild = $wnd.$('.ic_waitdlg').children()[0];
+
+		if (isMobileDevice && imageHeight > 100) {
+			$wnd.$(firstChild).height(imageHeight + 'px');
+		}
 	}-*/;
 }
