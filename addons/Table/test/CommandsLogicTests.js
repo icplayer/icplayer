@@ -340,13 +340,13 @@ TestCase("[Table] Commands logic - enableGap", {
 
         this.stubs = {
             validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
-            unlockGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'unlockGapByIndex')
+            enableGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'enableGapByIndex')
         };
     },
 
     tearDown: function () {
         this.presenter.validateGapIndex.restore();
-        this.presenter.GapsContainerObject.prototype.unlockGapByIndex.restore();
+        this.presenter.GapsContainerObject.prototype.enableGapByIndex.restore();
     },
 
     'test should enable gap when index is valid': function () {
@@ -354,7 +354,7 @@ TestCase("[Table] Commands logic - enableGap", {
 
         this.presenter.enableGap({});
 
-        assertTrue(this.stubs.unlockGapByIndex.calledOnce);
+        assertTrue(this.stubs.enableGapByIndex.calledOnce);
     },
 
     'test shouldnt enable gap when index is invalid': function () {
@@ -362,7 +362,7 @@ TestCase("[Table] Commands logic - enableGap", {
 
         this.presenter.enableGap({});
 
-        assertFalse(this.stubs.unlockGapByIndex.called);
+        assertFalse(this.stubs.enableGapByIndex.called);
     }
 });
 
@@ -373,13 +373,13 @@ TestCase("[Table] Commands logic - disableGap", {
 
         this.stubs = {
             validateGapIndex: sinon.stub(this.presenter, 'validateGapIndex'),
-            lockGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'lockGapByIndex')
+            disableGapByIndex: sinon.stub(this.presenter.GapsContainerObject.prototype, 'disableGapByIndex')
         };
     },
 
     tearDown: function () {
         this.presenter.validateGapIndex.restore();
-        this.presenter.GapsContainerObject.prototype.lockGapByIndex.restore();
+        this.presenter.GapsContainerObject.prototype.disableGapByIndex.restore();
     },
 
     'test should disable gap when index is valid': function () {
@@ -387,7 +387,7 @@ TestCase("[Table] Commands logic - disableGap", {
 
         this.presenter.disableGap({});
 
-        assertTrue(this.stubs.lockGapByIndex.calledOnce);
+        assertTrue(this.stubs.disableGapByIndex.calledOnce);
     },
 
     'test shouldnt disable gap when index is invalid': function () {
@@ -395,7 +395,7 @@ TestCase("[Table] Commands logic - disableGap", {
 
         this.presenter.disableGap({});
 
-        assertFalse(this.stubs.lockGapByIndex.called);
+        assertFalse(this.stubs.disableGapByIndex.called);
     }
 });
 
@@ -405,25 +405,25 @@ TestCase("[Table] Commands logic - disable and enable all gaps", {
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
 
         this.stubs = {
-            lockAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'lockAllGaps'),
-            unlockAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'unlockAllGaps')
+            disableAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'disableAllGaps'),
+            enableAllGaps: sinon.stub(this.presenter.GapsContainerObject.prototype, 'enableAllGaps')
         };
     },
 
     tearDown: function () {
-        this.presenter.GapsContainerObject.prototype.lockAllGaps.restore();
-        this.presenter.GapsContainerObject.prototype.unlockAllGaps.restore();
+        this.presenter.GapsContainerObject.prototype.enableAllGaps.restore();
+        this.presenter.GapsContainerObject.prototype.disableAllGaps.restore();
     },
 
     'test should disable all gaps': function () {
         this.presenter.disableAllGaps();
 
-        assertTrue(this.stubs.lockAllGaps.calledOnce);
+        assertTrue(this.stubs.disableAllGaps.calledOnce);
     },
 
     'test should enable all gaps': function () {
         this.presenter.enableAllGaps();
 
-        assertTrue(this.stubs.unlockAllGaps.calledOnce);
+        assertTrue(this.stubs.enableAllGaps.calledOnce);
     }
 });

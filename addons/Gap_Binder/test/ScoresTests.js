@@ -76,14 +76,14 @@ TestCase("[Gap Binder] Scores tests", {
         assertEquals(2, score);
     },
 
-    'test given addon in show answers mode when getScore is called then return score and disable show answers mode': function () {
+    'test given addon in show answers mode when getScore is called then return score and do not disable show answers mode': function () {
         this.presenter.showAnswers();
         assertTrue(this.presenter.isShowAnswersActive);
 
         const score = this.presenter.getScore();
 
         assertEquals(2, score);
-        assertFalse(this.presenter.isShowAnswersActive);
+        assertTrue(this.presenter.isShowAnswersActive);
     },
 
     'test given addon in work mode when getErrorCount is called then return errors number': function () {
@@ -92,13 +92,13 @@ TestCase("[Gap Binder] Scores tests", {
         assertEquals(3, errorsNumber);
     },
 
-    'test given addon in show answers mode when getErrorCount is called then return number of errors and disable show answers mode': function () {
+    'test given addon in show answers mode when getErrorCount is called then return number of errors and do not show answers mode': function () {
         this.presenter.showAnswers();
         assertTrue(this.presenter.isShowAnswersActive);
 
         const errorsNumber = this.presenter.getErrorCount();
 
         assertEquals(3, errorsNumber);
-        assertFalse(this.presenter.isShowAnswersActive);
+        assertTrue(this.presenter.isShowAnswersActive);
     },
 });

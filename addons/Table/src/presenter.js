@@ -282,7 +282,7 @@ function AddonTable_create() {
         presenter.lastDraggedItem = {};
 
         if (presenter.configuration.isDisabledByDefault) {
-            presenter.gapsContainer.lockAllGaps();
+            presenter.disableAllGaps();
         }
 
         presenter.buildKeyboardController();
@@ -970,7 +970,7 @@ function AddonTable_create() {
     };
 
     presenter.enableGap = function (gapIndex) {
-        executeFunctionOnGap(gapIndex, "unlockGapByIndex");
+        executeFunctionOnGap(gapIndex, "enableGapByIndex");
     };
 
     presenter.enableGapCommand = function (params) {
@@ -978,11 +978,11 @@ function AddonTable_create() {
     };
 
     presenter.enableAllGaps = function () {
-        presenter.gapsContainer.unlockAllGaps();
+        presenter.gapsContainer.enableAllGaps();
     };
 
     presenter.disableGap = function (gapIndex) {
-        executeFunctionOnGap(gapIndex, "lockGapByIndex");
+        executeFunctionOnGap(gapIndex, "disableGapByIndex");
     };
 
     presenter.disableGapCommand = function (params) {
@@ -990,7 +990,7 @@ function AddonTable_create() {
     };
 
     presenter.disableAllGaps = function () {
-        presenter.gapsContainer.lockAllGaps();
+        presenter.gapsContainer.disableAllGaps();
     };
 
     presenter.getView = function() {
@@ -1078,13 +1078,12 @@ function AddonTable_create() {
         }
 
         if (isConnectedWithMath) {
-            if(presenter.isShowAnswersActive) {
+            if (presenter.isShowAnswersActive) {
                 presenter.gapsContainer.gaps.forEach(function(gap) {
                     gap.onHideAnswers();
                 })
             }
-            presenter.gapsContainer.unlockAllGaps();
-            presenter.gapsContainer.lockAllNotEmptyGaps();
+            presenter.gapsContainer.lockAllGaps();
         }
     };
 
@@ -1159,7 +1158,7 @@ function AddonTable_create() {
                 presenter.setWorkMode();
 
                 if (isConnectedWithMath) {
-                    presenter.disableAllGaps();
+                    presenter.gapsContainer.lockAllGaps();
                 }
             }
             if (isConnectedWithMath) {
@@ -1398,16 +1397,26 @@ function AddonTable_create() {
         };
     };
 
-    presenter.GapUtils.prototype.setIsEnabled = function (isEnabled) {
-        if (this.isDisabled && isEnabled) {
+    presenter.GapUtils.prototype.setIsEnabled = function (value) {
+        if (this.isDisabled && value) {
             this.unlock();
         }
 
-        if (!this.isDisabled && !isEnabled) {
+        if (!this.isDisabled && !value) {
             this.lock();
         }
 
-        this.isEnabled = isEnabled;
+        this.isEnabled = value;
+    };
+
+    presenter.GapUtils.prototype.setIsLocked = function (value) {
+        if (this.isEnabled && this.isDisabled && !value) {
+            this.unlock();
+        }
+
+        if (!this.isDisabled && value) {
+            this.lock();
+        }
     };
 
     presenter.GapUtils.prototype.setMathShowAnswersValue = function (value) {
@@ -1885,17 +1894,16 @@ function AddonTable_create() {
         this.gaps[index].notifyEdit();
     };
 
-    presenter.GapsContainerObject.prototype.setLockGapByIndex = function (index, lock) {
-        this.gaps[index].setIsEnabled(lock);
-        this.gaps[index].notifyEdit();
+    presenter.GapsContainerObject.prototype.setLockGapByIndex = function (index, value) {
+        this.gaps[index].setIsLocked(value);
     };
 
     presenter.GapsContainerObject.prototype.lockGapByIndex = function (index) {
-        this.setLockGapByIndex(index, false);
+        this.setLockGapByIndex(index, true);
     };
 
     presenter.GapsContainerObject.prototype.unlockGapByIndex = function (index) {
-        this.setLockGapByIndex(index, true);
+        this.setLockGapByIndex(index, false);
     };
 
     presenter.GapsContainerObject.prototype.unlockAllGaps = function () {
@@ -1910,11 +1918,28 @@ function AddonTable_create() {
         }, this);
     };
 
-    presenter.GapsContainerObject.prototype.lockAllNotEmptyGaps = function () {
+    presenter.GapsContainerObject.prototype.setEnableGapByIndex = function (index, isEnabled) {
+        this.gaps[index].setIsEnabled(isEnabled);
+        this.gaps[index].notifyEdit();
+    };
+
+    presenter.GapsContainerObject.prototype.disableGapByIndex = function (index) {
+        this.setEnableGapByIndex(index, false);
+    };
+
+    presenter.GapsContainerObject.prototype.enableGapByIndex = function (index) {
+        this.setEnableGapByIndex(index, true);
+    };
+
+    presenter.GapsContainerObject.prototype.enableAllGaps = function () {
         this.gaps.map(function (gap, index) {
-            if(!gap.isValueEmpty()){
-                this.lockGapByIndex(index);
-            }
+            this.enableGapByIndex(index);
+        }, this);
+    };
+
+    presenter.GapsContainerObject.prototype.disableAllGaps = function () {
+        this.gaps.map(function (gap, index) {
+            this.disableGapByIndex(index);
         }, this);
     };
 

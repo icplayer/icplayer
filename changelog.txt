@@ -1,4 +1,9 @@
 2023-12-13 Added mute property to the feedback addon
+2023-12-11 Fixed non-blocking of empty gaps in check state for combination Table + Math
+2023-12-11 Fixed Text receiving nowrap style when not apropriate
+2023-12-06 Fixed bug in video addon displaying information that video cannot be played even though local resource exists
+2023-12-06 Added new languages to Responsive Voice
+2023-12-05 Fixed show answers mode not being restored in Text math gaps
 2023-11-23 Fixed width calculation in Ordering module when "Even width for all elements" is checked
 2023-11-23 Added support for paragraphInitDelay external variable in the Paragraph addon
 2023-11-23 Fixed inability to select text when there is slider addon on page

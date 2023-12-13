@@ -2346,6 +2346,7 @@ var ice_dictionary_fr = {
 	"printable_lesson_preview": "Lesson preview",
 	"printable_preview_error_message": "An error has occurred while generating the preview",
 	"printable_enable_two_column_layout": "Printable two-column layout",
+    "responsive_voice_language": "Responsive Voice languages",
 	"Cross_Lesson_property_type": "Type",
     "AudioPlaylist_name": "Audio Playlist",
     "AudioPlaylist_info": "The Audio Playlist module allows you to add multiple audio files and order them into playlist.",
