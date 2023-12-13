@@ -261,9 +261,15 @@ public class PlayerView extends VerticalPanel{
 	}
 
 	public void showWaitDialog() {
-		waitDialog.show();
-		waitDialog.centerElement();
+		if (!isWaitDialogVisible()) {
+			waitDialog.show();
+			waitDialog.centerElement();
+		}
 	}
+	
+	private native boolean isWaitDialogVisible() /*-{
+		return $wnd.$('.ic_waitdlg').is(':visible');
+	}-*/;
 	
 	native static int getTopWindowInnerHeight() /*-{
 		var height = 100;

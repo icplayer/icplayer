@@ -90,12 +90,10 @@ public class WaitDialog extends DialogBox {
 	}-*/;
 
 	public native void updateInnerWrapperHeight() /*-{
-		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
-		var imageHeight = $wnd.$('.ic_waitImage').height();
+		var imageHeight = $wnd.$('.ic_waitImage').height() 
 		var firstChild = $wnd.$('.ic_waitdlg').children()[0];
-
-		if (isMobileDevice && imageHeight > 100) {
-			$wnd.$(firstChild).height(imageHeight + 'px');
-		}
+		imageHeight = imageHeight < 110 ? 110 : imageHeight;
+		
+		$wnd.$(firstChild).height(imageHeight + 'px');
 	}-*/;
 }
