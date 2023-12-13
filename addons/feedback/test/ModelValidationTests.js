@@ -8,7 +8,8 @@ TestCase("Model validation", {
             'Reset response on page change': 'True',
             'Fade transitions': 'False',
             'Center horizontally': 'True',
-            'Center vertically': 'False'
+            'Center vertically': 'False',
+            'Mute': 'True'
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -18,5 +19,6 @@ TestCase("Model validation", {
         assertTrue(validatedModel.centerHorizontally);
         assertFalse(validatedModel.centerVertically);
         assertTrue(validatedModel.isActivity);
+        assertTrue(validatedModel.isMute);
     }
 });

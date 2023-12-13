@@ -799,6 +799,7 @@ var ice_dictionary_en = {
 	"feedback_property_positive": "Correct answer",
 	"feedback_property_negative": "Incorrect answer",
 	"feedback_property_no_feedback": "No feedback message",
+	"feedback_property_mute": "Mute",
 	"Glossary_info": "Enables to add a dictionary to a presentation. A selected word or phrase is displayed together with its definition in a modal dialogue box.",
 	"Glossary_name": "Glossary",
 	"Glossary_property_list_of_words": "List of words",

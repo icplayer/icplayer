@@ -799,6 +799,7 @@ var ice_dictionary_mx = {
 	"feedback_property_positive": "Correct answer",
 	"feedback_property_negative": "Incorrect answer",
 	"feedback_property_no_feedback": "No feedback message",
+	"feedback_property_mute": "Mute",
 	"Glossary_info": "Permite agregar un glosario a la presentación. Al seleccionar una palabra o frase del módulo correspondiente aparece una ventana emergente con la definición.",
 	"Glossary_name": "Glosario",
 	"Glossary_property_list_of_words": "Lista de palabras",
