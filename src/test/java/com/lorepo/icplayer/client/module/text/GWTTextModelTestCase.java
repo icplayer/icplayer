@@ -171,10 +171,10 @@ public class GWTTextModelTestCase extends GwtTest {
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
 
-		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" autocomplete=\"off\" size=\"6\" class=\"ic_gap\"";
+		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"6\" class=\"ic_gap\"";
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" autocomplete=\"off\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
@@ -195,7 +195,7 @@ public class GWTTextModelTestCase extends GwtTest {
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		
-		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" autocomplete=\"off\" size=\"5\" class=\"ic_gap\">";
+		EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\">";
 		index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
 		

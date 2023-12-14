@@ -297,7 +297,6 @@ public class TextParser {
 		inputElement.setHTMLAttribute("id", id);
 		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("data-gap", "editable");
-		inputElement.setHTMLAttribute("autocomplete", "off");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
 		}
@@ -364,7 +363,6 @@ public class TextParser {
 		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("size", "" + Math.max(maxAnswerLength, placeholder.length()));
 		inputElement.setHTMLAttribute("placeholder", placeholder);
-		inputElement.setHTMLAttribute("autocomplete", "off");
 		inputElement.addClass("ic_filled_gap");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("readonly", true);
