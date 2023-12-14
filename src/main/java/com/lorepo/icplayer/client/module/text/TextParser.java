@@ -364,6 +364,7 @@ public class TextParser {
 		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("size", "" + Math.max(maxAnswerLength, placeholder.length()));
 		inputElement.setHTMLAttribute("placeholder", placeholder);
+		inputElement.setHTMLAttribute("autocomplete", "off");
 		inputElement.addClass("ic_filled_gap");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("readonly", true);
