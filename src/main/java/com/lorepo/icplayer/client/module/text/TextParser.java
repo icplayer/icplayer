@@ -297,6 +297,7 @@ public class TextParser {
 		inputElement.setHTMLAttribute("id", id);
 		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("data-gap", "editable");
+		inputElement.setHTMLAttribute("autocomplete", "off");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
 		}

@@ -1578,25 +1578,26 @@ function AddonTable_create() {
     };
 
     presenter.EditableInputGap.prototype.createView = function () {
+        var $gapView;
         if (presenter.hasMathGaps()) {
-            return $(presenter.$view).find("input[id='"+this.objectID+"']");
-        }else{
+            $gapView = $(presenter.$view).find("input[id='"+this.objectID+"']");
+        } else {
             var inputType = "text";
             if (presenter.configuration.useNumericKeyboard) {
                 inputType = "tel";
             }
-            var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
-            $inputGap.css({
+            $gapView = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
+            $gapView.css({
                 width: presenter.configuration.gapWidth + "px"
             });
 
-            $inputGap.addClass("ic_gap");
+            $gapView.addClass("ic_gap");
             if (presenter.configuration.useNumericKeyboard) {
-                $inputGap.attr("step", "any");
+                $gapView.attr("step", "any");
             }
-
-            return $inputGap;
         }
+        $gapView.attr("autocomplete", "off");
+        return $gapView;
     };
 
     presenter.EditableInputGap.prototype.onKeyUp = function(event) {

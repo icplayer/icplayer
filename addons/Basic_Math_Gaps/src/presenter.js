@@ -52,6 +52,7 @@ function AddonBasic_Math_Gaps_create(){
     presenter.upgradeModel = function (model) {
         var nModel = presenter.upgradeGapType(model);
         nModel = presenter.upgradeNumericKeyboard(nModel);
+        nModel = presenter.upgradeIsDisabledAutocomplete(nModel);
         return presenter.upgradeUserActionEvents(nModel);
     };
 
@@ -83,6 +84,17 @@ function AddonBasic_Math_Gaps_create(){
 
         if (model['userActionEvents'] === undefined) {
             upgradedModel['userActionEvents'] = 'False';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeIsDisabledAutocomplete = function(model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (model.isDisabledAutocomplete === undefined) {
+            upgradedModel["isDisabledAutocomplete"] = "False";
         }
 
         return upgradedModel;
@@ -1350,7 +1362,7 @@ function AddonBasic_Math_Gaps_create(){
         if ((presenter.configuration.useNumericKeyboard)) {
             $inputGap.attr("step", "any");
         }
-
+        $inputGap.attr("autocomplete", "off");
         return $inputGap;
     };
 
