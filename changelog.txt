@@ -1,3 +1,4 @@
+2023-12-14 Disabled autocomplete of editable gaps in Table, Text and Basic Math Gaps
 2023-12-13 Added omit text in TTS property to Double State Button
 2023-12-13 Added mute property to the feedback addon
 2023-12-11 Fixed non-blocking of empty gaps in check state for combination Table + Math
