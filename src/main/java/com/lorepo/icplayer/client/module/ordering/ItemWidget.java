@@ -28,7 +28,7 @@ public class ItemWidget extends HTML {
 	private final OrderingItem item;
 	private final ParserResult parserResult;
 	private EventBus eventBus;
-	private Integer widthWithoutMargin; // safari fix
+	private Element moduleView;
 	private final OrderingModule container; // safari fix
 	private List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
@@ -42,10 +42,6 @@ public class ItemWidget extends HTML {
 		setStyleName("ic_ordering-item");
 	}
 
-	public void setWidthWithoutMargin(Integer value) {
-		widthWithoutMargin = value;
-	}
-
 	public int getIndex() {
 		return item.getIndex();
 	}
@@ -53,18 +49,58 @@ public class ItemWidget extends HTML {
 	public boolean isCorrect(int position) {
 		return item.isCorrect(position);
 	}
+	
+	public void setModuleView(Element view) {
+		moduleView = view;
+	}
 
 	@Override
 	protected void onAttach() {
 		super.onAttach();
 		connectLinks(parserResult.linkInfos.iterator());
 		if (container.doAllElementsHasSameWidth()) { // safari fix
-			int marginLeft = ComputedStyle.getStyle(getElement(), "marginLeft");
-			int marginRight = ComputedStyle.getStyle(getElement(), "marginRight");
-			Integer width = widthWithoutMargin - marginLeft - marginRight;
-			setWidth(width.toString() + "px");
+			Element itemElement = this.getElement();
+			if (moduleView == null || !moduleView.isOrHasChild(itemElement)) {
+				return;
+			}
+			
+			Element tableCell = (Element) itemElement.getParentElement();
+			Element tableRow = (Element) tableCell.getParentElement();
+			Element tableBody = (Element) tableRow.getParentElement();
+			Element table = (Element) tableBody.getParentElement();
+			if (!table.equals(moduleView)) {
+				return;
+			}
+			
+			int itemWidth = container.getWidth();
+			itemWidth -= calculateHorizontalSpaceAroundElement(table);
+			itemWidth -= calculateHorizontalSpaceAroundElement(tableBody);
+			if (!container.isVertical()) {
+				itemWidth /= container.getItemCount();
+			}
+			itemWidth -= calculateHorizontalSpaceAroundElement(tableRow);
+			itemWidth -= calculateHorizontalSpaceAroundElement(tableCell);
+			itemWidth -= this.calculateHorizontalMargin(itemElement);
+			
+			setWidth(itemWidth + "px");
 			addStyleName("full-width");
 		}
+	}
+
+	private int calculateHorizontalSpaceAroundElement(Element element) {
+		return calculateHorizontalMargin(element) + calculateHorizontalPadding(element) + calculateHorizontalBorder(element);
+	}
+	
+	private int calculateHorizontalMargin(Element element) {
+		return ComputedStyle.getStyle(element, "marginLeft") + ComputedStyle.getStyle(element, "marginRight");
+	}
+	
+	private int calculateHorizontalBorder(Element element) {
+		return ComputedStyle.getStyle(element, "borderLeftWidth") + ComputedStyle.getStyle(element, "borderRightWidth");
+	}
+	
+	private int calculateHorizontalPadding(Element element) {
+		return ComputedStyle.getStyle(element, "paddingLeft") + ComputedStyle.getStyle(element, "paddingRight");
 	}
 
 	public void connectLinks(Iterator<LinkInfo> it) {

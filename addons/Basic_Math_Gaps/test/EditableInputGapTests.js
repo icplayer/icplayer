@@ -62,5 +62,11 @@ TestCase("[Basic Math Gaps] EditableInputGap", {
         var inputType = this.gap.createView().attr('type');
 
         assertEquals("tel", inputType.toLowerCase());
+    },
+
+    'test given input when creating gap view then gap autocomplete is off': function () {
+        const autocomplete = this.gap.createView().attr('autocomplete');
+
+        assertEquals("off", autocomplete.toLowerCase());
     }
 });

@@ -8,7 +8,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -45,6 +44,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private String originalDisplay = "";
 	private boolean isPreview = false;
 	private double widthGapMultiplier = 2.5;
+	private int unwrappedViewWidth = 0;
 
 	// active index of navigation text elements (including links). The order follows the order of navigation elements.
 	private int keyboardNavigationCurrentElementIndex = -1;
@@ -249,10 +249,40 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void updateParentProperty(Element child) {
 		com.google.gwt.dom.client.Element parentElement = child.getParentElement();
 
-		if (parentElement !=null ) {
-			parentElement.getStyle().setProperty("text-wrap", "nowrap");
+		if (parentElement !=null && getGapChildrenCount(parentElement) == 1 && !containsNewLine(parentElement)) {
+			double childWidth = child.getClientWidth();
+			double viewWidth = getViewUnwrappedWidth();
+			if (viewWidth == 0.0 || childWidth / viewWidth > 0.7) {
+				parentElement.getStyle().setProperty("text-wrap", "nowrap");
+			}
 		}
 	}
+
+	private native int getGapChildrenCount(com.google.gwt.dom.client.Element parent)/*-{
+		var $parent = $wnd.$(parent);
+		return $parent.find('select, input').length;
+	}-*/;
+
+	private native boolean containsNewLine(com.google.gwt.dom.client.Element parent)/*-{
+		var $parent = $wnd.$(parent);
+		return $parent.find('br, div').length > 0;
+	}-*/;
+
+	private int getViewUnwrappedWidth() {
+		if (unwrappedViewWidth == 0) unwrappedViewWidth = getViewUnwrappedWidth(this.getElement());
+		return unwrappedViewWidth;
+	}
+
+	private native int getViewUnwrappedWidth (com.google.gwt.dom.client.Element view)/*-{
+		var $view = $wnd.$(view);
+		var $viewCopy = $view.clone();
+		$viewCopy.css('visibility', 'hidden');
+		$viewCopy.css('width', '');
+		$viewCopy.insertAfter($view);
+		var unwrappedWidth = $viewCopy[0].offsetWidth;
+		$viewCopy.remove();
+		return unwrappedWidth;
+	}-*/;
 
 	@Override
 	public void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState) {
