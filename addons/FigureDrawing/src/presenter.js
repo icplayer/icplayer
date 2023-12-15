@@ -6,6 +6,7 @@ function AddonFigureDrawing_create(){
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
     presenter.wasShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -834,6 +835,8 @@ function AddonFigureDrawing_create(){
         });
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
     }
     function checkColors() {
         for(var i = 0; i < presenter.coloredAreas.length; i++) {
@@ -842,9 +845,15 @@ function AddonFigureDrawing_create(){
                 presenter.coloredAreas.splice(i,1);
         }
     }
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "ShowAnswers") presenter.showAnswers();
         if (eventName == "HideAnswers") presenter.hideAnswers();
+        if (eventName == "GradualShowAnswers") {
+            if (eventData.moduleID === presenter.addonID) {
+                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+            }
+        }
+        if (eventName == "GradualHideAnswers") presenter.gradualHideAnswers();
     };
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -1171,6 +1180,7 @@ function AddonFigureDrawing_create(){
         if (presenter.coloring) presenter.redrawCanvas(false);
     };
     presenter.showAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
         if (presenter.activity) {
             var i, x, y, point1, point2;
             if (presenter.isShowAnswersActive) presenter.hideAnswers();
@@ -1197,7 +1207,9 @@ function AddonFigureDrawing_create(){
             if (presenter.coloring) presenter.redrawCanvas(true);
         }
     };
+
     presenter.hideAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
         if (presenter.activity && presenter.isShowAnswersActive) {
             var i, x, y, point1, point2;
             presenter.isShowAnswersActive = false;
@@ -1214,6 +1226,48 @@ function AddonFigureDrawing_create(){
             if (presenter.coloring) presenter.redrawCanvas(false);
         }
     }
+
+    presenter.getActivitiesCount = function () {
+        if (!presenter.activity) return 0;
+        return presenter.AnswerLines.length;
+    }
+
+    presenter.isEnabledInGSAMode = function() {return true;};
+
+    presenter.gradualShowAnswers = function (item) {
+        if (presenter.activity) {
+            var i, x, y, point1, point2;
+            if (presenter.isShowAnswersActive) presenter.hideAnswers();
+            presenter.isShowAnswersActive = true;
+            presenter.isGradualShowAnswersActive = true;
+            presenter.setWorkMode();
+            var Lines = presenter.$view.find('.line').not('.nonremovable');
+            presenter.LinesIds = new Array();
+            for (i = 0; i < Lines.length; i++) {
+                presenter.LinesIds.push(Lines[i].id);
+            }
+            presenter.$view.find('.line').not('.nonremovable').remove();
+            var indexes = new Array();
+            if (item >= presenter.AnswerLines.length) item = presenter.AnswerLines.length - 1;
+            for (i = 0; i <= item; i++) {
+                indexes = presenter.AnswerLines[i].split('_');
+                x = countX(indexes[1]); y = countY(indexes[2]);
+                point1 = new Point(indexes[2], indexes[1], x, y);
+                x = countX(indexes[3]); y = countY(indexes[4]);
+                point2 = new Point(indexes[4], indexes[3], x, y);
+                drawOneLine(point1,point2,false);
+            }
+            presenter.selected.isSelected = false;
+            presenter.$view.find('.selected').removeClass('selected');
+            presenter.$view.find('.line').not('.nonremovable').addClass('show-answers');
+            if (presenter.coloring) presenter.redrawCanvas(true);
+        }
+    }
+
+    presenter.gradualHideAnswers = function() {
+        presenter.hideAnswers();
+    }
+
     function findClosestPoint(x,y) {
         if (presenter.grid3D) {
             var column = parseInt((x * 2 + 0.25 * presenter.grid)/presenter.grid);
