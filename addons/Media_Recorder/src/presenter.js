@@ -95,7 +95,8 @@ var CSS_CLASSES = exports.CSS_CLASSES = {
     DENY_BUTTON: "deny-button",
     EXTENDED_MODE: "extended-mode",
     SELECTED: "selected",
-    DISABLED: "disabled"
+    DISABLED: "disabled",
+    DISABLE_RECORD_BUTTON: "disable-record-button"
 };
 
 /***/ }),
@@ -125,9 +126,16 @@ var Button = exports.Button = function () {
         value: function activate() {
             var _this = this;
 
-            this.$view.click(function () {
-                return _this._eventHandler();
+            this.$view.click(function (event) {
+                if (!_this.isDoubleClick(event)) {
+                    _this._eventHandler();
+                }
             });
+        }
+    }, {
+        key: "isDoubleClick",
+        value: function isDoubleClick(event) {
+            return event.originalEvent && event.originalEvent.detail > 1;
         }
     }, {
         key: "deactivate",
@@ -192,6 +200,7 @@ var RecordButton = exports.RecordButton = function (_Button) {
         var _this = _possibleConstructorReturn(this, (RecordButton.__proto__ || Object.getPrototypeOf(RecordButton)).call(this, $view));
 
         _this._keyboardController = null;
+        _this._timeoutID = null;
 
         _this.state = state;
         return _this;
@@ -203,12 +212,14 @@ var RecordButton = exports.RecordButton = function (_Button) {
             _get(RecordButton.prototype.__proto__ || Object.getPrototypeOf(RecordButton.prototype), "destroy", this).call(this);
             this._keyboardController = null;
             this.state = null;
+            this._clearTimeout();
         }
     }, {
         key: "reset",
         value: function reset() {
             this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onResetCallback();
+            this._clearTimeout();
         }
     }, {
         key: "setUnclickView",
@@ -225,12 +236,43 @@ var RecordButton = exports.RecordButton = function (_Button) {
         value: function _startRecording() {
             this.$view.addClass(_CssClasses.CSS_CLASSES.SELECTED);
             this.onStartRecordingCallback();
+            this._handleDisablingRecordButton();
         }
     }, {
         key: "_stopRecording",
         value: function _stopRecording() {
-            this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
-            this.onStopRecordingCallback();
+            if (!this._timeoutID) {
+                this.$view.removeClass(_CssClasses.CSS_CLASSES.SELECTED);
+                this.onStopRecordingCallback();
+            }
+        }
+    }, {
+        key: "_handleDisablingRecordButton",
+        value: function _handleDisablingRecordButton() {
+            this._disableRecordButton();
+            _self = this;
+            this._timeoutID = setTimeout(function () {
+                _self._enableRecordButton();
+            }, 1000);
+        }
+    }, {
+        key: "_disableRecordButton",
+        value: function _disableRecordButton() {
+            this.$view.addClass(_CssClasses.CSS_CLASSES.DISABLE_RECORD_BUTTON);
+        }
+    }, {
+        key: "_enableRecordButton",
+        value: function _enableRecordButton() {
+            this.$view.removeClass(_CssClasses.CSS_CLASSES.DISABLE_RECORD_BUTTON);
+            this._clearTimeout();
+        }
+    }, {
+        key: "_clearTimeout",
+        value: function _clearTimeout() {
+            if (this._timeoutID) {
+                clearTimeout(this._timeoutID);
+                this._timeoutID = null;
+            }
         }
     }, {
         key: "setKeyboardController",
@@ -279,6 +321,12 @@ var BlobService = exports.BlobService = function () {
         value: function serialize(blob) {
             return new Promise(function (resolve) {
                 var reader = new FileReader();
+                if (blob instanceof Blob) {
+                    var realFileReader = reader._realReader;
+                    if (realFileReader) {
+                        reader = realFileReader;
+                    }
+                }
                 reader.onloadend = function () {
                     return resolve(reader.result);
                 };
@@ -882,6 +930,11 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
             throw new Error("readElement method is not implemented");
         }
     }, {
+        key: "isCurrentElementDisabled",
+        value: function isCurrentElementDisabled() {
+            return this._getCurrentElement().hasClass(_CssClasses.CSS_CLASSES.DISABLE_RECORD_BUTTON);
+        }
+    }, {
         key: "_speakRecordingButtonTTS",
         value: function _speakRecordingButtonTTS($element) {
             var textVoiceObject = [];
@@ -941,6 +994,8 @@ var BaseKeyboardController = exports.BaseKeyboardController = function (_Keyboar
     }, {
         key: "_speakStopRecordingTTS",
         value: function _speakStopRecordingTTS() {
+            if (this.isCurrentElementDisabled()) return;
+
             var textVoiceObject = [];
 
             this._pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, this.speechTexts.StopRecording);
@@ -1297,7 +1352,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 var recording = void 0;
                 if (_this.addonState.isMP3Format(blob)) {
                     var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
-                    recording = URL.createObjectURL(tmpFile);
+                    try {
+                        recording = URL.createObjectURL(tmpFile);
+                    } catch (error) {
+                        recording = URL.createObjectURL(blob);
+                    }
                 } else {
                     recording = URL.createObjectURL(blob);
                 }
@@ -3447,13 +3506,18 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
             var _this2 = this;
 
             return new Promise(function (resolve) {
-                if (!_this2.mediaElementSource) _this2.mediaElementSource = _this2.audioContext.createMediaElementSource(htmlMediaElement);
+                // on Chrome when user hasn't interacted with the page before AudioContext was created it will be created in suspended state
+                // this will happen if MediaRecorder is on the first page user visits (constructor call will happen before user interaction)
+                // resume is then needed to unblock AudioContext (see https://goo.gl/7K7WLu)
+                _this2.audioContext.resume().then(function () {
+                    if (!_this2.mediaElementSource) _this2.mediaElementSource = _this2.audioContext.createMediaElementSource(htmlMediaElement);
 
-                var analyser = _AnalyserProvider.AnalyserProvider.create(_this2.audioContext);
-                _this2.mediaElementSource.connect(analyser);
-                analyser.connect(_this2.audioContext.destination);
+                    var analyser = _AnalyserProvider.AnalyserProvider.create(_this2.audioContext);
+                    _this2.mediaElementSource.connect(analyser);
+                    analyser.connect(_this2.audioContext.destination);
 
-                resolve(analyser);
+                    resolve(analyser);
+                });
             });
         }
     }, {
@@ -3762,6 +3826,8 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
     }, {
         key: "_stopRecording",
         value: function _stopRecording() {
+            if (this._keyboardController.isCurrentElementDisabled()) return;
+
             if (this.stopRecordingSoundEffect.isValid()) {
                 this._onStopRecordingWithSoundEffect();
             } else if (this._isKeyboardControllerNavigationActive()) {

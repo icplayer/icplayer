@@ -161,7 +161,9 @@ function Addonfeedback_create() {
         presenter.currentStateDefault = true;
         presenter.currentStateId = null;
 
-        presenter.readCurrentMessage(false);
+        if (!presenter.configuration.isMute) {
+            presenter.readCurrentMessage(false);
+        }
     };
 
     presenter.setResponse = function (id) {
@@ -185,7 +187,9 @@ function Addonfeedback_create() {
         presenter.currentStateDefault = false;
         presenter.currentStateId = id;
 
-        presenter.readCurrentMessage(false);
+        if (!presenter.configuration.isMute) {
+            presenter.readCurrentMessage(false);
+        }
     };
 
 
@@ -202,7 +206,8 @@ function Addonfeedback_create() {
     }
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        return presenter.upgradeAddMute(upgradedModel);
     };
 
     presenter.upgradeFrom_01 = function(model) {
@@ -226,6 +231,16 @@ function Addonfeedback_create() {
         }
         return upgradedModel;
     };
+
+    presenter.upgradeAddMute = function(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["Mute"]) {
+                upgradedModel["Mute"] = "False";
+            }
+            return upgradedModel;
+        };
 
     presenter.initialize = function (view, model, preview) {
         var text;
@@ -370,6 +385,7 @@ function Addonfeedback_create() {
             isVisible: validatedIsVisible,
             isVisibleByDefault: validatedIsVisible,
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']),
+            isMute: ModelValidationUtils.validateBoolean(model['Mute']),
             langTag: model['langAttribute']
         };
     };
