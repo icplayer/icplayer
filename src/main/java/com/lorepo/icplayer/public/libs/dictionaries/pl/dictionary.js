@@ -799,6 +799,7 @@ var ice_dictionary_pl = {
 	"feedback_property_positive": "Poprawna odpowiedź",
 	"feedback_property_negative": "Błędna odpowiedź",
 	"feedback_property_no_feedback": "Brak informacji zwrotnej",
+	"feedback_property_mute": "Mute",
 	"Glossary_info" : "Pozwala na dodanie słownika do prezentacji. Wybrane słowo lub wyrażenie zostanie wyświetlone w oknie dialogowym razem z odpowiadającą mu definicją.",
 	"Glossary_name" : "Słownik",
 	"Glossary_property_list_of_words": "Lista słów",
