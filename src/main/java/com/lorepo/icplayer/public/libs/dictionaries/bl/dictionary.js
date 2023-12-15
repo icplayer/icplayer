@@ -786,6 +786,7 @@ var ice_dictionary_bl = {
 	"feedback_property_positive": "Верен отговор",
 	"feedback_property_negative": "Грешен отговор",
 	"feedback_property_no_feedback": "Липсва съобщение за обратна връзка",
+	"feedback_property_mute": "Mute",
 	"Glossary_info": "Позволява добавянето на речник към презентацията. Маркираната дума се показва заедно с определението ѝ в диалогов прозорец.",
 	"Glossary_name": "Речник",
 	"Glossary_property_list_of_words": "Списък с думи",

@@ -799,6 +799,7 @@ var ice_dictionary_fr = {
     "feedback_property_positive": "Correct answer",
     "feedback_property_negative": "Incorrect answer",
     "feedback_property_no_feedback": "No feedback message",
+    "feedback_property_mute": "Mute",
     "Glossary_info": "Permet d'ajouter un dictionnaire pour une présentation. Le mot ou la phrase choisi est affiché avec sa définition dans une boîte de dialogue.",
     "Glossary_name": "Glossaire",
     "Glossary_property_list_of_words": "Liste de mots",
