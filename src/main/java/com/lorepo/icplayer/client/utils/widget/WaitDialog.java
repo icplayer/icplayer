@@ -41,7 +41,7 @@ public class WaitDialog extends DialogBox {
 		$wnd.$('.ic_waitdlg').css('display', 'flex');
 		$wnd.$('.ic_waitdlg').css('justify-content', 'center');
 		$wnd.$('.ic_waitdlg').css('align-items', 'center');
-		$wnd.$('.ic_waitdlg').css('padding-left', '0');
+		$wnd.$('.ic_waitdlg').css('padding', '0');
 		$wnd.$('.ic_waitdlg').css('left', '0');
 		$wnd.$('.ic_waitdlg').css('top', '0');
 	}-*/;
@@ -52,13 +52,14 @@ public class WaitDialog extends DialogBox {
 		var documentWidth = $wnd.$($wnd.document).width();
 		var contentWidth = $wnd.$('#_icplayer').width();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
 
 		if (windowWidth && windowWidth < windowHeight && isMobileDevice) {
 			return windowWidth;
 		}
 
-		if (contentWidth && contentWidth > 100 && contentWidth <= documentWidth && !isMobileDevice) {
-			return contentWidth;
+		if (contentWidth && contentWidth > 100 && !isMobileDevice) {
+			return contentScale * contentWidth;
 		}
 
 		return documentWidth;
@@ -70,6 +71,7 @@ public class WaitDialog extends DialogBox {
 		var documentHeight = $wnd.$($wnd.document).height();
 		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
 		var heightMultiplier = 0.625;
 
 		if (windowHeight < windowWidth && isMobileDevice) {
@@ -78,11 +80,11 @@ public class WaitDialog extends DialogBox {
 			return heightMultiplier * windowWidth;
 		}
 
-		if (contentHeight && contentHeight > 100 && contentHeight <= documentHeight && !isMobileDevice) {
-			return contentHeight;
+		if (contentHeight && contentHeight > 100) {
+			return contentScale * contentHeight;
 		}
 
-		return windowWidth > 1200 ? heightMultiplier * 1200 : heightMultiplier * windowWidth;
+		return heightMultiplier * windowWidth;
 	}-*/;
 
 	public native boolean isMobile() /*-{
@@ -95,5 +97,16 @@ public class WaitDialog extends DialogBox {
 		imageHeight = imageHeight < 110 ? 110 : imageHeight;
 		
 		$wnd.$(firstChild).height(imageHeight + 'px');
+	}-*/;
+
+	public native double getContentScale() /*-{
+		var matrixScale = $wnd.$('#content').css('transform');
+		if (!matrixScale || !matrixScale.includes('matrix')) {
+			return 1;
+		}
+
+		var matrix = matrixScale.replace('matrix(', '').split(',')
+		
+		return +matrix[0];
 	}-*/;
 }
