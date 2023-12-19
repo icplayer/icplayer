@@ -5,6 +5,8 @@ function AddonFractions_create(){
     presenter.currentSelected = function(){};
     var Counter = 0;
     presenter.isErrorCheckingMode = false;
+    presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
     presenter.currentSelected.item = [];
     presenter.isVisible = '';
     presenter.wasVisible = '';
@@ -56,34 +58,42 @@ function AddonFractions_create(){
         }
     }
 
-
     presenter.setVisibility = function(isVisible) {
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.show = function() {
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.setVisibility(true);
         presenter.isVisible = true;
     };
 
     presenter.hide = function() {
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.setVisibility(false);
         presenter.isVisible = false;
     };
 
     presenter.disable = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isDisable = true;
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         $($myDiv).addClass('disable');
-
     };
 
     presenter.enable = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isDisable = false;
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         $($myDiv).removeClass('disable');
@@ -363,7 +373,8 @@ function AddonFractions_create(){
             figure: validatedFigure.figure,
             addonWidth: parseInt(model.Width, 10),
             addonHeight: parseInt(model.Height, 10),
-            addonId: model.ID
+            addonId: model.ID,
+            isNotActivity: ModelValidationUtils.validateBoolean(model.isNotActivity)
         };
     };
 
@@ -584,16 +595,19 @@ function AddonFractions_create(){
     };
 
     presenter.markAsCorrect = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         presenter.isErrorCheckingMode = true;
         $($myDiv).removeClass('incorrect');
         $($myDiv).addClass('correct');
-
     };
 
     presenter.markAsWrong = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         presenter.isErrorCheckingMode = true;
         $($myDiv).removeClass('correct');
@@ -601,7 +615,9 @@ function AddonFractions_create(){
     };
 
     presenter.markAsEmpty = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
         presenter.isErrorCheckingMode = false;
         $($myDiv).removeClass('incorrect');
@@ -609,22 +625,29 @@ function AddonFractions_create(){
     };
 
     presenter.setSelectionColor = function(color){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.configuration.selectionColor = color;
     };
 
     presenter.setSelectionColorButton = function(color){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.configuration.selectionColor = color[0];
     };
 
     presenter.getCurrentNumber = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         return Counter;
     };
 
     presenter.isAllOK = function(){
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         if(!presenter.configuration.isAnswer) {
             return true;
@@ -662,8 +685,10 @@ function AddonFractions_create(){
             presenter.wasVisible = model["Is Visible"] == 'True';
             presenter.setVisibility(presenter.isVisible);
 
-            presenter.eventBus.addEventListener('ShowAnswers', this);
-            presenter.eventBus.addEventListener('HideAnswers', this);
+            const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+            for (let i = 0; i < events.length; i++) {
+                presenter.eventBus.addEventListener(events[i], this);
+            }
 
             $(view).find('path').click(function (e) {
                 presenter.markElementAsClicked(this);
@@ -823,7 +848,10 @@ function AddonFractions_create(){
     presenter.markElementAsClicked = function(element){
         var correctAnswer = presenter.configuration.correctAnswer;
         var clickedElementID = element.id;
-        if(presenter.isErrorCheckingMode === false && presenter.isDisable === false)
+        if (presenter.isErrorCheckingMode === false
+            && presenter.isShowAnswersActive === false
+            && presenter.isGradualShowAnswersActive === false
+            && presenter.isDisable === false)
         {
             if(presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] === false)
             {
@@ -1000,7 +1028,6 @@ function AddonFractions_create(){
     };
 
     presenter.getState = function () {
-        presenter.isErrorCheckingMode = false;
         var currentItems = presenter.currentSelected.item;
         var visible = presenter.isVisible;
         var initialMarks = presenter.initialMarks;
@@ -1014,7 +1041,6 @@ function AddonFractions_create(){
             wasDisable: wasDisable,
             isDisable: isDisable
         });
-
     };
 
     presenter.setState = function (state) {
@@ -1083,7 +1109,9 @@ function AddonFractions_create(){
     };
 
     presenter.setShowErrorsMode = function () {
-        presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isErrorCheckingMode = true;
 
         if(presenter.configuration.isAnswer) {
@@ -1097,7 +1125,6 @@ function AddonFractions_create(){
                 }
             }
         }
-
     };
 
     presenter.setWorkMode = function () {
@@ -1105,16 +1132,17 @@ function AddonFractions_create(){
         presenter.isErrorCheckingMode = false;
         $($myDiv).removeClass('correct');
         $($myDiv).removeClass('incorrect');
-
     };
 
     presenter.reset = function () {
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
-        presenter.setWorkMode();
         for(var i = 1; i< presenter.currentSelected.item.length; i++) {
             presenter.currentSelected.item[i] = false;
         }
-        presenter.isErrorCheckingMode = false;
         Counter = 0;
         presenter.initialMarks = 0;
         presenter.selected(presenter.configuration.selected.selectedString);
@@ -1145,15 +1173,32 @@ function AddonFractions_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.onEventReceived = function (eventName, data) {
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                presenter.isGradualShowAnswersActive = true;
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
+                if (data.moduleID === presenter.configuration.addonId) {
+                    presenter.gradualShowAnswers();
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
+    };
 
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+    presenter.getActivitiesCount = function () {
+        if (!presenter.configuration.isValid || presenter.configuration.isNotActivity) {
+            return 0;
         }
+        return 1;
     };
 
     presenter.markCorrectAnswerAsSelected = function(element){
@@ -1166,96 +1211,98 @@ function AddonFractions_create(){
         }
     };
 
+    presenter.isEnabledInGSAMode = function () {
+        // Workaround. Prevents execution of presenter.enable and thus unlocking the addon when GradualHideAnswers is executed
+        return presenter.isDisable;
+    };
+
     presenter.showAnswers = function () {
-        if(presenter.isErrorCheckingMode == true){
-            presenter.setWorkMode();
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+
+        presenter.isShowAnswersActive = true;
+        if (!presenter.configuration.isAnswer) {
+            return;
+        }
+        showAnswersTo(presenter.configuration.correctAnswer);
+    };
+
+    presenter.showElementsSA = function(element){
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        presenter.isShowAnswersActive = true;
+        showAnswersTo(element);
+    };
+
+    presenter.gradualShowAnswers = function () {
+        if (!presenter.configuration.isAnswer
+            || presenter.configuration.isNotActivity) {
+            return;
         }
 
-        presenter.isErrorCheckingMode = true; //blokowanie na check
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+            presenter.isGradualShowAnswersActive = true;
+        }
 
-        if(presenter.configuration.isAnswer) {
-            if(presenter.configuration.correctAnswer != Counter){
-                if(presenter.clear()){
-                    if(Counter < presenter.configuration.correctAnswer){
-                        var k = 0;
-                        for(var j = 1; j < presenter.currentSelected.item.length; j++){
-                            if(presenter.currentSelected.item[j] === true) {
-                                presenter.markCorrectAnswerAsSelected(j);
-                            }
-                            if(presenter.currentSelected.item[j] === false && k != presenter.configuration.correctAnswer - Counter){
-                                presenter.markCorrectAnswerAsSelected(j);
-                                k++;
-                            }
-                        }
-                    } else{
-                        var k = 0;
-                        for(var j = 1;j < presenter.currentSelected.item.length; j++){
-                            if(presenter.currentSelected.item[j] === true) {
-                                if(k != presenter.configuration.correctAnswer){
-                                    presenter.markCorrectAnswerAsSelected(j);
-                                    k++;
-                                }
-                            }
+        showAnswersTo(presenter.configuration.correctAnswer);
+    };
+
+    function showAnswersTo(number) {
+        if (number != Counter){
+            presenter.clear()
+            let k = 0;
+            if (Counter < number){
+                for (let j = 1; j < presenter.currentSelected.item.length; j++){
+                    if (presenter.currentSelected.item[j] === true) {
+                        presenter.markCorrectAnswerAsSelected(j);
+                    }
+
+                    if (presenter.currentSelected.item[j] === false && k != number - Counter){
+                        presenter.markCorrectAnswerAsSelected(j);
+                        k++;
+                    }
+                }
+            } else {
+                for (let j = 1; j < presenter.currentSelected.item.length; j++){
+                    if (presenter.currentSelected.item[j] === true) {
+                        if (k != number){
+                            presenter.markCorrectAnswerAsSelected(j);
+                            k++;
                         }
                     }
                 }
             }
-            var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
-            $($myDiv).addClass('showAnswers');
         }
-    };
+        presenter.addShowAnswersClass();
+    }
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive
+            && !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
 
-        var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
-        presenter.isErrorCheckingMode = false;
-        $($myDiv).removeClass('showAnswers');
+        presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
+        presenter.removeShowAnswersClass();
         presenter.clear();
 
-        for(var j = 1; j < presenter.currentSelected.item.length; j++){
-            if(presenter.currentSelected.item[j] === true) {
+        for (let j = 1; j < presenter.currentSelected.item.length; j++){
+            if (presenter.currentSelected.item[j] === true) {
                 presenter.markCorrectAnswerAsSelected(j);
             }
         }
         return true;
     };
 
-    presenter.showElementsSA = function(element){
-
-        var correctAnswerSA = element;
-        presenter.isErrorCheckingMode = true;
-        if(correctAnswerSA != Counter){
-            if(presenter.clear()){
-                if(Counter < correctAnswerSA){
-                    var k = 0;
-                    for(var j = 1; j < presenter.currentSelected.item.length; j++){
-                        if(presenter.currentSelected.item[j] === true) {
-                            presenter.markCorrectAnswerAsSelected(j);
-                        }
-                        if(presenter.currentSelected.item[j] === false && k != correctAnswerSA - Counter){
-                            presenter.markCorrectAnswerAsSelected(j);
-                            k++;
-                        }
-                    }
-                } else{
-                    var k = 0;
-                    for(var j = 1; j < presenter.currentSelected.item.length; j++){
-                        if(presenter.currentSelected.item[j] === true) {
-                            if(k != correctAnswerSA){
-                                presenter.markCorrectAnswerAsSelected(j);
-                                k++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        var $myDiv = presenter.$view.find('.FractionsWrapper')[0];
-        $($myDiv).addClass('showAnswers');
+    presenter.hideElementsSA = function(item){
+        presenter.hideAnswers();
     };
 
-    presenter.hideElementsSA = function(item){
+    presenter.gradualHideAnswers = function() {
         presenter.hideAnswers();
     };
 
