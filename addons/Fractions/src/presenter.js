@@ -848,10 +848,10 @@ function AddonFractions_create(){
     presenter.markElementAsClicked = function(element){
         var correctAnswer = presenter.configuration.correctAnswer;
         var clickedElementID = element.id;
-        if (presenter.isErrorCheckingMode === false
-            && presenter.isShowAnswersActive === false
-            && presenter.isGradualShowAnswersActive === false
-            && presenter.isDisable === false)
+        if (!presenter.isErrorCheckingMode
+            && !presenter.isShowAnswersActive
+            && !presenter.isGradualShowAnswersActive
+            && !presenter.isDisable)
         {
             if(presenter.currentSelected.item[clickedElementID.slice(presenter.currentSelected.item[0].length,clickedElementID.length)] === false)
             {
