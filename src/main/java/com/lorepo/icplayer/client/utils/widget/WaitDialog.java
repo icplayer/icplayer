@@ -51,18 +51,20 @@ public class WaitDialog extends DialogBox {
 		var windowWidth = $wnd.$($wnd).width();
 		var documentWidth = $wnd.$($wnd.document).width();
 		var contentWidth = $wnd.$('#_icplayer').width();
+		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
 		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
+		var aspectRatio = windowHeight / windowWidth;
 
 		if (windowWidth && windowWidth < windowHeight && isMobileDevice) {
 			return windowWidth;
 		}
 
-		if (contentWidth && contentWidth > 100 && !isMobileDevice) {
+		if (contentWidth && contentWidth > 100 && !isMobileDevice && aspectRatio > 0.625) {
 			return contentScale * contentWidth;
 		}
 
-		return documentWidth;
+		return windowWidth;
 	}-*/;
 
 	public native int getHeight() /*-{
@@ -72,7 +74,9 @@ public class WaitDialog extends DialogBox {
 		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
 		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
+		var isWindowFitToPage = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isWindowFitToPage()();
 		var heightMultiplier = 0.625;
+		var aspectRatio = windowHeight / windowWidth;
 
 		if (windowHeight < windowWidth && isMobileDevice) {
 			return windowHeight;
@@ -84,11 +88,21 @@ public class WaitDialog extends DialogBox {
 			return contentScale * contentHeight;
 		}
 
-		return heightMultiplier * windowWidth;
+		if (aspectRatio > 0.625 && isWindowFitToPage) {
+			return heightMultiplier * windowWidth;
+		} else if (isWindowFitToPage) {
+			return windowHeight;
+		}
+
+		return windowWidth > 1200 ? heightMultiplier * 1200 : heightMultiplier * windowWidth;
 	}-*/;
 
 	public native boolean isMobile() /*-{
 		return $wnd.MobileUtils.isMobileUserAgent($wnd.navigator.userAgent) || $wnd.MobileUtils.isSafariMobile($wnd.navigator.userAgent);
+	}-*/;
+
+	public native boolean isWindowFitToPage() /*-{
+		return !!$wnd.document.getElementById("scrollableBody");
 	}-*/;
 
 	public native void updateInnerWrapperHeight() /*-{
