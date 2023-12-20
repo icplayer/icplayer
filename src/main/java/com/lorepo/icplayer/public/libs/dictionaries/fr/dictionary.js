@@ -1479,6 +1479,7 @@ var ice_dictionary_fr = {
     "WritingCalculations_property_commutativity": "Commutativité",
     "WritingCalculations_property_equals" : "Égale",
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
+    "WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
     "Vimeo_info": "Permet de télécharger un film Vimeo dans une présentation. Pour le faire fonctionner, il suffit d'entrer l'ID du film Vimeo dans le menu Propriétés.",
     "Vimeo_name": "Vimeo",
     "Vimeo_property_movie_id": "ID du film",
