@@ -5,8 +5,10 @@ function AddonFigureDrawing_create(){
     presenter.isStarted = false;
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
-    presenter.wasShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
+    presenter.GSAcounter = 0;
+    presenter.savedLinesIdsSA = [];
+
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -62,26 +64,27 @@ function AddonFigureDrawing_create(){
                 break;
         }
     };
+
     presenter.markAsCorrect = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.$view.find('.figure').removeClass('wrong');
         presenter.$view.find('.figure').addClass('correct');
     };
 
     presenter.markAsWrong = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.$view.find('.figure').removeClass('correct');
         presenter.$view.find('.figure').addClass('wrong');
     };
 
     presenter.markAsNeutral = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.$view.find('.figure').removeClass('correct');
         presenter.$view.find('.figure').removeClass('wrong');
     };
@@ -163,48 +166,66 @@ function AddonFigureDrawing_create(){
         presenter.isEraser = true;
         presenter.currentColor = [255,255,255,0];
     };
+
     presenter.isAttempted = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         return presenter.isStarted;
     };
+
     presenter.isAllOK = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         return ((presenter.getScore() == presenter.getMaxScore()) && (presenter.getErrorCount() === 0));
     };
+
     presenter.disable = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+
         if (!(presenter.$view.find('.disabled').length > 0)) {
             presenter.disabled = true;
             presenter.$view.find('.figure').addClass('disabled');
             presenter.$view.find('.chart').addClass('disabled');
         }
     };
+
     presenter.enable = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+
         presenter.disabled = false;
         presenter.$view.find('.disabled').removeClass('disabled');
     };
+
     presenter.hide = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
+
     presenter.show = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         if (presenter.coloring) presenter.$view.find('.canvas').css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.updateVisibility = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        if (presenter.isVisible) {
-            presenter.show();
-        } else
-            presenter.hide();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        presenter.isVisible ? presenter.show() : presenter.hide();
     };
+
     function validateRadius(radius){
         if (radius == '' || radius == 0) {
             return 5;
@@ -384,6 +405,7 @@ function AddonFigureDrawing_create(){
             return !pos || item != a[pos - 1];
         })
     }
+
     function drawOneLine(point1, point2, nonremovable) {
         var newLine = document.createElementNS("http://www.w3.org/2000/svg", 'line');
         newLine.setAttribute("y1",point1.y);
@@ -394,8 +416,9 @@ function AddonFigureDrawing_create(){
         nonremovable ? newLine.setAttribute("class","line nonremovable") : newLine.setAttribute("class","line");
         var firstPoint = presenter.$view.find('.point')[0];
         presenter.$view.find('.chart')[0].insertBefore(newLine,firstPoint);
-        if (!presenter.isShowAnswersActive && presenter.coloring) drawLineOnCanvas(point1.x,point1.y,point2.x,point2.y);
+        if (!presenter.isShowAnswersActive && !presenter.isGradualShowAnswersActive && presenter.coloring) drawLineOnCanvas(point1.x,point1.y,point2.x,point2.y);
     }
+
     function drawTempLine(point1, point2) {
         line = presenter.$view.find('.templine');
         if (line.length > 0) {
@@ -680,7 +703,13 @@ function AddonFigureDrawing_create(){
         };
         var point1, point2;
         presenter.$view.find('.point').on('mouseup touchend', function(e){
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && timeClick) {
+            if (!presenter.isErrorMode
+                && !presenter.disabled
+                && !presenter.isShowAnswersActive
+                && !presenter.isGradualShowAnswersActive
+                && presenter.drawingMode
+                && timeClick
+            ) {
                 e.stopPropagation();
                 e.preventDefault();
                 abandon = false;
@@ -765,7 +794,12 @@ function AddonFigureDrawing_create(){
         });
         presenter.$view.find('.point').on('mousedown touchstart', function(e){
             presenter.$view.find('.templine').remove();
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode) {
+            if (!presenter.isErrorMode
+                && !presenter.disabled
+                && !presenter.isShowAnswersActive
+                && !presenter.isGradualShowAnswersActive
+                && presenter.drawingMode
+            ) {
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.drawingPoint.row = parseInt($(this).attr('row'),10);
@@ -809,7 +843,13 @@ function AddonFigureDrawing_create(){
             e.stopPropagation();
             e.preventDefault();
             var scaleInfo = presenter.playerController.getScaleInformation()
-            if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && presenter.drawingPoint.isDown) {
+            if (!presenter.isErrorMode
+                && !presenter.disabled
+                && !presenter.isShowAnswersActive
+                && !presenter.isGradualShowAnswersActive
+                && presenter.drawingMode
+                && presenter.drawingPoint.isDown
+            ) {
                 point1 = new Point(presenter.drawingPoint.row, presenter.drawingPoint.column, presenter.drawingPoint.x, presenter.drawingPoint.y);
                 if (e.type == 'mousemove') {
                     coordinations.x = e.originalEvent.pageX/scaleInfo.scaleX;
@@ -833,10 +873,10 @@ function AddonFigureDrawing_create(){
             presenter.drawingPoint.isDown = false;
             presenter.$view.find('.templine').remove();
         });
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-        presenter.eventBus.addEventListener('GradualShowAnswers', this);
-        presenter.eventBus.addEventListener('GradualHideAnswers', this);
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        for (let i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     }
     function checkColors() {
         for(var i = 0; i < presenter.coloredAreas.length; i++) {
@@ -845,16 +885,24 @@ function AddonFigureDrawing_create(){
                 presenter.coloredAreas.splice(i,1);
         }
     }
+
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "ShowAnswers") presenter.showAnswers();
-        if (eventName == "HideAnswers") presenter.hideAnswers();
-        if (eventName == "GradualShowAnswers") {
-            if (eventData.moduleID === presenter.addonID) {
-                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
-            }
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
-        if (eventName == "GradualHideAnswers") presenter.gradualHideAnswers();
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -924,9 +972,12 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.canvas').remove();
         }
     }
+
     presenter.reset = function(resetOnlyWrong) {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        presenter.setWorkMode();
+        presenter.isErrorMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         if (presenter.coloring && presenter.startingColors != '') {
             for (let i = 0; i < presenter.startingColors.length; i++)
                 presenter.coloredAreas[i] = presenter.startingColors[i];
@@ -1019,69 +1070,97 @@ function AddonFigureDrawing_create(){
         }
     }
 
-    presenter.getErrorCount = function(){
-        var errorCounter = 0, i, lineCounter, color;
-        presenter.wasShowAnswersActive = presenter.isShowAnswersActive;
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        if (presenter.activity && !presenter.error && presenter.isStarted) {
-            errorCounter = presenter.$view.find('.line').not('.nonremovable').length;
-            var numberOfAnswers = presenter.AnswerLines.length, line;
-            for (i = 0; i <= numberOfAnswers; i++) {
-                line = presenter.$view.find('#'+presenter.AnswerLines[i]);
-                if (line.length > 0)
-                    errorCounter--;
+    presenter.getMaxScore = function(){
+        if (!presenter.activity || presenter.error) {
+            return 0;
+        }
+
+        let maxScore = presenter.AnswerLines.length;
+        if (presenter.coloring) {
+            maxScore = presenter.answersColors.length;
+        }
+        return maxScore;
+    }
+
+    presenter.getScore = function(){
+        if (!presenter.activity || presenter.error || !presenter.isStarted) {
+            return 0;
+        }
+        const wasShowAnswersActive = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        const previousGSAcounter = presenter.GSAcounter;
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        let i, j, $line, color, lineCounter, scoreCounter = 0;
+        for (i = 0; i <= presenter.AnswerLines.length; i++) {
+            $line = presenter.$view.find('#'+presenter.AnswerLines[i]);
+            if ($line.length > 0) {
+                scoreCounter++;
             }
-            if (presenter.coloring) {
-                for (i = 0; i < presenter.answersColors.length; i++) {
-                    lineCounter = 0;
-                    for (j = 0; j < presenter.answersColors[i].lines.length; j++) {
-                        line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
-                        if (line.length > 0) lineCounter++;
+        }
+        if (presenter.coloring) {
+            for (i = 0; i < presenter.answersColors.length; i++) {
+                lineCounter = 0;
+                for (j = 0; j < presenter.answersColors[i].lines.length; j++) {
+                    $line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
+                    if ($line.length > 0) {
+                        lineCounter++;
                     }
-                    color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
-                    if (color != presenter.answersColors[i].color && color != '0 0 0 0' && lineCounter == presenter.answersColors[i].lines.length)
-                        errorCounter++;
+                }
+                color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
+                if (lineCounter == presenter.answersColors[i].lines.length && color == presenter.answersColors[i].color) {
+                    scoreCounter++;
                 }
             }
         }
-        if(presenter.wasShowAnswersActive) presenter.showAnswers();
-        return errorCounter;
-    }
-    presenter.getMaxScore = function(){
-        var maxScore = 0;
-        presenter.wasShowAnswersActive = presenter.isShowAnswersActive;
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        if (presenter.activity && !presenter.error && presenter.coloring)
-            maxScore = presenter.AnswerLines.length + presenter.answersColors.length;
-        else if (presenter.activity && !presenter.error)
-            maxScore = presenter.AnswerLines.length;
 
-        if(presenter.wasShowAnswersActive) presenter.showAnswers();
-        return maxScore;
+        wasShowAnswersActive && presenter.showAnswers();
+        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+
+        return scoreCounter;
     }
-    presenter.getScore = function(){
-        if (presenter.activity && !presenter.error && presenter.isStarted) {
-            var i, j, line, lineCounter, color, counter = 0, numberOfAnswers = presenter.AnswerLines.length;
-            for (i = 0; i <= numberOfAnswers; i++) {
-                line = presenter.$view.find('#'+presenter.AnswerLines[i]);
-                if (line.length > 0)
-                    counter++;
+
+    presenter.getErrorCount = function(){
+        if (!presenter.activity || presenter.error || !presenter.isStarted) {
+            return 0;
+        }
+        const wasShowAnswersActive = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        const previousGSAcounter = presenter.GSAcounter;
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        let lineCounter, color, $line;
+        let errorCounter = presenter.$view.find('.line').not('.nonremovable').length;
+        for (let i = 0; i <= presenter.AnswerLines.length; i++) {
+            $line = presenter.$view.find('#'+presenter.AnswerLines[i]);
+            if ($line.length > 0) {
+                errorCounter--;
             }
-            if (presenter.coloring) {
-                for (i = 0; i < presenter.answersColors.length; i++) {
-                    lineCounter = 0;
-                    for (j = 0; j < presenter.answersColors[i].lines.length; j++) {
-                        line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
-                        if (line.length > 0) lineCounter++;
+        }
+        if (presenter.coloring) {
+            for (let i = 0; i < presenter.answersColors.length; i++) {
+                lineCounter = 0;
+                for (let j = 0; j < presenter.answersColors[i].lines.length; j++) {
+                    $line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
+                    if ($line.length > 0) {
+                        lineCounter++;
                     }
-                    color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
-                    if (lineCounter == presenter.answersColors[i].lines.length && color == presenter.answersColors[i].color) counter++;
+                }
+                color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
+                if (color != presenter.answersColors[i].color && color != '0 0 0 0' && lineCounter == presenter.answersColors[i].lines.length) {
+                    errorCounter++;
                 }
             }
-            return counter;
-        } else
-            return 0;
+        }
+
+        wasShowAnswersActive && presenter.showAnswers();
+        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+
+        return errorCounter;
     }
+
     presenter.setWorkMode = function() {
         presenter.isErrorMode = false;
         presenter.$view.find('.line').removeClass('correct');
@@ -1090,9 +1169,11 @@ function AddonFigureDrawing_create(){
         presenter.$view.find('.figure').removeClass('correct');
         presenter.$view.find('.figure').removeClass('wrong');
     };
+
     presenter.setShowErrorsMode = function() {
         var i, j, line, color, lineCounter;
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
         presenter.isErrorMode = true;
         presenter.selected.isSelected = false;
         presenter.$view.find('.point').removeClass('selected');
@@ -1130,14 +1211,20 @@ function AddonFigureDrawing_create(){
         iconContainer.addClass(isCorrect ? 'correct' : 'wrong');
         presenter.figure.append(iconContainer);
     }
+
     presenter.getState = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        const wasShowAnswersActive = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        const previousGSAcounter = presenter.GSAcounter;
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
         var Lines = presenter.$view.find('.line').not('.nonremovable');
         var LinesIds = new Array();
-        for (i = 0; i < Lines.length; i++) {
+        for (let i = 0; i < Lines.length; i++) {
             LinesIds.push(Lines[i].id);
         };
-        return JSON.stringify({
+        const result = JSON.stringify({
             isStarted : presenter.isStarted,
             disabled : presenter.disabled,
             visible : presenter.isVisible,
@@ -1146,8 +1233,13 @@ function AddonFigureDrawing_create(){
             color: presenter.currentColor,
             coloredAreas: presenter.coloredAreas,
             mode: presenter.drawingMode
-        });
+        })
+
+        wasShowAnswersActive && presenter.showAnswers();
+        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+        return result;
     };
+
     presenter.setState = function(state) {
         var point1, point2, x, y, i;
         presenter.disabled = JSON.parse(state).disabled;
@@ -1179,94 +1271,103 @@ function AddonFigureDrawing_create(){
         }
         if (presenter.coloring) presenter.redrawCanvas(false);
     };
+
     presenter.showAnswers = function () {
-        presenter.isGradualShowAnswersActive = false;
-        if (presenter.activity) {
-            var i, x, y, point1, point2;
-            if (presenter.isShowAnswersActive) presenter.hideAnswers();
-            presenter.isShowAnswersActive = true;
-            presenter.setWorkMode();
-            var Lines = presenter.$view.find('.line').not('.nonremovable');
-            presenter.LinesIds = new Array();
-            for (i = 0; i < Lines.length; i++) {
-                presenter.LinesIds.push(Lines[i].id);
-            }
-            presenter.$view.find('.line').not('.nonremovable').remove();
-            var indexes = new Array();
-            for (i = 0; i < presenter.AnswerLines.length; i++) {
-                indexes = presenter.AnswerLines[i].split('_');
-                x = countX(indexes[1]); y = countY(indexes[2]);
-                point1 = new Point(indexes[2], indexes[1], x, y);
-                x = countX(indexes[3]); y = countY(indexes[4]);
-                point2 = new Point(indexes[4], indexes[3], x, y);
-                drawOneLine(point1,point2,false);
-            }
-            presenter.selected.isSelected = false;
-            presenter.$view.find('.selected').removeClass('selected');
-            presenter.$view.find('.line').not('.nonremovable').addClass('show-answers');
-            if (presenter.coloring) presenter.redrawCanvas(true);
+        if (!presenter.activity) {
+            return;
         }
+
+        presenter.isErrorMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+
+        presenter.isShowAnswersActive = true;
+        showAnswersTo();
     };
 
+    presenter.gradualShowAnswers = function (eventData) {
+        if (eventData.moduleID !== presenter.addonID) {
+            return;
+        }
+
+        gradualShowAnswers(parseInt(eventData.item, 10));
+    };
+
+    function gradualShowAnswers(index) {
+        if (!presenter.activity) {
+            return;
+        }
+
+        presenter.isErrorMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+        presenter.isGradualShowAnswersActive = true;
+
+        presenter.GSAcounter = index;
+        showAnswersTo(presenter.GSAcounter + 1);
+    }
+
+    function showAnswersTo(index) {
+        let $lines = presenter.$view.find('.line:not(.nonremovable)');
+        presenter.savedLinesIdsSA = [];
+        for (let i = 0; i < $lines.length; i++) {
+            presenter.savedLinesIdsSA.push($lines[i].id);
+        }
+        $lines.remove();
+        drawLines(presenter.AnswerLines, index);
+        $lines.addClass('show-answers');
+
+        presenter.selected.isSelected = false;
+        presenter.$view.find('.selected').removeClass('selected');
+
+        presenter.coloring && presenter.redrawCanvas(true);
+    }
+
+    function drawLines(linesIds, maxIndex) {
+        if (maxIndex === undefined) {
+            maxIndex = linesIds.length;
+        }
+        let indexes = [],
+            x1, y1, point1,
+            x2, y2, point2;
+        for (let i = 0; i < maxIndex; i++) {
+            indexes = linesIds[i].split('_');
+
+            x1 = countX(indexes[1]);
+            y1 = countY(indexes[2]);
+            point1 = new Point(indexes[2], indexes[1], x1, y1);
+
+            x2 = countX(indexes[3]);
+            y2 = countY(indexes[4]);
+            point2 = new Point(indexes[4], indexes[3], x2, y2);
+
+            drawOneLine(point1, point2,false);
+        }
+    }
+
     presenter.hideAnswers = function () {
+        if (!presenter.activity
+            || (!presenter.isShowAnswersActive
+                && !presenter.isGradualShowAnswersActive)) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = false;
         presenter.isGradualShowAnswersActive = false;
-        if (presenter.activity && presenter.isShowAnswersActive) {
-            var i, x, y, point1, point2;
-            presenter.isShowAnswersActive = false;
-            presenter.$view.find('.line').not('.nonremovable').remove();
-            var indexes = new Array();
-            for (i = 0; i < presenter.LinesIds.length; i++) {
-                indexes = presenter.LinesIds[i].split('_');
-                x = countX(indexes[1]); y = countY(indexes[2]);
-                point1 = new Point(indexes[2], indexes[1], x, y);
-                x = countX(indexes[3]); y = countY(indexes[4]);
-                point2 = new Point(indexes[4], indexes[3], x, y);
-                drawOneLine(point1,point2,false);
-            }
-            if (presenter.coloring) presenter.redrawCanvas(false);
-        }
-    }
+        presenter.GSAcounter = 0;
 
-    presenter.getActivitiesCount = function () {
-        if (!presenter.activity) return 0;
-        return presenter.AnswerLines.length;
-    }
-
-    presenter.isEnabledInGSAMode = function() {return true;};
-
-    presenter.gradualShowAnswers = function (item) {
-        if (presenter.activity) {
-            var i, x, y, point1, point2;
-            if (presenter.isShowAnswersActive) presenter.hideAnswers();
-            presenter.isShowAnswersActive = true;
-            presenter.isGradualShowAnswersActive = true;
-            presenter.setWorkMode();
-            var Lines = presenter.$view.find('.line').not('.nonremovable');
-            presenter.LinesIds = new Array();
-            for (i = 0; i < Lines.length; i++) {
-                presenter.LinesIds.push(Lines[i].id);
-            }
-            presenter.$view.find('.line').not('.nonremovable').remove();
-            var indexes = new Array();
-            if (item >= presenter.AnswerLines.length) item = presenter.AnswerLines.length - 1;
-            for (i = 0; i <= item; i++) {
-                indexes = presenter.AnswerLines[i].split('_');
-                x = countX(indexes[1]); y = countY(indexes[2]);
-                point1 = new Point(indexes[2], indexes[1], x, y);
-                x = countX(indexes[3]); y = countY(indexes[4]);
-                point2 = new Point(indexes[4], indexes[3], x, y);
-                drawOneLine(point1,point2,false);
-            }
-            presenter.selected.isSelected = false;
-            presenter.$view.find('.selected').removeClass('selected');
-            presenter.$view.find('.line').not('.nonremovable').addClass('show-answers');
-            if (presenter.coloring) presenter.redrawCanvas(true);
-        }
-    }
+        presenter.$view.find('.line:not(.nonremovable)').remove();
+        drawLines(presenter.savedLinesIdsSA);
+        presenter.coloring && presenter.redrawCanvas(false);
+    };
 
     presenter.gradualHideAnswers = function() {
         presenter.hideAnswers();
-    }
+    };
+
+    presenter.getActivitiesCount = function () {
+        return !presenter.activity ? 0 : presenter.AnswerLines.length;
+    };
 
     function findClosestPoint(x,y) {
         if (presenter.grid3D) {
