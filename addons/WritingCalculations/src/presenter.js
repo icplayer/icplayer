@@ -632,6 +632,11 @@ function AddonWritingCalculations_create() {
         return true;
     };
 
+    presenter.handleShownAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    }
+
     presenter.setShowErrorsMode = function() {
         if(presenter.isNotActivity){
             return;
@@ -639,9 +644,7 @@ function AddonWritingCalculations_create() {
 
         var inputs = $(this.$view).find(".writing-calculations-input");
 
-        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
 
         if (!presenter.isCommutativity) {
             $.each(inputs, function(){
@@ -900,9 +903,8 @@ function AddonWritingCalculations_create() {
             incorrectAnswersCount : 0
         };
 
-        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
+
         $.each(inputs, function () {
             var value = $(this).val();
             value = presenter.parseValue(value);
@@ -921,9 +923,8 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getState = function() {
-        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
+
         return JSON.stringify({
             "inputsData" : this.getInputsData(),
             "isVisible" : presenter.isVisible
@@ -1063,7 +1064,7 @@ function AddonWritingCalculations_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        presenter.userAnswers = [];
+
         presenter.saveCurrentScore();
         presenter.isShowAnswersActive = true;
         presenter.clean(true,false);
@@ -1085,6 +1086,7 @@ function AddonWritingCalculations_create() {
 
         if (presenter.showAllAnswersInGSA) {
             presenter.showAnswers();
+            return;
         }
 
         presenter.isGradualShowAnswersActive = true;
@@ -1109,9 +1111,16 @@ function AddonWritingCalculations_create() {
             $(this).removeClass('writing-calculations_show-answers');
             $(this).attr("disabled", false);
         });
+
+        presenter.userAnswers = [];
     };
 
     presenter.gradualHideAnswers = function () {
+        if (presenter.showAllAnswersInGSA && presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+            return;
+        }
+
         if(presenter.isNotActivity || !presenter.isGradualShowAnswersActive) {
             return;
         }
@@ -1125,6 +1134,7 @@ function AddonWritingCalculations_create() {
             $(input).removeClass('writing-calculations_show-answers');
             $(input).attr("disabled", false);
         });
+
         presenter.userAnswers = [];
     };
 
