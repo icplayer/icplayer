@@ -1,3 +1,4 @@
+2023-12-28 Fixed playing a recording from Media Recording when using IOS app
 2023-12-15 Fixed inability to play recording of Media Recording addon when it is on the first page of a lesson
 2023-12-14 Disabled autocomplete of editable gaps in Table, Text and Basic Math Gaps
 2023-12-13 Added omit text in TTS property to Double State Button
