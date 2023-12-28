@@ -11,6 +11,7 @@ function AddonWritingCalculations_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.isScoreSaved = false;
     presenter.userAnswers = [];
+    presenter.isDisabled = false;
     var eventBus;
 
     presenter.ELEMENT_TYPE = {
@@ -866,6 +867,7 @@ function AddonWritingCalculations_create() {
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.isScoreSaved = false;
+        presenter.isDisabled = false;
     };
 
     presenter.clean = function(removeMarks, removeValues) {
@@ -1055,6 +1057,26 @@ function AddonWritingCalculations_create() {
         }
     };
 
+    presenter.disableInputs = function () {
+        if (presenter.isDisabled) {
+            return;
+        }
+
+        presenter.isDisabled = true;
+        const inputs = $(this.$view).find(".writing-calculations-input");
+        $.each(inputs, function() {
+            $(this).attr("disabled", true);
+        });
+    }
+
+    presenter.enableInputs = function () {
+        presenter.isDisabled = false;
+
+        const inputs = $(this.$view).find(".writing-calculations-input");
+        $.each(inputs, function() {
+            $(this).attr("disabled", false);
+        });
+    }
 
     presenter.showAnswers = function () {
         if(presenter.isNotActivity){
@@ -1068,6 +1090,7 @@ function AddonWritingCalculations_create() {
         presenter.saveCurrentScore();
         presenter.isShowAnswersActive = true;
         presenter.clean(true,false);
+        presenter.isDisabled = true;
         var inputs = $(this.$view).find(".writing-calculations-input");
         var correctAnswers = presenter.correctAnswersList;
 
@@ -1080,6 +1103,8 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.gradualShowAnswers = function (eventData) {
+        presenter.disableInputs();
+
         if (eventData.moduleID !== presenter.ID) {
             return;
         }
@@ -1094,7 +1119,6 @@ function AddonWritingCalculations_create() {
         const input = $(this.$view).find(".writing-calculations-input")[eventData.item];
 
         $(input).addClass('writing-calculations_show-answers');
-        $(input).attr("disabled", true);
         presenter.userAnswers.push($(input).val());
         $(input).val(presenter.correctAnswersList[eventData.item].value);
     }
@@ -1113,6 +1137,7 @@ function AddonWritingCalculations_create() {
         });
 
         presenter.userAnswers = [];
+        presenter.isDisabled = false;
     };
 
     presenter.gradualHideAnswers = function () {
@@ -1120,6 +1145,8 @@ function AddonWritingCalculations_create() {
             presenter.hideAnswers();
             return;
         }
+
+        presenter.enableInputs();
 
         if(presenter.isNotActivity || !presenter.isGradualShowAnswersActive) {
             return;
@@ -1132,7 +1159,6 @@ function AddonWritingCalculations_create() {
             const input = inputs[index];
             $(input).val(presenter.userAnswers[index]);
             $(input).removeClass('writing-calculations_show-answers');
-            $(input).attr("disabled", false);
         });
 
         presenter.userAnswers = [];
@@ -1150,7 +1176,7 @@ function AddonWritingCalculations_create() {
     }
 
     presenter.getActivitiesCount = function () {
-        return $(this.$view).find(".writing-calculations-input").length;
+        return presenter.showAllAnswersInGSA ? 1 : $(this.$view).find(".writing-calculations-input").length;
     }
 
     presenter.validateModelValue = function (modelValue) {
