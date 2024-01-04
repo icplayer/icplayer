@@ -51,7 +51,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 				public void onChange (ChangeEvent event) {
 					updateValue();
 					handleChangingEvent(listener);
-					readSelectedElement();
+					readSelectedElement(-1);
 				}
 			});
 
@@ -82,19 +82,30 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		}
 	}
 
-	private void readSelectedElement() {
-		int index = getSelectedIndex();
+	public void readSelectedElement(int selectedIndex) {
+		int index;
+		if (selectedIndex < 0) {
+			index = getSelectedIndex();
+		} else {
+			index = selectedIndex;
+		}
+		String textToRead = decodeString(StringUtils.unescapeXML(getValue(index)));
+		
 		TextView view = getView();
 		if(view.isWCAGon()){
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 			if (index == 0) {
 				textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
 			} else {
-				textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
+				textVoices.add(TextToSpeechVoice.create(textToRead, view.getLang()));
 			} 
 			getPageController().speak(textVoices);
 		}
 	}
+
+	private static String decodeString (String text) {
+		return text.replaceAll("&apos;", "\'");
+	} 
 
 	private void handleChangingEvent(ITextViewListener listener) {
 		int index = getSelectedIndex();
@@ -372,13 +383,15 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 				this.setSelectedIndex( selectedIndex );
 				handleSendingChangeEvent();
 			}
+
+			readSelectedElement(selectedIndex);
 		}
 	}
 
 	private void handleSendingChangeEvent() {
 		if (isWCAGon()) {
 			updateSendingEventStatus(true);
-			readSelectedElement();
+			readSelectedElement(-1);
 		} else {
 			fireChangeEvent();
 		}
