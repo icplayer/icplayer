@@ -1,4 +1,10 @@
-2023-12-04 Fixed wait dialog positioning
+2024-01-05 Fixed wait dialog positioning
+2023-12-15 Fixed inability to play recording of Media Recording addon when it is on the first page of a lesson
+2023-12-14 Disabled autocomplete of editable gaps in Table, Text and Basic Math Gaps
+2023-12-13 Added omit text in TTS property to Double State Button
+2023-12-13 Added mute property to the feedback addon
+2023-12-11 Fixed non-blocking of empty gaps in check state for combination Table + Math
+2023-12-11 Fixed Text receiving nowrap style when not apropriate
 2023-12-06 Fixed bug in video addon displaying information that video cannot be played even though local resource exists
 2023-12-06 Added new languages to Responsive Voice
 2023-12-05 Fixed show answers mode not being restored in Text math gaps

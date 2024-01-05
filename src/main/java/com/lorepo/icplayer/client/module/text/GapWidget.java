@@ -102,6 +102,7 @@ public class GapWidget extends TextBox implements TextElementDisplay, Navigation
 			this.getElement().setPropertyString("type","tel");
 			this.getElement().setPropertyString("step","any");
 		}
+		this.getElement().setPropertyString("autocomplete","off");
 
 		onAttach();
 

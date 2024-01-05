@@ -46,6 +46,7 @@ function AddonDouble_State_Button_create(){
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addTTS(upgradedModel);
         upgradedModel = presenter.addRenderSVGAsHTML(upgradedModel);
+        upgradedModel = presenter.addOmitTextInTTS(upgradedModel);
 
         return upgradedModel;
     };
@@ -110,6 +111,18 @@ function AddonDouble_State_Button_create(){
 
         return upgradedModel;
     };
+
+    presenter.addOmitTextInTTS = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!model.hasOwnProperty('omitTextInTTS')) {
+            upgradedModel['omitTextInTTS'] = 'False';
+        }
+
+        return upgradedModel;
+    };
+
 
     presenter.executeUserEventCode = function (eventCode) {
         playerController.getCommands().executeEventCode(eventCode);
@@ -672,6 +685,7 @@ function AddonDouble_State_Button_create(){
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         var enableCheckMode = ModelValidationUtils.validateBoolean(model["Do not block in check mode"]);
         var renderSVGAsHTML = ModelValidationUtils.validateBoolean(model.renderSVGAsHTML);
+        var omitTextInTTS = ModelValidationUtils.validateBoolean(model.omitTextInTTS);
         var width = +model.Width;
         var height = +model.Height;
 
@@ -705,7 +719,8 @@ function AddonDouble_State_Button_create(){
             langTag: langTag,
             renderSVGAsHTML: renderSVGAsHTML,
             width: width,
-            height: height
+            height: height,
+            omitTextInTTS: omitTextInTTS
         };
     };
 
@@ -799,7 +814,9 @@ function AddonDouble_State_Button_create(){
         var lang = presenter.configuration.langTag.value;
 
         if (presenter.configuration.isSelected) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.selected.text, lang));
+            if (!presenter.configuration.omitTextInTTS) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.selected.text, lang));
+            }
 
             var imageAlternativeText = presenter.configuration.selected.imageAlternativeText;
             if (imageAlternativeText)
@@ -807,8 +824,9 @@ function AddonDouble_State_Button_create(){
 
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectButton));
         } else {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.deselected.text, lang));
-
+            if (!presenter.configuration.omitTextInTTS) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.deselected.text, lang));
+            }
             var imageAlternativeText = presenter.configuration.deselected.imageAlternativeText;
             if (imageAlternativeText)
                 textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText))

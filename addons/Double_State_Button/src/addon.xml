@@ -15,6 +15,7 @@
 		<property name="Do not block in check mode" nameLabel="Double_State_Button_property_do_not_block_in_check_mode" type="boolean"/>
 		<property name="langAttribute" displayName="Lang attribute" nameLabel="Double_state_button_property_lang_attribute" type="string" />
 		<property name="renderSVGAsHTML" displayName="Render SVG as HTML" nameLabel="Double_state_button_render_SVG_as_HTML" type="boolean" />
+		<property name="omitTextInTTS" displayName="Omit text in TTS" nameLabel="Double_state_button_omit_text_in_tts" type="boolean" />
 		<property name="speechTexts" displayName="Speech texts" nameLabel="Double_state_button_speech_texts" type="staticlist">
 			<property name="selectButton" nameLabel="Double_state_button_speech_text_select" type="staticrow">
 				<property name="selectButton" nameLabel="Double_state_button_speech_text_select" type="string"/>
