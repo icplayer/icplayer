@@ -8,6 +8,10 @@ function AddonWritingCalculations_create() {
     presenter.answers = [];
     presenter.isCommutativity;
     presenter.useNumericKeyboard = false;
+    presenter.isGradualShowAnswersActive = false;
+    presenter.isScoreSaved = false;
+    presenter.userAnswers = [];
+    presenter.isDisabled = false;
     var eventBus;
 
     presenter.ELEMENT_TYPE = {
@@ -20,7 +24,21 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeSigns(model);
+        let upgradedModel = presenter.upgradeSigns(model);
+        upgradedModel = presenter.upgradeNumericKeyboard(upgradedModel);
+
+        return presenter.upgradeModelAddShowAllAnswersInGSA(upgradedModel);
+    };
+
+    presenter.upgradeModelAddShowAllAnswersInGSA = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('showAllAnswersInGSA')) {
+            upgradedModel['showAllAnswersInGSA'] = 'False';
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeSigns = function (model) {
@@ -52,16 +70,13 @@ function AddonWritingCalculations_create() {
         eventBus = presenter.playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
+        eventBus.addEventListener('GradualShowAnswers', this);
+        eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model);
         presenter.setVisibility(true);
-    };
-
-    presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeNumericKeyboard(model);
-        return upgradedModel;
     };
 
     presenter.upgradeNumericKeyboard = function (model) {
@@ -86,6 +101,8 @@ function AddonWritingCalculations_create() {
         presenter.multisigns = ModelValidationUtils.validateBoolean(model['Multisigns']);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        presenter.ID = model["ID"];
+        presenter.showAllAnswersInGSA = ModelValidationUtils.validateBoolean(model['showAllAnswersInGSA']);
 
         let validatedElementsData = presenter.validateModelValue(model['Value']);
         if (!validatedElementsData.isValid) {
@@ -616,6 +633,11 @@ function AddonWritingCalculations_create() {
         return true;
     };
 
+    presenter.handleShownAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    }
+
     presenter.setShowErrorsMode = function() {
         if(presenter.isNotActivity){
             return;
@@ -623,9 +645,7 @@ function AddonWritingCalculations_create() {
 
         var inputs = $(this.$view).find(".writing-calculations-input");
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
 
         if (!presenter.isCommutativity) {
             $.each(inputs, function(){
@@ -846,6 +866,8 @@ function AddonWritingCalculations_create() {
 
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
+        presenter.isScoreSaved = false;
+        presenter.isDisabled = false;
     };
 
     presenter.clean = function(removeMarks, removeValues) {
@@ -883,9 +905,8 @@ function AddonWritingCalculations_create() {
             incorrectAnswersCount : 0
         };
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
+
         $.each(inputs, function () {
             var value = $(this).val();
             value = presenter.parseValue(value);
@@ -904,9 +925,8 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getState = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleShownAnswers();
+
         return JSON.stringify({
             "inputsData" : this.getInputsData(),
             "isVisible" : presenter.isVisible
@@ -936,7 +956,7 @@ function AddonWritingCalculations_create() {
             return 0;
         }
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
             return presenter.currentScore;
         }
         return this.getPoints("correct");
@@ -947,7 +967,7 @@ function AddonWritingCalculations_create() {
             return 0;
         }
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
             return presenter.currentMaxScore;
         }
         return this.getPoints("all");
@@ -958,7 +978,7 @@ function AddonWritingCalculations_create() {
             return 0;
         }
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive) {
             return presenter.currentErrorCount;
         }
         return this.getPoints("incorrect");
@@ -1017,16 +1037,46 @@ function AddonWritingCalculations_create() {
         this.playerController = controller;
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
+    presenter.onEventReceived = function (eventName, eventData) {
+        switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
 
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
+    presenter.disableInputs = function () {
+        if (presenter.isDisabled) {
+            return;
+        }
+
+        presenter.isDisabled = true;
+        const inputs = $(this.$view).find(".writing-calculations-input");
+        $.each(inputs, function() {
+            $(this).attr("disabled", true);
+        });
+    }
+
+    presenter.enableInputs = function () {
+        presenter.isDisabled = false;
+
+        const inputs = $(this.$view).find(".writing-calculations-input");
+        $.each(inputs, function() {
+            $(this).attr("disabled", false);
+        });
+    }
 
     presenter.showAnswers = function () {
         if(presenter.isNotActivity){
@@ -1036,12 +1086,11 @@ function AddonWritingCalculations_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        presenter.userAnswers = [];
-        presenter.currentScore = presenter.getScore();
-        presenter.currentErrorCount = presenter.getErrorCount();
-        presenter.currentMaxScore = presenter.getMaxScore();
+
+        presenter.saveCurrentScore();
         presenter.isShowAnswersActive = true;
         presenter.clean(true,false);
+        presenter.isDisabled = true;
         var inputs = $(this.$view).find(".writing-calculations-input");
         var correctAnswers = presenter.correctAnswersList;
 
@@ -1052,6 +1101,27 @@ function AddonWritingCalculations_create() {
             $(this).val(correctAnswers[index].value);
         });
     };
+
+    presenter.gradualShowAnswers = function (eventData) {
+        presenter.disableInputs();
+
+        if (eventData.moduleID !== presenter.ID) {
+            return;
+        }
+
+        if (presenter.showAllAnswersInGSA) {
+            presenter.showAnswers();
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = true;
+        presenter.saveCurrentScore();
+        const input = $(this.$view).find(".writing-calculations-input")[eventData.item];
+
+        $(input).addClass('writing-calculations_show-answers');
+        presenter.userAnswers.push($(input).val());
+        $(input).val(presenter.correctAnswersList[eventData.item].value);
+    }
 
     presenter.hideAnswers = function () {
         if(presenter.isNotActivity || !presenter.isShowAnswersActive) {
@@ -1065,7 +1135,49 @@ function AddonWritingCalculations_create() {
             $(this).removeClass('writing-calculations_show-answers');
             $(this).attr("disabled", false);
         });
+
+        presenter.userAnswers = [];
+        presenter.isDisabled = false;
     };
+
+    presenter.gradualHideAnswers = function () {
+        if (presenter.showAllAnswersInGSA && presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+            return;
+        }
+
+        presenter.enableInputs();
+
+        if(presenter.isNotActivity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = false;
+        presenter.isScoreSaved = false;
+        const inputs = $(this.$view).find(".writing-calculations-input");
+        presenter.userAnswers.forEach((userAnswer, index) => {
+            const input = inputs[index];
+            $(input).val(presenter.userAnswers[index]);
+            $(input).removeClass('writing-calculations_show-answers');
+        });
+
+        presenter.userAnswers = [];
+    };
+
+    presenter.saveCurrentScore = function () {
+        if (presenter.isScoreSaved) {
+            return;
+        }
+        presenter.currentScore = presenter.getScore();
+        presenter.currentErrorCount = presenter.getErrorCount();
+        presenter.currentMaxScore = presenter.getMaxScore();
+
+        presenter.isScoreSaved = true;
+    }
+
+    presenter.getActivitiesCount = function () {
+        return presenter.showAllAnswersInGSA ? 1 : $(this.$view).find(".writing-calculations-input").length;
+    }
 
     presenter.validateModelValue = function (modelValue) {
         const rows = presenter.convertStringToArray(modelValue);
