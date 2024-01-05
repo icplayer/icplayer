@@ -515,7 +515,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		boolean isEnabled = (!this.isDisabled()) || isTextToSpeechOn;
 		boolean isSelectableJSObject = isSelectableJSObject(this.jsObject, isTextToSpeechOn);
-		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && isEnabled && isSelectableJSObject;
+		boolean isDisplayed = isDisplayed(this.view.getElement());
+		
+		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && isEnabled && isSelectableJSObject && isDisplayed;
 	}
 
 	private native boolean isSelectableJSObject (JavaScriptObject obj, boolean isTextToSpeechOn) /*-{
@@ -524,6 +526,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		};
 		return true;
 	}-*/;
+
+	private native boolean isDisplayed (Element view) /*-{
+		return $wnd.$(view).css('display') !== 'none';
+	}-*/;
+	
 	
 	@Override
 	public void enter(KeyDownEvent event, boolean isExiting) {
