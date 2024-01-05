@@ -28,14 +28,21 @@ export class MediaAnalyserService {
 
     createAnalyserFromElement(htmlMediaElement) {
         return new Promise(resolve => {
-            if (!this.mediaElementSource)
-                this.mediaElementSource = this.audioContext.createMediaElementSource(htmlMediaElement);
+            // on Chrome when user hasn't interacted with the page before AudioContext was created it will be created in suspended state
+            // this will happen if MediaRecorder is on the first page user visits (constructor call will happen before user interaction)
+            // resume is then needed to unblock AudioContext (see https://goo.gl/7K7WLu)
+            this.audioContext.resume().then(
+                () => {
+                    if (!this.mediaElementSource)
+                        this.mediaElementSource = this.audioContext.createMediaElementSource(htmlMediaElement);
 
-            let analyser = AnalyserProvider.create(this.audioContext);
-            this.mediaElementSource.connect(analyser);
-            analyser.connect(this.audioContext.destination);
+                    let analyser = AnalyserProvider.create(this.audioContext);
+                    this.mediaElementSource.connect(analyser);
+                    analyser.connect(this.audioContext.destination);
 
-            resolve(analyser);
+                    resolve(analyser);
+                }
+            );
         })
     }
 

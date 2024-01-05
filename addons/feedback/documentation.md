@@ -58,6 +58,10 @@ Each of them has the following parameters:
       <td>Is not an activity</td>
       <td>If set to true, when a presentation enters an error checking mode, the addon will not reset a response to the default one</td>
     </tr>
+    <tr>
+      <td>Mute</td>
+      <td>If set to true, TTS will no longer read the feedback in response to a command call, such as change(id), or setDefaultResponse(). It will still be possible to read the content of the addon using TTS by selecting it with keyboard navigation and pressing Enter.</td>
+    </tr>
   </tbody>
 </table>
 

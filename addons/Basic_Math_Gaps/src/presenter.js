@@ -1350,7 +1350,7 @@ function AddonBasic_Math_Gaps_create(){
         if ((presenter.configuration.useNumericKeyboard)) {
             $inputGap.attr("step", "any");
         }
-
+        $inputGap.attr("autocomplete", "off");
         return $inputGap;
     };
 
