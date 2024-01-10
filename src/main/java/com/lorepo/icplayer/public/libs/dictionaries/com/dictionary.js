@@ -249,6 +249,7 @@ var ice_dictionary_en = {
 	"inline_css" : "Inline CSS:",
 	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
+	"can_not_upload_file": "Error occurred while uploading the file",
 	"update_style" : "Update style",
 	"cant_load_document" : "Can't load document: ",
 	"cant_add_page" : "Can't add page: ",
