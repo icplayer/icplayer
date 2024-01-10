@@ -1481,6 +1481,7 @@ var ice_dictionary_mx = {
 	"WritingCalculations_property_commutativity": "Conmutatividad",
 	"WritingCalculations_property_equals": "Es igual",
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
+	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"Vimeo_info": "Permite cargar una película de Vimeo a la presentación. Para que funcione, solamente hay que introducir el ID de película de Vimeo a la sección Propiedades.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "ID de la película",

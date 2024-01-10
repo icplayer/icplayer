@@ -82,19 +82,39 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 		}
 	}
 
-	private void readSelectedElement() {
-		int index = getSelectedIndex();
-		TextView view = getView();
-		if(view.isWCAGon()){
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			if (index == 0) {
-				textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
-			} else {
-				textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
-			} 
-			getPageController().speak(textVoices);
-		}
+	public void readSelectedElement(int selectedIndex) {
+		if (!view.isWCAGon()) return;
+
+		String textToRead = decodeString(StringUtils.unescapeXML(getValue(selectedIndex)));
+		
+		this.speak(textToRead, selectedIndex);
 	}
+
+	public void readSelectedElement() {
+		if (!view.isWCAGon()) return;
+
+		int index = getSelectedIndex();
+		String textToRead = decodeString(StringUtils.unescapeXML(getValue(index)));
+		
+		this.speak(textToRead, index);
+	}
+
+	private void speak(String textToRead, int index) {
+		TextView view = getView();
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+		if (index == 0) {
+			textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
+		} else {
+			textVoices.add(TextToSpeechVoice.create(textToRead, view.getLang()));
+		}
+
+		getPageController().speak(textVoices);
+	}
+
+	private static String decodeString (String text) {
+		return text.replaceAll("&apos;", "\'");
+	} 
 
 	private void handleChangingEvent(ITextViewListener listener) {
 		int index = getSelectedIndex();
@@ -179,7 +199,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 	@Override
 	public String getWCAGTextValue() {
 		int index = getSelectedIndex();
-		return getValue(index);
+		return decodeString(getValue(index));
 	}
 
 	@Override
@@ -372,6 +392,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay, N
 				this.setSelectedIndex( selectedIndex );
 				handleSendingChangeEvent();
 			}
+
+			readSelectedElement(selectedIndex);
 		}
 	}
 

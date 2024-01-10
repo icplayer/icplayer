@@ -1,18 +1,13 @@
-UpgradeModelTests = TestCase("[Writing Calculations] Upgrade Model Tests");
+TestCase("[Writing Calculations] Upgrade Model Tests", {
+    setUp: function () {
+        this.presenter = AddonWritingCalculations_create();
+        this.model = {
+            'Value' : ''
+        };
+    },
 
-UpgradeModelTests.prototype.setUp = function() {
-    this.presenter = AddonWritingCalculations_create();
-
-    this.model = {
-        'Value' : ''
-    };
-
-};
-
-UpgradeModelTests.prototype.testUpgradeSigns = function() {
-    var expectedModelAfterUpgradeSigns = {
-        'Value' : '',
-        'Signs' : [
+    'test given model without signs when upgradeModel is called then signs is added with default value': function () {
+        const expectedResult = [
             {
                 'Addition' : '',
                 'Subtraction' : '',
@@ -20,24 +15,42 @@ UpgradeModelTests.prototype.testUpgradeSigns = function() {
                 'Multiplication' : '',
                 'Equals' : ''
             }
-        ]
-    };
+        ];
 
-    var upgradedModel = this.presenter.upgradeSigns(this.model);
+        const upgradedModel = this.presenter.upgradeModel(this.model);
 
-    assertEquals(expectedModelAfterUpgradeSigns, upgradedModel);
-    assertNotEquals(this.model, upgradedModel); // Ensure that changes were made on copy
-};
+        assertNotUndefined(upgradedModel["Signs"]);
+        assertEquals(expectedResult, upgradedModel["Signs"]);
+    },
 
-UpgradeModelTests.prototype.testUpgradeSignsWhenSignsAreAlreadyHere = function() {
-    this.model['Signs'] = [{
-        'Addition' : 'a',
-        'Subtraction' : 'b',
-        'Division' : 'c',
-        'Multiplication' : 'd'
-    }];
+    'test given model with signs when upgradeModel is called then signs remains unchanged': function () {
+        const data = [
+            {
+                'Addition' : '1',
+                'Subtraction' : '2',
+                'Division' : '3',
+                'Multiplication' : '4',
+                'Equals' : '5'
+            }
+        ];
+        this.model["Signs"] = data;
 
-    var upgradedModel = this.presenter.upgradeSigns(this.model);
+        const upgradedModel = this.presenter.upgradeModel(this.model);
 
-    assertEquals(this.model, upgradedModel);
-};
+        assertEquals(data, upgradedModel["Signs"]);
+    },
+
+    "test given model without showAllAnswersInGSA when upgradeModel is called then showAllAnswersInGSA is added with default value": function () {
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["showAllAnswersInGSA"]);
+        assertEquals("False", upgradedModel["showAllAnswersInGSA"]);
+    },
+
+    "test given model with showAllAnswersInGSA when upgradeModel is called then showAllAnswersInGSA value remains unchanged": function () {
+        this.model["showAllAnswersInGSA"] = "True";
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("True", upgradedModel["showAllAnswersInGSA"]);
+    }
+});

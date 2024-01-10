@@ -1481,6 +1481,7 @@ var ice_dictionary_en = {
 	"WritingCalculations_property_commutativity": "Commutativity",
     "WritingCalculations_property_equals" : "Equals",
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
+	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"Vimeo_info": "Enables to upload a Vimeo movie into a presentation. To make it work, it is enough to enter the Vimeo movie ID in the Properties section.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "Movie ID",

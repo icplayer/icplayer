@@ -100,9 +100,14 @@ export class MediaRecorder {
                 this.mediaState.setLoading();
                 let recording;
                 if (this.addonState.isMP3Format(blob)) {
-                    let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
                     try {
-                        recording = URL.createObjectURL(tmpFile);
+                        if (this.player._isMobileSafari() || this.player._isIosMlibro() || this.player._isIOSWebViewUsingAppleWebKit()) {
+                            let tmpBlob = new Blob([blob], {type: "audio/mpeg"});
+                            recording = URL.createObjectURL(tmpBlob);
+                        } else {
+                            let tmpFile = new File([blob], "recording.mp3", {type: "audio/mp3"});
+                            recording = URL.createObjectURL(tmpFile);
+                        }
                     } catch (error) {
                         recording = URL.createObjectURL(blob);
                     }

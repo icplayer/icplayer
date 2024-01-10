@@ -1480,6 +1480,7 @@ var ice_dictionary_pl = {
 	"WritingCalculations_property_commutativity": "Przemienność",
     "WritingCalculations_property_equals" : "Równa się",
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
+	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"Vimeo_info" : "Pozwala na wgranie filmu Vimeo do prezentacji. Aby Addon działał poprawnie, wystarczy podać numer ID filmu Vimeo w menu Właściwości.",
 	"Vimeo_name" : "Vimeo",
 	"Vimeo_property_movie_id": "ID filmu",

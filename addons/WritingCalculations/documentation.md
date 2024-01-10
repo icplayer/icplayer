@@ -134,6 +134,10 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Use numeric keyboard</td>
         <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td>
     </tr>
+    <tr>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>Show all answers at once using gradual show answers functionality. Without checking this option, the gradual show answers functionality reveals the answers one by one.</td>
+    </tr>
 </table>
 
 ## Example value
