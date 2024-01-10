@@ -1467,6 +1467,7 @@ var ice_dictionary_bl = {
 	"WritingCalculations_property_commutativity": "Комутативност",
     "WritingCalculations_property_equals" : "Равенства",
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
+	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"Vimeo_info": "Позволява добавянето на видеофилм от Vimeo към презентацията. За да го направите е нужно само да въведете ID на Vimeo видеофилма в настройките.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "ID на видеофилма",

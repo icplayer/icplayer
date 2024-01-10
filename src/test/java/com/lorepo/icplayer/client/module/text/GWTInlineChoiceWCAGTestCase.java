@@ -63,6 +63,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 	public void testDropdownChangeSelected() throws Exception {
 		InlineChoiceWidget choiceSpy = spy(this.choiceWidget);
 		doNothing().when(choiceSpy).fireChangeEvent();
+		doNothing().when(choiceSpy).readSelectedElement(any(Integer.class));
 		doReturn(0).when(choiceSpy).getSelectedIndex();
 		doReturn(4).when(choiceSpy).getItemCount();
 		doReturn(false).when(choiceSpy).isWCAGon();
@@ -86,6 +87,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 	public void testDropdownChangeSelectedOutOfBounds() throws Exception {
 		InlineChoiceWidget choiceSpy = spy(this.choiceWidget);
 		doNothing().when(choiceSpy).fireChangeEvent();
+		doNothing().when(choiceSpy).readSelectedElement(any(Integer.class));
 		doReturn(0).when(choiceSpy).getSelectedIndex();
 		doReturn(4).when(choiceSpy).getItemCount();
 		doReturn(false).when(choiceSpy).isWCAGon();
