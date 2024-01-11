@@ -1351,9 +1351,14 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this.mediaState.setLoading();
                 var recording = void 0;
                 if (_this.addonState.isMP3Format(blob)) {
-                    var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
                     try {
-                        recording = URL.createObjectURL(tmpFile);
+                        if (_this.player._isMobileSafari() || _this.player._isIosMlibro() || _this.player._isIOSWebViewUsingAppleWebKit()) {
+                            var tmpBlob = new Blob([blob], { type: "audio/mpeg" });
+                            recording = URL.createObjectURL(tmpBlob);
+                        } else {
+                            var tmpFile = new File([blob], "recording.mp3", { type: "audio/mp3" });
+                            recording = URL.createObjectURL(tmpFile);
+                        }
                     } catch (error) {
                         recording = URL.createObjectURL(blob);
                     }
