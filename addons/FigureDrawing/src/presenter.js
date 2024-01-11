@@ -400,10 +400,11 @@ function AddonFigureDrawing_create(){
         if (presenter.grid3D) return ((1/3*(parseInt(row)-1) + 0.5) * presenter.grid)
         else return ((parseInt(row)-0.5) * presenter.grid);
     };
+
     function uniq(a) {
-        return a.sort().filter(function(item, pos) {
-            return !pos || item != a[pos - 1];
-        })
+        return a.filter(function (value, index, array) {
+            return array.indexOf(value) === index;
+        });
     }
 
     function drawOneLine(point1, point2, nonremovable) {
