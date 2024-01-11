@@ -83,7 +83,6 @@ function AddonFractions_create(){
 
     presenter.disable = function(){
         presenter.isShowAnswersActive && presenter.hideAnswers();
-        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         presenter.isDisable = true;
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
@@ -92,7 +91,6 @@ function AddonFractions_create(){
 
     presenter.enable = function(){
         presenter.isShowAnswersActive && presenter.hideAnswers();
-        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         presenter.isDisable = false;
         var $myDiv =  presenter.$view.find('.FractionsWrapper')[0];
@@ -1173,7 +1171,7 @@ function AddonFractions_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onEventReceived = function (eventName, data) {
+    presenter.onEventReceived = function (eventName, eventData) {
         switch (eventName) {
             case "ShowAnswers":
                 presenter.showAnswers();
@@ -1182,11 +1180,7 @@ function AddonFractions_create(){
                 presenter.hideAnswers();
                 break;
             case "GradualShowAnswers":
-                presenter.isGradualShowAnswersActive = true;
-
-                if (data.moduleID === presenter.configuration.addonId) {
-                    presenter.gradualShowAnswers();
-                }
+                presenter.gradualShowAnswers(eventData);
                 break;
             case "GradualHideAnswers":
                 presenter.gradualHideAnswers();
@@ -1217,34 +1211,35 @@ function AddonFractions_create(){
     };
 
     presenter.showAnswers = function () {
-        presenter.isErrorCheckingMode && presenter.setWorkMode();
-
-        presenter.isShowAnswersActive = true;
-        if (!presenter.configuration.isAnswer) {
+        if (!presenter.configuration.isAnswer
+            || presenter.configuration.isNotActivity) {
             return;
         }
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.isGradualShowAnswersActive && presenter.hideAnswers();
+        presenter.isShowAnswersActive = true;
+
         showAnswersTo(presenter.configuration.correctAnswer);
     };
 
     presenter.showElementsSA = function(element){
         presenter.isErrorCheckingMode && presenter.setWorkMode();
         presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
-
         presenter.isShowAnswersActive = true;
+
         showAnswersTo(element);
     };
 
-    presenter.gradualShowAnswers = function () {
-        if (!presenter.configuration.isAnswer
+    presenter.gradualShowAnswers = function (eventData) {
+        if ((eventData.moduleID !== presenter.configuration.addonId)
+            || !presenter.configuration.isAnswer
             || presenter.configuration.isNotActivity) {
             return;
         }
 
         presenter.isErrorCheckingMode && presenter.setWorkMode();
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-            presenter.isGradualShowAnswersActive = true;
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive = true;
 
         showAnswersTo(presenter.configuration.correctAnswer);
     };
