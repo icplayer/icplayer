@@ -1,3 +1,4 @@
+2024-01-11 Fixed issue with LaTeX in Flash Card rendering differently at the front and back of the card
 2024-01-05 Fixed read selected element in Inline Gaps
 2024-01-05 Fixed keyboard navigation selects not visible element
 2024-01-05 Fixed playing a recording from Media Recording when using IOS app
