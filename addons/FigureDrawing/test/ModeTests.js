@@ -119,6 +119,7 @@ TestCase("[FigureDrawing] Show Answers tests", {
         errorMessage = "Not found starting line: #line_2_2_2_3";
         assertTrue(errorMessage, this.presenter.$view.find('#' + 'line_2_2_2_3').length > 0);
 
+        // Check correctness of saved user answers
         assertEquals(["line_2_3_3_4"], this.presenter.savedLinesIdsSA);
     },
 });
@@ -245,6 +246,7 @@ TestCase("[FigureDrawing] Gradual Show Answers tests", {
         errorMessage = "Not found starting line: #line_2_2_2_3";
         assertTrue(errorMessage, this.presenter.$view.find('#' + 'line_2_2_2_3').length > 0);
 
+        // Check correctness of saved user answers
         assertEquals(["line_2_3_3_4"], this.presenter.savedLinesIdsSA);
     },
 });
