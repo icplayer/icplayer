@@ -59,7 +59,6 @@ function AddonPage_Progress_Panel_create(){
     };
 
     function runLogic(view, model, isPreview) {
-        console.log('runLogic 3');
         presenter.$view = $(view);
 		presenter.view = view;
         presenter.$progressBarContainer = presenter.$view.find('.progress-bar-container');
@@ -109,7 +108,6 @@ function AddonPage_Progress_Panel_create(){
 		var score = presenter.playerController.getScore().getPageScoreById(pageId);
 		presenter.lastScores.sumOfMistakes = score.mistakeCount;
 		presenter.lastScores.sumOfChecks = score.checkCount;
-        console.log('showAnswers');
 		presenter.displayScores(presenter.lastScores);
 	};
 
@@ -140,8 +138,6 @@ function AddonPage_Progress_Panel_create(){
 		} else if (score.maxScore > 0) {
             var percentageScore = (score.score*100.0) / score.maxScore;
         }
-        console.log('getPageScore ', score)
-        console.log('getPageScore2 ', percentageScore)
         return {
             progress: Math.round(percentageScore),
             sumOfMaxScore: score.maxScore,
@@ -181,8 +177,6 @@ function AddonPage_Progress_Panel_create(){
 	presenter.displayScores = function (pageScore) {
 		if (presenter.configuration.showProgressBar) {
             presenter.$progressBar.css('width', pageScore.progress + '%');
-            console.log('displayScores ', pageScore);
-            console.log('displayScores ', pageScore.progress);
             presenter.$progressText.html(pageScore.progress + '%');
         }
 
@@ -208,7 +202,6 @@ function AddonPage_Progress_Panel_create(){
 	}
     presenter.setShowErrorsMode = function(){
         presenter.lastScores = getPageScore();
-        console.log('setShowErrorsMode');
 		presenter.displayScores(presenter.lastScores);
     };
 
@@ -260,7 +253,6 @@ function AddonPage_Progress_Panel_create(){
             sumOfChecks: score.checkCount,
             sumOfScores: 0
 		};
-        console.log('reset')
 		presenter.displayScores(presenter.lastScores);
 		presenter.state.isVisible = presenter.configuration.isVisible;
 		presenter.updateVisibility();
@@ -289,7 +281,6 @@ function AddonPage_Progress_Panel_create(){
 		};
 		presenter.state.isVisible = parsedState.isVisible;
 		presenter.updateVisibility();
-        console.log('setState')
 		presenter.displayScores(presenter.lastScores);
     };
 
