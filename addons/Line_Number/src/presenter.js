@@ -28,6 +28,10 @@ function AddonLine_Number_create() {
         value: -1,
         element: null
     };
+    presenter.isGradualShowAnswersActive = false;
+    presenter.currentRanges = null;
+    presenter.isFirstRun = true;
+    presenter.isProcessing = false;
 
     presenter.maxElement = function (array) {
         if (array.length == 0) {
@@ -70,10 +74,13 @@ function AddonLine_Number_create() {
     };
 
     presenter.run = function(view, model) {
+        const events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
         presenter.presenterLogic(view, model, false);
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        const _self = this;
+        events.forEach((event) => {
+            eventBus.addEventListener(event, _self);
+        });
     };
 
     presenter.createPreview = function (view, model) {
@@ -571,7 +578,7 @@ function AddonLine_Number_create() {
     }
 
     function togglePoint($eventTarget) {
-        if (presenter.configuration.isShowErrorsMode || isLineNumberDisabled() || presenter.isShowAnswersActive) {
+        if (presenter.configuration.isShowErrorsMode || isLineNumberDisabled() || presenter.isAnswersDisplayed()) {
             return;
         }
         var $parent = $eventTarget.parent('.stepLine');
@@ -608,7 +615,7 @@ function AddonLine_Number_create() {
     }
 
     function clickLogic(eventTarget) {
-        if (isLineNumberDisabled() || presenter.isShowAnswersActive) {
+        if (isLineNumberDisabled() || presenter.isAnswersDisplayed()) {
             return;
         }
 
@@ -793,14 +800,14 @@ function AddonLine_Number_create() {
                 }
 
                 presenter.$view.find('.currentSelectedRange').removeClass('currentSelectedRange');
-                if (!(presenter.configuration.drawnRangesData.ranges[index] === undefined) && !presenter.isShowAnswersActive) {
+                if (!(presenter.configuration.drawnRangesData.ranges[index] === undefined) && !presenter.isAnswersDisplayed()) {
                     var rangeString = presenter.convertRangeToString(presenter.configuration.drawnRangesData.ranges[index]);
                     var eventData = presenter.createEventData(rangeString, false, checkIsRangeCorrect(presenter.configuration.drawnRangesData.ranges[index]));
 
                     eventBus.sendEvent('ValueChanged', eventData);
                 }
 
-                if ( presenter.allRangesCorrect() && !presenter.isShowAnswersActive) {
+                if ( presenter.allRangesCorrect() && !presenter.isAnswersDisplayed()) {
                     var eventData = presenter.createAllOKEventData();
                     eventBus.sendEvent('ValueChanged', eventData);
                 }
@@ -1113,7 +1120,7 @@ function AddonLine_Number_create() {
         imageContainer.addClass(include ? 'include' : 'exclude');
         $element.append(imageContainer);
 
-        if(!presenter.hideAnswerClicked && !presenter.isShowAnswersActive){
+        if(!presenter.hideAnswerClicked && !presenter.isAnswersDisplayed()){
             presenter.parentLeft = imageContainer.parent().css('left');
         }
 
@@ -1304,9 +1311,7 @@ function AddonLine_Number_create() {
     }
 
     presenter.getState = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
 
         var drawnRangeCopy = $.extend(true, {}, presenter.configuration.drawnRangesData);
 
@@ -1366,9 +1371,8 @@ function AddonLine_Number_create() {
     };
 
     presenter.reset = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
+
         if (presenter.configuration.dontShowRanges) {
             presenter.$view.find('.rangeImage').remove();
             presenter.checkedPoints = [];
@@ -1417,9 +1421,7 @@ function AddonLine_Number_create() {
     }
 
     presenter.setShowErrorsMode = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
 
         if(!presenter.configuration.isActivity) {
             return;
@@ -1540,10 +1542,11 @@ function AddonLine_Number_create() {
     }
 
     presenter.getScore = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+        if (presenter.isProcessing) {
+            return;
         }
 
+        presenter.handleDisplayedAnswers();
         resetClicks();
 
         if (!presenter.configuration.isActivity) {
@@ -1562,9 +1565,11 @@ function AddonLine_Number_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+        if (presenter.isProcessing) {
+            return;
         }
+
+        presenter.handleDisplayedAnswers();
 
         if (!presenter.configuration.isActivity) {
             return 0;
@@ -1574,9 +1579,7 @@ function AddonLine_Number_create() {
     };
 
     presenter.getErrorCount = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers()
 
         if (!presenter.configuration.isActivity) {
             return 0;
@@ -1639,7 +1642,7 @@ function AddonLine_Number_create() {
     function addToDrawnRanges ( range, shouldSendRanges ) {
         presenter.configuration.drawnRangesData.ranges.push( range );
 
-        if ( !presenter.configuration.isPreview && !presenter.configuration.isInitialDraw && !presenter.isShowAnswersActive) {
+        if ( !presenter.configuration.isPreview && !presenter.configuration.isInitialDraw && !presenter.isAnswersDisplayed()) {
             var rangeString = presenter.convertRangeToString(range);
             var isRangeCorrect = checkIsRangeCorrect(range);
             var eventData = presenter.createEventData(rangeString, false, isRangeCorrect);
@@ -2307,13 +2310,32 @@ function AddonLine_Number_create() {
         };
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
+    presenter.getActivitiesCount = function () {
+        if (presenter.configuration.dontShowRanges) {
+            return getCorrectPoints().length;
         }
 
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+        return presenter.configuration.shouldDrawRanges.length + presenter.configuration.otherRanges.length;
+    }
+
+    presenter.onEventReceived = function (eventName, eventData) {
+        switch (eventName) {
+            case 'ShowAnswers':
+                presenter.showAnswers();
+                break;
+
+            case 'HideAnswers':
+                presenter.hideAnswers();
+                break;
+
+            case 'GradualShowAnswers':
+                presenter.gradualShowAnswers(eventData);
+                addListenerWithTimeout();
+                break;
+
+            case 'GradualHideAnswers':
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
@@ -2323,7 +2345,6 @@ function AddonLine_Number_create() {
         }
 
         presenter.isShowAnswersActive = true;
-
         presenter.setWorkMode();
 
         if (presenter.configuration.dontShowRanges) {
@@ -2335,24 +2356,8 @@ function AddonLine_Number_create() {
                 $(this).addClass('show-answers');
             });
         } else {
-            presenter.currentRanges = jQuery.extend(true ,{}, presenter.configuration.drawnRangesData);
-
-            presenter.leftShowAnswers = presenter.parentLeft;
-            if (presenter.leftShowAnswers){
-                presenter.$view.find('.rangeImage').each(function () {
-                    if (parseInt($(this).parent()[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
-                        presenter.rangeShowAnswers = $(this);
-                    }
-                });
-            }
-
-            presenter.$view.find('.rangeImage').remove();
-
-            var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-
-            $.each(rangesToRemove, function() {
-                presenter.removeRange(this, true);
-            });
+            presenter.saveUserRanges();
+            presenter.removeRanges();
 
             presenter.drawRanges(presenter.configuration.shouldDrawRanges, true);
             presenter.drawRanges(presenter.configuration.otherRanges, true);
@@ -2364,8 +2369,11 @@ function AddonLine_Number_create() {
         presenter.$view.find('.outer').addClass("disable");
     };
 
-    function drawPoints(pointsToDraw) {
-        presenter.$view.find('.rangeImage').remove();
+    function drawPoints(pointsToDraw, shouldRemovePreviousRanges = true) {
+        if (shouldRemovePreviousRanges) {
+            presenter.$view.find('.rangeImage').remove();
+        }
+
         presenter.$view.find('.clickArea').each(function() {
             var $imageContainer = $('<div></div>');
             $imageContainer.addClass('rangeImage exclude include');
@@ -2380,33 +2388,141 @@ function AddonLine_Number_create() {
             return;
         }
         presenter.hideAnswerClicked = true;
-
-
         presenter.$view.find('.show-answers').removeClass('show-answers');
 
         if (presenter.configuration.dontShowRanges) {
             drawPoints(presenter.checkedPoints);
         } else {
-            var rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
-
-            $.each(rangesToRemove, function() {
-                presenter.removeRange(this, true);
-            });
+            presenter.removeRanges();
             presenter.redrawRanges(presenter.currentRanges.ranges);
-
-            if(presenter.leftShowAnswers){
-                presenter.$view.find('.stepLine').each(function () {
-                    if(parseInt($(this)[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
-                        $(this).append(presenter.rangeShowAnswers);
-                    }
-                });
-            }
+            presenter.displayUserRanges();
         }
 
         presenter.hideAnswerClicked = false;
         presenter.isShowAnswersActive = false;
         presenter.$view.find('.outer').removeClass("disable");
     };
+    
+    presenter.gradualShowAnswers = function (eventData) {
+        if (eventData.moduleID !== presenter.configuration.addonID) {
+            return;
+        }
+
+        presenter.isProcessing = true;
+        presenter.isGradualShowAnswersActive = true;
+        presenter.setWorkMode();
+
+        if (presenter.configuration.dontShowRanges) {
+            if (presenter.isFirstRun) {
+                presenter.$view.find('.rangeImage').remove();
+                presenter.isFirstRun = false;
+            }
+            const correctPoints = [getCorrectPoints()[eventData.item]];
+
+            drawPoints(correctPoints, false);
+            presenter.$view.find('.rangeImage').each(function() {
+                $(this).addClass('show-answers');
+            });
+        } else {
+            if (!presenter.currentRanges) {
+                presenter.saveUserRanges();
+                presenter.removeRanges();
+            }
+
+            const range = [presenter.configuration.otherRanges[eventData.item]];
+
+            presenter.drawRanges(presenter.configuration.shouldDrawRanges, true);
+            presenter.drawRanges(range, true);
+
+            $.each(presenter.configuration.drawnRangesData.ranges, function() {
+                getSelectedRange(this).addClass('show-answers');
+            });
+        }
+
+        presenter.$view.find('.outer').addClass("disable");
+        presenter.isProcessing = false;
+    }
+
+    presenter.gradualHideAnswers = function () {
+        if(!presenter.configuration.isActivity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        presenter.$view.find('.show-answers').removeClass('show-answers');
+        presenter.isGradualShowAnswersActive = false;
+
+        if (presenter.configuration.dontShowRanges) {
+            drawPoints(presenter.checkedPoints);
+            presenter.isFirstRun = true;
+        } else {
+            presenter.removeRanges();
+            presenter.redrawRanges(presenter.currentRanges.ranges);
+            presenter.displayUserRanges();
+        }
+
+        presenter.$view.find('.outer').removeClass("disable");
+        presenter.currentRanges = null;
+    }
+
+    presenter.saveUserRanges = function () {
+        presenter.currentRanges = jQuery.extend(true, {}, presenter.configuration.drawnRangesData);
+
+        presenter.leftShowAnswers = presenter.parentLeft;
+        if (presenter.leftShowAnswers) {
+            presenter.$view.find('.rangeImage').each(function () {
+                if (parseInt($(this).parent()[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)) {
+                    presenter.rangeShowAnswers = $(this);
+                }
+            });
+        }
+    }
+
+    presenter.removeRanges = function () {
+        presenter.$view.find('.rangeImage').remove();
+        const rangesToRemove = [].concat(presenter.configuration.drawnRangesData.ranges);
+        $.each(rangesToRemove, function() {
+            presenter.removeRange(this, true);
+        });
+    }
+
+    presenter.displayUserRanges = function () {
+        if(presenter.leftShowAnswers){
+            presenter.$view.find('.stepLine').each(function () {
+                if(parseInt($(this)[0].style.left, 10).toFixed(1) == parseInt(presenter.leftShowAnswers, 10).toFixed(1)){
+                    $(this).append(presenter.rangeShowAnswers);
+                }
+            });
+        }
+    }
+
+    function addListenerWithTimeout() {
+        setTimeout(() => {
+            presenter.addListenerOnHover();
+        }, 200);
+    }
+    
+    presenter.addListenerOnHover = function () {
+        const area = presenter.$view.find('.clickArea');
+        area.on('mouseleave', function (e) {
+            e.stopPropagation();
+            hideCurrentMousePosition();
+        });
+
+        area.on('mouseenter', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            displayCurrentMousePosition($(e.target));
+        });
+    }
+
+    presenter.handleDisplayedAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    }
+
+    presenter.isAnswersDisplayed = function () {
+        return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
+    }
 
     return presenter;
 }
