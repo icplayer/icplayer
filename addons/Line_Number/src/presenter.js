@@ -615,7 +615,7 @@ function AddonLine_Number_create() {
     }
 
     function clickLogic(eventTarget) {
-        if (isLineNumberDisabled() || presenter.isAnswersDisplayed()) {
+        if (isLineNumberDisabled() || presenter.isAnswersDisplayed() || presenter.configuration.dontShowRanges) {
             return;
         }
 
@@ -667,10 +667,12 @@ function AddonLine_Number_create() {
             var firstValue = parseRangeStartOrEnd(firstClick.element.attr('value'), presenter.configuration.separator);
             var secondValue = parseRangeStartOrEnd(secondClick.element.attr('value'), presenter.configuration.separator);
             var newRange;
+            var isInf = firstValue.toString().toLowerCase().includes('infinity');
+            var areClickEqualAndInf = firstValue === secondValue && isInf;
 
             if (areBothClicksNone()) {
                 var timeDiff = presenter.configuration.mouseData.clicks[1].time - presenter.configuration.mouseData.clicks[0].time;
-                if (timeDiff < 250 && timeDiff > 0) {
+                if (timeDiff < 250 && timeDiff > 0 && !areClickEqualAndInf) {
                     newRange = {
                         start: createRangeElement(firstClick.element, firstValue, true),
                         end: createRangeElement(firstClick.element, firstValue, true)
@@ -695,7 +697,7 @@ function AddonLine_Number_create() {
                     } else {
                         var rangeImage = firstClick.element.parent().find('.rangeImage');
 
-                        if ( rangeImage.hasClass('include') ) {
+                        if ( rangeImage.hasClass('include') && !areClickEqualAndInf) {
                             rangeImage.remove();
                         } else {
                             rangeImage.removeClass('exclude');
@@ -1542,11 +1544,10 @@ function AddonLine_Number_create() {
     }
 
     presenter.getScore = function() {
-        if (presenter.isProcessing) {
-            return;
+        if (presenter.isProcessing || presenter.isAnswersDisplayed()) {
+            return 0;
         }
 
-        presenter.handleDisplayedAnswers();
         resetClicks();
 
         if (!presenter.configuration.isActivity) {
@@ -1565,8 +1566,8 @@ function AddonLine_Number_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (presenter.isProcessing) {
-            return;
+        if (presenter.isProcessing || presenter.isAnswersDisplayed()) {
+            return 0;
         }
 
         presenter.handleDisplayedAnswers();
@@ -1579,7 +1580,9 @@ function AddonLine_Number_create() {
     };
 
     presenter.getErrorCount = function () {
-        presenter.handleDisplayedAnswers()
+        if (presenter.isAnswersDisplayed()) {
+            return 0;
+        }
 
         if (!presenter.configuration.isActivity) {
             return 0;
@@ -2315,7 +2318,7 @@ function AddonLine_Number_create() {
             return getCorrectPoints().length;
         }
 
-        return presenter.configuration.shouldDrawRanges.length + presenter.configuration.otherRanges.length;
+        return presenter.configuration.otherRanges.length;
     }
 
     presenter.onEventReceived = function (eventName, eventData) {
