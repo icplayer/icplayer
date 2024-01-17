@@ -2404,6 +2404,7 @@ function AddonLine_Number_create() {
         presenter.hideAnswerClicked = false;
         presenter.isShowAnswersActive = false;
         presenter.$view.find('.outer').removeClass("disable");
+        presenter.currentRanges = null;
     };
     
     presenter.gradualShowAnswers = function (eventData) {
