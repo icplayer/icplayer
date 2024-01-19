@@ -139,7 +139,7 @@ function AddonPage_Progress_Panel_create(){
             var percentageScore = (score.score*100.0) / score.maxScore;
         }
         return {
-            progress: parseInt(percentageScore, 10),
+            progress: Math.round(percentageScore),
             sumOfMaxScore: score.maxScore,
             sumOfMistakes: score.mistakeCount,
             sumOfErrors: score.errorCount,

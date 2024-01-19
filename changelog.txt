@@ -1,3 +1,4 @@
+2024-01-15 Fixed displaying value in Page Progress Panel
 2024-01-15 Added Gradual Show Answers in the Line Number
 2024-01-11 Fixed issue with LaTeX in Flash Card rendering differently at the front and back of the card
 2024-01-11 Added GSA to the Fractions addon
