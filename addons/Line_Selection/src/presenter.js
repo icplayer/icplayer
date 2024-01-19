@@ -45,7 +45,7 @@ function AddonLine_Selection_create(){
     };
 
     presenter.disable = function() {
-        presenter.handleDisplayedAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         if (!(presenter.$view.find('.disabled').length > 0)) {
             presenter.disabled = true;
             presenter.$view.find('.lines_selection').addClass('disabled');
@@ -53,7 +53,7 @@ function AddonLine_Selection_create(){
     };
 
     presenter.enable = function() {
-        presenter.handleDisplayedAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.disabled = false;
         presenter.$view.find('.disabled').removeClass('disabled');
     };
