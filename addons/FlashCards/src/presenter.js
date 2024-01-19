@@ -383,7 +383,7 @@ function AddonFlashCards_create(){
         presenter.audioElementBack.pause();
         $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
 
-        presenter.$card.find(".flashcards-card-back .flashcards-card-contents").show();
+        presenter.$card.find(".flashcards-card-back .flashcards-card-contents").css("visibility","visible");
         $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
     };
 
@@ -454,7 +454,7 @@ function AddonFlashCards_create(){
             totalCardsNuber = presenter.state.totalCards;
         }
         presenter.$view.find(".flashcards-panel").get(0).innerHTML = currentCardNumber + "/" + totalCardsNuber;
-        presenter.$card.find(".flashcards-card-back .flashcards-card-contents").hide();
+        presenter.$card.find(".flashcards-card-back .flashcards-card-contents").css('visibility', 'hidden');
         presenter.$card.removeClass("flashcards-card-reversed");
 
         presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.Cards[cardNumber - 1].Front;
