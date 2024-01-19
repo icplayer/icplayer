@@ -1,3 +1,4 @@
+2024-01-19 Fixed inappropriate answers displaying in Draggable Gap while GSA is activated
 2024-01-19 Fixed errors in video addon without controls when action was performed in Media Recorder
 2024-01-17 Fixed changing position of IWB Toolbar
 2024-01-15 Fixed displaying value in Page Progress Panel
