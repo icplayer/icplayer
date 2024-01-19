@@ -249,6 +249,7 @@ var ice_dictionary_mx = {
 	"inline_css": "CSS embebido:",
 	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
+	"can_not_upload_file": "Error occurred while uploading the file",
 	"update_style": "Actualizar estilo",
 	"cant_load_document": "No se puede cargar el documento:",
 	"cant_add_page": "No se puede añadir la página:",
