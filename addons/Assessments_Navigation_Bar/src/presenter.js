@@ -369,13 +369,14 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.HellipButton.prototype = Object.create(presenter.Button.prototype);
     presenter.HellipButton.constructor = presenter.HellipButton;
 
-    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames) {
+    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames, alwaysVisible) {
         this.description = view_description;
         this.page = page;
         this.isBookmarkOn = false;
         this.sectionName = sectionName;
         this.sectionCssClass = sectionCssClass;
         this.buttonCssClassNames = buttonCssClassNames;
+        this.alwaysVisible = alwaysVisible;
     };
 
     presenter.Page.prototype.setBookmarkOn = function (bookmark) {
@@ -401,10 +402,11 @@ function AddonAssessments_Navigation_Bar_create(){
         return presenter.currentPageIndex === this.page;
     };
 
-    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames) {
+    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames, alwaysVisible) {
         this.name = sectionName;
         this.cssClassName = sectionCssClassName;
         this.buttonsCssClassNames = buttonsCssClassNames;
+        this.alwaysVisible = alwaysVisible;
         this.pages = this.createPages(pages, pagesDescriptions);
     };
 
@@ -426,7 +428,8 @@ function AddonAssessments_Navigation_Bar_create(){
             if (page == -1) return null;
             return new presenter.Page(
                 page, pagesDescriptions[index], this.name,
-                this.cssClassName, this.buttonsCssClassNames
+                this.cssClassName, this.buttonsCssClassNames,
+                this.alwaysVisible
             );
         }, this).filter(function(page) {
             return page != null;
@@ -434,8 +437,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections = function (sections) {
+        console.log("presenterSections");
         this.sections = this.createSections(sections);
+        console.log(this.sections);
         this.allPages = this.getAllPagesInOrder(this.sections);
+        console.log(this.allPages);
         this.attemptedPages = [];
         this.pagesIndexes = this.getPagesIndexes(this.allPages);
     };
@@ -537,6 +543,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections.prototype.getPages = function (leftIndex, numberOfPages) {
+        console.log("Sections.getPages");
         var pages = [];
 
         if (leftIndex + numberOfPages >= this.allPages.length) {
@@ -551,6 +558,12 @@ function AddonAssessments_Navigation_Bar_create(){
             if (numberOfPages == 0) {
                 break;
             }
+            console.log(this.allPages[i]);
+            if (this.allPages[i].alwaysVisible) {
+                console.log("skip page");
+                console.log(this.allPages[i]);
+                continue;
+            }
 
             pages.push(this.allPages[i]);
             numberOfPages--;
@@ -558,6 +571,19 @@ function AddonAssessments_Navigation_Bar_create(){
 
         return pages;
     };
+
+    presenter.Sections.prototype.getStaticPages = function () {
+        console.log("getStaticPages");
+        var pages = [];
+        for (var i = 0; i < this.allPages.length; i++) {
+            if (this.allPages[i].alwaysVisible) {
+                console.log(this.allPages[i]);
+                pages.push(this.allPages[i]);
+            }
+        }
+        console.log(pages);
+        return pages;
+    }
 
     presenter.filterSectionsWithTooManyPages = function(sections) {
         var mapping = presenter.playerController.getPagesMapping();
@@ -597,7 +623,8 @@ function AddonAssessments_Navigation_Bar_create(){
                 return new presenter.Section(
                     section.pages, section.sectionName,
                     section.pagesDescriptions, sectionCssClass,
-                    section.sectionButtonsCssClassNames
+                    section.sectionButtonsCssClassNames,
+                    section.alwaysVisible
                 );
         });
     };
@@ -792,6 +819,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.hellipsCount += this.addRightHellip();
 
         this.addSections(this.calculateNumberOfPages(this.hellipsCount));
+        console.log("setsections done");
     };
 
     presenter.NavigationManager.prototype.deactivateNavigationButtons = function () {
@@ -904,7 +932,9 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.addSections = function (numberOfPages) {
+        console.log("addSections");
         this.actualPages = presenter.sections.getPages(this.leftSideIndex, numberOfPages);
+        console.log(this.actualPages);
         var sectionIterator = -1;
 
         var len = this.actualPages.length;
@@ -917,15 +947,28 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         this.appendSectionsToView();
+        this.appendStaticPages(presenter.sections.getStaticPages());
         this.deactivateNavigationButtons();
+        console.log("addSections done");
     };
 
     presenter.NavigationManager.prototype.appendSectionsToView = function () {
+        console.log("appendSectionsToView");
         this.actualSections.forEach(function ($section) {
+            console.log($section[0]);
             this.setSectionWidth($section);
             this.$sections.append($section);
         }, this);
     };
+
+    presenter.NavigationManager.prototype.appendStaticPages = function () {
+        console.log("appendStaticPages3");
+        var pages = presenter.sections.getStaticPages();
+        for (var i = 0; i < pages.length; i++) {
+        //    this.$navigationButtonsFirst.append(this.getPageButton(pages[i]).getView());
+        };
+        console.log("finished appending static pages");
+    }
 
     presenter.NavigationManager.prototype.getPageButton = function (page) {
         var button = new presenter.Button(page.description, page.buttonCssClassNames);
@@ -1117,11 +1160,13 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.runLogic = function (view, model) {
+        console.log("anb4");
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
 
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
+        console.log(validatedModel);
 
         if (!validatedModel.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.errorCode], validatedModel.errorData);
@@ -1156,9 +1201,11 @@ function AddonAssessments_Navigation_Bar_create(){
         removeMockupDOM();
 
         presenter.sections = new presenter.Sections(presenter.configuration.sections);
+
         presenter.navigationManager = new presenter.NavigationManager();
 
         presenter.navigationManager.setSections();
+        console.log("initialize addon done");
     };
 
     function calculateMaxNumberOfButtons () {
@@ -1229,6 +1276,9 @@ function AddonAssessments_Navigation_Bar_create(){
             return validatedSections;
         }
 
+        var leftSections = validatedSections.sections.filter((element)=>{element.alwaysVisible === true});
+
+
         var numberOfPages = presenter.calculateNumberOfPages(validatedSections.sections);
 
         var validateButtonsNumber = presenter.parseButtonsNumber(model["userButtonsNumber"], numberOfPages);
@@ -1245,6 +1295,7 @@ function AddonAssessments_Navigation_Bar_create(){
             isValid: true,
             addonID: model["ID"],
             sections: validatedSections.sections,
+            leftSections: leftSections,
             addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"]),
             defaultOrder: ModelValidationUtils.validateBoolean(model["defaultOrder"]),
             userButtonsNumber: validateButtonsNumber.value,
@@ -1300,6 +1351,10 @@ function AddonAssessments_Navigation_Bar_create(){
         return element.isValid === false;
     }
 
+    function getSectionVisibilityTest (element, visible) {
+            return (element) => {return element.alwaysVisible === visible};
+        }
+
     function isSectionPagesIntersecting (pagesA, pagesB) {
         return pagesA.some(function (element) {
             return this.indexOf(element) != -1;
@@ -1345,7 +1400,7 @@ function AddonAssessments_Navigation_Bar_create(){
         if (notValidSections.length > 0) {
             return notValidSections[0];
         }
-
+        console.log(parsedSections);
         var validatedSections = validateSectionsIntersecting(parsedSections);
 
         if (!validatedSections.isValid) {
@@ -1433,6 +1488,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var sectionName = "";
         var descriptions = [];
         var sectionButtonsCssClassNames = {cssClasses: []};
+        var alwaysVisible = false;
 
         var pages = presenter.parsePagesFromRange(section[0], (sectionIndex + 1));
 
@@ -1462,12 +1518,17 @@ function AddonAssessments_Navigation_Bar_create(){
             }
         }
 
+        if (len > 4) {
+            alwaysVisible = getTrimmedStringElement(section[4]).toLowerCase() == 'static';
+        }
+
         return {
             isValid: true,
             pages: pages.pages,
             sectionName: sectionName,
             pagesDescriptions: descriptions.descriptions,
             sectionButtonsCssClassNames: sectionButtonsCssClassNames.cssClasses,
+            alwaysVisible: alwaysVisible
         }
     }
 
@@ -1566,7 +1627,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var restoredPages = pages.map(function (page) {
             var restoredPage = new presenter.Page(
                 page.page, page.description, page.sectionName,
-                page.sectionCssClass, page.buttonCssClassNames
+                page.sectionCssClass, page.buttonCssClassNames,
+                page.alwaysVisible
             );
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
