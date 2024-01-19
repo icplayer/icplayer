@@ -249,6 +249,7 @@ var ice_dictionary_pl = {
 	"editableScript_editor": "Script Editor",
 	"editable_script_editor_dark_theme": "Dark theme",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
+	"can_not_upload_file": "Error occurred while uploading the file",
 	"update_style" : "Aktualizuj styl",
 	"cant_load_document" : "Nie można wczytać dokumentu: ",
 	"cant_add_page" : "Nie można dodać strony: ",
