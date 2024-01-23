@@ -1415,7 +1415,7 @@ function AddonPlot_create(){
     var plot = new Plot();
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
-    presenter.GSAcounter = 0;
+    presenter.GSACounter = 0;
 
     presenter.setWorkMode = function(){
         var ref;
@@ -1504,7 +1504,7 @@ function AddonPlot_create(){
         presenter.errorsMode && presenter.setWorkMode();
         presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = true;
-        presenter.GSAcounter = answerIndex;
+        presenter.GSACounter = answerIndex;
 
         isFirstGSA && saveAndClearPlot();
         const numberOfCorrectExpressions = plot.expressions.filter(val => val.correctAnswer).length;
@@ -1611,7 +1611,7 @@ function AddonPlot_create(){
         }
 
         presenter.isGradualShowAnswersActive = false;
-        presenter.GSAcounter = 0;
+        presenter.GSACounter = 0;
         _hideAnswers();
     };
 
@@ -2214,7 +2214,7 @@ function AddonPlot_create(){
     presenter.getState = function() {
         const wasShowAnswersActive = presenter.isShowAnswersActive;
         const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
-        const previousGSACounter = presenter.GSAcounter;
+        const previousGSACounter = presenter.GSACounter;
         presenter.handleDisplayedAnswers();
 
         var plotState = [];
