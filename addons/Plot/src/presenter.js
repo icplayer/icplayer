@@ -1499,7 +1499,7 @@ function AddonPlot_create(){
         gradualShowAnswers(answerIndex);
     };
 
-    function gradualShowAnswers(answerIndex, withPrevious = false) {
+    function gradualShowAnswers(answerIndex, includePrevious = false) {
         const isFirstGSA = !presenter.isGradualShowAnswersActive;
         presenter.errorsMode && presenter.setWorkMode();
         presenter.isShowAnswersActive && presenter.hideAnswers();
@@ -1509,10 +1509,10 @@ function AddonPlot_create(){
         isFirstGSA && saveAndClearPlot();
         const numberOfCorrectExpressions = plot.expressions.filter(val => val.correctAnswer).length;
         if (answerIndex < numberOfCorrectExpressions) {
-            showExpressionAnswer(answerIndex, withPrevious);
+            showExpressionAnswer(answerIndex, includePrevious);
         } else {
-            withPrevious && showExpressionAnswer(numberOfCorrectExpressions - 1, withPrevious);
-            showPointAnswer(answerIndex - numberOfCorrectExpressions, withPrevious);
+            includePrevious && showExpressionAnswer(numberOfCorrectExpressions - 1, includePrevious);
+            showPointAnswer(answerIndex - numberOfCorrectExpressions, includePrevious);
         }
 
         plot.enableUI(false);
@@ -1541,17 +1541,17 @@ function AddonPlot_create(){
         })
     }
 
-    function showExpressionAnswer(answerNumber, withPrevious = false) {
+    function showExpressionAnswer(answerIndex, includePrevious = false) {
         let currentCorrectAnswerIndex = 0;
         for (let i = 0; i < plot.expressions.length; i++) {
             if (!plot.expressions[i].correctAnswer) {
                 continue;
             }
-            if (currentCorrectAnswerIndex === answerNumber) {
+            if (currentCorrectAnswerIndex === answerIndex) {
                 showExpressionAsAnswer(i);
                 return;
             }
-            withPrevious && showExpressionAsAnswer(i);
+            includePrevious && showExpressionAsAnswer(i);
             currentCorrectAnswerIndex++;
         }
     }
@@ -1576,17 +1576,17 @@ function AddonPlot_create(){
         })
     }
 
-    function showPointAnswer(answerNumber, withPrevious = false) {
+    function showPointAnswer(answerIndex, includePrevious = false) {
         let currentCorrectAnswerIndex = 0;
         for (let i = 0; i < plot.points.length; i++) {
             if (!plot.points[i].correct) {
                 continue;
             }
-            if (currentCorrectAnswerIndex === answerNumber) {
+            if (currentCorrectAnswerIndex === answerIndex) {
                 showPointAsAnswer(i);
                 return;
             }
-            withPrevious && showPointAsAnswer(i);
+            includePrevious && showPointAsAnswer(i);
             currentCorrectAnswerIndex++;
         }
     }
