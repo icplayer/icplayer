@@ -369,14 +369,18 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.HellipButton.prototype = Object.create(presenter.Button.prototype);
     presenter.HellipButton.constructor = presenter.HellipButton;
 
-    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames, alwaysVisible) {
+    presenter.Page = function (page, view_description, sectionName, sectionCssClass, buttonCssClassNames, staticPosition) {
         this.description = view_description;
         this.page = page;
         this.isBookmarkOn = false;
         this.sectionName = sectionName;
         this.sectionCssClass = sectionCssClass;
         this.buttonCssClassNames = buttonCssClassNames;
-        this.alwaysVisible = alwaysVisible;
+        if (staticPosition === undefined) {
+            this.staticPosition = '';
+        } else {
+            this.staticPosition = staticPosition;
+        }
     };
 
     presenter.Page.prototype.setBookmarkOn = function (bookmark) {
@@ -402,11 +406,11 @@ function AddonAssessments_Navigation_Bar_create(){
         return presenter.currentPageIndex === this.page;
     };
 
-    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames, alwaysVisible) {
+    presenter.Section = function (pages, sectionName, pagesDescriptions, sectionCssClassName, buttonsCssClassNames, staticPosition) {
         this.name = sectionName;
         this.cssClassName = sectionCssClassName;
         this.buttonsCssClassNames = buttonsCssClassNames;
-        this.alwaysVisible = alwaysVisible;
+        this.staticPosition = staticPosition;
         this.pages = this.createPages(pages, pagesDescriptions);
     };
 
@@ -429,7 +433,7 @@ function AddonAssessments_Navigation_Bar_create(){
             return new presenter.Page(
                 page, pagesDescriptions[index], this.name,
                 this.cssClassName, this.buttonsCssClassNames,
-                this.alwaysVisible
+                this.staticPosition
             );
         }, this).filter(function(page) {
             return page != null;
@@ -437,11 +441,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections = function (sections) {
-        console.log("presenterSections");
         this.sections = this.createSections(sections);
-        console.log(this.sections);
         this.allPages = this.getAllPagesInOrder(this.sections);
-        console.log(this.allPages);
         this.attemptedPages = [];
         this.pagesIndexes = this.getPagesIndexes(this.allPages);
     };
@@ -543,29 +544,29 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections.prototype.getPages = function (leftIndex, numberOfPages) {
-        console.log("Sections.getPages");
         var pages = [];
 
-        if (leftIndex + numberOfPages >= this.allPages.length) {
-            leftIndex = ((this.allPages.length) - numberOfPages)
+        var standardPages = [];
+        for (var i = 0; i < this.allPages.length; i++) {
+            if (this.allPages[i].staticPosition === undefined || this.allPages[i].staticPosition.length === 0) {
+                standardPages.push(this.allPages[i]);
+            }
+        }
+
+        if (leftIndex + numberOfPages >= standardPages.length) {
+            leftIndex = ((standardPages.length) - numberOfPages);
         }
 
         if (leftIndex < 0) {
             leftIndex = 0;
         }
 
-        for (var i = leftIndex; i < this.allPages.length; i++) {
+        for (var i = leftIndex; i < standardPages.length; i++) {
             if (numberOfPages == 0) {
                 break;
             }
-            console.log(this.allPages[i]);
-            if (this.allPages[i].alwaysVisible) {
-                console.log("skip page");
-                console.log(this.allPages[i]);
-                continue;
-            }
 
-            pages.push(this.allPages[i]);
+            pages.push(standardPages[i]);
             numberOfPages--;
         }
 
@@ -573,15 +574,12 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Sections.prototype.getStaticPages = function () {
-        console.log("getStaticPages");
         var pages = [];
         for (var i = 0; i < this.allPages.length; i++) {
-            if (this.allPages[i].alwaysVisible) {
-                console.log(this.allPages[i]);
+            if (this.allPages[i].staticPosition && this.allPages[i].staticPosition.length > 0) {
                 pages.push(this.allPages[i]);
             }
         }
-        console.log(pages);
         return pages;
     }
 
@@ -624,7 +622,7 @@ function AddonAssessments_Navigation_Bar_create(){
                     section.pages, section.sectionName,
                     section.pagesDescriptions, sectionCssClass,
                     section.sectionButtonsCssClassNames,
-                    section.alwaysVisible
+                    section.staticPosition
                 );
         });
     };
@@ -768,6 +766,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.removeInactiveClassFromNavigationButtons();
         this.buttons = [];
         this.actualPages = [];
+        this.staticPages = [];
     };
 
     presenter.NavigationManager.prototype.removeInactiveClassFromNavigationButtons = function () {
@@ -819,7 +818,6 @@ function AddonAssessments_Navigation_Bar_create(){
         this.hellipsCount += this.addRightHellip();
 
         this.addSections(this.calculateNumberOfPages(this.hellipsCount));
-        console.log("setsections done");
     };
 
     presenter.NavigationManager.prototype.deactivateNavigationButtons = function () {
@@ -846,15 +844,18 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.moveToCurrentPageLogic = function () {
-        for (var i = 0; i < this.actualPages.length; i++) {
-            var page = this.actualPages[i];
+        var allPages = this.actualPages.concat(this.staticPages);
+        for (var i = 0; i < allPages.length; i++) {
+            var page = allPages[i];
             if (page != undefined && page.isActualPage != undefined && page.isActualPage()) {
                 return;
             }
         }
 
-        this.rightHellip.execute();
-        this.moveToCurrentPage();
+        if (this.rightHellip) {
+            this.rightHellip.execute();
+            this.moveToCurrentPage();
+        }
     };
 
     presenter.NavigationManager.prototype.removeHellips = function () {
@@ -864,11 +865,12 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shiftPagesToLeft = function () {
+        var staticPagesNumber = presenter.configuration.numberOfStaticPages;
         if (this.shiftCount === 1) {
             this.leftSideIndex = 0;
         } else {
-            if (presenter.configuration.numberOfButtons - 4 > 0) {
-                this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4);
+            if (presenter.configuration.numberOfButtons - 4 - staticPagesNumber> 0) {
+                this.leftSideIndex -=  (presenter.configuration.numberOfButtons - 4 - staticPagesNumber);
             } else {
                 this.leftSideIndex -= 1;
             }
@@ -886,6 +888,7 @@ function AddonAssessments_Navigation_Bar_create(){
             shift = this.getNormalRightShift();
         }
 
+        shift = shift - presenter.configuration.numberOfStaticPages;
         if (shift <= 0) {
             shift = 1;
         }
@@ -932,9 +935,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.addSections = function (numberOfPages) {
-        console.log("addSections");
-        this.actualPages = presenter.sections.getPages(this.leftSideIndex, numberOfPages);
-        console.log(this.actualPages);
+        this.staticPages = presenter.sections.getStaticPages();
+        this.actualPages = presenter.sections.getPages(this.leftSideIndex, numberOfPages - this.staticPages.length);
         var sectionIterator = -1;
 
         var len = this.actualPages.length;
@@ -947,27 +949,46 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         this.appendSectionsToView();
-        this.appendStaticPages(presenter.sections.getStaticPages());
+        this.appendStaticPages(this.staticPages);
         this.deactivateNavigationButtons();
-        console.log("addSections done");
     };
 
     presenter.NavigationManager.prototype.appendSectionsToView = function () {
-        console.log("appendSectionsToView");
         this.actualSections.forEach(function ($section) {
-            console.log($section[0]);
             this.setSectionWidth($section);
             this.$sections.append($section);
         }, this);
     };
 
-    presenter.NavigationManager.prototype.appendStaticPages = function () {
-        console.log("appendStaticPages3");
-        var pages = presenter.sections.getStaticPages();
-        for (var i = 0; i < pages.length; i++) {
-        //    this.$navigationButtonsFirst.append(this.getPageButton(pages[i]).getView());
+    presenter.NavigationManager.prototype.appendStaticPages = function (pages) {
+        presenter.$view.find('.navigation-buttons-first .section').remove();
+        presenter.$view.find('.navigation-buttons-last .section').remove();
+        var staticSections = [];
+        for (var i = pages.length - 1; i > -1; i--) {
+            var page = pages[i];
+            var sectionName = page.getSectionName();
+            var $section = null;
+            if (staticSections.indexOf(sectionName) == -1) {
+                $section = this.getSection(sectionName, page.getSectionClassName());
+                staticSections[sectionName] = $section;
+                if (page.staticPosition == 'left') {
+                    presenter.$view.find('.navigation-buttons-first .previous').after($section);
+                } else {
+                    presenter.$view.find('.navigation-buttons-last .next').before($section);
+                }
+            } else {
+                $section = staticSections[sectionName];
+            }
+
+
+            var button = this.getPageButton(page);
+            this.setButtonProperties(button, pages[i]);
+            $section.find('.buttons').append(button.getView());
         };
-        console.log("finished appending static pages");
+        if (pages.length > 0) {
+            presenter.$view.find('.navigation-buttons-first > div').css('float', 'left');
+            presenter.$view.find('.navigation-buttons-last > div').css('float', 'left');
+        }
     }
 
     presenter.NavigationManager.prototype.getPageButton = function (page) {
@@ -1160,13 +1181,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.runLogic = function (view, model) {
-        console.log("anb4");
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
 
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
-        console.log(validatedModel);
 
         if (!validatedModel.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.errorCode], validatedModel.errorData);
@@ -1183,7 +1202,9 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.initializeAddon();
 
         if (presenter.isPreview) {
-            presenter.navigationManager.buttons[0].setAsCurrent();
+            if (presenter.navigationManager.buttons.length > 0) {
+                presenter.navigationManager.buttons[0].setAsCurrent();
+            }
         } else {
             presenter.navigationManager.moveToCurrentPage();
         }
@@ -1201,11 +1222,9 @@ function AddonAssessments_Navigation_Bar_create(){
         removeMockupDOM();
 
         presenter.sections = new presenter.Sections(presenter.configuration.sections);
-
         presenter.navigationManager = new presenter.NavigationManager();
 
         presenter.navigationManager.setSections();
-        console.log("initialize addon done");
     };
 
     function calculateMaxNumberOfButtons () {
@@ -1269,6 +1288,16 @@ function AddonAssessments_Navigation_Bar_create(){
         }, 0);
     };
 
+    presenter.calculateNumberOfStaticPages = function (sections) {
+        var staticSections = [];
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].staticPosition.length > 0) {
+                staticSections.push(sections[i]);
+            }
+        }
+        return presenter.calculateNumberOfPages(staticSections);
+    }
+
     presenter.validateModel = function (model) {
         var validatedSections = presenter.validateSections(model["Sections"]);
 
@@ -1276,10 +1305,8 @@ function AddonAssessments_Navigation_Bar_create(){
             return validatedSections;
         }
 
-        var leftSections = validatedSections.sections.filter((element)=>{element.alwaysVisible === true});
-
-
         var numberOfPages = presenter.calculateNumberOfPages(validatedSections.sections);
+        var numberOfStaticPages = presenter.calculateNumberOfStaticPages(validatedSections.sections);
 
         var validateButtonsNumber = presenter.parseButtonsNumber(model["userButtonsNumber"], numberOfPages);
         if (!validateButtonsNumber.isValid) {
@@ -1295,12 +1322,12 @@ function AddonAssessments_Navigation_Bar_create(){
             isValid: true,
             addonID: model["ID"],
             sections: validatedSections.sections,
-            leftSections: leftSections,
             addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"]),
             defaultOrder: ModelValidationUtils.validateBoolean(model["defaultOrder"]),
             userButtonsNumber: validateButtonsNumber.value,
             userButtonsWidth: validateButtonsWidth.value,
-            numberOfPages: numberOfPages
+            numberOfPages: numberOfPages,
+            numberOfStaticPages: numberOfStaticPages
         };
     };
 
@@ -1351,10 +1378,6 @@ function AddonAssessments_Navigation_Bar_create(){
         return element.isValid === false;
     }
 
-    function getSectionVisibilityTest (element, visible) {
-            return (element) => {return element.alwaysVisible === visible};
-        }
-
     function isSectionPagesIntersecting (pagesA, pagesB) {
         return pagesA.some(function (element) {
             return this.indexOf(element) != -1;
@@ -1400,7 +1423,7 @@ function AddonAssessments_Navigation_Bar_create(){
         if (notValidSections.length > 0) {
             return notValidSections[0];
         }
-        console.log(parsedSections);
+
         var validatedSections = validateSectionsIntersecting(parsedSections);
 
         if (!validatedSections.isValid) {
@@ -1488,7 +1511,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var sectionName = "";
         var descriptions = [];
         var sectionButtonsCssClassNames = {cssClasses: []};
-        var alwaysVisible = false;
+        var staticPosition = '';
 
         var pages = presenter.parsePagesFromRange(section[0], (sectionIndex + 1));
 
@@ -1512,14 +1535,18 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         if (len > 3) {
-            sectionButtonsCssClassNames = presenter.parseSectionButtonsCssClassNames(section[3], (sectionIndex + 1));
-            if (!sectionButtonsCssClassNames.isValid) {
-                return sectionButtonsCssClassNames;
+            if (len <= 4 || getTrimmedStringElement(section[4]).length == 0) {
+                sectionButtonsCssClassNames = presenter.parseSectionButtonsCssClassNames(section[3], (sectionIndex + 1));
+                if (!sectionButtonsCssClassNames.isValid) {
+                    return sectionButtonsCssClassNames;
+                }
             }
         }
 
         if (len > 4) {
-            alwaysVisible = getTrimmedStringElement(section[4]).toLowerCase() == 'static';
+            var rawPosition = getTrimmedStringElement(section[4]).toLowerCase();
+            if (rawPosition == 'left') staticPosition = 'left';
+            if (rawPosition == 'right') staticPosition = 'right';
         }
 
         return {
@@ -1528,7 +1555,7 @@ function AddonAssessments_Navigation_Bar_create(){
             sectionName: sectionName,
             pagesDescriptions: descriptions.descriptions,
             sectionButtonsCssClassNames: sectionButtonsCssClassNames.cssClasses,
-            alwaysVisible: alwaysVisible
+            staticPosition: staticPosition
         }
     }
 
@@ -1611,7 +1638,8 @@ function AddonAssessments_Navigation_Bar_create(){
                 sectionName: page.sectionName,
                 sectionCssClass: page.sectionCssClass,
                 buttonCssClassNames: page.buttonCssClassNames,
-                isBookmarkOn: page.isBookmarkOn
+                isBookmarkOn: page.isBookmarkOn,
+                staticPosition: page.staticPosition
             };
         });
 
@@ -1628,7 +1656,7 @@ function AddonAssessments_Navigation_Bar_create(){
             var restoredPage = new presenter.Page(
                 page.page, page.description, page.sectionName,
                 page.sectionCssClass, page.buttonCssClassNames,
-                page.alwaysVisible
+                page.staticPosition
             );
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
@@ -1686,7 +1714,8 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.upgradeState = function (state) {
         var upgradedState = presenter.upgradeAttemptedPages(state);
-        return presenter.upgradePagesButtonCssClassNames(upgradedState);
+        upgradedState = presenter.upgradePagesButtonCssClassNames(upgradedState);
+        return presenter.upgradePagesStaticPosition(upgradedState);
     };
 
     presenter.upgradeAttemptedPages = function (state) {
@@ -1708,6 +1737,21 @@ function AddonAssessments_Navigation_Bar_create(){
             upgradedState.pages.map(function (page) {
                 if(page.buttonCssClassNames === undefined) {
                     page["buttonCssClassNames"] = [];
+                }
+            });
+        }
+
+        return upgradedState;
+    };
+
+    presenter.upgradePagesStaticPosition = function (state) {
+        var upgradedState = {};
+        jQuery.extend(true, upgradedState, state); // Deep copy of model object
+
+        if (upgradedState.pages) {
+            upgradedState.pages.map(function (page) {
+                if(page.staticPosition === undefined) {
+                    page["staticPosition"] = '';
                 }
             });
         }

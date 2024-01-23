@@ -12,19 +12,24 @@ are randomly assigned to a button. The random sequence is chosen only once when 
     </tr>
     <tr>
         <td>Sections</td>
-        <td>Allows user to specify the sections to be shown by the module. Every section is new line separated and looks as follows:
-        <p>"sectionStart-SectionEnd; SectionName; page1Name, page2Name, page3Name" </p>
+        <td>
+            Allows user to specify the sections to be shown by the module. Every section is new line separated and looks as follows:
+            <p>"sectionStart-SectionEnd; SectionName; page1Name, page2Name, page3Name; pagesCSSClassName1, pagesCSSClassName2; staticPosition" </p>
 
-            <p>for e.g "1-5;; 1, 1, 1, 1, 1" will create one section of
-            5 pages with no section name; every button of the section will have description 1.
-                </p>
+            <p>for e.g "1-5;; 1, 1, 1, 1, 1; customCSSClassName1, customCSSClassName2" will create one section of
+            5 pages with no section name; 
+			every button of the section will have description 1; 
+			every button of the section will have `customCSSClassName1` and `customCSSClassName2` CSS classes.
+            </p>
+
+            <p>staticPosition should be either "left" or "right". If provided, the section with this value will always be displayed on either left or right side of the addon, regardless of what pages are being displayed at the moment.</p>
 
             <br>Section start and section end may also be comma separated indexes.
 
-            Only section start and end are required, section name and page descriptions are optional.
+            Only section start and end are required. Section name, page descriptions and pages CSS class names are optional.
             Remember to put only valid section start and section end to the section property. Providing numbers larger than the number of presentation pages may cause improper working of the addon.
 
-            By default,, the section descriptions are page numbers provided in section start and section end.
+            By default, the section descriptions are page numbers provided in section start and section end.
         </td>
     </tr>
     <tr>
