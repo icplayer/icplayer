@@ -1535,7 +1535,7 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         if (len > 3) {
-            if (len <= 4 || getTrimmedStringElement(section[4]).length == 0) {
+            if (len <= 4 || getTrimmedStringElement(section[3]).length != 0) {
                 sectionButtonsCssClassNames = presenter.parseSectionButtonsCssClassNames(section[3], (sectionIndex + 1));
                 if (!sectionButtonsCssClassNames.isValid) {
                     return sectionButtonsCssClassNames;
