@@ -20,6 +20,7 @@ function AddonAssessments_Navigation_Bar_create(){
         S_10: "Buttons width property have to be an integer",
         S_11: "Pages CSS classes are invalid on section: %section% in sections property. Number of CSS classes is too small.",
         S_12: "Pages CSS classes are invalid on section: %section% in sections property. At least one of CSS classes is invalid.",
+        S_13: "Static position value in section %section% is invalid: the value must be 'left', 'right', or left empty."
     };
 
     presenter.DEFAULT_TTS_PHRASES = {
@@ -974,7 +975,11 @@ function AddonAssessments_Navigation_Bar_create(){
                 if (page.staticPosition == 'left') {
                     presenter.$view.find('.navigation-buttons-first .previous').after($section);
                 } else {
-                    presenter.$view.find('.navigation-buttons-last .next').before($section);
+                    if (presenter.$view.find('.navigation-buttons-last .section').length == 0) {
+                        presenter.$view.find('.navigation-buttons-last .next').before($section);
+                    } else {
+                        presenter.$view.find('.navigation-buttons-last .section').first().before($section);
+                    }
                 }
             } else {
                 $section = staticSections[sectionName];
@@ -1547,6 +1552,9 @@ function AddonAssessments_Navigation_Bar_create(){
             var rawPosition = getTrimmedStringElement(section[4]).toLowerCase();
             if (rawPosition == 'left') staticPosition = 'left';
             if (rawPosition == 'right') staticPosition = 'right';
+            if (rawPosition.length > 0 && staticPosition.length == 0) {
+                return getErrorObject("S_13", {section: sectionIndex});
+            }
         }
 
         return {
