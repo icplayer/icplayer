@@ -804,10 +804,24 @@ function AddonCount_and_Graph_create() {
         });
     };
 
+    presenter.graphObject.prototype.gradualShowAnswers = function (item) {
+        this._columns.forEach(function (element, index) {
+            if (index <= item) {
+                element.showAnswer();
+            } else {
+                element.cleanSelection();
+            }
+        });
+    };
+
     presenter.graphObject.prototype.hideAnswers = function () {
         this._columns.forEach(function (element) {
             element.hideAnswer();
         });
+    };
+
+    presenter.graphObject.prototype.getActivitiesCount = function () {
+        return this._columns.length;
     };
 
     presenter.graphObject.prototype.reset = function () {
@@ -1340,6 +1354,8 @@ function AddonCount_and_Graph_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
@@ -1739,7 +1755,7 @@ function AddonCount_and_Graph_create() {
         return (presenter.getScore() == presenter.getMaxScore());
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
@@ -1747,7 +1763,22 @@ function AddonCount_and_Graph_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+
+        if (eventName == "GradualShowAnswers" && data["moduleID"] === presenter.configuration.ID) {
+            if (!isNaN(data["item"])) {
+                var item = Number(data["item"]);
+                presenter.gradualShowAnswers(item);
+            }
+        }
+
+        if (eventName == "GradualHideAnswers") {
+            presenter.hideAnswers();
+        }
     };
+
+    presenter.getActivitiesCount = function () {
+        return presenter.graph.getActivitiesCount();
+    }
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
@@ -1787,6 +1818,19 @@ function AddonCount_and_Graph_create() {
         presenter.graph.showAnswers();
         presenter.isShowAnswersActive = true;
     };
+
+    presenter.gradualShowAnswers = function(item) {
+        if (presenter.configuration.isNotActivity) return;
+
+        if (presenter.errorMode) {
+            presenter.graph.setWorkMode();
+            presenter.errorMode = false;
+        }
+
+        presenter.graph.block();
+        presenter.graph.gradualShowAnswers(item);
+        presenter.isShowAnswersActive = true;
+    }
 
     presenter.hideAnswers = function () {
         if (presenter.configuration.isNotActivity || !presenter.isShowAnswersActive) {
