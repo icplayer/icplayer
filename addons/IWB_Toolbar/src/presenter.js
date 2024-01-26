@@ -253,16 +253,7 @@ function AddonIWB_Toolbar_create() {
                     positionToSave.top = newTop;
                 }
             }
-
-            if (presenter.config.panelPosition === 'fixed') {
-                positionToSave.top -= presenter.$pagePanel.offset().top;
-                positionToSave.left -= presenter.$pagePanel.offset().left;
-            }
-
-            window.savedPanel.position = {
-                top: positionToSave.top,
-                left: positionToSave.left
-            };
+            window.savedPanel.position = {top: positionToSave.top, left: positionToSave.left};
 
             if (doAnimation) {
                 presenter.$panel.addClass('animationInProgress');

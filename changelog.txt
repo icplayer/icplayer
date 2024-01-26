@@ -1,4 +1,3 @@
-2024-01-26 Fixed changing position of IWB Toolbar when is opened
 2024-01-26 Added GSA support to Plot addon
 2024-01-26 Added the option of creating static sections in Assessments Navigation Bar
 2024-01-24 Added GSA support to PieChart addon
