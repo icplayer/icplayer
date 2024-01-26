@@ -232,6 +232,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		TextElementDisplay gap = view.getActivity(itemIndex);
 		if (gap != null) {
 			gap.showAnswers();
+			view.refreshMath();
 		}
 	}
 
