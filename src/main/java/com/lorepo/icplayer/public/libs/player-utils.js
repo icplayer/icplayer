@@ -100,7 +100,7 @@
                         "page_id": page.getId(),
                         "score": Math.round(pageScaledScore * 100) / 100,
                         "absolute_score": score['score'],
-                        "max_score": score['maxScore'],
+                        "max_score": score['maxScore'] ? score['maxScore'] : page.getModulesMaxScore(),
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,
                         "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
