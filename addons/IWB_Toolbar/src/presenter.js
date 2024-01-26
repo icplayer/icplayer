@@ -4061,7 +4061,7 @@ function AddonIWB_Toolbar_create() {
             return false;
         }
 
-        return keepStateAndPosition == 'False';
+        return keepStateAndPosition === 'True';
     };
 
     presenter.setState = function(state) {

@@ -257,7 +257,9 @@ function Addonvideo_create() {
                 top: '0px'
             });
 
-            $(presenter.controlBar.getMainElement()).css('position', "fixed");
+            if (presenter.configuration.defaultControls) {
+                $(presenter.controlBar.getMainElement()).css('position', "fixed");
+            }
 
             presenter.$posterWrapper.hide();
 
@@ -273,7 +275,9 @@ function Addonvideo_create() {
                 position: 'relative'
             });
 
-            $(presenter.controlBar.getMainElement()).css('position', "absolute");
+            if (presenter.configuration.defaultControls) {
+                $(presenter.controlBar.getMainElement()).css('position', "absolute");
+            }
 
         }
 
@@ -371,7 +375,7 @@ function Addonvideo_create() {
         presenter.originalVideoSize = presenter.getVideoSize(presenter.configuration.addonSize, presenter.videoObject);
         presenter.calculateCaptionsOffset(presenter.configuration.addonSize, true);
 
-        if (presenter.controlBar !== null) {
+        if (presenter.configuration.defaultControls) {
             presenter.$view.find('.video-container').append(presenter.controlBar.getMainElement());
             presenter.controlBar.setMaxDurationTime(presenter.videoObject.duration);
             if (presenter.stylesBeforeFullscreen.actualTime !== -1) {
@@ -448,7 +452,7 @@ function Addonvideo_create() {
     presenter.destroy = function () {
         var view = document.getElementsByClassName('ic_page');
 
-        if (presenter.controlBar !== null) {
+        if (presenter.configuration.defaultControls) {
             presenter.controlBar.destroy();
         }
 
@@ -949,16 +953,22 @@ function Addonvideo_create() {
     };
 
     presenter.addVideoSpeedController = function () {
-        if (presenter.configuration.enableVideoSpeedController) {
-            presenter.isVideoSpeedControllerAdded = true;
-            presenter.controlBar.addVideoSpeedController(presenter.setPlaybackRate);
+        if (!presenter.configuration.defaultControls || !presenter.configuration.enableVideoSpeedController) {
+            return;
         }
-    }
+
+        presenter.isVideoSpeedControllerAdded = true;
+        presenter.controlBar.addVideoSpeedController(presenter.setPlaybackRate);
+    };
 
     presenter.resetVideoSpeedController = function () {
+        if (!presenter.configuration.defaultControls || !presenter.configuration.enableVideoSpeedController) {
+            return;
+        }
+
         presenter.controlBar.resetPlaybackRateSelectValue();
         presenter.setPlaybackRate(1.0);
-    }
+    };
 
     presenter.run = function (view, model) {
         var upgradedModel = presenter.upgradeModel(model);
@@ -1053,7 +1063,7 @@ function Addonvideo_create() {
     presenter.addClickListener = function () {
         var view = document.getElementsByClassName('ic_page');
         $(view[0]).on('click', function (event) {
-            if (presenter.controlBar.isSelectorOpen && !event.target.localName.includes('select')) {
+            if (presenter.configuration.defaultControls && presenter.controlBar.isSelectorOpen && !event.target.localName.includes('select')) {
                 presenter.controlBar.isSelectorOpen = false;
                 presenter.controlBar.hideControls();
             }
@@ -1062,7 +1072,7 @@ function Addonvideo_create() {
         });
 
         $(window).on('click', function (event) {
-            if (presenter.controlBar.isSelectorOpen) {
+            if (presenter.configuration.defaultControls && presenter.controlBar.isSelectorOpen) {
                 presenter.controlBar.isSelectorOpen = false;
                 presenter.controlBar.hideControls();
             }
@@ -1076,7 +1086,7 @@ function Addonvideo_create() {
             presenter.configuration.isFullScreen = false;
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
-            presenter.controlBar.showFullscreenButton();
+            presenter.configuration.defaultControls && presenter.controlBar.showFullscreenButton();
 
             presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
             presenter.playerController.setAbleChangeLayout(true);
@@ -1335,7 +1345,7 @@ function Addonvideo_create() {
             } else if (presenter.configuration.isFullScreen) {
                 presenter.configuration.isFullScreen = false;
                 presenter.removeScaleFromCaptionsContainer();
-                presenter.controlBar.showFullscreenButton();
+                presenter.configuration.defaultControls && presenter.controlBar.showFullscreenButton();
                 presenter.closeFullscreen();
                 shouldSetAbleChangeLayout = true;
 
