@@ -1,12 +1,14 @@
 function AddonPieChart_create(){
     var presenter = function(){};
     presenter.error = false;
-    presenter.isShowAnswersActive = false;
     var i, ii, j, tmp1, tmp2, tmp3, tmp4;
     presenter.move = false;
     presenter.isMoved = false;
-    presenter.isErrorCheckingMode = false;
     presenter.isLineInMove = false;
+    presenter.isErrorCheckingMode = false;
+    presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
+
     presenter.ERROR_CODES = {
         'WrongStep' : 'The step is wrong!',
         'WrongStart' : 'Wrong starting data!',
@@ -16,6 +18,7 @@ function AddonPieChart_create(){
         'WrongSize' : 'Wrong Radius size, choose a number beetween 0 and 1!',
         'WrongPosition' : 'Wrong Percents positions, choose a number beetween 0 and 1!'
     };
+
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -47,88 +50,81 @@ function AddonPieChart_create(){
                 break;
         }
     };
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+
+    presenter.onEventReceived = function (eventName, eventData) {
+         switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
     };
+
     presenter.isAttempted = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (!presenter.activity || presenter.isMoved) {
-            return true;
-        } else {
-            return false;
-        }
+        presenter.handleDisplayedAnswers();
+        return !presenter.activity || presenter.isMoved;
     };
+
     presenter.isAllOK = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.getScore() == presenter.getMaxScore() && presenter.getErrorCount() === 0) {
-            return true;
-        } else {
-            return false;
-        }
+        presenter.handleDisplayedAnswers();
+        return presenter.getScore() === presenter.getMaxScore() && presenter.getErrorCount() === 0;
     };
+
     presenter.isOK = function(item) {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.activity && presenter.currentPercents[item-1] == presenter.items[item-1]['Answer']) {
-            return true;
-        } else {
-            return false;
-        }
+        presenter.handleDisplayedAnswers();
+        return presenter.activity && presenter.currentPercents[item-1] == presenter.items[item-1]["Answer"];
     };
+
     presenter.getPercent = function(item) {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         return presenter.currentPercents[item-1];
     };
+
     presenter.hide = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
+
     presenter.show = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.updateVisibility = function() {
         (presenter.isVisible) ?	presenter.show() : presenter.hide();
     };
+
     presenter.disable = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.disabled = true;
         presenter.$view.find('.piechart').addClass('disabled');
     };
+
     presenter.enable = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.disabled = false;
         presenter.$view.find('.piechart').removeClass('disabled');
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
+
     presenter.createEventData = function(score) {
         return {
             source : presenter.addonID,
@@ -137,10 +133,12 @@ function AddonPieChart_create(){
             score : score
         };
     };
+
     presenter.triggerLineEvent = function(line, state, score) {
         var eventData = presenter.createEventData(line, state, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
+
     presenter.validateColor = function(colour){
         if (colour === '#28e32a') {
             return true;
@@ -154,6 +152,7 @@ function AddonPieChart_create(){
             return true;
         }
     };
+
     presenter.initiate = function(view, model){
         presenter.$view = $(view);
         presenter.model = model;
@@ -229,6 +228,7 @@ function AddonPieChart_create(){
         }
         return true;
     };
+
     presenter.drawGraph = function(type) {
         var wrapper = presenter.piechart.parent();
         var graphSize = Math.min(wrapper.width(),wrapper.height());
@@ -289,10 +289,12 @@ function AddonPieChart_create(){
         $svg += '</svg>';
         presenter.piechart.prepend($svg);
     };
+
     presenter.drawPercent = function(i,x,y,value) {
         var tmp = '<text id="Text'+(i+1)+'" class="percentsValues" x="'+x+'" y="'+y+'" text-anchor="middle">'+value+'%</text>';
         return tmp;
     };
+
     presenter.drawLegend = function() {
         var $legend = '<div class = "legend">', colorItem = '';
         for (i = 0; i < presenter.numberOfItems; i++) {
@@ -305,6 +307,7 @@ function AddonPieChart_create(){
         $legend += '</div';
         presenter.$view.find('.piechart').parent().append($legend);
     };
+
     presenter.run = function(view, model){
         var x, y, angle, k, angle2, percent, angleTmp, previousItem, nextItem;
         if (!presenter.initiate(view, model)) {
@@ -412,9 +415,12 @@ function AddonPieChart_create(){
                 presenter.doTheMove(i,x,y);
             }
         });
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        events.forEach((eventName) => {
+            presenter.eventBus.addEventListener(eventName, this);
+        });
     };
+
     presenter.doTheMove = function(i,x,y) {
         var scale = presenter.playerController.getScaleInformation();
         var angle, angle2, angleTmp, previousItem, nextItem, smallerAngle, isAcute, greaterAngle, isAcTwo;
@@ -510,11 +516,13 @@ function AddonPieChart_create(){
             presenter.changePercent(nextItem, angleTmp);
         }
     };
+
     presenter.changePercent = function(id, angle) {
         presenter.$view.find('#Text'+id).attr("x", (parseFloat(presenter.center + Math.sin(angle/180 * Math.PI)*(presenter.center * presenter.percentsPosition))));
         presenter.$view.find('#Text'+id).attr("y", (parseFloat(presenter.center - Math.cos(angle/180 * Math.PI)*(presenter.center * presenter.percentsPosition))));
         presenter.$view.find('#Text'+id)[0].textContent = presenter.currentPercents[id-1]+'%';
     };
+
     presenter.createPreview = function(view, model) {
         if (!presenter.initiate(view, model)) {
             presenter.piechart.text(presenter.ERROR_CODES[presenter.error]);
@@ -529,10 +537,9 @@ function AddonPieChart_create(){
             presenter.drawLegend();
         }
     };
+
     presenter.setShowErrorsMode = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         presenter.isErrorCheckingMode = true;
         if (!presenter.activity)
             return 0;
@@ -542,15 +549,15 @@ function AddonPieChart_create(){
             presenter.$view.find('.piechart').addClass('correct');
         }
     };
+
     presenter.setWorkMode = function(){
         presenter.isErrorCheckingMode = false;
         presenter.$view.find('.piechart').removeClass('wrong');
         presenter.$view.find('.piechart').removeClass('correct');
     };
+
     presenter.reset = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         var angle, angle2, angleTmp, x1, y1;
         presenter.isMoved = false;
         if (!presenter.error) {
@@ -580,66 +587,86 @@ function AddonPieChart_create(){
         }
         presenter.setWorkMode();
     };
+
     presenter.getErrorCount = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.isMoved && presenter.activity) {
-            for(var i = 0; i < presenter.numberOfItems; i++) {
-                if (!(presenter.currentPercents[i] == presenter.items[i]['Answer'])) return 1;
-            }
-        }
-        return 0;
-    };
-    presenter.getMaxScore = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.activity && !presenter.error) {
-            return 1;
-        } else {
+        if (presenter.error || !presenter.activity || !presenter.isMoved) {
             return 0;
         }
+        return executeWithoutShownAnswers(_getErrorCount);
     };
-    presenter.getScore = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (!presenter.error) {
-            if (presenter.activity) {
-                for(var i = 0; i < presenter.numberOfItems; i++) {
-                    if (!(presenter.currentPercents[i] == presenter.items[i]['Answer'])) return 0;
-                }
-                return 1;
-            } else {
-                return 0; //if not activity always score 0
+
+    function _getErrorCount() {
+        let errorCount = 0;
+        for (let i = 0; i < presenter.numberOfItems; i++) {
+            if (!(presenter.currentPercents[i] == presenter.items[i]["Answer"])) {
+                errorCount = 1;
+                break;
             }
         }
+        return errorCount;
+    }
+
+    presenter.getMaxScore = function(){
+        return (presenter.error || !presenter.activity) ? 0 : 1;
     };
-    presenter.getState = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+
+    presenter.getScore = function(){
+        if (presenter.error || !presenter.activity) {
+            return 0;
         }
-        presenter.itemsData = new Array(presenter.numberOfItems);
+        return executeWithoutShownAnswers(_getScore);
+    };
+
+    function _getScore() {
+        let score = 1;
+        for (let i = 0; i < presenter.numberOfItems; i++) {
+            if (!(presenter.currentPercents[i] == presenter.items[i]["Answer"])) {
+                score = 0;
+                break;
+            }
+        }
+        return score;
+    }
+
+    presenter.getState = function(){
+        return executeWithoutShownAnswers(_getState);
+    };
+
+    function _getState() {
+        const itemsData = new Array(presenter.numberOfItems);
         for (i = 0; i < presenter.numberOfItems; i++) {
-            presenter.itemsData[i] = presenter.$view.find('#item'+(i+1)).attr('d');
+            itemsData[i] = presenter.$view.find('#item'+(i+1)).attr('d');
         }
         return JSON.stringify({
             isMoved : presenter.isMoved,
             currentPercents : presenter.currentPercents,
             angles : presenter.angles,
-            itemsData : presenter.itemsData,
+            itemsData : itemsData,
             disabled : presenter.disabled,
             isVisible : presenter.isVisible
         });
-    };
+    }
+
+    function executeWithoutShownAnswers(funcToCall) {
+        const wasShowAnswersActive = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        presenter.handleDisplayedAnswers();
+
+        const result = funcToCall();
+
+        wasShowAnswersActive && presenter.showAnswers();
+        wasGradualShowAnswersActive && presenter.gradualShowAnswers({"moduleID": presenter.addonID});
+
+        return result;
+    }
+
     presenter.setState = function(state){
         var angle, angle2, angleTmp, x1, y1;
         if (!presenter.error) {
             presenter.isMoved = JSON.parse(state).isMoved;
             presenter.currentPercents = JSON.parse(state).currentPercents;
             presenter.angles = JSON.parse(state).angles;
-            presenter.itemsData = JSON.parse(state).itemsData;
+            const itemsData = JSON.parse(state).itemsData;
             presenter.isVisible = JSON.parse(state).isVisible;
             presenter.updateVisibility();
             presenter.disabled = JSON.parse(state).disabled;
@@ -647,7 +674,7 @@ function AddonPieChart_create(){
             for(i = 0; i < presenter.numberOfItems; i++) {
                 ii = (i===0) ? (presenter.numberOfItems-1) : i-1;
                 presenter.$view.find('#'+(i+1)).attr("transform", "rotate(" + presenter.angles[i] + ", "+presenter.center+", "+presenter.center+")");
-                presenter.$view.find('#item'+(i+1)).attr("d", presenter.itemsData[i]);
+                presenter.$view.find('#item'+(i+1)).attr("d", itemsData[i]);
                 angle = (Math.round((presenter.angles[i] - presenter.angles[ii])*100)/100+360)%360;
                 angleTmp = presenter.angles[ii] + 0.5*angle + 180;
                 if (presenter.currentPercents[i] === 100) {
@@ -663,23 +690,69 @@ function AddonPieChart_create(){
             }
         }
     };
+
     presenter.showAnswers = function () {
-        if (presenter.activity) {
-            if (presenter.isShowAnswersActive) {
-                presenter.hideAnswers();
-            }
-            presenter.isShowAnswersActive = true;
-            presenter.setWorkMode();
-            presenter.$view.find('.chart').css("visibility", "hidden");
-            presenter.drawGraph('showAnswers');
+        if (!presenter.activity) {
+            return;
         }
+
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.handleDisplayedAnswers();
+        presenter.isShowAnswersActive = true;
+        _showAnswers();
     };
+
+    presenter.gradualShowAnswers = function (eventData) {
+        if (!presenter.activity || eventData.moduleID !== presenter.addonID) {
+            return;
+        }
+
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.handleDisplayedAnswers();
+        presenter.isGradualShowAnswersActive = true;
+        _showAnswers();
+    };
+
+    function _showAnswers() {
+        presenter.$view.find(".chart").css("visibility", "hidden");
+        presenter.drawGraph("showAnswers");
+    }
+
     presenter.hideAnswers = function () {
-        if (presenter.activity && presenter.isShowAnswersActive) {
-            presenter.isShowAnswersActive = false;
-            presenter.$view.find('.chart-show-answers').remove();
-            presenter.$view.find('.chart').css("visibility", "visible");
+        if (!presenter.activity || !presenter.isShowAnswersActive) {
+            return;
         }
+
+        presenter.isShowAnswersActive = false;
+        _hideAnswers();
     };
+
+    presenter.gradualHideAnswers = function () {
+        if (!presenter.activity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = false;
+        _hideAnswers();
+    };
+
+    function _hideAnswers() {
+        presenter.$view.find(".chart-show-answers").remove();
+        presenter.$view.find(".chart").css("visibility", "visible");
+    }
+
+    presenter.handleDisplayedAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    };
+
+    presenter.isAnswersDisplayed = function () {
+        return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
+    };
+
+    presenter.getActivitiesCount = function () {
+        return presenter.activity ? 1 : 0;
+    };
+
     return presenter;
 }
