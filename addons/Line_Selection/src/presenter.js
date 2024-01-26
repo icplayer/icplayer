@@ -4,8 +4,10 @@ function AddonLine_Selection_create(){
     presenter.isErrorMode = false;
     presenter.isStarted = false;
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
+
     presenter.executeCommand = function(name, params) {
-        switch(name.toLowerCase()) {
+        switch (name.toLowerCase()) {
             case 'hide'.toLowerCase():
                 presenter.hide();
                 break;
@@ -35,59 +37,65 @@ function AddonLine_Selection_create(){
                 break;
         }
     };
+
     presenter.ERROR_CODES = {
         'lines_error' : "Error in lines' defition.",
         'lines_empty' : 'Property Lines cannot be empty!',
         'points_out' : 'Ending points are outside  the addon!'
     };
+
     presenter.disable = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         if (!(presenter.$view.find('.disabled').length > 0)) {
             presenter.disabled = true;
             presenter.$view.find('.lines_selection').addClass('disabled');
         }
     };
+
     presenter.enable = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.disabled = false;
         presenter.$view.find('.disabled').removeClass('disabled');
     };
+
     presenter.updateDisability = function(){
-        if (presenter.disabled)
-            presenter.disable();
-        else
-            presenter.enable();
+        presenter.disabled ? presenter.disable() : presenter.enable();
     };
+
     presenter.hide = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
+
     presenter.show = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.updateVisibility = function() {
-        if (presenter.isVisible) {
-            presenter.show();
-        } else
-            presenter.hide();
+        presenter.isVisible ? presenter.show() : presenter.hide();
     };
+
     presenter.isAllOK = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        if (presenter.getScore() == presenter.getMaxScore() && presenter.getErrorCount() == 0)
-            return true
-        else
-            return false;
+        presenter.handleDisplayedAnswers();
+        if (presenter.getScore() === presenter.getMaxScore()
+            && presenter.getErrorCount() === 0) {
+            return true;
+        }
+        return false;
     };
+
     presenter.isAttempted = function() {
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.handleDisplayedAnswers();
         return presenter.isStarted;
     };
+
     presenter.select = function(index) {
         index--;
         presenter.isStarted = true;
@@ -100,7 +108,8 @@ function AddonLine_Selection_create(){
             line.attr('class','line selected');
             presenter.selected.push(index);
         }
-    }
+    };
+
     presenter.deselect = function(index) {
         index--;
         presenter.isStarted = true;
@@ -112,7 +121,7 @@ function AddonLine_Selection_create(){
                 presenter.selected.splice(presenter.selected.indexOf(index),1);
             line.attr('class','line');
         }
-    }
+    };
 
     presenter.initiate = function(view, model){
         presenter.$view = $(view);
@@ -130,7 +139,8 @@ function AddonLine_Selection_create(){
         } else {
             presenter.updateDisability();
         }
-    }
+    };
+
     presenter.drawLines = function(string) {
         if (string == '' || string == undefined) {
             presenter.error = 'lines_empty';
@@ -161,7 +171,8 @@ function AddonLine_Selection_create(){
         }
         $svg += '</svg>';
         presenter.wrapper.prepend($svg);
-    }
+    };
+
     presenter.run = function(view, model){
         presenter.answers = [];
         presenter.selected = [];
@@ -171,7 +182,7 @@ function AddonLine_Selection_create(){
         presenter.$view.find('.line').on('click', function(e){
             e.stopPropagation();
             e.preventDefault();
-            if (!presenter.disabled && !presenter.isErrorMode && !presenter.isShowAnswersActive) {
+            if (!presenter.disabled && !presenter.isErrorMode && !presenter.isAnswersDisplayed()) {
                 presenter.isStarted = true;
                 presentId = $(this).attr('id').substr(5);
                 if ($(this).attr('class') == 'line selected') {
@@ -198,17 +209,34 @@ function AddonLine_Selection_create(){
                 presenter.triggerEvent(item,value,score);
             }
         });
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-    }
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") presenter.showAnswers();
-        if (eventName == "HideAnswers") presenter.hideAnswers();
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        events.forEach((eventName) => {
+            presenter.eventBus.addEventListener(eventName, this);
+        });
     };
+
+    presenter.onEventReceived = function (eventName, eventData) {
+         switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
+        }
+    };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
+
     presenter.createEventData = function(item,value,score) {
         return {
             source : presenter.addonID,
@@ -217,6 +245,7 @@ function AddonLine_Selection_create(){
             score : score
         };
     };
+
     presenter.triggerEvent = function(item, value, score) {
         var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
@@ -225,6 +254,7 @@ function AddonLine_Selection_create(){
             presenter.eventBus.sendEvent('ValueChanged', eventData);
         }
     };
+
     presenter.createPreview = function(view, model){
         presenter.answers = [];
         presenter.selected = [];
@@ -265,8 +295,9 @@ function AddonLine_Selection_create(){
             });
         }
     };
+
     presenter.setShowErrorsMode = function(){
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.handleDisplayedAnswers();
         presenter.isErrorMode = true;
         if (presenter.activity) {
             for (var i = 0; i <	presenter.answers.length; i++) {
@@ -277,39 +308,88 @@ function AddonLine_Selection_create(){
             }
         } else
             return 0;
-    }
+    };
+
     presenter.setWorkMode = function(){
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isErrorMode = false;
         presenter.$view.find('.correct').removeClass('correct');
         presenter.$view.find('.wrong').removeClass('wrong');
-    }
+    };
+
     presenter.showAnswers = function () {
+        if (!presenter.activity) {
+            return;
+        }
+
         presenter.setWorkMode();
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
-        if (presenter.activity) {
-            presenter.isShowAnswersActive = true;
-            presenter.$view.find('.lines_selection').addClass('show_answers');
-            presenter.$view.find('.selected').removeClass('selected');
-            for (var i = 0; i < presenter.answers.length; i++) {
-                if (presenter.answers[i] == 1)
-                    presenter.$view.find('#line_'+i).addClass('show_answers_ok');
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+        presenter.isShowAnswersActive = true;
+
+        prepareViewToShowAnswers();
+        presenter.answers.forEach((answer, index) => {
+            answer == 1 && presenter.$view.find("#line_" + index).addClass("show_answers_ok");
+        });
+    };
+
+    presenter.gradualShowAnswers = function (eventData) {
+        if (!presenter.activity ||
+            eventData.moduleID !== presenter.addonID) {
+            return;
+        }
+
+        const answerToShowIndex = parseInt(eventData.item, 10);
+
+        presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive = true;
+
+        prepareViewToShowAnswers();
+        let currentAnswerIndex = 0;
+        for (let i = 0; i < presenter.answers.length; i++) {
+            if (presenter.answers[i] == 0) {
+                continue;
             }
+
+            if (currentAnswerIndex === answerToShowIndex) {
+                presenter.$view.find("#line_" + i).addClass("show_answers_ok");
+                return;
+            }
+            currentAnswerIndex++;
         }
     };
+
+    function prepareViewToShowAnswers() {
+        presenter.$view.find(".lines_selection").addClass("show_answers");
+        presenter.$view.find(".selected").removeClass("selected");
+    }
+
     presenter.hideAnswers = function () {
-        if (presenter.activity && presenter.isShowAnswersActive) {
-            presenter.isShowAnswersActive = false;
-            presenter.$view.find('.lines_selection').removeClass('show_answers');
-            presenter.$view.find('.show_answers_ok').removeClass('show_answers_ok');
-            for (var i = 0; i < presenter.selected.length; i++) {
-                presenter.$view.find('#line_'+presenter.selected[i]).addClass('selected');
-            }
+        if (!presenter.activity || !presenter.isShowAnswersActive) {
+            return;
+        }
+        presenter.isShowAnswersActive = false;
+        _hideAnswers();
+    };
+
+    presenter.gradualHideAnswers = function () {
+        if (!presenter.activity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+        presenter.isGradualShowAnswersActive = false;
+        _hideAnswers();
+    };
+
+    function _hideAnswers() {
+        presenter.$view.find(".lines_selection").removeClass("show_answers");
+        presenter.$view.find(".show_answers_ok").removeClass("show_answers_ok");
+        for (let i = 0; i < presenter.selected.length; i++) {
+            presenter.$view.find("#line_" + presenter.selected[i]).addClass('selected');
         }
     }
+
     presenter.reset = function(){
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.setWorkMode();
+        presenter.handleDisplayedAnswers();
         presenter.selected = [];
         presenter.$view.find('.selected').removeClass('selected');
         presenter.disabled = presenter.initDisabled;
@@ -317,47 +397,53 @@ function AddonLine_Selection_create(){
         presenter.updateDisability();
         presenter.updateVisibility();
         presenter.isStarted = false;
-    }
+    };
+
     presenter.getErrorCount = function(){
-        var error = 0;
-        if (presenter.activity) {
-            for (var i = 0; i < presenter.selected.length; i++) {
-                if (presenter.answers[presenter.selected[i]] == 0)
-                    error++;
-            };
-            return error;
-        } else
+        if (!presenter.activity) {
             return 0;
-    }
+        }
+
+        let errorCount = 0;
+        presenter.selected.forEach((selectedIndex) => (
+            presenter.answers[selectedIndex] == 0 && errorCount++
+        ));
+        return errorCount;
+    };
+
     presenter.getMaxScore = function(){
-        var maxscore = 0;
-        if (presenter.activity) {
-            for (var i = 0; i <	presenter.answers.length; i++)
-                maxscore += parseInt(presenter.answers[i]);
-            return maxscore;
-        } else
+        if (!presenter.activity) {
             return 0;
-    }
+        }
+
+        let maxScore = 0;
+        presenter.answers.forEach((answer) => maxScore += parseInt(answer));
+        return maxScore;
+    };
+
     presenter.getScore = function(){
-        var score = 0;
-        if (presenter.activity) {
-            for (var i = 0; i < presenter.selected.length; i++) {
-                if (presenter.answers[presenter.selected[i]] == 1)
-                    score++;
-            };
-            return score;
-        } else
+        if (!presenter.activity) {
             return 0;
-    }
+        }
+
+        let score = 0;
+        presenter.selected.forEach((selectedIndex) => (
+            presenter.answers[selectedIndex] == 1 && score++
+        ));
+        return score;
+    };
+
     presenter.getState = function(){
-        if (presenter.isShowAnswersActive) presenter.hideAnswers();
+        presenter.handleDisplayedAnswers();
+
         return JSON.stringify({
             disabled : presenter.disabled,
             visible : presenter.isVisible,
             lines : presenter.selected,
             isStarted : presenter.isStarted
         });
-    }
+    };
+
     presenter.setState = function(state){
         presenter.isVisible = JSON.parse(state).visible;
         presenter.disabled = JSON.parse(state).disabled;
@@ -368,6 +454,20 @@ function AddonLine_Selection_create(){
         }
         presenter.updateDisability();
         presenter.updateVisibility();
-    }
+    };
+
+    presenter.handleDisplayedAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    };
+
+    presenter.isAnswersDisplayed = function () {
+        return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
+    };
+
+    presenter.getActivitiesCount = function () {
+        return !presenter.activity ? 0 : presenter.answers.filter(value => value == 1).length;
+    };
+
     return presenter;
 }
