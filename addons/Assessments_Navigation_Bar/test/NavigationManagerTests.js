@@ -111,9 +111,10 @@ TestCase("[Assessments_Navigation_Bar] [NavigationManager] Add sections", {
         this.expectedPages = [1, 2, 3];
 
         this.sectionsMock = {
-            getPages: function () {return [1, 2, 3];}
+            getPages: function () {return [1, 2, 3];},
+            getStaticPages: sinon.stub(this.presenter.Sections.prototype, 'getStaticPages')
         };
-
+        this.sectionsMock.getStaticPages.returns([]);
         this.presenter.sections = this.sectionsMock;
 
         this.stubs = {
@@ -123,6 +124,7 @@ TestCase("[Assessments_Navigation_Bar] [NavigationManager] Add sections", {
             addButtonToSection: sinon.stub(this.presenter.NavigationManager.prototype, 'addButtonToSection'),
             appendSectionsToView: sinon.stub(this.presenter.NavigationManager.prototype, 'appendSectionsToView'),
             deactivateNavigationButtons: sinon.stub(this.presenter.NavigationManager.prototype, 'deactivateNavigationButtons'),
+            appendStaticPages: sinon.stub(this.presenter.NavigationManager.prototype, 'appendStaticPages'),
         };
 
         this.navigation = new this.presenter.NavigationManager(0);
@@ -135,6 +137,7 @@ TestCase("[Assessments_Navigation_Bar] [NavigationManager] Add sections", {
         this.presenter.NavigationManager.prototype.addButtonToSection.restore();
         this.presenter.NavigationManager.prototype.appendSectionsToView.restore();
         this.presenter.NavigationManager.prototype.deactivateNavigationButtons.restore();
+        this.presenter.NavigationManager.prototype.appendStaticPages.restore();
     },
 
     'test should set actualPages attribute to pages received from getPages': function () {
