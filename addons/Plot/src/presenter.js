@@ -1414,6 +1414,8 @@ function AddonPlot_create(){
     var addonID;
     var plot = new Plot();
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
+    presenter.GSACounter = 0;
 
     presenter.setWorkMode = function(){
         var ref;
@@ -1433,6 +1435,7 @@ function AddonPlot_create(){
         this.removePointsStateMarks();
         plot.enableUI(true);
     };
+
     presenter.removePointsStateMarks = function() {
         plot.svgDoc.find('.point_error').removeClass('point_error');
         plot.svgDoc.find('.point_outline_mark_error').removeClass('point_outline_mark_error');
@@ -1440,10 +1443,12 @@ function AddonPlot_create(){
         plot.svgDoc.find('.point_outline_mark_correct').removeClass('point_outline_mark_correct');
         plot.svgDoc.find('.point_outline_base').removeClass('plot_show_answers');
     };
+
     presenter.markPointAsError = function(x, y) {
         plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_error');
         plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('point_outline_mark_error');
     };
+
     presenter.markPointAsCorrect = function(x, y) {
         plot.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]').addClass('point_correct');
         plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('point_outline_mark_correct');
@@ -1453,67 +1458,164 @@ function AddonPlot_create(){
         plot.svgDoc.find('.point_outline_base[vx="' + x + '"][vy="' + y + '"]').addClass('plot_show_answers');
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+    presenter.onEventReceived = function (eventName, eventData) {
+         switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+            case "GradualHideAnswers":
+                presenter.gradualHideAnswers();
+                break;
         }
     };
 
     presenter.showAnswers = function() {
-        if(!presenter.isActivity) {
+        if (!presenter.isActivity) {
             return;
         }
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
+        presenter.errorsMode && presenter.setWorkMode();
+        presenter.handleDisplayedAnswers();
         presenter.isShowAnswersActive = true;
 
-        // POINTS
-        presenter.clickedPoints = {};
-
-        $.extend( true, presenter.clickedPoints, plot.selectedPoints );
-
-        $.each(presenter.clickedPoints, function(_, point) {
-            plot._deselectPoint(point.x, point.y, true);
-        });
-
-        presenter.removePointsStateMarks();
-
-        $.each(plot.points, function(_, point) {
-            if (point.correct) {
-                presenter.setPointShowAnswersClass(point.x, point.y);
-            }
-        });
-
-        // FUNCTIONS
-        $.each(plot.expressions, function(idx, val) {
-            plot.removePlot(idx);
-        });
-
-        $.each(plot.expressions, function(idx, val) {
-            if(val.correctAnswer) {
-                plot.drawPlot(idx);
-                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('show_answers').removeAttr('style');
-                plot.svgDoc.find('.is_plot[uid="'+idx+'"]').removeClass('draw_selected');
-                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('show_answers');
-                plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').removeClass('draw_outline').removeClass('draw_"' + idx + '"_outline');
-            }
-        });
+        saveAndClearPlot();
+        showAllExpressionsAnswers();
+        showAllPointsAnswers();
 
         plot.enableUI(false);
     };
 
-    presenter.hideAnswers = function() {
-        if(!presenter.isActivity || !presenter.isShowAnswersActive) {
+    presenter.gradualShowAnswers = function(eventData) {
+        if (!presenter.isActivity || eventData.moduleID !== addonID) {
             return;
         }
-        presenter.isShowAnswersActive = false;
+        const answerIndex = parseInt(eventData.item, 10);
+        gradualShowAnswers(answerIndex);
+    };
 
+    function gradualShowAnswers(answerIndex, includePrevious = false) {
+        const isFirstGSA = !presenter.isGradualShowAnswersActive;
+        presenter.errorsMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive = true;
+        presenter.GSACounter = answerIndex;
+
+        isFirstGSA && saveAndClearPlot();
+        const numberOfCorrectExpressions = plot.expressions.filter(val => val.correctAnswer).length;
+        if (answerIndex < numberOfCorrectExpressions) {
+            showExpressionAnswer(answerIndex, includePrevious);
+        } else {
+            includePrevious && showExpressionAnswer(numberOfCorrectExpressions - 1, includePrevious);
+            showPointAnswer(answerIndex - numberOfCorrectExpressions, includePrevious);
+        }
+
+        plot.enableUI(false);
+    }
+
+    function saveAndClearPlot() {
+        // save status of selected points
+        presenter.clickedPoints = {};
+        $.extend( true, presenter.clickedPoints, plot.selectedPoints );
+
+        // clear plot from selected points
+        $.each(presenter.clickedPoints, function(_, point) {
+            plot._deselectPoint(point.x, point.y, true);
+        });
+        presenter.removePointsStateMarks();
+
+        // clear plot from expressions
+        $.each(plot.expressions, function(idx, val) {
+            plot.removePlot(idx);
+        });
+    }
+
+    function showAllExpressionsAnswers() {
+        plot.expressions.forEach((expression, index) => {
+            expression.correctAnswer && showExpressionAsAnswer(index);
+        })
+    }
+
+    function showExpressionAnswer(answerIndex, includePrevious = false) {
+        let currentCorrectAnswerIndex = 0;
+        for (let i = 0; i < plot.expressions.length; i++) {
+            if (!plot.expressions[i].correctAnswer) {
+                continue;
+            }
+            if (currentCorrectAnswerIndex === answerIndex) {
+                showExpressionAsAnswer(i);
+                return;
+            }
+            includePrevious && showExpressionAsAnswer(i);
+            currentCorrectAnswerIndex++;
+        }
+    }
+
+    function showExpressionAsAnswer (expressionIndex) {
+        plot.drawPlot(expressionIndex);
+
+        const $refObj = plot.svgDoc.find('.is_plot[uid="'+expressionIndex+'"]');
+        $refObj.addClass('show_answers');
+        $refObj.removeAttr('style');
+        $refObj.removeClass('draw_selected');
+
+        const $refObjOutline = plot.svgDoc.find('.draw_outline_base[ouid="'+expressionIndex+'"]');
+        $refObjOutline.addClass('show_answers');
+        $refObjOutline.removeClass('draw_outline');
+        $refObjOutline.removeClass('draw_"' + expressionIndex + '"_outline');
+    }
+
+    function showAllPointsAnswers() {
+        plot.points.forEach((point, index) => {
+            point.correct && showPointAsAnswer(index);
+        })
+    }
+
+    function showPointAnswer(answerIndex, includePrevious = false) {
+        let currentCorrectAnswerIndex = 0;
+        for (let i = 0; i < plot.points.length; i++) {
+            if (!plot.points[i].correct) {
+                continue;
+            }
+            if (currentCorrectAnswerIndex === answerIndex) {
+                showPointAsAnswer(i);
+                return;
+            }
+            includePrevious && showPointAsAnswer(i);
+            currentCorrectAnswerIndex++;
+        }
+    }
+
+    function showPointAsAnswer(pointIndex) {
+        const point = plot.points[pointIndex];
+        presenter.setPointShowAnswersClass(point.x, point.y);
+    }
+
+    presenter.hideAnswers = function() {
+        if (!presenter.isActivity || !presenter.isShowAnswersActive) {
+            return;
+        }
+
+        presenter.isShowAnswersActive = false;
+        _hideAnswers();
+    };
+
+    presenter.gradualHideAnswers = function() {
+        if (!presenter.isActivity || !presenter.isGradualShowAnswersActive) {
+            return;
+        }
+
+        presenter.isGradualShowAnswersActive = false;
+        presenter.GSACounter = 0;
+        _hideAnswers();
+    };
+
+    function _hideAnswers() {
         // POINTS
         presenter.removePointsStateMarks();
 
@@ -1531,16 +1633,14 @@ function AddonPlot_create(){
         plot.drawPlots();
 
         plot.enableUI(true);
-    };
+    }
 
     presenter.setShowErrorsMode = function() {
         if(!presenter.isActivity) {
             return;
         }
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
 
         var res;
         presenter.errorsMode = true;
@@ -1704,13 +1804,10 @@ function AddonPlot_create(){
     }
 
     presenter.reset = function(){
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
 
         presenter.errorsMode = false;
         presenter._allDoneState = false;
-        presenter.isShowAnswersActive = false;
         plot.setAttempted(false);
         $.each(plot.expressions, function(idx, val) {
             val.touched = false;
@@ -1729,7 +1826,7 @@ function AddonPlot_create(){
         plot.reset();
         presenter.isVisible = presenter.initIsVisible;
         presenter.updateVisibility();
-    }
+    };
 
     presenter.run = function(view, model){
         presenter.errorsMode = false;
@@ -1741,8 +1838,10 @@ function AddonPlot_create(){
 
         presenter.initialize(presenter.view, presenter.model, true);
 
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        events.forEach((eventName) => {
+            presenter.eventBus.addEventListener(eventName, this);
+        });
     };
 
     presenter.setPlayerController = function(controller) {
@@ -1751,11 +1850,7 @@ function AddonPlot_create(){
     };
 
     presenter.updateVisibility = function() {
-        if(presenter.isVisible) {
-            presenter.show();
-        } else {
-            presenter.hide();
-        }
+        presenter.isVisible ? presenter.show() : presenter.hide();
     };
 
     presenter.initialize = function(view, model, isInteractive) {
@@ -1931,12 +2026,15 @@ function AddonPlot_create(){
             plot.setYAxisValuesPosition(plot.yAxisValuesPosition);
         }
     };
+
     presenter.toDotSeparator = function(value) {
         return (value + '').replace(this.decimalSeparator, '.');
     };
+
     presenter.getSeparatorByDecimalSeparator = function() {
         return this.decimalSeparator == '.' ? ',' : ';';
     };
+
     presenter.convertValueToDisplay = function(value) {
         //set correct decimal separator
         value = presenter.replaceDecimalSeparator(value);
@@ -1944,12 +2042,15 @@ function AddonPlot_create(){
         value = value.replace(new RegExp('\-', 'g'), '\u2013');
         return value;
     };
+
     presenter.replaceDecimalSeparator = function(value) {
         return (value + '').replace(new RegExp('\\.', 'g'), presenter.decimalSeparator);
     };
+
     presenter.getDecimalSeparator = function() {
         return presenter.decimalSeparator;
     };
+
     presenter.valueToFloat = function(val) {
         if(val === '' || val === undefined || !this.isCorrectDecimal(val)) {
             return Number.NaN;
@@ -1957,6 +2058,7 @@ function AddonPlot_create(){
          val = this.toDotSeparator(val);
          return parseFloat(val);
     };
+
     presenter._hasIllegalCharacters = function(word) {
         var tmpWord;
         if(this.decimalSeparator == ',') {
@@ -1968,6 +2070,7 @@ function AddonPlot_create(){
         }
         return tmpWord != word;
     };
+
     presenter.isCorrectDecimal = function(nmb) {
         if (nmb === null ||
                 ModelValidationUtils.isStringEmpty(nmb) ||
@@ -1978,6 +2081,7 @@ function AddonPlot_create(){
 
         return true;
     };
+
     presenter.createPreview = function(view, model) {
         presenter.errorsMode = false;
         presenter.view = view;
@@ -2024,7 +2128,7 @@ function AddonPlot_create(){
         if(!presenter.isVisible) {
             presenter.hide();
         }
-    }
+    };
 
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
@@ -2086,36 +2190,36 @@ function AddonPlot_create(){
             presenter.setShowErrorsMode();
         }
     };
+
     presenter.enableUI = function(state) {
         plot.enableUI(state);
     };
-    presenter.hide = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
 
+    presenter.hide = function() {
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
-    presenter.show = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
 
+    presenter.show = function() {
+        presenter.handleDisplayedAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         $(presenter.view).css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.getState = function() {
+        const wasShowAnswersActive = presenter.isShowAnswersActive;
+        const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        const previousGSACounter = presenter.GSACounter;
+        presenter.handleDisplayedAnswers();
+
         var plotState = [];
         var variableState = [];
         var pointsState = [];
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
 
         $.each(plot.expressions, function(idx, val) {
             plotState[idx] = {
@@ -2151,8 +2255,12 @@ function AddonPlot_create(){
             isVisible: presenter.isVisible,
             isAttempted: presenter.isAttempted()
         });
+
+        wasShowAnswersActive && presenter.showAnswers();
+        wasGradualShowAnswersActive && gradualShowAnswers(previousGSACounter, true);
+
         return state;
-    }
+    };
 
     presenter.setState = function(state) {
         if(state != '' && state !== undefined) {
@@ -2274,19 +2382,35 @@ function AddonPlot_create(){
     }
 
     presenter.isAttempted = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
+        presenter.handleDisplayedAnswers();
         return !this.isActivity ? true : this.getPlot().isAttempted();
-    }
+    };
 
     presenter.setAttempted = function (state) {
         this.getPlot().setAttempted(state);
-    }
+    };
 
     presenter.getPlot = function() {
         return plot;
-    }
+    };
+
+    presenter.handleDisplayedAnswers = function () {
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+    };
+
+    presenter.isAnswersDisplayed = function () {
+        return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
+    };
+
+    presenter.getActivitiesCount = function () {
+        if (!presenter.isActivity) {
+            return 0;
+        }
+        const correctPointsNumber = plot.points.filter(val => val.correct).length;
+        const correctExpressionsNumber = plot.expressions.filter(val => val.correctAnswer).length;
+        return correctPointsNumber + correctExpressionsNumber;
+    };
 
     return presenter;
 }
