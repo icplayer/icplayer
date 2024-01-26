@@ -280,10 +280,6 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.columnObject.prototype._sendIncorrectEvent = function (previousValue, changeType) {
-        if (previousValue == this._answer && changeType === "decrease") {
-            return;
-        }
-
         if (previousValue >= this._answer) {
             presenter.sendEvent(false, this._columnIndex, changeType);
         }
