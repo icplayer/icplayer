@@ -63,6 +63,12 @@ function AddonPlot_create(){
         this.xAxisValuesPosition = 0;
         this.yAxisValuesPosition = 0;
 
+        this.CHECKMARKS = {
+            NO: "No",
+            ONE_MARK: "One mark",
+            INDIVIDUAL_MARKS: "Individual marks"
+        };
+
         this.setXAxisValuesPosition = function (value) {
             this.svgDoc.find('.axisThicksTextX').attr('y', value);
         };
@@ -538,6 +544,82 @@ function AddonPlot_create(){
                     }
                 });
             }
+        }
+        this.removeMarks = function() {
+            $(presenter.view).find(".mark").remove();
+        }
+        this.areIndividualMarks = function () {
+            return this.checkMarks === this.CHECKMARKS.INDIVIDUAL_MARKS;
+        }
+        this.isOneMark = function () {
+            return this.checkMarks === this.CHECKMARKS.ONE_MARK;
+        }
+        this.drawOneCorrectMark = function () {
+            this.drawOneMark(true);
+        }
+        this.drawOneErrorMark = function () {
+            this.drawOneMark(false);
+        }
+        this.drawOneMark = function (isCorrect) {
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+
+            const addonMark = document.createElement("div");
+            addonMark.classList.add("mark");
+            addonMark.classList.add("addon_mark");
+            addonMark.classList.add(additionalClassName);
+            $(addonMark).html(window.xssUtils.sanitize(innerHTML));
+            this.svgDoc.parent().append(addonMark);
+        }
+        this.drawCorrectMarkForPoint = function (x, y) {
+            this.drawMarkForPoint(x, y, true);
+        }
+        this.drawErrorMarkForPoint = function (x, y) {
+            this.drawMarkForPoint(x, y, false);
+        }
+        this.drawMarkForPoint = function (x, y, isCorrect) {
+            this.svgDoc.find('.mark.point_mark[vx="' + x + '"][vy="' + y + '"]').remove();
+
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+            const $source = this.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]');
+
+            this.svg.text(this.svgDoc.find(".points"), "",  {
+                "x": $source.attr("cx"),
+                "y": -$source.attr("cy"),
+                "vx": x,
+                "vy": y,
+                "class": "mark point_mark " + additionalClassName,
+            });
+
+            const $text = this.svgDoc.find('.mark.point_mark[vx="' + x + '"][vy="' + y + '"]');
+            $text.html(window.xssUtils.sanitize(innerHTML));
+        }
+        this.drawCorrectMarkForExpression = function(idx) {
+            this.drawMarkForExpression(idx, true);
+        }
+        this.drawErrorMarkForExpression = function(idx) {
+            this.drawMarkForExpression(idx, false);
+        }
+        this.drawMarkForExpression = function (idx, isCorrect) {
+            this.svgDoc.find('.mark.expression_mark[refuid="' + idx + '"]').remove();
+
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+
+            const path = this.svgDoc.find('.is_plot[uid="'+idx+'"]')[0];
+            const pathDistance = path.getTotalLength() * this.expressions[idx].markAtLength;
+            const midpoint = path.getPointAtLength(pathDistance);
+
+            this.svg.text(this.svgDoc.find(".drawings"), "",  {
+                "refuid": idx,
+                "class": "mark expression_mark " + additionalClassName,
+            });
+
+            const $text = this.svgDoc.find('.mark.expression_mark[refuid="' + idx + '"]');
+            $text.attr("x", midpoint.x);
+            $text.attr("y", -midpoint.y);
+            $text.html(window.xssUtils.sanitize(innerHTML));
         }
         this.drawPlots = function() {
             $.each(this.expressions, function(idx, val) {
@@ -1431,6 +1513,7 @@ function AddonPlot_create(){
             }
         });
         this.removePointsStateMarks();
+        plot.removeMarks();
         plot.enableUI(true);
     };
     presenter.removePointsStateMarks = function() {
@@ -1547,15 +1630,20 @@ function AddonPlot_create(){
         plot.enableUI(false);
 
         $.each(plot.expressions, function(idx, val) {
+            let isMarkCreated = false;
             if(val.selectable && val.touched) {
                 if(val.correctAnswer == false && val.selected == true) {
                     //mark error
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
+                    plot.areIndividualMarks() && plot.drawErrorMarkForExpression(idx);
+                    isMarkCreated = true;
                 } else if(val.correctAnswer == true && val.selected == true) {
                     //mark as correct only plots which are selectable, selected, touched and it\'s correct answer is true (selected)
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+                    plot.areIndividualMarks() && plot.drawCorrectMarkForExpression(idx);
+                    isMarkCreated = true;
                 }
             }
             res = plot.plotVariablesResult(idx);
@@ -1563,10 +1651,12 @@ function AddonPlot_create(){
                 //mark error
                 plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
                 plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
+                plot.areIndividualMarks() && plot.drawErrorMarkForExpression(idx);
             } else if(res.todo == res.done && res.todo > 0 && res.touched) {
                 //mark correct
                 plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
                 plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+                plot.areIndividualMarks() && plot.drawCorrectMarkForExpression(idx);
             }
         });
 
@@ -1577,9 +1667,11 @@ function AddonPlot_create(){
                     if(!val.correct && res && val.touched) {
                         //mark wrong
                         presenter.markPointAsError(val.x, val.y);
+                        plot.areIndividualMarks() && plot.drawErrorMarkForPoint(val.x, val.y);
                     } else if(val.correct && res && val.touched) {
                         //mark correct
                         presenter.markPointAsCorrect(val.x, val.y);
+                        plot.areIndividualMarks() && plot.drawCorrectMarkForPoint(val.x, val.y);
                     }
                 }
             });
@@ -1589,8 +1681,17 @@ function AddonPlot_create(){
                 res = presenter.grepPoints(plot.points, val);
                 if(!res) {
                     presenter.markPointAsError(val.x, val.y);
+                    plot.areIndividualMarks() && plot.drawErrorMarkForPoint(val.x, val.y);
                 }
             });
+        }
+
+        if (plot.isOneMark()) {
+            if (presenter.getErrorCount() > 0) {
+                plot.drawOneErrorMark();
+            } else if (presenter.getMaxScore() === presenter.getScore()) {
+                plot.drawOneCorrectMark();
+            }
         }
     };
 
@@ -1732,6 +1833,8 @@ function AddonPlot_create(){
     }
 
     presenter.run = function(view, model){
+        console.log("RUN v0.50")
+        model = presenter.upgradeModel(model);
         presenter.errorsMode = false;
         presenter.view = view;
         presenter.model = model;
@@ -1744,6 +1847,37 @@ function AddonPlot_create(){
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeMarks(model);
+    };
+
+    presenter.upgradeMarks = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (upgradedModel.hasOwnProperty("Expressions")) {
+            upgradedModel.Expressions.map(function (expression) {
+                if (!expression["mark at length"]) {
+                    expression["mark at length"] = "50";
+                }
+            });
+        }
+
+        if (!upgradedModel.hasOwnProperty("Check marks")) {
+            upgradedModel["Check marks"] = "No";
+        }
+
+        if (!upgradedModel["Correct marks HTML"]) {
+            upgradedModel["Correct marks HTML"] = "&#10004;";
+        }
+
+        if (!upgradedModel["Error marks HTML"]) {
+            upgradedModel["Error marks HTML"] = "&#10006;";
+        }
+
+        return upgradedModel;
+    }
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -1837,7 +1971,8 @@ function AddonPlot_create(){
                     type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? plot.TYPE_X_TO_Y : plot.TYPE_Y_TO_X,
                     touched: false,
                     cssColorInitialValue: model['Expressions'][p]['color'] === undefined || model['Expressions'][p]['color'] == '' ? '' : model['Expressions'][p]['color'],
-                    cssProperties: {}
+                    cssProperties: {},
+                    markAtLength: this.valueToPercentage(model["Expressions"][p]["mark at length"]),
                 };
                 el.cssColor = el.cssColorInitialValue;
                 el.visible = el.initVisible;
@@ -1930,6 +2065,10 @@ function AddonPlot_create(){
         if(plot.yAxisValuesPosition != '' && !isNaN(plot.yAxisValuesPosition)){
             plot.setYAxisValuesPosition(plot.yAxisValuesPosition);
         }
+
+        plot.checkMarks = model["Check marks"];
+        plot.correctMarksHTML = model["Correct marks HTML"];
+        plot.errorMarksHTML = model["Error marks HTML"];
     };
     presenter.toDotSeparator = function(value) {
         return (value + '').replace(this.decimalSeparator, '.');
@@ -1957,6 +2096,10 @@ function AddonPlot_create(){
          val = this.toDotSeparator(val);
          return parseFloat(val);
     };
+    presenter.valueToPercentage = function(value) {
+        value = this.valueToFloat(value);
+        return value/100;
+    };
     presenter._hasIllegalCharacters = function(word) {
         var tmpWord;
         if(this.decimalSeparator == ',') {
@@ -1979,6 +2122,7 @@ function AddonPlot_create(){
         return true;
     };
     presenter.createPreview = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.errorsMode = false;
         presenter.view = view;
         presenter.model = model;

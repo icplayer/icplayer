@@ -154,3 +154,45 @@
     fill-opacity:1;
     fill:#00bb00;
 }
+
+.canvas .mark.addon_mark.mark_error{
+	color: #ff0000;
+}
+
+.canvas .mark.addon_mark.mark_correct{
+	color: #00bb00;
+}
+
+.canvas .mark.addon_mark {
+	position: absolute;
+	left: 90%;
+	top: 10%;
+}
+
+.canvas .mark.point_mark {
+	transform: scale(1, -1) translate(8px, 0px);
+	dominant-baseline: text-after-edge;
+}
+
+.canvas .mark.expression_mark {
+	transform: scale(1, -1);
+	dominant-baseline: text-after-edge;
+}
+
+.canvas .mark.point_mark.mark_correct,
+.canvas .mark.expression_mark.mark_correct {
+	fill:#00bb00;
+	stroke:#00bb00;
+	stroke-width:2;
+}
+
+.canvas .mark.point_mark.mark_error,
+.canvas .mark.expression_mark.mark_error {
+	fill:#ff0000;
+	stroke:#bb0000;
+	stroke-width:2;
+}
+
+.canvas .mark {
+	font-size: 16px;
+}
