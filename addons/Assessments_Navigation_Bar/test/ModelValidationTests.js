@@ -101,7 +101,8 @@ TestCase("[Assessments_Navigation_Bar] Sections validation", {
                     pages: [0, 1, 2, 3],
                     sectionName: "latweZadania",
                     pagesDescriptions: ["1", "2", "3", "4"],
-                    sectionButtonsCssClassNames: ["AClass", "BClass"]
+                    sectionButtonsCssClassNames: ["AClass", "BClass"],
+                    staticPosition: ""
                 }
             ]
         };
@@ -384,7 +385,8 @@ TestCase("[Assessments Navigation Bar] validateModel", {
             validateSections: sinon.stub(this.presenter, 'validateSections'),
             parseButtonsNumber: sinon.stub(this.presenter, 'parseButtonsNumber'),
             parseButtonsWidth: sinon.stub(this.presenter, 'parseButtonsWidth'),
-            calculateNumberOfPages: sinon.stub(this.presenter, 'calculateNumberOfPages')
+            calculateNumberOfPages: sinon.stub(this.presenter, 'calculateNumberOfPages'),
+            calculateNumberOfStaticPages: sinon.stub(this.presenter, 'calculateNumberOfStaticPages')
         }
     },
 
@@ -393,6 +395,7 @@ TestCase("[Assessments Navigation Bar] validateModel", {
         this.presenter.parseButtonsNumber.restore();
         this.presenter.parseButtonsWidth.restore();
         this.presenter.calculateNumberOfPages.restore();
+        this.presenter.calculateNumberOfStaticPages.restore();
     },
 
     'test should validate and parse all properties': function () {
@@ -407,6 +410,8 @@ TestCase("[Assessments Navigation Bar] validateModel", {
         this.stubs.parseButtonsWidth.returns({
             isValid: true
         });
+
+        this.stubs.calculateNumberOfStaticPages.returns(0);
 
         this.presenter.validateModel({});
 
@@ -467,7 +472,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
                     pages: [0, 1, 2, 3],
                     sectionName: "latweZadania",
                     pagesDescriptions: ["1", "2", "3", "4"],
-                    sectionButtonsCssClassNames: ["AClass", "BClass"]
+                    sectionButtonsCssClassNames: ["AClass", "BClass"],
+                    staticPosition: ""
                 }
             ],
             addClassAreAllAttempted: true,
@@ -475,7 +481,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
             userButtonsNumber: 3,
             userButtonsWidth: 40,
             numberOfPages: 4,
-            defaultOrder: true
+            defaultOrder: true,
+            numberOfStaticPages: 0
         };
     },
 

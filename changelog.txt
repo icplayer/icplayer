@@ -1,4 +1,9 @@
-2024-01-25 Fixed changing position of IWB Toolbar when is opened
+2024-01-29 Fixed changing position of IWB Toolbar when is opened
+2024-01-26 Changed player-utils to provide max score for unvisited pages
+2024-01-26 Added GSA support to Plot addon
+2024-01-26 Added the option of creating static sections in Assessments Navigation Bar
+2024-01-24 Added GSA support to PieChart addon
+2024-01-19 Added GSA to the Line Selection addon
 2024-01-19 Changed upload functionality to use Google Cloud Store
 2024-01-19 Fixed inappropriate answers displaying in Draggable Gap while GSA is activated
 2024-01-19 Fixed errors in video addon without controls when action was performed in Media Recorder
