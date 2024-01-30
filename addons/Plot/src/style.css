@@ -176,7 +176,7 @@
 
 .canvas .mark.expression_mark {
 	transform: scale(1, -1);
-	dominant-baseline: text-after-edge;
+	dominant-baseline: hanging;
 }
 
 .canvas .mark.point_mark.mark_correct,
