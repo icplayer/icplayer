@@ -524,7 +524,8 @@ function AddonSlider_create () {
         });
         $(canvas).attr('width', $(presenter.$view).width());
         $(canvas).attr('height', $(presenter.$view).height());
-        $(presenter.$view).append(canvas);
+        $(canvas).addClass('slider-stepwise-bar');
+        $(presenter.$view).prepend(canvas);
 
         if (presenter.configuration.orientation === presenter.ORIENTATION.LANDSCAPE) {
             $(canvas).drawLine({

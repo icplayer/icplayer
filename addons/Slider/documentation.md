@@ -186,6 +186,10 @@ The Slider addon sends ValueChanged type events to Event Bus when a step is chan
         <td>slider-element-image-mouse-click</td>
         <td>Image elements which serves as a slider when a mouse click is on it</td>
     </tr>
+    <tr>
+        <td>slider-stepwise-bar</td>
+        <td>Class for the bar represented by canvas element when the Stepwise property is selected</td>
+    </tr>
 </table>
 
 ## Demo presentation
