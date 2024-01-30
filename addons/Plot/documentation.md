@@ -1,4 +1,4 @@
-##Description
+## Description
 Plot drawing/exercise module allows users to present plots and make plot/points based activities. Plot enables to draw functions f(x) and f(y).
 
 Addon may work in 4 modes:
@@ -14,6 +14,8 @@ Addon may work in 4 modes:
 Addon is able to work in a mixed mode eg. simple plot + choose plot + choose points.
 
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
 <tbody>
@@ -34,6 +36,10 @@ Addon is able to work in a mixed mode eg. simple plot + choose plot + choose poi
         <td>expression, see "expressions" section for more details</td>
     </tr>
     <tr>
+        <td>Expressions/xMin,xMax,yMin,yMax</td>
+        <td>Minimum and maximum values for expression. These can also be variables defined in the Variables section eg. xMin=-a, xMax=a+2*b</td>
+    </tr>
+    <tr>
         <td>Expressions/selectable</td>
         <td>boolean true/false defines if plot is clickable</td>
     </tr>
@@ -41,17 +47,17 @@ Addon is able to work in a mixed mode eg. simple plot + choose plot + choose poi
         <td>Expressions/correct</td>
         <td>boolean true/false defines if plot is the correct answer</td>
     </tr>
-<tr>
+    <tr>
+        <td>Expressions/y to x</td>
+        <td>Draw f(y) functions. By default, f(x) are drawn</td>
+    </tr>
+    <tr>
         <td>Expressions/hidden</td>
         <td>if this property is set on "true", it indicates that the given function will not be visible on entry</td>
     </tr>
     <tr>
-        <td>Expressions/xMin,xMax,yMin,yMax</td>
-        <td>Minimum and maximum values for expression. These can also be variables defined in the Variables section eg. xMin=-a, xMax=a+2*b</td>
-    </tr>
-    <tr>
-        <td>Expressions/y to x</td>
-        <td>Draw f(y) functions. By default f(x) are drawn</td>
+        <td>Expressions/mark at length</td>
+        <td>Draw a correct/error mark for the Check Answers event at a location equal to the value defined in this property relative to the length of the visible expression. When field remains empty then draw mark in the middle of the expression (equivalent of value 50). Property used when "Individual marks" is selected in "Check marks" property.</td>
     </tr>
     <tr>
         <td>Asymptote DY</td>
@@ -153,10 +159,9 @@ Addon is able to work in a mixed mode eg. simple plot + choose plot + choose poi
         <td>Broadcast</td>
         <td> The property that enables to add a list of addons (e.g. Points To Plot) to the Plot addon. Plot will send events to the addons included in the list. All items in the list should be comma separated, e.g. addon1, addon2.</td>
     </tr>
-<tr>
-	<td>Decimal separator</td>
-	<td>By default, the decimal separator in Plot is a dot character. When this field is filled in with, e.g. a comma, all settings containing the dot character will have it replaced with a comma. Changing the default decimal separator has also impact on the "Axis values" properties. In such a case, it is necessary to replace a comma with a semi-colon in "Axis x values" and "Axis y values" fields, i.e. -10,-9,-8,-7,-6,-5,-4, ... to -10;-9;-8;-7;-6;-5;-4;...
-        </td>
+    <tr>
+        <td>Decimal separator</td>
+        <td>By default, the decimal separator in Plot is a dot character. When this field is filled in with, e.g. a comma, all settings containing the dot character will have it replaced with a comma. Changing the default decimal separator has also impact on the "Axis values" properties. In such a case, it is necessary to replace a comma with a semi-colon in "Axis x values" and "Axis y values" fields, i.e. -10,-9,-8,-7,-6,-5,-4, ... to -10;-9;-8;-7;-6;-5;-4;...</td>
     </tr>
     <tr>
         <td>X axis values position</td>
@@ -165,6 +170,22 @@ Addon is able to work in a mixed mode eg. simple plot + choose plot + choose poi
     <tr>
         <td>Y axis values position</td>
         <td>A position of values on the y axis.</td>
+    </tr>
+    <tr>
+        <td>Check marks</td>
+        <td>Selection of functionality to draw marks for Check answers event.<br>
+            When "No" option is selected, the addon will not draw additional marks.<br>
+            When "One mark" option is selected, the addon will draw one mark.<br>
+            When "Individual marks" option is selected, the addon will draw one mark per correct/incorrect point/expression.
+        </td>
+    </tr>
+    <tr>
+        <td>Correct marks HTML</td>
+        <td>HTML of the tag displayed next to the point/chart/addon when the user correctly provided the answer. When field remains empty then draw checkmark (&#10004;).</td>
+    </tr>
+    <tr>
+        <td>Error marks HTML</td>
+        <td>HTML of the mark displayed next to the point/chart/addon when the user incorrectly provided the answer. When field remains empty then draw checkmark (&#10006;).</td>
     </tr>
 </tbody>
 </table>
@@ -228,15 +249,15 @@ Addon is able to work in a mixed mode eg. simple plot + choose plot + choose poi
         <td>void</td> 
         <td>Hides addon</td> 
     </tr>
-<tr>
+    <tr>
         <td>isAllOK</td>
         <td>---</td>
         <td>Returns true if all connections are made correctly and there are no mistakes, otherwise false.</td>
-</tr>
+    </tr>
 </tbody>
 </table>
 
-##Events
+## Events
 
 Plot Addon sends ValueChanged type events to Event Bus when user selects point, plot or sets variable.
 
@@ -303,10 +324,8 @@ When a user makes all connections properly without any error, the addon sends th
     </tr>
 </table>
 
-
-
 ## CSS classes
-Please note that most of these propeties refer to svg css capabilities described at http://www.w3.org/TR/SVG/styling.html
+Please note that most of these properties refer to svg css capabilities described at http://www.w3.org/TR/SVG/styling.html
 
 <table border='true'>
     <tr>
@@ -323,7 +342,7 @@ Please note that most of these propeties refer to svg css capabilities described
     </tr>
     <tr>
         <td>.axisArrows</td>
-        <td>Describes propeties for axis arrowheads</td>
+        <td>Describes properties for axis arrowheads</td>
     </tr>
     <tr>
         <td>.axisText</td>
@@ -339,7 +358,7 @@ Please note that most of these propeties refer to svg css capabilities described
     </tr>
     <tr>
         <td>.grid</td>
-        <td>Grid propeties</td>
+        <td>Grid properties</td>
     </tr>
     <tr>
         <td>.draw_active_area</td>
@@ -405,11 +424,27 @@ Please note that most of these propeties refer to svg css capabilities described
         <td>.point_error, .point_correct</td>
         <td>Describe styles for wrong/correct points in show errors mode</td>
     </tr>
+    <tr>
+        <td>.mark</td>
+        <td>Describe styles for wrong/correct marks in check errors mode</td>
+    </tr>
+    <tr>
+        <td>.mark.point_mark.mark_error, .mark.point_mark.mark_correct</td>
+        <td>Describe styles for wrong/correct marks for points in check errors mode</td>
+    </tr>
+    <tr>
+        <td>.mark.expression_mark.mark_error, .mark.expression_mark.mark_correct</td>
+        <td>Describe styles for wrong/correct marks for expressions in check errors mode</td>
+    </tr>
+    <tr>
+        <td>.mark.addon_mark.mark_error, .mark.addon_mark.mark_correct</td>
+        <td>Describe styles for wrong/correct mark for addon in check errors mode</td>
+    </tr>
 </table>
  
 Additionally you are able to override style for each plot by setting .draw_X, .draw_X_over, .draw_X_selected, where X is number (1..X) of plot.
   
-##Expressions
+## Expressions
 The parser accepts a pretty basic grammar. Operators have the normal precidence — ^ (exponentiation), *, /, and % (multiplication, division, and remainder), and finally +, - — and bind from left to right. Eg. x+2; x^2+2; x+sin(x); x-5*cos(2*x)	
 
 The parser has several built-in “functions” that are actually operators.
@@ -472,7 +507,7 @@ The parser has several built-in “functions” that are actually operators.
     </tr>
 </table> 
 
-##Defining variables
+## Defining variables
 Let's assume you have a plot a\*x\+ b. Normally you can write expression like 3\*x\+5, but if you want to change value of a and/or b dynamically (eg. by slider/button) you have to use Variables section.
 Give a plot id, eg. 'p1', write expression a\*x\+b. Plot addon is expecting values for a and b in Variables section.
 

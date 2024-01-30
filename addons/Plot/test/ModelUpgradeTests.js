@@ -71,25 +71,25 @@ TestCase("[Plot] Model upgrade", {
         assertEquals("AA", validatedModel["Correct marks HTML"]);
     },
 
-    'test given model without "Wrong marks HTML" when upgrading model, "Wrong marks HTML" will be added with default value': function () {
+    'test given model without "Error marks HTML" when upgrading model, "Error marks HTML" will be added with default value': function () {
         const validatedModel = this.presenter.upgradeModel(this.model);
 
-        assertEquals("&#10006;", validatedModel["Wrong marks HTML"]);
+        assertEquals("&#10006;", validatedModel["Error marks HTML"]);
     },
 
-    'test given model with empty "Wrong marks HTML" when upgrading model, "Wrong marks HTML" will be added with default value': function () {
-        this.model["Wrong marks HTML"] = "";
+    'test given model with empty "Error marks HTML" when upgrading model, "Error marks HTML" will be added with default value': function () {
+        this.model["Error marks HTML"] = "";
 
         const validatedModel = this.presenter.upgradeModel(this.model);
 
-        assertEquals("&#10006;", validatedModel["Wrong marks HTML"]);
+        assertEquals("&#10006;", validatedModel["Error marks HTML"]);
     },
 
-    'test given model with "Wrong marks HTML" when upgrading model, "Wrong marks HTML" will not be changed': function () {
-        this.model["Wrong marks HTML"] = "AA";
+    'test given model with "Error marks HTML" when upgrading model, "Error marks HTML" will not be changed': function () {
+        this.model["Error marks HTML"] = "AA";
 
         const validatedModel = this.presenter.upgradeModel(this.model);
 
-        assertEquals("AA", validatedModel["Wrong marks HTML"]);
+        assertEquals("AA", validatedModel["Error marks HTML"]);
     },
 });
