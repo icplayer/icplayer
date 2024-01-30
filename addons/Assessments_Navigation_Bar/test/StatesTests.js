@@ -150,7 +150,8 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
                 sectionName: "test section name",
                 sectionClassName: "test section ccs classname",
                 buttonCssClassNames: [],
-                isBookmarkOn: true
+                isBookmarkOn: true,
+                staticPosition: ""
             }],
             attemptedPages: []
         };
@@ -180,7 +181,8 @@ TestCase("[Assessments_Navigation_Bar] UpgradeState", {
                 sectionName: "test section name",
                 sectionClassName: "test section ccs classname",
                 buttonCssClassNames: ["AClass", "BClass"],
-                isBookmarkOn: true
+                isBookmarkOn: true,
+                staticPosition: ""
             }],
             attemptedPages: [1, 2, 3]
         };
