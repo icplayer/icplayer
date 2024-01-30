@@ -14,7 +14,7 @@
 			<property name='y to x' nameLabel="Plot_property_y_to_x" type='boolean' isLocalized='false'/>
 			<property name='hidden' nameLabel="Plot_property_hidden" type='boolean' isLocalized='false'/>
 			<property name='color' nameLabel="Plot_property_color" type='string' isLocalized='false'/>
-            <property name='mark at length' nameLabel="Plot_property_mark_at_length" type='string' isLocalized='false'/>
+			<property name='mark at length' nameLabel="Plot_property_mark_at_length" type='string' isLocalized='false'/>
 		</property>
 		<property name='Variables' nameLabel="Plot_property_variables" type='list'>
 			<property name='plot id' nameLabel="Plot_property_plot_id" type='string' isLocalized='false'/>

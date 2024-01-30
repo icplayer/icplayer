@@ -1730,20 +1730,17 @@ function AddonPlot_create(){
         plot.enableUI(false);
 
         $.each(plot.expressions, function(idx, val) {
-            let isMarkCreated = false;
             if(val.selectable && val.touched) {
                 if(val.correctAnswer == false && val.selected == true) {
                     //mark error
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
                     plot.areIndividualMarks() && plot.drawErrorMarkForExpression(idx);
-                    isMarkCreated = true;
                 } else if(val.correctAnswer == true && val.selected == true) {
                     //mark as correct only plots which are selectable, selected, touched and it\'s correct answer is true (selected)
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
                     plot.areIndividualMarks() && plot.drawCorrectMarkForExpression(idx);
-                    isMarkCreated = true;
                 }
             }
             res = plot.plotVariablesResult(idx);
@@ -1930,7 +1927,6 @@ function AddonPlot_create(){
     };
 
     presenter.run = function(view, model){
-        console.log("RUN v0.50")
         model = presenter.upgradeModel(model);
         presenter.errorsMode = false;
         presenter.view = view;
