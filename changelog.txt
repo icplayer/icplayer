@@ -1,4 +1,4 @@
-2024-01-19 Added functionality to Stepwise mode bar in Slider addon to be always visible
+2024-01-30 Added functionality to Stepwise mode bar in Slider addon to be always visible
 2024-01-19 Changed upload functionality to use Google Cloud Store
 2024-01-19 Fixed inappropriate answers displaying in Draggable Gap while GSA is activated
 2024-01-19 Fixed errors in video addon without controls when action was performed in Media Recorder

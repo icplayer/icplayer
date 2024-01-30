@@ -1327,7 +1327,7 @@ var ice_dictionary_fr = {
     "Slider_property_image_element": "Élément de l'image",
     "Slider_property_orientation": "Orientation",
     "Slider_property_stepwise": "Par palier",
-	"Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
+    "Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
     "Slider_property_steps_count": "Nombre de paliers",
     "Slider_property_initial_step": "Palier initial",
     "Slider_property_on_step_change": "Un palier a été modifié",

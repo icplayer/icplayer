@@ -1,7 +1,9 @@
 ## Description
-This addon allows users to add a slider functionality to their exercises. You can either slide image from one position to another or mouse click on the position you wish to move an image (slider) to.
+This module allows adding a slider to exercises. The users either slide the image from one position to another or mouse-click on the position they wish to move an image (slider) to.
 
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
     <tr>
@@ -19,6 +21,10 @@ This addon allows users to add a slider functionality to their exercises. You ca
     <tr>
         <td>Stepwise</td>
         <td>If you want to set number of steps of slider then this option must be checked</td>
+    </tr>
+    <tr>
+        <td>Stepwise mode bar always visible</td>
+        <td>If this option is selected, the "Stepwise" bar will be visible in editor's mode and normal run. If this option is deselected, bar will be visible only in editor's mode.</td>
     </tr>
     <tr>
         <td>StepsCount</td>
@@ -46,7 +52,8 @@ This addon allows users to add a slider functionality to their exercises. You ca
                <p>This option is available if the "Continuous events" property is selected.</p>
                <li><b>Stick: </b>slider will snap to steps.</li>
                <li><b>Smooth: </b>slider will not snap to steps.</li>
-               </ul></td>
+           </ul>
+        </td>
     </tr>
 </table>
 
@@ -138,18 +145,16 @@ The Slider addon sends ValueChanged type events to Event Bus when a step is chan
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>Step number</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>1 for entering step, 0 for leaving it</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>Step number</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>1 for entering step, 0 for leaving it</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>

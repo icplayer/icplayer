@@ -5,7 +5,7 @@
 		<property name='ImageElement' nameLabel="Slider_property_image_element" type='image' />
 		<property name="Orientation" nameLabel="Slider_property_orientation" type="{Landscape, Portrait}" />
 		<property name="Stepwise" nameLabel="Slider_property_stepwise" type="boolean" />
-        <property name="StepwiseModeBarAlwaysVisible" nameLabel="Slider_property_stepwise_mode_bar_always_visible" type="boolean" />
+		<property name="StepwiseModeBarAlwaysVisible" nameLabel="Slider_property_stepwise_mode_bar_always_visible" type="boolean" />
 		<property name="StepsCount" nameLabel="Slider_property_steps_count" type="string" />
 		<property name="InitialStep" nameLabel="Slider_property_initial_step" type="string" />
 		<property name="onStepChange" nameLabel="Slider_property_on_step_change" type="event" />
