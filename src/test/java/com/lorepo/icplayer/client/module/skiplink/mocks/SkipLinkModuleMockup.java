@@ -200,7 +200,7 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
 
     @Override
     public String getStyleClass() {
-        return null;
+        return "test-class";
     }
 
     @Override
