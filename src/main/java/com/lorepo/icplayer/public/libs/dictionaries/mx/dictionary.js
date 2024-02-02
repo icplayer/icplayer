@@ -1331,6 +1331,7 @@ var ice_dictionary_mx = {
 	"Slider_property_image_element": "Imagen",
 	"Slider_property_orientation": "Orientación",
 	"Slider_property_stepwise": "Paso a paso",
+	"Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
 	"Slider_property_steps_count": "Número de pasos",
 	"Slider_property_initial_step": "Paso inicial",
 	"Slider_property_on_step_change": "Al cambiar paso",

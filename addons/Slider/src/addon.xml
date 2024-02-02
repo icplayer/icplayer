@@ -21,5 +21,6 @@
 				<property name="Step" nameLabel="Slider_property_step" type="string"/>
 			</property>
 		</property>
+		<property name="StepwiseModeBarAlwaysVisible" nameLabel="Slider_property_stepwise_mode_bar_always_visible" type="boolean" />
 	</model>
 </addon>

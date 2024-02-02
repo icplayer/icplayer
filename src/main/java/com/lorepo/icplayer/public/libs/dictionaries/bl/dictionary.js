@@ -1204,6 +1204,7 @@ var ice_dictionary_bl = {
 	"Slider_property_image_element": "Изображение за плъзгане",
 	"Slider_property_orientation": "Разположение",
 	"Slider_property_stepwise": "На стъпки",
+	"Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
 	"Slider_property_steps_count": "Брой стъпки",
 	"Slider_property_initial_step": "Първа стъпка",
 	"Slider_property_on_step_change": "При смяна на стъпката",

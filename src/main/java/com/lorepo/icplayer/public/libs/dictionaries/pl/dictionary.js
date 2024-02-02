@@ -1330,6 +1330,7 @@ var ice_dictionary_pl = {
 	"Slider_property_image_element": "Element obrazkowy",
 	"Slider_property_orientation": "Orientacja",
 	"Slider_property_stepwise": "Stopniowo",
+	"Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
 	"Slider_property_steps_count": "Liczba skoków",
 	"Slider_property_initial_step": "Początkowy skok",
 	"Slider_property_on_step_change": "Przy zmianie skoku",
