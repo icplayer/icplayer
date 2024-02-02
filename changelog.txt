@@ -1,3 +1,4 @@
+2024-02-02 Added gradual show answers support to the count and graph addon
 2024-01-26 Changed player-utils to provide max score for unvisited pages
 2024-01-26 Added GSA support to Plot addon
 2024-01-26 Added the option of creating static sections in Assessments Navigation Bar
