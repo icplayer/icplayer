@@ -88,11 +88,11 @@ The list starts with the common properties, learn more about them by visiting th
         </tr>
         <tr>
             <td>Show video <b>(deprecated)</b></td>
-            <td>This option is for Presentation Editor only! It allows you to view the specified video (counted from 1 to n, where n is the number of uploaded videos). This works only with the Show time option filled</td>
+            <td>This option is for Presentation Editor only! It allows you to view the specified video (counted from 1 to n, where n is the number of uploaded videos). This works only with the Show time option filled.</td>
         </tr>
         <tr>
             <td>Show time <b>(deprecated)</b></td>
-            <td>This option is for Presentation Editor only! It allows you to view specified time ('MM:SS'). This works only with the Show video option filled</td>
+            <td>This option is for Presentation Editor only! It allows you to view specified time ('MM:SS'). This works only with the Show video option filled.</td>
         </tr>
         <tr>
             <td>Narration</td>
@@ -104,7 +104,7 @@ The list starts with the common properties, learn more about them by visiting th
         </tr>
         <tr>
             <td>Hide subtitles</td>
-            <td>If this option is selected, subtitles will be hidden on start</td>
+            <td>If this option is selected, subtitles will be hidden on start.</td>
         </tr>
         <tr>
             <td>Show play button</td>
@@ -125,7 +125,7 @@ The list starts with the common properties, learn more about them by visiting th
         </tr>
         <tr>
             <td>Enable video speed controller</td>
-            <td>If this option is selected, the video speed controller will be display on the video controller bar</td>
+            <td>If this option is selected, the video speed controller will be display on the video controller bar.</td>
         </tr>
     </tbody>
 </table>
