@@ -20,7 +20,7 @@ TestCase("[Plot] Model upgrade", {
     },
 
     'test given model with empty "mark at length" in "Expressions" when upgrading model, "mark at length" will be added with default value': function () {
-        this.model["Expressions"][0]["mark at length"] = "";
+        this.model["Expressions"][0]["mark at length"] = " ";
 
         const validatedModel = this.presenter.upgradeModel(this.model);
 

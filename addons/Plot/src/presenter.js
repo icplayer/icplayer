@@ -545,14 +545,17 @@ function AddonPlot_create(){
                 });
             }
         }
-        this.removeMarks = function() {
-            $(presenter.view).find(".mark").remove();
-        }
         this.areIndividualMarks = function () {
             return this.checkMarks === this.CHECKMARKS.INDIVIDUAL_MARKS;
         }
         this.isOneMark = function () {
             return this.checkMarks === this.CHECKMARKS.ONE_MARK;
+        }
+        this.createIndividualMarksSVGDOMGroup = function () {
+            const $groupsParent = this.svgDoc.find(".overall");
+            this.svg.group($groupsParent, {
+                class_: "marks"
+            });
         }
         this.drawOneCorrectMark = function () {
             this.drawOneMark(true);
@@ -578,13 +581,13 @@ function AddonPlot_create(){
             this.drawMarkForPoint(x, y, false);
         }
         this.drawMarkForPoint = function (x, y, isCorrect) {
-            this.svgDoc.find('.mark.point_mark[vx="' + x + '"][vy="' + y + '"]').remove();
+            this.svgDoc.find('.marks .mark.point_mark[vx="' + x + '"][vy="' + y + '"]').remove();
 
             const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
             const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
             const $source = this.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]');
 
-            this.svg.text(this.svgDoc.find(".points"), "",  {
+            this.svg.text(this.svgDoc.find(".marks"), "",  {
                 "x": $source.attr("cx"),
                 "y": -$source.attr("cy"),
                 "vx": x,
@@ -592,7 +595,7 @@ function AddonPlot_create(){
                 "class": "mark point_mark " + additionalClassName,
             });
 
-            const $text = this.svgDoc.find('.mark.point_mark[vx="' + x + '"][vy="' + y + '"]');
+            const $text = this.svgDoc.find('.marks .mark.point_mark[vx="' + x + '"][vy="' + y + '"]');
             $text.html(window.xssUtils.sanitize(innerHTML));
         }
         this.drawCorrectMarkForExpression = function(idx) {
@@ -602,7 +605,7 @@ function AddonPlot_create(){
             this.drawMarkForExpression(idx, false);
         }
         this.drawMarkForExpression = function (idx, isCorrect) {
-            this.svgDoc.find('.mark.expression_mark[refuid="' + idx + '"]').remove();
+            this.svgDoc.find('.marks .mark.expression_mark[refuid="' + idx + '"]').remove();
 
             const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
             const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
@@ -611,15 +614,19 @@ function AddonPlot_create(){
             const pathDistance = path.getTotalLength() * this.expressions[idx].markAtLength;
             const midpoint = path.getPointAtLength(pathDistance);
 
-            this.svg.text(this.svgDoc.find(".drawings"), "",  {
+            this.svg.text(this.svgDoc.find(".marks"), "",  {
                 "refuid": idx,
                 "class": "mark expression_mark " + additionalClassName,
             });
 
-            const $text = this.svgDoc.find('.mark.expression_mark[refuid="' + idx + '"]');
+            const $text = this.svgDoc.find('.marks .mark.expression_mark[refuid="' + idx + '"]');
             $text.attr("x", midpoint.x);
             $text.attr("y", -midpoint.y);
             $text.html(window.xssUtils.sanitize(innerHTML));
+        }
+        this.removeMarks = function() {
+            this.svgDoc.find(".marks").remove();
+            $(presenter.view).find(".mark").remove();
         }
         this.drawPlots = function() {
             $.each(this.expressions, function(idx, val) {
@@ -1499,6 +1506,41 @@ function AddonPlot_create(){
     presenter.isGradualShowAnswersActive = false;
     presenter.GSACounter = 0;
 
+    presenter.ERROR_CODES = {
+        'MARK_01': "Expression %expression% is invalid: mark at length must be empty or a positive number between 0 and 100",
+    };
+
+    presenter.showErrorMessage = function(message, substitutions) {
+        let errorContainer;
+        if (typeof(substitutions) == 'undefined') {
+            errorContainer = '<p>' + message + '</p>';
+        } else {
+            let messageSubst = message;
+            for (let key in substitutions) {
+                if (!substitutions.hasOwnProperty(key)) continue;
+                messageSubst = messageSubst.replace('%' + key + '%', substitutions[key]);
+            }
+            errorContainer = '<p>' + messageSubst + '</p>';
+        }
+
+        $(presenter.view).html(errorContainer);
+    };
+
+    function getErrorObject (errorCode, errorMessageSubstitutions) {
+        return {
+            isValid: false,
+            errorCode: errorCode,
+            errorMessageSubstitutions: errorMessageSubstitutions,
+        };
+    }
+
+    function getCorrectObject (value) {
+        return {
+            isValid: true,
+            value: value
+        };
+    }
+
     presenter.setWorkMode = function(){
         var ref;
         if(!presenter.isActivity) {
@@ -1727,6 +1769,8 @@ function AddonPlot_create(){
 
         var res;
         presenter.errorsMode = true;
+
+        plot.areIndividualMarks() && plot.createIndividualMarksSVGDOMGroup();
         plot.enableUI(false);
 
         $.each(plot.expressions, function(idx, val) {
@@ -2062,11 +2106,17 @@ function AddonPlot_create(){
                     type: model['Expressions'][p]['y to x'] === undefined || model['Expressions'][p]['y to x'] == '' || model['Expressions'][p]['y to x'].toLowerCase() === 'false' ? plot.TYPE_X_TO_Y : plot.TYPE_Y_TO_X,
                     touched: false,
                     cssColorInitialValue: model['Expressions'][p]['color'] === undefined || model['Expressions'][p]['color'] == '' ? '' : model['Expressions'][p]['color'],
-                    cssProperties: {},
-                    markAtLength: this.valueToPercentage(model["Expressions"][p]["mark at length"]),
+                    cssProperties: {}
                 };
                 el.cssColor = el.cssColorInitialValue;
                 el.visible = el.initVisible;
+
+                const validatedMarkAtLength = presenter.validateMarkAtLength(el.id, model["Expressions"][p]["mark at length"]);
+                if (!validatedMarkAtLength.isValid) {
+                    presenter.showErrorMessage(presenter.ERROR_CODES[validatedMarkAtLength.errorCode], validatedMarkAtLength.errorMessageSubstitutions);
+                    return;
+                }
+                el.markAtLength = validatedMarkAtLength.value;
                 plot.expressions.push(el);
             }
         }
@@ -2186,6 +2236,14 @@ function AddonPlot_create(){
         return presenter.decimalSeparator;
     };
 
+    presenter.validateMarkAtLength = function (expressionIdx, value) {
+        const percentage = presenter.valueToPercentage(value);
+        if (isNaN(percentage) || percentage < 0 || percentage > 1) {
+            return getErrorObject("MARK_01", {expression: expressionIdx});
+        }
+        return getCorrectObject(percentage);
+    }
+
     presenter.valueToFloat = function(val) {
         if(val === '' || val === undefined || !this.isCorrectDecimal(val)) {
             return Number.NaN;
@@ -2195,7 +2253,10 @@ function AddonPlot_create(){
     };
 
     presenter.valueToPercentage = function(value) {
-        value = this.valueToFloat(value);
+        value = parseFloat(value, 10);
+        if (isNaN(value)) {
+            return value;
+        }
         return value/100;
     };
 
