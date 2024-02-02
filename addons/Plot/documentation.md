@@ -57,7 +57,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Expressions/mark at length</td>
-        <td>Draw a correct/error mark for the Check Answers event at a location equal to the value defined in this property relative to the length of the visible expression. When field remains empty then draw mark in the middle of the expression (equivalent of value 50). Property used when "Individual marks" is selected in "Check marks" property.</td>
+        <td>Draw a correct/error mark for the Check Answers event at a location equal to the value defined in this property relative to the length of the visible expression. When field remains empty then draw mark in the middle of the expression (equivalent of value 50). This value must be empty or a positive number between 0 and 100. Property used when "Individual marks" is selected in "Check marks" property.</td>
     </tr>
     <tr>
         <td>Asymptote DY</td>
