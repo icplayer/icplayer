@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.module.skiplink.mocks.SkipLinkViewListenerMock
 import com.lorepo_patchers.icfoundation.TextToSpeechVoicePatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
