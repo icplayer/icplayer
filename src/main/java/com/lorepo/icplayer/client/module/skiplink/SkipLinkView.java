@@ -29,7 +29,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     public SkipLinkView(ISkipLinkModule module, boolean isPreview) {
         this.getElement().setId(module.getId());
-        this.getElement().addClassName(skipLinkWrapperClass);
+        this.setStyleClassName(module.getStyleClass());
         this.module = module;
         // module only visible in preview
         this.setVisible(isPreview);
@@ -46,6 +46,14 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
         }
 
         keyboardManager = new SkipLinkKeyboardManager(keyboardItemList);
+    }
+
+    private void setStyleClassName(String className) {
+        if (!className.isEmpty()) {
+            this.getElement().addClassName(className);
+        } else {
+            this.getElement().addClassName(skipLinkWrapperClass);
+        }
     }
 
     @Override

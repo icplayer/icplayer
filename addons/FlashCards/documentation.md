@@ -136,7 +136,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>value</td>
-        <td>favourite/unfavourite/playing/pause/ended</td>
+        <td>favourite/unfavourite/playing/pause/ended/front/back</td>
     </tr>
 </tbody>
 </table>

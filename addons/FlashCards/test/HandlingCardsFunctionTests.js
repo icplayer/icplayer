@@ -54,6 +54,7 @@ TestCase('[FlashCards] handling Flash Cards function', {
             renderMathJax: sinon.stub()
         };
         this.presenter.renderMathJax = this.stubs.renderMathJax;
+        this.presenter.eventBus = {sendEvent: sinon.mock()};
 
         this.spies = {
             'validateModelSpy': sinon.spy(this.presenter, 'validateModel'),
