@@ -384,7 +384,14 @@ function AddonFlashCards_create(){
         $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
 
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").css("visibility","visible");
-        $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
+        var $cardElement = $(presenter.$view.find(".flashcards-card").get(0));
+        $cardElement.toggleClass("flashcards-card-reversed");
+        if ($cardElement.is(".flashcards-card-reversed")) {
+            presenter.sendCardReversedEvent(presenter.state.currentCard, true);
+        } else {
+            presenter.sendCardReversedEvent(presenter.state.currentCard, false);
+        }
+
     };
 
     presenter.isFrontVisible = function() {
@@ -402,7 +409,7 @@ function AddonFlashCards_create(){
         }else if (presenter.state.noLoop == false){
             presenter.state.currentCard = presenter.state.totalCards;
         }
-        presenter.showCard(presenter.state.currentCard);
+        presenter.showCard(presenter.state.currentCard, true);
     };
 
     presenter.nextCard = function (disregardNoLoop) {
@@ -415,26 +422,27 @@ function AddonFlashCards_create(){
         if ((presenter.isFrontPlaying || presenter.isBackPlaying) && presenter.state.currentCard != presenter.originalCard) {
             presenter.sendEndedEvent(presenter.originalCard);
         }
-        presenter.showCard(presenter.state.currentCard);
+        presenter.showCard(presenter.state.currentCard, true);
     };
 
-    presenter.showCard = function (cardNumber) {
+    presenter.showCard = function (cardNumber, sendEvent) {
+        if (sendEvent == undefined) sendEvent = false;
         presenter.originalCard = presenter.state.currentCard;
         cardNumber = parseInt(cardNumber,10);
         if (presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
             if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true){
-                presenter.displayCard(cardNumber);
+                presenter.displayCard(cardNumber, sendEvent);
             }else{
                 if (cardNumber <= presenter.state.totalCards){
                     presenter.nextCard(true);
                 }
             }
         }else{
-            presenter.displayCard(cardNumber);
+            presenter.displayCard(cardNumber, sendEvent);
         }        
     };
 
-    presenter.displayCard = function (cardNumber) {
+    presenter.displayCard = function (cardNumber, sendEvent) {
         if (presenter.state.noLoop){
             $(presenter.flashcardsPrev.get(0)).attr("disabled", false);
             $(presenter.flashcardsNext.get(0)).attr("disabled", false);
@@ -509,6 +517,9 @@ function AddonFlashCards_create(){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-back")).hide();
         }
         presenter.renderMathJax();
+        if (sendEvent) {
+            presenter.sendCardChangedEvent(cardNumber);
+        }
     };
 
     presenter.show = function () {
@@ -721,7 +732,7 @@ function AddonFlashCards_create(){
         presenter.audioElementHidden.currentTime = 0;
     }
 
-    presenter.sendAudioEvent = function(eventName, cardNumber) {
+    presenter.sendEvent = function(eventName, cardNumber) {
         var item = presenter.state.currentCard;
         if (cardNumber !== undefined) item = cardNumber;
         var eventData = {
@@ -734,11 +745,18 @@ function AddonFlashCards_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.sendPlayEvent = function(cardNumber) {presenter.sendAudioEvent("playing", cardNumber)};
+    presenter.sendPlayEvent = function(cardNumber) {presenter.sendEvent("playing", cardNumber);};
 
-    presenter.sendPauseEvent = function(cardNumber) {presenter.sendAudioEvent("pause", cardNumber)};
+    presenter.sendPauseEvent = function(cardNumber) {presenter.sendEvent("pause", cardNumber);};
 
-    presenter.sendEndedEvent = function(cardNumber) {presenter.sendAudioEvent("ended", cardNumber)};
+    presenter.sendEndedEvent = function(cardNumber) {presenter.sendEvent("ended", cardNumber);};
+
+    presenter.sendCardChangedEvent = function(cardNumber) {presenter.sendEvent("", cardNumber);};
+
+    presenter.sendCardReversedEvent = function(cardNumber, isReversed) {
+        var eventValue = isReversed ? "back" : "front";
+        presenter.sendEvent(eventValue, cardNumber);
+    };
 
     presenter.play = function(cardIndex = -1, reverse = false) {
         if (Array.isArray(cardIndex)) {

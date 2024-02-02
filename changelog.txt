@@ -1,3 +1,4 @@
+2024-02-02 Added events for changing/reversing the cards in the Flash Cards
 2024-02-02 Fixed changing position of IWB Toolbar when is opened
 2024-02-02 Added functionality to Stepwise mode bar in Slider addon to be always visible
 2024-02-02 Added gradual show answers support to the count and graph addon
