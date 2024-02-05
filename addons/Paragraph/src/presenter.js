@@ -1103,7 +1103,7 @@ function AddonParagraph_create() {
         }
 
         if (tinymceState!=undefined && tinymceState!="" && !isPlaceholderClassInHTML(tinymceState)) {
-            if (presenter.editor != null && presenter.editor.initialized) {
+            if (presenter.editor != null && presenter.editor.initialized && presenter.isEditorLoaded) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
             } else {
