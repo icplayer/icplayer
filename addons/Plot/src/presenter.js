@@ -1491,6 +1491,8 @@ function AddonPlot_create(){
         plot.enableUI(false);
     };
 
+    presenter.saveAndClearPlot = function() {saveAndClearPlot()};
+
     presenter.gradualShowAnswers = function(eventData) {
         if (!presenter.isActivity || eventData.moduleID !== addonID) {
             return;
@@ -1614,6 +1616,8 @@ function AddonPlot_create(){
         presenter.GSACounter = 0;
         _hideAnswers();
     };
+
+    presenter._hideAnswers = function(){_hideAnswers();};
 
     function _hideAnswers() {
         // POINTS

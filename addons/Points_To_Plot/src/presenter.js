@@ -8,6 +8,7 @@ function AddonPoints_To_Plot_create() {
         pointsOnPlot: [],
         selectedPoints: []
     };
+    var isShowAnswersActive = false;
     presenter.STATE_CORRECT = 1;
     presenter.STATE_INCORRECT = 0;
     presenter.VERSION = '1.0.2';
@@ -20,7 +21,9 @@ function AddonPoints_To_Plot_create() {
 
         presenter._allDoneState = false;
         presenter.initialize(model);
+        presenter.setEventListeners();
     };
+
     presenter.initialize = function(model) {
         this.source = model['Source'];
         this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
@@ -40,6 +43,34 @@ function AddonPoints_To_Plot_create() {
         });
         this.data.selectedPoints = [];
     };
+
+    presenter.setEventListeners = function() {
+        if (eventBus == null) return;
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        events.forEach((eventName) => {
+            eventBus.addEventListener(eventName, this);
+        });
+    }
+
+    presenter.onEventReceived = function (eventName, eventData) {
+         switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (eventData.moduleID === addonID) {
+                    presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
     presenter.parseStrictPoints = function(str) {
         var pairs;
         if(this.decimalSeparator == ',') {
@@ -55,6 +86,7 @@ function AddonPoints_To_Plot_create() {
 
         return points;
     };
+
     presenter.setShowErrorsMode = function() {
         var sourceModule = this.getSourceModule();
         sourceModule.enableUI(false);
@@ -68,11 +100,70 @@ function AddonPoints_To_Plot_create() {
             }
         });
     };
+
     presenter.setWorkMode = function() {
         var sourceModule = this.getSourceModule();
         sourceModule.removePointsStateMarks();
         sourceModule.enableUI(true);
     };
+
+    presenter.showAnswers = function() {
+        isShowAnswersActive = true;
+        var sourceModule = this.getSourceModule();
+        sourceModule.handleDisplayedAnswers();
+        sourceModule.isShowAnswersActive = true;
+        sourceModule.saveAndClearPlot();
+
+        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
+            var plot = presenter.data.pointsOnPlot[i];
+            for (var j = 0; j < plot.strictPoints.length; j++) {
+                var point = plot.strictPoints[j];
+                sourceModule.setPointShowAnswersClass(point.x, point.y);
+            }
+        }
+
+        sourceModule.enableUI(false);
+    }
+
+    presenter.hideAnswers = function() {
+        if (!isShowAnswersActive) return;
+        isShowAnswersActive = false;
+        var sourceModule = this.getSourceModule();
+        sourceModule._hideAnswers();
+        sourceModule.isShowAnswersActive = false;
+    }
+
+    presenter.getActivitiesCount = function() {
+        var count = 0;
+        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
+            var plot = presenter.data.pointsOnPlot[i];
+            count += plot.strictPoints.length;
+        }
+        return count;
+    }
+
+    presenter.gradualShowAnswers = function(item) {
+        isShowAnswersActive = true;
+        var sourceModule = this.getSourceModule();
+        sourceModule.handleDisplayedAnswers();
+        sourceModule.isShowAnswersActive = true;
+        sourceModule.saveAndClearPlot();
+
+        var count = 0;
+        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
+            var plot = presenter.data.pointsOnPlot[i];
+            for (var j = 0; j < plot.strictPoints.length; j++) {
+                var point = plot.strictPoints[j];
+                sourceModule.setPointShowAnswersClass(point.x, point.y);
+                count += 1;
+                if (count > item) break;
+            }
+            if (count > item) break;
+        }
+
+        sourceModule.enableUI(false);
+    }
+
     presenter.reset = function() {
         this._allDoneState = false;
         this.data.selectedPoints = [];
