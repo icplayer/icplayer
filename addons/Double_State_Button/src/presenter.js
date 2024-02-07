@@ -848,6 +848,10 @@ function AddonDouble_State_Button_create(){
                 textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText))
         }
 
+        if (presenter.configuration.isDisabled) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabledButton))
+        }
+
         speak(textVoices);
     };
 
