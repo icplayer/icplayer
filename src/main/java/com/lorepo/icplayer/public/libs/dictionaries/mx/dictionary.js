@@ -2199,6 +2199,7 @@ var ice_dictionary_mx = {
     "Double_State_Button_property_image_alternative_text": "Image alternative text",
     "Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
     "Double_state_button_speech_text_disabled": "Do not read the Speech texts",
+	"Double_state_button_speech_text_disabled_button": "Disabled",
 	"Double_state_button_render_SVG_as_HTML": "Render SVG as HTML",
 	"Double_state_button_omit_text_in_tts": "Omit text in TTS",
     "copy_page_layout": "Copy page settings",
