@@ -1,4 +1,4 @@
-2024-01-07 Added Show Answers and Gradual Show Answers to Point to Plot
+2024-02-07 Added Show Answers and Gradual Show Answers to Point to Plot
 2024-01-26 Changed player-utils to provide max score for unvisited pages
 2024-01-26 Added GSA support to Plot addon
 2024-01-26 Added the option of creating static sections in Assessments Navigation Bar
