@@ -1031,7 +1031,7 @@ function AddonParagraph_create() {
         }
 
         if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
-            setText(presenter.configuration.placeholderText);
+            presenter.setText(presenter.configuration.placeholderText);
         }
 
         presenter.addEventListenerOnKeyEscapeToEditorMCE();
