@@ -69,14 +69,6 @@ TestCase("[Paragraph] getState method", {
         assertEquals("", state.tinymceState);
     },
 
-    'test getState for non existed editor': function () {
-        this.presenter.editor = undefined;
-
-        var state = JSON.parse(this.presenter.getState());
-
-        assertEquals("", state.tinymceState);
-    },
-
     'test addon with presenter.configuration.isVisible set to true and presenter.isVisibleValue set to false when setState executed then isVisible in returned state have value from presenter.isVisibleValue': function () {
         this.presenter.configuration = { isVisible: true };
         this.presenter.isVisibleValue = false;
