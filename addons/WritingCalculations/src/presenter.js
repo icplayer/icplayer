@@ -196,7 +196,7 @@ function AddonWritingCalculations_create() {
 
     presenter.bindValueChangeEvent = function() {
         const $inputs = presenter.getInputs();
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
 
         $inputs.on('click', function(event) {
             event.stopPropagation();
@@ -210,7 +210,7 @@ function AddonWritingCalculations_create() {
             presenter.onKeyPress(event);
         });
 
-        $answerBoxesInputs.on("change", function(event) {
+        $emptyBoxesInputs.on("change", function(event) {
             event.stopPropagation();
 
             var value = event.target.value;
@@ -391,7 +391,7 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.transformElement = function(element, value, type) {
-        const container = $(element).find("[class*=container]");
+        const $container = $(element).find("[class*=container]");
         let inputType, input;
         switch(type) {
             case this.ELEMENT_TYPE.EMPTY_SPACE:
@@ -406,15 +406,15 @@ function AddonWritingCalculations_create() {
                 if (presenter.useNumericKeyboard) {
                     input.attr("step", "any");
                 }
-                container.append(input);
+                $container.append(input);
                 break;
             case this.ELEMENT_TYPE.LINE:
                 break;
             case this.ELEMENT_TYPE.SYMBOL:
-                container.html(this.convertLaTeX(value));
+                $container.html(this.convertLaTeX(value));
                 break;
             case this.ELEMENT_TYPE.DOT:
-                container.html(value);
+                $container.html(value);
                 break;
             case this.ELEMENT_TYPE.HELP_BOX:
                 inputType = presenter.useNumericKeyboard ? "tel" : "text";
@@ -424,10 +424,10 @@ function AddonWritingCalculations_create() {
                     input.attr("step", "any");
                 }
                 input.val(value);
-                container.append(input);
+                $container.append(input);
                 break;
             default:
-                container.html(value);
+                $container.html(value);
         }
     };
 
@@ -481,7 +481,7 @@ function AddonWritingCalculations_create() {
     };
 
     /**
-     Check if valid help box == will not be empty box in run
+     Check if valid help box
      @method isHelpBox
 
      @param {String} element element HTML
@@ -659,7 +659,7 @@ function AddonWritingCalculations_create() {
         return this.$view.find(".writing-calculations-input");
     }
 
-    presenter.getAnswerBoxesInputs = function() {
+    presenter.getEmptyBoxesInputs = function() {
         return this.$view.find(".container-emptyBox .writing-calculations-input");
     };
 
@@ -668,10 +668,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.isAllEmptyBoxInputsFilled = function() {
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
 
-        for (let i = 0; i < $answerBoxesInputs.length; i++) {
-            if ($($answerBoxesInputs[i]).val().length == 0) return false;
+        for (let i = 0; i < $emptyBoxesInputs.length; i++) {
+            if ($($emptyBoxesInputs[i]).val().length == 0) return false;
         }
 
         return true;
@@ -687,14 +687,14 @@ function AddonWritingCalculations_create() {
             return;
         }
 
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
         const $helpBoxesInputs = presenter.getHelpBoxesInputs();
         disableInputs($helpBoxesInputs);
 
         presenter.handleShownAnswers();
 
         if (!presenter.isCommutativity) {
-            $.each($answerBoxesInputs, function(){
+            $.each($emptyBoxesInputs, function(){
                 const answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
 
                 if (ModelValidationUtils.isStringEmpty($(this).val())) {
@@ -714,9 +714,9 @@ function AddonWritingCalculations_create() {
                 presenter.$view.addClass('wrong');
             }
 
-            disableInputs($answerBoxesInputs);
+            disableInputs($emptyBoxesInputs);
         } else {
-            disableInputs($answerBoxesInputs);
+            disableInputs($emptyBoxesInputs);
         }
     };
 
@@ -895,9 +895,9 @@ function AddonWritingCalculations_create() {
 
     presenter.reset = function() {
         this.clean(true, true);
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
         if (typeof(presenter.userAnswers) !== "undefined") {
-            $.each($answerBoxesInputs, function(index){
+            $.each($emptyBoxesInputs, function(index){
                 presenter.userAnswers[index] = '';
             });
         }
@@ -943,8 +943,8 @@ function AddonWritingCalculations_create() {
         $(element).val("");
     };
 
-    presenter.getAnswerBoxesInputsData = function() {
-        const $inputs = presenter.getAnswerBoxesInputs();
+    presenter.getEmptyBoxesInputsData = function() {
+        const $inputs = presenter.getEmptyBoxesInputs();
         const inputsData = {
             values : [],
             correctAnswersCount : 0,
@@ -990,7 +990,7 @@ function AddonWritingCalculations_create() {
         presenter.handleShownAnswers();
 
         return JSON.stringify({
-            "inputsData" : this.getAnswerBoxesInputsData(),
+            "inputsData" : this.getEmptyBoxesInputsData(),
             "helpBoxesInputsData" : presenter.getHelpBoxesInputsData(),
             "isVisible" : presenter.isVisible,
         });
@@ -1001,9 +1001,9 @@ function AddonWritingCalculations_create() {
 
         const state = JSON.parse(stateString);
         if (state.inputsData) {
-            const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+            const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
             const inputsData = state.inputsData;
-            $.each($answerBoxesInputs, function(index){
+            $.each($emptyBoxesInputs, function(index){
                 $(this).val(inputsData.values[index].toString());
             });
         }
@@ -1056,7 +1056,7 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getPoints = function(type) {
-        const inputsData = this.getAnswerBoxesInputsData();
+        const inputsData = this.getEmptyBoxesInputsData();
 
         if (presenter.isCommutativity) {
             switch (type) {
@@ -1163,8 +1163,8 @@ function AddonWritingCalculations_create() {
         presenter.isDisabled = true;
         const correctAnswers = presenter.correctAnswersList;
 
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
-        $.each($answerBoxesInputs, function(index){
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        $.each($emptyBoxesInputs, function(index){
             $(this).addClass('writing-calculations_show-answers');
             $(this).attr("disabled", true);
             presenter.userAnswers.push($(this).val());
@@ -1203,7 +1203,7 @@ function AddonWritingCalculations_create() {
         }
         presenter.isGradualShowAnswersActive = true;
         presenter.saveCurrentScore();
-        const input = presenter.getAnswerBoxesInputs()[eventData.item];
+        const input = presenter.getEmptyBoxesInputs()[eventData.item];
 
         $(input).addClass('writing-calculations_show-answers');
         presenter.userAnswers.push($(input).val());
@@ -1216,8 +1216,8 @@ function AddonWritingCalculations_create() {
         }
 
         presenter.isShowAnswersActive = false;
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
-        $.each($answerBoxesInputs, function(index){
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        $.each($emptyBoxesInputs, function(index){
             $(this).val(presenter.userAnswers[index]);
             $(this).removeClass('writing-calculations_show-answers');
             $(this).attr("disabled", false);
@@ -1250,9 +1250,9 @@ function AddonWritingCalculations_create() {
         presenter.isGradualShowAnswersActive = false;
         presenter.isScoreSaved = false;
 
-        const $answerBoxesInputs = presenter.getAnswerBoxesInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
         presenter.userAnswers.forEach((userAnswer, index) => {
-            const input = $answerBoxesInputs[index];
+            const input = $emptyBoxesInputs[index];
             $(input).val(presenter.userAnswers[index]);
             $(input).removeClass('writing-calculations_show-answers');
         });
@@ -1279,7 +1279,7 @@ function AddonWritingCalculations_create() {
     }
 
     presenter.getActivitiesCount = function () {
-        return presenter.showAllAnswersInGSA ? 1 : presenter.getAnswerBoxesInputs().length;
+        return presenter.showAllAnswersInGSA ? 1 : presenter.getEmptyBoxesInputs().length;
     }
 
     presenter.validateModelValue = function (modelValue) {

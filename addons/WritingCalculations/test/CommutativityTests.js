@@ -2,25 +2,25 @@ TestCase("[Writing Calculations] Was all filled", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
 
-        sinon.stub(this.presenter, 'getAnswerBoxesInputs');
+        sinon.stub(this.presenter, 'getEmptyBoxesInputs');
         sinon.stub(this.presenter, 'getHelpBoxesInputs');
     },
 
     tearDown: function () {
-        this.presenter.getAnswerBoxesInputs.restore();
+        this.presenter.getEmptyBoxesInputs.restore();
         this.presenter.getHelpBoxesInputs.restore();
     },
 
     'test all inputs are filled': function() {
         const $inputs = [$('<input value="4" />'), $('<input value="1" />'), $('<input value="2" />'), $('<input value="3" />')];
-        this.presenter.getAnswerBoxesInputs.returns($inputs);
+        this.presenter.getEmptyBoxesInputs.returns($inputs);
 
         assertTrue(this.presenter.isAllEmptyBoxInputsFilled());
     },
 
     'test all inputs are filled even when help boxes are not filled': function() {
-        const $answerBoxesInputs = [$('<input value="4" />'), $('<input value="1" />'), $('<input value="2" />'), $('<input value="3" />')];
-        this.presenter.getAnswerBoxesInputs.returns($answerBoxesInputs);
+        const $emptyBoxesInputs = [$('<input value="4" />'), $('<input value="1" />'), $('<input value="2" />'), $('<input value="3" />')];
+        this.presenter.getEmptyBoxesInputs.returns($emptyBoxesInputs);
 
         const $helpBoxesInputs = [$('<input value="" />'), $('<input value="1" />'), $('<input value="22" />')];
         this.presenter.getHelpBoxesInputs.returns($helpBoxesInputs);
@@ -30,14 +30,14 @@ TestCase("[Writing Calculations] Was all filled", {
 
     'test no input is filled': function() {
         const inputs = [$('<input value="" />'), $('<input value="" />'), $('<input value="" />'), $('<input value="" />')];
-        this.presenter.getAnswerBoxesInputs.returns(inputs);
+        this.presenter.getEmptyBoxesInputs.returns(inputs);
 
         assertFalse(this.presenter.isAllEmptyBoxInputsFilled());
     },
 
     'test one input is not filled': function() {
         const inputs = [$('<input value="4" />'), $('<input value="7" />'), $('<input value="" />'), $('<input value="3" />')];
-        this.presenter.getAnswerBoxesInputs.returns(inputs);
+        this.presenter.getEmptyBoxesInputs.returns(inputs);
 
         assertFalse(this.presenter.isAllEmptyBoxInputsFilled());
     }
