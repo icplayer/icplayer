@@ -492,10 +492,13 @@ function AddonCount_and_Graph_create() {
         this._axisYDescription = axisYDescription;
         this._axisXImageHeight = axisXImageHeight;
         this._axisXImageWidth =  axisXImageWidth;
-        this._exampleColumns = exampleColumns;
+        this._exampleColumns = [];
         this._exampleColumnsNumber = 0;
-        for (var i = 0; i < this._exampleColumns.length; i++) {
-            if (this._exampleColumns[i]) this._exampleColumnsNumber += 1;
+        if (exampleColumns != undefined) {
+            this._exampleColumns = exampleColumns;
+            for (var i = 0; i < this._exampleColumns.length; i++) {
+                if (this._exampleColumns[i]) this._exampleColumnsNumber += 1;
+            }
         }
     };
 
@@ -1537,7 +1540,7 @@ function AddonCount_and_Graph_create() {
     }
 
     function parseValueToBoolean (value) {
-        return value.toLowerCase() == 'true';
+        return value != null && value.toLowerCase() == 'true';
     }
 
     function parseFixedValues(axisYValues, axisYMaxValue) {
@@ -1722,6 +1725,10 @@ function AddonCount_and_Graph_create() {
     presenter.upgradeExample = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['X axis data'] === undefined) {
+            upgradedModel['X axis data'] = [];
+        }
 
         for (var i = 0; i < upgradedModel['X axis data'].length; i++) {
             var axisXData = upgradedModel['X axis data'][i];
