@@ -644,8 +644,13 @@ function AddonAssessments_Navigation_Bar_create(){
         this.initView();
     };
 
-    presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideIndex) {
+    presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideIndex, previousLeftSideValue) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
+
+        if (previousLeftSideIndex < 0) {
+            previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
+        }
+
         const rightSideIndex = previousLeftSideIndex + presenter.configuration.numberOfButtons - 4;
 
         if (rightSideIndex >= currentIndex) {
@@ -661,13 +666,28 @@ function AddonAssessments_Navigation_Bar_create(){
         return this.leftSideIndex;
     };
 
-    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex) {
+    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
 
-        if (previousLeftSideIndex > 3) {
-            this.leftSideIndex = currentIndex === previousLeftSideIndex ? previousLeftSideIndex - 1 : previousLeftSideIndex;
-            this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+        if (this.staticPages.length) {
+            if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
+                previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
+            }
+
+            if (previousLeftSideIndex > 3) {
+                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideIndex - 1 : previousLeftSideIndex;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+            }
+        } else {
+            if (previousLeftSideIndex > 3) {
+                this.leftSideIndex = currentIndex === previousLeftSideIndex ? previousLeftSideIndex - 1 : previousLeftSideIndex;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+            }
         }
+    };
+
+    presenter.NavigationManager.prototype.getLeftIndex = function (previousLeftSideValue) {
+        return this.actualPages.findIndex((page) => page.page === previousLeftSideValue);
     };
 
     presenter.NavigationManager.prototype.restartLeftSideIndex = function () {
@@ -883,6 +903,9 @@ function AddonAssessments_Navigation_Bar_create(){
         if (this.leftOffset === 1) {
             this.shiftPagesToRight(1);
             this.moveToCurrentPage();
+        } else if (this.rightHellip) {
+            this.shiftPagesToRight();
+            this.moveToCurrentPage();
         }
     };
 
@@ -963,7 +986,6 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.updateVisiblePages = function (button) {
          if (this.isLastVisibleElement(button)) {
-             this.setLeftOffset(1);
              this.shiftPagesToRight(1);
         }
     };
@@ -971,8 +993,9 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationManager.prototype.isLastVisibleElement = function (button) {
         const lastVisiblePage = this.actualPages[(this.actualPages.length - 1)].description;
         const lastPageIndex = presenter.sections.allPages.length - 1;
+        const isForwardButton = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).length > 0;
 
-        return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex;
+        return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex && isForwardButton;
     };
 
     presenter.NavigationManager.prototype.setButtonBookmark = function (button, page) {
@@ -1709,6 +1732,7 @@ function AddonAssessments_Navigation_Bar_create(){
             pages: pages,
             attemptedPages: presenter.sections.attemptedPages,
             leftSideIndex: presenter.navigationManager.getLeftSideIndex(),
+            leftSideValue: presenter.navigationManager.actualPages[0].page
         };
         return JSON.stringify(state);
     };
@@ -1752,13 +1776,14 @@ function AddonAssessments_Navigation_Bar_create(){
         var parsedState = JSON.parse(state);
         var upgradedState = presenter.upgradeState(parsedState);
         const previousLeftSideIndex = parsedState.leftSideIndex;
+        const previousLeftSideValue = parsedState.leftSideValue;
 
         var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
         // This if fix on wrong state when filter of sections worked wrong
         presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
-        presenter.navigationManager.calculateLeftOffset(previousLeftSideIndex);
+        presenter.navigationManager.calculateLeftOffset(previousLeftSideIndex, previousLeftSideValue);
         presenter.navigationManager.restartLeftSideIndex();
-        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex);
+        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue);
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 
