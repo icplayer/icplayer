@@ -1013,6 +1013,7 @@ function AddonParagraph_create() {
         presenter.setStyles();
         if (presenter.configuration.state !== undefined) {
             presenter.editor.setContent(presenter.configuration.state, {format : 'raw'});
+            presenter.configuration.state = undefined;
             presenter.setVisibility(presenter.isVisibleValue);
         } else {
             presenter.setVisibility(presenter.configuration.isVisible);
@@ -1030,7 +1031,7 @@ function AddonParagraph_create() {
         }
 
         if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
-            presenter.setText(presenter.configuration.placeholderText);
+            setText(presenter.configuration.placeholderText);
         }
 
         presenter.addEventListenerOnKeyEscapeToEditorMCE();
@@ -1067,7 +1068,9 @@ function AddonParagraph_create() {
 
     presenter.getState = function AddonParagraph_getState() {
         var tinymceState;
-        if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
+        if (presenter.configuration.state !== undefined) {
+            tinymceState = presenter.configuration.state;
+        } else if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
                 const isShowAnswersActive = presenter.isShowAnswersActive;
                 if (isShowAnswersActive) presenter.hideAnswers();
@@ -1091,14 +1094,14 @@ function AddonParagraph_create() {
         if (state === null || ModelValidationUtils.isStringEmpty(state))
             return;
         presenter.printableState = JSON.parse(state).tinymceState;
-    }
+    };
 
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
 
         presenter.isVisibleValue = parsedState.isVisible;
-        if (presenter.editor != null && presenter.editor.initialized) {
+        if (presenter.editor != null && presenter.editor.initialized && presenter.isEditorLoaded) {
             presenter.setVisibility(presenter.isVisibleValue);
         }
 

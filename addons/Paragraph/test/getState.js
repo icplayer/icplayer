@@ -7,6 +7,7 @@ TestCase("[Paragraph] getState method", {
                 return;
             }
         };
+        this.presenter.configuration = {};
         this.presenter.hideAnswers = sinon.spy();
         this.presenter.showAnswers = sinon.spy();
         this.stubs = {
@@ -25,6 +26,15 @@ TestCase("[Paragraph] getState method", {
         var state = JSON.parse(this.presenter.getState());
 
         assertEquals("Content", state.tinymceState);
+    },
+
+    'test getState when existing editor but previous editor state was not used': function () {
+        this.presenter.configuration.state = "Old content";
+
+        this.stubs.getContent.returns("Content");
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals("Old content", state.tinymceState);
     },
 
     'test getState given editor exists when show answers active then hide answers': function () {
@@ -59,6 +69,14 @@ TestCase("[Paragraph] getState method", {
         assertEquals("", state.tinymceState);
     },
 
+    'test getState for non existed editor': function () {
+        this.presenter.editor = undefined;
+
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals("", state.tinymceState);
+    },
+
     'test addon with presenter.configuration.isVisible set to true and presenter.isVisibleValue set to false when setState executed then isVisible in returned state have value from presenter.isVisibleValue': function () {
         this.presenter.configuration = { isVisible: true };
         this.presenter.isVisibleValue = false;
@@ -66,6 +84,7 @@ TestCase("[Paragraph] getState method", {
         var state = JSON.parse(this.presenter.getState());
 
         assertFalse(state.isVisible);
-    }
-});
+    },
 
+
+});
