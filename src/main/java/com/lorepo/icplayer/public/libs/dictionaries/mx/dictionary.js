@@ -735,6 +735,7 @@ var ice_dictionary_mx = {
 	"Count_and_Graph_property_grid_line_color": "Color de la línea",
 	"Count_and_Graph_property_border": "Borde",
 	"Count_and_Graph_property_is_not_activity": "No es actividad",
+	"Count_and_Graph_property_example": "Example",
 	"crossword_info": "Permite añadir un crucigrama listo a la presentación. Para configurar la actividad es suficiente con definir algunos parámetros específicos en el menú del módulo.",
 	"crossword_name": "Crucigrama",
 	"crossword_property_crossword": "Crucigrama",

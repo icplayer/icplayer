@@ -722,6 +722,7 @@ var ice_dictionary_bl = {
 	"Count_and_Graph_property_grid_line_color": "Цвят на линиите на решетката",
 	"Count_and_Graph_property_border": "Граница",
     "Count_and_Graph_property_is_not_activity": "Не е задача с оценка",
+    "Count_and_Graph_property_example": "Example",
     "crossword_info": "Позволява добавянето на кръстословица към презентацията. За да създадете задача е достатъчно да настроите някои параметри в менюто на плъгина.",
 	"crossword_name": "Кръстословица",
 	"crossword_property_crossword": "Кръстословица",
