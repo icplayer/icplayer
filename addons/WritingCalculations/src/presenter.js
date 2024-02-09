@@ -460,7 +460,7 @@ function AddonWritingCalculations_create() {
     };
 
     /**
-     Check if valid answer box == will be empty box in run
+     Check if valid empty box == will be empty box in run
      @method isEmptyBox
 
      @param {String} element element HTML
