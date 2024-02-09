@@ -2202,6 +2202,7 @@ var ice_dictionary_pl = {
     "Double_State_Button_property_image_alternative_text": "Tekst alternatywny dla obrazu",
     "Double_State_Button_property_image_selected_alternative_text": "Tekst alternatywny dla zaznaczonego obrazu",
     "Double_state_button_speech_text_disabled": "Nie czytaj tekstów mowy",
+	"Double_state_button_speech_text_disabled_button": "Disabled",
 	"Double_state_button_render_SVG_as_HTML": "Render SVG as HTML",
 	"Double_state_button_omit_text_in_tts": "Omit text in TTS",
     "copy_page_layout": "Copy page settings",
