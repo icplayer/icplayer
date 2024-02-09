@@ -7,74 +7,142 @@ TestCase("[Writing Calculations] Scores Methods Tests", {
         ];
     },
 
-    'test getPoints method when finding all': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value='4'/></div>");
+    createView: function (elements) {
+        const view = document.createElement("div");
 
-        var answersCount = this.presenter.getPoints("all");
+        elements.forEach((element) => {
+            view.append(element);
+        });
+
+        return $(view);
+    },
+
+    createHelpBoxContainer: function (row, cell, value) {
+        return this.createContainer(row, cell, value,"container-helpBox");
+    },
+
+    createEmptyBoxContainer: function (row, cell, value) {
+        return this.createContainer(row, cell, value, "container-emptyBox");
+    },
+
+    createContainer: function (row, cell, value, className) {
+        const container = document.createElement("div");
+        container.classList.add(className);
+
+        const input = document.createElement("input");
+        input.classList.add("writing-calculations-input");
+        input.setAttribute("row", row);
+        input.setAttribute("cell", cell);
+        input.setAttribute("value", value);
+
+        container.append(input);
+        return container;
+    },
+
+    'test getPoints method when finding all': function() {
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", "4"),
+        ]);
+
+        const answersCount = this.presenter.getPoints("all");
 
         assertEquals(2, answersCount);
     },
 
     'test getPoints method when finding correct': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value='4'/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", "4"),
+        ]);
 
-        var correct = this.presenter.getPoints("correct");
+        const correct = this.presenter.getPoints("correct");
 
         assertEquals(1, correct);
     },
 
     'test getPoints method when finding incorrect': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value='4'/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", "4"),
+        ]);
 
-        var incorrect = this.presenter.getPoints("incorrect");
+        const incorrect = this.presenter.getPoints("incorrect");
 
         assertEquals(1, incorrect);
     },
 
     'test getPoints method for empty field when finding all': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value=''/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", ""),
+        ]);
 
-        var answersCount = this.presenter.getPoints("all");
+        const answersCount = this.presenter.getPoints("all");
 
         assertEquals(2, answersCount);
     },
 
     'test getPoints method for empty field when finding correct': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value=''/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", ""),
+        ]);
 
-        var correct = this.presenter.getPoints("correct");
+        const correct = this.presenter.getPoints("correct");
 
         assertEquals(1, correct);
     },
 
     'test getPoints method for empty field when finding incorrect': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value=''/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", ""),
+        ]);
 
-        var incorrect = this.presenter.getPoints("incorrect");
+        const incorrect = this.presenter.getPoints("incorrect");
 
         assertEquals(0, incorrect);
     },
 
     'test allAnswersCorrect positive': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value='5' /></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", "5"),
+        ]);
 
-        var allAnswersCorrect = this.presenter.allAnswersCorrect();
+        const allAnswersCorrect = this.presenter.allAnswersCorrect();
 
         assertTrue(allAnswersCorrect);
     },
 
     'test allAnswersCorrect negative': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='2' /><input class='writing-calculations-input' row='2' cell='2' value='5' /></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "2"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", "5"),
+        ]);
 
-        var allAnswersCorrect = this.presenter.allAnswersCorrect();
+        const allAnswersCorrect = this.presenter.allAnswersCorrect();
 
         assertFalse(allAnswersCorrect);
     },
 
     'test allAnswersCorrect negative due to empty field': function() {
-        this.presenter.$view = $("<div><input class='writing-calculations-input' row='1' cell='1' value='3' /><input class='writing-calculations-input' row='2' cell='2' value=''/></div>");
+        this.presenter.$view = this.createView([
+            this.createEmptyBoxContainer("1", "1", "3"),
+            this.createHelpBoxContainer("1", "2", "4"),
+            this.createEmptyBoxContainer("2", "2", ""),
+        ]);
 
-        var allAnswersCorrect = this.presenter.allAnswersCorrect();
+        const allAnswersCorrect = this.presenter.allAnswersCorrect();
 
         assertFalse(allAnswersCorrect);
     }

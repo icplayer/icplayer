@@ -1,7 +1,6 @@
 ## Description
 This addon allows you to create writing calculations. You can create multiplication, division, addition, or subtraction activities.
 
-
 ## Properties
 
 The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
@@ -32,6 +31,13 @@ The list starts with the common properties, learn more about them by visiting th
                     <td>input box, x is a number which is correct answer</td>
                 </tr>
                 <tr>
+                    <td>{x} (curly brackets)</td>
+                    <td>input help box, x is the default number. 
+                        Help box can be defined without a default value. 
+                        Unlike input box with square brackets, these boxes are not scored.
+                    </td>
+                </tr>
+                <tr>
                     <td>+ (plus)</td>
                     <td>plus</td>
                 </tr>
@@ -55,41 +61,41 @@ The list starts with the common properties, learn more about them by visiting th
         </td>
     </tr>
 	<tr>
-	<td>Signs</td>
-	<td>Here you can change the default sign/symbol assigned to a given type of calculation.
-		<table>
-			<tr>
-				<th>Name</th>
-				<th>Symbol</th>
-				<th>Default</th>
-			</tr>
-			<tr>
-				<td>Addition</td>
-				<td>+ (plus)</td>
-				<td>\(+\)</td>
-			</tr>
-			<tr>
-				<td>Subtraction</td>
-				<td>- (hyphen)</td>
-				<td>\(-\)</td>
-			</tr>
-			<tr>
-				<td>Division</td>
-				<td>: (colon) or ) (right parenthesis)</td>
-				<td>\(\big)\)</td>
-			</tr>
-			<tr>
-				<td>Multiplication</td>
-				<td>* (asterisk)</td>
-				<td>\(\times\)</td>
-			</tr>
-			<tr>
-				<td>Equals</td>
-				<td>= (equality)</td>
-				<td>\(\=\)</td>
-			</tr>
-		</table>
-	</td>
+        <td>Signs</td>
+        <td>Here you can change the default sign/symbol assigned to a given type of calculation.
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Default</th>
+                </tr>
+                <tr>
+                    <td>Addition</td>
+                    <td>+ (plus)</td>
+                    <td>\(+\)</td>
+                </tr>
+                <tr>
+                    <td>Subtraction</td>
+                    <td>- (hyphen)</td>
+                    <td>\(-\)</td>
+                </tr>
+                <tr>
+                    <td>Division</td>
+                    <td>: (colon) or ) (right parenthesis)</td>
+                    <td>\(\big)\)</td>
+                </tr>
+                <tr>
+                    <td>Multiplication</td>
+                    <td>* (asterisk)</td>
+                    <td>\(\times\)</td>
+                </tr>
+                <tr>
+                    <td>Equals</td>
+                    <td>= (equality)</td>
+                    <td>\(\=\)</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td>Styles</td>
@@ -120,7 +126,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Commutativity</td>
-        <td>This property allows users to fill in the inputs in any order (changing rows) in case of addiition or multiplication. </td>
+        <td>This property allows users to fill in the inputs in any order (changing rows) in case of addition or multiplication. </td>
     </tr>
     <tr>
         <td>Is not activity</td>
@@ -191,7 +197,7 @@ It is possible to enter values using the eKeyboard module.
     </tr>
 </table>
 
-##Show Answers
+## Show Answers
 
 This module is fully compatible with [Show Answers module](/doc/page/Show-Answers "Show Answers module") and displays correct answers when an adequate event is sent.
 
@@ -217,7 +223,7 @@ Writing Calculations addon allows creating exercises as well as activities.
     </tr>
 </table>
 
-##Events
+## Events
 The Writing Calculations addon sends ValueChanged type events to Event Bus when a user fills in either one of the fields.
 
 <table border='1'>
@@ -272,8 +278,16 @@ When a user fills in all fields properly, the addon sends the 'ALL OK' event. Th
         <td>wrapper for a single cell</td>
     </tr>
     <tr>
+        <td>.container-emptyBox</td>
+        <td>container with single input representing input box (square brackets)</td>
+    </tr>
+    <tr>
+        <td>.container-helpBox</td>
+        <td>container with single input representing help box (curly brackets)</td>
+    </tr>
+    <tr>
         <td>.writing-calculations-input</td>
-        <td>single input</td>
+        <td>single input (defined by square and curly brackets)</td>
     </tr>
     <tr>
         <td>.wrapper-row</td>

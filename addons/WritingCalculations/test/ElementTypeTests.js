@@ -111,5 +111,24 @@ TestCase("[Writing Calculations] Element Type Tests", {
         // Then
         assertTrue(positiveResult);
         assertFalse(negativeResult);
-    }
+    },
+
+    'test isHelpBox positive and negative' : function() {
+        // Given
+        const matchingPatterns = [
+            "{}", "{1}", "{12}", "{12.1}"
+        ];
+        const notMatchingPatterns = [
+            "{", "1", "}", "[1]"
+        ];
+
+        // When
+        const self = this;
+        const matchingPatternsResults = matchingPatterns.map((pattern) => self.presenter.isHelpBox(pattern));
+        const notMatchingPatternsResults = notMatchingPatterns.map((pattern) => self.presenter.isHelpBox(pattern));
+
+        // Then
+        matchingPatternsResults.map((result, index) => assertTrue("Failed for: " + matchingPatterns[index], result));
+        notMatchingPatternsResults.map((result, index) => assertFalse("Failed for: " + notMatchingPatterns[index], result));
+    },
 });
