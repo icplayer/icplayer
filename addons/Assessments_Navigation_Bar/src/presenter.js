@@ -668,18 +668,24 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
+        const MIN_LEFT_VALUE = 3;
 
         if (this.staticPages.length) {
             if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
                 previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
             }
 
-            if (previousLeftSideIndex > 3) {
+            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
                 this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideIndex - 1 : previousLeftSideIndex;
                 this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
             }
+
+            if (currentIndex - previousLeftSideValue <= -1) {
+                this.leftSideIndex = 0;
+                this.shiftCount = 0;
+            }
         } else {
-            if (previousLeftSideIndex > 3) {
+            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
                 this.leftSideIndex = currentIndex === previousLeftSideIndex ? previousLeftSideIndex - 1 : previousLeftSideIndex;
                 this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
             }
