@@ -1214,6 +1214,7 @@ var ice_dictionary_en = {
 	"Slider_property_image_element": "Image element",
 	"Slider_property_orientation": "Orientation",
 	"Slider_property_stepwise": "Stepwise",
+	"Slider_property_stepwise_mode_bar_always_visible": "Stepwise mode bar always visible",
 	"Slider_property_steps_count": "Steps count",
 	"Slider_property_initial_step": "Initial step",
 	"Slider_property_on_step_change": "On step change",

@@ -45,7 +45,8 @@ TestCase("[Slider] Configuration", {
             ImageElement : "/files/serve/image.png",
             "Alternative texts": [{"Alternative text": '', "Step number": ''}],
             speechTexts: {Step: {Step: ''}},
-            langAttribute: ''
+            langAttribute: '',
+            StepwiseModeBarAlwaysVisible: "False"
         };
 
         var conversionResult = this.presenter.convertModel(model);
@@ -57,6 +58,7 @@ TestCase("[Slider] Configuration", {
         assertEquals(this.presenter.ORIENTATION.LANDSCAPE, conversionResult.orientation);
         assertTrue(conversionResult.isVisibleByDefault);
         assertTrue(conversionResult.isVisible);
+        assertFalse(conversionResult.stepwiseModeBarAlwaysVisible);
 
         assertFalse(conversionResult.isErrorMode);
         assertFalse(conversionResult.shouldBlockInErrorMode);

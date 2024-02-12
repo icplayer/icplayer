@@ -116,6 +116,7 @@ function AddonSlider_create () {
             presenter.moveToStep(imageContainer, presenter.configuration.initialStep, presenter.configuration);
 
             if (!isPreview) {
+                presenter.configuration.stepwiseModeBarAlwaysVisible && drawBurret();
                 handleMouseDrag(addonContainer);
             } else {
                 drawBurret();
@@ -430,7 +431,8 @@ function AddonSlider_create () {
     }
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeTTS(model);
+        let upgradedModel = presenter.upgradeTTS(model);
+        upgradedModel = presenter.upgradeStepwiseModeBarAlwaysVisible(upgradedModel);
         return upgradedModel;
     };
 
@@ -455,6 +457,17 @@ function AddonSlider_create () {
                     "Step number": ""
                 }
             ];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeStepwiseModeBarAlwaysVisible = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty("StepwiseModeBarAlwaysVisible")) {
+            upgradedModel["StepwiseModeBarAlwaysVisible"] = "False";
         }
 
         return upgradedModel;
@@ -498,7 +511,6 @@ function AddonSlider_create () {
     function drawBurret() {
         if (!presenter.configuration.stepwise) return;
 
-        var element = presenter.$view.find('.slider-element-image:first')[0];
         var xPosition = $(presenter.$view).width() / 2;
         var yPosition = $(presenter.$view).height() / 2;
         var verticalLineLength = $(presenter.$view).height() / 4;
@@ -512,7 +524,8 @@ function AddonSlider_create () {
         });
         $(canvas).attr('width', $(presenter.$view).width());
         $(canvas).attr('height', $(presenter.$view).height());
-        $(presenter.$view).append(canvas);
+        $(canvas).addClass('slider-stepwise-bar');
+        $(presenter.$view).prepend(canvas);
 
         if (presenter.configuration.orientation === presenter.ORIENTATION.LANDSCAPE) {
             $(canvas).drawLine({
@@ -843,7 +856,8 @@ function AddonSlider_create () {
             shouldBlockInErrorMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
             speechTexts: speechTexts,
             lang: model["langAttribute"],
-            altTexts: validatedAltTexts.value
+            altTexts: validatedAltTexts.value,
+            stepwiseModeBarAlwaysVisible: ModelValidationUtils.validateBoolean(model["StepwiseModeBarAlwaysVisible"])
         };
     };
 
