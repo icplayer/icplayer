@@ -1302,6 +1302,7 @@ var ice_dictionary_fr = {
     "Points_To_Plot_property_points": "Points",
     "Points_To_Plot_property_strict_points": "Points stricts",
     "Points_To_Plot_property_decimal_separator": "Séparateur décimal",
+    "Points_To_Plot_property_show_answers": "Show answers",
     "Puzzle_info": "Permet d'insérer un puzzle dans une présentation. Il suffit de télécharger une image qui est ensuite automatiquement divisée en pieces mélangées dans les lignes et les colonnes. L'utilisateur doit replacer les pieces au bon endroit pour reformer l'image.",
     "Puzzle_name": "Puzzle",
     "Puzzle_property_columns": "Colonnes",

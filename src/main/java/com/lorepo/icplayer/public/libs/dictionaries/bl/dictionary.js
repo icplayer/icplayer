@@ -1175,6 +1175,7 @@ var ice_dictionary_bl = {
 	"Points_To_Plot_property_points": "Точки",
 	"Points_To_Plot_property_strict_points": "Строго определени точки",
 	"Points_To_Plot_property_decimal_separator": "Десетичен разделител",
+	"Points_To_Plot_property_show_answers": "Show answers",
 	"Puzzle_info": "Позволява включването на пъзел в презентацията. Достатъчно е само да качите изображение, което след това автоматично се разделя на части в редици и колони. Задачата на учениците е да подредят частите, за да възстановят цялото изображение.",
 	"Puzzle_name": "Пъзел",
 	"Puzzle_property_columns": "Колони",

@@ -1302,6 +1302,7 @@ var ice_dictionary_mx = {
 	"Points_To_Plot_property_points": "Número de los puntos",
 	"Points_To_Plot_property_strict_points": "Coordenadas de los puntos",
 	"Points_To_Plot_property_decimal_separator": "Separador decimal",
+	"Points_To_Plot_property_show_answers": "Show answers",
 	"Puzzle_info": "Permite insertar un juego de rompecabezas a la presentación. Basta con cargar una imagen, que luego se divide automáticamente en elementos separados y poner un número de filas y columnas. La tarea consiste en organizar los elementos en el orden correcto y armar la imagen de nuevo.",
 	"Puzzle_name": "Rompecabezas",
 	"Puzzle_property_columns": "Columnas",

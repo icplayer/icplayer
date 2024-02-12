@@ -1491,7 +1491,8 @@ function AddonPlot_create(){
         plot.enableUI(false);
     };
 
-    presenter.saveAndClearPlot = function() {saveAndClearPlot()};
+    presenter.saveAndClearPlot = function() {saveAndClearPlot();};
+    presenter.showAllExpressionsAnswers = function() {showAllExpressionsAnswers();};
 
     presenter.gradualShowAnswers = function(eventData) {
         if (!presenter.isActivity || eventData.moduleID !== addonID) {
@@ -1535,6 +1536,18 @@ function AddonPlot_create(){
         $.each(plot.expressions, function(idx, val) {
             plot.removePlot(idx);
         });
+    }
+
+    presenter.saveAndClearPoints = function() {
+        // save status of selected points
+        presenter.clickedPoints = {};
+        $.extend( true, presenter.clickedPoints, plot.selectedPoints );
+
+        // clear plot from selected points
+        $.each(presenter.clickedPoints, function(_, point) {
+            plot._deselectPoint(point.x, point.y, true);
+        });
+        presenter.removePointsStateMarks();
     }
 
     function showAllExpressionsAnswers() {

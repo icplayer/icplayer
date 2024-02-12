@@ -1188,6 +1188,7 @@ var ice_dictionary_en = {
 	"Points_To_Plot_property_points": "Points",
 	"Points_To_Plot_property_strict_points": "Strict points",
 	"Points_To_Plot_property_decimal_separator": "Decimal separator",
+	"Points_To_Plot_property_show_answers": "Show answers",
 	"Puzzle_info": "Allows to insert a puzzle game into a presentation. It is enough to upload an image which is later automatically divided into separate items put in rows and columns. A user’s task is to arrange the elements in the right order and make the image whole again.",
 	"Puzzle_name": "Puzzle",
 	"Puzzle_property_columns": "Columns",

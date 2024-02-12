@@ -1301,6 +1301,7 @@ var ice_dictionary_pl = {
 	"Points_To_Plot_property_points": "Punkty",
 	"Points_To_Plot_property_strict_points": "Punkty bezwzględne",
 	"Points_To_Plot_property_decimal_separator": "Separator dziesiętny",
+	"Points_To_Plot_property_show_answers": "Show answers",
 	"Puzzle_info" : "Umożliwia wstawienie do prezentacji gry polegającej na ułożeniu poszczególnych elementów w obraz. Wystarczy wgrać obraz, a zostanie on automatycznie podzielony na elementy rozmieszczone w poszczególnych rzędach i kolumnach. Zadanie użytkownika polega na uporządkowaniu elementów i ułożeniu ich w jedną całość.",
 	"Puzzle_name" : "Puzzle",
 	"Puzzle_property_columns" : "Kolumny",

@@ -14,17 +14,34 @@ function AddonPoints_To_Plot_create() {
     presenter.VERSION = '1.0.2';
     presenter.run = function(view, model) {
         presenter.view = view;
-        presenter.model = model;
+        presenter.model = presenter.upgradeModel(model);
 
         eventBus = presenter.playerController.getEventBus();
         addonID = model.ID;
 
         presenter._allDoneState = false;
-        presenter.initialize(model);
+        presenter.initialize(presenter.model);
         presenter.setEventListeners();
     };
 
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeShowAnswers(model);
+    }
+
+    presenter.upgradeShowAnswers = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['Show answers'] === undefined) {
+            upgradedModel['Show answers'] = '';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.initialize = function(model) {
+        console.log("PtP6");
+        console.log(model);
         this.source = model['Source'];
         this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
         if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
@@ -42,6 +59,10 @@ function AddonPoints_To_Plot_create() {
             }
         });
         this.data.selectedPoints = [];
+        var rawShawAnswers = model['Show answers'].trim();
+        presenter.showAnswersPoints = rawShawAnswers.length > 0 ? presenter.parseStrictPoints(rawShawAnswers) : [];
+        console.log("showAnswersPoints");
+        console.log(presenter.showAnswersPoints);
     };
 
     presenter.setEventListeners = function() {
@@ -112,14 +133,11 @@ function AddonPoints_To_Plot_create() {
         var sourceModule = this.getSourceModule();
         sourceModule.handleDisplayedAnswers();
         sourceModule.isShowAnswersActive = true;
-        sourceModule.saveAndClearPlot();
+        sourceModule.saveAndClearPoints();
 
-        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
-            var plot = presenter.data.pointsOnPlot[i];
-            for (var j = 0; j < plot.strictPoints.length; j++) {
-                var point = plot.strictPoints[j];
-                sourceModule.setPointShowAnswersClass(point.x, point.y);
-            }
+        for (var i = 0; i < presenter.showAnswersPoints.length; i++) {
+            var point = presenter.showAnswersPoints[i];
+            sourceModule.setPointShowAnswersClass(point.x, point.y);
         }
 
         sourceModule.enableUI(false);
@@ -134,31 +152,21 @@ function AddonPoints_To_Plot_create() {
     }
 
     presenter.getActivitiesCount = function() {
-        var count = 0;
-        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
-            var plot = presenter.data.pointsOnPlot[i];
-            count += plot.strictPoints.length;
-        }
-        return count;
+        return presenter.showAnswersPoints.length;
     }
 
     presenter.gradualShowAnswers = function(item) {
+        console.log("gradualShowAnswers");
+        console.log(item);
         isShowAnswersActive = true;
         var sourceModule = this.getSourceModule();
         sourceModule.handleDisplayedAnswers();
         sourceModule.isShowAnswersActive = true;
-        sourceModule.saveAndClearPlot();
+        sourceModule.saveAndClearPoints();
 
-        var count = 0;
-        for (var i = 0; i < presenter.data.pointsOnPlot.length; i++) {
-            var plot = presenter.data.pointsOnPlot[i];
-            for (var j = 0; j < plot.strictPoints.length; j++) {
-                var point = plot.strictPoints[j];
-                sourceModule.setPointShowAnswersClass(point.x, point.y);
-                count += 1;
-                if (count > item) break;
-            }
-            if (count > item) break;
+        for (var i = 0; i < presenter.showAnswersPoints.length && i <= item; i++) {
+            var point = presenter.showAnswersPoints[i];
+            sourceModule.setPointShowAnswersClass(point.x, point.y);
         }
 
         sourceModule.enableUI(false);
@@ -217,7 +225,7 @@ function AddonPoints_To_Plot_create() {
     };
     presenter.createPreview = function(view, model) {
         presenter.view = view;
-        presenter.model = model;
+        presenter.model = presenter.upgradeModel(model);
     };
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
