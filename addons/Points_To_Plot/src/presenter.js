@@ -40,7 +40,7 @@ function AddonPoints_To_Plot_create() {
     };
 
     presenter.initialize = function(model) {
-        console.log("PtP6");
+        console.log("PtP7");
         console.log(model);
         this.source = model['Source'];
         this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
