@@ -851,7 +851,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.graphObject.prototype.reset = function () {
         this._columns.forEach(function (element) {
-            element.reset();
+            if (!element.isExample) {
+                element.reset();
+            }
         });
     };
 
