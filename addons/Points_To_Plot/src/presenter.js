@@ -40,8 +40,6 @@ function AddonPoints_To_Plot_create() {
     };
 
     presenter.initialize = function(model) {
-        console.log("PtP7");
-        console.log(model);
         this.source = model['Source'];
         this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
         if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
@@ -61,8 +59,6 @@ function AddonPoints_To_Plot_create() {
         this.data.selectedPoints = [];
         var rawShawAnswers = model['Show answers'].trim();
         presenter.showAnswersPoints = rawShawAnswers.length > 0 ? presenter.parseStrictPoints(rawShawAnswers) : [];
-        console.log("showAnswersPoints");
-        console.log(presenter.showAnswersPoints);
     };
 
     presenter.setEventListeners = function() {
@@ -131,6 +127,7 @@ function AddonPoints_To_Plot_create() {
     presenter.showAnswers = function() {
         isShowAnswersActive = true;
         var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
         sourceModule.handleDisplayedAnswers();
         sourceModule.isShowAnswersActive = true;
         sourceModule.saveAndClearPoints();
@@ -147,6 +144,7 @@ function AddonPoints_To_Plot_create() {
         if (!isShowAnswersActive) return;
         isShowAnswersActive = false;
         var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
         sourceModule._hideAnswers();
         sourceModule.isShowAnswersActive = false;
     }
@@ -156,10 +154,9 @@ function AddonPoints_To_Plot_create() {
     }
 
     presenter.gradualShowAnswers = function(item) {
-        console.log("gradualShowAnswers");
-        console.log(item);
         isShowAnswersActive = true;
         var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
         sourceModule.handleDisplayedAnswers();
         sourceModule.isShowAnswersActive = true;
         sourceModule.saveAndClearPoints();

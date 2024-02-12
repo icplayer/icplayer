@@ -1491,9 +1491,6 @@ function AddonPlot_create(){
         plot.enableUI(false);
     };
 
-    presenter.saveAndClearPlot = function() {saveAndClearPlot();};
-    presenter.showAllExpressionsAnswers = function() {showAllExpressionsAnswers();};
-
     presenter.gradualShowAnswers = function(eventData) {
         if (!presenter.isActivity || eventData.moduleID !== addonID) {
             return;
