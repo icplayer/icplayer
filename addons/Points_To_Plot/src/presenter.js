@@ -129,16 +129,11 @@ function AddonPoints_To_Plot_create() {
         isShowAnswersActive = true;
         var sourceModule = this.getSourceModule();
         if (sourceModule == null) return;
-        sourceModule.handleDisplayedAnswers();
-        sourceModule.isShowAnswersActive = true;
-        sourceModule.saveAndClearPoints();
 
-        for (var i = 0; i < presenter.showAnswersPoints.length; i++) {
-            var point = presenter.showAnswersPoints[i];
-            sourceModule.setPointShowAnswersClass(point.x, point.y);
+        sourceModule.setPtpShowAnswersPoints(presenter.showAnswersPoints);
+        if (presenter.showAnswersPoints.length > 0) {
+            sourceModule.ptpShowAnswers(presenter.showAnswersPoints.length - 1);
         }
-
-        sourceModule.enableUI(false);
     }
 
     presenter.hideAnswers = function() {
@@ -146,8 +141,7 @@ function AddonPoints_To_Plot_create() {
         isShowAnswersActive = false;
         var sourceModule = this.getSourceModule();
         if (sourceModule == null) return;
-        sourceModule._hideAnswers();
-        sourceModule.isShowAnswersActive = false;
+        sourceModule.ptpHideAnswers();
     }
 
     presenter.getActivitiesCount = function() {
@@ -158,16 +152,9 @@ function AddonPoints_To_Plot_create() {
         isShowAnswersActive = true;
         var sourceModule = this.getSourceModule();
         if (sourceModule == null) return;
-        sourceModule.handleDisplayedAnswers();
-        sourceModule.isShowAnswersActive = true;
-        sourceModule.saveAndClearPoints();
 
-        for (var i = 0; i < presenter.showAnswersPoints.length && i <= item; i++) {
-            var point = presenter.showAnswersPoints[i];
-            sourceModule.setPointShowAnswersClass(point.x, point.y);
-        }
-
-        sourceModule.enableUI(false);
+        sourceModule.setPtpShowAnswersPoints(presenter.showAnswersPoints);
+        sourceModule.ptpShowAnswers(item);
     }
 
     presenter.reset = function() {
@@ -187,6 +174,7 @@ function AddonPoints_To_Plot_create() {
         });
         return errors;
     };
+
     presenter.getMaxScore = function() {
         var todo = 0;
         $.each(this.data.pointsOnPlot, function(idx, val) {
@@ -194,6 +182,7 @@ function AddonPoints_To_Plot_create() {
         });
         return todo;
     };
+
     presenter.getScore = function() {
         var done = 0;
         $.each(this.data.pointsOnPlot, function(idx, val) {
@@ -201,9 +190,11 @@ function AddonPoints_To_Plot_create() {
         });
         return done;
     };
+
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
+
     presenter.getState = function() {
         var state = JSON.stringify({
             version: 1,
@@ -212,6 +203,7 @@ function AddonPoints_To_Plot_create() {
             });
         return state;
     };
+
     presenter.setState = function(state) {
         if(state !== '' && state !== undefined) {
             state = JSON.parse(state);
@@ -219,15 +211,19 @@ function AddonPoints_To_Plot_create() {
             presenter.data.pointsOnPlot = state.plots;
         }
     };
+
     presenter.executeCommand = function(name, params) {
     };
+
     presenter.createPreview = function(view, model) {
         presenter.view = view;
         presenter.model = presenter.upgradeModel(model);
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
+
     presenter.onEvent = function(evt, data) {
         switch(evt) {
             case "ValueChanged":
@@ -237,6 +233,7 @@ function AddonPoints_To_Plot_create() {
                 break;
         }
     };
+
     presenter.processPointEvent = function(data) {
         var els = data.item.split('_');
         var x = this.toDotSeparator(els[1]);
@@ -248,6 +245,7 @@ function AddonPoints_To_Plot_create() {
             presenter.deselectPoint(x,y);
         }
     };
+
     presenter.selectPoint = function(x, y) {
         var hasPoint = false;
         $.each(this.data.selectedPoints, function(k, v) {
@@ -272,6 +270,7 @@ function AddonPoints_To_Plot_create() {
             });
         }
     };
+
     presenter.deselectPoint = function(x, y) {
         $.each(this.data.selectedPoints, function(k, v) {
             if (v.x == x && v.y == y) {

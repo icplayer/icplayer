@@ -1416,6 +1416,8 @@ function AddonPlot_create(){
     presenter.isShowAnswersActive = false;
     presenter.isGradualShowAnswersActive = false;
     presenter.GSACounter = 0;
+    presenter.ptpShowAnswersPoints = [];
+    presenter.isPtpShowAnswersActive = false;
 
     presenter.setWorkMode = function(){
         var ref;
@@ -1535,6 +1537,26 @@ function AddonPlot_create(){
         });
     }
 
+    presenter.setPtpShowAnswersPoints = function(points) {
+        presenter.ptpShowAnswersPoints = points;
+    }
+
+    presenter.ptpShowAnswers = function(item) {
+        presenter.handleDisplayedAnswers();
+        presenter.isPtpShowAnswersActive = true;
+        presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
+        presenter.GSACounter = item;
+        presenter.saveAndClearPoints();
+
+        for (var i = 0; i < presenter.ptpShowAnswersPoints.length && i <= item; i++) {
+            var point = presenter.ptpShowAnswersPoints[i];
+            presenter.setPointShowAnswersClass(point.x, point.y);
+        }
+
+        presenter.enableUI(false);
+    }
+
     presenter.saveAndClearPoints = function() {
         // save status of selected points
         presenter.clickedPoints = {};
@@ -1627,7 +1649,13 @@ function AddonPlot_create(){
         _hideAnswers();
     };
 
-    presenter._hideAnswers = function(){_hideAnswers();};
+    presenter.ptpHideAnswers = function() {
+        if (!presenter.isPtpShowAnswersActive) return;
+
+        presenter.isPtpShowAnswersActive = false;
+        presenter.GSACounter = 0;
+        _hideAnswers();
+    };
 
     function _hideAnswers() {
         // POINTS
@@ -2228,6 +2256,7 @@ function AddonPlot_create(){
     presenter.getState = function() {
         const wasShowAnswersActive = presenter.isShowAnswersActive;
         const wasGradualShowAnswersActive = presenter.isGradualShowAnswersActive;
+        const wasPtpShowAnswersActive = presenter.isPtpShowAnswersActive;
         const previousGSACounter = presenter.GSACounter;
         presenter.handleDisplayedAnswers();
 
@@ -2272,7 +2301,7 @@ function AddonPlot_create(){
 
         wasShowAnswersActive && presenter.showAnswers();
         wasGradualShowAnswersActive && gradualShowAnswers(previousGSACounter, true);
-
+        wasPtpShowAnswersActive && presenter.ptpShowAnswers(previousGSACounter);
         return state;
     };
 
@@ -2411,6 +2440,7 @@ function AddonPlot_create(){
     presenter.handleDisplayedAnswers = function () {
         presenter.isShowAnswersActive && presenter.hideAnswers();
         presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+        presenter.isPtpShowAnswersActive && presenter.ptpHideAnswers();
     };
 
     presenter.isAnswersDisplayed = function () {
