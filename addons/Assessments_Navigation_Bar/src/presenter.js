@@ -686,7 +686,7 @@ function AddonAssessments_Navigation_Bar_create(){
             }
         } else {
             if (previousLeftSideIndex > MIN_LEFT_VALUE) {
-                this.leftSideIndex = currentIndex === previousLeftSideIndex ? previousLeftSideIndex - 1 : previousLeftSideIndex;
+                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideValue - 1 : previousLeftSideValue;
                 this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
             }
         }
@@ -932,6 +932,7 @@ function AddonAssessments_Navigation_Bar_create(){
                 this.leftSideIndex -= 1;
             }
         }
+        this.leftOffset = 0;
 
         this.shiftCount--;
         this.setSections();
@@ -991,7 +992,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.updateVisiblePages = function (button) {
-         if (this.isLastVisibleElement(button)) {
+         if (this.isLastVisibleElement(button) && this.leftOffset === 1) {
              this.shiftPagesToRight(1);
         }
     };
