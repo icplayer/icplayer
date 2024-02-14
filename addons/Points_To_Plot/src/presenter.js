@@ -57,8 +57,8 @@ function AddonPoints_To_Plot_create() {
             }
         });
         this.data.selectedPoints = [];
-        var rawShawAnswers = model['Show answers'].trim();
-        presenter.showAnswersPoints = rawShawAnswers.length > 0 ? presenter.parseStrictPoints(rawShawAnswers) : [];
+        var rawShowAnswers = model['Show answers'].trim();
+        presenter.showAnswersPoints = rawShowAnswers.length > 0 ? presenter.parseStrictPoints(rawShowAnswers) : [];
     };
 
     presenter.setEventListeners = function() {
@@ -105,6 +105,7 @@ function AddonPoints_To_Plot_create() {
     };
 
     presenter.setShowErrorsMode = function() {
+        if (isShowAnswersActive) presenter.hideAnswers();
         var sourceModule = this.getSourceModule();
         sourceModule.enableUI(false);
         //check every point
