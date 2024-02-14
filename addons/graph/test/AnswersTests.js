@@ -5,7 +5,8 @@ TestCase("[Graph] Answers tests", {
         this.presenter.configuration = {
             isNotActivity: false,
             ID: 'FC01',
-            answers: [0, 1, 2]
+            answers: [0, 1, 2],
+            exampleAnswers: [false, false, false]
         };
         this.presenter.eventBus = {
             sendEvent: function () {}
@@ -35,6 +36,19 @@ TestCase("[Graph] Answers tests", {
         assertTrue(this.stubs.setCurrentStateStub.calledOnce);
         assertTrue(this.presenter.isShowAnswersActive);
         assertEquals(3, this.presenter.addAnswerToGraph.callCount);
+    },
+
+    'test given example answers when showAnswers was called then show answers': function () {
+        this.presenter.isShowAnswersActive = false;
+        this.presenter.setCurrentState = this.stubs.setCurrentStateStub;
+        this.presenter.addAnswerToGraph = this.stubs.addAnswerToGraphStub;
+        this.presenter.configuration.exampleAnswers = [true, false, false];
+
+        this.presenter.showAnswers();
+
+        assertTrue(this.stubs.setCurrentStateStub.calledOnce);
+        assertTrue(this.presenter.isShowAnswersActive);
+        assertEquals(2, this.presenter.addAnswerToGraph.callCount);
     },
 
     'test given active addon and shown answers when hideAnswers was called then hide answers': function () {

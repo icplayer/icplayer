@@ -61,7 +61,7 @@ Each row has to have equal amount of columns. Values have to be placed in quotes
     </tr>
     <tr>
       <td>Answers</td>
-      <td>list containing valid values for bars. Used only if interactive property is set to true.</td>
+      <td>List of objects containing correct answer and example answer status. Used only if interactive property is set to true.</td>
     </tr>
     <tr>
       <td>Show X axis bars descriptions</td>

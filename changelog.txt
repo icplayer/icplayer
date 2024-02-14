@@ -1,3 +1,4 @@
+2024-02-14 Added example answers to the  graph addon
 2024-02-02 Fixed multiplegap not parsing alt texts correctly
 2024-02-02 Added events for changing/reversing the cards in the Flash Cards
 2024-02-02 Fixed changing position of IWB Toolbar when is opened

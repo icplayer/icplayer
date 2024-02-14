@@ -65,6 +65,10 @@ function Addongraph_create(){
         YAV_06: "Y axis values can't have duplicated numbers"
     };
 
+    presenter.CSS_CLASSES = {
+        SHOW_EXAMPLE : 'graph_show_example'
+    };
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -189,16 +193,22 @@ function Addongraph_create(){
             presenter.$view.find('.graph_value_element_interactive, .graph_column_container_below, .graph_column_container_above').css('cursor', 'default');
 
             presenter.$view.find('.graph_value_container').each(function(index, element) {
-                if(presenter.configuration.answers[index] != parseFloat($(element).attr('current-value'))) {
-                    $(element).find('.graph_value_element').addClass('graph_value_element_invalid');
-                    $(element).find('.graph_value_element_positive').addClass('graph_value_element_positive_invalid');
-                    $(element).find('.graph_value_element_negative').addClass('graph_value_element_negative_invalid');
-                } else {
-                    $(element).find('.graph_value_element').addClass('graph_value_element_valid');
-                    $(element).find('.graph_value_element_positive').addClass('graph_value_element_positive_valid');
-                    $(element).find('.graph_value_element_negative').addClass('graph_value_element_negative_valid');
+                if (!presenter.configuration.exampleAnswers[index]) {
+                    presenter.handleCheckingAnswers(index, element);
                 }
             });
+        }
+    };
+
+    presenter.handleCheckingAnswers = function (index, element) {
+        if (presenter.configuration.answers[index] != parseFloat($(element).attr('current-value'))) {
+            $(element).find('.graph_value_element').addClass('graph_value_element_invalid');
+            $(element).find('.graph_value_element_positive').addClass('graph_value_element_positive_invalid');
+            $(element).find('.graph_value_element_negative').addClass('graph_value_element_negative_invalid');
+        } else {
+            $(element).find('.graph_value_element').addClass('graph_value_element_valid');
+            $(element).find('.graph_value_element_positive').addClass('graph_value_element_positive_valid');
+            $(element).find('.graph_value_element_negative').addClass('graph_value_element_negative_valid');
         }
     };
 
@@ -240,8 +250,9 @@ function Addongraph_create(){
 
     presenter.getMaxScore = function() {
         if (presenter.configuration.isNotActivity) return 0;
+        const examples = presenter.configuration.exampleAnswers.filter(Boolean).length;
 
-        return presenter.configuration.answers.length;
+        return presenter.configuration.answers.length - examples;
     };
 
     presenter.getErrorCount = function() {
@@ -285,6 +296,7 @@ function Addongraph_create(){
         presenter.setWorkMode();
 
         presenter.removeShowAnswersClass();
+        presenter.drawExampleAnswers();
     };
 
     presenter.removeShowAnswersClass = function () {
@@ -400,8 +412,11 @@ function Addongraph_create(){
 
     presenter.increaseGraphValue = function(eventData) {
         eventData.stopPropagation();
+        const valueContainer = $(eventData.target).parent().find('.graph_value_container');
+        const changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer);
+        const isExampleAnswer = presenter.configuration.exampleAnswers[changedBarIndex];
 
-        if (presenter.shouldStopAction()) return;
+        if (presenter.shouldStopAction() || isExampleAnswer) { return; }
 
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
@@ -409,10 +424,7 @@ function Addongraph_create(){
             return false;
         }
 
-        var valueContainer = $(eventData.target).parent().find('.graph_value_container');
-
-        var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
-            currentValue = parseFloat(valueContainer.attr('current-value')),
+        var currentValue = parseFloat(valueContainer.attr('current-value')),
             minInteractivePoint = presenter.getMinimumInteractivePoint(valueContainer.attr('value-id')),
             newValue, newValuePrecision;
 
@@ -438,7 +450,7 @@ function Addongraph_create(){
     presenter.decreaseGraphValue = function(eventData) {
         eventData.stopPropagation();
 
-        if (presenter.shouldStopAction()) return;
+        if (presenter.shouldStopAction() || presenter.isExample(eventData)) { return; }
 
         presenter.configuration.shouldCalcScore = true;
         if (presenter.configuration.mouseData.wasDragged) {
@@ -458,7 +470,10 @@ function Addongraph_create(){
         var changedBarIndex = presenter.$view.find('.graph_series .graph_value_container').index(valueContainer),
             currentValue = parseFloat(valueContainer.attr('current-value')),
             maxInteractivePoint = presenter.getMaximumInteractivePoint(valueContainer.attr('value-id')),
-            newValue, newValuePrecision;
+            newValue, newValuePrecision,
+            isExample = presenter.configuration.exampleAnswers[changedBarIndex];
+
+        if (isExample) { return; }
 
         if (currentValue == presenter.configuration.axisYMaximumValue && maxInteractivePoint !== currentValue) {
             // Special case when current value is maximum and can not match with those calculated with interactive step
@@ -487,6 +502,10 @@ function Addongraph_create(){
         prepareAndSendEvent("decrease", changedBarIndex, currentValue, newValue, valueContainer);
     };
 
+    presenter.isExample = function (event) {
+        return event.srcElement.offsetParent.className.includes(presenter.CSS_CLASSES.SHOW_EXAMPLE)
+    };
+
     function getValueElement() {
         var $element;
 
@@ -513,7 +532,7 @@ function Addongraph_create(){
     }
 
     function mouseDownCallback (eventData) {
-        if (presenter.shouldStopAction()) return;
+        if (presenter.shouldStopAction() || presenter.isExample(eventData)) { return; }
 
         presenter.configuration.mouseData.isMouseDown = true;
         presenter.configuration.mouseData.wasMouseDown = true;
@@ -539,7 +558,7 @@ function Addongraph_create(){
     }
 
     function columnContainerMouseDownCallback (eventData) {
-        if (presenter.shouldStopAction()) return;
+        if (presenter.shouldStopAction() || presenter.isExample(eventData)) { return; }
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.mouseData.$element = $(eventData.target);
@@ -628,8 +647,8 @@ function Addongraph_create(){
         }
     }
 
-    function mouseUpCallback () {
-        if (presenter.shouldStopAction()) return;
+    function mouseUpCallback (eventData) {
+        if (presenter.shouldStopAction() || presenter.isExample(eventData)) { return; }
 
         presenter.isStarted = true;
         presenter.configuration.shouldCalcScore = true;
@@ -710,8 +729,10 @@ function Addongraph_create(){
     }
 
     function mouseMoveCallback (eventData) {
-        if (presenter.shouldStopAction()) return;
-        if (presenter.configuration.mouseData.isMouseDown !== true) return;
+        if (presenter.configuration.mouseData.isMouseDown !== true || presenter.shouldStopAction() ||
+            presenter.isExample(eventData)) {
+            return;
+        }
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.mouseData.wasDragged = true;
@@ -763,7 +784,8 @@ function Addongraph_create(){
     }
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeAxisYValues(model);
+        const upgradedModel = presenter.upgradeAxisYValues(model);
+        return presenter.upgradeOfExampleAnswers(upgradedModel);
     };
 
     presenter.upgradeAxisYValues = function (model) {
@@ -777,6 +799,21 @@ function Addongraph_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeOfExampleAnswers = function (model) {
+        let upgradedModel = {};
+        const modelAnswers = model['Answers'];
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        modelAnswers.forEach((modelAnswer, index) => {
+            if (!modelAnswer.hasOwnProperty('Example')) {
+                upgradedModel['Answers'][index]['Example'] = "False";
+            }
+        });
+
+        return upgradedModel;
+    };
+
+
     presenter.run = function(view, model) {
         const events = ['ShowAnswers', 'GradualShowAnswers', 'HideAnswers', 'GradualHideAnswers'];
         presenter.initialize(view, model, false);
@@ -785,8 +822,10 @@ function Addongraph_create(){
     };
 
     presenter.getActivitiesCount = function () {
-        return presenter.$view.find(".graph_value_container").length;
-    }
+        const examples = presenter.configuration.exampleAnswers.filter(Boolean).length;
+
+        return presenter.$view.find(".graph_value_container").length - examples;
+    };
 
     presenter.createPreview = function(view, model) {
         presenter.initialize(view, model, true);
@@ -953,6 +992,8 @@ function Addongraph_create(){
             var results = [];
         }
 
+        const validatedExampleAnswers = presenter.validateExampleAnswers(model['Answers']);
+
         var validatedAxisYValues = presenter.validateAxisYValues(model, validatedAxisYMaximumValue.value,
             validatedAxisYMinimumValue.value, isDecimalSeparatorSet);
 
@@ -990,6 +1031,7 @@ function Addongraph_create(){
             validRows: validatedData.value.validRows,
             results: results,
             answers: validatedAnswers.answers,
+            exampleAnswers: validatedExampleAnswers,
             axisYValues: {fixedValues: validatedAxisYValues.fixedValues, cyclicValues: validatedAxisYValues.cyclicValues}
         };
     };
@@ -1412,6 +1454,16 @@ function Addongraph_create(){
         };
     };
 
+    presenter.validateExampleAnswers = function (answers) {
+        const exampleAnswers = [];
+        if (!answers) { return exampleAnswers; }
+        answers.forEach(answer => {
+            exampleAnswers.push(ModelValidationUtils.validateBoolean(answer['Example']));
+        });
+
+        return exampleAnswers;
+    }
+
     presenter.drawGrid = function (grid) {
         var axisYGridStep = presenter.configuration.axisYGridStep;
         var drawingGridStep = presenter.chartInner.height() * axisYGridStep / presenter.absoluteRange;
@@ -1516,6 +1568,7 @@ function Addongraph_create(){
         if (isPreview) presenter.configuration.isInteractive = false;
 
         presenter.drawGraph(view, model);
+        presenter.drawExampleAnswers();
     };
 
     presenter.drawGraph = function (view, model) {
@@ -1733,6 +1786,21 @@ function Addongraph_create(){
         axisYDescription.css('left', axisYDescriptionLeft + 'px');
     };
 
+    presenter.drawExampleAnswers = function () {
+        const isAnyExampleAnswer = presenter.configuration.exampleAnswers.some(answer => answer === true);
+        if (!isAnyExampleAnswer) {
+            return;
+        }
+
+        presenter.configuration.exampleAnswers.forEach((answer, index) => {
+            if (answer) {
+                const graphAnswers = presenter.$view.find(".graph_value_container");
+
+                presenter.addAnswerToGraph(index, $(graphAnswers[index]), true);
+            }
+        })
+    }
+
     presenter.onEventReceived = function (eventName, eventData) {
         switch (eventName) {
             case 'GradualShowAnswers':
@@ -1765,7 +1833,10 @@ function Addongraph_create(){
         presenter.setCurrentState();
 
         presenter.$view.find(".graph_value_container").each(function (index, element) {
-            presenter.addAnswerToGraph(index, element);
+            const isExample = presenter.configuration.exampleAnswers[index];
+            if (!isExample) {
+                presenter.addAnswerToGraph(index, element);
+            }
         });
     };
 
@@ -1779,6 +1850,7 @@ function Addongraph_create(){
         });
 
         presenter.isShowAnswersActive = false;
+        presenter.drawExampleAnswers();
     };
 
     presenter.gradualShowAnswers = function (eventData) {
@@ -1793,6 +1865,9 @@ function Addongraph_create(){
         presenter.isGradualShowAnswersActive = true;
 
         itemIndex = itemIndex < presenter.GSAcounter ? presenter.GSAcounter : itemIndex;
+        if (presenter.configuration.exampleAnswers[presenter.GSAcounter]) {
+            itemIndex += 1;
+        }
 
         presenter.setCurrentState();
         presenter.addAnswerToGraph(itemIndex, $(graphAnswers[itemIndex]));
@@ -1813,6 +1888,7 @@ function Addongraph_create(){
         presenter.isGradualShowAnswersActive = false;
         presenter.currentData = [];
         presenter.GSAcounter = 0;
+        presenter.drawExampleAnswers();
     }
 
     presenter.setCurrentState = function () {
@@ -1822,6 +1898,7 @@ function Addongraph_create(){
     }
 
     presenter.shouldStopAction = function () {
+        // check if the column is example or not
         return presenter.isDisplayingAnswers() || presenter.errorMode;
     }
 
@@ -1829,7 +1906,7 @@ function Addongraph_create(){
         return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
     }
 
-    presenter.addAnswerToGraph = function (index, element) {
+    presenter.addAnswerToGraph = function (index, element, isExample = false) {
         const currentValue = presenter.configuration.answers[index],
             valueContainer = $(element),
             $columnContainer = valueContainer.parent('').find('.graph_column_container_interactive');
@@ -1846,8 +1923,14 @@ function Addongraph_create(){
                 bottom: ''
             });
         }
-        $columnContainer.addClass('graph_column_container_show_answers');
-        valueContainer.addClass('graph_show_answers');
+
+        if (isExample) {
+            $columnContainer.addClass('graph_column_container_show_example_answers');
+            valueContainer.addClass('graph_show_example_answers');
+        } else {
+            $columnContainer.addClass('graph_column_container_show_answers');
+            valueContainer.addClass('graph_show_answers');
+        }
     }
 
     presenter.removeAnswerFromGraph = function (index, element) {
