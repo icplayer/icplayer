@@ -91,6 +91,7 @@ function AddonDouble_State_Button_create(){
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
+
         if (!model["speechTexts"]) {
             upgradedModel["speechTexts"] = {
                 selectButton: {selectButton: DEFAULT_TTS_PHRASES.SELECT_BUTTON},
@@ -100,8 +101,10 @@ function AddonDouble_State_Button_create(){
         }
 
         if (!upgradedModel['speechTexts'].hasOwnProperty('disabledButton')) {
-            upgradedModel['speechTexts']['disabledButton'] = {deselectButton: DEFAULT_TTS_PHRASES.DISABLED_BUTTON};
+            upgradedModel['speechTexts']['disabledButton'] = {disabledButton: DEFAULT_TTS_PHRASES.DISABLED_BUTTON};
         }
+
+        presenter.useWithoutDisable = Object.keys(model["speechTexts"]).length === 3;
 
         return upgradedModel;
     };
@@ -848,7 +851,7 @@ function AddonDouble_State_Button_create(){
                 textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText))
         }
 
-        if (presenter.configuration.isDisabled) {
+        if (presenter.configuration.isDisabled && !presenter.useWithoutDisable) {
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabledButton))
         }
 
@@ -857,7 +860,7 @@ function AddonDouble_State_Button_create(){
 
     presenter.speakSpaceAction = function() {
         var textVoices = [];
-        if (presenter.configuration.isDisabled) {
+        if (presenter.configuration.isDisabled && !presenter.useWithoutDisable) {
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabledButton))
         } else {
             if (presenter.configuration.isSelected) {
