@@ -644,7 +644,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.initView();
     };
 
-    presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideIndex, previousLeftSideValue) {
+    presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
 
         if (previousLeftSideIndex < 0) {
@@ -653,7 +653,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         const rightSideIndex = previousLeftSideIndex + presenter.configuration.numberOfButtons - 4;
 
-        if (rightSideIndex >= currentIndex) {
+        if (rightSideIndex >= currentIndex && !nextPrevBtnWasClicked) {
             this.setLeftOffset(1);
         }
     };
@@ -666,7 +666,7 @@ function AddonAssessments_Navigation_Bar_create(){
         return this.leftSideIndex;
     };
 
-    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue) {
+    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
         const MIN_LEFT_VALUE = 3;
 
@@ -690,6 +690,15 @@ function AddonAssessments_Navigation_Bar_create(){
                 this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
             }
         }
+
+        if (nextPrevBtnWasClicked) {
+            if (currentIndex < previousLeftSideValue) { //call when it isn't visible
+                this.leftSideIndex = currentIndex - 1;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+            } else {
+                this.setLeftOffset(1);
+            }
+        }
     };
 
     presenter.NavigationManager.prototype.getLeftIndex = function (previousLeftSideValue) {
@@ -702,6 +711,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.goRight = function () {
+        this.nextPrevBtnWasClicked = true;
         var page = presenter.sections.getNextPageToCurrent();
 
         if (page) {
@@ -710,6 +720,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.goLeft = function () {
+        this.nextPrevBtnWasClicked = true;
         var page = presenter.sections.getPreviousPageToCurrent();
 
         if (page) {
@@ -992,8 +1003,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.updateVisiblePages = function (button) {
-         if (this.isLastVisibleElement(button) && this.leftOffset === 1) {
-             this.shiftPagesToRight(1);
+        if (this.leftOffset === 1 && this.isLastVisibleElement(button)) {
+            this.shiftPagesToRight(1);
         }
     };
 
@@ -1739,7 +1750,8 @@ function AddonAssessments_Navigation_Bar_create(){
             pages: pages,
             attemptedPages: presenter.sections.attemptedPages,
             leftSideIndex: presenter.navigationManager.getLeftSideIndex(),
-            leftSideValue: presenter.navigationManager.actualPages[0].page
+            leftSideValue: presenter.navigationManager.actualPages[0].page,
+            nextPrevBtnWasClicked: presenter.navigationManager.nextPrevBtnWasClicked
         };
         return JSON.stringify(state);
     };
@@ -1784,13 +1796,14 @@ function AddonAssessments_Navigation_Bar_create(){
         var upgradedState = presenter.upgradeState(parsedState);
         const previousLeftSideIndex = parsedState.leftSideIndex;
         const previousLeftSideValue = parsedState.leftSideValue;
+        const nextPrevBtnWasClicked = parsedState.nextPrevBtnWasClicked;
 
         var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
         // This if fix on wrong state when filter of sections worked wrong
         presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
-        presenter.navigationManager.calculateLeftOffset(previousLeftSideIndex, previousLeftSideValue);
+        presenter.navigationManager.calculateLeftOffset(previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.restartLeftSideIndex();
-        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue);
+        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 
