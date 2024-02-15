@@ -7,7 +7,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.lorepo.icplayer.client.xml.RequestFinishedCallback;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class RequestsUtils {
 	
