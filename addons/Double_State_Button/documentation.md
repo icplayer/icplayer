@@ -42,6 +42,10 @@ Double state button allows users to perform different actions in presentations, 
         <td>Disable</td>
         <td>Disable button. No events will be triggered when selected.</td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
+    </tr>
 </table>
 
 ## Supported commands

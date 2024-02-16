@@ -21,7 +21,8 @@ function AddonDouble_State_Button_create(){
 
     var DEFAULT_TTS_PHRASES = {
         SELECT_BUTTON: "selected",
-        DESELECT_BUTTON: "deselected"
+        DESELECT_BUTTON: "deselected",
+        DISABLED_BUTTON: "disabled"
     };
 
     const ERROR_MESSAGES = {
@@ -96,6 +97,10 @@ function AddonDouble_State_Button_create(){
                 deselectButton: {deselectButton: DEFAULT_TTS_PHRASES.DESELECT_BUTTON},
                 speechTextDisabled: {speechTextDisabled: "False"}
             };
+        }
+
+        if (!upgradedModel['speechTexts'].hasOwnProperty('disabledButton')) {
+            upgradedModel['speechTexts']['disabledButton'] = {deselectButton: DEFAULT_TTS_PHRASES.DISABLED_BUTTON};
         }
 
         return upgradedModel;
@@ -725,6 +730,17 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.setSpeechTexts = function (speechTexts) {
+        speechTexts = getSpeechTexts(speechTexts);
+
+        presenter.speechTexts = {
+            selectButton: getSpeechTextProperty(speechTexts.selectButton.selectButton, DEFAULT_TTS_PHRASES.SELECT_BUTTON),
+            deselectButton: getSpeechTextProperty(speechTexts.deselectButton.deselectButton, DEFAULT_TTS_PHRASES.DESELECT_BUTTON),
+            speechTextDisabled: ModelValidationUtils.validateBoolean(speechTexts.speechTextDisabled.speechTextDisabled),
+            disabledButton: getSpeechTextProperty(speechTexts.disabledButton.disabledButton, DEFAULT_TTS_PHRASES.DISABLED_BUTTON)
+        };
+    };
+
+    function getSpeechTexts (speechTexts) {
         if (!speechTexts) {
             speechTexts = {
                 selectButton: {selectButton: DEFAULT_TTS_PHRASES.SELECT_BUTTON},
@@ -733,12 +749,12 @@ function AddonDouble_State_Button_create(){
             };
         }
 
-        presenter.speechTexts = {
-            selectButton: getSpeechTextProperty(speechTexts.selectButton.selectButton, DEFAULT_TTS_PHRASES.SELECT_BUTTON),
-            deselectButton: getSpeechTextProperty(speechTexts.deselectButton.deselectButton, DEFAULT_TTS_PHRASES.DESELECT_BUTTON),
-            speechTextDisabled: ModelValidationUtils.validateBoolean(speechTexts.speechTextDisabled.speechTextDisabled)
-        };
-    };
+        if (!speechTexts.hasOwnProperty('disabledButton')) {
+            speechTexts['disabledButton'] = {disabledButton: DEFAULT_TTS_PHRASES.DISABLED_BUTTON}
+        }
+
+        return speechTexts;
+    }
 
     function getSpeechTextProperty(value, defaultValue) {
         if (value === undefined || value === null || value.trim() === '')
@@ -832,15 +848,23 @@ function AddonDouble_State_Button_create(){
                 textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText))
         }
 
+        if (presenter.configuration.isDisabled) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabledButton))
+        }
+
         speak(textVoices);
     };
 
     presenter.speakSpaceAction = function() {
         var textVoices = [];
-        if (presenter.configuration.isSelected) {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectButton));
+        if (presenter.configuration.isDisabled) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabledButton))
         } else {
-            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselectButton));
+            if (presenter.configuration.isSelected) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectButton));
+            } else {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselectButton));
+            }
         }
 
         speak(textVoices);
