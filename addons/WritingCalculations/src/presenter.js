@@ -11,6 +11,8 @@ function AddonWritingCalculations_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.isScoreSaved = false;
     presenter.userAnswers = [];
+    presenter.helpBoxesDefaultValues = [];
+    presenter.helpBoxesUserAnswers = [];
     presenter.isDisabled = false;
     var eventBus;
 
@@ -20,7 +22,8 @@ function AddonWritingCalculations_create() {
         "SYMBOL" : 3,
         "EMPTY_SPACE" : 4,
         "LINE" : 5,
-        "DOT" : 6
+        "DOT" : 6,
+        "HELP_BOX" : 7,
     };
 
     presenter.upgradeModel = function (model) {
@@ -57,11 +60,14 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.ERROR_MESSAGES = {
-        V01 : 'Error in row number %rowIndex%. Missing closing bracket.',
-        V02 : 'Error in row number %rowIndex%. Missing opening bracket.',
-        V03 : 'Error in row number %rowIndex%. Missing number between brackets.',
+        V01 : 'Error in row number %rowIndex%. Missing closing square bracket.',
+        V02 : 'Error in row number %rowIndex%. Missing opening square bracket.',
+        V03 : 'Error in row number %rowIndex%. Missing number between square brackets.',
         V04 : 'Error in row number %rowIndex%. Number between brackets must be from 0 to 9.',
-        V05 : 'Error in row number %rowIndex%. Given value "%value%" is not a valid number.',
+        V05 : 'Error in row number %rowIndex%. Given value "%value%" in square brackets is not a valid number.',
+        V06 : 'Error in row number %rowIndex%. Missing closing curly bracket.',
+        V07 : 'Error in row number %rowIndex%. Missing opening curly bracket.',
+        V08 : 'Error in row number %rowIndex%. Given value "%value%" in curly brackets is not a valid. Curly brackets must be empty or have a valid number.',
     };
 
     presenter.run = function(view, model) {
@@ -189,20 +195,22 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.bindValueChangeEvent = function() {
-        var $input = presenter.$view.find(".writing-calculations-input");
-        $input.on('click', function(event) {
+        const $inputs = presenter.getInputs();
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+
+        $inputs.on('click', function(event) {
             event.stopPropagation();
         });
 
-        $input.on('keyup', function(event) {
-            presenter.onKeyUp(event)
+        $inputs.on('keyup', function(event) {
+            presenter.onKeyUp(event);
         });
 
-        $input.on('keypress', function(event) {
-            presenter.onKeyPress(event)
+        $inputs.on('keypress', function(event) {
+            presenter.onKeyPress(event);
         });
 
-        $input.on("change", function(event) {
+        $emptyBoxesInputs.on("change", function(event) {
             event.stopPropagation();
 
             var value = event.target.value;
@@ -215,8 +223,8 @@ function AddonWritingCalculations_create() {
                 isCorrect = 1;
             }
 
-            if (presenter.isCommutativity && presenter.isAllFilled()) {
-                presenter.triggerValueChangeEvent("", "all", presenter.isAllCorrectlyFilled() ? 1 : 0);
+            if (presenter.isCommutativity && presenter.isAllEmptyBoxInputsFilled()) {
+                presenter.triggerValueChangeEvent("", "all", presenter.isAllEmptyBoxInputsCorrectlyFilled() ? 1 : 0);
             }
 
             if (!presenter.isCommutativity) {
@@ -268,41 +276,45 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.createView = function (elementsData) {
-        let viewWrapper = this.$view.find("#writing-calculations-wrapper");
+        const $viewWrapper = this.$view.find("#writing-calculations-wrapper");
         elementsData.forEach((elementsRow, rowIndex) => {
-            let rowWrapper = presenter.createRowWrapper(rowIndex);
+            const $rowWrapper = presenter.createRowWrapper(rowIndex);
             let cellIndex = 0;
             elementsRow.forEach((elementData) => {
-                let createdElement = presenter.createElement(elementData.type);
+                const createdElement = presenter.createElement(elementData.type);
 
                 if (elementData.type !== presenter.ELEMENT_TYPE.LINE) {
                     addCellClass(createdElement, cellIndex);
                 }
 
-                presenter.transformElement(createdElement, elementData.rawValue, elementData.type);
+                presenter.transformElement(createdElement, elementData.parsedValue, elementData.type);
 
+                const ELEMENT_TYPES_WITH_POSITION = [
+                    presenter.ELEMENT_TYPE.EMPTY_BOX,
+                    presenter.ELEMENT_TYPE.NUMBER,
+                    presenter.ELEMENT_TYPE.HELP_BOX
+                ];
                 if (elementData.isVisiblePosition()
-                    && (elementData.type === presenter.ELEMENT_TYPE.EMPTY_BOX
-                        || elementData.type === presenter.ELEMENT_TYPE.NUMBER)) {
+                    && (ELEMENT_TYPES_WITH_POSITION.includes(elementData.type))) {
                     presenter.addPosition(createdElement, elementData.getPosition());
                 }
 
-                rowWrapper.append(createdElement);
+                $rowWrapper.append(createdElement);
 
                 if (elementData.type !== presenter.ELEMENT_TYPE.DOT) {
                     cellIndex++;
                 }
-            })
-            viewWrapper.append(rowWrapper);
-        })
-    }
+            });
+            $viewWrapper.append($rowWrapper);
+        });
+    };
 
     function addCellClass(createdElement, cellIndex) {
         $(createdElement).addClass('cell-' + (cellIndex + 1));
     }
 
     presenter.addPosition = function(element, position) {
-        let input = $(element).find(".writing-calculations-input, .container-number")[0];
+        const input = $(element).find(".writing-calculations-input, .container-number")[0];
 
         $(input).attr({
             "row" : position.rowIndex,
@@ -311,17 +323,17 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.setCellElementValue = function (row, cell, value) {
-        var inputs = presenter.getInputs();
+        const $inputs = presenter.getInputs();
 
-        for (var i = 0; i < inputs.length; i++) {
-            if ($(inputs[i]).attr("row") === row && $(inputs[i]).attr("cell") === cell) {
-                $(inputs[i]).val(value)
+        for (let i = 0; i < $inputs.length; i++) {
+            if ($($inputs[i]).attr("row") === row && $($inputs[i]).attr("cell") === cell) {
+                $($inputs[i]).val(value);
             }
         }
-    }
+    };
 
     presenter.parseValue = function (value) {
-        if (!this.isEmptyBox(value)) {
+        if (!this.isEmptyBox(value) && !this.isHelpBox(value)) {
             return value;
         }
 
@@ -331,9 +343,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.createRowWrapper = function(index) {
-        var rowWrapper = $("<div></div>");
-        rowWrapper.addClass("wrapper-row row-" + (index + 1));
-        return rowWrapper;
+        const rowWrapper = document.createElement("div");
+        rowWrapper.classList.add("wrapper-row");
+        rowWrapper.classList.add("row-" + (index + 1));
+        return $(rowWrapper);
     };
 
     presenter.createElement = function(type) {
@@ -357,6 +370,9 @@ function AddonWritingCalculations_create() {
             case this.ELEMENT_TYPE.DOT:
                 createdElement = this.createWrapperAndContainer("dot", 'wrapper-dot');
                 break;
+            case this.ELEMENT_TYPE.HELP_BOX:
+                createdElement = this.createWrapperAndContainer("helpBox");
+                break;
         }
 
         return createdElement;
@@ -375,16 +391,14 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.transformElement = function(element, value, type) {
-        var container = $(element).find("[class*=container]");
+        const $container = $(element).find("[class*=container]");
+        let inputType, input;
         switch(type) {
             case this.ELEMENT_TYPE.EMPTY_SPACE:
                 break;
             case this.ELEMENT_TYPE.EMPTY_BOX:
-                var inputType = "text";
-                if (presenter.useNumericKeyboard) {
-                    inputType = "tel";
-                }
-                var input = $("<input type='" + inputType + "'>");
+                inputType = presenter.useNumericKeyboard ? "tel" : "text";
+                input = $("<input type='" + inputType + "'>");
                 input.addClass("writing-calculations-input");
                 if(!presenter.multisigns){
                     input.attr("maxlength", 1);
@@ -392,30 +406,37 @@ function AddonWritingCalculations_create() {
                 if (presenter.useNumericKeyboard) {
                     input.attr("step", "any");
                 }
-                container.append(input);
+                $container.append(input);
                 break;
             case this.ELEMENT_TYPE.LINE:
                 break;
             case this.ELEMENT_TYPE.SYMBOL:
-                container.html(this.convertLaTeX(value));
+                $container.html(this.convertLaTeX(value));
                 break;
             case this.ELEMENT_TYPE.DOT:
-                container.html(value);
+                $container.html(value);
+                break;
+            case this.ELEMENT_TYPE.HELP_BOX:
+                inputType = presenter.useNumericKeyboard ? "tel" : "text";
+                input = $("<input type='" + inputType + "'>");
+                input.addClass("writing-calculations-input");
+                if (presenter.useNumericKeyboard) {
+                    input.attr("step", "any");
+                }
+                input.val(value);
+                $container.append(input);
                 break;
             default:
-                container.html(value);
+                $container.html(value);
         }
-
     };
 
     presenter.convertLaTeX = function (value) {
         if (value === "*") {
             return presenter.signs['Multiplication'];
-        }
-        else if (value === ":" || value === ")") {
+        } else if (value === ":" || value === ")") {
             return presenter.signs['Division'];
-        }
-        else if (value === "+") {
+        } else if (value === "+") {
             return presenter.signs['Addition'];
         } else if (value === "-") {
             return presenter.signs['Subtraction'];
@@ -431,6 +452,7 @@ function AddonWritingCalculations_create() {
         if( this.isEmptyBox(element) ) return this.ELEMENT_TYPE.EMPTY_BOX;
         if( this.isLine(element) ) return this.ELEMENT_TYPE.LINE;
         if( this.isDot(element)) return this.ELEMENT_TYPE.DOT;
+        if( this.isHelpBox(element)) return this.ELEMENT_TYPE.HELP_BOX;
     };
 
     presenter.isDot = function(element) {
@@ -438,16 +460,14 @@ function AddonWritingCalculations_create() {
     };
 
     /**
-     Check if valid box == will be empty box in run
+     Check if valid empty box == will be empty box in run
      @method isEmptyBox
 
      @param {String} element element HTML
     */
     presenter.isEmptyBox = function(element) {
-        if (element.length < 2) {
-            return false;
-        }
-        if (element[0] !== '[' || element[element.length - 1] !== ']') {
+        if ((element.length < 2)
+            || (element[0] !== '[' || element[element.length - 1] !== ']')) {
             return false;
         }
 
@@ -458,6 +478,22 @@ function AddonWritingCalculations_create() {
 
         const content = element.slice(1, element.length - 1);
         return (presenter.isDot(content) || presenter.isIntegerOrFloat(content));
+    };
+
+    /**
+     Check if valid help box
+     @method isHelpBox
+
+     @param {String} element element HTML
+    */
+    presenter.isHelpBox = function(element) {
+        if ((element.length < 2)
+            || (element[0] !== '{' || element[element.length - 1] !== '}')) {
+            return false;
+        }
+
+        const content = element.slice(1, element.length - 1);
+        return (presenter.isDot(content) || presenter.isIntegerOrFloat(content)) || content === "";
     };
 
     presenter.isEmptySpace = function(element) {
@@ -620,14 +656,22 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getInputs = function() {
-        return $(this.$view).find(".writing-calculations-input");
+        return this.$view.find(".writing-calculations-input");
+    }
+
+    presenter.getEmptyBoxesInputs = function() {
+        return this.$view.find(".container-emptyBox .writing-calculations-input");
     };
 
-    presenter.isAllFilled = function() {
-        var inputs = presenter.getInputs();
+    presenter.getHelpBoxesInputs = function() {
+        return this.$view.find(".container-helpBox .writing-calculations-input");
+    };
 
-        for (var i = 0; i < inputs.length; i++) {
-            if ($(inputs[i]).val().length == 0) return false;
+    presenter.isAllEmptyBoxInputsFilled = function() {
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+
+        for (let i = 0; i < $emptyBoxesInputs.length; i++) {
+            if ($($emptyBoxesInputs[i]).val().length == 0) return false;
         }
 
         return true;
@@ -643,24 +687,26 @@ function AddonWritingCalculations_create() {
             return;
         }
 
-        var inputs = $(this.$view).find(".writing-calculations-input");
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+        disableInputs($helpBoxesInputs);
 
         presenter.handleShownAnswers();
 
         if (!presenter.isCommutativity) {
-            $.each(inputs, function(){
-                var answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
+            $.each($emptyBoxesInputs, function(){
+                const answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
 
                 if (ModelValidationUtils.isStringEmpty($(this).val())) {
                     presenter.markEmpty($(this));
-                } else if( presenter.isCorrect(answer) ) {
+                } else if (presenter.isCorrect(answer)) {
                     presenter.markCorrect($(this));
                 } else {
                     presenter.markIncorrect($(this));
                 }
             });
-        } else if (presenter.isAllFilled()) {
-            var isCorrect = presenter.isAllCorrectlyFilled();
+        } else if (presenter.isAllEmptyBoxInputsFilled()) {
+            const isCorrect = presenter.isAllEmptyBoxInputsCorrectlyFilled();
 
             if (isCorrect) {
                 presenter.$view.addClass('correct');
@@ -668,14 +714,14 @@ function AddonWritingCalculations_create() {
                 presenter.$view.addClass('wrong');
             }
 
-            disableAllInputs(inputs);
+            disableInputs($emptyBoxesInputs);
         } else {
-            disableAllInputs(inputs);
+            disableInputs($emptyBoxesInputs);
         }
     };
 
-    function disableAllInputs(inputs) {
-        $(inputs).attr("disabled", "disabled");
+    function disableInputs(inputs) {
+        inputs.attr("disabled", "disabled");
     }
 
     presenter.compareAnswers = function(correctAnswers, userAnswers) {
@@ -751,10 +797,10 @@ function AddonWritingCalculations_create() {
         return wasRowFound;
     };
 
-    presenter.getAllAnswers = function(elements) {
-        var answers = [];
+    presenter.getAllAnswers = function($elements) {
+        const answers = [];
 
-        $.each(elements, function(){
+        $.each($elements, function(){
             if ($(this).hasClass('writing-calculations-input')) {
                 if (answers[$(this).attr("row") - 1] === undefined) {
                     answers[$(this).attr("row") - 1] = [$(this).val()];
@@ -773,9 +819,9 @@ function AddonWritingCalculations_create() {
         return answers;
     };
 
-    presenter.isAllCorrectlyFilled = function() {
-        var elements = $(this.$view).find('.container-number, .writing-calculations-input');
-        var answers = presenter.getAllAnswers(elements);
+    presenter.isAllEmptyBoxInputsCorrectlyFilled = function() {
+        const $elements = this.$view.find('.container-number, .container-emptyBox .writing-calculations-input');
+        const answers = presenter.getAllAnswers($elements);
 
         return presenter.compareAnswers(presenter.answers, answers);
     };
@@ -822,14 +868,6 @@ function AddonWritingCalculations_create() {
         return this.visiblePosition;
     }
 
-    presenter.createAnswer = function(rowIndex, cellIndex, elementValue) {
-        return {
-            rowIndex: parseInt(rowIndex, 10),
-            cellIndex: parseInt(cellIndex, 10),
-            value: presenter.parseValue(elementValue)
-        }
-    };
-
     presenter.markIncorrect = function(element) {
         presenter.markAs(element, "incorrect");
     };
@@ -857,10 +895,19 @@ function AddonWritingCalculations_create() {
 
     presenter.reset = function() {
         this.clean(true, true);
-        var inputs = $(this.$view).find(".writing-calculations-input");
-        if(typeof(presenter.userAnswers) !== "undefined") {
-            $.each(inputs, function(index){
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        if (typeof(presenter.userAnswers) !== "undefined") {
+            $.each($emptyBoxesInputs, function(index){
                 presenter.userAnswers[index] = '';
+            });
+        }
+
+        const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+        if (typeof(presenter.helpBoxesUserAnswers) !== "undefined") {
+            const defaultValues = presenter.helpBoxesDefaultValues.flat();
+            $.each($helpBoxesInputs, function(index){
+                presenter.helpBoxesUserAnswers[index] = defaultValues[index];
+                $(this).val(presenter.helpBoxesUserAnswers[index]);
             });
         }
 
@@ -871,8 +918,8 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.clean = function(removeMarks, removeValues) {
-        var inputs = $(this.$view).find(".writing-calculations-input");
-        $.each(inputs, function(){
+        const $inputs = presenter.getInputs();
+        $.each($inputs, function(){
             if(removeMarks) {
                 presenter.removeMark($(this));
             }
@@ -896,10 +943,9 @@ function AddonWritingCalculations_create() {
         $(element).val("");
     };
 
-
-    presenter.getInputsData = function() {
-        var inputs = $(this.$view).find(".writing-calculations-input");
-        var inputsData = {
+    presenter.getEmptyBoxesInputsData = function() {
+        const $inputs = presenter.getEmptyBoxesInputs();
+        const inputsData = {
             values : [],
             correctAnswersCount : 0,
             incorrectAnswersCount : 0
@@ -907,14 +953,14 @@ function AddonWritingCalculations_create() {
 
         presenter.handleShownAnswers();
 
-        $.each(inputs, function () {
-            var value = $(this).val();
+        $.each($inputs, function () {
+            let value = $(this).val();
             value = presenter.parseValue(value);
             inputsData.values.push(value);
 
             if (value === undefined || value === "") return true; // jQuery.each continue
 
-            var answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
+            const answer = presenter.createAnswer($(this).attr("row"), $(this).attr("cell"), $(this).val());
             if( presenter.isCorrect(answer) ) {
                 inputsData.correctAnswersCount++;
             } else {
@@ -924,28 +970,53 @@ function AddonWritingCalculations_create() {
         return inputsData;
     };
 
+    presenter.getHelpBoxesInputsData = function() {
+        const $inputs = presenter.getHelpBoxesInputs();
+        const inputsData = {
+            values : [],
+        };
+
+        presenter.handleShownAnswers();
+
+        $.each($inputs, function () {
+            let value = $(this).val();
+            value = presenter.parseValue(value);
+            inputsData.values.push(value);
+        });
+        return inputsData;
+    };
+
     presenter.getState = function() {
         presenter.handleShownAnswers();
 
         return JSON.stringify({
-            "inputsData" : this.getInputsData(),
-            "isVisible" : presenter.isVisible
+            "inputsData" : this.getEmptyBoxesInputsData(),
+            "helpBoxesInputsData" : presenter.getHelpBoxesInputsData(),
+            "isVisible" : presenter.isVisible,
         });
     };
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
 
-        var state = JSON.parse(stateString);
+        const state = JSON.parse(stateString);
         if (state.inputsData) {
-            var inputs = $(this.$view).find(".writing-calculations-input");
-            var inputsData = state.inputsData;
-            $.each(inputs, function(index){
+            const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+            const inputsData = state.inputsData;
+            $.each($emptyBoxesInputs, function(index){
                 $(this).val(inputsData.values[index].toString());
             });
         }
 
-        if(state.isVisible != undefined) {
+        if (state.helpBoxesInputsData) {
+            const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+            const helpBoxesInputsData = state.helpBoxesInputsData;
+            $.each($helpBoxesInputs, function(index){
+                $(this).val(helpBoxesInputsData.values[index].toString());
+            });
+        }
+
+        if (state.isVisible != undefined) {
             presenter.isVisible = state.isVisible;
             presenter.setVisibility(presenter.isVisible);
         }
@@ -985,15 +1056,15 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.getPoints = function(type) {
-        var inputsData = this.getInputsData();
+        const inputsData = this.getEmptyBoxesInputsData();
 
         if (presenter.isCommutativity) {
             switch (type) {
                 case 'correct':
-                    return presenter.isAllCorrectlyFilled() ? 1 : 0;
+                    return presenter.isAllEmptyBoxInputsCorrectlyFilled() ? 1 : 0;
                 case 'incorrect':
-                    if (presenter.isAllFilled()) {
-                        return presenter.isAllCorrectlyFilled() ? 0 : 1;
+                    if (presenter.isAllEmptyBoxInputsFilled()) {
+                        return presenter.isAllEmptyBoxInputsCorrectlyFilled() ? 0 : 1;
                     } else {
                         return 0;
                     }
@@ -1015,7 +1086,6 @@ function AddonWritingCalculations_create() {
             }
         }
     };
-
 
     presenter.createEventData = function(value, item, isCorrect) {
         return {
@@ -1063,8 +1133,8 @@ function AddonWritingCalculations_create() {
         }
 
         presenter.isDisabled = true;
-        const inputs = $(this.$view).find(".writing-calculations-input");
-        $.each(inputs, function() {
+        const $inputs = presenter.getInputs();
+        $.each($inputs, function() {
             $(this).attr("disabled", true);
         });
     }
@@ -1072,14 +1142,14 @@ function AddonWritingCalculations_create() {
     presenter.enableInputs = function () {
         presenter.isDisabled = false;
 
-        const inputs = $(this.$view).find(".writing-calculations-input");
-        $.each(inputs, function() {
+        const $inputs = presenter.getInputs();
+        $.each($inputs, function() {
             $(this).attr("disabled", false);
         });
     }
 
     presenter.showAnswers = function () {
-        if(presenter.isNotActivity){
+        if (presenter.isNotActivity){
             return;
         }
 
@@ -1091,14 +1161,22 @@ function AddonWritingCalculations_create() {
         presenter.isShowAnswersActive = true;
         presenter.clean(true,false);
         presenter.isDisabled = true;
-        var inputs = $(this.$view).find(".writing-calculations-input");
-        var correctAnswers = presenter.correctAnswersList;
+        const correctAnswers = presenter.correctAnswersList;
 
-        $.each(inputs, function(index){
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        $.each($emptyBoxesInputs, function(index){
             $(this).addClass('writing-calculations_show-answers');
             $(this).attr("disabled", true);
             presenter.userAnswers.push($(this).val());
             $(this).val(correctAnswers[index].value);
+        });
+
+        const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+        $.each($helpBoxesInputs, function(){
+            $(this).addClass('writing-calculations_show-answers');
+            $(this).attr("disabled", true);
+            presenter.helpBoxesUserAnswers.push($(this).val());
+            $(this).val("");
         });
     };
 
@@ -1114,9 +1192,18 @@ function AddonWritingCalculations_create() {
             return;
         }
 
+        if (!presenter.isGradualShowAnswersActive) {
+            const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+            $.each($helpBoxesInputs, function(){
+                $(this).addClass('writing-calculations_show-answers');
+                $(this).attr("disabled", true);
+                presenter.helpBoxesUserAnswers.push($(this).val());
+                $(this).val("");
+            });
+        }
         presenter.isGradualShowAnswersActive = true;
         presenter.saveCurrentScore();
-        const input = $(this.$view).find(".writing-calculations-input")[eventData.item];
+        const input = presenter.getEmptyBoxesInputs()[eventData.item];
 
         $(input).addClass('writing-calculations_show-answers');
         presenter.userAnswers.push($(input).val());
@@ -1124,19 +1211,27 @@ function AddonWritingCalculations_create() {
     }
 
     presenter.hideAnswers = function () {
-        if(presenter.isNotActivity || !presenter.isShowAnswersActive) {
+        if (presenter.isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
         presenter.isShowAnswersActive = false;
-        var inputs = $(this.$view).find(".writing-calculations-input");
-        $.each(inputs, function(index){
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
+        $.each($emptyBoxesInputs, function(index){
             $(this).val(presenter.userAnswers[index]);
             $(this).removeClass('writing-calculations_show-answers');
             $(this).attr("disabled", false);
         });
 
+        const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+        $.each($helpBoxesInputs, function(index){
+            $(this).val(presenter.helpBoxesUserAnswers[index]);
+            $(this).removeClass('writing-calculations_show-answers');
+            $(this).attr("disabled", false);
+        });
+
         presenter.userAnswers = [];
+        presenter.helpBoxesUserAnswers = [];
         presenter.isDisabled = false;
     };
 
@@ -1148,20 +1243,28 @@ function AddonWritingCalculations_create() {
 
         presenter.enableInputs();
 
-        if(presenter.isNotActivity || !presenter.isGradualShowAnswersActive) {
+        if (presenter.isNotActivity || !presenter.isGradualShowAnswersActive) {
             return;
         }
 
         presenter.isGradualShowAnswersActive = false;
         presenter.isScoreSaved = false;
-        const inputs = $(this.$view).find(".writing-calculations-input");
+
+        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
         presenter.userAnswers.forEach((userAnswer, index) => {
-            const input = inputs[index];
+            const input = $emptyBoxesInputs[index];
             $(input).val(presenter.userAnswers[index]);
             $(input).removeClass('writing-calculations_show-answers');
         });
 
+        const $helpBoxesInputs = presenter.getHelpBoxesInputs();
+        $.each($helpBoxesInputs, function(index){
+            $(this).val(presenter.helpBoxesUserAnswers[index]);
+            $(this).removeClass('writing-calculations_show-answers');
+        });
+
         presenter.userAnswers = [];
+        presenter.helpBoxesUserAnswers = [];
     };
 
     presenter.saveCurrentScore = function () {
@@ -1176,19 +1279,24 @@ function AddonWritingCalculations_create() {
     }
 
     presenter.getActivitiesCount = function () {
-        return presenter.showAllAnswersInGSA ? 1 : $(this.$view).find(".writing-calculations-input").length;
+        return presenter.showAllAnswersInGSA ? 1 : presenter.getEmptyBoxesInputs().length;
     }
 
     presenter.validateModelValue = function (modelValue) {
         const rows = presenter.convertStringToArray(modelValue);
-        let elementsData = [];
+        const elementsData = [];
 
         for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
             let row = rows[rowIndex];
 
-            const validatedBracketsNumber = validateBracketsNumber(row, rowIndex);
-            if (!validatedBracketsNumber.isValid) {
-                return validatedBracketsNumber;
+            const validatedAnswerBracketsNumber = validateAnswerBracketsNumber(row, rowIndex);
+            if (!validatedAnswerBracketsNumber.isValid) {
+                return validatedAnswerBracketsNumber;
+            }
+
+            const validatedHelpBracketsNumber = validateHelpBracketsNumber(row, rowIndex);
+            if (!validatedHelpBracketsNumber.isValid) {
+                return validatedHelpBracketsNumber;
             }
 
             let cellBoxIndex = 0;
@@ -1198,21 +1306,45 @@ function AddonWritingCalculations_create() {
                 let elementLength = 1;
                 let elementData = {};
 
-                const isEndOfGap = elementValue === ']';
-                if (isEndOfGap) {
+                const isEndOfAnswerGap = elementValue === ']';
+                if (isEndOfAnswerGap) {
                     return getErrorObject("V02", {rowIndex: rowIndex + 1});
                 }
 
-                const isStartOfGap = elementValue === '[';
-                if (isStartOfGap) {
-                    const validatedGapLength = validateGapLength(row, rowIndex, startingIndex);
+                const isEndOfHelpGap = elementValue === '}';
+                if (isEndOfHelpGap) {
+                    return getErrorObject("V07", {rowIndex: rowIndex + 1});
+                }
+
+                const isStartOfAnswerGap = elementValue === '[';
+                const isStartOfHelpGap = elementValue === '{';
+                if (isStartOfHelpGap) {
+                    const validatedGapLength = validateHelpGapLength(row, rowIndex, startingIndex);
                     if (!validatedGapLength.isValid) {
                         return validatedGapLength;
                     }
 
                     elementLength = validatedGapLength.value;
                     elementValue = row.slice(startingIndex, startingIndex + elementLength);
+                    elementData = presenter.createElementData(rowIndex + 1, ++cellBoxIndex, elementValue, true);
+                    if (elementData.type !== presenter.ELEMENT_TYPE.HELP_BOX) {
+                        return getErrorObject("V08", {rowIndex: rowIndex + 1, value: elementData.rawValue});
+                    }
 
+                    if (presenter.helpBoxesDefaultValues[rowIndex] === undefined) {
+                        presenter.helpBoxesDefaultValues[rowIndex] = [];
+                    }
+
+                    const answer = elementData.createAnswer();
+                    presenter.helpBoxesDefaultValues[rowIndex].push(answer.value);
+                } else if (isStartOfAnswerGap) {
+                    const validatedGapLength = validateAnswerGapLength(row, rowIndex, startingIndex);
+                    if (!validatedGapLength.isValid) {
+                        return validatedGapLength;
+                    }
+
+                    elementLength = validatedGapLength.value;
+                    elementValue = row.slice(startingIndex, startingIndex + elementLength);
                     elementData = presenter.createElementData(rowIndex + 1, ++cellBoxIndex, elementValue, true);
                     if (elementData.type !== presenter.ELEMENT_TYPE.EMPTY_BOX) {
                         return getErrorObject("V05", {rowIndex: rowIndex + 1, value: elementData.rawValue});
@@ -1222,7 +1354,7 @@ function AddonWritingCalculations_create() {
                         presenter.answers[rowIndex] = [];
                     }
 
-                    let answer = elementData.createAnswer();
+                    const answer = elementData.createAnswer();
                     presenter.answers[rowIndex].push(answer.value);
                     presenter.correctAnswersList.push(answer);
                 } else {
@@ -1245,7 +1377,7 @@ function AddonWritingCalculations_create() {
         return getCorrectObject(elementsData);
     }
 
-    function validateBracketsNumber(row, rowIndex) {
+    function validateAnswerBracketsNumber(row, rowIndex) {
         const errorMessageSubstitutions = {rowIndex: rowIndex + 1};
         const openingBracketsCount = row.split('').filter(x => x === '[').length;
         const closingBracketsCount = row.split('').filter(x => x === ']').length;
@@ -1257,20 +1389,32 @@ function AddonWritingCalculations_create() {
         return getCorrectObject(openingBracketsCount + closingBracketsCount);
     }
 
-    function validateGapLength(rowString, rowIndex, startIndex) {
+    function validateHelpBracketsNumber(row, rowIndex) {
+        const errorMessageSubstitutions = {rowIndex: rowIndex + 1};
+        const openingBracketsCount = row.split('').filter(x => x === '{').length;
+        const closingBracketsCount = row.split('').filter(x => x === '}').length;
+        if (openingBracketsCount > closingBracketsCount) {
+            return getErrorObject("V06", errorMessageSubstitutions);
+        } else if (openingBracketsCount < closingBracketsCount) {
+            return getErrorObject("V07", errorMessageSubstitutions);
+        }
+        return getCorrectObject(openingBracketsCount + closingBracketsCount);
+    }
+
+    function validateAnswerGapLength(rowString, rowIndex, startIndex) {
         const errorMessageSubstitutions = {rowIndex: rowIndex + 1};
 
-        const nextClosingBracketIndex = rowString.indexOf(']', startIndex);
-        if (nextClosingBracketIndex === -1) {
+        const nextClosingAnswerBracketIndex = rowString.indexOf(']', startIndex);
+        if (nextClosingAnswerBracketIndex === -1) {
             return getErrorObject("V01", errorMessageSubstitutions);
         }
 
-        const nextOpeningBracketIndex = rowString.indexOf('[', startIndex + 1);
-        if (nextOpeningBracketIndex !== - 1 && nextOpeningBracketIndex <= nextClosingBracketIndex) {
+        const nextOpeningAnswerBracketIndex = rowString.indexOf('[', startIndex + 1);
+        if (nextOpeningAnswerBracketIndex !== - 1 && nextOpeningAnswerBracketIndex <= nextClosingAnswerBracketIndex) {
             return getErrorObject("V01", errorMessageSubstitutions);
         }
 
-        const length = nextClosingBracketIndex - startIndex + 1;
+        const length = nextClosingAnswerBracketIndex - startIndex + 1;
         if (length === 2) {
             return getErrorObject("V03", errorMessageSubstitutions);
         }
@@ -1278,6 +1422,23 @@ function AddonWritingCalculations_create() {
         if (!presenter.multisigns && length !== 3) {
             return getErrorObject("V04", errorMessageSubstitutions);
         }
+        return getCorrectObject(length);
+    }
+
+    function validateHelpGapLength(rowString, rowIndex, startIndex) {
+        const errorMessageSubstitutions = {rowIndex: rowIndex + 1};
+
+        const nextClosingHelpBracketIndex = rowString.indexOf('}', startIndex);
+        if (nextClosingHelpBracketIndex === -1) {
+            return getErrorObject("V06", errorMessageSubstitutions);
+        }
+
+        const nextOpeningHelpBracketIndex = rowString.indexOf('{', startIndex + 1);
+        if (nextOpeningHelpBracketIndex !== - 1 && nextOpeningHelpBracketIndex <= nextClosingHelpBracketIndex) {
+            return getErrorObject("V07", errorMessageSubstitutions);
+        }
+
+        const length = nextClosingHelpBracketIndex - startIndex + 1;
         return getCorrectObject(length);
     }
 

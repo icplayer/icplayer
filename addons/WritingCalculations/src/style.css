@@ -69,3 +69,9 @@
 .correct {
     border: 1px solid #00bb00;
 }
+
+.container-helpBox .writing-calculations-input {
+    background-color: lightslategray;
+    width: 20px;
+    height: 20px;
+}

@@ -63,6 +63,12 @@ function AddonPlot_create(){
         this.xAxisValuesPosition = 0;
         this.yAxisValuesPosition = 0;
 
+        this.CHECKMARKS = {
+            NO: "No",
+            ONE_MARK: "One mark",
+            INDIVIDUAL_MARKS: "Individual marks"
+        };
+
         this.setXAxisValuesPosition = function (value) {
             this.svgDoc.find('.axisThicksTextX').attr('y', value);
         };
@@ -538,6 +544,89 @@ function AddonPlot_create(){
                     }
                 });
             }
+        }
+        this.areIndividualMarks = function () {
+            return this.checkMarks === this.CHECKMARKS.INDIVIDUAL_MARKS;
+        }
+        this.isOneMark = function () {
+            return this.checkMarks === this.CHECKMARKS.ONE_MARK;
+        }
+        this.createIndividualMarksSVGDOMGroup = function () {
+            const $groupsParent = this.svgDoc.find(".overall");
+            this.svg.group($groupsParent, {
+                class_: "marks"
+            });
+        }
+        this.drawOneCorrectMark = function () {
+            this.drawOneMark(true);
+        }
+        this.drawOneErrorMark = function () {
+            this.drawOneMark(false);
+        }
+        this.drawOneMark = function (isCorrect) {
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+
+            const addonMark = document.createElement("div");
+            addonMark.classList.add("mark");
+            addonMark.classList.add("addon_mark");
+            addonMark.classList.add(additionalClassName);
+            $(addonMark).html(window.xssUtils.sanitize(innerHTML));
+            this.svgDoc.parent().append(addonMark);
+        }
+        this.drawCorrectMarkForPoint = function (x, y) {
+            this.drawMarkForPoint(x, y, true);
+        }
+        this.drawErrorMarkForPoint = function (x, y) {
+            this.drawMarkForPoint(x, y, false);
+        }
+        this.drawMarkForPoint = function (x, y, isCorrect) {
+            this.svgDoc.find('.marks .mark.point_mark[vx="' + x + '"][vy="' + y + '"]').remove();
+
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+            const $source = this.svgDoc.find('.point[vx="' + x + '"][vy="' + y + '"]');
+
+            this.svg.text(this.svgDoc.find(".marks"), "",  {
+                "x": $source.attr("cx"),
+                "y": -$source.attr("cy"),
+                "vx": x,
+                "vy": y,
+                "class": "mark point_mark " + additionalClassName,
+            });
+
+            const $text = this.svgDoc.find('.marks .mark.point_mark[vx="' + x + '"][vy="' + y + '"]');
+            $text.html(window.xssUtils.sanitize(innerHTML));
+        }
+        this.drawCorrectMarkForExpression = function(idx) {
+            this.drawMarkForExpression(idx, true);
+        }
+        this.drawErrorMarkForExpression = function(idx) {
+            this.drawMarkForExpression(idx, false);
+        }
+        this.drawMarkForExpression = function (idx, isCorrect) {
+            this.svgDoc.find('.marks .mark.expression_mark[refuid="' + idx + '"]').remove();
+
+            const additionalClassName = isCorrect ? "mark_correct" :  "mark_error";
+            const innerHTML = isCorrect ? this.correctMarksHTML : this.errorMarksHTML;
+
+            const path = this.svgDoc.find('.is_plot[uid="'+idx+'"]')[0];
+            const pathDistance = path.getTotalLength() * this.expressions[idx].markAtLength;
+            const midpoint = path.getPointAtLength(pathDistance);
+
+            this.svg.text(this.svgDoc.find(".marks"), "",  {
+                "refuid": idx,
+                "class": "mark expression_mark " + additionalClassName,
+            });
+
+            const $text = this.svgDoc.find('.marks .mark.expression_mark[refuid="' + idx + '"]');
+            $text.attr("x", midpoint.x);
+            $text.attr("y", -midpoint.y);
+            $text.html(window.xssUtils.sanitize(innerHTML));
+        }
+        this.removeMarks = function() {
+            this.svgDoc.find(".marks").remove();
+            $(presenter.view).find(".mark").remove();
         }
         this.drawPlots = function() {
             $.each(this.expressions, function(idx, val) {
@@ -1419,6 +1508,41 @@ function AddonPlot_create(){
     presenter.ptpShowAnswersPoints = [];
     presenter.isPtpShowAnswersActive = false;
 
+    presenter.ERROR_CODES = {
+        'MARK_01': "Expression %expression% is invalid: mark at length must be empty or a positive number between 0 and 100",
+    };
+
+    presenter.showErrorMessage = function(message, substitutions) {
+        let errorContainer;
+        if (typeof(substitutions) == 'undefined') {
+            errorContainer = '<p>' + message + '</p>';
+        } else {
+            let messageSubst = message;
+            for (let key in substitutions) {
+                if (!substitutions.hasOwnProperty(key)) continue;
+                messageSubst = messageSubst.replace('%' + key + '%', substitutions[key]);
+            }
+            errorContainer = '<p>' + messageSubst + '</p>';
+        }
+
+        $(presenter.view).html(errorContainer);
+    };
+
+    function getErrorObject (errorCode, errorMessageSubstitutions) {
+        return {
+            isValid: false,
+            errorCode: errorCode,
+            errorMessageSubstitutions: errorMessageSubstitutions,
+        };
+    }
+
+    function getCorrectObject (value) {
+        return {
+            isValid: true,
+            value: value
+        };
+    }
+
     presenter.setWorkMode = function(){
         var ref;
         if(!presenter.isActivity) {
@@ -1435,6 +1559,7 @@ function AddonPlot_create(){
             }
         });
         this.removePointsStateMarks();
+        plot.removeMarks();
         plot.enableUI(true);
     };
 
@@ -1686,6 +1811,8 @@ function AddonPlot_create(){
 
         var res;
         presenter.errorsMode = true;
+
+        plot.areIndividualMarks() && plot.createIndividualMarksSVGDOMGroup();
         plot.enableUI(false);
 
         $.each(plot.expressions, function(idx, val) {
@@ -1694,10 +1821,12 @@ function AddonPlot_create(){
                     //mark error
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
+                    plot.areIndividualMarks() && plot.drawErrorMarkForExpression(idx);
                 } else if(val.correctAnswer == true && val.selected == true) {
                     //mark as correct only plots which are selectable, selected, touched and it\'s correct answer is true (selected)
                     plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
                     plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+                    plot.areIndividualMarks() && plot.drawCorrectMarkForExpression(idx);
                 }
             }
             res = plot.plotVariablesResult(idx);
@@ -1705,10 +1834,12 @@ function AddonPlot_create(){
                 //mark error
                 plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_error draw_'+(parseInt(idx)+1)+'_mark_error').removeAttr('style');
                 plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_error draw_'+(parseInt(idx)+1)+'_outline_mark_error');
+                plot.areIndividualMarks() && plot.drawErrorMarkForExpression(idx);
             } else if(res.todo == res.done && res.todo > 0 && res.touched) {
                 //mark correct
                 plot.svgDoc.find('.is_plot[uid="'+idx+'"]').addClass('draw_mark_correct draw_'+(parseInt(idx)+1)+'_mark_correct').removeAttr('style');
                 plot.svgDoc.find('.draw_outline_base[ouid="'+idx+'"]').addClass('draw_outline_mark_correct draw_'+(parseInt(idx)+1)+'_outline_mark_correct');
+                plot.areIndividualMarks() && plot.drawCorrectMarkForExpression(idx);
             }
         });
 
@@ -1719,9 +1850,11 @@ function AddonPlot_create(){
                     if(!val.correct && res && val.touched) {
                         //mark wrong
                         presenter.markPointAsError(val.x, val.y);
+                        plot.areIndividualMarks() && plot.drawErrorMarkForPoint(val.x, val.y);
                     } else if(val.correct && res && val.touched) {
                         //mark correct
                         presenter.markPointAsCorrect(val.x, val.y);
+                        plot.areIndividualMarks() && plot.drawCorrectMarkForPoint(val.x, val.y);
                     }
                 }
             });
@@ -1731,8 +1864,17 @@ function AddonPlot_create(){
                 res = presenter.grepPoints(plot.points, val);
                 if(!res) {
                     presenter.markPointAsError(val.x, val.y);
+                    plot.areIndividualMarks() && plot.drawErrorMarkForPoint(val.x, val.y);
                 }
             });
+        }
+
+        if (plot.isOneMark()) {
+            if (presenter.getErrorCount() > 0) {
+                plot.drawOneErrorMark();
+            } else if (presenter.getMaxScore() === presenter.getScore()) {
+                plot.drawOneCorrectMark();
+            }
         }
     };
 
@@ -1871,6 +2013,7 @@ function AddonPlot_create(){
     };
 
     presenter.run = function(view, model){
+        model = presenter.upgradeModel(model);
         presenter.errorsMode = false;
         presenter.view = view;
         presenter.model = model;
@@ -1885,6 +2028,37 @@ function AddonPlot_create(){
             presenter.eventBus.addEventListener(eventName, this);
         });
     };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeMarks(model);
+    };
+
+    presenter.upgradeMarks = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (upgradedModel.hasOwnProperty("Expressions")) {
+            upgradedModel.Expressions.map(function (expression) {
+                if (!expression["mark at length"]) {
+                    expression["mark at length"] = "50";
+                }
+            });
+        }
+
+        if (!upgradedModel.hasOwnProperty("Check marks")) {
+            upgradedModel["Check marks"] = "No";
+        }
+
+        if (!upgradedModel["Correct marks HTML"]) {
+            upgradedModel["Correct marks HTML"] = "&#10004;";
+        }
+
+        if (!upgradedModel["Error marks HTML"]) {
+            upgradedModel["Error marks HTML"] = "&#10006;";
+        }
+
+        return upgradedModel;
+    }
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -1978,6 +2152,13 @@ function AddonPlot_create(){
                 };
                 el.cssColor = el.cssColorInitialValue;
                 el.visible = el.initVisible;
+
+                const validatedMarkAtLength = presenter.validateMarkAtLength(el.id, model["Expressions"][p]["mark at length"]);
+                if (!validatedMarkAtLength.isValid) {
+                    presenter.showErrorMessage(presenter.ERROR_CODES[validatedMarkAtLength.errorCode], validatedMarkAtLength.errorMessageSubstitutions);
+                    return;
+                }
+                el.markAtLength = validatedMarkAtLength.value;
                 plot.expressions.push(el);
             }
         }
@@ -2067,6 +2248,10 @@ function AddonPlot_create(){
         if(plot.yAxisValuesPosition != '' && !isNaN(plot.yAxisValuesPosition)){
             plot.setYAxisValuesPosition(plot.yAxisValuesPosition);
         }
+
+        plot.checkMarks = model["Check marks"];
+        plot.correctMarksHTML = model["Correct marks HTML"];
+        plot.errorMarksHTML = model["Error marks HTML"];
     };
 
     presenter.toDotSeparator = function(value) {
@@ -2093,12 +2278,28 @@ function AddonPlot_create(){
         return presenter.decimalSeparator;
     };
 
+    presenter.validateMarkAtLength = function (expressionIdx, value) {
+        const percentage = presenter.valueToPercentage(value);
+        if (isNaN(percentage) || percentage < 0 || percentage > 1) {
+            return getErrorObject("MARK_01", {expression: expressionIdx});
+        }
+        return getCorrectObject(percentage);
+    }
+
     presenter.valueToFloat = function(val) {
         if(val === '' || val === undefined || !this.isCorrectDecimal(val)) {
             return Number.NaN;
         }
          val = this.toDotSeparator(val);
          return parseFloat(val);
+    };
+
+    presenter.valueToPercentage = function(value) {
+        value = parseFloat(value, 10);
+        if (isNaN(value)) {
+            return value;
+        }
+        return value/100;
     };
 
     presenter._hasIllegalCharacters = function(word) {
@@ -2125,6 +2326,7 @@ function AddonPlot_create(){
     };
 
     presenter.createPreview = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.errorsMode = false;
         presenter.view = view;
         presenter.model = model;
