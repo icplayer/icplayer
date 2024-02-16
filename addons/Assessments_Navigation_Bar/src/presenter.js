@@ -668,6 +668,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
+        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - 4;
         const MIN_LEFT_VALUE = 3;
 
         if (this.staticPages.length) {
@@ -677,7 +678,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
             if (previousLeftSideIndex > MIN_LEFT_VALUE) {
                 this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideIndex - 1 : previousLeftSideIndex;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
             }
 
             if (currentIndex - previousLeftSideValue <= -1) {
@@ -687,17 +688,16 @@ function AddonAssessments_Navigation_Bar_create(){
         } else {
             if (previousLeftSideIndex > MIN_LEFT_VALUE) {
                 this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideValue - 1 : previousLeftSideValue;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
             }
         }
 
-        if (nextPrevBtnWasClicked) {
-            if (currentIndex < previousLeftSideValue) { //call when it isn't visible
-                this.leftSideIndex = currentIndex - 1;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / (presenter.configuration.numberOfButtons - 4));
-            } else {
-                this.setLeftOffset(1);
-            }
+        // use only when current index is not visible in current shift
+        if (currentIndex < previousLeftSideValue) {
+            this.leftSideIndex = currentIndex - 1;
+            this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+        } else {
+            this.setLeftOffset(1);
         }
     };
 
