@@ -101,10 +101,9 @@ function AddonDouble_State_Button_create(){
         }
 
         if (!upgradedModel['speechTexts'].hasOwnProperty('disabledButton')) {
+            presenter.useWithoutDisable= true;
             upgradedModel['speechTexts']['disabledButton'] = {disabledButton: DEFAULT_TTS_PHRASES.DISABLED_BUTTON};
         }
-
-        presenter.useWithoutDisable = Object.keys(model["speechTexts"]).length === 3;
 
         return upgradedModel;
     };
