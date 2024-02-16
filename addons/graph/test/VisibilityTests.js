@@ -6,13 +6,15 @@ TestCase('[Graph] Visibility tests', {
             validateModelStub: sinon.stub(),
             setVisibilityStub: sinon.stub(),
             upgradeModelStub: sinon.stub(),
-            drawGraphStub: sinon.stub()
+            drawGraphStub: sinon.stub(),
+            drawExampleAnswersStub: sinon.stub()
         };
 
         this.presenter.validateModel = this.stubs.validateModelStub;
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
         this.presenter.upgradeModel = this.stubs.upgradeModelStub;
         this.presenter.drawGraph = this.stubs.drawGraphStub;
+        this.presenter.drawExampleAnswers = this.stubs.drawExampleAnswersStub;
 
         this.view = document.createElement('div');
     },
