@@ -339,6 +339,7 @@ function Addongraph_create(){
         presenter.configuration.isVisible = state.isVisible;
         presenter.configuration.shouldCalcScore = shouldCalcScore;
         presenter.isStarted = state.isStarted;
+        presenter.drawExampleAnswers();
     };
 
     presenter.setVisibility = function(isVisible) {
