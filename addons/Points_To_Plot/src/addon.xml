@@ -9,5 +9,6 @@
 			<property name='strict points' nameLabel="Points_To_Plot_property_strict_points" type='string' isLocalized='false'/>
 		</property>
 		<property name="Decimal separator" nameLabel="Points_To_Plot_property_decimal_separator" type="string" isLocalized='false'/>
+		<property name='Show answers' nameLabel="Points_To_Plot_property_show_answers" type='string' isLocalized='false'/>
 	</model>
 </addon>

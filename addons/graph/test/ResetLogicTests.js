@@ -18,6 +18,7 @@ TestCase("[Graph] Reset logic", {
 
     'test reset to visible': function () {
         this.presenter.configuration.isVisibleByDefault = true;
+        this.presenter.configuration.exampleAnswers = [false, false, false];
 
         this.presenter.reset();
 
@@ -29,6 +30,7 @@ TestCase("[Graph] Reset logic", {
 
     'test reset to invisible': function () {
         this.presenter.configuration.isVisibleByDefault = false;
+        this.presenter.configuration.exampleAnswers = [false, false, false];
 
         this.presenter.reset();
 
