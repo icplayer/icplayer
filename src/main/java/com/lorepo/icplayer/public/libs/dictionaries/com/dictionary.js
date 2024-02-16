@@ -735,6 +735,7 @@ var ice_dictionary_en = {
 	"Count_and_Graph_property_grid_line_color": "Grid line color",
 	"Count_and_Graph_property_border": "Border",
     "Count_and_Graph_property_is_not_activity": "Is not an activity",
+    "Count_and_Graph_property_example": "Example",
     "crossword_info": "Enables to insert a ready-to-use Crossword game into a presentation. To make the activity work, it is enough to predefine a few specific parameters in the addon’s menu.",
 	"crossword_name": "Crossword",
 	"crossword_property_crossword": "Crossword",

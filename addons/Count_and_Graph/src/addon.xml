@@ -9,6 +9,7 @@
             <property name="Color" nameLabel="Count_and_Graph_property_color" type="string" />
             <property name="Description" nameLabel="Count_and_Graph_property_description" type="string" isLocalized="true" />
             <property name="Description image" nameLabel="Count_and_Graph_property_description_image" type="image" />
+            <property name="Example" nameLabel="Count_and_Graph_property_example" type="boolean" />
         </property>
         <property name="Y axis description" nameLabel="Count_and_Graph_property_y_axis_description" type="string" isLocalized="true" />
         <property name="Y axis maximum value" nameLabel="Count_and_Graph_property_y_axis_minimum_value" type="string" />
