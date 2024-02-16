@@ -71,13 +71,14 @@ function AddonCount_and_Graph_create() {
         GRAPH_HAS_FINISHED_LOADING: 2
     };
 
-    presenter.barObject = function (parentColumn, color, width, height, barValue, columnIndex) {
+    presenter.barObject = function (parentColumn, color, width, height, barValue, columnIndex, isExample) {
         this._column = parentColumn;
         this._color = color;
         this._width = width;
         this._height = height;
         this._barValue = barValue;
         this._columnIndex = columnIndex;
+        this._isExample = isExample;
         this.$view;
         this._$innerDiv;
         this._initView();
@@ -119,6 +120,7 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.barObject.prototype._connectEvents = function () {
+        if (this._isExample) return;
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             this.$view[0].addEventListener("touchend", this, false);
         } else {
@@ -127,6 +129,7 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.barObject.prototype.block = function () {
+        if (this._isExample) return;
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             this.$view[0].removeEventListener("touchend", this, false);
         } else {
@@ -187,7 +190,7 @@ function AddonCount_and_Graph_create() {
         this._$innerDiv.removeClass(cssClass);
     };
 
-    presenter.columnObject = function (axisYMaximumValue, color, columnWidth, columnHeight, answer, columnIndex) {
+    presenter.columnObject = function (axisYMaximumValue, color, columnWidth, columnHeight, answer, columnIndex, isExample) {
         this._axisYMaximumValue = axisYMaximumValue;
         this._barsNumber = axisYMaximumValue;
         this._barsColor = color;
@@ -198,6 +201,7 @@ function AddonCount_and_Graph_create() {
         this._columnIndex = columnIndex;
         this.$view;
         this._bars;
+        this.isExample = isExample;
         this._initializeColumn();
     };
 
@@ -205,6 +209,9 @@ function AddonCount_and_Graph_create() {
         this._bars = this._createBars();
         this._initView();
         this._appendBarsToColumn(this._bars);
+        if (this.isExample) {
+            this.showAnswer();
+        }
     };
 
     presenter.columnObject.prototype._appendBarsToColumn = function (barsArray) {
@@ -228,6 +235,9 @@ function AddonCount_and_Graph_create() {
             'height': this._height + "px",
             'width': this._columnWidth + "px"
         });
+        if (this.isExample) {
+            this.$view.addClass('example_column');
+        }
     };
 
     presenter.columnObject.prototype.update = function (event) {
@@ -244,7 +254,7 @@ function AddonCount_and_Graph_create() {
         var barHeight = this._getBarHeight();
 
         for(var i = 0; i < this._barsNumber; i++) {
-            var bar = new presenter.barObject(this, this._barsColor, barWidth, barHeight, i + 1, this._columnIndex);
+            var bar = new presenter.barObject(this, this._barsColor, barWidth, barHeight, i + 1, this._columnIndex, this.isExample);
             bars.push(bar);
         }
 
@@ -379,6 +389,8 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.columnObject.prototype.getScore = function () {
+        if (this.isExample) return 0;
+
         if(this._isCorrect()) {
             return 1;
         }
@@ -441,13 +453,14 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.columnObject.prototype.getState = function () {
+        if (this.isExample) return 0;
         return (this._topSelectedBarNumber + 1);
     };
 
 
     presenter.graphObject = function ($parentDiv, axisYMaximumValue, answers, colors, descriptions, imagesDescriptions,
                                       barsWidth, backgroundColor, gridLineColor, cyclicValue, fixedValues, axisSpace,
-                                      border, axisYDescription, axisXDescription, axisXImageHeight, axisXImageWidth) {
+                                      border, axisYDescription, axisXDescription, exampleColumns, axisXImageHeight, axisXImageWidth) {
         this._axisSpace = axisSpace || 30;
         this._$parentDiv = $parentDiv;
         this._axisYMaximumValue = axisYMaximumValue;
@@ -479,6 +492,14 @@ function AddonCount_and_Graph_create() {
         this._axisYDescription = axisYDescription;
         this._axisXImageHeight = axisXImageHeight;
         this._axisXImageWidth =  axisXImageWidth;
+        this._exampleColumns = [];
+        this._exampleColumnsNumber = 0;
+        if (exampleColumns != undefined) {
+            this._exampleColumns = exampleColumns;
+            for (var i = 0; i < this._exampleColumns.length; i++) {
+                if (this._exampleColumns[i]) this._exampleColumnsNumber += 1;
+            }
+        }
     };
 
     presenter.graphObject.prototype._getGraphWidth = function () {
@@ -783,10 +804,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.graphObject.prototype._getColumns = function (columnWidth, height) {
         var columns = [];
-
         for(var index = 0; index < this._columnsNumber; index++) {
             var column = new presenter.columnObject(
-                this._axisYMaximumValue, this._colors[index], columnWidth, height, this._answers[index], index
+                this._axisYMaximumValue, this._colors[index], columnWidth, height, this._answers[index], index, this._exampleColumns[index]
             );
             columns.push(column);
         }
@@ -796,33 +816,44 @@ function AddonCount_and_Graph_create() {
 
     presenter.graphObject.prototype.showAnswers = function () {
         this._columns.forEach(function (element) {
-            element.showAnswer();
+            if (!element.isExample) {
+                element.showAnswer();
+            }
         });
     };
 
     presenter.graphObject.prototype.gradualShowAnswers = function (item) {
+        var exampleCount = 0;
         this._columns.forEach(function (element, index) {
-            if (index <= item) {
-                element.showAnswer();
+            if (element.isExample) {
+                exampleCount += 1;
             } else {
-                element.cleanSelection();
+                if (index - exampleCount <= item) {
+                    element.showAnswer();
+                } else {
+                    element.cleanSelection();
+                }
             }
         });
     };
 
     presenter.graphObject.prototype.hideAnswers = function () {
         this._columns.forEach(function (element) {
-            element.hideAnswer();
+            if (!element.isExample) {
+                element.hideAnswer();
+            }
         });
     };
 
     presenter.graphObject.prototype.getActivitiesCount = function () {
-        return this._columns.length;
+        return this._columns.length - this._exampleColumnsNumber;
     };
 
     presenter.graphObject.prototype.reset = function () {
         this._columns.forEach(function (element) {
-            element.reset();
+            if (!element.isExample) {
+                element.reset();
+            }
         });
     };
 
@@ -846,7 +877,7 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.graphObject.prototype.getMaxScore = function () {
-        return this._columnsNumber;
+        return this._columnsNumber - this._exampleColumnsNumber;
     };
 
     presenter.graphObject.prototype.getScore = function () {
@@ -885,7 +916,9 @@ function AddonCount_and_Graph_create() {
 
     presenter.graphObject.prototype.setState = function (userSelectionArray) {
         for(var i = 0; i < userSelectionArray.length; i++) {
-            this._columns[i].setState(userSelectionArray[i]);
+            if (!this._columns[i].isExample) {
+                this._columns[i].setState(userSelectionArray[i]);
+            }
         }
     };
 
@@ -1421,7 +1454,8 @@ function AddonCount_and_Graph_create() {
             columnsNumber: validatedAxisXData.columnsNumber,
             axisXDescription: model["X axis description"],
             axisYDescription: model["Y axis description"],
-            isNotActivity: ModelValidationUtils.validateBoolean(model["isNotActivity"])
+            isNotActivity: ModelValidationUtils.validateBoolean(model["isNotActivity"]),
+            exampleColumns: validatedAxisXData.examples
         };
     };
 
@@ -1505,6 +1539,10 @@ function AddonCount_and_Graph_create() {
 
     function parseValueToInt (value) {
         return parseInt(value);
+    }
+
+    function parseValueToBoolean (value) {
+        return value != null && value.toLowerCase() == 'true';
     }
 
     function parseFixedValues(axisYValues, axisYMaxValue) {
@@ -1639,6 +1677,7 @@ function AddonCount_and_Graph_create() {
         var colors = axisXData.map(getAttributeValueFromObject, {attribute: "Color"});
         var descriptions = axisXData.map(getAttributeValueFromObject, {attribute: "Description"});
         var descriptionsImages = axisXData.map(getAttributeValueFromObject, {attribute: "Description image"});
+        var examples = axisXData.map(getAttributeValueFromObject, {attribute: "Example"});
 
         if (isEmptyStringInValues(answers)) {
             return presenter.getErrorObject("AXD_01");
@@ -1656,6 +1695,7 @@ function AddonCount_and_Graph_create() {
         var areValuesInScope = parsedAnswers.every(isValuePositive) && parsedAnswers.every(isInAxisRange, axisYMaximumValue);
 
         var answersParsedToInt = parsedAnswers.map(parseValueToInt);
+        var examplesParsedToBool = examples.map(parseValueToBoolean);
 
         return {
             isValid: true,
@@ -1665,7 +1705,8 @@ function AddonCount_and_Graph_create() {
             colors: colors,
             descriptions: descriptions,
             descriptionsImages: descriptionsImages,
-            columnsNumber: answersParsedToInt.length
+            columnsNumber: answersParsedToInt.length,
+            examples: examplesParsedToBool
         };
     };
 
@@ -1679,9 +1720,32 @@ function AddonCount_and_Graph_create() {
         delete presenter.reset;
     }
 
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeExample(model);
+    }
+
+    presenter.upgradeExample = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['X axis data'] === undefined) {
+            upgradedModel['X axis data'] = [];
+        }
+
+        for (var i = 0; i < upgradedModel['X axis data'].length; i++) {
+            var axisXData = upgradedModel['X axis data'][i];
+            if (axisXData['Example'] === undefined) {
+                axisXData['Example'] = 'False';
+            }
+        }
+
+        return upgradedModel;
+    }
+
     presenter.runLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (!presenter.configuration.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[presenter.configuration.errorCode]);
@@ -1719,7 +1783,8 @@ function AddonCount_and_Graph_create() {
             30,
             presenter.configuration.border,
             presenter.configuration.axisYDescription,
-            presenter.configuration.axisXDescription
+            presenter.configuration.axisXDescription,
+            presenter.configuration.exampleColumns
         );
 
         presenter.graph.initializeGraph();

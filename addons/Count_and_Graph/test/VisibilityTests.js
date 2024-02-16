@@ -25,7 +25,8 @@ TestCase('[Count_and_graph] Visibility tests', {
             isValid: true,
             isVisible: true,
             axisYValues: {},
-            answers: []
+            answers: [],
+            exampleColumns: []
         });
         this.presenter.runLogic(this.view, {}, true);
 
@@ -37,7 +38,8 @@ TestCase('[Count_and_graph] Visibility tests', {
             isValid: true,
             isVisible: false,
             axisYValues: {},
-            answers: []
+            answers: [],
+            exampleColumns: []
         });
         this.presenter.runLogic(this.view, {}, true);
 
@@ -49,7 +51,8 @@ TestCase('[Count_and_graph] Visibility tests', {
             isValid: true,
             isVisible: true,
             axisYValues: {},
-            answers: []
+            answers: [],
+            exampleColumns: []
         });
         this.presenter.runLogic(this.view, {}, false);
 
@@ -61,7 +64,8 @@ TestCase('[Count_and_graph] Visibility tests', {
             isValid: true,
             isVisible: false,
             axisYValues: {},
-            answers: []
+            answers: [],
+            exampleColumns: []
         });
         this.presenter.runLogic(this.view, {}, false);
 

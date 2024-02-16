@@ -537,6 +537,10 @@ public class JavaScriptPlayerServices {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::clearVisitedPages()();
 		};
 
+		playerServices.getResponsiveLayouts = function () {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getResponsiveLayouts()();
+		}
+
 		return playerServices;
 	}-*/;
 
@@ -1039,5 +1043,9 @@ public class JavaScriptPlayerServices {
 	private void setAllPagesAsVisited() {
 		this.playerServices.getCommands().setAllPagesAsVisited();
 		playerServices.getEventBusService().sendEvent("visitedPagesUpdate", JavaScriptObject.createObject());
+	}
+
+	private JavaScriptObject getResponsiveLayouts() {
+		return playerServices.getApplication().getSemiResponsiveLayouts();
 	}
 }

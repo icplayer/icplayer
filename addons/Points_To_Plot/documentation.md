@@ -29,6 +29,10 @@ The addon is the expansion of the Plot addon and it allows defining the points o
         <td>Points to plot/strict points</td>
         <td>Defines the points to be selected in a plot, e.g. (1,1), (0,0), (-1,1)</td>
     </tr>
+    <tr>
+        <td>Show answers</td>
+        <td>Defines the points to be displayed in show answers and gradual show answers modes, e.g. (1,1), (0,0), (-1,1)</td>
+    </tr>
 
 </tbody>
 </table>
