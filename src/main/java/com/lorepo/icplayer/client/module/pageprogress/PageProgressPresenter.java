@@ -346,7 +346,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return false;
 	}
 

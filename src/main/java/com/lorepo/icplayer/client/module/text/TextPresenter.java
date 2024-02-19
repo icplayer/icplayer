@@ -1732,7 +1732,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    boolean isWithGaps = view.getChildrenCount() > 0;
 	    boolean hasLinks = module.getLinkInfos().iterator().hasNext();
 	    boolean isEnabled = !this.module.isDisabled();

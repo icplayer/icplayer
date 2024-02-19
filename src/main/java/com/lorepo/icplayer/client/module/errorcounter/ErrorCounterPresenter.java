@@ -296,7 +296,7 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return false;
 	}
 

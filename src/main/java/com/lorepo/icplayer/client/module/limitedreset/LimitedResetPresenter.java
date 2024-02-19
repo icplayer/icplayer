@@ -293,7 +293,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
     }
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !model.shouldOmitInKeyboardNavigation();
 	}
 }

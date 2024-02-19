@@ -808,7 +808,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !module.shouldOmitInKeyboardNavigation() && !this.module.isDisabled();
 	}
 

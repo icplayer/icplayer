@@ -91,7 +91,7 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
     }
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !module.shouldOmitInKeyboardNavigation();
 	}
 

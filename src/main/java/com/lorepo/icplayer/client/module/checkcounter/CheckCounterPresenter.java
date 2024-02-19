@@ -134,7 +134,7 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return false;
 	}
 

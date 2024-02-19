@@ -180,7 +180,7 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !module.shouldOmitInKeyboardNavigation();
 	}
 

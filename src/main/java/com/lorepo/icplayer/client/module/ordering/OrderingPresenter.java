@@ -602,7 +602,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !module.shouldOmitInKeyboardNavigation();
 	}
 

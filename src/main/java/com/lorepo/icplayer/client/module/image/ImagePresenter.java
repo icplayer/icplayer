@@ -239,7 +239,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return false;
 	}
 

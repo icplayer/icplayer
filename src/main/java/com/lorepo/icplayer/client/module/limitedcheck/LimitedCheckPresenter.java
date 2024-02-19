@@ -394,7 +394,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
     }
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
+    public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !model.shouldOmitInKeyboardNavigation() && !isDisabled();
 	}
 }

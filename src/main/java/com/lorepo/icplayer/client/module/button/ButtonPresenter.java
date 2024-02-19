@@ -267,7 +267,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	}
 
 	@Override
-	private boolean haveStandaloneKeyboardNavigationSupport() {
+	public boolean haveStandaloneKeyboardNavigationSupport() {
 	    return !model.shouldOmitInKeyboardNavigation() && this.view.isEnabled();
 	}
 

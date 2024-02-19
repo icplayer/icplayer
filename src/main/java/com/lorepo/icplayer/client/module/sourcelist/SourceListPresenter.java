@@ -568,8 +568,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 
     @Override
-    private boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !module.shouldOmitInKeyboardNavigation();
+    public boolean haveStandaloneKeyboardNavigationSupport() {
+	    return !model.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override

@@ -520,7 +520,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 
 	@Override
-	private boolean haveStandaloneKeyboardNavigationSupport() {
+	public boolean haveStandaloneKeyboardNavigationSupport() {
 	    boolean isEnabled = !this.isDisabled();
 	    return this.haveWCAGSupport(this.jsObject) && isEnabled && !model.shouldOmitInKeyboardNavigation();
 	}
