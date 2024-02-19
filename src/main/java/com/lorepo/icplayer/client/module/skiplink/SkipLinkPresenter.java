@@ -87,8 +87,13 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
 
     @Override
     public boolean isSelectable(boolean isTextToSpeechOn) {
-        return true;
+        return isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport();
     }
+
+    @Override
+    private boolean haveStandaloneKeyboardNavigationSupport() {
+	    return !module.shouldOmitInKeyboardNavigation();
+	}
 
     @Override
     public void setShowErrorsMode() {

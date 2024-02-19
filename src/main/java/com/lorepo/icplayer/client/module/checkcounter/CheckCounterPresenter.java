@@ -130,7 +130,12 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
 				&& !this.getView().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return (isVisible && isTextToSpeechOn);
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
+	}
+
+    @Override
+    private boolean haveStandaloneKeyboardNavigationSupport() {
+	    return false;
 	}
 
 	@Override

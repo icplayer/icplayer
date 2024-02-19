@@ -5,4 +5,5 @@ public interface IWCAGPresenter {
 	void selectAsActive(String className);	// Add class name to module
 	void deselectAsActive(String className); // Remove class name from module
 	boolean isSelectable(boolean isTextToSpeechOn); // If module is not selectable (for example: module is not visible, text don't have gaps) then return false and this module wont be selected by controller
+	private boolean haveStandaloneKeyboardNavigationSupport(); // If module can be selectable (one of conditions) in keyboard navigation mode (when isTextToSpeechOn set to false), then this method should return true. This method should be checked in isSelectable method.
 }

@@ -338,6 +338,7 @@ var ice_dictionary_bl = {
 	"is_tabindex_enabled": "Включи tabindex",
 	"should_omit_in_TTS": "Omit in TTS",
 	"tts_title": "TTS Title",
+	"should_omit_in_keyboard_navigation": "Omit in keyboard navigation",
 	"is_sort_right_to_left": "Подреди от дясно наляво:",
 	"layout": "Оформление",
 	"top" : "Най-горе",

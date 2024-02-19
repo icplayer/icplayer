@@ -564,7 +564,12 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") 
 				&& !this.view.getElement().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return isVisible;
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
+	}
+
+    @Override
+    private boolean haveStandaloneKeyboardNavigationSupport() {
+	    return !module.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override

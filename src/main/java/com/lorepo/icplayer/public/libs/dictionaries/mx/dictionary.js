@@ -339,6 +339,7 @@ var ice_dictionary_mx = {
 	"is_tabindex_enabled": "Enable tabindex",
 	"should_omit_in_TTS": "Omit in TTS",
 	"tts_title": "TTS Title",
+	"should_omit_in_keyboard_navigation": "Omit in keyboard navigation",
 	"is_sort_right_to_left": "Sort right to left:",
 	"layout": "Fondo",
 	"top": "Arriba",

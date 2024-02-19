@@ -126,6 +126,16 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
     }
 
     @Override
+    public boolean shouldOmitInKeyboardNavigation() {
+        return false;
+    }
+
+    @Override
+    public void setOmitInKeyboardNavigation(boolean value) {
+
+    }
+
+    @Override
 	public boolean shouldOmitInTTS() {
 		return false;
 	}

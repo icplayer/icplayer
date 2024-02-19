@@ -595,9 +595,15 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		return !this.view.getElement().getStyle().getVisibility().equals("hidden") 
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden")
 				&& !this.view.getElement().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+        return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
+	}
+
+    @Override
+    private boolean haveStandaloneKeyboardNavigationSupport() {
+	    return !module.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override
