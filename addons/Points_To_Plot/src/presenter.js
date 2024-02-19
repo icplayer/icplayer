@@ -8,19 +8,37 @@ function AddonPoints_To_Plot_create() {
         pointsOnPlot: [],
         selectedPoints: []
     };
+    var isShowAnswersActive = false;
     presenter.STATE_CORRECT = 1;
     presenter.STATE_INCORRECT = 0;
     presenter.VERSION = '1.0.2';
     presenter.run = function(view, model) {
         presenter.view = view;
-        presenter.model = model;
+        presenter.model = presenter.upgradeModel(model);
 
         eventBus = presenter.playerController.getEventBus();
         addonID = model.ID;
 
         presenter._allDoneState = false;
-        presenter.initialize(model);
+        presenter.initialize(presenter.model);
+        presenter.setEventListeners();
     };
+
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeShowAnswers(model);
+    }
+
+    presenter.upgradeShowAnswers = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['Show answers'] === undefined) {
+            upgradedModel['Show answers'] = '';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.initialize = function(model) {
         this.source = model['Source'];
         this.decimalSeparator = (model['Decimal separator'] === undefined || model['Decimal separator'] == '') ? '.' : model['Decimal separator'];
@@ -39,7 +57,37 @@ function AddonPoints_To_Plot_create() {
             }
         });
         this.data.selectedPoints = [];
+        var rawShowAnswers = model['Show answers'].trim();
+        presenter.showAnswersPoints = rawShowAnswers.length > 0 ? presenter.parseStrictPoints(rawShowAnswers) : [];
     };
+
+    presenter.setEventListeners = function() {
+        if (eventBus == null) return;
+        const events = ["ShowAnswers", "HideAnswers", "GradualShowAnswers", "GradualHideAnswers"];
+        events.forEach((eventName) => {
+            eventBus.addEventListener(eventName, this);
+        });
+    }
+
+    presenter.onEventReceived = function (eventName, eventData) {
+         switch (eventName) {
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+            case "HideAnswers":
+                presenter.hideAnswers();
+                break;
+            case "GradualShowAnswers":
+                if (eventData.moduleID === addonID) {
+                    presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+                }
+                break;
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
     presenter.parseStrictPoints = function(str) {
         var pairs;
         if(this.decimalSeparator == ',') {
@@ -55,7 +103,9 @@ function AddonPoints_To_Plot_create() {
 
         return points;
     };
+
     presenter.setShowErrorsMode = function() {
+        if (isShowAnswersActive) presenter.hideAnswers();
         var sourceModule = this.getSourceModule();
         sourceModule.enableUI(false);
         //check every point
@@ -68,11 +118,45 @@ function AddonPoints_To_Plot_create() {
             }
         });
     };
+
     presenter.setWorkMode = function() {
         var sourceModule = this.getSourceModule();
         sourceModule.removePointsStateMarks();
         sourceModule.enableUI(true);
     };
+
+    presenter.showAnswers = function() {
+        isShowAnswersActive = true;
+        var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
+
+        sourceModule.setPtpShowAnswersPoints(presenter.showAnswersPoints);
+        if (presenter.showAnswersPoints.length > 0) {
+            sourceModule.ptpShowAnswers(presenter.showAnswersPoints.length - 1);
+        }
+    }
+
+    presenter.hideAnswers = function() {
+        if (!isShowAnswersActive) return;
+        isShowAnswersActive = false;
+        var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
+        sourceModule.ptpHideAnswers();
+    }
+
+    presenter.getActivitiesCount = function() {
+        return presenter.showAnswersPoints.length;
+    }
+
+    presenter.gradualShowAnswers = function(item) {
+        isShowAnswersActive = true;
+        var sourceModule = this.getSourceModule();
+        if (sourceModule == null) return;
+
+        sourceModule.setPtpShowAnswersPoints(presenter.showAnswersPoints);
+        sourceModule.ptpShowAnswers(item);
+    }
+
     presenter.reset = function() {
         this._allDoneState = false;
         this.data.selectedPoints = [];
@@ -90,6 +174,7 @@ function AddonPoints_To_Plot_create() {
         });
         return errors;
     };
+
     presenter.getMaxScore = function() {
         var todo = 0;
         $.each(this.data.pointsOnPlot, function(idx, val) {
@@ -97,6 +182,7 @@ function AddonPoints_To_Plot_create() {
         });
         return todo;
     };
+
     presenter.getScore = function() {
         var done = 0;
         $.each(this.data.pointsOnPlot, function(idx, val) {
@@ -104,9 +190,11 @@ function AddonPoints_To_Plot_create() {
         });
         return done;
     };
+
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
+
     presenter.getState = function() {
         var state = JSON.stringify({
             version: 1,
@@ -115,6 +203,7 @@ function AddonPoints_To_Plot_create() {
             });
         return state;
     };
+
     presenter.setState = function(state) {
         if(state !== '' && state !== undefined) {
             state = JSON.parse(state);
@@ -122,15 +211,19 @@ function AddonPoints_To_Plot_create() {
             presenter.data.pointsOnPlot = state.plots;
         }
     };
+
     presenter.executeCommand = function(name, params) {
     };
+
     presenter.createPreview = function(view, model) {
         presenter.view = view;
-        presenter.model = model;
+        presenter.model = presenter.upgradeModel(model);
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
+
     presenter.onEvent = function(evt, data) {
         switch(evt) {
             case "ValueChanged":
@@ -140,6 +233,7 @@ function AddonPoints_To_Plot_create() {
                 break;
         }
     };
+
     presenter.processPointEvent = function(data) {
         var els = data.item.split('_');
         var x = this.toDotSeparator(els[1]);
@@ -151,6 +245,7 @@ function AddonPoints_To_Plot_create() {
             presenter.deselectPoint(x,y);
         }
     };
+
     presenter.selectPoint = function(x, y) {
         var hasPoint = false;
         $.each(this.data.selectedPoints, function(k, v) {
@@ -175,6 +270,7 @@ function AddonPoints_To_Plot_create() {
             });
         }
     };
+
     presenter.deselectPoint = function(x, y) {
         $.each(this.data.selectedPoints, function(k, v) {
             if (v.x == x && v.y == y) {
