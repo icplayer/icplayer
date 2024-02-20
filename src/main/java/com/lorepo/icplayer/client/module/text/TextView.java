@@ -581,7 +581,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
-		this.reconnectHandlers();
 	}
 
 	@Override
@@ -618,7 +617,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	private void reconnectHandlers () {
+	public void reconnectHandlers () {
 		for (GapWidget element: this.gapsWidgets) {
 			element.reconnectHandlers(this.listener);
 		}
