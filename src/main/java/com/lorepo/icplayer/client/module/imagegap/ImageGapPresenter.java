@@ -837,10 +837,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible && !isGroupDivHidden;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation() && !this.model.isDisabled();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !model.shouldOmitInKeyboardNavigation() && !this.model.isDisabled();
 	}
 
 	private String getImageSourceAltText(String id) {

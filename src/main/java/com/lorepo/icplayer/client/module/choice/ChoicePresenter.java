@@ -806,10 +806,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible && !isGroupDivHidden;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !module.shouldOmitInKeyboardNavigation() && !this.module.isDisabled();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !module.shouldOmitInKeyboardNavigation() && !this.module.isDisabled();
 	}
 
 	@Override

@@ -518,10 +518,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isSelectableJSObject && isVisible && isDisplayed;
 	}
-
+	
 	@Override
 	public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return this.haveWCAGSupport(this.jsObject) && !model.shouldOmitInKeyboardNavigation() && !this.isDisabled();
+		return this.haveWCAGSupport(this.jsObject) && !model.shouldOmitInKeyboardNavigation() && !this.isDisabled();
 	}
 
 	private native boolean isSelectableJSObject (JavaScriptObject obj, boolean isTextToSpeechOn) /*-{

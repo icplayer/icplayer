@@ -344,10 +344,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return false;
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
 	}
 
 	@Override

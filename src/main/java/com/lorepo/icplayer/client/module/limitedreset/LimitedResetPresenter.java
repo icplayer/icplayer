@@ -291,9 +291,9 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
                 && !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
         return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
     }
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !model.shouldOmitInKeyboardNavigation();
 	}
 }

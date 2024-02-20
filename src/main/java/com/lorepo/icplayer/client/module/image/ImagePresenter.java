@@ -237,10 +237,10 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 				&& !KeyboardNavigationController.isParentGroupDivHidden(this.getView());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return false;
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
 	}
 
 	@Override

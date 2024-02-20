@@ -265,10 +265,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		boolean isVisible = !isHidden && !isNone && !isGroupDivHidden;
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
+	
 	@Override
 	public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation() && this.view.isEnabled();
+		return !model.shouldOmitInKeyboardNavigation() && this.view.isEnabled();
 	}
 
 	@Override

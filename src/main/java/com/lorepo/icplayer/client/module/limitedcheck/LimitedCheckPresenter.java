@@ -392,9 +392,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
                 && !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
         return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
     }
-
+    
     @Override
     public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation() && !isDisabled();
-	}
+        return !model.shouldOmitInKeyboardNavigation() && !isDisabled();
+    }
 }

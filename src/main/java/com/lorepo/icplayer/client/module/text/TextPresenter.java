@@ -1730,13 +1730,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible && !isGroupDivHidden;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    boolean isWithGaps = view.getChildrenCount() > 0;
-	    boolean hasLinks = module.getLinkInfos().iterator().hasNext();
-	    boolean isEnabled = !this.module.isDisabled();
-	    return (isWithGaps || hasLinks) && isEnabled && !module.shouldOmitInKeyboardNavigation();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		boolean isWithGaps = view.getChildrenCount() > 0;
+		boolean hasLinks = module.getLinkInfos().iterator().hasNext();
+		boolean isEnabled = !this.module.isDisabled();
+		return (isWithGaps || hasLinks) && isEnabled && !module.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override

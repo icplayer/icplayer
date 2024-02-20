@@ -132,10 +132,10 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return false;
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
 	}
 
 	@Override

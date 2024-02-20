@@ -294,10 +294,10 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return false;
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
 	}
 
 	@Override

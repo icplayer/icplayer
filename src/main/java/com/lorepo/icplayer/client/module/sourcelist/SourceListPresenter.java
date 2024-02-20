@@ -566,10 +566,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !model.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override

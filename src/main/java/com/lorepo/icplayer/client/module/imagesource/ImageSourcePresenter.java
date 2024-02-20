@@ -490,10 +490,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !model.shouldOmitInKeyboardNavigation() && !this.view.getDisabled();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !model.shouldOmitInKeyboardNavigation() && !this.view.getDisabled();
 	}
 
 	public String getAltText(){

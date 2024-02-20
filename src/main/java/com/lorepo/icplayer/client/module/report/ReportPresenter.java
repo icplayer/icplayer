@@ -178,10 +178,10 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
         return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
-    @Override
-    public boolean haveStandaloneKeyboardNavigationSupport() {
-	    return !module.shouldOmitInKeyboardNavigation();
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return !module.shouldOmitInKeyboardNavigation();
 	}
 
 	@Override
