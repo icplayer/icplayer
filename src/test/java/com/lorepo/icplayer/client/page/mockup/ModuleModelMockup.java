@@ -303,17 +303,17 @@ public class ModuleModelMockup implements IModuleModel {
 		// TODO Auto-generated method stub
 
 	}
-
-    @Override
-    public boolean shouldOmitInKeyboardNavigation() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void setOmitInKeyboardNavigation(boolean value) {
-        // TODO Auto-generated method stub
-    }
+	
+	@Override
+	public boolean shouldOmitInKeyboardNavigation() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public void setOmitInKeyboardNavigation(boolean value) {
+		// TODO Auto-generated method stub
+	}
 
 	@Override
 	public boolean shouldOmitInTTS() {

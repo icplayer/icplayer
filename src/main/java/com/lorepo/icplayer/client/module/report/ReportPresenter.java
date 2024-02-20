@@ -174,9 +174,9 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden")
-				&& !this.view.getElement().getStyle().getDisplay().equals("none")
-				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-        return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
+			&& !this.view.getElement().getStyle().getDisplay().equals("none")
+			&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
 	
 	@Override
