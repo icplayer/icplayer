@@ -339,6 +339,7 @@ var ice_dictionary_pl = {
 	"is_tabindex_enabled": "Włącz tabindex",
 	"should_omit_in_TTS": "Omit in TTS",
 	"tts_title": "TTS Title",
+	"should_omit_in_keyboard_navigation": "Omit in keyboard navigation",
 	"is_sort_right_to_left": "Sortuj od prawej do lewej:",
 	"layout" : "Układ",
 	"top" : "Góra",

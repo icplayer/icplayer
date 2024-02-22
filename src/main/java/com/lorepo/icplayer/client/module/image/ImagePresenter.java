@@ -232,15 +232,16 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-	    if (!isTextToSpeechOn) {
-	        return false; //skip image when navigating with keyboard(Shift+Enter)
-	    }
-		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") 
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden")
 				&& !this.view.getElement().getStyle().getDisplay().equals("none") 
 				&& !KeyboardNavigationController.isParentGroupDivHidden(this.getView());
-		return isVisible;
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
+	}
 
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {

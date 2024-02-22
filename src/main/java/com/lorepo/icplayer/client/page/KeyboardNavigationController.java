@@ -13,7 +13,6 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.ResetButton;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -129,12 +128,13 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}-*/;
 
 	private void initialSelect() {
-		if (this.getPresenters().size() == 0) {
+		if (this.getPresenters().size() == 0 || this.actualSelectedModuleIndex == -1) {
 			this.modeOn = false;
+			this.actualSelectedModuleIndex = 0;
 			return;
 		}
 		int currentSelectedModuleIndex = this.actualSelectedModuleIndex;
-		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
+		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.isWCAGOn())) { //If first is not selectable
 			this.setIndexToNextModule();
 			if (this.actualSelectedModuleIndex == currentSelectedModuleIndex) { //And others modules too, then turn off navigation
 				this.modeOn = false;
@@ -343,7 +343,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		if (this.modeOn) {
 			this.actualSelectedModuleIndex = getFirstSelectableElementIndex();
 			this.setFocusOnInvisibleElement();
-			if (this.isInitiated) {
+			if (this.isInitiated && this.actualSelectedModuleIndex != -1) {
 				this.selectCurrentModule();
 			} else {
 				this.initialSelect();
@@ -423,7 +423,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				return i;
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 	private void setIndexToNextModule() {
