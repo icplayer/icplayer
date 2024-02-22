@@ -14,6 +14,7 @@
 			<property name='y to x' nameLabel="Plot_property_y_to_x" type='boolean' isLocalized='false'/>
 			<property name='hidden' nameLabel="Plot_property_hidden" type='boolean' isLocalized='false'/>
 			<property name='color' nameLabel="Plot_property_color" type='string' isLocalized='false'/>
+			<property name='mark at length' nameLabel="Plot_property_mark_at_length" type='string' isLocalized='false'/>
 		</property>
 		<property name='Variables' nameLabel="Plot_property_variables" type='list'>
 			<property name='plot id' nameLabel="Plot_property_plot_id" type='string' isLocalized='false'/>
@@ -52,7 +53,10 @@
 		<property name='Asymptote DY' nameLabel="Plot_property_asymptote_dy" type='int' isLocalized='false'/>
 		<property name='Broadcast' nameLabel="Plot_property_broadcast" type='string' isLocalized='false'/>
 		<property name="Decimal separator" nameLabel="Plot_property_decimal_separator" type="string" isLocalized='false'/>
-        <property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
-        <property name='Y axis values position' nameLabel="Plot_property_y_axis_values_position" type='int' isLocalized='false'/>
+		<property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
+		<property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
+		<property name='Check marks' nameLabel="Plot_property_check_marks" type="{No, One mark, Individual marks}" isLocalized='false'/>
+		<property name='Correct marks HTML' nameLabel="Plot_property_correct_marks_html" type="string" isLocalized='false'/>
+		<property name='Error marks HTML' nameLabel="Plot_property_error_marks_html" type="string" isLocalized='false'/>
 	</model>
 </addon>

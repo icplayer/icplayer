@@ -736,8 +736,14 @@ function Addonmultiplegap_create(){
     };
 
     presenter.createDraggableTextItem = function(item) {
-        const child = $('<p class="contents"></p>');
+        var child = $('<p class="contents"></p>');
         child.html(presenter.parseItemValue(item.value));
+
+        if (presenter.playerController) {
+            child.html(presenter.playerController.getTextParser().parseAltTexts(child.html()));
+        } else {
+            child = window.TTSUtils.parsePreviewAltText(child);
+        }
 
         return child;
     };
@@ -901,12 +907,12 @@ function Addonmultiplegap_create(){
             if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
                 altText = child.attr('alt');
                 langTag = child.attr('lang');
+                voicesArray.push(getTextVoiceObject(altText,langTag));
             } else {
-                altText = child.text();
-                langTag = presenter.configuration.langTag;
+                // presenter.SOURCE_TYPES.TEXTS
+                voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
             }
         }
-        voicesArray.push(getTextVoiceObject(altText,langTag));
         presenter.speak(voicesArray);
     }
     
@@ -1058,7 +1064,7 @@ function Addonmultiplegap_create(){
     presenter.performRemoveDraggable = function(handler) {
         presenter.elementCounter--;
         var placeholder = handler.parent();
-        var child = placeholder.find('.contents');
+        var child = placeholder.find('.contents, .multiaudio-item-text');
         if(isWCAGOn) {
             var altText = "";
             var langTag = "";
@@ -1067,11 +1073,10 @@ function Addonmultiplegap_create(){
             if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
                 altText = child.attr('alt');
                 langTag = child.attr('lang');
+                voicesArray.push(getTextVoiceObject(altText,langTag));
             } else {
-                altText = child.text();
-                langTag = presenter.configuration.langTag;
+                voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
             }
-            voicesArray.push(getTextVoiceObject(altText,langTag));
             presenter.speak(voicesArray);
         }
 
@@ -1700,7 +1705,7 @@ function Addonmultiplegap_create(){
             } else {
                 $child = $placeholder.find("p.contents");
                 if ($child.length > 0){
-                    voicesArray.push(getTextVoiceObject($child.text(),presenter.configuration.langTag));
+                    voicesArray = window.TTSUtils.getTextVoiceArrayFromElement($child, presenter.configuration.langTag);
                 } else {
                     $child = $placeholder.find('.multiaudio-item-text');
                     if ($child.length > 0){

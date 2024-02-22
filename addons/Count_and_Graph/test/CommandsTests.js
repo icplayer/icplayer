@@ -43,7 +43,7 @@ TestCase("[Count_and_Graph] Show / hide answers", {
         };
 
         this.presenter.graph = new this.presenter.graphObject(
-            this.divMock, _, numberOfColumns, _, _, _, _, _, _, _, _, _
+            this.divMock, _, numberOfColumns, _, _, _, _, _, _, _, _, _, _, _, _, []
         );
 
 
@@ -190,6 +190,7 @@ TestCase("[Count_and_Graph] Show / hide answers", {
 
     'test hide answers validation': function () {
         this.presenter.graph._isBlocked = true;
+        this.presenter.isShowAnswersActive = true;
         this.presenter.hideAnswers();
 
         assertTrue(this.spies.graph.hideAnswers.called);

@@ -14,7 +14,7 @@ Count and Graph addon enables users to insert a ready-made bar graph into a pres
     </tr>
     <tr>
         <td>X axis data</td>
-        <td>You can define here the number of columns, numeric answers for every column, color of every column and description, which can be a string or an image.
+        <td>You can define here the number of columns, numeric answers for every column, color of every column and description, which can be a string or an image. You can also designate a columns as an example. Example columns cannot be interacted with and constantly display their numeric answer.
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
 </td>
     </tr>
