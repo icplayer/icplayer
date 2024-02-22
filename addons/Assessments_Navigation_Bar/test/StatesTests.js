@@ -1,6 +1,14 @@
 TestCase("[Assessments_Navigation_Bar] Set state", {
     setUp: function () {
         this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.stubs = {
+            initView: sinon.stub(this.presenter.NavigationManager.prototype, 'initView'),
+            restartLeftSideIndex: sinon.stub(this.presenter.NavigationManager.prototype, 'restartLeftSideIndex'),
+            setSections: sinon.stub(this.presenter.NavigationManager.prototype, 'setSections'),
+            moveToCurrentPage: sinon.stub(this.presenter.NavigationManager.prototype, 'moveToCurrentPage'),
+        };
+
+        this.presenter.navigationManager = new this.presenter.NavigationManager();
 
         this.expectedPages = [
             {page: 1, description: "page1", sectionName: "section1", isBookmarkOn: false, sectionCssClass: "section_0", buttonCssClassNames: ["AClass", "BClass"]},
@@ -14,6 +22,7 @@ TestCase("[Assessments_Navigation_Bar] Set state", {
     },
 
     'test get state should receive all pages from sections': function () {
+        this.presenter.navigationManager.actualPages = this.expectedPages;
         var state = this.presenter.getState();
 
         assertEquals(this.expectedPages, JSON.parse(state).pages);
@@ -52,6 +61,10 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
         };
 
         this.presenter.navigationManager = new this.presenter.NavigationManager(0);
+        this.presenter.playerController = {
+            getCurrentPageIndex: sinon.stub()
+        };
+        this.presenter.playerController.getCurrentPageIndex.returns(0);
     },
 
     tearDown: function () {
@@ -63,30 +76,35 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
 
     'test set state should set provided pages to sections': function () {
         this.presenter.sections.allPages = [{page: 1}, {page: 4}, {page: 5}];
+        this.presenter.navigationManager.staticPages = [];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertEquals(this.expectedPages, this.presenter.sections.allPages);
     },
 
     'test set state should set navigation manager left index to 0': function () {
+        this.presenter.navigationManager.staticPages = [];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertTrue(this.stubs.restartLeftSideIndex.calledOnce);
     },
 
     'test set state should set sections': function () {
+        this.presenter.navigationManager.staticPages = [];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertTrue(this.stubs.setSections.calledOnce);
     },
 
     'test set state should set sections after setting left side index': function () {
+        this.presenter.navigationManager.staticPages = [];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertTrue(this.stubs.setSections.calledAfter(this.stubs.restartLeftSideIndex));
     },
 
     'test set state should move to current page after setting sections': function () {
+        this.presenter.navigationManager.staticPages = [];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertTrue(this.stubs.moveToCurrentPage.calledOnce);

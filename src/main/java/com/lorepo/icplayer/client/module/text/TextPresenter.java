@@ -245,8 +245,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.reset();
 		}
 
+		isShowAnswersActive = true;
 		setState(this.currentState);
-		
+		isShowAnswersActive = false;
+
 		isVisible = isVisibleBeforeSetState;
 		if (isVisibleBeforeSetState) {
 			view.show(false);
@@ -469,6 +471,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		if (module.hasMathGaps() && !isShowAnswersActive) {
 			view.setHTML(module.parsedText);
+			view.refreshMath();
+			((TextView) view).reconnectHandlers();
 		}
 
 		HashMap<String, String> droppedElements = null;
