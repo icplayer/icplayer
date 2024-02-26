@@ -77,7 +77,11 @@ function Addonvideo_create() {
         files: [],
         height: 0,
         showPlayButton: false,
-        offlineMessage: ""
+        offlineMessage: "",
+        baseDimensions: {
+            width: 0,
+            height: 0
+        }
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -131,7 +135,8 @@ function Addonvideo_create() {
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
         upgradedModel = presenter.upgradeVideoSpeedController(upgradedModel);
-        return presenter.upgradeShowPlayButton(upgradedModel);
+        upgradedModel = presenter.upgradeShowPlayButton(upgradedModel);
+        return presenter.upgradeBaseDimensions(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -189,6 +194,21 @@ function Addonvideo_create() {
         return upgradedModel;
     }
 
+    presenter.upgradeBaseDimensions = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('Base width')) {
+            upgradedModel['Base width'] = '';
+        }
+
+        if (!upgradedModel.hasOwnProperty('Base height')) {
+            upgradedModel['Base height'] = '';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
             var queueElement = presenter.metadataQueue[i];
@@ -203,7 +223,8 @@ function Addonvideo_create() {
         'MEDIA_ERR_DECODE': 2,
         'MEDIA_ERR_NETWORK': 3,
         'MEDIA_ERR_SRC_NOT_SUPPORTED': [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
-        'NVT01': "Not valid data format in time labels property"
+        'NVT01': "Not valid data format in time labels property",
+        'NVT02': "Base width and height must be either positive integers or empty"
     };
 
     presenter.getVideoErrorMessage = function (errorCode) {
@@ -868,6 +889,29 @@ function Addonvideo_create() {
             return validatedFiles;
         }
 
+        var baseDimensions = {
+            width: 0,
+            height: 0
+        };
+        if (model['Base width'].trim().length !== 0) {
+            var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
+            if (validatedBaseWidth.isValid) {
+                baseDimensions.width = validatedBaseWidth.value;
+            } else {
+                validatedBaseWidth.errorCode = 'NVT02';
+                return validatedBaseWidth;
+            }
+        }
+        if (model['Base height'].trim().length !== 0) {
+            var validatedBaseHeight = ModelValidationUtils.validatePositiveInteger(model['Base height']);
+            if (validatedBaseHeight.isValid) {
+                baseDimensions.height = validatedBaseHeight.value;
+            } else {
+                validatedBaseHeight.errorCode = 'NVT02';
+                return validatedBaseHeight;
+            }
+        }
+
         return {
             isValid: true,
             addonSize: {
@@ -883,7 +927,8 @@ function Addonvideo_create() {
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
             offlineMessage: model["offlineMessage"],
-            enableVideoSpeedController: ModelValidationUtils.validateBoolean(model["enableVideoSpeedController"])
+            enableVideoSpeedController: ModelValidationUtils.validateBoolean(model["enableVideoSpeedController"]),
+            baseDimensions: baseDimensions
         }
     };
 
@@ -1205,6 +1250,7 @@ function Addonvideo_create() {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
         if (!validatedModel.isValid) {
+            console.log(validatedModel.errorCode);
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
             return;
         }
@@ -1658,8 +1704,8 @@ function Addonvideo_create() {
                 var caption = {
                     start: parts[0],
                     end: parts[1],
-                    top: (StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
-                    left: (StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
+                    top: scaleDimensions(parts[2],presenter.configuration.addonSize.height, presenter.configuration.baseDimensions.height),//(StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
+                    left: scaleDimensions(parts[3],presenter.configuration.addonSize.width, presenter.configuration.baseDimensions.width),//(StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
                     cssClass: parts[4],
                     text: parts[5]
                 };
@@ -1671,6 +1717,18 @@ function Addonvideo_create() {
             }
         }
     };
+
+    function scaleDimensions(rawValue, actualDimension, baseDimension) {
+        if (baseDimension == 0) {
+            return (StringUtils.endsWith(rawValue, 'px') ? rawValue : rawValue + 'px')
+        }
+        var parsedValue = parseInt(rawValue.replaceAll('px',''));
+        if (isNaN(parsedValue)) return '0px';
+        var scale = actualDimension/baseDimension;
+        var scaledValue = Math.round(parsedValue * scale);
+        return scaledValue + 'px';
+
+    }
 
     presenter.loadSubtitles = function () {
         var subtitlesLoadedDeferred = new $.Deferred(),
