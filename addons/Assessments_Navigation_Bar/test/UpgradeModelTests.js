@@ -235,7 +235,7 @@ TestCase("[Assessments_Navigation_Bar] Upgrade model with Use Dynamic Pagination
         assertEquals(upgradedModel.useDynamicPagination, "False");
     },
 
-    "test given model with LangTag PL when upgrading model then sets PL string to lang attribute": function () {
+    "test given model with useDynamicPagination when upgrading model then model should not be changed": function () {
         const value = "True";
         const upgradedModel = this.presenter.upgradeModel({useDynamicPagination: value});
 
