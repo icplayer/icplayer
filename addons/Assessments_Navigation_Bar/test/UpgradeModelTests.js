@@ -222,3 +222,24 @@ TestCase("[Assessments_Navigation_Bar] Upgrade lang tag", {
         assertEquals(upgradedModel.langAttribute, langTag);
     },
 });
+
+TestCase("[Assessments_Navigation_Bar] Upgrade model with Use Dynamic Pagination", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+   },
+
+    "test given empty model when upgrading model then sets false to useDynamicPagination property": function () {
+        const upgradedModel = this.presenter.upgradeModel({});
+
+        assertNotUndefined(upgradedModel.useDynamicPagination);
+        assertEquals(upgradedModel.useDynamicPagination, "False");
+    },
+
+    "test given model with LangTag PL when upgrading model then sets PL string to lang attribute": function () {
+        const value = "True";
+        const upgradedModel = this.presenter.upgradeModel({useDynamicPagination: value});
+
+        assertNotUndefined(upgradedModel.useDynamicPagination);
+        assertEquals(upgradedModel.useDynamicPagination, value);
+    },
+});

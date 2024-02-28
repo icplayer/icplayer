@@ -482,7 +482,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
             userButtonsWidth: 40,
             numberOfPages: 4,
             defaultOrder: true,
-            numberOfStaticPages: 0
+            numberOfStaticPages: 0,
+            useDynamicPagination: false
         };
     },
 
