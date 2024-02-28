@@ -1184,6 +1184,13 @@ function Addonvideo_create() {
         var xScale = newVideoSize.width / presenter.originalVideoSize.width;
         var yScale = newVideoSize.height / presenter.originalVideoSize.height;
 
+        if (presenter.configuration.baseDimensions.width != 0) {
+            xScale = xScale * (presenter.configuration.addonSize.width/presenter.configuration.baseDimensions.width);
+        }
+        if (presenter.configuration.baseDimensions.height != 0) {
+            yScale = yScale * (presenter.configuration.addonSize.height/presenter.configuration.baseDimensions.height);
+        }
+
         presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
 
         presenter.calculateCaptionsOffset(size, false);
@@ -1250,7 +1257,6 @@ function Addonvideo_create() {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
         if (!validatedModel.isValid) {
-            console.log(validatedModel.errorCode);
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
             return;
         }
@@ -1704,8 +1710,8 @@ function Addonvideo_create() {
                 var caption = {
                     start: parts[0],
                     end: parts[1],
-                    top: scaleDimensions(parts[2],presenter.configuration.addonSize.height, presenter.configuration.baseDimensions.height),//(StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
-                    left: scaleDimensions(parts[3],presenter.configuration.addonSize.width, presenter.configuration.baseDimensions.width),//(StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
+                    top: (StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
+                    left: (StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
                     cssClass: parts[4],
                     text: parts[5]
                 };
@@ -1717,18 +1723,6 @@ function Addonvideo_create() {
             }
         }
     };
-
-    function scaleDimensions(rawValue, actualDimension, baseDimension) {
-        if (baseDimension == 0) {
-            return (StringUtils.endsWith(rawValue, 'px') ? rawValue : rawValue + 'px')
-        }
-        var parsedValue = parseInt(rawValue.replaceAll('px',''));
-        if (isNaN(parsedValue)) return '0px';
-        var scale = actualDimension/baseDimension;
-        var scaledValue = Math.round(parsedValue * scale);
-        return scaledValue + 'px';
-
-    }
 
     presenter.loadSubtitles = function () {
         var subtitlesLoadedDeferred = new $.Deferred(),
