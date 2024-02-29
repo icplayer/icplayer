@@ -1938,6 +1938,7 @@ var ice_dictionary_fr = {
     "Assessments_Navigation_Bar_property_default_order": "Default order",
     "Assessments_Navigation_Bar_property_lang_attribute": "Lang attribute",
     "Assessments_Navigation_Bar_property_speech_texts": "Speech texts",
+    "Assessments_Navigation_Bar_property_use_dynamic_pagination": "Use dynamic pagination",
     "Assessments_Navigation_Bar_speech_text_previous_page": "Go to previous page",
     "Assessments_Navigation_Bar_speech_text_title": "Title",
     "Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
