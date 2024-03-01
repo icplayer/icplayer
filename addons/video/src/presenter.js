@@ -229,7 +229,7 @@ function Addonvideo_create() {
         'MEDIA_ERR_NETWORK': 3,
         'MEDIA_ERR_SRC_NOT_SUPPORTED': [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
         'NVT01': "Not valid data format in time labels property",
-        'NVT02': "Base width and height must be either positive integers or empty"
+        'NVD01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.getVideoErrorMessage = function (errorCode) {
@@ -903,7 +903,7 @@ function Addonvideo_create() {
             if (validatedBaseWidth.isValid) {
                 baseDimensions.width = validatedBaseWidth.value;
             } else {
-                validatedBaseWidth.errorCode = 'NVT02';
+                validatedBaseWidth.errorCode = 'NVD01';
                 return validatedBaseWidth;
             }
         }
@@ -912,7 +912,7 @@ function Addonvideo_create() {
             if (validatedBaseHeight.isValid) {
                 baseDimensions.height = validatedBaseHeight.value;
             } else {
-                validatedBaseHeight.errorCode = 'NVT02';
+                validatedBaseHeight.errorCode = 'NVD01';
                 return validatedBaseHeight;
             }
         }
