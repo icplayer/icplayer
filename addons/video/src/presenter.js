@@ -57,6 +57,11 @@ function Addonvideo_create() {
         top: 0
     };
 
+    presenter.captionsScale = {
+        xScale: 1.0,
+        yScale: 1.0
+    };
+
     presenter.lastWidthAndHeightValues = {
         width: 0,
         height: 0
@@ -423,8 +428,8 @@ function Addonvideo_create() {
 
         if (changeWidth) {
             presenter.$captionsContainer.css({
-                width: videoSize.width,
-                height: videoSize.height
+                width: videoSize.width / presenter.captionsScale.xScale,
+                height: videoSize.height / presenter.captionsScale.yScale
             });
         }
     };
@@ -1192,8 +1197,10 @@ function Addonvideo_create() {
         }
 
         presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+        presenter.captionsScale.xScale = xScale;
+        presenter.captionsScale.yScale = yScale;
 
-        presenter.calculateCaptionsOffset(size, false);
+        presenter.calculateCaptionsOffset(size, true);
     });
 
     presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
@@ -1209,12 +1216,16 @@ function Addonvideo_create() {
 
 
         presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+        presenter.captionsScale.xScale = xScale;
+        presenter.captionsScale.yScale = yScale;
 
         presenter.calculateCaptionsOffset(size, false);
     });
 
     presenter.removeScaleFromCaptionsContainer = presenter.metadataLoadedDecorator(function () {
         presenter.$captionsContainer.css(generateTransformDict(1, 1));
+        presenter.captionsScale.xScale = 1.0;
+        presenter.captionsScale.yScale = 1.0;
 
         presenter.calculateCaptionsOffset(presenter.configuration.addonSize, false);
     });
