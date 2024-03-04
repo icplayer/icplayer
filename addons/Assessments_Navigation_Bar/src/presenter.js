@@ -673,7 +673,7 @@ function AddonAssessments_Navigation_Bar_create(){
         return this.leftSideIndex;
     };
 
-    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
+    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue) {
         if (!presenter.configuration.useDynamicPagination) {
             return;
         }
@@ -696,18 +696,13 @@ function AddonAssessments_Navigation_Bar_create(){
                 this.leftSideIndex = 0;
                 this.shiftCount = 0;
             }
-        } else {
-            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
-                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideValue - 1 : previousLeftSideValue;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
-            }
         }
 
-        // use only when current index is not visible in current shift
         if (this.staticPages.length === 0) {
-            if (currentIndex < previousLeftSideValue) {
-                this.leftSideIndex = currentIndex - 1;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+            if (currentIndex <= previousLeftSideValue) {
+                const actualCurrentIndex = this.getLeftIndex(currentIndex);
+                this.leftSideIndex = actualCurrentIndex - 1;
+                this.setLeftOffset(0);
             } else {
                 this.setLeftOffset(1);
             }
@@ -1027,10 +1022,9 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.isLastVisibleElement = function (button) {
         const lastVisiblePage = this.actualPages[(this.actualPages.length - 1)].description;
-        const lastPageIndex = presenter.sections.allPages.length - 1;
         const isForwardButton = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).length > 0;
 
-        return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex && isForwardButton;
+        return lastVisiblePage === button.description && isForwardButton;
     };
 
     presenter.NavigationManager.prototype.setButtonBookmark = function (button, page) {
