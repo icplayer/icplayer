@@ -22,6 +22,8 @@ function AddonFlashCards_create(){
         cardsFavourites: null
     };
 
+    presenter.cardMap = [];
+
     presenter.isLoaded = false;
 
     let isWCAGOn = false;
@@ -82,12 +84,14 @@ function AddonFlashCards_create(){
             cardsScore: [],
             cardsFavourites: [],
             addonID: model['ID'],
-            langTag: model['langAttribute']
+            langTag: model['langAttribute'],
+            randomizeOrder: ModelValidationUtils.validateBoolean(model['randomize'])
         }
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeAddTTS(model);
+        var upgradedModel = presenter.upgradeAddTTS(model);
+        return presenter.upgradeAddRandomize(upgradedModel);
     }
 
     presenter.upgradeAddTTS = function (model) {
@@ -113,6 +117,16 @@ function AddonFlashCards_create(){
         }
         return upgradedModel;
     };
+
+    presenter.upgradeAddRandomize = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["randomize"]) {
+                upgradedModel["randomize"] = ""
+            }
+            return upgradedModel;
+        };
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
@@ -175,6 +189,7 @@ function AddonFlashCards_create(){
         presenter.configuration = validatedModel;
         presenter.isErrorMode = false;
         presenter.Cards = model.Cards;
+        presenter.generateCardMap();
         presenter.state.isVisible = presenter.configuration.isVisible;
         presenter.state.noLoop = presenter.configuration.noLoop;
         presenter.state.cardsScore = presenter.configuration.cardsScore;
@@ -231,6 +246,23 @@ function AddonFlashCards_create(){
         presenter.isLoaded = true;
     };
 
+    presenter.generateCardMap = function() {
+        presenter.cardMap = [];
+        for (var i = 0; i < presenter.Cards.length; i++) presenter.cardMap.push(i);
+        if (presenter.configuration.randomizeOrder) {
+            for (var i = presenter.cardMap.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = presenter.cardMap[i];
+                presenter.cardMap[i] = presenter.cardMap[j];
+                presenter.cardMap[j] = tmp;
+            }
+        }
+    };
+
+    presenter.getCard = function(index) {
+        return presenter.Cards[presenter.cardMap[index]];
+    }
+
     presenter.countFavourites = function () {
         var i = 0;
         $(presenter.Cards).each(function (k,v) {
@@ -268,31 +300,31 @@ function AddonFlashCards_create(){
         //SCORE BUTTONS
         $(presenter.flashcardsButtonWrong).click(function () {
             if (presenter.isErrorMode) return;
-            presenter.state.cardsScore[presenter.state.currentCard] = -1;
+            presenter.state.cardsScore[presenter.cardMap[presenter.state.currentCard-1]+1] = -1;
             $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
         $(presenter.flashcardsButtonCorrect).click(function () {
             if (presenter.isErrorMode) return;
-            presenter.state.cardsScore[presenter.state.currentCard] = 1;
+            presenter.state.cardsScore[presenter.cardMap[presenter.state.currentCard-1]+1] = 1;
             $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
         $(presenter.flashcardsButtonReset).click(function () {
             if (presenter.isErrorMode) return;
-            presenter.state.cardsScore[presenter.state.currentCard] = 0;
+            presenter.state.cardsScore[presenter.cardMap[presenter.state.currentCard-1]+1] = 0;
             $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
         });
 
         //FAVOURITE BUTTON
         $(presenter.flashcardsButtonFavourite).click(function () {
             if (presenter.isErrorMode) return;
-            if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == false){
-                presenter.state.cardsFavourites[presenter.state.currentCard - 1] = true;
+            if (presenter.state.cardsFavourites[presenter.cardMap[presenter.state.currentCard - 1]] == false){
+                presenter.state.cardsFavourites[presenter.cardMap[presenter.state.currentCard - 1]] = true;
                 $(this).addClass("flashcards-button-selected");
                 presenter.triggerEvent(presenter.state.currentCard,"favourite","");
             }else{
-                presenter.state.cardsFavourites[presenter.state.currentCard - 1] = false;
+                presenter.state.cardsFavourites[presenter.cardMap[presenter.state.currentCard - 1]] = false;
                 $(this).removeClass("flashcards-button-selected");
                 presenter.triggerEvent(presenter.state.currentCard,"unfavourite","");
             }            
@@ -430,7 +462,7 @@ function AddonFlashCards_create(){
         presenter.originalCard = presenter.state.currentCard;
         cardNumber = parseInt(cardNumber,10);
         if (presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
-            if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true){
+            if (presenter.state.cardsFavourites[presenter.cardMap[presenter.state.currentCard - 1]] == true){
                 presenter.displayCard(cardNumber, sendEvent);
             }else{
                 if (cardNumber <= presenter.state.totalCards){
@@ -465,20 +497,20 @@ function AddonFlashCards_create(){
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").css('visibility', 'hidden');
         presenter.$card.removeClass("flashcards-card-reversed");
 
-        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.Cards[cardNumber - 1].Front;
-        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.Cards[cardNumber - 1].Back;
+        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.getCard(cardNumber - 1).Front;
+        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.getCard(cardNumber - 1).Back;
 
         //SCORE BUTTONS
         $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
-        if (presenter.state.cardsScore[presenter.state.currentCard] == 1){
+        if (presenter.state.cardsScore[presenter.cardMap[presenter.state.currentCard-1]+1] == 1){
             $(presenter.flashcardsButtonCorrect).addClass("flashcards-button-selected");
         }
-        if (presenter.state.cardsScore[presenter.state.currentCard] == -1){
+        if (presenter.state.cardsScore[presenter.cardMap[presenter.state.currentCard-1]+1] == -1){
             $(presenter.flashcardsButtonWrong).addClass("flashcards-button-selected");
         }
 
         //FAV BUTTON
-        if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true) {
+        if (presenter.state.cardsFavourites[presenter.cardMap[presenter.state.currentCard - 1]] == true) {
             $(presenter.flashcardsButtonFavourite).addClass("flashcards-button-selected");
         }else{
             $(presenter.flashcardsButtonFavourite).removeClass("flashcards-button-selected");
@@ -488,10 +520,10 @@ function AddonFlashCards_create(){
         presenter.isFrontPlaying = false;
         $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
         $(presenter.flashcardsCardAudioButtonFront).addClass("disabled");
-        if (presenter.Cards[presenter.state.currentCard - 1].AudioFront != ""){
+        if (presenter.getCard(presenter.state.currentCard - 1).AudioFront != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-front")).show();
             if (presenter.audioElementFront.canPlayType("audio/mpeg")) {
-                presenter.audioElementFront.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioFront);
+                presenter.audioElementFront.setAttribute("src",presenter.getCard(presenter.state.currentCard - 1).AudioFront);
                 presenter.audioElementFront.oncanplay = function () {
                     $(presenter.flashcardsCardAudioButtonFront).removeClass("disabled");
                 };
@@ -504,10 +536,10 @@ function AddonFlashCards_create(){
         presenter.isBackPlaying = false;
         $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
         $(presenter.flashcardsCardAudioButtonBack).addClass("disabled");
-        if (presenter.Cards[presenter.state.currentCard - 1].AudioBack != ""){
+        if (presenter.getCard(presenter.state.currentCard - 1).AudioBack != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-back")).show();
             if (presenter.audioElementBack.canPlayType("audio/mpeg")) {
-                presenter.audioElementBack.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioBack);
+                presenter.audioElementBack.setAttribute("src",presenter.getCard(presenter.state.currentCard - 1).AudioBack);
                 presenter.audioElementBack.oncanplay = function () {
                     $(presenter.flashcardsCardAudioButtonBack).removeClass("disabled");
                 };
@@ -655,9 +687,10 @@ function AddonFlashCards_create(){
     };
     
     presenter.getState = function () {
-        return JSON.stringify({
+        var state = JSON.stringify({
             state: presenter.state
         });
+        return state;
     };
 
     presenter.setState = function (stateString) {
@@ -797,7 +830,7 @@ function AddonFlashCards_create(){
             return;
         }
 
-        var currentCard = presenter.Cards[presenter.state.currentCard - 1];
+        var currentCard = presenter.getCard(presenter.state.currentCard - 1);
         if (presenter.isFrontVisible()) {
             if (currentCard.AudioFront != "") {
                 if (command == "play") {
