@@ -687,10 +687,9 @@ function AddonFlashCards_create(){
     };
     
     presenter.getState = function () {
-        var state = JSON.stringify({
+        return JSON.stringify({
             state: presenter.state
         });
-        return state;
     };
 
     presenter.setState = function (stateString) {
@@ -699,7 +698,11 @@ function AddonFlashCards_create(){
         presenter.state = parsedState.state;
 
         presenter.updateVisibility();
-        presenter.showCard(presenter.state.currentCard);
+        if (!presenter.configuration.randomizeOrder) {
+            presenter.showCard(presenter.state.currentCard);
+        }   else {
+            presenter.state.currentCard = 1;
+        }
     };
 
     presenter.destroy = function (event) {
