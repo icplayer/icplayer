@@ -2165,6 +2165,7 @@ var ice_dictionary_bl = {
 	"math_connection_error": "An error has occurred when connecting to the Wiris service",
 	"check_answers_button_edit_block": "Редактирането на страницата е блокирано",
 	"check_answers_button_no_edit_block": "Редактирането на страницата не е блокирано",
+	"check_answers_disable_score_update": "Disable score update",
 	"alt_text": "Алтернативен текст",
 	"visible_text_alt_text":"Видим текст",
 	"alt_text_alt_text":"Алтернативен текст",

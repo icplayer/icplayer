@@ -64,7 +64,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 		updateStyle();
 		
 		if (isShowErrorsMode) {
-			playerServices.getCommands().checkAnswers();
+			playerServices.getCommands().checkAnswers(!module.getDisableScoreUpdate());
 		} else {
 			playerServices.getCommands().uncheckAnswers();
 		}

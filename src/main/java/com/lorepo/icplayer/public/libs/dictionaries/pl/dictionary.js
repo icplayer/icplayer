@@ -2161,6 +2161,7 @@ var ice_dictionary_pl = {
 	"math_connection_error": "An error has occurred when connecting to the Wiris service",
 	"check_answers_button_edit_block": "Edycja strony jest zablokowana",
 	"check_answers_button_no_edit_block": "Edycja strony nie jest zablokowana",
+	"check_answers_disable_score_update": "Disable score update",
   "alt_text": "Alternative Text",
 	"visible_text_alt_text":"Visible text",
 	"alt_text_alt_text":"Alternative text",

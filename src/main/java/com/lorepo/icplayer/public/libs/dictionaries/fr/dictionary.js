@@ -2162,6 +2162,7 @@ var ice_dictionary_fr = {
 	"math_connection_error": "An error has occurred when connecting to the Wiris service",
     "check_answers_button_edit_block": "Page edition is blocked",
     "check_answers_button_no_edit_block": "Page edition is not blocked",
+	"check_answers_disable_score_update": "Disable score update",
     "alt_text": "Alternative Text",
     "visible_text_alt_text":"Visible text",
     "alt_text_alt_text":"Alternative text",

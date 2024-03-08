@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.api.player;
 public interface IPlayerCommands {
 
 	public void checkAnswers();
+	public void checkAnswers(boolean updateCounters);
 	public void uncheckAnswers();
 	void showAnswers(String source);
 	void hideAnswers(String source);
