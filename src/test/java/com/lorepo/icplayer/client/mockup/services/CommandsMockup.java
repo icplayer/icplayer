@@ -18,6 +18,10 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
+	public void checkAnswers(boolean updateCounters) {
+	}
+
+	@Override
 	public void uncheckAnswers() {
 	}
 
