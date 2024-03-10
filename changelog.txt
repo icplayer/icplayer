@@ -1,3 +1,6 @@
+2024-02-28 Added property useDynamicPagination which activates sliding to previous or next page index
+2024-02-22 Added new property Omit in keyboard navigation to the modules
+2024-02-22 Added displaying next or previous page index in Assessments Navigation Bar
 2024-02-16 Added example answers to the  graph addon
 2024-02-16 Added example columns to the Count and Graph addon
 2024-02-16 Disable reading disable speech text on addons without the property

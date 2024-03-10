@@ -25,6 +25,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
 	private boolean shouldOmitInTTS = false;
+	private boolean shouldOmitInKeyboardNavigation = false;
 	private String ttsTitle = "";
 	private String contentDefaultLayoutID = null;
 	public IMetadata metadata = new Metadata();
@@ -37,6 +38,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addPropertyId();
 		registerPositionProperties();
 		addPropertyIsVisible();
+		this.addPropertyOmitInKeyboardNavigation();
 		this.addPropertyOmitInTTS();
 		this.addPropertyTTSTitle();
 		this.addPropertyIsTabindexEnabled();
@@ -114,6 +116,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
 		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
+		XMLUtils.setBooleanAttribute(moduleXML, "shouldOmitInKeyboardNavigation", this.shouldOmitInKeyboardNavigation);
 		XMLUtils.setBooleanAttribute(moduleXML, "shouldOmitInTTS", this.shouldOmitInTTS);
 		String escapedTTSTitle = StringUtils.escapeXML(this.getTTSTitle());
 		moduleXML.setAttribute("ttsTitle", escapedTTSTitle);
@@ -241,6 +244,42 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addProperty(property);
 	}
 
+	private void addPropertyOmitInKeyboardNavigation() {
+		IProperty property = new IBooleanProperty() {
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != shouldOmitInKeyboardNavigation) {
+					shouldOmitInKeyboardNavigation = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return shouldOmitInKeyboardNavigation ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return "Omit in keyboard navigation";
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("should_omit_in_keyboard_navigation");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
 	private void addPropertyOmitInTTS() {
 		IProperty property = new IBooleanProperty() {
 			@Override
@@ -309,6 +348,16 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		};
 
 		addProperty(property);
+	}
+
+	@Override
+	public boolean shouldOmitInKeyboardNavigation() {
+		return this.shouldOmitInKeyboardNavigation;
+	}
+
+	@Override
+	public void setOmitInKeyboardNavigation(boolean value) {
+		this.shouldOmitInKeyboardNavigation = value;
 	}
 
 	@Override

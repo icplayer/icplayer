@@ -639,8 +639,83 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$sections;
         this.buttons = [];
         this.shiftCount = 0;
+        this.leftOffset = 0;
 
         this.initView();
+    };
+
+    presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideValue, nextPrevBtnWasClicked) {
+        const currentIndex = presenter.playerController.getCurrentPageIndex();
+        const staticPages = presenter.configuration.numberOfStaticPages;
+        const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - 4 - staticPages;
+        const isBackButtonVisible = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).length > 0;
+
+        if (rightSideIndex >= currentIndex && !nextPrevBtnWasClicked) {
+            this.setLeftOffset(1);
+        }
+
+        // situation when show next page was clicked
+        if (rightSideIndex === (currentIndex + 1) && nextPrevBtnWasClicked) {
+            this.setLeftOffset(1);
+        }
+
+        // situation when there are static pages and show next page was clicked
+        if (rightSideIndex === currentIndex && nextPrevBtnWasClicked && !isBackButtonVisible) {
+            this.setLeftOffset(1);
+        }
+    };
+
+    presenter.NavigationManager.prototype.setLeftOffset = function (leftOffset) {
+        this.leftOffset = leftOffset;
+    };
+
+    presenter.NavigationManager.prototype.getLeftSideIndex = function () {
+        return this.leftSideIndex;
+    };
+
+    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
+        if (!presenter.configuration.useDynamicPagination) {
+            return;
+        }
+
+        const currentIndex = presenter.playerController.getCurrentPageIndex();
+        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - 4;
+        const MIN_LEFT_VALUE = 3;
+
+        if (this.staticPages.length) {
+            if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
+                previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
+            }
+
+            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
+                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideIndex - 1 : previousLeftSideIndex;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+            }
+
+            if (currentIndex - previousLeftSideValue <= -1) {
+                this.leftSideIndex = 0;
+                this.shiftCount = 0;
+            }
+        } else {
+            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
+                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideValue - 1 : previousLeftSideValue;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+            }
+        }
+
+        // use only when current index is not visible in current shift
+        if (this.staticPages.length === 0) {
+            if (currentIndex < previousLeftSideValue) {
+                this.leftSideIndex = currentIndex - 1;
+                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+            } else {
+                this.setLeftOffset(1);
+            }
+        }
+    };
+
+    presenter.NavigationManager.prototype.getLeftIndex = function (previousLeftSideValue) {
+        return this.actualPages.findIndex((page) => page.page === previousLeftSideValue);
     };
 
     presenter.NavigationManager.prototype.restartLeftSideIndex = function () {
@@ -649,6 +724,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.goRight = function () {
+        this.nextPrevBtnWasClicked = true;
         var page = presenter.sections.getNextPageToCurrent();
 
         if (page) {
@@ -657,6 +733,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.goLeft = function () {
+        this.nextPrevBtnWasClicked = true;
         var page = presenter.sections.getPreviousPageToCurrent();
 
         if (page) {
@@ -787,7 +864,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationManager.prototype.addRightHellip = function () {
         if (this.shouldAddRightHellip()) {
             this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), presenter.CSS_CLASSES.TURN_FORWARD);
-            return 1
+            return 1;
         }
 
         return 0;
@@ -853,8 +930,11 @@ function AddonAssessments_Navigation_Bar_create(){
             }
         }
 
-        if (this.rightHellip) {
-            this.rightHellip.execute();
+        if (this.leftOffset === 1 && presenter.configuration.useDynamicPagination) {
+            this.shiftPagesToRight(1);
+            this.moveToCurrentPage();
+        } else if (this.rightHellip) {
+            this.shiftPagesToRight();
             this.moveToCurrentPage();
         }
     };
@@ -876,13 +956,30 @@ function AddonAssessments_Navigation_Bar_create(){
                 this.leftSideIndex -= 1;
             }
         }
+        this.leftOffset = 0;
 
-        this.shiftCount--;
+        if (this.shiftCount > 0) {
+            this.shiftCount--;
+        } else {
+            this.leftSideIndex = 0;
+        }
         this.setSections();
     };
 
-    presenter.NavigationManager.prototype.shiftPagesToRight = function () {
-        var shift;
+    presenter.NavigationManager.prototype.shiftPagesToRight = function (shift = 0) {
+        if (shift === 0) {
+            shift = this.getShiftToRight();
+            this.shiftCount++;
+        } else {
+            this.shiftCount = Math.floor((presenter.sections.getActualPageIndex() + 1) / (presenter.configuration.numberOfButtons - 4));
+        }
+
+        this.leftSideIndex += shift;
+        this.setSections();
+    };
+
+    presenter.NavigationManager.prototype.getShiftToRight = function () {
+        let shift;
         if (presenter.configuration.userButtonsNumber) {
             shift = (presenter.configuration.numberOfButtons - 2 - this.hellipsCount);
         } else {
@@ -894,10 +991,7 @@ function AddonAssessments_Navigation_Bar_create(){
             shift = 1;
         }
 
-        this.leftSideIndex += shift;
-
-        this.shiftCount++;
-        this.setSections();
+        return shift;
     };
 
     presenter.NavigationManager.prototype.getNormalRightShift = function () {
@@ -918,7 +1012,25 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationManager.prototype.setButtonCurrentPage = function (button, page) {
         if (page.isActualPage()) {
             button.setAsCurrent();
+            const _self = this;
+            setTimeout(function () {
+                _self.updateVisiblePages(button);
+            }, 0);
+         }
+    };
+
+    presenter.NavigationManager.prototype.updateVisiblePages = function (button) {
+        if (presenter.configuration.useDynamicPagination && this.leftOffset === 1 && this.isLastVisibleElement(button)) {
+            this.shiftPagesToRight(1);
         }
+    };
+
+    presenter.NavigationManager.prototype.isLastVisibleElement = function (button) {
+        const lastVisiblePage = this.actualPages[(this.actualPages.length - 1)].description;
+        const lastPageIndex = presenter.sections.allPages.length - 1;
+        const isForwardButton = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).length > 0;
+
+        return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex && isForwardButton;
     };
 
     presenter.NavigationManager.prototype.setButtonBookmark = function (button, page) {
@@ -1078,6 +1190,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var upgradedModel = presenter.upgradeNumberAndWidthOfButtons(model);
         upgradedModel = presenter.upgradeDefaultOrder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeUseDynamicPagination(upgradedModel);
+
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -1135,6 +1249,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         return upgradedModel;
     };
+
+    presenter.upgradeUseDynamicPagination = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model.hasOwnProperty('useDynamicPagination')) {
+            upgradedModel['useDynamicPagination'] = 'False';
+        }
+
+        return upgradedModel;
+    }
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
@@ -1332,7 +1457,8 @@ function AddonAssessments_Navigation_Bar_create(){
             userButtonsNumber: validateButtonsNumber.value,
             userButtonsWidth: validateButtonsWidth.value,
             numberOfPages: numberOfPages,
-            numberOfStaticPages: numberOfStaticPages
+            numberOfStaticPages: numberOfStaticPages,
+            useDynamicPagination: ModelValidationUtils.validateBoolean(model["useDynamicPagination"])
         };
     };
 
@@ -1647,15 +1773,17 @@ function AddonAssessments_Navigation_Bar_create(){
                 sectionCssClass: page.sectionCssClass,
                 buttonCssClassNames: page.buttonCssClassNames,
                 isBookmarkOn: page.isBookmarkOn,
-                staticPosition: page.staticPosition
+                staticPosition: page.staticPosition,
             };
         });
 
         var state = {
             pages: pages,
-            attemptedPages: presenter.sections.attemptedPages
+            attemptedPages: presenter.sections.attemptedPages,
+            leftSideIndex: presenter.navigationManager.getLeftSideIndex(),
+            leftSideValue: presenter.navigationManager.actualPages[0].page,
+            nextPrevBtnWasClicked: presenter.navigationManager.nextPrevBtnWasClicked
         };
-
         return JSON.stringify(state);
     };
 
@@ -1685,7 +1813,7 @@ function AddonAssessments_Navigation_Bar_create(){
         }
     }
 
-    presenter.setState = function(state){
+    presenter.setState = function (state) {
         if (state === null || state === "" || state === undefined) {
             return;
         }
@@ -1697,11 +1825,16 @@ function AddonAssessments_Navigation_Bar_create(){
 
         var parsedState = JSON.parse(state);
         var upgradedState = presenter.upgradeState(parsedState);
+        const previousLeftSideIndex = parsedState.leftSideIndex;
+        const previousLeftSideValue = parsedState.leftSideValue;
+        const nextPrevBtnWasClicked = parsedState.nextPrevBtnWasClicked;
 
         var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
         // This if fix on wrong state when filter of sections worked wrong
         presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
+        presenter.navigationManager.calculateLeftOffset(previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.restartLeftSideIndex();
+        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 

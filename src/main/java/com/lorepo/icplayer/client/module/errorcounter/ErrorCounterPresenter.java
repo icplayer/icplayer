@@ -292,9 +292,13 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
 				&& !this.getView().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return (isVisible && isTextToSpeechOn);
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
 	}
-
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
+	}
 
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
