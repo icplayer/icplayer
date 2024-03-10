@@ -2,6 +2,33 @@
 
 **"Check"** and **"Reset"** buttons help users perform different actions in the presentation, such as checking answers whether they are correct or wrong or resetting all answers marked in an activity. It is possible to change their look & feel depending on the action we are about to perform. 
 
+## Supported properties
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Property name</th>
+        <th>Description</th> 
+    </tr>
+    <tr>
+        <td>Check text</td>
+        <td>Text displayed while not in the check answers mode.</td>
+    </tr>
+    <tr>
+        <td>Uncheck text</td>
+        <td>Text displayed while not in the check answers mode.</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: Selected, Correct, Wrong, Percentage result, Page edition is blocked, Page edition is not blocked. This text will be read by the Text to Speech module after the user performs a certain action.</td>
+    </tr>
+    <tr>
+        <td>Disable score update</td>
+        <td>When selected, entering check answers mode will not increase the check and mistakes counters.</td>
+    </tr>
+</tbody>
+</table>
+
 ## Supported commands
 
 <table border='1'>

@@ -116,6 +116,10 @@ function AddonMultiAudio_create(){
     presenter.createOnPlayingEventData = function (data) {
         return getEventObject(data.currentItem, 'playing', '');
     };
+
+    presenter.createOnPauseEventData = function (data) {
+        return getEventObject(data.currentItem, 'pause', '');
+    };
     
     presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
         eventBus.sendEvent('ValueChanged', eventData);
@@ -176,6 +180,12 @@ function AddonMultiAudio_create(){
     presenter.sendOnPlayingEvent = function () {
         var currentItem = presenter.currentAudio+1;
         var eventData = presenter.createOnPlayingEventData({'currentItem': currentItem});
+            eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.sendOnPausedEvent = function () {
+        var currentItem = presenter.currentAudio+1;
+        var eventData = presenter.createOnPauseEventData({'currentItem': currentItem});
             eventBus.sendEvent('ValueChanged', eventData);
     };
 
@@ -636,6 +646,7 @@ function AddonMultiAudio_create(){
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.playingEventSent = false;
+            presenter.sendOnPausedEvent();
         }
 
         presenter.audio.currentTime = 0;
@@ -652,6 +663,7 @@ function AddonMultiAudio_create(){
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.playingEventSent = false;
+            presenter.sendOnPausedEvent();
         }
         presenter.stopDraggableItems();
     };
@@ -736,6 +748,7 @@ function AddonMultiAudio_create(){
     presenter.jumpTo = function(audioNumber) {
         var newAudio = parseInt(audioNumber, 10) - 1;
         if (0 <= newAudio && newAudio < this.files.length) {
+            presenter.sendOnPausedEvent();
             this.currentAudio = newAudio;
             presenter.isLoaded = false;
             presenter.loadFiles(this.audio, this.globalModel);
@@ -749,6 +762,7 @@ function AddonMultiAudio_create(){
 
     presenter.previous = function() {
         if (this.currentAudio > 0) {
+            presenter.sendOnPausedEvent();
             this.currentAudio--;
             this.initialize(this.globalView[0], this.globalModel);
         }
@@ -756,6 +770,7 @@ function AddonMultiAudio_create(){
 
     presenter.next = function() {
         if (this.currentAudio < this.files.length - 1) {
+            presenter.sendOnPausedEvent();
             this.currentAudio++;
             this.initialize(this.globalView[0], this.globalModel);
         }
