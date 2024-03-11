@@ -123,7 +123,7 @@ function AddonFlashCards_create(){
             $.extend(true, upgradedModel, model);
 
             if (!upgradedModel["randomize"]) {
-                upgradedModel["randomize"] = ""
+                upgradedModel["randomize"] = "False"
             }
             return upgradedModel;
         };
@@ -274,7 +274,7 @@ function AddonFlashCards_create(){
     presenter.countNonFavouritesBefore = function (k) {
         var i = 0;
         for(j = 0; j < k; j++){
-            if (presenter.state.cardsFavourites[j] == false){i++};
+            if (presenter.state.cardsFavourites[presenter.cardMap[j]] == false){i++};
         }
         return i;
     };
@@ -698,11 +698,10 @@ function AddonFlashCards_create(){
         presenter.state = parsedState.state;
 
         presenter.updateVisibility();
-        if (!presenter.configuration.randomizeOrder) {
-            presenter.showCard(presenter.state.currentCard);
-        }   else {
+        if (presenter.configuration.randomizeOrder) {
             presenter.state.currentCard = 1;
         }
+        presenter.showCard(presenter.state.currentCard);
     };
 
     presenter.destroy = function (event) {
@@ -771,6 +770,7 @@ function AddonFlashCards_create(){
     presenter.sendEvent = function(eventName, cardNumber) {
         var item = presenter.state.currentCard;
         if (cardNumber !== undefined) item = cardNumber;
+        item = presenter.cardMap[item - 1] + 1;
         var eventData = {
             'source': presenter.configuration.addonID,
             'item': item,

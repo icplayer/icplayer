@@ -49,7 +49,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>  
     <tr>
         <td>Randomize order</td>
-        <td>When enabled, the order of cards will be randomized every time every time the addon is loaded.</td>
+        <td>When enabled, the order of cards will be randomized every time the addon is loaded.</td>
     </tr>
 </tbody>
 </table>
