@@ -40,7 +40,7 @@ TODO
             <td>zoomIn</td>
             <td>xPosition, yPosition</td>
             <td>
-                Zoom in at position relative to page. If page is already zoomed in, use the `zoomOut` commend first.<br>
+                Zoom in at position relative to page. If page is already zoomed in, use the `zoomOut` command first.<br>
                 For more information about page, see <a href='//www.mauthor.com/doc/en/ic_page/page/Page' target='_blank'>documentation.
             </td>
         </tr>
