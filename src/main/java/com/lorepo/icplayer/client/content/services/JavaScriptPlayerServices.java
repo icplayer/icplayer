@@ -161,9 +161,11 @@ public class JavaScriptPlayerServices {
 			commands.increaseMistakeCounter = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::increaseMistakeCounter()();
 			};
-			
-			commands.checkAnswers = function() {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::checkAnswers()();
+
+			commands.checkAnswers = function(updateCounter) {
+				if (updateCounter == undefined) updateCounter = true;
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::checkAnswers(Z)(updateCounter);
+
 			};
 			
 			commands.uncheckAnswers = function() {
@@ -854,8 +856,8 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().increaseMistakeCounter();
 	}
 
-	private void checkAnswers() {
-		playerServices.getCommands().checkAnswers();
+	private void checkAnswers(boolean updateCounter) {
+		playerServices.getCommands().checkAnswers(updateCounter);
 	}
 
 	private void uncheckAnswers() {

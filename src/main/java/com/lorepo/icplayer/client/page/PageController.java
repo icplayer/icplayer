@@ -370,6 +370,11 @@ public class PageController implements ITextToSpeechController, IPageController 
 		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
 	}
 
+	public void checkAnswers(boolean updateCounters) {
+		updateScore(updateCounters);
+		playerService.getEventBus().fireEvent(new ShowErrorsEvent());
+	}
+
 	public void incrementCheckCounter() {
 		updateScoreCheckCounter();
 	}

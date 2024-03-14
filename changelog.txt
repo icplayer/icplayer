@@ -1,4 +1,7 @@
 2024-03-14 Added Zoom module
+2024-03-08 Added pause even to MultiAudio addon
+2024-03-08 Added disable score update property to the Check Button
+2024-02-28 Added property useDynamicPagination which activates sliding to previous or next page index
 2024-02-22 Added new property Omit in keyboard navigation to the modules
 2024-02-22 Added displaying next or previous page index in Assessments Navigation Bar
 2024-02-16 Added example answers to the  graph addon

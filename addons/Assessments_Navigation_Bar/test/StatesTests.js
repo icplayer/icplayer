@@ -65,6 +65,7 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
             getCurrentPageIndex: sinon.stub()
         };
         this.presenter.playerController.getCurrentPageIndex.returns(0);
+        this.presenter.$wrapper = $('div');
     },
 
     tearDown: function () {
