@@ -41,6 +41,7 @@ public class PlayerServicesTestCase {
 	
 	@Test
 	public void setCorrectScaleInformation() {
+		// TODO add/fix tests
 		mockedPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
 		ScaleInformation scaleInfo = mockedPlayerServices.getScaleInformation();
 		assertTrue(scaleInfo.scaleX==0.5);

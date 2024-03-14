@@ -1,0 +1,45 @@
+.ic_page.zoom-cursor-zoom-in {
+    cursor: zoom-in;
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+}
+
+.zoom-wrapper{
+    width: 100%;
+    height: 100%;
+}
+
+.zoom-wrapper .zoom-button-container{
+    width: 100%;
+    height: 100%;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button {
+	background: url('resources/zoom.png') no-repeat center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+.zoom-wrapper .zoom-out-button-container.ui-draggable-dragging{
+    cursor: grabbing;
+}
+
+.zoomed-space-container{
+    position: fixed;
+    z-index: 99;
+    pointer-events: none;
+}
+
+.zoomed-space-container .zoom-out-button-container{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    pointer-events: auto;
+}
+
+.zoomed-space-container .zoom-out-button-container .zoom-out-button {
+	background: url('resources/zoom-out.png') no-repeat center;
+    text-align: center;
+    cursor: pointer;
+}
