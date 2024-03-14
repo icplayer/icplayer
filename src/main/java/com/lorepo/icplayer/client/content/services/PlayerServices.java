@@ -227,9 +227,9 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public void setFinalScaleInformation(String scaleX,
-                                         String scaleY,
-									     String transform,
-									     String transformOrigin)
+										 String scaleY,
+										 String transform,
+										 String transformOrigin)
     {
 		this.scaleInformation.scaleX = Double.parseDouble(scaleX);
 		this.scaleInformation.scaleY = Double.parseDouble(scaleY);
@@ -240,8 +240,8 @@ public class PlayerServices implements IPlayerServices {
 		if (transformOrigin != null) {
 			this.scaleInformation.transformOrigin = transformOrigin;
 		}
-
-        JavaScriptUtils.setScale(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
+		
+		JavaScriptUtils.setScale(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
 		this.fixDroppable();
 	}
 

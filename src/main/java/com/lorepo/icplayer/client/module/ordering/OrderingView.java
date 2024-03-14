@@ -179,7 +179,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		scale = {X:1.0, Y:1.0};
 		var getScale = $entry(function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::getScaleInformation()();
-            return {X: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX, Y: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY};
+			return {X: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX, Y: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY};
 		});
 		var isInnerScale = false; //is there scaling on the content element within iframe
 		var moduleOffset = {left: 0.0, top: 0.0};

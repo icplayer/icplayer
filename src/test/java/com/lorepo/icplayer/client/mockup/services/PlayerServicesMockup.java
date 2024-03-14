@@ -191,17 +191,14 @@ public class PlayerServicesMockup implements IPlayerServices {
 	
 	
 	@Override
-	public void setFinalScaleInformation(String scaleX, String scaleY,
-			String transform, String transformOrigin) {
+	public void setFinalScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin) {
 		// TODO Auto-generated method stub
 	}
 
 
 	@Override
-	public void setScaleInformation(String baseScaleX, String baseScaleY,
-			String baseTransform, String baseTransformOrigin) {
+	public void setScaleInformation(String baseScaleX, String baseScaleY, String baseTransform, String baseTransformOrigin) {
 		// TODO Auto-generated method stub
-
 	}
 
 
