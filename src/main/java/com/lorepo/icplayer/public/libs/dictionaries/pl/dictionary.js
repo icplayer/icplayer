@@ -1016,6 +1016,8 @@ var ice_dictionary_pl = {
 	"Image_Viewer_Public_property_lang_attribute": "Lang attribute",
 	"Image_Viewer_Public_property_alternative_texts": "Alternative texts",
 	"Image_Viewer_Public_property_alternative_text": "Alternative text",
+	"Image_Viewer_Public_property_base_width": "Base width",
+	"Image_Viewer_Public_property_base_height": "Base height",
 	"Layered_Image_info" : "Pozwala na wstawienie do prezentacji wielowarstwowych obrazów, w których każda warstwa jest reprezentowana przez obrazek zawierający elementy transparentne. Domyślnie wszystkie warstwy są ukryte podczas uruchomienia Addonu i można wybrać, która warstwa ma być wyświetlona na danym etapie.",
 	"Layered_Image_name" : "Obraz warstwowy",
 	"Layered_Image_property_base_image": "Obraz podstawowy",

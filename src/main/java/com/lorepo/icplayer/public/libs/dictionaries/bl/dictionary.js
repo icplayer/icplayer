@@ -861,6 +861,8 @@ var ice_dictionary_bl = {
 	"Image_Viewer_Public_property_left": "Ляво",
 	"Image_Viewer_Public_property_alternative_texts": "Alternative texts",
 	"Image_Viewer_Public_property_alternative_text": "Alternative text",
+	"Image_Viewer_Public_property_base_width": "Base width",
+	"Image_Viewer_Public_property_base_height": "Base height",
 	"Image_Viewer_Public_property_show_watermark": "Покажи воден знак",
 	"Image_Viewer_Public_property_watermark_color": "Цвят на водния знак",
 	"Image_Viewer_Public_property_watermark_opacity": "Прозрачност на водния знак",

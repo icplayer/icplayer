@@ -1017,6 +1017,8 @@ var ice_dictionary_mx = {
 	"Image_Viewer_Public_property_lang_attribute": "Lang attribute",
 	"Image_Viewer_Public_property_alternative_texts": "Alternative texts",
 	"Image_Viewer_Public_property_alternative_text": "Alternative text",
+	"Image_Viewer_Public_property_base_width": "Base width",
+	"Image_Viewer_Public_property_base_height": "Base height",
 	"Layered_Image_info": "Permite añadir las imágenes de varias capas a la presentación, donde cada capa es una imagen con partes transparentes. Por defecto, cada capa de imagen está escondida en principio y luego hay que seleccionarla para mostrarla en una etapa dada.",
 	"Layered_Image_name": "Imagen con capas",
 	"Layered_Image_property_base_image": "Imagen base",
