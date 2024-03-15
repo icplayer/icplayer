@@ -75,13 +75,15 @@ function AddonCross_Lesson_create(){
             return {isError: true, errorCode: 'V_04'};
         }
 
+        var checkForLessonIdAccess = false;
         if (checkForAccess && model.AccessIDs.trim().length === 0) {
             model.AccessIDs = validatedCourseId.value
                 ? validatedCourseId.value
                 : model.LessonID;
+            checkForLessonIdAccess = model.AccessIDs == model.LessonID;
         }
 
-        var validatedAccessIds = presenter.validateAccessIds(model.AccessIDs);
+        var validatedAccessIds = presenter.validateAccessIds(model.AccessIDs, checkForLessonIdAccess);
         if (checkForAccess && !validatedAccessIds.isValid) {
             return {isError: true, errorCode: 'V_05'};
         }
@@ -143,13 +145,13 @@ function AddonCross_Lesson_create(){
         }
     };
 
-    presenter.validateAccessIds = function AddonCross_Lesson_validateAccessIds (raw) {
+    presenter.validateAccessIds = function AddonCross_Lesson_validateAccessIds (raw, isLessonId) {
         const ids = presenter.transformAccessIdsToArray(raw);
         const onlyDigitsRegex = /^\d*$/;
 
         const filteredIds = ids
             .map(id => id.trim())
-            .filter((id) => (id.length > 0 && onlyDigitsRegex.test(id)));
+            .filter((id) => (id.length > 0 && (onlyDigitsRegex.test(id) || isLessonId)));
 
         if (ids.length !== filteredIds.length) {
             return {isValid: false};
@@ -229,7 +231,7 @@ function AddonCross_Lesson_create(){
 
     presenter.generateAccessCacheId = function() {
         if (presenter.configuration.accessIds.length == 0) return '';
-        var sortedIds = presenter.configuration.accessIds.toSorted();
+        var sortedIds = presenter.configuration.accessIds.slice().sort();
         return sortedIds.toString();
     }
 

@@ -1,3 +1,4 @@
+2024-03-15 Fixed issue with Cross Lesson not working on mLibro
 2024-03-15 Added randomize order property to Flashcards
 2024-03-15 Added missing speech texts in Speech text dictionary
 2024-03-15 Added base width/height properties to the video addon
