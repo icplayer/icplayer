@@ -40,7 +40,7 @@ function AddonImage_Viewer_Public_create() {
         'WM_03': "Watermark size must be a positive integer number!",
         'CF_01': "Correct frame number must be between 1 and frames count!",
         'IF_01': "Initial frame is out of range. Please choose number between 1 and frames count.",
-        'NVD01': "Base width and height must be either positive integers or empty"
+        'ID_01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.FRAME_SIZE = {
@@ -523,23 +523,39 @@ function AddonImage_Viewer_Public_create() {
          if (presenter.configuration.baseDimensions.height != 0) {
             scaleY = presenter.configuration.containerDimensions.height / presenter.configuration.baseDimensions.height;
         }
-        var scale = scaleX < scaleY ? scaleX : scaleY;
-        console.log("scale");
-        console.log(scaleX, scaleY, scale);
+
+        var paddingTop = parseInt($(presenter.$view).css('padding-top'));
+        if (isNaN(paddingTop)) paddingTop = 0;
+        var paddingLeft = parseInt($(presenter.$view).css('padding-left'));
+        if (isNaN(paddingLeft)) paddingLeft = 0;
 
         $(labelElement).addClass('image-viewer-label');
         $(labelElement).html(label.text);
         $(labelElement).css({
-            top: label.top * scaleY + 'px',
-            left: label.left * scaleX + 'px'
+            top: ((label.top - paddingTop) * scaleY + paddingTop ) + 'px',
+            left: ((label.left - paddingLeft) * scaleX + paddingLeft) + 'px'
         });
-        if (scale != 1.0) {
-            $(labelElement).css('transform', 'scale(' + scale + ')');
+        if (scaleX != 1.0 || scaleY != 1.0) {
+            $(labelElement).css(generateTransformDict(scaleX, scaleY));
         }
 
         $(presenter.$view).append(labelElement);
 
         return labelElement;
+    }
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+           "-webkit-transform-origin": "top left",
+           "-ms-transform-origin": "top left",
+           "transform-origin": "top left"
+        }
     }
 
     function loadLabels() {
@@ -644,9 +660,7 @@ function AddonImage_Viewer_Public_create() {
     }
 
     function presenterLogic(view, model, isPreview) {
-        console.log("IV5");
         var upgradedModel = presenter.upgradeModel(model);
-        console.log(upgradedModel);
 
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
@@ -665,7 +679,6 @@ function AddonImage_Viewer_Public_create() {
         }
 
         var configuration = presenter.validateModel(upgradedModel);
-        console.log(configuration);
         if (configuration.isError) {
             showErrorMessage(view, configuration.errorCode);
         } else {
@@ -1322,7 +1335,7 @@ function AddonImage_Viewer_Public_create() {
             if (validatedBaseWidth.isValid) {
                 baseDimensions.width = validatedBaseWidth.value;
             } else {
-                validatedBaseWidth.errorCode = 'NVD01';
+                validatedBaseWidth.errorCode = 'ID_01';
                 return validatedBaseWidth;
             }
         }
@@ -1331,7 +1344,7 @@ function AddonImage_Viewer_Public_create() {
             if (validatedBaseHeight.isValid) {
                 baseDimensions.height = validatedBaseHeight.value;
             } else {
-                validatedBaseHeight.errorCode = 'NVD01';
+                validatedBaseHeight.errorCode = 'ID_01';
                 return validatedBaseHeight;
             }
         }
