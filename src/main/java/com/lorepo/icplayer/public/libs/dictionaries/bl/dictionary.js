@@ -1459,6 +1459,8 @@ var ice_dictionary_bl = {
 	"video_property_description_enabled": "Включено описание на аудиото",
 	"video_property_description_disabled": "Изключено описание на аудиото",
 	"video_property_offline_message": "Offline message",
+	"video_property_base_width": "Base width",
+	"video_property_base_height": "Base height",
 	"enable_video_speed_controller": "Enable video speed controller",
 	"WritingCalculations_info": "Позволява създаването на задачи по математика, включващи основни математически действия като умножение, деление, събиране и изваждане.",
 	"WritingCalculations_name": "Изчисления",

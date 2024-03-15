@@ -1471,6 +1471,8 @@ var ice_dictionary_pl = {
 	"video_property_description_enabled": "Audio description enabled",
 	"video_property_description_disabled": "Audio description disabled",
 	"video_property_offline_message": "Offline message",
+	"video_property_base_width": "Base width",
+	"video_property_base_height": "Base height",
 	"enable_video_speed_controller": "Aktywacja zmiany prędkości odtwarzania filmu",
     "WritingCalculations_info" : "Umożliwia dodanie ćwiczeń matematycznych zawierających obliczenia pisemne: mnożenie, dzielenie, dodawanie i odejmowanie.",
 	"WritingCalculations_name" : "Obliczenia pisemne",
