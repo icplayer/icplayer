@@ -1330,12 +1330,14 @@ function AddonImage_Viewer_Public_create() {
             width: 0,
             height: 0
         };
+
         if (model['Base width'].trim().length !== 0) {
             var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
             if (validatedBaseWidth.isValid) {
                 baseDimensions.width = validatedBaseWidth.value;
             } else {
                 validatedBaseWidth.errorCode = 'ID_01';
+                validatedBaseWidth.isError = true;
                 return validatedBaseWidth;
             }
         }
@@ -1345,6 +1347,7 @@ function AddonImage_Viewer_Public_create() {
                 baseDimensions.height = validatedBaseHeight.value;
             } else {
                 validatedBaseHeight.errorCode = 'ID_01';
+                validatedBaseHeight.isError = true;
                 return validatedBaseHeight;
             }
         }
