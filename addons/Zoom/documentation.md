@@ -95,3 +95,6 @@ This module does not send events.
     </tbody>
 </table>
 
+## Keyboard navigation
+
+* Esc – Zoom out.

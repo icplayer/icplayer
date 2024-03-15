@@ -148,13 +148,13 @@ function AddonZoom_create() {
 
     presenter.addHandlers = function () {
         presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
-        findPage().click(presenter.pagePanelCallback);
+        findPage().click(presenter.pageCallback);
         findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON).click(presenter.zoomButtonCallback);
     };
 
     presenter.removeHandlers = function () {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
-        findPage().off("click", presenter.pagePanelCallback);
+        findPage().off("click", presenter.pageCallback);
         findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON).off("click", presenter.zoomButtonCallback);
     };
 
@@ -171,7 +171,7 @@ function AddonZoom_create() {
         }
     };
 
-    presenter.pagePanelCallback = function (event) {
+    presenter.pageCallback = function (event) {
         event.stopPropagation();
         if (!isEnabledZoomInCursor()) {
             return;
@@ -200,7 +200,8 @@ function AddonZoom_create() {
             return;
         }
 
-        document.addEventListener( "keyup", keyUpHandler);
+        document.body.addEventListener( "keyup", keyUpHandler);
+        presenter.scaleModifier = presenter.DEFAULT_ZOOM;
 
         let topWindowHeight = 0;
         let iframeTopOffset = 0;
@@ -217,15 +218,33 @@ function AddonZoom_create() {
             pageHeight += findFooter().height();
         }
 
-        const minY = (presenter.zoomConfiguration.initialWindowHeight/2 - window.iframeSize.frameOffset) / presenter.DEFAULT_ZOOM;
-        const maxY = pageHeight - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.DEFAULT_ZOOM);
+        const requiredHeight = window.innerHeight / presenter.scaleModifier;
+        const halfOfRequiredHeight = requiredHeight / 2;
+        const minY = Math.max(
+            (presenter.zoomConfiguration.initialWindowHeight/2 - window.iframeSize.frameOffset) / presenter.scaleModifier,
+            halfOfRequiredHeight
+        );
+        const maxY = Math.min(
+            pageHeight - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.scaleModifier),
+            window.innerHeight - halfOfRequiredHeight
+        );
         if (y < minY) {
             y = minY;
         } else if (y > maxY) {
             y = maxY;
         }
 
-        presenter.scaleModifier = presenter.DEFAULT_ZOOM;
+        const requiredWidth = window.innerWidth / presenter.scaleModifier;
+        const halfOfRequiredWidth = requiredWidth / 2;
+        const minX = halfOfRequiredWidth;
+        const maxX = window.innerWidth - halfOfRequiredWidth;
+        if (x < minX) {
+            x = minX;
+        } else if (x > maxX) {
+            x = maxX;
+        }
+
+        createZoomedSpaceContainer();
         setFinalScaleInformation();
         zoom.to({
             x: x,
@@ -235,19 +254,17 @@ function AddonZoom_create() {
             iframeTopOffset: iframeTopOffset
         });
 
+        setZoomedSpaceContainerPositionAndSize();
         enableZoomInCursor(false);
         turnOffDisplayOffZoomButtonContainer();
-        createZoomedSpaceContainer();
     }
 
     function setFinalScaleInformation() {
-        console.log("setFinalScaleInformation");
         const scaleInfo = presenter.playerController.getScaleInformation();
         presenter.playerController.setFinalScaleInformation({
             scaleX: scaleInfo.baseScaleX * presenter.scaleModifier,
             scaleY: scaleInfo.baseScaleY * presenter.scaleModifier
         });
-        console.log(presenter.playerController.getScaleInformation());
     }
 
     function createZoomedSpaceContainer() {
@@ -265,33 +282,25 @@ function AddonZoom_create() {
         $(button).click(presenter.zoomOutButtonCallback);
 
         document.body.append(zoomedSpaceContainer);
-
-        setZoomedSpaceContainerPositionAndSize();
     }
 
     function setZoomedSpaceContainerPositionAndSize() {
-        const scaleInfo = presenter.playerController.getScaleInformation();
-
-        let newWidth = window.innerWidth / presenter.scaleModifier;
-        let newHeight = window.innerHeight / presenter.scaleModifier;
-        if (scaleInfo.baseScaleX !== 1 || scaleInfo.baseScaleY !== 1) {
-            newWidth /= scaleInfo.baseScaleX;
-            newHeight /= scaleInfo.baseScaleY;
-        }
-
+        const newWidth = window.innerWidth / presenter.scaleModifier;
+        const newHeight = window.innerHeight / presenter.scaleModifier;
         zoomedSpaceContainer.style.width = newWidth + "px";
         zoomedSpaceContainer.style.height = newHeight + "px";
         zoomedSpaceContainer.style.left = 0 + "px";
         zoomedSpaceContainer.style.top = 0 + "px";
 
+        const timeout = 900; // zoom.TRANSITION_DURATION + 100
         setTimeout(() => {
             const clientRect = $(zoomedSpaceContainer)[0].getBoundingClientRect();
-            const newTop = -clientRect.top / scaleInfo.scaleY;
-            const newLeft = -clientRect.left / scaleInfo.scaleX;
+            const newTop = -clientRect.top / presenter.scaleModifier;
+            const newLeft = -clientRect.left / presenter.scaleModifier;
             zoomedSpaceContainer.style.top = newTop + "px";
             zoomedSpaceContainer.style.left = newLeft + "px";
             zoomedSpaceContainer.style.visibility = "visible";
-        }, 850);
+        }, timeout);
     }
 
     function removeZoomedSpaceContainer() {
@@ -336,10 +345,10 @@ function AddonZoom_create() {
             return;
         }
 
-        presenter.zoomModifier = 1.0;
+        presenter.scaleModifier = 1.0;
         setFinalScaleInformation();
         zoom.out();
-        document.removeEventListener("keyup", keyUpHandler);
+        document.body.removeEventListener("keyup", keyUpHandler);
         removeZoomedSpaceContainer();
         turnOnDisplayOfZoomButtonContainer();
     };

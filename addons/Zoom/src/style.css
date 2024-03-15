@@ -42,4 +42,6 @@
     background: url('resources/zoom-out.png') no-repeat center;
     text-align: center;
     cursor: pointer;
+    width: 55px;
+    height: 55px;
 }
