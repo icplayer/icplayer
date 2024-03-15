@@ -47,6 +47,10 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <td>Speech texts</td>
         <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
     </tr>  
+    <tr>
+        <td>Randomize order</td>
+        <td>When enabled, the order of cards will be randomized every time the addon is loaded.</td>
+    </tr>
 </tbody>
 </table>
 
