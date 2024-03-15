@@ -49,6 +49,8 @@ public class GWTButtonModuleTestCase extends GwtTest{
 		Whitebox.setInternalState(module, "confirmInfo", "<>8");
 		Whitebox.setInternalState(module, "confirmYesInfo", "<>9");
 		Whitebox.setInternalState(module, "confirmNoInfo", "<>10");
+		Whitebox.setInternalState(module, "shouldOmitInKeyboardNavigation", true);
+		Whitebox.setInternalState(module, "shouldOmitInTTS", true);
 		Whitebox.setInternalState(module, "ttsTitle", "<>11");
 		Whitebox.setInternalState(module, "resetSpeechTextItems", resetSpeechTexts);
 		Whitebox.setInternalState(module, "goToLastVisitedPage", true);
@@ -72,7 +74,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLPopup () {	
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"popup\" text=\"&lt;&gt;2\" additionalClasses=\"&lt;&gt;4\" popupLeftPosition=\"&lt;&gt;5\" popupTopPosition=\"&lt;&gt;6\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"popup\" text=\"&lt;&gt;2\" additionalClasses=\"&lt;&gt;4\" popupLeftPosition=\"&lt;&gt;5\" popupTopPosition=\"&lt;&gt;6\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.popup);
 		
 		assertEquals(expected, module.toXML());
@@ -80,7 +82,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLGoToPage () {
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"gotoPage\" text=\"&lt;&gt;2\" pageIndex=\"&lt;&gt;7\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"gotoPage\" text=\"&lt;&gt;2\" pageIndex=\"&lt;&gt;7\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.gotoPage);
 		
 		assertEquals(expected, module.toXML());
@@ -88,7 +90,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLReset () {
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" resetOnlyWrong=\"false\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\" resetReset=\"&lt;&gt;11\" resetSkipReset=\"&lt;&gt;12\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" resetOnlyWrong=\"false\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\" resetReset=\"&lt;&gt;11\" resetSkipReset=\"&lt;&gt;12\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.reset);
 
 		assertEquals(expected, module.toXML());
@@ -96,7 +98,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLPrevPage () {
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"prevPage\" text=\"&lt;&gt;2\" goToLastVisitedPage=\"true\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"prevPage\" text=\"&lt;&gt;2\" goToLastVisitedPage=\"true\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.prevPage);
 		
 		assertEquals(expected, module.toXML());
@@ -104,7 +106,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void loadButtonPopup () throws Exception {
-		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"popup\" text=\"&lt;&gt;2\" additionalClasses=\"&lt;&gt;4\" popupLeftPosition=\"&lt;&gt;5\" popupTopPosition=\"&lt;&gt;6\"/></buttonModule>";
+		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"popup\" text=\"&lt;&gt;2\" additionalClasses=\"&lt;&gt;4\" popupLeftPosition=\"&lt;&gt;5\" popupTopPosition=\"&lt;&gt;6\"/></buttonModule>";
 	
 		InputStream inputStream = new ByteArrayInputStream(data.getBytes());
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -130,7 +132,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void loadButtonGoToPage () throws Exception {
-		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"gotoPage\" text=\"&lt;&gt;2\" pageIndex=\"&lt;&gt;7\"/></buttonModule>";
+		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"gotoPage\" text=\"&lt;&gt;2\" pageIndex=\"&lt;&gt;7\"/></buttonModule>";
 	
 		InputStream inputStream = new ByteArrayInputStream(data.getBytes());
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -154,7 +156,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void loadButtonReset () throws Exception {
-		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\"/></buttonModule>";
+		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\"/></buttonModule>";
 	
 		InputStream inputStream = new ByteArrayInputStream(data.getBytes());
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -182,7 +184,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void loadButtonPrevPage () throws Exception {
-		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInTTS=\"false\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"prevPage\" text=\"&lt;&gt;2\" goToLastVisitedPage=\"true\"/></buttonModule>";
+		String data = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\" shouldOmitInKeyboardNavigation=\"true\" shouldOmitInTTS=\"true\" ttsTitle=\"&lt;&gt;11\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"prevPage\" text=\"&lt;&gt;2\" goToLastVisitedPage=\"true\"/></buttonModule>";
 	
 		InputStream inputStream = new ByteArrayInputStream(data.getBytes());
 		XMLParserMockup xmlParser = new XMLParserMockup();

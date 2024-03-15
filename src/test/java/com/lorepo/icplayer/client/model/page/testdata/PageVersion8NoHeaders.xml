@@ -14,7 +14,7 @@
 		<layout id="default" width="0" height="0" isDefault="true"/>
 	</layouts>
 	<modules>
-	    <imageModule id="Image1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
+	    <imageModule id="Image1" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
@@ -29,7 +29,7 @@
 			<image src="/file/serve/4937597482696704" alt="" mode="stretch" printable="" animatedGifRefresh="false"/>
 		</imageModule>
 		
-		<textModule id="Text1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
+		<textModule id="Text1" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
 			<styles>
 				<styleClasses>
 					<styleClass value="text_first_page_title" layoutID="default"/>
@@ -57,7 +57,7 @@
 			</groupsGaps>
 		</textModule>
 		
-		<textModule id="Text2" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
+		<textModule id="Text2" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
 			<styles>
 				<styleClasses>
 					<styleClass value="text_first_page_title" layoutID="default"/>
@@ -85,7 +85,7 @@
 			</groupsGaps>
 		</textModule>
 		
-		<buttonModule id="NextPage1" isTabindexEnabled="false" shouldOmitInTTS="false" ttsTitle="">
+		<buttonModule id="NextPage1" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">

@@ -1,4 +1,14 @@
-2024-02-26 Added base width/height properties to the video addon
+2024-03-15 Added base width/height properties to the video addon
+2024-03-08 Added pause even to MultiAudio addon
+2024-03-08 Added disable score update property to the Check Button
+2024-02-28 Added property useDynamicPagination which activates sliding to previous or next page index
+2024-02-22 Added new property Omit in keyboard navigation to the modules
+2024-02-22 Added displaying next or previous page index in Assessments Navigation Bar
+2024-02-16 Added example answers to the  graph addon
+2024-02-16 Added example columns to the Count and Graph addon
+2024-02-16 Disable reading disable speech text on addons without the property
+2024-02-16 Added Show Answers and Gradual Show Answers to Point to Plot
+2024-02-16 Fixed state loading in Pargraph module when is not visible
 2024-02-09 Added disable property to speech text in Double State Button
 2024-02-09 Added help boxes to Writing Calculation addon
 2024-02-06 Enable getResponsiveLayouts function to use in Advanced Connector

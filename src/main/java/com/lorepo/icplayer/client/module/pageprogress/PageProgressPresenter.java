@@ -342,7 +342,12 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
 				&& !this.getView().getStyle().getDisplay().equals("none")
 				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
-		return (isVisible && isTextToSpeechOn);
+		return (isTextToSpeechOn || haveStandaloneKeyboardNavigationSupport()) && isVisible;
+	}
+	
+	@Override
+	public boolean haveStandaloneKeyboardNavigationSupport() {
+		return false;
 	}
 
 	@Override

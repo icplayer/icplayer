@@ -22,6 +22,7 @@
 		<property name="Data" nameLabel="graph_property_data" type="text" />
 		<property name="Answers" nameLabel="graph_property_answers" type="list">
 			<property name="Answer" nameLabel="graph_property_answer" type="string" />
+			<property name="Example" nameLabel="graph_property_is_example" type="boolean" />
 		</property>
 		<property name="Series colors" nameLabel="graph_property_series_colors" type="list">
 			<property name="Color" nameLabel="graph_property_color" type="string" />
