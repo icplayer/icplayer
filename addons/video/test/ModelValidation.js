@@ -40,7 +40,9 @@ TestCase("[Video] Model validation", {
             speechTexts: {
                 AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled2"},
                 AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled2"}
-            }
+            },
+            "Base width": "",
+            "Base height": ""
         }
     },
 
@@ -88,7 +90,11 @@ TestCase("[Video] Model validation", {
                 Audiodescription: "5|100|100|red|pl|test2"
             }],
             height: 22,
-            enableVideoSpeedController: false
+            enableVideoSpeedController: false,
+            baseDimensions: {
+                width: 0,
+                height: 0
+            }
         };
 
         var expectedSpeechTexts = {
