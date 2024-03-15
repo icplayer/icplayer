@@ -341,10 +341,6 @@ function AddonZoom_create() {
     };
 
     presenter.zoomOut = function () {
-        if (!isZoomed()) {
-            return;
-        }
-
         presenter.scaleModifier = 1.0;
         setFinalScaleInformation();
         zoom.out();
