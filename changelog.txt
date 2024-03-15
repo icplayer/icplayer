@@ -1,3 +1,4 @@
+2024-03-15 Added base width and base height properties to Image Viewer
 2024-03-08 Added pause even to MultiAudio addon
 2024-03-08 Added disable score update property to the Check Button
 2024-02-28 Added property useDynamicPagination which activates sliding to previous or next page index
