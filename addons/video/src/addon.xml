@@ -29,5 +29,7 @@
         </property>
         <property name="offlineMessage" nameLabel="video_property_offline_message" type="text" />
 		<property name="enableVideoSpeedController" nameLabel="enable_video_speed_controller" type="boolean" />
+		<property name="Base width" nameLabel="video_property_base_width" type="string" />
+		<property name="Base height" nameLabel="video_property_base_height" type="string" />
 	</model>
 </addon>

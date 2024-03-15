@@ -674,6 +674,10 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
+        if (!presenter.configuration.useDynamicPagination) {
+            return;
+        }
+
         const currentIndex = presenter.playerController.getCurrentPageIndex();
         const numberOfButtonsInShift = presenter.configuration.numberOfButtons - 4;
         const MIN_LEFT_VALUE = 3;
@@ -926,7 +930,7 @@ function AddonAssessments_Navigation_Bar_create(){
             }
         }
 
-        if (this.leftOffset === 1) {
+        if (this.leftOffset === 1 && presenter.configuration.useDynamicPagination) {
             this.shiftPagesToRight(1);
             this.moveToCurrentPage();
         } else if (this.rightHellip) {
@@ -1016,7 +1020,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.updateVisiblePages = function (button) {
-        if (this.leftOffset === 1 && this.isLastVisibleElement(button)) {
+        if (presenter.configuration.useDynamicPagination && this.leftOffset === 1 && this.isLastVisibleElement(button)) {
             this.shiftPagesToRight(1);
         }
     };
@@ -1186,6 +1190,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var upgradedModel = presenter.upgradeNumberAndWidthOfButtons(model);
         upgradedModel = presenter.upgradeDefaultOrder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeUseDynamicPagination(upgradedModel);
+
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
@@ -1243,6 +1249,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         return upgradedModel;
     };
+
+    presenter.upgradeUseDynamicPagination = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model.hasOwnProperty('useDynamicPagination')) {
+            upgradedModel['useDynamicPagination'] = 'False';
+        }
+
+        return upgradedModel;
+    }
 
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
@@ -1440,7 +1457,8 @@ function AddonAssessments_Navigation_Bar_create(){
             userButtonsNumber: validateButtonsNumber.value,
             userButtonsWidth: validateButtonsWidth.value,
             numberOfPages: numberOfPages,
-            numberOfStaticPages: numberOfStaticPages
+            numberOfStaticPages: numberOfStaticPages,
+            useDynamicPagination: ModelValidationUtils.validateBoolean(model["useDynamicPagination"])
         };
     };
 
