@@ -1151,7 +1151,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shouldAddLeftHellip = function () {
-        return this.leftSideIndex !== 0;
+        return this.leftSideIndex > 0;
     };
 
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
