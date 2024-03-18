@@ -277,7 +277,7 @@ var ice_dictionary_en = {
 	"update_template_update_button": "Update template",
 	"update_template_title": "Update template",
 	"update_template_replace_header_footer": "Replace header and footer",
-	"update_template_selected_template_name": "Selected template name",
+	"update_template_selected_template_name": "Selected template:",
 	"save_menu" : "Save",
 	"edit_css_menu" : "Edit CSS...",
 	"close_menu" : "Close",
