@@ -531,13 +531,20 @@ function AddonImage_Viewer_Public_create() {
 
         $(labelElement).addClass('image-viewer-label');
         $(labelElement).html(label.text);
+        if (scaleX != 1.0 || scaleY != 1.0) {
+            $(labelElement).css(generateTransformDict(scaleX, scaleY));
+        }
+        //If the position is within the padding, do not scale it
+        if (paddingTop > label.top) {
+            scaleY = 1.0;
+        }
+        if (paddingLeft > label.left) {
+            scaleX = 1.0;
+        }
         $(labelElement).css({
             top: ((label.top - paddingTop) * scaleY + paddingTop ) + 'px',
             left: ((label.left - paddingLeft) * scaleX + paddingLeft) + 'px'
         });
-        if (scaleX != 1.0 || scaleY != 1.0) {
-            $(labelElement).css(generateTransformDict(scaleX, scaleY));
-        }
 
         $(presenter.$view).append(labelElement);
 
