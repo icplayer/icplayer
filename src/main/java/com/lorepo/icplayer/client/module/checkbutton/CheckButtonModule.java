@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
@@ -21,6 +22,7 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 	private String unCheckTitle = "";
 	private String title = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private boolean disableScoreUpdate = false;
 	
 	public static final int SELECTED_INDEX = 0;
 	public static final int CORRECT_INDEX = 1;
@@ -34,6 +36,7 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 		addPropertyCheckTitle();
 		addPropertyUnCheckTitle();
 		addPropertySpeechTexts();
+		addPropertyDisableScoreUpdate();
 	}
 	
 	protected void parseModuleNode(Element node) {
@@ -54,7 +57,7 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 					this.speechTextItems.get(CheckButtonModule.RESULT_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "percentage_result"));
 					this.speechTextItems.get(CheckButtonModule.EDIT_BLOCK_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "edit_block"));
 					this.speechTextItems.get(CheckButtonModule.NO_EDIT_BLOCK_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "no_edit_block"));
-					
+					disableScoreUpdate = XMLUtils.getAttributeAsBoolean(childElement, "disableScoreUpdate", false);
 					if (!title.equals("")) {
 						checkTitle = title;
 						unCheckTitle = title;
@@ -83,7 +86,7 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 		button.setAttribute("percentage_result", this.speechTextItems.get(CheckButtonModule.RESULT_INDEX).getText());
 		button.setAttribute("edit_block", this.speechTextItems.get(CheckButtonModule.EDIT_BLOCK_INDEX).getText());
 		button.setAttribute("no_edit_block", this.speechTextItems.get(CheckButtonModule.NO_EDIT_BLOCK_INDEX).getText());
-		
+		button.setAttribute("disableScoreUpdate", Boolean.toString(disableScoreUpdate));
 		checkModule.appendChild(button);
 		
 		return checkModule.toString();
@@ -266,4 +269,44 @@ public class CheckButtonModule extends BasicModuleModel implements IWCAGModuleMo
 		
 		return text;
 	}
+
+	private void addPropertyDisableScoreUpdate() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != disableScoreUpdate) {
+					disableScoreUpdate = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return disableScoreUpdate ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("check_answers_disable_score_update");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("check_answers_disable_score_update");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+
+	public boolean getDisableScoreUpdate () {return disableScoreUpdate;}
 }

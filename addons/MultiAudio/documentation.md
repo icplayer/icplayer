@@ -165,6 +165,31 @@ When playback time changes, MultiAudio addon sends a relevant event to Event Bus
 </tbody>
 </table>
 
+When MultiAudio playback stops or is paused, but is not finished (such as after calling pause() or stop() methods, or after a different file has been selected), MultiAudio addon sends pause event to Event Bus.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>Current item</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>pause</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
 When MultiAudio playback is finished, MultiAudio addon sends OnEnd event to Event Bus.
 
 <table border='1'>
