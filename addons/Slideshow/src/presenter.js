@@ -33,7 +33,8 @@ function AddonSlideshow_create() {
         'T_05': "Top position value is invalid!",
         'T_06': "Left position value is invalid!",
         'T_07': "If more than one text is set, each one of them have to be set properly!",
-        'N_01': "If 'no audio' is checked, presentation duration must be a positive number."
+        'N_01': "If 'no audio' is checked, presentation duration must be a positive number.",
+        'ID_01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.TIME_LINE_TASK = {
@@ -92,6 +93,14 @@ function AddonSlideshow_create() {
             width:presenter.configuration.slideDimensions.width,
             height:presenter.configuration.slideDimensions.height
         });
+
+        //adjust base dimensions
+        if (presenter.configuration.baseDimensions.width > 0) {
+            presenter.configuration.baseDimensions.width -= containerDistances.horizontal;
+        }
+        if (presenter.configuration.baseDimensions.height > 0) {
+            presenter.configuration.baseDimensions.height -= ($(controlsContainer).height() + containerDistances.vertical + controlsContainerDistances.vertical);
+        }
     }
 
     function adjustProgressBar() {
@@ -462,6 +471,12 @@ function AddonSlideshow_create() {
         if (!presenter.configuration.texts.domReferences || !$.isArray(presenter.configuration.texts.domReferences)) {
             presenter.configuration.texts.domReferences = [];
         }
+        var scaleX = 1.0;
+        var scaleY = 1.0;
+
+        scaleX = presenter.configuration.slideDimensions.width / presenter.configuration.baseDimensions.width;
+        scaleY = presenter.configuration.slideDimensions.height / presenter.configuration.baseDimensions.height;
+
 
         for (var i = 0; i < presenter.configuration.texts.count; i++) {
             var text = presenter.configuration.texts.content[i];
@@ -469,14 +484,31 @@ function AddonSlideshow_create() {
             $(textElement).addClass('slideshow-container-text');
             $(textElement).html(text.text);
             $(textElement).css({
-                top:text.top + 'px',
-                left:text.left + 'px'
+                top:text.top * scaleY + 'px',
+                left:text.left * scaleX + 'px'
             });
+            if (scaleX != 1.0 || scaleY != 1.0) {
+            $(textElement).css(generateTransformDict(scaleX,scaleY));
+            }
             presenter.configuration.texts.domReferences[i] = textElement;
             $(DOMElements.container).append(textElement);
         }
 
         loadedTextDeferred.resolve();
+    }
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+           "-webkit-transform-origin": "top left",
+           "-ms-transform-origin": "top left",
+           "transform-origin": "top left"
+        }
     }
 
     function hideAllTexts() {
@@ -1172,6 +1204,7 @@ function AddonSlideshow_create() {
     presenter.upgradeModel = function (model) {
         var upgradedModel = upgradeModelNoAudio(model);
         upgradedModel = upgradeModelAudiodescription(upgradedModel);
+        upgradedModel = upgradeModelBaseDimensions(upgradedModel);
         return upgradedModel;
     };
 
@@ -1194,6 +1227,18 @@ function AddonSlideshow_create() {
         }
         if(!upgradedModel['langAttribute']) {
             upgradedModel['langAttribute'] = '';
+        }
+        return upgradedModel;
+    }
+
+    function upgradeModelBaseDimensions(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if (!upgradedModel['Base width']) {
+            upgradedModel['Base width'] = '';
+        }
+        if (!upgradedModel['Base height']) {
+            upgradedModel['Base height'] = '';
         }
         return upgradedModel;
     }
@@ -1222,7 +1267,7 @@ function AddonSlideshow_create() {
             	$(DOMElements.loading.image).attr('src', loadingSrc);
             }
         }
-
+        presenter.$view = $(view);
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model, preview);
         if (presenter.configuration.isError) {
@@ -1841,6 +1886,27 @@ function AddonSlideshow_create() {
 
         var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
+        var baseDimensions = {
+            width: 0,
+            height: 0
+        }
+        if (model['Base width'].trim().length !== 0) {
+            var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
+            if (validatedBaseWidth.isValid) {
+                baseDimensions.width = validatedBaseWidth.value;
+            } else {
+                return {isError: true, errorCode: 'ID_01'};
+            }
+        }
+        if (model['Base height'].trim().length !== 0) {
+            var validatedBaseHeight = ModelValidationUtils.validatePositiveInteger(model['Base height']);
+            if (validatedBaseHeight.isValid) {
+                baseDimensions.height = validatedBaseHeight.value;
+            } else {
+                return {isError: true, errorCode: 'ID_01'};
+            }
+        }
+
         return {
             isError: false,
             audio: audioValidationResult.audio,
@@ -1856,7 +1922,8 @@ function AddonSlideshow_create() {
             addonID: model['ID'],
             noAudio: noAudio,
             maxTime: maxDurationResult.value,
-            lang: model['langAttribute']
+            lang: model['langAttribute'],
+            baseDimensions: baseDimensions
         };
     };
 

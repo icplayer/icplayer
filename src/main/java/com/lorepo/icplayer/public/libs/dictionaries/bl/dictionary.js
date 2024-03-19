@@ -1243,6 +1243,8 @@ var ice_dictionary_bl = {
 	"Slideshow_property_presentation_duration": "Продължителност на презентацията",
 	"Slideshow_property_audiodescription": "Audiodescription",
 	"Slideshow_property_lang": "Lang attribute",
+	"Slideshow_Public_property_base_width": "Base width",
+	"Slideshow_Public_property_base_height": "Base height",
 	"Speechace_name": "Speechace",
 	"Speechace_course_id": "Course Key",
 	"Standard_Shapes_info": "Позволява ви да вмъкнете в презентацията някои основни фигури, напр. линия, квадрат, правоъгълник, кръг или елипса.",
