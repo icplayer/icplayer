@@ -524,26 +524,14 @@ function AddonImage_Viewer_Public_create() {
             scaleY = presenter.configuration.containerDimensions.height / presenter.configuration.baseDimensions.height;
         }
 
-        var paddingTop = parseInt($(presenter.$view).css('padding-top'));
-        if (isNaN(paddingTop)) paddingTop = 0;
-        var paddingLeft = parseInt($(presenter.$view).css('padding-left'));
-        if (isNaN(paddingLeft)) paddingLeft = 0;
-
         $(labelElement).addClass('image-viewer-label');
         $(labelElement).html(label.text);
         if (scaleX != 1.0 || scaleY != 1.0) {
             $(labelElement).css(generateTransformDict(scaleX, scaleY));
         }
-        //If the position is within the padding, do not scale it
-        if (paddingTop > label.top) {
-            scaleY = 1.0;
-        }
-        if (paddingLeft > label.left) {
-            scaleX = 1.0;
-        }
         $(labelElement).css({
-            top: ((label.top - paddingTop) * scaleY + paddingTop ) + 'px',
-            left: ((label.left - paddingLeft) * scaleX + paddingLeft) + 'px'
+            top: (label.top * scaleY) + 'px',
+            left: (label.left * scaleX) + 'px'
         });
 
         $(presenter.$view).append(labelElement);
