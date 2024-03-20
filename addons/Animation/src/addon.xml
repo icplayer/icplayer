@@ -28,5 +28,7 @@
 		<property name="Alternative Text" displayName="Alternative Text" nameLabel="Animation_property_alt_text" type="text" />
 		<property name="Preview Alternative Text" displayName="Preview Alternative Text" nameLabel="Animation_property_alt_text_prev" type="text" />
 		<property name="langAttribute" displayName="Lang attribute" nameLabel="Animation_property_lang_attribute" type="string" />
+		<property name="Base width"  nameLabel="Animation_property_base_width" type="string" />
+		<property name="Base height"  nameLabel="Animation_property_base_height" type="string" />
 	</model>
 </addon>

@@ -621,6 +621,8 @@ var ice_dictionary_pl = {
 	"Animation_property_alt_text" : "Alternative text",
 	"Animation_property_alt_text_prev" : "Preview alternative text",
 	"Animation_property_lang_attribute" : "Lang attribute",
+	"Animation_property_base_width": "Base width",
+	"Animation_property_base_height": "Base height",
 	"Audio_info" : "Dzięki Addonowi Audio możliwe jest odtwarzanie w prezentacji różnego rodzaju nagrań. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach, należy wgrać plik w dwóch formatach: mp3 i ogg.",
 	"Audio_name" : "Plik dźwiękowy",
 	"Audio_property_mp3": "MP3",

@@ -621,6 +621,8 @@ var ice_dictionary_en = {
 	"Animation_property_alt_text" : "Alternative text",
 	"Animation_property_alt_text_prev" : "Preview alternative text",
 	"Animation_property_lang_attribute" : "Lang attribute",
+	"Animation_property_base_width": "Base width",
+	"Animation_property_base_height": "Base height",
 	"Audio_info": "With the Audio addon, it is possible to play various soundtracks in a presentation. To make the addon work  properly on all common browsers, it is necessary to upload an audio file in two formats: mp3 and ogg.",
 	"Audio_name": "Audio",
 	"Audio_property_mp3": "MP3",

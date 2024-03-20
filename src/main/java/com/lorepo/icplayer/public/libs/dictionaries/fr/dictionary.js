@@ -621,6 +621,8 @@ var ice_dictionary_fr = {
 	"Animation_property_alt_text" : "Alternative text",
 	"Animation_property_alt_text_prev" : "Preview alternative text",
 	"Animation_property_lang_attribute" : "Lang attribute",
+	"Animation_property_base_width": "Base width",
+	"Animation_property_base_height": "Base height",
     "Audio_info": "Avec le module externe Audio, il est possible de lancer plusieurs séquences sonores dans une présentation. Pour que le module fonctionne correctement sur les navigateurs les plus courants, il est nécessaire de télécharger un fichier audio dans deux formats : MP3 et OGG.",
     "Audio_name": "Audio",
     "Audio_property_mp3": "MP3",
