@@ -474,8 +474,12 @@ function AddonSlideshow_create() {
         var scaleX = 1.0;
         var scaleY = 1.0;
 
-        scaleX = presenter.configuration.slideDimensions.width / presenter.configuration.baseDimensions.width;
-        scaleY = presenter.configuration.slideDimensions.height / presenter.configuration.baseDimensions.height;
+        if (presenter.configuration.baseDimensions.width != 0) {
+            scaleX = presenter.configuration.slideDimensions.width / presenter.configuration.baseDimensions.width;
+        }
+        if (presenter.configuration.baseDimensions.height != 0) {
+            scaleY = presenter.configuration.slideDimensions.height / presenter.configuration.baseDimensions.height;
+        }
 
 
         for (var i = 0; i < presenter.configuration.texts.count; i++) {
