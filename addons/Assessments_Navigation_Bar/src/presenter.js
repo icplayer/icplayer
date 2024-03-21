@@ -713,8 +713,11 @@ function AddonAssessments_Navigation_Bar_create(){
             } else if (currentIndex - rightSideIndex >= -1) {
                 this.setLeftOffset(1);
             } else {
+                this.leftSideIndex = previousLeftSideValue;
                 this.setLeftOffset(0);
             }
+
+            this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
         }
     };
 
@@ -1031,7 +1034,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.isLastVisibleElement = function (button) {
         const lastVisiblePage = this.actualPages[(this.actualPages.length - 1)].description;
-        const lastPageIndex = presenter.sections.allPages.length - 1;
+        const lastPageIndex = presenter.sections.allPages.slice(-1).page;
         const isForwardButton = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).length > 0;
 
         return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex && isForwardButton;
@@ -1161,7 +1164,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shouldAddLeftHellip = function () {
-        return this.leftSideIndex !== 0;
+        return this.leftSideIndex > 0;
     };
 
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
