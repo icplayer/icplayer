@@ -402,7 +402,12 @@ function AddonAnimation_create (){
     function prepareLabels() {
         var scaleX = 1.0;
         var scaleY = 1.0;
-        if (presenter.configuration.)
+        if (presenter.configuration.baseDimensions.width != 0) {
+            scaleX = presenter.configuration.dimensions.animation.width / presenter.configuration.baseDimensions.width;
+        }
+        if (presenter.configuration.baseDimensions.height != 0) {
+            scaleY = presenter.configuration.dimensions.animation.height / presenter.configuration.baseDimensions.height;
+        }
 
         for (var i = 0; i < presenter.configuration.labels.count; i++) {
             var label = presenter.configuration.labels.content[i];
@@ -411,12 +416,28 @@ function AddonAnimation_create (){
             $(labelElement).addClass('animation-label');
             $(labelElement).html(label.text);
             $(labelElement).css({
-                top: label.top,
-                left: label.left,
+                top: label.top * scaleY,
+                left: label.left * scaleX,
                 visibility: 'hidden'
             });
-
+            if (scaleX != 1.0 || scaleY != 1.0) {
+                $(labelElement).css(generateTransformDict(scaleX, scaleY));
+            }
             $(presenter.DOMElements.viewContainer).append(labelElement);
+        }
+    }
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+           "-webkit-transform-origin": "top left",
+           "-ms-transform-origin": "top left",
+           "transform-origin": "top left"
         }
     }
 
@@ -521,13 +542,10 @@ function AddonAnimation_create (){
     };
 
     function presenterLogic(view, model, isPreview) {
-        console.log("Animation");
         setDOMElementsHrefsAndSelectors(view);
 
         presenter.model = presenter.upgradeModel(model);
-        console.log(presenter.model);
         presenter.configuration = presenter.validateModel(presenter.model);
-        console.log(presenter.configuration);
         presenter.configuration.isPreview = isPreview;
 
         if (presenter.configuration.isError) {
