@@ -640,6 +640,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.buttons = [];
         this.shiftCount = 0;
         this.leftOffset = 0;
+        this.nextPrevBtnWasClicked = false;
 
         this.initView();
     };
@@ -686,15 +687,15 @@ function AddonAssessments_Navigation_Bar_create(){
             return;
         }
 
+        const navElements = this.getNumberOfNavElements();
         const currentIndex = presenter.playerController.getCurrentPageIndex();
-        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - 4;
+        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - navElements;
         const actualCurrentIndex = this.getLeftIndex(currentIndex);
+        if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
+            previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
+        }
 
         if (this.staticPages.length) {
-            if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
-                previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
-            }
-
             if (currentIndex <= previousLeftSideValue) {
                 this.leftSideIndex = actualCurrentIndex - 1;
             } else {
@@ -705,7 +706,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         if (this.staticPages.length === 0) {
             const staticPages = presenter.configuration.numberOfStaticPages;
-            const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - 4 - staticPages;
+            const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - navElements - staticPages;
             if (currentIndex <= previousLeftSideValue) {
                 const actualCurrentIndex = this.getLeftIndex(currentIndex);
                 this.leftSideIndex = actualCurrentIndex - 1;
@@ -713,7 +714,7 @@ function AddonAssessments_Navigation_Bar_create(){
             } else if (currentIndex - rightSideIndex >= -1) {
                 this.setLeftOffset(1);
             } else {
-                this.leftSideIndex = previousLeftSideValue;
+                this.leftSideIndex = previousLeftSideIndex;
                 this.setLeftOffset(0);
             }
 
@@ -1841,7 +1842,7 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
         presenter.navigationManager.calculateLeftOffset(previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.restartLeftSideIndex();
-        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked);
+        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue);
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 
