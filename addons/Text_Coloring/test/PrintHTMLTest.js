@@ -100,8 +100,8 @@ TestCase("[Text_Coloring] get printable HTML - MARK_PHRASES mode", {
         this.stubs = {
             getPrintableMarkStub: sinon.stub(this.presenter, "getPrintableMark"),
         };
-        this.stubs.getPrintableMarkStub.callsFake(function (userAnswer) {
-            return userAnswer.selectionColorID === userAnswer.color ? 'A' : 'B';
+        this.stubs.getPrintableMarkStub.callsFake(function (isCorrectAnswer) {
+            return isCorrectAnswer ? 'A' : 'B';
         });
     },
 
@@ -271,8 +271,8 @@ TestCase("[Text_Coloring] get printable HTML - ALL_SELECTABLE mode", {
         this.stubs = {
             getPrintableMarkStub: sinon.stub(this.presenter, "getPrintableMark"),
         };
-        this.stubs.getPrintableMarkStub.callsFake(function (userAnswer) {
-            return userAnswer.selectionColorID === userAnswer.color ? 'A' : 'B';
+        this.stubs.getPrintableMarkStub.callsFake(function (isCorrectAnswer) {
+            return isCorrectAnswer ? 'A' : 'B';
         });
     },
 

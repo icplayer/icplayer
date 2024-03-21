@@ -1694,7 +1694,7 @@ function AddonText_Coloring_create() {
                     colorId = userAnswer[index].selectionColorID;
                     color = presenter.getColor(model, colorId);
 
-                    var answerMark = presenter.getPrintableMark(userAnswer[index]);
+                    var answerMark = presenter.getPrintableMark(userAnswer[index].selectionColorID === userAnswer[index].color);
                     printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value} ${answerMark}</span> `;
                     break;
 
@@ -1781,8 +1781,8 @@ function AddonText_Coloring_create() {
         return null;
     }
 
-    presenter.getPrintableMark = function (userAnswer) {
-        return userAnswer.selectionColorID === userAnswer.color ? '&#10004;' : '&#10006;';
+    presenter.getPrintableMark = function (isCorrectAnswer) {
+        return isCorrectAnswer ? '&#10004;' : '&#10006;';
     }
 
     presenter.createLegend = function (colors, legendTitle) {
