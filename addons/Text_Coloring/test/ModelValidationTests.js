@@ -16,6 +16,14 @@ TEXT_FOR_PARSING += "and one colored word with blue: \\color{blue}{Text} \n";
 TEXT_FOR_PARSING += "and two colored words with red: \\color{red}{Text&nbsp;Text} \n";
 TEXT_FOR_PARSING += "and some final text with: \\color{red}{Text}.";
 
+var TEXT_FOR_PARSING_MARK_PHRASES = "This is example text \n";
+TEXT_FOR_PARSING_MARK_PHRASES += "with one colored phrase with red: \\color{red}{Red text} \n";
+TEXT_FOR_PARSING_MARK_PHRASES += "and one colored phrase with blue: \\color{blue}{Blue text}.";
+
+var TEXT_FOR_PARSING_MARK_PHRASES_2 = TEXT_FOR_PARSING_MARK_PHRASES;
+TEXT_FOR_PARSING_MARK_PHRASES_2 += "\n";
+TEXT_FOR_PARSING_MARK_PHRASES_2 += "Plus one intruder phrase: \\intruder{Intruder text}.";
+
 var EXISTING_TEXT_FOR_PARSING = "\\color{red}{fresas&nbsp;y&nbsp;nata.} \n";
 EXISTING_TEXT_FOR_PARSING += "\\color{yellow}{era&nbsp;el&nbsp;de&nbsp;\<em>El&nbsp;mago&nbsp;de&nbsp;Oz</em>.} \n";
 EXISTING_TEXT_FOR_PARSING += "\\color{blue}{fotos&nbsp;al&nbsp;paisaje.}";
@@ -100,11 +108,15 @@ TestCase("[Text_Coloring] Validate Colors", {
     },
 });
 
-TestCase("[Text_Coloring] Validate Text", {
+TestCase("[Text_Coloring] Validate Text with ALL_SELECTABLE mode", {
     setUp: function () {
-
         this.presenter = AddonText_Coloring_create();
+        this.presenter.configuration = {
+            mode: "ALL_SELECTABLE"
+        };
+    },
 
+    createExpectedResult: function () {
         this.expectedResult = [];
         this.expectedResult.push(setUpUtils.getWordToken("This"));
         this.expectedResult.push(setUpUtils.getSpaceToken());
@@ -170,16 +182,296 @@ TestCase("[Text_Coloring] Validate Text", {
         this.expectedResult.push(setUpUtils.getWordToken("."));
     },
 
-    "test should parse text to word tokens, new lines tokens and color tokens": function () {
-        var parsingResult = this.presenter.parseText(TEXT_FOR_PARSING, "ALL_SELECTABLE");
+    "test should parse text to word tokens, new lines tokens and selectable tokens": function () {
+        this.createExpectedResult();
+
+        const parsingResult = this.presenter.parseText(TEXT_FOR_PARSING, "ALL_SELECTABLE");
 
         assertEquals(this.expectedResult, parsingResult);
     },
 
     "test should parse empty text to empty array - no tokens": function () {
+        this.createExpectedResult();
+
         assertEquals([], this.presenter.parseText("","ALL_SELECTABLE"));
         assertEquals([], this.presenter.parseText("         ","ALL_SELECTABLE"));
         assertEquals([], this.presenter.parseText("     \n    ","ALL_SELECTABLE"));
+    },
+
+    "test should parse and do not create space token between word and selectable tokens": function () {
+        const textToParse = "Test:\\color{red}{Text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("Test:"));
+        expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "ALL_SELECTABLE");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between selectable and word tokens": function () {
+        const textToParse = "\\color{red}{Text}:Test";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+        expectedResult.push(setUpUtils.getWordToken(":Test"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "ALL_SELECTABLE");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between word token and dot": function () {
+        const textToParse = "Test.";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("Test."));
+
+        const parsingResult = this.presenter.parseText(textToParse, "ALL_SELECTABLE");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between selectable token and dot": function () {
+        const textToParse = "\\color{red}{Text}.";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+        expectedResult.push(setUpUtils.getWordToken("."));
+
+        const parsingResult = this.presenter.parseText(textToParse, "ALL_SELECTABLE");
+
+        assertEquals(expectedResult, parsingResult);
+    }
+});
+
+TestCase("[Text_Coloring] Validate Text with MARK_PHRASES mode", {
+    setUp: function () {
+        this.presenter = AddonText_Coloring_create();
+        this.presenter.configuration = {
+            mode: "MARK_PHRASES"
+        };
+    },
+
+    createExpectedResultWithoutIntruder: function () {
+        this.expectedResult = [];
+        this.expectedResult.push(setUpUtils.getWordToken("This"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("is"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("example"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("text"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("one"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("colored"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("phrase"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("red:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Red text", "red"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("and"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("one"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("colored"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("phrase"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("blue:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Blue text", "blue"));
+        this.expectedResult.push(setUpUtils.getWordToken("."));
+    },
+
+    createExpectedResultWithIntruder: function () {
+        this.createExpectedResultWithoutIntruder();
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("Plus"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("one"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("intruder"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("phrase:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getIntruderToken("Intruder text"));
+        this.expectedResult.push(setUpUtils.getWordToken("."));
+    },
+
+    "test should parse text to word tokens, new lines tokens and selectable tokens": function () {
+        this.createExpectedResultWithoutIntruder();
+
+        const parsingResult = this.presenter.parseText(TEXT_FOR_PARSING_MARK_PHRASES, "MARK_PHRASES");
+
+        assertEquals(this.expectedResult, parsingResult);
+    },
+
+    "test should parse text to word tokens, new lines tokens, selectable tokens and intruder tokens": function () {
+        this.createExpectedResultWithIntruder();
+
+        const parsingResult = this.presenter.parseText(TEXT_FOR_PARSING_MARK_PHRASES_2, "MARK_PHRASES");
+
+        assertEquals(this.expectedResult, parsingResult);
+    },
+
+    "test should parse empty text to empty array - no tokens": function () {
+        assertEquals([], this.presenter.parseText("","MARK_PHRASES"));
+        assertEquals([], this.presenter.parseText("         ","MARK_PHRASES"));
+        assertEquals([], this.presenter.parseText("     \n    ","MARK_PHRASES"));
+    },
+
+    "test should parse and create space token between word and selectable token": function () {
+        // backward compatibility test
+        const textToParse = "Test:\\color{red}{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("Test:"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getSelectableToken("Some text", "red"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and create space token between word and intruder token": function () {
+        // to copy behavior of selectable token
+        const textToParse = "Test:\\intruder{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("Test:"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getIntruderToken("Some text"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between selectable and word tokens": function () {
+        const textToParse = "\\color{red}{Some text}:Test";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Some text", "red"));
+        expectedResult.push(setUpUtils.getWordToken(":Test"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between intruder and word tokens": function () {
+        const textToParse = "\\intruder{Some text}:Test";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getIntruderToken("Some text"));
+        expectedResult.push(setUpUtils.getWordToken(":Test"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create two selectable tokens side by side": function () {
+        const textToParse = "\\color{red}{Some text}\\color{blue}{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Some text", "red"));
+        expectedResult.push(setUpUtils.getWordToken("\\color{blue}{Some"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getWordToken("text}"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create two intruder tokens side by side": function () {
+        const textToParse = "\\intruder{Some text}\\intruder{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getIntruderToken("Some text"));
+        expectedResult.push(setUpUtils.getWordToken("\\intruder{Some"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getWordToken("text}"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create selectable and intruder tokens side by side": function () {
+        const textToParse = "\\color{red}{Some text}\\intruder{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Some text", "red"));
+        expectedResult.push(setUpUtils.getWordToken("\\intruder{Some"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getWordToken("text}"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create intruder and selectable tokens side by side": function () {
+        const textToParse = "\\intruder{Some text}\\color{red}{Some text}";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getIntruderToken("Some text"));
+        expectedResult.push(setUpUtils.getWordToken("\\color{red}{Some"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+        expectedResult.push(setUpUtils.getWordToken("text}"));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between word token and dot": function () {
+        const textToParse = "Test.";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("Test."));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between selectable token and dot": function () {
+        const textToParse = "\\color{red}{Text}.";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+        expectedResult.push(setUpUtils.getWordToken("."));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
+    },
+
+    "test should parse and do not create space token between intruder token and dot": function () {
+        const textToParse = "\\intruder{Text}.";
+
+        const expectedResult = [];
+        expectedResult.push(setUpUtils.getIntruderToken("Text"));
+        expectedResult.push(setUpUtils.getWordToken("."));
+
+        const parsingResult = this.presenter.parseText(textToParse, "MARK_PHRASES");
+
+        assertEquals(expectedResult, parsingResult);
     }
 });
 

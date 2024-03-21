@@ -1,3 +1,4 @@
+2024-03-21 Added intruder tokens to Text_Coloring
 2024-03-15 Fixed first image gap receiving ui-state-disabled class in GSA mode
 2024-03-15 Fixed issue with Cross Lesson not working on mLibro
 2024-03-15 Added randomize order property to Flashcards
