@@ -1,13 +1,16 @@
 ## Description
-The Text Coloring addon allows marking / selecting relevant parts of text with chosen colors.
+The Text Coloring addon allows marking / selecting relevant parts of the text with chosen colors.
 
 You can work in one of two modes:
 <ul>
-<li>'All selectable' (default), where all words are selectable. </li>
-<li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable' however, a phrase may be longer than a single word.</li>
+    <li>'All selectable' (default), where all words are selectable. </li>
+    <li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable' however, a phrase may be longer than a single word.</li>
 </ul>
 
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](//www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
     <tr>
         <th>Property</th>
@@ -15,7 +18,7 @@ You can work in one of two modes:
     </tr>
     <tr>
         <td>Colors</td>
-        <td>A list of colors which can be used to mark words.</br>
+        <td>A list of colors that can be used to mark words.</br>
 			<table border='1'>
 				<tr>
 					<th>Property name</th>
@@ -42,14 +45,18 @@ You can work in one of two modes:
     </tr>
     <tr>
         <td>Buttons position</td>
-        <td>Sets the buttons position in relation to the text. Possible positions: left, top, right, bottom</td>
+        <td>Sets the buttons' position in relation to the text. Possible positions: left, top, right, bottom.</td>
     </tr>
     <tr>
-        <td>Hide color buttons</td>
+        <td>Hide Color Buttons</td>
         <td>Hides color buttons.</td>
     </tr>
     <tr>
-        <td>Show eraser button</td>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>If this property is selected the Gradual Show Answer button will show correct answers for the entire addon.</td>
+    </tr>
+    <tr>
+        <td>Show set eraser mode button</td>
         <td>Shows the eraser button.</td>
     </tr>
     <tr>
@@ -58,26 +65,31 @@ You can work in one of two modes:
     </tr>
     <tr>
         <td>Mode</td>
-        <td>'Mark phrases to select' or 'All selectable'</td>
+        <td>'Mark phrases to select' or 'All selectable'.</td>
+    </tr>
+    <tr>
+        <td>Count Errors</td>
+        <td> If checked, the module will not send an event to AllOK and will not return true when the .isAllOK() command is called on it if all correct answers and at least one wrong answer are checked.</td>
+    </tr>
+    <tr>
+        <td>Legend title</td>
+        <td>The legend is only visible in the print preview.</td>
     </tr>
     <tr>
         <td>Speech texts</td>
-        <td>List of speech texts: Selected, Deselected, TextContent, Correct, Incorrect. <br />
-            This texts will be read by Text to Speech addon after a user performs an action.</td> 
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
     </tr>
     <tr>
         <td>Lang attribute</td>
-        <td>This property allows to define the language for this addon (different than the language of the lesson).</td> 
-    </tr>
-    <tr>
-        <td>Is Not Activity</td>
-        <td>Defines if the addon is NOT an activity, which means that it won't be taken into consideration when checking correctness.</td>
+        <td>Allows you to set the language used to read the points descriptions via the TTS module.</td>
     </tr>
 </table>
 
 ## Configuration
 
-Each text element has to be marked with the relevant keywords <i>\\color{correct_color_id}{word}</i>.
+Each text element has to be marked with the relevant keywords <i>\\color{correct_color_id}{word}</i>.<br><br>
+In the 'Mark phrases to select' mode, there is an additional relevant keyword <i>\\intruder{phrase}</i>. 
+With this keyword it is possible to mark phrases that should not be colored. Coloring them is counted as an error.
 
 ## Supported commands
 
@@ -111,7 +123,7 @@ Each text element has to be marked with the relevant keywords <i>\\color{correct
 </tbody>
 </table>
 
-##Events
+## Events
 
 The Text Coloring addon sends ValueChanged type events to Event Bus when a user selects the word.
 
@@ -131,13 +143,13 @@ The Text Coloring addon sends ValueChanged type events to Event Bus when a user 
     <tr>
         <td>Value</td>
         <td>
-           The Value is 1 for selecting, 0 – deselecting.
+           The Value is 1 for selecting, 0 – for deselecting.
         </td>
     </tr>
     <tr>
         <td>Score</td>
         <td>
-           It's 1 for the correct selection, 0 for wrong.
+           It's 1 for the correct selection, 0 for the wrong.
         </td>
     </tr>
 </table>
@@ -151,25 +163,25 @@ This event contains the following fields
         <th>Description</th>
     </tr>
     <tr>
-        <td>source</td>
+        <td>Source</td>
         <td>module id</td>
     </tr>
     <tr>
-        <td>item</td>
+        <td>Item</td>
         <td>value: "all"</td>
     </tr>
     <tr>
-        <td>value</td>
+        <td>Value</td>
         <td>N/A</td>
     </tr>
     <tr>
-        <td>score</td>
+        <td>Score</td>
         <td>N/A</td>
     </tr>
 </tbody>
 </table>
 
-##Show Answers
+## Show Answers
 
 This module is fully compatible with [Show Answers module](/doc/page/Show-Answers "Show Answers module") and displays correct answers when an adequate event is sent.
 
@@ -181,15 +193,15 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
     </tr>
     <tr>
         <td>maxScore</td>
-        <td>maximum score is equal to the number of phrases marked</td>
+        <td>Maximum score is equal to the number of phrases marked</td>
     </tr>
     <tr>
         <td>score</td>
-        <td>score is equal to the number of phrases selected correctly</td>
+        <td>Score is equal to the number of phrases selected correctly</td>
     </tr>
     <tr>
         <td>errorCount</td>
-        <td>errorCount is equal to the number of phrases selected incorrectly</td>
+        <td>Error count is equal to the number of phrases selected incorrectly</td>
     </tr>
 </table>
 
@@ -226,13 +238,13 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
     </tr>
     <tr>
         <td>text-coloring-show-answers-[color-id]</td>
-        <td>This class will be given for selectable words with defined color in show answers mode. If word should be colored with "green" color id, it will be given "text-coloring-show-answers-green".</td>
+        <td>This class will be given for selectable words with defined color in show answers mode. If the word should be colored with "green" color id, it will be given "text-coloring-show-answers-green".</td>
     </tr>
 </table>
 
 ## Position CSS classes
 
-Text Coloring depending on the value selected in the property "position" adds different css classes for html elements.
+Text Coloring depending on the value selected in the property "position" adds different CSS classes for HTML elements.
 Position values are: left, top, bottom, right
 <table border='1'>
     <tr>
@@ -241,7 +253,7 @@ Position values are: left, top, bottom, right
     </tr>
     <tr>
         <td>text-coloring-main-container-[position value]-position</td>
-        <td>The class for main container. The property "position" with the value "top" will add the class: text-coloring-main-container-top-position</td>
+        <td>The class for the main container. The property "position" with the value "top" will add the class: text-coloring-main-container-top-position</td>
     </tr>
     <tr>
         <td>text-coloring-colors-buttons-container-[position value]-position</td>
@@ -263,4 +275,3 @@ Position values are: left, top, bottom, right
 
 ## Demo presentation
 [Demo presentation](/embed/5501371197685760 "Demo presentation") contains examples of how to use the Text Coloring addon.
-        
