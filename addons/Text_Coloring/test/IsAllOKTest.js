@@ -1,4 +1,4 @@
-TestCase("[TextColoring] AllOk Event", {
+TestCase("[Text_Coloring] AllOk Event", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
         this.presenter.configuration = {
