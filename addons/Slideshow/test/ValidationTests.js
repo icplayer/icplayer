@@ -31,7 +31,9 @@ TestCase("[Slideshow] Validation", {
                 End: "00:20",
                 Top: "200",
                 Left: "30"
-            }]
+            }],
+            "Base width": "",
+            "Base height": ""
         };
     },
 
