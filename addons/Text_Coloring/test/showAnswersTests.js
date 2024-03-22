@@ -2,7 +2,7 @@ function getElementClassesAsArray($element) {
     return $element[0].className.split(/\s+/);
 }
 
-TestCase("[TextColoring] Adding and removing show answers classes test", {
+TestCase("[Text_Coloring] Adding and removing show answers classes test", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 
@@ -56,7 +56,7 @@ TestCase("[TextColoring] Adding and removing show answers classes test", {
 
 });
 
-TestCase("[TextColoring] hideAnswers flow", {
+TestCase("[Text_Coloring] hideAnswers flow", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 
@@ -120,7 +120,7 @@ TestCase("[TextColoring] hideAnswers flow", {
 
 });
 
-TestCase("[TextColoring] gradualShowAnswers button", {
+TestCase("[Text_Coloring] gradualShowAnswers button", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 

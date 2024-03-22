@@ -61,5 +61,6 @@
             </property>
 
         </property>
+        <property name="randomize" displayName="Randomize order" nameLabel="FlashCards_property_randomize" type="boolean"/>
     </model>
 </addon>

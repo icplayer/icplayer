@@ -26,3 +26,10 @@ setUpUtils.getSpaceToken = function () {
         type: "space"
     };
 };
+
+setUpUtils.getIntruderToken = function (value) {
+    return {
+        "type": "intruder",
+        "value": value
+    };
+};
