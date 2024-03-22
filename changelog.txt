@@ -1,3 +1,4 @@
+2024-03-22 Fixed draggable gaps with markup in Text weren't receiving correct classes in checkErrorsMode
 2024-03-22 Fixed the conflict between showAllCards vs ShowAllCards in FlashCards
 2024-03-22 Added base width/height properties to the Animation addon
 2024-03-22 Added intruder tokens to Text_Coloring

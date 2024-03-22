@@ -992,7 +992,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
 		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
-		
+
 		view.setValue(gapId, draggableItem.getValue());
 		view.refreshMath();
 		
