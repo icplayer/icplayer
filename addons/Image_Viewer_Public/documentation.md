@@ -93,6 +93,14 @@ Additionally, this addon is extended with frame names. These frame names were ad
         <td>Show frame counter</td>
         <td>If this property is checked, frame counter is displayed</td>
     </tr>
+    <tr>
+        <td>Base width</td>
+        <td>Base width and base height properties are used for positioning labels. If the current dimensions of the addon differ from those provided in the Base width/height property (such as, because the addon has a different size depending on the selected layout), the position of the labels will be scaled appropriately. If the properties are left empty, the position of the labels will be the same regardless of the size of the addon.</td>
+    </tr>
+    <tr>
+        <td>Base height</td>
+        <td>This property is used for positioning labels. See "Base width" property for more details.</td>
+    </tr>
 </table>
 
 
