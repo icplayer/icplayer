@@ -142,6 +142,51 @@ function AddonConnection_create() {
         let upgradedModel = presenter.upgradeFrom_01(model);
         upgradedModel = presenter.upgradeStartValues(upgradedModel);
         upgradedModel = presenter.upgradeOrientations(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["langAttribute"] === undefined) {
+            upgradedModel["langAttribute"] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Connected"]) {
+            upgradedModel["speechTexts"]["Connected"] = {Connected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Disconnected"]) {
+            upgradedModel["speechTexts"]["Disconnected"] = {Disconnected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Selected"]) {
+            upgradedModel["speechTexts"]["Selected"] = {Selected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Deselected"]) {
+            upgradedModel["speechTexts"]["Deselected"] = {Deselected: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Correct"]) {
+            upgradedModel["speechTexts"]["Correct"] = {Correct: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Wrong"]) {
+            upgradedModel["speechTexts"]["Wrong"] = {Wrong: ""};
+        }
+        if (!upgradedModel["speechTexts"]["ConnectedTo"]) {
+            upgradedModel["speechTexts"]["ConnectedTo"] = {"Connected to": ""};
+        }
 
         return upgradedModel;
     };
@@ -461,16 +506,6 @@ function AddonConnection_create() {
         presenter.isVisible = true;
     };
 
-    function getSpeechTextProperty(rawValue, defaultValue) {
-        var value = rawValue.trim();
-
-        if (value === undefined || value === null || value === '') {
-            return defaultValue;
-        }
-
-        return value;
-    }
-
     function setSpeechTexts(speechTexts) {
         presenter.speechTexts = {
             connected: 'connected',
@@ -487,13 +522,13 @@ function AddonConnection_create() {
         }
 
         presenter.speechTexts = {
-            connected: getSpeechTextProperty(speechTexts['Connected']['Connected'], presenter.speechTexts.connected),
-            disconnected: getSpeechTextProperty(speechTexts['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
-            connectedTo: getSpeechTextProperty(speechTexts['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
-            selected: getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
-            deselected: getSpeechTextProperty(speechTexts['Deselected']['Deselected'], presenter.speechTexts.deselected),
-            correct: getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
-            wrong: getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
+            connected: TTSUtils.getSpeechTextProperty(speechTexts['Connected']['Connected'], presenter.speechTexts.connected),
+            disconnected: TTSUtils.getSpeechTextProperty(speechTexts['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
+            connectedTo: TTSUtils.getSpeechTextProperty(speechTexts['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
+            selected: TTSUtils.getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(speechTexts['Deselected']['Deselected'], presenter.speechTexts.deselected),
+            correct: TTSUtils.getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong: TTSUtils.getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
         };
     }
 

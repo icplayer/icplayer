@@ -1,4 +1,9 @@
-2024-03-10 Added update CSS and update template options to menu
+2024-03-22 Added update CSS and update template options to menu
+2024-03-15 Fixed first image gap receiving ui-state-disabled class in GSA mode
+2024-03-15 Fixed issue with Cross Lesson not working on mLibro
+2024-03-15 Added randomize order property to Flashcards
+2024-03-15 Added missing speech texts in Speech text dictionary
+2024-03-15 Added base width/height properties to the video addon
 2024-03-08 Added pause even to MultiAudio addon
 2024-03-08 Added disable score update property to the Check Button
 2024-02-28 Added property useDynamicPagination which activates sliding to previous or next page index

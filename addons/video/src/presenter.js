@@ -57,6 +57,11 @@ function Addonvideo_create() {
         top: 0
     };
 
+    presenter.captionsScale = {
+        xScale: 1.0,
+        yScale: 1.0
+    };
+
     presenter.lastWidthAndHeightValues = {
         width: 0,
         height: 0
@@ -77,7 +82,11 @@ function Addonvideo_create() {
         files: [],
         height: 0,
         showPlayButton: false,
-        offlineMessage: ""
+        offlineMessage: "",
+        baseDimensions: {
+            width: 0,
+            height: 0
+        }
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -131,7 +140,8 @@ function Addonvideo_create() {
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
         upgradedModel = presenter.upgradeVideoSpeedController(upgradedModel);
-        return presenter.upgradeShowPlayButton(upgradedModel);
+        upgradedModel = presenter.upgradeShowPlayButton(upgradedModel);
+        return presenter.upgradeBaseDimensions(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -189,6 +199,21 @@ function Addonvideo_create() {
         return upgradedModel;
     }
 
+    presenter.upgradeBaseDimensions = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('Base width')) {
+            upgradedModel['Base width'] = '';
+        }
+
+        if (!upgradedModel.hasOwnProperty('Base height')) {
+            upgradedModel['Base height'] = '';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
             var queueElement = presenter.metadataQueue[i];
@@ -203,7 +228,8 @@ function Addonvideo_create() {
         'MEDIA_ERR_DECODE': 2,
         'MEDIA_ERR_NETWORK': 3,
         'MEDIA_ERR_SRC_NOT_SUPPORTED': [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
-        'NVT01': "Not valid data format in time labels property"
+        'NVT01': "Not valid data format in time labels property",
+        'NVD01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.getVideoErrorMessage = function (errorCode) {
@@ -402,8 +428,8 @@ function Addonvideo_create() {
 
         if (changeWidth) {
             presenter.$captionsContainer.css({
-                width: videoSize.width,
-                height: videoSize.height
+                width: videoSize.width / presenter.captionsScale.xScale,
+                height: videoSize.height / presenter.captionsScale.yScale
             });
         }
     };
@@ -868,6 +894,29 @@ function Addonvideo_create() {
             return validatedFiles;
         }
 
+        var baseDimensions = {
+            width: 0,
+            height: 0
+        };
+        if (model['Base width'].trim().length !== 0) {
+            var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
+            if (validatedBaseWidth.isValid) {
+                baseDimensions.width = validatedBaseWidth.value;
+            } else {
+                validatedBaseWidth.errorCode = 'NVD01';
+                return validatedBaseWidth;
+            }
+        }
+        if (model['Base height'].trim().length !== 0) {
+            var validatedBaseHeight = ModelValidationUtils.validatePositiveInteger(model['Base height']);
+            if (validatedBaseHeight.isValid) {
+                baseDimensions.height = validatedBaseHeight.value;
+            } else {
+                validatedBaseHeight.errorCode = 'NVD01';
+                return validatedBaseHeight;
+            }
+        }
+
         return {
             isValid: true,
             addonSize: {
@@ -883,7 +932,8 @@ function Addonvideo_create() {
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
             offlineMessage: model["offlineMessage"],
-            enableVideoSpeedController: ModelValidationUtils.validateBoolean(model["enableVideoSpeedController"])
+            enableVideoSpeedController: ModelValidationUtils.validateBoolean(model["enableVideoSpeedController"]),
+            baseDimensions: baseDimensions
         }
     };
 
@@ -1139,9 +1189,18 @@ function Addonvideo_create() {
         var xScale = newVideoSize.width / presenter.originalVideoSize.width;
         var yScale = newVideoSize.height / presenter.originalVideoSize.height;
 
-        presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+        if (presenter.configuration.baseDimensions.width != 0) {
+            xScale = xScale * (presenter.configuration.addonSize.width/presenter.configuration.baseDimensions.width);
+        }
+        if (presenter.configuration.baseDimensions.height != 0) {
+            yScale = yScale * (presenter.configuration.addonSize.height/presenter.configuration.baseDimensions.height);
+        }
 
-        presenter.calculateCaptionsOffset(size, false);
+        presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+        presenter.captionsScale.xScale = xScale;
+        presenter.captionsScale.yScale = yScale;
+
+        presenter.calculateCaptionsOffset(size, true);
     });
 
     presenter.scaleCaptionsContainerToScreenSize = presenter.metadataLoadedDecorator(function () {
@@ -1157,12 +1216,16 @@ function Addonvideo_create() {
 
 
         presenter.$captionsContainer.css(generateTransformDict(xScale, yScale));
+        presenter.captionsScale.xScale = xScale;
+        presenter.captionsScale.yScale = yScale;
 
         presenter.calculateCaptionsOffset(size, false);
     });
 
     presenter.removeScaleFromCaptionsContainer = presenter.metadataLoadedDecorator(function () {
         presenter.$captionsContainer.css(generateTransformDict(1, 1));
+        presenter.captionsScale.xScale = 1.0;
+        presenter.captionsScale.yScale = 1.0;
 
         presenter.calculateCaptionsOffset(presenter.configuration.addonSize, false);
     });
