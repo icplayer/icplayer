@@ -22,7 +22,8 @@ function AddonAnimation_create (){
         'FL02': "Frame list - syntax incorrect (probably wrong separator)!",
         'FL03': "Frame list - frame number invalid!",
         'FL04': "Frame list - frame number missing inside list!",
-        'FL05': "Frame list - frame numbers range incorrect!"
+        'FL05': "Frame list - frame numbers range incorrect!",
+        'ID_01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.ANIMATION_STATE = {
@@ -47,7 +48,8 @@ function AddonAnimation_create (){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addFramesToLabels(model);
-        return presenter.upgradeTextToSpeech(upgradedModel);
+        upgradedModel = presenter.upgradeTextToSpeech(upgradedModel);
+        return presenter.upgradeBaseDimensions(upgradedModel);
     };
 
     presenter.addFramesToLabels = function (model) {
@@ -84,6 +86,20 @@ function AddonAnimation_create (){
         if (!upgradedModel['langAttribute']) {
             upgradedModel['langAttribute'] = '';
         }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeBaseDimensions = function (model) {
+        var upgradedModel = {}, i;
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (upgradedModel["Base width"] == undefined) {
+                upgradedModel["Base width"] = "";
+            }
+            if (upgradedModel["Base height"] == undefined) {
+                upgradedModel["Base height"] = "";
+            }
 
         return upgradedModel;
     };
@@ -384,6 +400,15 @@ function AddonAnimation_create (){
     }
 
     function prepareLabels() {
+        var scaleX = 1.0;
+        var scaleY = 1.0;
+        if (presenter.configuration.baseDimensions.width != 0) {
+            scaleX = presenter.configuration.dimensions.animation.width / presenter.configuration.baseDimensions.width;
+        }
+        if (presenter.configuration.baseDimensions.height != 0) {
+            scaleY = presenter.configuration.dimensions.animation.height / presenter.configuration.baseDimensions.height;
+        }
+
         for (var i = 0; i < presenter.configuration.labels.count; i++) {
             var label = presenter.configuration.labels.content[i];
             var labelElement = document.createElement('span');
@@ -391,12 +416,28 @@ function AddonAnimation_create (){
             $(labelElement).addClass('animation-label');
             $(labelElement).html(label.text);
             $(labelElement).css({
-                top: label.top,
-                left: label.left,
+                top: label.top * scaleY,
+                left: label.left * scaleX,
                 visibility: 'hidden'
             });
-
+            if (scaleX != 1.0 || scaleY != 1.0) {
+                $(labelElement).css(generateTransformDict(scaleX, scaleY));
+            }
             $(presenter.DOMElements.viewContainer).append(labelElement);
+        }
+    }
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+           "-webkit-transform-origin": "top left",
+           "-ms-transform-origin": "top left",
+           "transform-origin": "top left"
         }
     }
 
@@ -869,6 +910,32 @@ function AddonAnimation_create (){
 
         var isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
+        var baseDimensions = {
+            width: 0,
+            height: 0
+        };
+
+        if (model['Base width'].trim().length !== 0) {
+            var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
+            if (validatedBaseWidth.isValid) {
+                baseDimensions.width = validatedBaseWidth.value;
+            } else {
+                validatedBaseWidth.errorCode = 'ID_01';
+                validatedBaseWidth.isError = true;
+                return validatedBaseWidth;
+            }
+        }
+        if (model['Base height'].trim().length !== 0) {
+            var validatedBaseHeight = ModelValidationUtils.validatePositiveInteger(model['Base height']);
+            if (validatedBaseHeight.isValid) {
+                baseDimensions.height = validatedBaseHeight.value;
+            } else {
+                validatedBaseHeight.errorCode = 'ID_01';
+                validatedBaseHeight.isError = true;
+                return validatedBaseHeight;
+            }
+        }
+
         return {
             isError: false,
             queueName: model.ID,
@@ -888,7 +955,8 @@ function AddonAnimation_create (){
             altText: model['Alternative Text'],
             altTextPreview: model['Preview Alternative Text'],
             lang: model['langAttribute'],
-            speechTexts: speechTexts
+            speechTexts: speechTexts,
+            baseDimensions: baseDimensions
         };
     };
 

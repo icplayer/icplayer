@@ -36,7 +36,9 @@ TestCase("Model validation", {
                 Stop: {
                     Stop: "test stop"
                 }
-            }
+            },
+            "Base width": "",
+            "Base height": ""
         };
     },
 

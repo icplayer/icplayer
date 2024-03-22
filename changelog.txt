@@ -1,3 +1,4 @@
+2024-03-22 Added base width/height properties to the Animation addon
 2024-03-22 Added intruder tokens to Text_Coloring
 2024-03-22 Added base width/height properties to the Slideshow addon
 2024-03-22 Added base width and base height properties to Image Viewer

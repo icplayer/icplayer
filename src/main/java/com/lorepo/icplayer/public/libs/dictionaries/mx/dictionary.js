@@ -627,6 +627,8 @@ var ice_dictionary_mx = {
 	"Animation_property_alt_text" : "Alternative text",
 	"Animation_property_alt_text_prev" : "Preview alternative text",
 	"Animation_property_lang_attribute" : "Lang attribute",
+	"Animation_property_base_width": "Base width",
+	"Animation_property_base_height": "Base height",
 	"Audio_info": "Con el módulo de Audio es posible reproducir varias pistas de audio en una presentación. Para que el módulo funcione correctamente en los navegadores más comunes es necesario que el archivo de audio tenga dos formatos .ogg y .mp3.",
 	"Audio_name": "Audio",
 	"Audio_property_mp3": "mp3",
