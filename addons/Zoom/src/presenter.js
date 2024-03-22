@@ -5,12 +5,6 @@ function AddonZoom_create() {
     presenter.eventBus = null;
     presenter.configuration = null;
     presenter.isVisible = true;
-
-    presenter.zoomConfiguration = {
-        initialWindowHeight: 0,
-        initialNotScaledOffset: 0,
-    };
-
     presenter.scaleModifier = 1.0;
     let zoomedSpaceContainer = null;
 
@@ -33,32 +27,14 @@ function AddonZoom_create() {
         presenter.playerController = controller;
 
         presenter.eventBus = controller.getEventBus();
-        presenter.eventBus.addEventListener("PageLoaded", this);
         presenter.eventBus.addEventListener("ResizeWindow", this);
     };
 
-    presenter.onEventReceived = function(eventName, eventData) {
+    presenter.onEventReceived = function(eventName) {
         switch (eventName) {
-            case "PageLoaded":
-                presenter.loadWindowSize();
-                break;
             case "ResizeWindow":
                 setFinalScaleInformation();
                 break;
-        }
-    };
-
-    presenter.loadWindowSize = function(){
-        presenter.zoomConfiguration.initialWindowHeight = window.iframeSize.windowInnerHeight;
-        presenter.zoomConfiguration.initialNotScaledOffset = window.iframeSize.notScaledOffset;
-
-        // you must repeat the data reading when they are not loaded correctly
-        if (presenter.zoomConfiguration.initialWindowHeight === 0 ||
-            isNaN(presenter.zoomConfiguration.initialNotScaledOffset))
-        {
-            setTimeout(function (e) {
-                presenter.loadWindowSize();
-            }, 200);
         }
     };
 
@@ -102,23 +78,15 @@ function AddonZoom_create() {
         return $('.' + presenter.CSS_CLASSES.IC_PAGE);
     }
 
-    function findHeader() {
-        return $('.' + presenter.CSS_CLASSES.IC_HEADER);
-    }
-
-    function findFooter() {
-        return $('.' + presenter.CSS_CLASSES.IC_FOOTER);
-    }
-
     function findViewElement(cssClass) {
         return presenter.$view.find('.' + cssClass);
     }
 
-    function turnOnDisplayOfZoomButtonContainer() {
+    function showZoomButtonContainer() {
         findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER)[0].style.display = "block";
     }
 
-    function turnOffDisplayOffZoomButtonContainer() {
+    function hideZoomButtonContainer() {
         findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER)[0].style.display = "none";
     }
 
@@ -203,41 +171,20 @@ function AddonZoom_create() {
         document.body.addEventListener( "keyup", keyUpHandler);
         presenter.scaleModifier = presenter.DEFAULT_ZOOM;
 
-        let topWindowHeight = 0;
-        let iframeTopOffset = 0;
-        if (window.iframeSize) {
-            topWindowHeight = window.iframeSize.windowInnerHeight;
-            iframeTopOffset = window.iframeSize.offsetTop - window.iframeSize.frameOffset;
-        }
-
-        let pageHeight = findPage().height();
-        if (findHeader().length > 0) {
-            pageHeight += findHeader().height();
-        }
-        if (findFooter().length > 0) {
-            pageHeight += findFooter().height();
-        }
-
-        const requiredHeight = window.innerHeight / presenter.scaleModifier;
-        const halfOfRequiredHeight = requiredHeight / 2;
-        const minY = Math.max(
-            (presenter.zoomConfiguration.initialWindowHeight/2 - window.iframeSize.frameOffset) / presenter.scaleModifier,
-            halfOfRequiredHeight
-        );
-        const maxY = Math.min(
-            pageHeight - (presenter.zoomConfiguration.initialWindowHeight/2 / presenter.scaleModifier),
-            window.innerHeight - halfOfRequiredHeight
-        );
+        const zoomedSpaceHeight = calculateZoomedSpaceHeight();
+        const halfOfZoomedSpaceHeight = zoomedSpaceHeight / 2;
+        const minY = halfOfZoomedSpaceHeight;
+        const maxY = getWindowLayoutViewportHeight() - halfOfZoomedSpaceHeight;
         if (y < minY) {
             y = minY;
         } else if (y > maxY) {
             y = maxY;
         }
 
-        const requiredWidth = window.innerWidth / presenter.scaleModifier;
-        const halfOfRequiredWidth = requiredWidth / 2;
-        const minX = halfOfRequiredWidth;
-        const maxX = window.innerWidth - halfOfRequiredWidth;
+        const zoomedScapeWidth = calculateZoomedSpaceWidth();
+        const halfOfZoomedSpaceWidth = zoomedScapeWidth / 2;
+        const minX = halfOfZoomedSpaceWidth;
+        const maxX = getWindowLayoutViewportWidth() - halfOfZoomedSpaceWidth;
         if (x < minX) {
             x = minX;
         } else if (x > maxX) {
@@ -249,14 +196,12 @@ function AddonZoom_create() {
         zoom.to({
             x: x,
             y: y,
-            scale: presenter.scaleModifier,
-            topWindowHeight: topWindowHeight,
-            iframeTopOffset: iframeTopOffset
+            scale: presenter.scaleModifier
         });
 
         setZoomedSpaceContainerPositionAndSize();
         enableZoomInCursor(false);
-        turnOffDisplayOffZoomButtonContainer();
+        hideZoomButtonContainer();
     }
 
     function setFinalScaleInformation() {
@@ -285,10 +230,8 @@ function AddonZoom_create() {
     }
 
     function setZoomedSpaceContainerPositionAndSize() {
-        const newWidth = window.innerWidth / presenter.scaleModifier;
-        const newHeight = window.innerHeight / presenter.scaleModifier;
-        zoomedSpaceContainer.style.width = newWidth + "px";
-        zoomedSpaceContainer.style.height = newHeight + "px";
+        zoomedSpaceContainer.style.width = calculateZoomedSpaceWidth() + "px";
+        zoomedSpaceContainer.style.height = calculateZoomedSpaceHeight() + "px";
         zoomedSpaceContainer.style.left = 0 + "px";
         zoomedSpaceContainer.style.top = 0 + "px";
 
@@ -301,6 +244,24 @@ function AddonZoom_create() {
             zoomedSpaceContainer.style.left = newLeft + "px";
             zoomedSpaceContainer.style.visibility = "visible";
         }, timeout);
+    }
+
+    function getWindowLayoutViewportHeight() {
+        // Lib zoom.js works on current document (window's layout viewport)
+        return window.innerHeight;
+    }
+
+    function getWindowLayoutViewportWidth() {
+        // Lib zoom.js works on current document (window's layout viewport)
+        return window.innerWidth;
+    }
+
+    function calculateZoomedSpaceHeight() {
+        return getWindowLayoutViewportHeight() / presenter.scaleModifier;
+    }
+
+    function calculateZoomedSpaceWidth() {
+        return getWindowLayoutViewportWidth() / presenter.scaleModifier;
     }
 
     function removeZoomedSpaceContainer() {
@@ -346,7 +307,7 @@ function AddonZoom_create() {
         zoom.out();
         document.body.removeEventListener("keyup", keyUpHandler);
         removeZoomedSpaceContainer();
-        turnOnDisplayOfZoomButtonContainer();
+        showZoomButtonContainer();
     };
 
     presenter.getState = function() {

@@ -1,21 +1,10 @@
 ## Description
 
-TODO
+The Zoom module allows to zoom the view.
 
 ## Properties
 
-<table border='1'>
-    <tbody>
-        <tr>
-            <th>Property name</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>TODO</td>
-            <td></td>
-        </tr>
-    </tbody>
-</table>
+The list starts with the common properties, learn more about them by visiting the [Modules description](doc/en/page/Modules-description) section.
 
 ## Supported commands
 
