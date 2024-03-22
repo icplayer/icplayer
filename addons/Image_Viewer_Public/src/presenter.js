@@ -39,7 +39,8 @@ function AddonImage_Viewer_Public_create() {
         'WM_02': "Watermark opacity must be a value from 0.0 to 1.0!",
         'WM_03': "Watermark size must be a positive integer number!",
         'CF_01': "Correct frame number must be between 1 and frames count!",
-        'IF_01': "Initial frame is out of range. Please choose number between 1 and frames count."
+        'IF_01': "Initial frame is out of range. Please choose number between 1 and frames count.",
+        'ID_01': "Base width and height must be either positive integers or empty"
     };
 
     presenter.FRAME_SIZE = {
@@ -68,6 +69,7 @@ function AddonImage_Viewer_Public_create() {
         var upgradedModel = presenter.upgradeFrom_01(model);
         upgradedModel =  presenter.upgradeFrom_02(upgradedModel);
         upgradedModel = presenter.upgradeAddAltTexts(upgradedModel);
+        upgradedModel = presenter.upgradeAddBaseDimensions(upgradedModel);
         return upgradedModel;
     };
 
@@ -111,6 +113,21 @@ function AddonImage_Viewer_Public_create() {
                     "Alternative text": "",
                     "frame": ""
                 }];
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeAddBaseDimensions = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["Base width"]) {
+            upgradedModel["Base width"] = "";
+        }
+
+        if (!upgradedModel["Base height"]) {
+            upgradedModel["Base height"] = "";
         }
 
         return upgradedModel;
@@ -498,17 +515,42 @@ function AddonImage_Viewer_Public_create() {
      */
     function createLabelElement(label) {
         var labelElement = document.createElement('span');
+        var scaleX = 1.0;
+        var scaleY = 1.0;
+        if (presenter.configuration.baseDimensions.width != 0) {
+            scaleX = presenter.configuration.containerDimensions.width / presenter.configuration.baseDimensions.width;
+        }
+         if (presenter.configuration.baseDimensions.height != 0) {
+            scaleY = presenter.configuration.containerDimensions.height / presenter.configuration.baseDimensions.height;
+        }
 
         $(labelElement).addClass('image-viewer-label');
         $(labelElement).html(label.text);
+        if (scaleX != 1.0 || scaleY != 1.0) {
+            $(labelElement).css(generateTransformDict(scaleX, scaleY));
+        }
         $(labelElement).css({
-            top: label.top + 'px',
-            left: label.left + 'px'
+            top: (label.top * scaleY) + 'px',
+            left: (label.left * scaleX) + 'px'
         });
 
         $(presenter.$view).append(labelElement);
 
         return labelElement;
+    }
+
+    function generateTransformDict(scaleX, scaleY) {
+        var scale = "scale(" + scaleX + "," + scaleY + ")";
+        return {
+            'transform': scale,
+            '-ms-transform': scale,
+            '-webkit-transform': scale,
+            '-o-transform': scale,
+            '-moz-transform': scale,
+           "-webkit-transform-origin": "top left",
+           "-ms-transform-origin": "top left",
+           "transform-origin": "top left"
+        }
     }
 
     function loadLabels() {
@@ -1279,6 +1321,32 @@ function AddonImage_Viewer_Public_create() {
         var validatedAltTexts = presenter.validateAlternativeTexts(model["Alternative texts"], validatedFrames.frames);
         if(validatedAltTexts.errorCode) return { isError: true, errorCode: validatedAltTexts.errorCode };
 
+        var baseDimensions = {
+            width: 0,
+            height: 0
+        };
+
+        if (model['Base width'].trim().length !== 0) {
+            var validatedBaseWidth = ModelValidationUtils.validatePositiveInteger(model['Base width']);
+            if (validatedBaseWidth.isValid) {
+                baseDimensions.width = validatedBaseWidth.value;
+            } else {
+                validatedBaseWidth.errorCode = 'ID_01';
+                validatedBaseWidth.isError = true;
+                return validatedBaseWidth;
+            }
+        }
+        if (model['Base height'].trim().length !== 0) {
+            var validatedBaseHeight = ModelValidationUtils.validatePositiveInteger(model['Base height']);
+            if (validatedBaseHeight.isValid) {
+                baseDimensions.height = validatedBaseHeight.value;
+            } else {
+                validatedBaseHeight.errorCode = 'ID_01';
+                validatedBaseHeight.isError = true;
+                return validatedBaseHeight;
+            }
+        }
+
         var validatedSound = presenter.validateSound(model.Sounds);
         var isClickDisabled = ModelValidationUtils.validateBoolean(model.isClickDisabled);
         var frameSize = presenter.validateFrameSize(model["Frame size"]);
@@ -1311,7 +1379,8 @@ function AddonImage_Viewer_Public_create() {
             showFrameCounter: ModelValidationUtils.validateBoolean(model["Show frame counter"]),
             shouldCalcScore: false,
             lang: model["langAttribute"],
-            altTexts: validatedAltTexts.altTexts
+            altTexts: validatedAltTexts.altTexts,
+            baseDimensions: baseDimensions
         };
     };
 

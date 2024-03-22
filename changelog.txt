@@ -1,3 +1,4 @@
+2024-03-22 Added base width and base height properties to Image Viewer
 2024-03-22 Added update CSS and update template options to menu
 2024-03-15 Fixed first image gap receiving ui-state-disabled class in GSA mode
 2024-03-15 Fixed issue with Cross Lesson not working on mLibro

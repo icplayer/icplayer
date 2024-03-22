@@ -37,5 +37,7 @@
 		<property name="Initial frame" nameLabel="Image_Viewer_Public_property_initial_frame" type="string" />
 		<property name="Show frame counter" nameLabel="Image_Viewer_Public_property_show_frame_counter" type="boolean" />
 		<property name="langAttribute"  nameLabel="Image_Viewer_Public_property_lang_attribute" type="string" />
+		<property name="Base width"  nameLabel="Image_Viewer_Public_property_base_width" type="string" />
+		<property name="Base height"  nameLabel="Image_Viewer_Public_property_base_height" type="string" />
 	</model>
 </addon>
