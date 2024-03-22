@@ -1,4 +1,4 @@
-TestCase("[Text_Coloring] getTextHTML  test", {
+TestCase("[Text_Coloring] getTextHTML test", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 
@@ -37,6 +37,16 @@ TestCase("[Text_Coloring] getTextHTML  test", {
 
     "test getTextHTML when in all phrase selection mode": function() {
         var expectedResult = "<div class='text-coloring-tokens-container-top-position'>The<span> </span>text<span> </span><span class='text-coloring-selectable-word' data-word-index='2' >red</span><span> </span>and<span> </span>all<span> </span>nouns<span> </span><span class='text-coloring-selectable-word' data-word-index='6' >blue</span>.<span> </span>Also<span> </span>this:<span> </span><span class='text-coloring-selectable-word' data-word-index='10' >neither</span></div>";
+
+        var result = this.presenter.getTextHTML(this.tokens, this.cssClass, "MARK_PHRASES");
+        assertEquals(result,expectedResult);
+    },
+
+    "test getTextHTML when in all phrase selection mode and added intruder token": function() {
+        this.tokens.push(setUpUtils.getSpaceToken());
+        this.tokens.push(setUpUtils.getIntruderToken("purple"));
+
+        var expectedResult = "<div class='text-coloring-tokens-container-top-position'>The<span> </span>text<span> </span><span class='text-coloring-selectable-word' data-word-index='2' >red</span><span> </span>and<span> </span>all<span> </span>nouns<span> </span><span class='text-coloring-selectable-word' data-word-index='6' >blue</span>.<span> </span>Also<span> </span>this:<span> </span><span class='text-coloring-selectable-word' data-word-index='10' >neither</span><span> </span><span class='text-coloring-selectable-word' data-word-index='11' >purple</span></div>";
 
         var result = this.presenter.getTextHTML(this.tokens, this.cssClass, "MARK_PHRASES");
         assertEquals(result,expectedResult);

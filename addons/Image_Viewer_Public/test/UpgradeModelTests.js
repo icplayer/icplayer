@@ -47,7 +47,9 @@ UpgradeModelTests.prototype.testUpgradeModel = function() {
         "Alternative texts": [{
             "Alternative text": "",
             "frame": ""
-        }]
+        }],
+        "Base width": "",
+        "Base height": ""
 
     };
 
