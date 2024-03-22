@@ -7,6 +7,7 @@ function AddonZoom_create() {
     presenter.isVisible = true;
     presenter.scaleModifier = 1.0;
     let zoomedSpaceContainer = null;
+    let bodyExtender = null;
 
     presenter.DEFAULT_ZOOM = 2;
     presenter.ERROR_CODES = {};
@@ -15,12 +16,11 @@ function AddonZoom_create() {
         ZOOM_BUTTON_CONTAINER: "zoom-button-container",
         ZOOM_BUTTON: "zoom-button",
         ZOOMED_SPACE_CONTAINER: "zoomed-space-container",
+        ZOOM_BODY_EXTENDER: "zoom-body-extender",
         ZOOM_OUT_BUTTON_CONTAINER: "zoom-out-button-container",
         ZOOM_OUT_BUTTON: "zoom-out-button",
         ZOOM_IN_CURSOR: "zoom-cursor-zoom-in",
-        IC_PAGE: "ic_page",
-        IC_HEADER: "ic_header",
-        IC_FOOTER: "ic_footer"
+        IC_PAGE: "ic_page"
     };
 
     presenter.setPlayerController = function(controller) {
@@ -196,7 +196,8 @@ function AddonZoom_create() {
         zoom.to({
             x: x,
             y: y,
-            scale: presenter.scaleModifier
+            scale: presenter.scaleModifier,
+            topWindowHeight: getWindowLayoutViewportHeight()
         });
 
         setZoomedSpaceContainerPositionAndSize();
@@ -229,9 +230,18 @@ function AddonZoom_create() {
         document.body.append(zoomedSpaceContainer);
     }
 
+    function removeZoomedSpaceContainer() {
+        if (zoomedSpaceContainer) {
+            zoomedSpaceContainer.remove();
+            zoomedSpaceContainer = null;
+        }
+    }
+
     function setZoomedSpaceContainerPositionAndSize() {
-        zoomedSpaceContainer.style.width = calculateZoomedSpaceWidth() + "px";
-        zoomedSpaceContainer.style.height = calculateZoomedSpaceHeight() + "px";
+        const newWidth = calculateZoomedSpaceWidth();
+        const newHeight = calculateZoomedSpaceHeight();
+        zoomedSpaceContainer.style.width = newWidth + "px";
+        zoomedSpaceContainer.style.height = newHeight + "px";
         zoomedSpaceContainer.style.left = 0 + "px";
         zoomedSpaceContainer.style.top = 0 + "px";
 
@@ -243,7 +253,32 @@ function AddonZoom_create() {
             zoomedSpaceContainer.style.top = newTop + "px";
             zoomedSpaceContainer.style.left = newLeft + "px";
             zoomedSpaceContainer.style.visibility = "visible";
+
+            const bottom = newTop + newHeight;
+            const extenderHeight = bottom - document.body.offsetHeight;
+            if (extenderHeight > 0) {
+                createBodyExtender(extenderHeight);
+            }
         }, timeout);
+    }
+
+    function createBodyExtender(height) {
+        // To prevent the zoomedSpaceContainer from not being fully displayed,
+        // an extender is created to properly extend the body of the document.
+        //
+        // Fixes issue with zoomOut button not displaying on mAuthor for mobile devices
+        bodyExtender = document.createElement("div");
+        bodyExtender.classList.add(presenter.CSS_CLASSES.ZOOM_BODY_EXTENDER);
+        bodyExtender.style.height = height + "px";
+
+        document.body.append(bodyExtender);
+    }
+
+    function removeBodyExtender() {
+        if (bodyExtender) {
+            bodyExtender.remove();
+            bodyExtender = null;
+        }
     }
 
     function getWindowLayoutViewportHeight() {
@@ -262,13 +297,6 @@ function AddonZoom_create() {
 
     function calculateZoomedSpaceWidth() {
         return getWindowLayoutViewportWidth() / presenter.scaleModifier;
-    }
-
-    function removeZoomedSpaceContainer() {
-        if (zoomedSpaceContainer) {
-            zoomedSpaceContainer.remove();
-            zoomedSpaceContainer = null;
-        }
     }
 
     function isZoomed() {
@@ -304,9 +332,10 @@ function AddonZoom_create() {
     presenter.zoomOut = function () {
         presenter.scaleModifier = 1.0;
         setFinalScaleInformation();
+        removeZoomedSpaceContainer();
+        removeBodyExtender();
         zoom.out();
         document.body.removeEventListener("keyup", keyUpHandler);
-        removeZoomedSpaceContainer();
         showZoomButtonContainer();
     };
 
