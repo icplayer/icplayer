@@ -1377,6 +1377,8 @@ var ice_dictionary_pl = {
 	"Slideshow_property_presentation_duration": "Presentation duration",
 	"Slideshow_property_audiodescription": "Audiodescription",
 	"Slideshow_property_lang": "Lang attribute",
+	"Slideshow_Public_property_base_width": "Base width",
+	"Slideshow_Public_property_base_height": "Base height",
 	"Speechace_name": "Speechace",
 	"Speechace_course_id": "Course Key",
 	"Standard_Shapes_info" : "Pozwala na wstawienie do prezentacji podstawowych figur (kształtów), takich jak linie, kwadraty, prostokąty i koła.",
