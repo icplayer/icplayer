@@ -250,8 +250,9 @@ function AddonZoom_create() {
     }
 
     function setZoomedSpaceContainerPositionAndSize() {
-        const newWidth = calculateZoomedSpaceWidth();
-        const newHeight = calculateZoomedSpaceHeight();
+        const scaleInfo = presenter.playerController.getScaleInformation();
+        const newWidth = calculateZoomedSpaceWidth() / scaleInfo.baseScaleY;
+        const newHeight = calculateZoomedSpaceHeight() / scaleInfo.baseScaleX;
         zoomedSpaceContainer.style.width = newWidth + "px";
         zoomedSpaceContainer.style.height = newHeight + "px";
         zoomedSpaceContainer.style.left = 0 + "px";
@@ -265,6 +266,8 @@ function AddonZoom_create() {
             zoomedSpaceContainer.style.top = newTop + "px";
             zoomedSpaceContainer.style.left = newLeft + "px";
             zoomedSpaceContainer.style.visibility = "visible";
+            zoomedSpaceContainer.style.transform = "scale(" + scaleInfo.baseScaleX + ")";
+            zoomedSpaceContainer.style.transformOrigin = "0px 0px";
 
             const bottom = newTop + newHeight;
             const extenderHeight = bottom - document.body.offsetHeight;
