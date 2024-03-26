@@ -407,15 +407,19 @@ function AddonCatch_create() {
                 const scaledX = posX / getScale().X;
 
                 if (!isAbovePlateCenter(scaledX)) {
-                    var isLeftSide = isPointOnLeftSide(scaledX);
+                    const isLeftSide = isPointOnLeftSide(scaledX);
                     movePlate(isLeftSide);
                 }
             });
-        }
-        else {
+        } else {
             presenter.$view.on('click', function (e) {
-                if (!isAbovePlateCenter(e.clientX)) {
-                    var isLeftSide = isPointOnLeftSide(e.clientX);
+                e.preventDefault();
+
+                const posX = e.clientX;
+                const scaledX = posX / getScale().X;
+
+                if (!isAbovePlateCenter(scaledX)) {
+                    const isLeftSide = isPointOnLeftSide(scaledX);
                     movePlate(isLeftSide);
                 }
             });
@@ -458,7 +462,7 @@ function AddonCatch_create() {
         // will come in virtual coords, in case of high dpi devices such as smartphones
         // getBoundingClientRect will work correctly in css pixels in case of low dpi devices
         var addonBounds = presenter.$view[0].getBoundingClientRect();
-        var addonLeftPos = addonBounds.left;
+        var addonLeftPos = addonBounds.left / getScale().X;
         var plateCenterPos = getElementPositionLeft($plateElement) + Math.round($plateElement.width() / 2);
         return (point - addonLeftPos) > plateCenterPos;
     }

@@ -130,6 +130,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("video", "media_menu");
 		addDescriptor("Vimeo", "media_menu");
 		addDescriptor("YouTube_Addon", "media_menu");
+		addDescriptor("Zoom", "media_menu");
 		addDescriptor("Zoom_Image", "media_menu");
 		addDescriptor("Iframe", "media_menu");
 		addDescriptor("Heading", "media_menu");
