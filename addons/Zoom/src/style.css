@@ -54,7 +54,6 @@
     cursor: pointer;
 }
 
-.zoom-wrapper .zoom-button-container .zoom-button.selected,
-.zoomed-space-container .zoom-out-button-container .zoom-out-button.selected {
+.zoom-wrapper .zoom-button-container .zoom-button.selected {
    	background-color: #2196F3;
 }
