@@ -33,19 +33,18 @@
 
 .zoom-wrapper .zoom-button-container .zoom-button {
     background-image: url('resources/zoom_in.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #3F51B5;
-    background-size: 65%;
-    border-radius: 50%;
-    text-align: center;
-    cursor: pointer;
     width: 100%;
     height: 100%;
 }
 
 .zoomed-space-container .zoom-out-button-container .zoom-out-button {
     background-image: url('resources/zoom_out.svg');
+    width: 55px;
+    height: 55px;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button,
+.zoomed-space-container .zoom-out-button-container .zoom-out-button {
     background-position: center;
     background-repeat: no-repeat;
     background-color: #3F51B5;
@@ -53,6 +52,9 @@
     border-radius: 50%;
     text-align: center;
     cursor: pointer;
-    width: 55px;
-    height: 55px;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button.selected,
+.zoomed-space-container .zoom-out-button-container .zoom-out-button.selected {
+   	background-color: #2196F3;
 }

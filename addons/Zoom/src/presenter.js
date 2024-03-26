@@ -15,6 +15,7 @@ function AddonZoom_create() {
         ZOOM_WRAPPER: "zoom-wrapper",
         ZOOM_BUTTON_CONTAINER: "zoom-button-container",
         ZOOM_BUTTON: "zoom-button",
+        SELECTED: "selected",
         ZOOMED_SPACE_CONTAINER: "zoomed-space-container",
         ZOOM_BODY_EXTENDER: "zoom-body-extender",
         ZOOM_OUT_BUTTON_CONTAINER: "zoom-out-button-container",
@@ -148,7 +149,7 @@ function AddonZoom_create() {
     };
 
     presenter.zoomIn = function (x, y) {
-        const rect = findPage()[0].getBoundingClientRect();
+        const pageRect = findPage()[0].getBoundingClientRect();
         const scaleInfo = presenter.playerController.getScaleInformation();
         let _y, _x;
         if (Array.isArray(x) && x.length === 2 && y === undefined) {
@@ -158,8 +159,8 @@ function AddonZoom_create() {
             _y = y;
             _x = x;
         }
-        _y = _y * scaleInfo.baseScaleY + rect.top;
-        _x = _x * scaleInfo.baseScaleX + rect.left;
+        _y = _y * scaleInfo.baseScaleY + pageRect.top;
+        _x = _x * scaleInfo.baseScaleX + pageRect.left;
         zoomIn(_x, _y);
     };
 
@@ -170,39 +171,46 @@ function AddonZoom_create() {
 
         document.body.addEventListener( "keyup", keyUpHandler);
         presenter.scaleModifier = presenter.DEFAULT_ZOOM;
+        setFinalScaleInformation();
 
+        createZoomedSpaceContainer();
+        const adjustedPosition = adjustSelectedPositionToAvailableSize(x, y);
+        zoom.to({
+            x: adjustedPosition.x,
+            y: adjustedPosition.y,
+            scale: presenter.scaleModifier
+        });
+
+        setZoomedSpaceContainerPositionAndSize();
+        enableZoomInCursor(false);
+        hideZoomButtonContainer();
+    }
+
+    function adjustSelectedPositionToAvailableSize(x, y) {
+        const pageRect = findPage()[0].getBoundingClientRect(); // Include to set boundary relative to ic_page
+
+        const documentHeight = getDocumentBodyHeight();
         const zoomedSpaceHeight = calculateZoomedSpaceHeight();
         const halfOfZoomedSpaceHeight = zoomedSpaceHeight / 2;
-        const minY = halfOfZoomedSpaceHeight;
-        const maxY = getWindowLayoutViewportHeight() - halfOfZoomedSpaceHeight;
+        const minY = halfOfZoomedSpaceHeight + pageRect.y;
+        const maxY = documentHeight - halfOfZoomedSpaceHeight + pageRect.y;
         if (y < minY) {
             y = minY;
         } else if (y > maxY) {
             y = maxY;
         }
 
+        const documentWidth = getDocumentBodyWidth();
         const zoomedScapeWidth = calculateZoomedSpaceWidth();
         const halfOfZoomedSpaceWidth = zoomedScapeWidth / 2;
-        const minX = halfOfZoomedSpaceWidth;
-        const maxX = getWindowLayoutViewportWidth() - halfOfZoomedSpaceWidth;
+        const minX = halfOfZoomedSpaceWidth + pageRect.x;
+        const maxX = documentWidth - halfOfZoomedSpaceWidth + pageRect.x;
         if (x < minX) {
             x = minX;
         } else if (x > maxX) {
             x = maxX;
         }
-
-        createZoomedSpaceContainer();
-        setFinalScaleInformation();
-        zoom.to({
-            x: x,
-            y: y,
-            scale: presenter.scaleModifier,
-            topWindowHeight: getWindowLayoutViewportHeight()
-        });
-
-        setZoomedSpaceContainerPositionAndSize();
-        enableZoomInCursor(false);
-        hideZoomButtonContainer();
+        return {x, y};
     }
 
     function setFinalScaleInformation() {
@@ -281,22 +289,43 @@ function AddonZoom_create() {
         }
     }
 
-    function getWindowLayoutViewportHeight() {
-        // Lib zoom.js works on current document (window's layout viewport)
+    /**
+     * Get document body height and get zoomed space height.
+     *
+     * In order to determine the size of the zoomed area, it is necessary to obtain the height of the user's visible
+     * area: window.innerHeight . When calculating the zoom center, this value cannot be used, as it is only
+     * to be limited by the height of visible area, not the document.
+     * Example. On a mobile device, not the entire page of the lesson will be visible, but it is still supposed to
+     * be possible to create the center of the zoom area even in an area that is not visible to the user
+     * (for example, using the zoomIn(x, y) command).
+     *
+     * The same logic is used to calculate the width.
+     *
+     * @methods getDocumentBodyHeight, getZoomedSpaceHeight
+     * @return {int} Available height
+     */
+    function getDocumentBodyHeight() {
+        return document.body.offsetHeight;
+    }
+
+    function getZoomedSpaceHeight() {
         return window.innerHeight;
     }
 
-    function getWindowLayoutViewportWidth() {
-        // Lib zoom.js works on current document (window's layout viewport)
+    function getDocumentBodyWidth() {
+        return document.body.offsetWidth;
+    }
+
+    function getZoomedSpaceWidth() {
         return window.innerWidth;
     }
 
     function calculateZoomedSpaceHeight() {
-        return getWindowLayoutViewportHeight() / presenter.scaleModifier;
+        return getZoomedSpaceHeight() / presenter.scaleModifier;
     }
 
     function calculateZoomedSpaceWidth() {
-        return getWindowLayoutViewportWidth() / presenter.scaleModifier;
+        return getZoomedSpaceWidth() / presenter.scaleModifier;
     }
 
     function isZoomed() {
@@ -306,10 +335,13 @@ function AddonZoom_create() {
 
     function enableZoomInCursor(enable) {
         const $page = findPage();
+        const $zoomButton = findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON);
         if (enable) {
             $page.addClass(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
+            $zoomButton.addClass(presenter.CSS_CLASSES.SELECTED);
         } else {
             $page.removeClass(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
+            $zoomButton.removeClass(presenter.CSS_CLASSES.SELECTED);
         }
     }
 

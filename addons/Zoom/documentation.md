@@ -66,6 +66,10 @@ This module does not send events.
             <td>Indicates the style that applies to zoom in button.</td>
         </tr>
         <tr>
+            <td>.zoom-wrapper .zoom-button-container .zoom-button.selected</td>
+            <td>Indicates the style that applies to selected zoom in button.</td>
+        </tr>
+        <tr>
             <td>.zoomed-space-container</td>
             <td>Indicates the style that applies to fixed div element created in body of document when zoomed in. Position and size are calculated to match Visual Viewport.</td>
         </tr>
