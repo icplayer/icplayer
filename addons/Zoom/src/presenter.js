@@ -192,8 +192,10 @@ function AddonZoom_create() {
         const documentHeight = getDocumentBodyHeight();
         const zoomedSpaceHeight = calculateZoomedSpaceHeight();
         const halfOfZoomedSpaceHeight = zoomedSpaceHeight / 2;
-        const minY = halfOfZoomedSpaceHeight + pageRect.y;
-        const maxY = documentHeight - halfOfZoomedSpaceHeight + pageRect.y;
+        const pageTopOffset = pageRect.y;
+        const pageBottomOffset = documentHeight - pageRect.height - pageTopOffset;
+        const minY = pageTopOffset + halfOfZoomedSpaceHeight;
+        const maxY = documentHeight - pageBottomOffset - halfOfZoomedSpaceHeight;
         if (y < minY) {
             y = minY;
         } else if (y > maxY) {
@@ -203,8 +205,10 @@ function AddonZoom_create() {
         const documentWidth = getDocumentBodyWidth();
         const zoomedScapeWidth = calculateZoomedSpaceWidth();
         const halfOfZoomedSpaceWidth = zoomedScapeWidth / 2;
-        const minX = halfOfZoomedSpaceWidth + pageRect.x;
-        const maxX = documentWidth - halfOfZoomedSpaceWidth + pageRect.x;
+        const pageLeftOffset = pageRect.x;
+        const pageRightOffset = documentWidth - pageRect.width - pageLeftOffset;
+        const minX = pageLeftOffset + halfOfZoomedSpaceWidth;
+        const maxX = documentWidth - pageRightOffset - halfOfZoomedSpaceWidth;
         if (x < minX) {
             x = minX;
         } else if (x > maxX) {
