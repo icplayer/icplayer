@@ -25,7 +25,9 @@ ModelValidationTests.prototype.setUp = function() {
         "Alternative texts": [{
             "Alternative text": "",
             frame: ""
-        }]
+        }],
+        "Base width": "",
+        "Base height": ""
     };
 };
 

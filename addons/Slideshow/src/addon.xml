@@ -27,5 +27,7 @@
 		<property name="Group next and previous buttons" nameLabel="Slideshow_property_group_next_and_previous_buttons" type="boolean" />
 		<property name="Narration" nameLabel="Slideshow_property_narration" type="narration" />
 		<property name="langAttribute" nameLabel="Slideshow_property_lang" type="string" />
+		<property name="Base width"  nameLabel="Slideshow_Public_property_base_width" type="string" />
+		<property name="Base height"  nameLabel="Slideshow_Public_property_base_height" type="string" />
 	</model>
 </addon>

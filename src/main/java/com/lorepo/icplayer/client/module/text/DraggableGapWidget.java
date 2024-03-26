@@ -27,6 +27,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	private boolean _disabled = false;	// For internal usage
 	private boolean isWorkMode = true;
 	private String answerText = "";
+	private String rawAnswerText = "";
 	private List<TextToSpeechVoice> wcagText = new ArrayList<TextToSpeechVoice>();
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
@@ -132,8 +133,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public void setShowErrorsMode(boolean isActivity) {
 		if (isActivity) {
-			if (answerText.length() > 0) {
-				if (gapInfo.isCorrect(answerText)){
+			if (rawAnswerText.length() > 0) {
+				if (gapInfo.isCorrect(rawAnswerText)){
 					addStyleDependentName("correct");
 					this.gapState = 1;
 				} else {
@@ -209,6 +210,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 			}
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			rawAnswerText = "";
 			wcagText.clear();
 			droppedElementHelper = "";
 			if (!isDragMode) {
@@ -222,6 +224,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 
 			super.setHTML(visibleText);
 			answerText = TextParser.removeHtmlFormatting(visibleText);
+			rawAnswerText = text;
 			droppedElementHelper = getElement(answerText);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			if (!droppedElementHelper.isEmpty() && !isShowAnswersMode){

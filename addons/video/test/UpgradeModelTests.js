@@ -89,7 +89,9 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
         },
         "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it.",
-        "enableVideoSpeedController":"False"
+        "enableVideoSpeedController":"False",
+        "Base width": "",
+        "Base height": ""
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);

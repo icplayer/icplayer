@@ -127,6 +127,14 @@ The list starts with the common properties, learn more about them by visiting th
             <td>Enable video speed controller</td>
             <td>If this option is selected, the video speed controller will be display on the video controller bar.</td>
         </tr>
+        <tr>
+            <td>Base width</td>
+            <td>Base width and base height properties are used for positioning subtitles. If the current dimensions of the addon differ from those provided in the Base width/height property (such as, because the addon has a different size depending on the selected layout), the position of the subtitles will be scaled appropriately. If the properties are left empty, the position of the subtitles will be the same regardless of the size of the addon.</td>
+        </tr>
+        <tr>
+            <td>Base height</td>
+            <td>This property is used for positioning subtitles. See "Base width" property for more details.</td>
+        </tr>
     </tbody>
 </table>
 

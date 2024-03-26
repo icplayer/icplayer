@@ -2,6 +2,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
 
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
+        this.mode = "ALL_SELECTABLE";
     },
 
     'test should parse less-than sign': function () {
@@ -13,7 +14,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
         expectedResult.push(setUpUtils.getSpaceToken());
 
         // act
-        var result = this.presenter.parseWords(wordToParse);
+        var result = this.presenter.parseWords(wordToParse, this.mode);
 
         // assert
         assertEquals(expectedResult, result);
@@ -28,7 +29,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
         expectedResult.push(setUpUtils.getSpaceToken());
 
         // act
-        var result = this.presenter.parseWords(wordToParse);
+        var result = this.presenter.parseWords(wordToParse, this.mode);
 
         // assert
         assertEquals(expectedResult, result);
@@ -43,7 +44,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
         expectedResult.push(setUpUtils.getSpaceToken());
 
         // act
-        var result = this.presenter.parseWords(wordToParse);
+        var result = this.presenter.parseWords(wordToParse, this.mode);
 
         // assert
         assertEquals(expectedResult, result);
@@ -73,7 +74,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
         expectedResult.push(setUpUtils.getSpaceToken());
 
         // act
-        var result = this.presenter.parseWords(wordToParse);
+        var result = this.presenter.parseWords(wordToParse, this.mode);
 
         // assert
         assertEquals(expectedResult, result);

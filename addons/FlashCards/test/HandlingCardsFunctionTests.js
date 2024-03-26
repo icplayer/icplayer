@@ -214,6 +214,7 @@ TestCase('[FlashCards] handling Flash Cards function', {
             {'name': 'third fake card'},
             {'name': 'fourth fake card'}
         ];
+        this.presenter.cardMap = [0,1,2,3];
         this.presenter.model.Cards = this.presenter.Cards;
         this.presenter.state.cardsFavourites = [true, true, true, false];
         this.presenter.state.cardsScore = [1, 0, 0, 1];
