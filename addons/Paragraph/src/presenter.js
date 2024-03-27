@@ -200,14 +200,16 @@ function AddonParagraph_create() {
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) return;
 
-        const elements = presenter.getParagraphs();
-        presenter.initializeShowAnswers(elements);
-        presenter.savedInitializedSA = presenter.getText();
-        var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
-        presenter.editor.setContent(modelAnswer);
-        presenter.setStyles();
-        presenter.isShowAnswersActive = true;
-        presenter.isErrorCheckingMode = false;
+        setTimeout(function () {
+            const elements = presenter.getParagraphs();
+            presenter.initializeShowAnswers(elements);
+            presenter.savedInitializedSA = presenter.getText();
+            var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
+            presenter.editor.setContent(modelAnswer);
+            presenter.setStyles();
+            presenter.isShowAnswersActive = true;
+            presenter.isErrorCheckingMode = false;
+        }, 0);
     };
 
     presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
@@ -258,20 +260,25 @@ function AddonParagraph_create() {
 
     presenter.gradualShowAnswers = function (data) {
         presenter.disableEdit();
+        if (presenter.currentGSAIndex === 0) {
+            presenter.hideAnswers();
+        }
         if (data.moduleID !== presenter.configuration.ID) { return; }
 
-        const elements = presenter.getParagraphs();
-        if (!presenter.isGradualShowAnswersActive) {
-            presenter.initializeShowAnswers(elements);
-            presenter.isGradualShowAnswersActive = true;
-        }
-        presenter.isErrorCheckingMode = false;
+        setTimeout(function () {
+            const elements = presenter.getParagraphs();
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.initializeShowAnswers(elements);
+                presenter.isGradualShowAnswersActive = true;
+            }
+            presenter.isErrorCheckingMode = false;
 
-        if (presenter.currentGSAIndex !== 0) {
-            elements[0].innerHTML += "<div></div><br>";
-        }
-        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
-        presenter.currentGSAIndex++;
+            if (presenter.currentGSAIndex !== 0) {
+                elements[0].innerHTML += "<div></div><br>";
+            }
+            elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
+            presenter.currentGSAIndex++;
+        }, 0);
     };
 
     presenter.setShowErrorsMode = function () {
