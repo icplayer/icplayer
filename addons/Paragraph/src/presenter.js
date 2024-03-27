@@ -11,6 +11,7 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
+    presenter.wasShowAnswersActive = false;
     presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
@@ -208,6 +209,7 @@ function AddonParagraph_create() {
             presenter.editor.setContent(modelAnswer);
             presenter.setStyles();
             presenter.isShowAnswersActive = true;
+            presenter.wasShowAnswersActive = true;
             presenter.isErrorCheckingMode = false;
         }, 0);
     };
@@ -235,14 +237,16 @@ function AddonParagraph_create() {
         return newText;
     }
 
-    presenter.hideAnswers = function () {
+    presenter.hideAnswers = function (shouldEnableEdit = true) {
         if (presenter.savedInitializedSA) {
             presenter.setText(presenter.savedInitializedSA);
             presenter.savedInitializedSA = null;
         }
         const elements = presenter.getParagraphs();
 
-        presenter.enableEdit();
+        if (shouldEnableEdit) {
+            presenter.enableEdit();
+        }
         presenter.isShowAnswersActive = false;
         presenter.isGradualShowAnswersActive = false;
         presenter.isErrorCheckingMode = false;
@@ -258,11 +262,21 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.gradualShowAnswers = function (data) {
-        presenter.disableEdit();
-        if (presenter.currentGSAIndex === 0) {
-            presenter.hideAnswers();
+    presenter.handleDisablingEdition = function () {
+        if (presenter.wasShowAnswersActive && presenter.currentGSAIndex === 0) {
+            presenter.wasShowAnswersActive = false;
+            presenter.hideAnswers(false);
+            setTimeout(function () {
+                presenter.disableEdit();
+            }, 0);
+        } else {
+            presenter.disableEdit();
         }
+    };
+
+    presenter.gradualShowAnswers = function (data) {
+        presenter.handleDisablingEdition();
+
         if (data.moduleID !== presenter.configuration.ID) { return; }
 
         setTimeout(function () {
