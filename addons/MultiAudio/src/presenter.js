@@ -233,6 +233,12 @@ function AddonMultiAudio_create(){
             presenter.playingEventSent = false;
         }, false);
 
+        this.audio.addEventListener('pause', function() {
+                if (interfaceType == "Default controls") {
+                    presenter.sendOnPausedEvent();
+                }
+            }, false);
+
         if (!presenter.isLoaded) {
             this.audio.addEventListener("loadeddata", function() {
                 presenter.isLoaded = true;

@@ -1487,7 +1487,7 @@ function Addonmultiplegap_create(){
                     var $this = $(this);
                     if ($this.attr('data-addon-id') === eventData.source) {
                         if ($this.attr('data-audio-id') === eventData.item) {
-                            if (eventData.value === "00:00") {
+                            if (eventData.value === "00:00" || eventData.value === "pause") {
                                 $this.removeClass('playing');
                             } else if (eventData.value === "playing") {
                                 $this.addClass('playing');
