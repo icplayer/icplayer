@@ -11,6 +11,7 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
+    presenter.wasShowAnswersActive = false;
     presenter.isErrorCheckingMode = false;
     presenter.cachedAnswer = [];
     presenter.currentGSAIndex = 0;
@@ -200,14 +201,17 @@ function AddonParagraph_create() {
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) return;
 
-        const elements = presenter.getParagraphs();
-        presenter.initializeShowAnswers(elements);
-        presenter.savedInitializedSA = presenter.getText();
-        var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
-        presenter.editor.setContent(modelAnswer);
-        presenter.setStyles();
-        presenter.isShowAnswersActive = true;
-        presenter.isErrorCheckingMode = false;
+        setTimeout(function () {
+            const elements = presenter.getParagraphs();
+            presenter.initializeShowAnswers(elements);
+            presenter.savedInitializedSA = presenter.getText();
+            var modelAnswer = combineAnswers(presenter.configuration.modelAnswer);
+            presenter.editor.setContent(modelAnswer);
+            presenter.setStyles();
+            presenter.isShowAnswersActive = true;
+            presenter.wasShowAnswersActive = true;
+            presenter.isErrorCheckingMode = false;
+        }, 0);
     };
 
     presenter.initializeShowAnswers = function Addon_Paragraph_initializeShowAnswers (elements) {
@@ -233,14 +237,16 @@ function AddonParagraph_create() {
         return newText;
     }
 
-    presenter.hideAnswers = function () {
+    presenter.hideAnswers = function (shouldEnableEdit = true) {
         if (presenter.savedInitializedSA) {
             presenter.setText(presenter.savedInitializedSA);
             presenter.savedInitializedSA = null;
         }
         const elements = presenter.getParagraphs();
 
-        presenter.enableEdit();
+        if (shouldEnableEdit) {
+            presenter.enableEdit();
+        }
         presenter.isShowAnswersActive = false;
         presenter.isGradualShowAnswersActive = false;
         presenter.isErrorCheckingMode = false;
@@ -256,22 +262,37 @@ function AddonParagraph_create() {
         }
     };
 
+    presenter.handleDisablingEdition = function () {
+        if (presenter.wasShowAnswersActive && presenter.currentGSAIndex === 0) {
+            presenter.wasShowAnswersActive = false;
+            presenter.hideAnswers(false);
+            setTimeout(function () {
+                presenter.disableEdit();
+            }, 0);
+        } else {
+            presenter.disableEdit();
+        }
+    };
+
     presenter.gradualShowAnswers = function (data) {
-        presenter.disableEdit();
+        presenter.handleDisablingEdition();
+
         if (data.moduleID !== presenter.configuration.ID) { return; }
 
-        const elements = presenter.getParagraphs();
-        if (!presenter.isGradualShowAnswersActive) {
-            presenter.initializeShowAnswers(elements);
-            presenter.isGradualShowAnswersActive = true;
-        }
-        presenter.isErrorCheckingMode = false;
+        setTimeout(function () {
+            const elements = presenter.getParagraphs();
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.initializeShowAnswers(elements);
+                presenter.isGradualShowAnswersActive = true;
+            }
+            presenter.isErrorCheckingMode = false;
 
-        if (presenter.currentGSAIndex !== 0) {
-            elements[0].innerHTML += "<div></div><br>";
-        }
-        elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
-        presenter.currentGSAIndex++;
+            if (presenter.currentGSAIndex !== 0) {
+                elements[0].innerHTML += "<div></div><br>";
+            }
+            elements[0].innerHTML += presenter.configuration.modelAnswer[presenter.currentGSAIndex].Text;
+            presenter.currentGSAIndex++;
+        }, 0);
     };
 
     presenter.setShowErrorsMode = function () {

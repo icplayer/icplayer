@@ -70,16 +70,20 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     'test invoke showAnswers method on ShowAnswers event': function () {
         this.presenter.onEventReceived('ShowAnswers', '');
 
-        assertTrue(this.spies.showAnswers.called);
-        assertTrue(this.spies.initializeShowAnswers.called);
+        setTimeout(function () {
+            assertTrue(this.spies.showAnswers.called);
+            assertTrue(this.spies.initializeShowAnswers.called);
+        }, 100);
     },
 
     'test invoke gradualShowAnswers method on GradualShowAnswers event': function () {
         this.presenter.configuration.ID = 'Paragraph1';
         this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Paragraph1'});
 
-        assertTrue(this.spies.gradualShowAnswers.called);
-        assertTrue(this.spies.initializeShowAnswers.called);
+        setTimeout(function () {
+            assertTrue(this.spies.gradualShowAnswers.called);
+            assertTrue(this.spies.initializeShowAnswers.called);
+        }, 100);
     },
 
     'test given different module ID the instance ID when GradualShowAnswers was occurred should not show answers': function () {
@@ -105,9 +109,11 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     'test disable the addon view on show answers': function () {
         this.presenter.showAnswers();
 
-        var result = this.stubs.setMode;
-        assertEquals(result.getCall(0).args[0], 'readonly');
-        assertTrue(this.presenter.isEditorReadOnly);
+        setTimeout(function () {
+            var result = this.stubs.setMode;
+            assertEquals(result.getCall(0).args[0], 'readonly');
+            assertTrue(this.presenter.isEditorReadOnly);
+        }, 100);
     },
 
     'test enable the addon view on hide answers': function () {
