@@ -221,7 +221,7 @@ public class PlayerServices implements IPlayerServices {
 		}
 		this.scaleInformation = scaleInfo;
 		
-		JavaScriptUtils.setScale(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
+		JavaScriptUtils.setScaleInformation(this.scaleInformation.baseScaleX, this.scaleInformation.baseScaleY);
 		this.fixDroppable();
 	}
 
@@ -241,7 +241,7 @@ public class PlayerServices implements IPlayerServices {
 			this.scaleInformation.transformOrigin = transformOrigin;
 		}
 		
-		JavaScriptUtils.setScale(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
+		JavaScriptUtils.setFinalScaleInformation(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
 		this.fixDroppable();
 	}
 
