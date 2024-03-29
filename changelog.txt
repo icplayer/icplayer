@@ -1,4 +1,5 @@
 2024-03-27 Fixed issues with pause events in multiaudio and multiplegap addons
+2024-03-22 Fixed showing next or prev page index in ANB
 2024-03-22 Fixed draggable gaps with markup in Text weren't receiving correct classes in checkErrorsMode
 2024-03-22 Fixed the conflict between showAllCards vs ShowAllCards in FlashCards
 2024-03-22 Added base width/height properties to the Animation addon
