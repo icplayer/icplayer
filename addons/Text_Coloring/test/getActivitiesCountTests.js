@@ -1,4 +1,4 @@
-TestCase("[TextColoring] getActivitiesCount function", {
+TestCase("[Text_Coloring] getActivitiesCount function", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 
@@ -17,12 +17,38 @@ TestCase("[TextColoring] getActivitiesCount function", {
     'test should return 1 when showAllAnswersInGradualShowAnswersMode is active': function () {
         this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = true;
 
-        assertTrue(this.presenter.getActivitiesCount() === 1);
+        assertEquals(1, this.presenter.getActivitiesCount());
     },
 
     'test should return answers count when showAllAnswersInGradualShowAnswersMode is inactive': function () {
         this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = false;
 
-        assertTrue(this.presenter.getActivitiesCount() === 2);
+        assertEquals(2, this.presenter.getActivitiesCount());
+    },
+
+    'test given 2 selectable and 2 intruder tokens when calling getActivitiesCount, then should return only selectable count': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = false;
+
+        this.presenter.configuration.filteredTokens.push(
+            {index: 5, isSelected: true, type: this.presenter.TOKENS_TYPES.INTRUDER}
+        );
+        this.presenter.configuration.filteredTokens.push(
+            {index: 6, isSelected: false, type: this.presenter.TOKENS_TYPES.INTRUDER}
+        );
+
+        assertEquals(2, this.presenter.getActivitiesCount());
+    },
+
+    'test given 2 selectable and 2 intruder tokens when calling getActivitiesCount and showAllAnswersInGradualShowAnswersMode set to True, then should return 1': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = true;
+
+        this.presenter.configuration.filteredTokens.push(
+            {index: 5, isSelected: true, type: this.presenter.TOKENS_TYPES.INTRUDER}
+        );
+        this.presenter.configuration.filteredTokens.push(
+            {index: 6, isSelected: false, type: this.presenter.TOKENS_TYPES.INTRUDER}
+        );
+
+        assertEquals(1, this.presenter.getActivitiesCount());
     }
 });

@@ -64,6 +64,14 @@ The Animation addon allows users to add the animation made from a single image t
         <td>Is click disabled</td>
         <td>With this option selected, a user can interact with the addon only via commands (mouse actions are disabled)</td>
     </tr>
+    <tr>
+        <td>Base width</td>
+        <td>Base width and base height properties are used for positioning labels. If the current dimensions of the addon differ from those provided in the Base width/height property (such as, because the addon has a different size depending on the selected layout), the position of the labels will be scaled appropriately. If the properties are left empty, the position of the labels will be the same regardless of the size of the addon.</td>
+    </tr>
+    <tr>
+        <td>Base height</td>
+        <td>This property is used for positioning labels. See "Base width" property for more details.</td>
+    </tr>
 </table>
 
 ### Animation image example

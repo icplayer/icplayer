@@ -598,12 +598,16 @@ function AddonFlashCards_create(){
         presenter.isErrorMode = false;
     };
 
+    presenter.ShowOnlyFavourites = function () {presenter.showOnlyFavourites();};
+
     presenter.showOnlyFavourites = function () {
         if (presenter.countFavourites() > 0) {
             presenter.state.ShowOnlyFavourites = true;
             presenter.showCard(presenter.state.currentCard);
         }
     };
+
+    presenter.ShowAllCards = function () {presenter.showAllCards();};
 
     presenter.showAllCards = function () {
         presenter.state.ShowOnlyFavourites = false;
@@ -677,7 +681,9 @@ function AddonFlashCards_create(){
             'reset': presenter.reset,
             'resetFavourites': presenter.resetFavourites,
             'ShowOnlyFavourites': presenter.showOnlyFavourites,
+            'showOnlyFavourites': presenter.showOnlyFavourites,
             'ShowAllCards': presenter.showAllCards,
+            'showAllCards': presenter.showAllCards,
             'countFavourites': presenter.countFavourites,
             'play': presenter.play,
             'pause': presenter.pause,

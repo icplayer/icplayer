@@ -1,4 +1,11 @@
 2024-03-22 Fixed showing next or prev page index in ANB
+2024-03-22 Fixed draggable gaps with markup in Text weren't receiving correct classes in checkErrorsMode
+2024-03-22 Fixed the conflict between showAllCards vs ShowAllCards in FlashCards
+2024-03-22 Added base width/height properties to the Animation addon
+2024-03-22 Added intruder tokens to Text_Coloring
+2024-03-22 Added base width/height properties to the Slideshow addon
+2024-03-22 Added base width and base height properties to Image Viewer
+2024-03-22 Added update CSS and update template options to menu
 2024-03-15 Fixed first image gap receiving ui-state-disabled class in GSA mode
 2024-03-15 Fixed issue with Cross Lesson not working on mLibro
 2024-03-15 Added randomize order property to Flashcards
