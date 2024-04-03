@@ -85,14 +85,17 @@ function AddonFlashCards_create(){
             cardsFavourites: [],
             addonID: model['ID'],
             langTag: model['langAttribute'],
-            randomizeOrder: ModelValidationUtils.validateBoolean(model['randomize'])
-        }
+            randomizeOrder: ModelValidationUtils.validateBoolean(model['randomize']),
+            sendEventOnCardChanged: ModelValidationUtils.validateBoolean(model["sendEventOnCardChanged"])
+        };
     };
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeAddTTS(model);
+        upgradedModel = presenter.upgradeSendEventOnCardChanged(upgradedModel);
+
         return presenter.upgradeAddRandomize(upgradedModel);
-    }
+    };
 
     presenter.upgradeAddTTS = function (model) {
         var upgradedModel = {};
@@ -115,6 +118,17 @@ function AddonFlashCards_create(){
         if (!upgradedModel["langAttribute"]) {
             upgradedModel["langAttribute"] = ""
         }
+        return upgradedModel;
+    };
+
+    presenter.upgradeSendEventOnCardChanged = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty('sendEventOnCardChanged')) {
+            upgradedModel['sendEventOnCardChanged'] = 'False';
+        }
+
         return upgradedModel;
     };
 
@@ -787,15 +801,23 @@ function AddonFlashCards_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.sendPlayEvent = function(cardNumber) {presenter.sendEvent("playing", cardNumber);};
+    presenter.sendPlayEvent = function(cardNumber) {
+        if (presenter.configuration.sendEventOnCardChanged) { return; }
+        presenter.sendEvent("playing", cardNumber);};
 
-    presenter.sendPauseEvent = function(cardNumber) {presenter.sendEvent("pause", cardNumber);};
+    presenter.sendPauseEvent = function(cardNumber) {
+        if (presenter.configuration.sendEventOnCardChanged) { return; }
+        presenter.sendEvent("pause", cardNumber);};
 
-    presenter.sendEndedEvent = function(cardNumber) {presenter.sendEvent("ended", cardNumber);};
+    presenter.sendEndedEvent = function(cardNumber) {
+        if (presenter.configuration.sendEventOnCardChanged) { return; }
+        presenter.sendEvent("ended", cardNumber);
+    };
 
     presenter.sendCardChangedEvent = function(cardNumber) {presenter.sendEvent("", cardNumber);};
 
     presenter.sendCardReversedEvent = function(cardNumber, isReversed) {
+        if (presenter.configuration.sendEventOnCardChanged) { return; }
         var eventValue = isReversed ? "back" : "front";
         presenter.sendEvent(eventValue, cardNumber);
     };
