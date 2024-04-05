@@ -78,12 +78,16 @@ function AddonZoom_create() {
         };
     };
 
+    function findPagePanel() {
+        return presenter.$view.parent().parent('.' + presenter.CSS_CLASSES.IC_PAGE_PANEL);
+    }
+
     function findPageElement() {
         return findPage()[0];
     }
 
     function findPage() {
-        return $('.' + presenter.CSS_CLASSES.IC_PAGE);
+        return presenter.$view.parent('.' + presenter.CSS_CLASSES.IC_PAGE);
     }
 
     function findViewElement(cssClass) {
@@ -285,17 +289,17 @@ function AddonZoom_create() {
      * @return null
      */
     function setZoomedSpaceContainerPositionAndSize(zoomedSpaceContainer) {
-        const timeout = 900; // zoom.TRANSITION_DURATION + 100
+        const timeout = 1000; // zoom.TRANSITION_DURATION + 100
         setTimeout(() => {
             const scaleInfo = presenter.playerController.getScaleInformation();
-            const playerRect = $("#_icplayer")[0].getBoundingClientRect();
+            const pagePanelRect = findPagePanel()[0].getBoundingClientRect();
 
-            let newWidth = playerRect.width;
-            let newHeight = playerRect.height;
+            let newWidth = pagePanelRect.width;
+            let newHeight = pagePanelRect.height;
 
-            const leftOffset = playerRect.left;
-            const rightOffset = window.innerWidth - playerRect.width - leftOffset;
-            let newLeft = playerRect.left;
+            const leftOffset = pagePanelRect.left;
+            const rightOffset = window.innerWidth - pagePanelRect.width - leftOffset;
+            let newLeft = leftOffset;
             if (leftOffset < 0) {
                 newLeft = 0;
                 newWidth += leftOffset;
@@ -304,8 +308,8 @@ function AddonZoom_create() {
                 newWidth += rightOffset;
             }
 
-            const topOffset = playerRect.top;
-            const bottomOffset = window.innerHeight - playerRect.height - topOffset;
+            const topOffset = pagePanelRect.top;
+            const bottomOffset = window.innerHeight - pagePanelRect.height - topOffset;
             let newTop = topOffset;
             if (topOffset < 0) {
                 newTop = 0;
@@ -330,7 +334,7 @@ function AddonZoom_create() {
     }
 
     function isZoomed() {
-        const $icPagePanel = presenter.$view.parent().parent('.ic_page_panel');
+        const $icPagePanel = findPagePanel();
         const isIWBToolbarActive = ($icPagePanel.hasClass(presenter.CSS_CLASSES.IWB_ZOOM_IN) ||
             $icPagePanel.hasClass(presenter.CSS_CLASSES.IWB_ZOOM_OUT));
         if (isIWBToolbarActive) {
