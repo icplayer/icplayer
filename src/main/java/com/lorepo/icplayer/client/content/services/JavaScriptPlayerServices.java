@@ -315,6 +315,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::escapeXMLEntities(Ljava/lang/String;)(text);
 			}
 
+			commands.parseAnswer = function (rawAnswer) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAnswer(Ljava/lang/String;)(rawAnswer);
+			}
+
 			return commands;
 		};
 
@@ -1049,5 +1053,9 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getResponsiveLayouts() {
 		return playerServices.getApplication().getSemiResponsiveLayouts();
+	}
+
+	private String parseAnswer(String rawAnswer) {
+		return TextParser.parseAnswer(rawAnswer);
 	}
 }

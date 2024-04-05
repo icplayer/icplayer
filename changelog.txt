@@ -1,3 +1,4 @@
+2024-04-04 Fixed issue with apostrophes in answers in Text and Table addons
 2024-04-02 Added Send only card changed event property to the FlashCards
 2024-03-27 Fixed issues with pause events in multiaudio and multiplegap addons
 2024-03-22 Fixed showing next or prev page index in ANB

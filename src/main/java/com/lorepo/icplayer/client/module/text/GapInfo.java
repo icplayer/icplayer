@@ -187,6 +187,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
     private String getCleanedText(String text) {
         text = cleanStringAccordingToSettings(text);
+        text = TextParser.parseAnswer(text);
 		return AlternativeTextService.getVisibleText(text);
     }
 
