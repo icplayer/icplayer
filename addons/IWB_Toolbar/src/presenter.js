@@ -1063,6 +1063,11 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.zoomClickHandler = function IWB_Toolbar_zoomClickHandler(button){
+        var $page = presenter.$pagePanel.find('.ic_page');
+        if ($page.hasClass("zoom-cursor-zoom-in") || $page.hasClass("zoom-zoomed-in")) {
+            return;
+        }
+
         var lastEvent = null;
 
         presenter.panelView(button);

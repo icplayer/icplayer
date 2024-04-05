@@ -71,7 +71,7 @@ This module does not send events.
         </tr>
         <tr>
             <td>.zoomed-space-container</td>
-            <td>Indicates the style that applies to fixed div element created in body of document when zoomed in. Position and size are calculated to match Visual Viewport.</td>
+            <td>Indicates the style that applies to fixed div element created in body of document when zoomed in. Position and size are calculated to match visible content of player.</td>
         </tr>
         <tr>
             <td>.zoomed-space-container .zoom-out-button-container</td>
