@@ -2347,6 +2347,7 @@ var ice_dictionary_fr = {
     "FlashCards_property_cardHasBeenReset" : "Card has been reset",
     "FlashCards_property_turned" : "Turned",
     "FlashCards_property_randomize" : "Randomize order",
+    "FlashCards_property_eventOnCardChanged": "Send event only on card changed",
     "EditableWindow_property_disable_resize_height" : "Disable resize height",
 	"Cross_Lesson_name" : "Cross Lesson",
     "Cross_Lesson_info" : "Cross Lesson allows you to link directly to other lessons and courses.",

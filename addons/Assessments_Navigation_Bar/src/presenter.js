@@ -640,28 +640,37 @@ function AddonAssessments_Navigation_Bar_create(){
         this.buttons = [];
         this.shiftCount = 0;
         this.leftOffset = 0;
+        this.nextPrevBtnWasClicked = false;
 
         this.initView();
+    };
+
+    presenter.NavigationManager.prototype.isBackButtonVisible = function () {
+        return presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).length;
+    };
+
+    presenter.NavigationManager.prototype.getNumberOfNavElements = function () {
+        return this.isBackButtonVisible() ? 4 : 3;
     };
 
     presenter.NavigationManager.prototype.calculateLeftOffset = function (previousLeftSideValue, nextPrevBtnWasClicked) {
         const currentIndex = presenter.playerController.getCurrentPageIndex();
         const staticPages = presenter.configuration.numberOfStaticPages;
-        const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - 4 - staticPages;
-        const isBackButtonVisible = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_BACK).length > 0;
+        const navElements = this.getNumberOfNavElements();
+        const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - navElements - staticPages;
+        const isBackButtonVisible = this.isBackButtonVisible();
 
-        if (rightSideIndex >= currentIndex && !nextPrevBtnWasClicked) {
-            this.setLeftOffset(1);
-        }
-
-        // situation when show next page was clicked
-        if (rightSideIndex === (currentIndex + 1) && nextPrevBtnWasClicked) {
+        if (rightSideIndex === (currentIndex + 1)) {
             this.setLeftOffset(1);
         }
 
         // situation when there are static pages and show next page was clicked
         if (rightSideIndex === currentIndex && nextPrevBtnWasClicked && !isBackButtonVisible) {
             this.setLeftOffset(1);
+        }
+
+        if (previousLeftSideValue === currentIndex) {
+            this.setLeftOffset(0);
         }
     };
 
@@ -673,45 +682,57 @@ function AddonAssessments_Navigation_Bar_create(){
         return this.leftSideIndex;
     };
 
-    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked) {
+    presenter.NavigationManager.prototype.setLeftSideIndex = function (previousLeftSideIndex, previousLeftSideValue) {
         if (!presenter.configuration.useDynamicPagination) {
             return;
         }
 
+        const navElements = this.getNumberOfNavElements();
         const currentIndex = presenter.playerController.getCurrentPageIndex();
-        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - 4;
-        const MIN_LEFT_VALUE = 3;
+        const numberOfButtonsInShift = presenter.configuration.numberOfButtons - navElements;
+        const actualCurrentIndex = this.getLeftIndex(currentIndex);
+        if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
+            previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
+        }
 
         if (this.staticPages.length) {
-            if (previousLeftSideIndex >= this.actualPages.length || previousLeftSideIndex < 0) {
-                previousLeftSideIndex = this.getLeftIndex(previousLeftSideValue);
-            }
-
-            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
-                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideIndex - 1 : previousLeftSideIndex;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
-            }
-
-            if (currentIndex - previousLeftSideValue <= -1) {
-                this.leftSideIndex = 0;
-                this.shiftCount = 0;
-            }
-        } else {
-            if (previousLeftSideIndex > MIN_LEFT_VALUE) {
-                this.leftSideIndex = currentIndex === previousLeftSideValue ? previousLeftSideValue - 1 : previousLeftSideValue;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
-            }
-        }
-
-        // use only when current index is not visible in current shift
-        if (this.staticPages.length === 0) {
-            if (currentIndex < previousLeftSideValue) {
-                this.leftSideIndex = currentIndex - 1;
-                this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+            if (currentIndex <= previousLeftSideValue) {
+                this.leftSideIndex = actualCurrentIndex - 1;
+                this.setIndexToFirst(this.leftSideIndex);
             } else {
-                this.setLeftOffset(1);
+                this.leftSideIndex = previousLeftSideIndex;
             }
+            this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
         }
+
+        if (this.staticPages.length === 0) {
+            const staticPages = presenter.configuration.numberOfStaticPages;
+            const rightSideIndex = previousLeftSideValue + presenter.configuration.numberOfButtons - navElements - staticPages;
+            if (currentIndex <= previousLeftSideValue) {
+                const actualCurrentIndex = this.getLeftIndex(currentIndex);
+                this.leftSideIndex = actualCurrentIndex - 1;
+                this.setIndexToFirst(this.leftSideIndex);
+                this.setLeftOffset(0);
+            } else if (currentIndex - rightSideIndex >= -1) {
+                this.setLeftOffset(1);
+            } else {
+                this.leftSideIndex = previousLeftSideIndex;
+                this.setLeftOffset(0);
+            }
+
+            this.shiftCount = Math.floor((this.leftSideIndex + 1) / numberOfButtonsInShift);
+        }
+    };
+
+    presenter.NavigationManager.prototype.setIndexToFirst = function (index) {
+        if (index !== 1) { return; }
+        try {
+            const page = presenter.sections.allPages[1];
+            const _page = this.actualPages[index];
+            if (page.description === _page.description) {
+                this.leftSideIndex = 0;
+            }
+        } catch (e) {}
     };
 
     presenter.NavigationManager.prototype.getLeftIndex = function (previousLeftSideValue) {
@@ -1027,7 +1048,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.isLastVisibleElement = function (button) {
         const lastVisiblePage = this.actualPages[(this.actualPages.length - 1)].description;
-        const lastPageIndex = presenter.sections.allPages.length - 1;
+        const lastPageIndex = presenter.sections.allPages.slice(-1).page;
         const isForwardButton = presenter.$wrapper.find("." + presenter.CSS_CLASSES.TURN_FORWARD).length > 0;
 
         return lastVisiblePage === button.description && button.navigateToPage !== lastPageIndex && isForwardButton;
@@ -1157,7 +1178,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationManager.prototype.shouldAddLeftHellip = function () {
-        return this.leftSideIndex !== 0;
+        return this.leftSideIndex > 0;
     };
 
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
@@ -1834,7 +1855,7 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
         presenter.navigationManager.calculateLeftOffset(previousLeftSideValue, nextPrevBtnWasClicked);
         presenter.navigationManager.restartLeftSideIndex();
-        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue, nextPrevBtnWasClicked);
+        presenter.navigationManager.setLeftSideIndex(previousLeftSideIndex, previousLeftSideValue);
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
 
