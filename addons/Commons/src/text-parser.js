@@ -103,6 +103,19 @@
         return this.parser.escapeXMLEntities(text);
     };
 
+    /**
+
+
+     @method parseAnswer
+     @param {String} text the string which will be processed
+     @return {String} parsed user answer ready for comparison with the provided answer
+     */
+    window.TextParserProxy.prototype.parseAnswer = function (rawAnswer) {
+        return this.parser.parseAnswer(rawAnswer);
+    };
+
+
+
 
 
 })(window);

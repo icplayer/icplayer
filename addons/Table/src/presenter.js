@@ -1238,6 +1238,9 @@ function AddonTable_create() {
         if(presenter.hasMathGaps()) {
             return value;
         }
+        if (presenter.textParser) {
+            value = presenter.textParser.parseAnswer(value);
+        }
 
         if (!presenter.configuration.isCaseSensitive) {
             value = value.toLowerCase();

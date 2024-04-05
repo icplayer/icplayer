@@ -21,7 +21,8 @@ TestCase('[FlashCards] validate model tests', {
             cardsScore: [],
             cardsFavourites: [],
 			addonID: 'Flash Cards',
-            randomizeOrder: false
+            randomizeOrder: false,
+            sendEventOnCardChanged: false
         };
 
         var result = this.presenter.validateModel(this.model);
