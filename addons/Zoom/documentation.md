@@ -1,10 +1,16 @@
 ## Description
 
-The Zoom module allows to zoom the view.
+The Zoom module allows to zoom the page (`.ic_page` element) of lesson.
+
+## Requirements
+For the addon to work, it is necessary to set the scale information using the `player.setScaleInformation` command. 
+Learn more about scale information by visiting the 
+[Modules description](doc/en/scale%20information/page/Scale-Information) section.
 
 ## Properties
 
-The list starts with the common properties, learn more about them by visiting the [Modules description](doc/en/page/Modules-description) section.
+The list starts with the common properties, learn more about them by visiting the 
+[Modules description](doc/en/page/Modules-description) section.
 
 ## Supported commands
 
@@ -30,7 +36,8 @@ The list starts with the common properties, learn more about them by visiting th
             <td>xPosition, yPosition</td>
             <td>
                 Zoom in at position relative to page. If page is already zoomed in, use the `zoomOut` command first.<br>
-                For more information about page, see <a href='//www.mauthor.com/doc/en/ic_page/page/Page' target='_blank'>documentation.
+                For more information about page, see 
+                <a href='//www.mauthor.com/doc/en/ic_page/page/Page' target='_blank'>documentation.
             </td>
         </tr>
         <tr>
@@ -71,7 +78,9 @@ This module does not send events.
         </tr>
         <tr>
             <td>.zoomed-space-container</td>
-            <td>Indicates the style that applies to fixed div element created in body of document when zoomed in. Position and size are calculated to match visible content of player.</td>
+            <td>Indicates the style that applies to fixed div element created in body of document when zoomed in. 
+                Position and size are calculated to match visible content of player.
+            </td>
         </tr>
         <tr>
             <td>.zoomed-space-container .zoom-out-button-container</td>
@@ -83,7 +92,9 @@ This module does not send events.
         </tr>
         <tr>
             <td>.ic_page.zoom-cursor-zoom-in</td>
-            <td>Indicates the style that applies to page when next click on page will zoom in to the selected position.</td>
+            <td>Indicates the style that applies to page when next click on page will zoom in to the selected 
+                position.
+            </td>
         </tr>
     </tbody>
 </table>

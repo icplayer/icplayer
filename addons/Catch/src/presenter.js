@@ -429,15 +429,23 @@ function AddonCatch_create() {
     }
 
     function getScale() {
-        let $content = $("#content");
+        if (presenter.playerController) {
+            const scaleInformation = presenter.playerController.getScaleInformation();
+            if (scaleInformation.baseScaleX !== 1.0 ||
+                scaleInformation.baseScaleY !== 1.0 ||
+                scaleInformation.scaleX !== 1.0 ||
+                scaleInformation.scaleY !== 1.0
+            ) {
+                return {X: scaleInformation.scaleX, Y: scaleInformation.scaleY};
+            }
+        }
+
+        const $content = $("#content");
         if ($content.size() > 0) {
             const contentElem = $content[0];
             const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
             const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
             return {X: scaleX, Y: scaleY};
-        } else if (presenter.playerController) {
-            const scale = presenter.playerController.getScaleInformation();
-            return {X: scale.scaleX, Y: scale.scaleY};
         } else {
             return {X: 1.0, Y: 1.0};
         }

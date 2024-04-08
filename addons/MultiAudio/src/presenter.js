@@ -331,15 +331,23 @@ function AddonMultiAudio_create(){
     }
 
     function getScale() {
-        var $content = $("#content");
-        if($content.size() > 0) {
-            var contentElem = $content[0];
-            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
-            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+        if (presenter.playerController) {
+            const scaleInformation = presenter.playerController.getScaleInformation();
+            if (scaleInformation.baseScaleX !== 1.0 ||
+                scaleInformation.baseScaleY !== 1.0 ||
+                scaleInformation.scaleX !== 1.0 ||
+                scaleInformation.scaleY !== 1.0
+            ) {
+                return {X: scaleInformation.scaleX, Y: scaleInformation.scaleY};
+            }
+        }
+
+        const $content = $("#content");
+        if ($content.size() > 0) {
+            const contentElem = $content[0];
+            const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
             return {X: scaleX, Y: scaleY};
-        } else if (presenter.playerController) {
-            var scale = presenter.playerController.getScaleInformation();
-            return {X: scale.scaleX, Y: scale.scaleY};
         } else {
             return {X: 1.0, Y: 1.0};
         }
