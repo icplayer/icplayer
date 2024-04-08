@@ -2,6 +2,8 @@
 
 The Zoom module allows to zoom the page (`.ic_page` element) of lesson.
 
+Addons that need scaling information will work incorrectly when zoomed in if they are placed in the header or footer.
+
 ## Requirements
 For the addon to work, it is necessary to set the scale information using the `player.setScaleInformation` command. 
 Learn more about scale information by visiting the 
