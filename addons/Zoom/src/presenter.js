@@ -6,6 +6,8 @@ function AddonZoom_create() {
     presenter.configuration = null;
     presenter.isVisible = true;
     presenter.scaleModifier = 1.0;
+    presenter.zoomedSpaceContainer = null;
+    presenter.zoomingTimeoutID = null;
 
     presenter.DEFAULT_ZOOM = 2;
     presenter.ERROR_CODES = {};
@@ -136,6 +138,11 @@ function AddonZoom_create() {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         findPage().off("click", presenter.pageCallback);
         findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON).off("click", presenter.zoomButtonCallback);
+        if (isInIframe()) {
+            window.removeEventListener("message", adjustZoomedSpaceContainerCSSWhenInIframe);
+        } else {
+            window.removeEventListener("scroll", adjustZoomedSpaceContainerCSSWhenNotInIframe);
+        }
     };
 
     presenter.zoomButtonCallback = function (event) {
@@ -206,6 +213,10 @@ function AddonZoom_create() {
         hideZoomButtonContainer();
     }
 
+    function preventOfIncludingScrollOffsetToTransformOrigin() {
+        findPageElement().style.transformOrigin = "0px 0px";
+    }
+
     /**
      * Adjust selected position to get center of zoomed space, that will not exit boundaries of page
      *
@@ -250,87 +261,157 @@ function AddonZoom_create() {
     }
 
     function createZoomedSpaceContainer() {
-        const zoomedSpaceContainer = document.createElement("div");
-        zoomedSpaceContainer.classList.add(presenter.CSS_CLASSES.ZOOMED_SPACE_CONTAINER);
-        zoomedSpaceContainer.style.visibility = "hidden";
-        zoomedSpaceContainer.style.width = "1px";
-        zoomedSpaceContainer.style.height = "1px";
-        zoomedSpaceContainer.style.left = "0px";
-        zoomedSpaceContainer.style.top = "0px";
+        presenter.zoomedSpaceContainer = document.createElement("div");
+        presenter.zoomedSpaceContainer.classList.add(presenter.CSS_CLASSES.ZOOMED_SPACE_CONTAINER);
+        presenter.zoomedSpaceContainer.style.visibility = "hidden";
+        presenter.zoomedSpaceContainer.style.width = "1px";
+        presenter.zoomedSpaceContainer.style.height = "1px";
+        presenter.zoomedSpaceContainer.style.left = "0px";
+        presenter.zoomedSpaceContainer.style.top = "0px";
 
         const buttonContainer = document.createElement("div");
         buttonContainer.classList.add(presenter.CSS_CLASSES.ZOOM_OUT_BUTTON_CONTAINER);
-        zoomedSpaceContainer.append(buttonContainer);
+        presenter.zoomedSpaceContainer.append(buttonContainer);
 
         const button = document.createElement("div");
         button.classList.add(presenter.CSS_CLASSES.ZOOM_OUT_BUTTON);
         buttonContainer.append(button);
         $(button).click(presenter.zoomOutButtonCallback);
 
-        document.body.append(zoomedSpaceContainer);
+        document.body.append(presenter.zoomedSpaceContainer);
 
-        setZoomedSpaceContainerPositionAndSize(zoomedSpaceContainer);
-    }
-
-    function removeZoomedSpaceContainer() {
-        const elements = document.body.getElementsByClassName(presenter.CSS_CLASSES.ZOOMED_SPACE_CONTAINER);
-        for (let i = elements.length - 1; i >= 0; i--) {
-            elements[i].remove();
-        }
-    }
-
-    /**
-     * Set zoomed space container positions, size, visibility and scale
-     *
-     * Method must be executed after completed zoomIn
-     *
-     * @method setZoomedSpaceContainerPositionAndSize
-     * @param zoomedSpaceContainer HTML element
-     * @return null
-     */
-    function setZoomedSpaceContainerPositionAndSize(zoomedSpaceContainer) {
-        const timeout = 1000; // zoom.TRANSITION_DURATION + 100
-        setTimeout(() => {
-            const scaleInfo = presenter.playerController.getScaleInformation();
-            const pagePanelRect = findPagePanel()[0].getBoundingClientRect();
-
-            let newWidth = pagePanelRect.width;
-            let newHeight = pagePanelRect.height;
-
-            const leftOffset = pagePanelRect.left;
-            const rightOffset = window.innerWidth - pagePanelRect.width - leftOffset;
-            let newLeft = leftOffset;
-            if (leftOffset < 0) {
-                newLeft = 0;
-                newWidth += leftOffset;
+        const timeout = 1000; // zoom.TRANSITION_DURATION + 200 (+ additional delay in adjustment methods)
+        presenter.zoomingTimeoutID = setTimeout(() => {
+            if (isInIframe()) {
+                window.addEventListener("message", adjustZoomedSpaceContainerCSSWhenInIframe);
+                adjustZoomedSpaceContainerCSSWhenInIframe(null, true);
+            } else {
+                window.addEventListener("scroll", adjustZoomedSpaceContainerCSSWhenNotInIframe);
+                adjustZoomedSpaceContainerCSSWhenNotInIframe();
             }
-            if (rightOffset < 0) {
-                newWidth += rightOffset;
-            }
-
-            const topOffset = pagePanelRect.top;
-            const bottomOffset = window.innerHeight - pagePanelRect.height - topOffset;
-            let newTop = topOffset;
-            if (topOffset < 0) {
-                newTop = 0;
-                newHeight += topOffset;
-            }
-            if (bottomOffset < 0) {
-                newHeight += bottomOffset;
-            }
-
-            zoomedSpaceContainer.style.width = newWidth / scaleInfo.scaleX + "px";
-            zoomedSpaceContainer.style.height = newHeight / scaleInfo.scaleY + "px";
-            zoomedSpaceContainer.style.left = newLeft + "px";
-            zoomedSpaceContainer.style.top = newTop + "px";
-            zoomedSpaceContainer.style.transform = "scale(" + scaleInfo.scaleX + ", " + scaleInfo.scaleY + ")";
-            zoomedSpaceContainer.style.transformOrigin = "left top";
-            zoomedSpaceContainer.style.visibility = "visible";
+            presenter.zoomedSpaceContainer.style.visibility = "visible";
+            presenter.zoomingTimeoutID = null;
         }, timeout);
     }
 
-    function preventOfIncludingScrollOffsetToTransformOrigin() {
-        findPageElement().style.transformOrigin = "0px 0px";
+    function removeZoomedSpaceContainer() {
+        if (presenter.zoomedSpaceContainer) {
+            presenter.zoomedSpaceContainer.remove();
+            presenter.zoomedSpaceContainer = null;
+        }
+    }
+
+    function isInIframe() {
+        return window.isFrameInDifferentDomain || window.isInIframe;
+    }
+
+    /**
+     * Set zoomed space container positions, size, visibility and transform when player is in iframe
+     *
+     * @method adjustZoomedSpaceContainerCSSWhenInIframe
+     * @param event event send to player after size of iframe changed
+     * @param withoutEventCheck when set to True then execute method without checking event data
+     * @return undefined
+     */
+    function adjustZoomedSpaceContainerCSSWhenInIframe(event, withoutEventCheck = false) {
+        if (!withoutEventCheck) {
+            if (!(typeof event.data === "string" || event.data instanceof String) ||
+                event.data.indexOf("I_FRAME_SIZES:") !== 0
+            ) {
+                return;
+            }
+        }
+        const icPlayerRect = $(document.body).find("#_icplayer")[0].getBoundingClientRect();
+
+        adjustHeightAndVerticalPositionWhenInIframe();
+        adjustWidthAndHorizontalPosition(icPlayerRect);
+        adjustZoomedSpaceContainerTransform();
+    }
+
+    /**
+     * Set zoomed space container positions, size, visibility and transform when player is not in iframe
+     *
+     * @method setZoomedSpaceContainerPositionAndSizeWhenNotInIframe
+     * @return undefined
+     */
+    function adjustZoomedSpaceContainerCSSWhenNotInIframe() {
+        const icPlayerRect = $(document.body).find("#_icplayer")[0].getBoundingClientRect();
+
+        adjustHeightAndVerticalPositionWhenNotInIframe(icPlayerRect);
+        adjustWidthAndHorizontalPosition(icPlayerRect);
+        adjustZoomedSpaceContainerTransform();
+    }
+
+    function adjustHeightAndVerticalPositionWhenInIframe() {
+        const scaleInfo = presenter.playerController.getScaleInformation();
+
+        const scroll = window.iframeSize.offsetTop;
+        let playerOffset = window.iframeSize.frameOffset || 64;
+        if (window.iframeSize.isEditorPreview) {
+            playerOffset = 0;
+        }
+        let iframeScale = 1.0;
+        if (window.iframeSize.frameScale !== null && window.iframeSize.frameScale !== undefined) {
+            iframeScale = window.iframeSize.frameScale;
+        }
+        let newHeight = window.iframeSize.height;
+        if (window.iframeSize.windowInnerHeight < window.iframeSize.height + window.iframeSize.frameOffset) {
+            newHeight = window.iframeSize.windowInnerHeight;
+            if (window.iframeSize.offsetTop < window.iframeSize.frameOffset) {
+                newHeight -= window.iframeSize.frameOffset - window.iframeSize.offsetTop;
+            }
+        }
+        const newTop = scroll > playerOffset ? (scroll - playerOffset) / iframeScale : 0;
+
+        presenter.zoomedSpaceContainer.style.height = newHeight / scaleInfo.scaleY + "px";
+        presenter.zoomedSpaceContainer.style.top = newTop + "px";
+    }
+
+    function adjustHeightAndVerticalPositionWhenNotInIframe(icPlayerRect) {
+        const scaleInfo = presenter.playerController.getScaleInformation();
+
+        const topOffset = icPlayerRect.top;
+        const bottomOffset = window.innerHeight - icPlayerRect.height - topOffset;
+
+        let newHeight = icPlayerRect.height;
+        let newTop = topOffset;
+        if (topOffset < 0) {
+            newTop = 0;
+            newHeight += topOffset;
+        }
+        if (bottomOffset < 0) {
+            newHeight += bottomOffset;
+        }
+
+        presenter.zoomedSpaceContainer.style.height = newHeight / scaleInfo.scaleY + "px";
+        presenter.zoomedSpaceContainer.style.top = newTop + "px";
+    }
+
+    function adjustWidthAndHorizontalPosition(icPlayerRect) {
+        const scaleInfo = presenter.playerController.getScaleInformation();
+
+        const leftOffset = icPlayerRect.left;
+        const rightOffset = window.innerWidth - icPlayerRect.width - leftOffset;
+
+        let newWidth = icPlayerRect.width;
+        let newLeft = leftOffset;
+        if (leftOffset < 0) {
+            newLeft = 0;
+            newWidth += leftOffset;
+        }
+        if (rightOffset < 0) {
+            newWidth += rightOffset;
+        }
+
+        presenter.zoomedSpaceContainer.style.width = newWidth / scaleInfo.scaleX + "px";
+        presenter.zoomedSpaceContainer.style.left = newLeft + "px";
+    }
+
+    function adjustZoomedSpaceContainerTransform() {
+        const scaleInfo = presenter.playerController.getScaleInformation();
+
+        presenter.zoomedSpaceContainer.style.transform = "scale(" + scaleInfo.scaleX + ", " + scaleInfo.scaleY + ")";
+        presenter.zoomedSpaceContainer.style.transformOrigin = "left top";
     }
 
     function isZoomed() {
@@ -376,12 +457,16 @@ function AddonZoom_create() {
     };
 
     presenter.zoomOut = function () {
-        if (presenter.scaleModifier == 1.0) {
+        if (presenter.scaleModifier === 1.0) {
             return;
         }
         presenter.scaleModifier = 1.0;
         setFinalScaleInformation();
         removeZoomedSpaceContainer();
+        if (presenter.zoomingTimeoutID) {
+            clearTimeout(presenter.zoomingTimeoutID);
+            presenter.zoomingTimeoutID = null;
+        }
         zoom.out();
         findPage().removeClass(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
         document.body.removeEventListener("keyup", keyUpHandler);
