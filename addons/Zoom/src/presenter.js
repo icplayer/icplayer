@@ -329,7 +329,7 @@ function AddonZoom_create() {
     /**
      * Set zoomed space container positions, size and transform when player is not in iframe
      *
-     * @method setZoomedSpaceContainerPositionAndSizeWhenNotInIframe
+     * @method adjustZoomedSpaceContainerCSSWhenNotInIframe
      * @return undefined
      */
     function adjustZoomedSpaceContainerCSSWhenNotInIframe() {
