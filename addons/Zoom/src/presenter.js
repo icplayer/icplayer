@@ -280,7 +280,7 @@ function AddonZoom_create() {
 
         document.body.append(presenter.zoomedSpaceContainer);
 
-        const timeout = 1000; // zoom.TRANSITION_DURATION + 200 (+ additional delay in adjustment methods)
+        const timeout = 1000; // zoom.TRANSITION_DURATION + 200
         presenter.zoomingTimeoutID = setTimeout(() => {
             if (isInIframe()) {
                 window.addEventListener("message", adjustZoomedSpaceContainerCSSWhenInIframe);
@@ -306,7 +306,7 @@ function AddonZoom_create() {
     }
 
     /**
-     * Set zoomed space container positions, size, visibility and transform when player is in iframe
+     * Set zoomed space container positions, size and transform when player is in iframe
      *
      * @method adjustZoomedSpaceContainerCSSWhenInIframe
      * @param event event send to player after size of iframe changed
@@ -321,24 +321,20 @@ function AddonZoom_create() {
                 return;
             }
         }
-        const icPlayerRect = $(document.body).find("#_icplayer")[0].getBoundingClientRect();
-
         adjustHeightAndVerticalPositionWhenInIframe();
-        adjustWidthAndHorizontalPosition(icPlayerRect);
+        adjustWidthAndHorizontalPosition();
         adjustZoomedSpaceContainerTransform();
     }
 
     /**
-     * Set zoomed space container positions, size, visibility and transform when player is not in iframe
+     * Set zoomed space container positions, size and transform when player is not in iframe
      *
      * @method setZoomedSpaceContainerPositionAndSizeWhenNotInIframe
      * @return undefined
      */
     function adjustZoomedSpaceContainerCSSWhenNotInIframe() {
-        const icPlayerRect = $(document.body).find("#_icplayer")[0].getBoundingClientRect();
-
-        adjustHeightAndVerticalPositionWhenNotInIframe(icPlayerRect);
-        adjustWidthAndHorizontalPosition(icPlayerRect);
+        adjustHeightAndVerticalPositionWhenNotInIframe();
+        adjustWidthAndHorizontalPosition();
         adjustZoomedSpaceContainerTransform();
     }
 
@@ -367,8 +363,9 @@ function AddonZoom_create() {
         presenter.zoomedSpaceContainer.style.top = newTop + "px";
     }
 
-    function adjustHeightAndVerticalPositionWhenNotInIframe(icPlayerRect) {
+    function adjustHeightAndVerticalPositionWhenNotInIframe() {
         const scaleInfo = presenter.playerController.getScaleInformation();
+        const icPlayerRect = $(document.body).find("#_icplayer")[0].getBoundingClientRect();
 
         const topOffset = icPlayerRect.top;
         const bottomOffset = window.innerHeight - icPlayerRect.height - topOffset;
@@ -387,13 +384,14 @@ function AddonZoom_create() {
         presenter.zoomedSpaceContainer.style.top = newTop + "px";
     }
 
-    function adjustWidthAndHorizontalPosition(icPlayerRect) {
+    function adjustWidthAndHorizontalPosition() {
         const scaleInfo = presenter.playerController.getScaleInformation();
+        const pagePanelRect = findPagePanel()[0].getBoundingClientRect();
 
-        const leftOffset = icPlayerRect.left;
-        const rightOffset = window.innerWidth - icPlayerRect.width - leftOffset;
+        const leftOffset = pagePanelRect.left;
+        const rightOffset = window.innerWidth - pagePanelRect.width - leftOffset;
 
-        let newWidth = icPlayerRect.width;
+        let newWidth = pagePanelRect.width;
         let newLeft = leftOffset;
         if (leftOffset < 0) {
             newLeft = 0;
