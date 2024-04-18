@@ -236,7 +236,7 @@ function AddonMagic_Boxes_create() {
                 presenter.isMouseDown = false;
             });
         }
-        var maxIndex = gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).length;
+
         gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).each(function() {
             var index = $(this).index();
             var selectedRow = parseInt(index / columns, 10);
