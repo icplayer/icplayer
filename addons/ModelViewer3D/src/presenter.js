@@ -161,7 +161,7 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.changeAnimation = function(animation) {
-        $(presenter.modelViewer).attr("animation - name ", animation);
+        $(presenter.modelViewer).attr("animation-name", animation);
     };
 
     presenter.play = function(repetitions, pingpong) {
@@ -193,7 +193,7 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.userPrompt = function(value) {
-        $(presenter.modelViewer).attr("interaction - prompt ", value);
+        $(presenter.modelViewer).attr("interaction-prompt", value);
     };
 
     presenter.currentTime = function() {
