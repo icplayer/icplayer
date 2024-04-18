@@ -236,7 +236,7 @@ function AddonMagic_Boxes_create() {
                 presenter.isMouseDown = false;
             });
         }
-
+        var maxIndex = gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).length;
         gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).each(function() {
             var index = $(this).index();
             var selectedRow = parseInt(index / columns, 10);
@@ -334,6 +334,7 @@ function AddonMagic_Boxes_create() {
     }
 
     function applySelectionStyle(row, column) {
+        if (row >= presenter.configuration.rows || column >= presenter.configuration.columns) return;
         var index = row * presenter.configuration.columns + column;
         var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
 
