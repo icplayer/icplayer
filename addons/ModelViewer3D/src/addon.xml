@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="ModelViewer3D" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="model" nameLabel="Model_Viewer_model" type="file"/>
+        <property name="poster" nameLabel="Model_Viewer_poster" type="file"/>
+        <property name="annotations" nameLabel="Model_Viewer_annotations" type="text"/>
+        <property name="environmentImage" nameLabel="Model_Viewer_environmentImage" type="image"/>
+        <property name="skyboxImage" nameLabel="Model_Viewer_skyboxImage" type="image"/>
+        <property name="shadowIntensity" nameLabel="Model_Viewer_shadowIntensity" type="string" value="0"/>
+        <property name="shadowSoftness" nameLabel="Model_Viewer_shadowSoftness" type="string" value="1"/>
+        <property name="autoRotate" nameLabel="Model_Viewer_autoRotate" type="boolean"/>
+        <property name="scale" nameLabel="Model_Viewer_scale" type="string" value="1"/>
+        <property name="labelsEnabled" nameLabel="Model_Viewer_labelsEnabled" type="boolean" value="True"/>
+        <property name="altText" nameLabel="Model_Viewer_altText" type="string"/>
+        <property name="attributes" nameLabel="Model_Viewer_attributes" type="text"/>
+        <property name="copyInfo" nameLabel="Model_Viewer_copyInfo" type="html"/>
+        <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/4870371301916673"/>
+    </model>
+</addon>
