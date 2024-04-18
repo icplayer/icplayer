@@ -1,3 +1,4 @@
+2024-04-18 Added Model Viewer 3D addon
 2024-04-05 Fixed adding special characters into iframe tag in Paragraph
 2024-04-04 Fixed issue with apostrophes in answers in Text and Table addons
 2024-04-02 Added Send only card changed event property to the FlashCards
