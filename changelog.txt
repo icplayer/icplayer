@@ -1,3 +1,4 @@
+2024-04-19 Fixed mathjax not being rendered when added to a text module via the setText method
 2924-04-18 Fixed magic boxes throwing errors in iceditor on reload
 2024-04-05 Fixed adding special characters into iframe tag in Paragraph
 2024-04-04 Fixed issue with apostrophes in answers in Text and Table addons

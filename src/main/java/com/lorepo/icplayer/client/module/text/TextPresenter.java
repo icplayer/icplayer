@@ -1182,7 +1182,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (commandName.compareTo("settext") == 0 && params.size() > 0) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);
-				setText(param.getValue());
+				setTextCommand(param.getValue());
 			}
 		} else if (commandName.compareTo("gettext") == 0 && params.size() > 0) {
 			return view.getHTML();
@@ -1418,7 +1418,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		};
 
 		presenter.setText = function(text) {
-			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setText(Ljava/lang/String;)(text.toString());
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setTextCommand(Ljava/lang/String;)(text.toString());
 		};
 
 		presenter.show = function() {
@@ -1682,6 +1682,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		return true;
+	}
+
+	private void setTextCommand(String text) {
+		setText(text);
+		view.refreshMath();
 	}
 
 	private void setText(String text) {
