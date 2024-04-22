@@ -318,7 +318,6 @@ function AddonZoom_create() {
             return;
         }
         addOnScrollHandlers();
-        addOnScreenOrientationChangeHandler();
     }
 
     function addOnScrollHandlers() {
@@ -330,16 +329,11 @@ function AddonZoom_create() {
         } catch(e) {}
     }
 
-    function addOnScreenOrientationChangeHandler() {
-        screen.orientation.addEventListener("change", adjustZoomedSpaceContainerCSS);
-    }
-
     function removeHandlersNeededInZoomedPage() {
         if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) {
             return;
         }
         removeOnScrollHandlers();
-        removeOnScreenOrientationChangeHandler();
     }
 
     function removeOnScrollHandlers() {
@@ -349,10 +343,6 @@ function AddonZoom_create() {
                 scrollElements[i][0].removeEventListener("scroll", adjustZoomedSpaceContainerCSS);
             }
         } catch(e) {}
-    }
-
-    function removeOnScreenOrientationChangeHandler() {
-        screen.orientation.removeEventListener("change", adjustZoomedSpaceContainerCSS);
     }
 
     function removeZoomedSpaceContainer() {
