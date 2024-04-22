@@ -24,12 +24,13 @@ function AddonModelViewer3D_create() {
 
         presenter.modelViewer = $(view).find("model-viewer").get(0);
         presenter.handleAttributes();
-        //auto-rotate
-        if(presenter.model.autoRotate === "True") $(presenter.modelViewer).attr("auto-rotate", true);
 
         //handle annotations
         $(presenter.modelViewer).append(model.annotations);
         presenter.model.labelsEnabled === "True" ? presenter.showAnnotations() : presenter.hideAnnotations();
+
+        //auto-rotate
+        if(presenter.model.autoRotate === "True") $(presenter.modelViewer).attr("auto-rotate", true);
 
         //handle buttons
         presenter.labelsButton = $(view).find(".labelsButton").get(0);
@@ -39,7 +40,7 @@ function AddonModelViewer3D_create() {
         presenter.handleDisplayingButtons();
 
         presenter.model.labelsEnabled === "True" ? $(presenter.labelsButton).addClass("labelsButton-selected") : $(presenter.labelsButton).removeClass("labelsButton-selected");
-        $( presenter.labelsButton ).on( "click", function(e) {
+        $(presenter.labelsButton).on( "click", function(e) {
             $(presenter.labelsButton).toggleClass("labelsButton-selected");
             $(presenter.labelsButton).hasClass("labelsButton-selected") ? presenter.showAnnotations() : presenter.hideAnnotations();
         });
