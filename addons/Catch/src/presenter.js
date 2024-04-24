@@ -407,15 +407,19 @@ function AddonCatch_create() {
                 const scaledX = posX / getScale().X;
 
                 if (!isAbovePlateCenter(scaledX)) {
-                    var isLeftSide = isPointOnLeftSide(scaledX);
+                    const isLeftSide = isPointOnLeftSide(scaledX);
                     movePlate(isLeftSide);
                 }
             });
-        }
-        else {
+        } else {
             presenter.$view.on('click', function (e) {
-                if (!isAbovePlateCenter(e.clientX)) {
-                    var isLeftSide = isPointOnLeftSide(e.clientX);
+                e.preventDefault();
+
+                const posX = e.clientX;
+                const scaledX = posX / getScale().X;
+
+                if (!isAbovePlateCenter(scaledX)) {
+                    const isLeftSide = isPointOnLeftSide(scaledX);
                     movePlate(isLeftSide);
                 }
             });
@@ -425,15 +429,23 @@ function AddonCatch_create() {
     }
 
     function getScale() {
-        let $content = $("#content");
+        if (presenter.playerController) {
+            const scaleInformation = presenter.playerController.getScaleInformation();
+            if (scaleInformation.baseScaleX !== 1.0 ||
+                scaleInformation.baseScaleY !== 1.0 ||
+                scaleInformation.scaleX !== 1.0 ||
+                scaleInformation.scaleY !== 1.0
+            ) {
+                return {X: scaleInformation.scaleX, Y: scaleInformation.scaleY};
+            }
+        }
+
+        const $content = $("#content");
         if ($content.size() > 0) {
             const contentElem = $content[0];
             const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
             const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
             return {X: scaleX, Y: scaleY};
-        } else if (presenter.playerController) {
-            const scale = presenter.playerController.getScaleInformation();
-            return {X: scale.scaleX, Y: scale.scaleY};
         } else {
             return {X: 1.0, Y: 1.0};
         }
@@ -458,7 +470,7 @@ function AddonCatch_create() {
         // will come in virtual coords, in case of high dpi devices such as smartphones
         // getBoundingClientRect will work correctly in css pixels in case of low dpi devices
         var addonBounds = presenter.$view[0].getBoundingClientRect();
-        var addonLeftPos = addonBounds.left;
+        var addonLeftPos = addonBounds.left / getScale().X;
         var plateCenterPos = getElementPositionLeft($plateElement) + Math.round($plateElement.width() / 2);
         return (point - addonLeftPos) > plateCenterPos;
     }

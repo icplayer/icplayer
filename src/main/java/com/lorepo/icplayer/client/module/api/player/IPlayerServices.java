@@ -39,7 +39,8 @@ public interface IPlayerServices {
 	public IPresenter getFooterModule(String name);
 	public int getPageWeight();
 	public ScaleInformation getScaleInformation();
-	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
+	public void setScaleInformation(String baseScaleX, String baseScaleY, String baseTransform, String baseTransformOrigin);
+	public void setFinalScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
 	public void setApplication(PlayerApp application);
 	public PlayerApp getApplication();
 	
