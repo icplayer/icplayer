@@ -18,41 +18,121 @@ function AddonModelViewer3D_create() {
         }
     };
 
-    presenter.init = function(view, model){
-        presenter.model = model;
-        presenter.model.environmentImage = (presenter.model.environmentImage === "" ? "neutral" : presenter.model.environmentImage);
+    presenter.init = function(view, model) {
+        presenter.$view = $(view);
+        presenter.configuration = presenter.validateModel(model);
 
-        presenter.modelViewer = $(view).find("model-viewer").get(0);
+        if (!presenter.configuration.isValid) {
+            showErrorMessage();
+            return;
+        }
+
+        presenter.modelViewer = presenter.$view.find("model-viewer").get(0);
+
         presenter.handleAttributes();
+        presenter.setAnnotations();
+        presenter.setAutoRotation();
+        presenter.handleButtons();
+        presenter.handleCopyright();
 
-        //handle annotations
-        $(presenter.modelViewer).append(model.annotations);
-        presenter.model.labelsEnabled === "True" ? presenter.showAnnotations() : presenter.hideAnnotations();
+        $(presenter.modelViewer).on('load', function(){
+            if(presenter.configuration.scale !== undefined && presenter.configuration.scale !== "") presenter.setScale(presenter.configuration.scale);
+        });
 
-        //auto-rotate
-        if(presenter.model.autoRotate === "True") $(presenter.modelViewer).attr("auto-rotate", true);
+        presenter.wasInitiated = true;
+    };
 
-        //handle buttons
-        presenter.labelsButton = $(view).find(".labelsButton").get(0);
-        presenter.copyButton = $(view).find(".copyButton").get(0);
-        presenter.copyMessage = $(view).find(".copyMessage").get(0);
+    presenter.validateModel = function (model) {
+        let isValid = true;
+        let additionalAttributes;
+        const isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        const isAutoRotate = ModelValidationUtils.validateBoolean(model["autoRotate"]);
+        const areLabelsEnabled = ModelValidationUtils.validateBoolean(model["labelsEnabled"]);
+        const environmentImage = model["environmentImage"] === "" ? "neutral" : model["environmentImage"];
+        try {
+            additionalAttributes = JSON.parse(model["attributes"].trim());
+        } catch (e) {
+            isValid = false;
+        }
+
+        return {
+            isValid: isValid,
+            isVisible: isVisible,
+            addonID: model["ID"],
+            model: model["model"],
+            poster: model["poster"],
+            annotations: model["annotations"].trim(),
+            environmentImage: environmentImage,
+            skyboxImage: model["skyboxImage"],
+            shadowSoftness: model["shadowSoftness"],
+            shadowIntensity: model["shadowIntensity"],
+            autoRotate: isAutoRotate,
+            scale: model["scale"],
+            labelsEnabledOnStart: areLabelsEnabled,
+            altText: model["altText"],
+            additionalAttributes: additionalAttributes,
+            copyInfo: model["copyInfo"],
+            interactionPrompt: model["interactionPrompt"]
+        };
+    };
+
+    presenter.handleAttributes = function () {
+        $(presenter.modelViewer).attr("src", presenter.configuration.model);
+        $(presenter.modelViewer).attr("poster", presenter.configuration.poster);
+        $(presenter.modelViewer).attr("skybox-image", presenter.configuration.skyboxImage);
+        $(presenter.modelViewer).attr("environment-image", presenter.configuration.environmentImage);
+        $(presenter.modelViewer).attr("shadow-intensity", presenter.configuration.shadowIntensity);
+        $(presenter.modelViewer).attr("shadow-softness", presenter.configuration.shadowSoftness);
+        $(presenter.modelViewer).attr("alt", presenter.configuration.altText);
+        $(presenter.modelViewer).attr("interaction-prompt", presenter.configuration.interactionPrompt);
+
+        presenter.addAttributesFromModel();
+    };
+
+    presenter.addAttributesFromModel = function () {
+        if (!presenter.configuration.additionalAttributes) {
+            return;
+        }
+
+        const attributes = presenter.configuration.additionalAttributes;
+
+        Object.keys(attributes).forEach(key => {
+            $(presenter.modelViewer).attr(key, attributes[key]);
+        });
+    };
+
+    presenter.setAnnotations = function () {
+        $(presenter.modelViewer).append(presenter.configuration.annotations);
+        presenter.configuration.labelsEnabledOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
+    };
+
+    presenter.setAutoRotation = function () {
+        if (presenter.configuration.autoRotate) {
+            $(presenter.modelViewer).attr("auto-rotate", true);
+        }
+    };
+
+    presenter.handleButtons = function () {
+        presenter.labelsButton = presenter.$view.find(".labelsButton").get(0);
+        presenter.copyButton = presenter.$view.find(".copyButton").get(0);
+        presenter.copyMessage = presenter.$view.find(".copyMessage").get(0);
 
         presenter.handleDisplayingButtons();
 
-        presenter.model.labelsEnabled === "True" ? $(presenter.labelsButton).addClass("labelsButton-selected") : $(presenter.labelsButton).removeClass("labelsButton-selected");
-        $(presenter.labelsButton).on( "click", function(e) {
+        presenter.configuration.labelsEnabledOnStart ? $(presenter.labelsButton).addClass("labelsButton-selected") : $(presenter.labelsButton).removeClass("labelsButton-selected");
+
+        $(presenter.labelsButton).on("click", function (e) {
             $(presenter.labelsButton).toggleClass("labelsButton-selected");
             $(presenter.labelsButton).hasClass("labelsButton-selected") ? presenter.showAnnotations() : presenter.hideAnnotations();
         });
+    };
 
-        //handle copyright
-        let copyText = '<div class="copyContainer">'+presenter.model.copyInfo+'</div>';
+    presenter.handleCopyright = function () {
+        const copyText = '<div class="copyContainer">'+presenter.configuration.copyInfo+'</div>';
         $(presenter.copyMessage).append(copyText);
 
-
-        //fix hyperlink clicking
         presenter.copyContainer = $(presenter.copyMessage).find(".copyContainer").get(0);
-        let link = presenter.copyContainer.querySelector('a');
+        const link = presenter.copyContainer.querySelector('a');
         if (link) {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -64,44 +144,14 @@ function AddonModelViewer3D_create() {
             $(presenter.copyButton).toggleClass("copyButton-selected");
             $(presenter.copyMessage).toggleClass("copyMessage-visible");
         });
-
-        //set scale on model load
-        $(presenter.modelViewer).on('load', function(){
-            if(presenter.model.scale !== undefined && presenter.model.scale !== "") presenter.setScale(presenter.model.scale);
-        });
-
-        presenter.wasInitiated = true;
-    };
-
-    presenter.handleAttributes = function () {
-        $(presenter.modelViewer).attr("src", presenter.model.model);
-        $(presenter.modelViewer).attr("poster", presenter.model.poster);
-        $(presenter.modelViewer).attr("skybox-image", presenter.model.skyboxImage);
-        $(presenter.modelViewer).attr("environment-image", presenter.model.environmentImage);
-        $(presenter.modelViewer).attr("shadow-intensity", presenter.model.shadowIntensity);
-        $(presenter.modelViewer).attr("shadow-softness", presenter.model.shadowSoftness);
-        $(presenter.modelViewer).attr("alt", presenter.model.altText);
-
-        presenter.addAttributesFromModel();
-    };
-
-    presenter.addAttributesFromModel = function () {
-        if (!presenter.model.attributes.length) {
-            return;
-        }
-
-        const attributes = JSON.parse(presenter.model.attributes);
-        Object.keys(attributes).forEach(key => {
-            $(presenter.modelViewer).attr(key, attributes[key]);
-        });
     };
 
     presenter.handleDisplayingButtons = function () {
-        if(presenter.model.annotations.trim() === "") {
+        if(presenter.configuration.annotations === "") {
             $( presenter.labelsButton ).addClass("hidden");
         }
 
-        if( presenter.model.copyInfo === "") {
+        if( presenter.configuration.copyInfo === "") {
             $( presenter.copyButton ).addClass("hidden");
         }
     };
@@ -114,7 +164,8 @@ function AddonModelViewer3D_create() {
         presenter.modelViewer.scale = scale+" "+scale+" "+scale;
     };
 
-    presenter.showAnnotations = function(){
+    presenter.showAnnotations = function() {
+        if (!presenter.configuration.isVisible) { return; }
         presenter.setAnnotationsVisibility("visible");
         $(presenter.labelsButton).addClass("labelsButton-selected");
     };
@@ -135,6 +186,8 @@ function AddonModelViewer3D_create() {
 
     presenter.executeCommand = function(name, params) {
         var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
             'showAnnotations': presenter.showAnnotations,
             'hideAnnotations': presenter.hideAnnotations,
             'getAnnotationsVisibility': presenter.getAnnotationsVisibility,
@@ -203,7 +256,8 @@ function AddonModelViewer3D_create() {
 
     presenter.getState = function(){
         return JSON.stringify({
-            annotationsVisibility: presenter.annotationsVisibility
+            annotationsVisibility: presenter.annotationsVisibility,
+            isVisible: presenter.configuration.isVisible
         });
     };
 
@@ -214,7 +268,36 @@ function AddonModelViewer3D_create() {
         presenter.annotationsVisibility = state.annotationsVisibility;
 
         presenter.annotationsVisibility === "visible" ? presenter.showAnnotations() : presenter.hideAnnotations();
+
+        if (state.isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
     };
+
+    presenter.show = function() {
+        presenter.setVisibility(true);
+        presenter.configuration.isVisible = true;
+        if (presenter.annotationsVisibility === "visible") {
+            presenter.showAnnotations();
+        }
+    };
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+        presenter.configuration.isVisible = false;
+        $(presenter.modelViewer).find(".Hotspot").css("visibility", "hidden");
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    function showErrorMessage() {
+        presenter.$view.addClass('error');
+        presenter.$view.html("Additional Attributes must be in JSON format.");
+    }
 
     return presenter;
 }

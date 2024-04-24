@@ -2,7 +2,7 @@ TestCase('[ModelViewer3D] Attributes tests', {
     setUp: function () {
         this.presenter = AddonModelViewer3D_create();
         this.presenter.modelViewer = $('<model-viewer></model-viewer>');
-        this.presenter.model = getModel();
+        this.presenter.configuration = getModel();
     },
 
     'test given model with attributes when handleAttributes was called should sets it on element': function () {
@@ -15,7 +15,7 @@ TestCase('[ModelViewer3D] Attributes tests', {
     },
 
     'test given additional attributes when handleAttributes was called should append attributes to element': function () {
-        this.presenter.model.attributes = getAdditionalAttributes();
+        this.presenter.configuration.additionalAttributes = getAdditionalAttributes();
 
         this.presenter.handleAttributes();
         const element = this.presenter.modelViewer.get(0);
@@ -38,7 +38,7 @@ function getModel() {
 }
 
 function getAdditionalAttributes() {
-    return JSON.stringify({
+    return {
         "scale": "0.1 0.2 0.3"
-    });
+    };
 }

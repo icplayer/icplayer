@@ -6,7 +6,7 @@ TestCase('[ModelViewer3D] Button visibility tests', {
     },
 
     'test given model with empty annotations when handleDisplayingButtons was called should add hidden class to labelsButton': function () {
-        this.presenter.model = {
+        this.presenter.configuration = {
             "annotations": "",
             "copyInfo": ""
         };
@@ -18,7 +18,7 @@ TestCase('[ModelViewer3D] Button visibility tests', {
     },
 
     'test given model with empty copyInfo when handleDisplayingButtons was called should add hidden class to copyButton': function () {
-        this.presenter.model = {
+        this.presenter.configuration = {
             "annotations": "",
             "copyInfo": ""
         };

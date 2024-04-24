@@ -1956,6 +1956,7 @@ var ice_dictionary_en = {
 	"Model_Viewer_altText": "Alt Text",
 	"Model_Viewer_attributes": "Additional Attributes",
 	"Model_Viewer_copyInfo": "Copyright Info",
+	"Model_Viewer_interactionPrompt": "Interaction Prompt",
     "SelectableAddonsBinder_name" : "Selectable Addons Binder",
     "SelectableAddonsBinder_info" : "Allows to control groups of selectable addons",
     "SelectableAddonsBinder_property_addons" : "Addons",

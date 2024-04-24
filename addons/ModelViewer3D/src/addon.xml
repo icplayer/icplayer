@@ -15,6 +15,7 @@
         <property name="altText" nameLabel="Model_Viewer_altText" type="string"/>
         <property name="attributes" nameLabel="Model_Viewer_attributes" type="text"/>
         <property name="copyInfo" nameLabel="Model_Viewer_copyInfo" type="html"/>
+        <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="{auto,none}"/>
         <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/4870371301916673"/>
     </model>
 </addon>
