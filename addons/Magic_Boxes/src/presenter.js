@@ -334,6 +334,7 @@ function AddonMagic_Boxes_create() {
     }
 
     function applySelectionStyle(row, column) {
+        if (row >= presenter.configuration.rows || column >= presenter.configuration.columns) return;
         var index = row * presenter.configuration.columns + column;
         var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
 

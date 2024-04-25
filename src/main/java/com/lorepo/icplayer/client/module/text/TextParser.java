@@ -1167,5 +1167,18 @@ public class TextParser {
 		this.isNumericOnly = isNumericOnly;
 	}
 
+	public static String parseAnswer(String rawAnswer) {
+		String apostrophes = "‚’‘";
+		String quotationMarks = "“”„";
+		String answer = rawAnswer;
+		for (int i = 0; i < apostrophes.length(); i++) {
+			answer = answer.replaceAll(apostrophes.substring(i,i+1),"'");
+		}
+		for (int i = 0; i < quotationMarks.length(); i++) {
+			answer = answer.replaceAll(quotationMarks.substring(i,i+1),"\"");
+		}
+		return answer;
+	}
+
 
 }

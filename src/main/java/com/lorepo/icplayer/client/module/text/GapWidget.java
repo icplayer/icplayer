@@ -245,7 +245,7 @@ public class GapWidget extends TextBox implements TextElementDisplay, Navigation
     public void setShowErrorsMode(boolean isActivity) {
     	setEnabled(false);
     	if (isActivity) {
-			String text = getText().trim();
+			String text = TextParser.parseAnswer(getText().trim());
 			boolean ignoreCheckingIfCorrect = !this.gapInfo.isValueCheckable(this.ignorePlaceholder, this.gapHasBeenAccessed);
 			this.isWorkingMode = false;
 
