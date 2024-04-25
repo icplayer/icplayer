@@ -4,6 +4,8 @@ function AddonModelViewer3D_create() {
 
     presenter.wasInitiated = false;
     presenter.annotationsVisibility = "visible";
+    presenter.isVisibleOnStart = true;
+    presenter.areAnnotationsVisibleOnStart = true;
 
     presenter.run = function(view, model){
         if(!presenter.wasInitiated) {
@@ -21,6 +23,7 @@ function AddonModelViewer3D_create() {
     presenter.init = function(view, model) {
         presenter.$view = $(view);
         presenter.configuration = presenter.validateModel(model);
+        presenter.isVisibleOnStart = presenter.configuration.isVisible;
 
         if (!presenter.configuration.isValid) {
             showErrorMessage();
@@ -32,6 +35,7 @@ function AddonModelViewer3D_create() {
         presenter.handleAttributes();
         presenter.setAnnotations();
         presenter.setAutoRotation();
+        presenter.setInteractionPrompt();
         presenter.handleButtons();
         presenter.handleCopyright();
 
@@ -48,9 +52,12 @@ function AddonModelViewer3D_create() {
         const isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         const isAutoRotate = ModelValidationUtils.validateBoolean(model["autoRotate"]);
         const areLabelsEnabled = ModelValidationUtils.validateBoolean(model["labelsEnabled"]);
+        const isInteractionPrompt = ModelValidationUtils.validateBoolean(model["interactionPrompt"]);
         const environmentImage = model["environmentImage"] === "" ? "neutral" : model["environmentImage"];
         try {
-            additionalAttributes = JSON.parse(model["attributes"].trim());
+            if (model["attributes"].trim() !== "") {
+                additionalAttributes = JSON.parse(model["attributes"].trim());
+            }
         } catch (e) {
             isValid = false;
         }
@@ -72,7 +79,7 @@ function AddonModelViewer3D_create() {
             altText: model["altText"],
             additionalAttributes: additionalAttributes,
             copyInfo: model["copyInfo"],
-            interactionPrompt: model["interactionPrompt"]
+            interactionPrompt: isInteractionPrompt
         };
     };
 
@@ -104,12 +111,17 @@ function AddonModelViewer3D_create() {
     presenter.setAnnotations = function () {
         $(presenter.modelViewer).append(presenter.configuration.annotations);
         presenter.configuration.labelsEnabledOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
+        presenter.areAnnotationsVisibleOnStart = presenter.annotationsVisibility;
     };
 
     presenter.setAutoRotation = function () {
         if (presenter.configuration.autoRotate) {
             $(presenter.modelViewer).attr("auto-rotate", true);
         }
+    };
+
+    presenter.setInteractionPrompt = function () {
+        presenter.configuration.interactionPrompt ? $(presenter.modelViewer).attr("interaction-prompt", "auto") : $(presenter.modelViewer).attr("interaction-prompt", "none");
     };
 
     presenter.handleButtons = function () {
@@ -200,7 +212,20 @@ function AddonModelViewer3D_create() {
 
     presenter.setWorkMode = function() {};
 
-    presenter.reset = function() {};
+    presenter.reset = function () {
+        if (presenter.isVisibleOnStart !== presenter.configuration.isVisible) {
+            presenter.isVisibleOnStart ? presenter.show() : presenter.hide();
+        }
+
+        if (presenter.areAnnotationsVisibleOnStart !== presenter.annotationsVisibility) {
+            presenter.areAnnotationsVisibleOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
+        }
+
+        if ($(presenter.copyButton).hasClass("copyButton-selected")) {
+            $(presenter.copyButton).removeClass("copyButton-selected");
+            $(presenter.copyMessage).removeClass("copyMessage-visible");
+        }
+    };
 
     presenter.getErrorCount = function(){
         return 0;
