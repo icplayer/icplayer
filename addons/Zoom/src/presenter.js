@@ -6,17 +6,33 @@ function AddonZoom_create() {
     presenter.configuration = null;
     presenter.isVisible = true;
     presenter.scaleModifier = 1.0;
-    presenter.zoomedSpaceContainer = null;
+    presenter.zoomedAreaContainer = null;
     presenter.zoomingTimeoutID = null;
 
     presenter.DEFAULT_ZOOM = 2;
-    presenter.ERROR_CODES = {};
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
+    presenter.speechTexts = null;
+
+    presenter.ERROR_CODES = {
+        "SIZE_1": "Addon must fit within page size limits",
+    };
+
+    presenter.MODE = {
+        "Targeted area": "TARGETED_AREA",
+        "Area around a clicked point": "AREA_AROUND_CLICKED_POINT",
+        DEFAULT: "Targeted area"
+    };
+
     presenter.CSS_CLASSES = {
         ZOOM_WRAPPER: "zoom-wrapper",
+        TARGETED_AREA: "targeted-area",
+        AREA_AROUND_CLICKED_POINT: "area-around-clicked-point",
+        ZOOM_WRAPPER_HIGHLIGHT: "zoom-wrapper-highlight",
         ZOOM_BUTTON_CONTAINER: "zoom-button-container",
         ZOOM_BUTTON: "zoom-button",
         SELECTED: "selected",
-        ZOOMED_SPACE_CONTAINER: "zoomed-space-container",
+        ZOOMED_AREA_CONTAINER: "zoomed-area-container",
         ZOOM_OUT_BUTTON_CONTAINER: "zoom-out-button-container",
         ZOOM_OUT_BUTTON: "zoom-out-button",
         ZOOM_IN_CURSOR: "zoom-cursor-zoom-in",
@@ -26,6 +42,13 @@ function AddonZoom_create() {
         IC_PAGE_PANEL: "ic_page_panel",
         IWB_ZOOM_IN: "iwb-zoom-in",
         IWB_ZOOM_OUT: "iwb-zoom-out",
+        MODULES_GROUP: "modules_group",
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        ZOOM_IN: "Zoom in",
+        ACTIVATED: "Zoom in",
+        ZOOM_OUT: "Zoom out",
     };
 
     presenter.setPlayerController = function(controller) {
@@ -38,6 +61,7 @@ function AddonZoom_create() {
     presenter.onEventReceived = function(eventName) {
         switch (eventName) {
             case "ResizeWindow":
+                console.log("ResizeWindow");
                 setFinalScaleInformation();
                 break;
         }
@@ -49,66 +73,123 @@ function AddonZoom_create() {
 
     presenter.run = function(view, model) {
         presenter.presenterLogic(view, model, false);
+        
+        if (!presenter.configuration.isValid) {
+            return;
+        }
+        zoom.init({ elementToZoom: findPage() });
+        presenter.addHandlers();
     };
 
     presenter.presenterLogic = function(view, model, isPreview) {
+        console.log("v0.13");
         presenter.view = view;
         presenter.$view = $(view);
 
-        presenter.configuration = presenter.validateModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
+        presenter.addModeCSSClassName();
         presenter.setVisibility(presenter.configuration.isVisible);
-
         if (!isPreview) {
-            zoom.init({
-                elementToZoom: findPageElement()
-            });
-            presenter.addHandlers();
+            presenter.setSpeechTexts(model["speechTexts"]);
         }
     };
 
+    presenter.upgradeModel = function(model) {
+        const upgradedModel = presenter.upgradeModelPropertyMode(model);
+        return presenter.upgradeModelPropertySpeechTexts(upgradedModel);
+    };
+
+    presenter.upgradeModelPropertyMode = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["mode"]) {
+            upgradedModel["mode"] = "Targeted area";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModelPropertySpeechTexts = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["zoomIn"]) {
+            upgradedModel["speechTexts"]["zoomIn"] = {zoomIn: ""};
+        }
+        if (!upgradedModel["speechTexts"]["zoomOut"]) {
+            upgradedModel["speechTexts"]["zoomOut"] = {zoomOut: ""};
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function(model) {
+        const mode = ModelValidationUtils.validateOption(presenter.MODE, model["mode"]);
+
+        const validatedSize = validateSizeRelativeToPageSize(mode);
+        if (!validatedSize.isValid) {
+            return validatedSize;
+        }
+
         return {
             isValid: true,
             ID: model.ID,
             width: parseInt(model["Width"], 10),
             height: parseInt(model["Height"], 10),
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            mode: mode
         };
     };
 
-    function findPage() {
-        return presenter.$view.parent('.' + presenter.CSS_CLASSES.IC_PAGE);
+    function validateSizeRelativeToPageSize(mode) {
+        if (mode !== "TARGETED_AREA") {
+            return getCorrectObject();
+        }
+
+        const page = findPage();
+        let left = presenter.view.offsetLeft;
+        let top = presenter.view.offsetTop;
+        if (presenter.view.parentElement.classList.contains(presenter.CSS_CLASSES.MODULES_GROUP)) {
+            left += presenter.view.parentElement.offsetLeft;
+            top += presenter.view.parentElement.offsetTop;
+        }
+        console.log(left, top, presenter.view.offsetWidth, presenter.view.offsetHeight)
+        if (left < 0 || left + presenter.view.offsetWidth > page.offsetWidth) {
+            return getErrorObject("SIZE_1");
+        }
+        if (top < 0 || top + presenter.view.offsetHeight > page.offsetHeight) {
+            return getErrorObject("SIZE_1");
+        }
+        return getCorrectObject();
     }
 
-    function findPageElement() {
-        return findPage()[0];
-    }
+    function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
+    function getCorrectObject (v) { return { isValid: true, value: v }; }
 
-    function findPagePanel() {
-        return findPage().parent('.' + presenter.CSS_CLASSES.IC_PAGE_PANEL);
-    }
-
-    function findFooterPagePanel() {
-        return $(document.body)
-            .find('.' + presenter.CSS_CLASSES.IC_FOOTER)
-            .parent('.' + presenter.CSS_CLASSES.IC_PAGE_PANEL);
-    }
-
-    function findViewElement(cssClass) {
-        return presenter.$view.find('.' + cssClass);
-    }
+    presenter.addModeCSSClassName = function () {
+        const zoomWrapper = findInView(presenter.CSS_CLASSES.ZOOM_WRAPPER);
+        const modeCSSClassName = isTargetedAreaModeActive()
+            ? presenter.CSS_CLASSES.TARGETED_AREA
+            : presenter.CSS_CLASSES.AREA_AROUND_CLICKED_POINT;
+        zoomWrapper.classList.add(modeCSSClassName);
+    };
 
     function showZoomButtonContainer() {
-        findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER)[0].style.display = "block";
+        findInView(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER).style.display = "block";
     }
 
     function hideZoomButtonContainer() {
-        findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER)[0].style.display = "none";
+        findInView(presenter.CSS_CLASSES.ZOOM_BUTTON_CONTAINER).style.display = "none";
     }
 
     presenter.executeCommand = function (name, params) {
@@ -116,6 +197,7 @@ function AddonZoom_create() {
             "show": presenter.show,
             "hide": presenter.hide,
             "zoomIn": presenter.zoomIn,
+            "zoomInArea": presenter.zoomInArea,
             "zoomOut": presenter.zoomOut,
         };
 
@@ -137,14 +219,44 @@ function AddonZoom_create() {
 
     presenter.addHandlers = function () {
         presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
-        findPage().click(presenter.pageCallback);
-        findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON).click(presenter.zoomButtonCallback);
+        if (isTargetedAreaModeActive()) {
+            addMouseOverZoomButtonListener();
+        } else {
+            findPage().addEventListener("click", presenter.pageCallback);
+        }
+        findInView(presenter.CSS_CLASSES.ZOOM_BUTTON).addEventListener("click", presenter.zoomButtonCallback);
     };
 
     presenter.removeHandlers = function () {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
-        findPage().off("click", presenter.pageCallback);
-        findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON).off("click", presenter.zoomButtonCallback);
+        if (!isTargetedAreaModeActive()) {
+            findPage().removeEventListener("click", presenter.pageCallback);
+        }
+        findInView(presenter.CSS_CLASSES.ZOOM_BUTTON).removeEventListener("click", presenter.zoomButtonCallback);
+    };
+
+    function addMouseOverZoomButtonListener() {
+        const zoomButton = findInView(presenter.CSS_CLASSES.ZOOM_BUTTON);
+        const zoomWrapper = findInView(presenter.CSS_CLASSES.ZOOM_WRAPPER);
+
+        zoomButton.addEventListener("mouseover", function (event) {
+            zoomWrapper.classList.add(presenter.CSS_CLASSES.ZOOM_WRAPPER_HIGHLIGHT);
+        });
+        zoomButton.addEventListener("mouseout", function (event) {
+            zoomWrapper.classList.remove(presenter.CSS_CLASSES.ZOOM_WRAPPER_HIGHLIGHT);
+        });
+    }
+
+    presenter.pageCallback = function (event) {
+        event.stopPropagation();
+        if (!isEnabledZoomInCursor()) {
+            return;
+        }
+        const pageRect = findPage().getBoundingClientRect();
+        const scaleInfo = presenter.playerController.getScaleInformation();
+        const x = (event.clientX - pageRect.x) / scaleInfo.baseScaleX;
+        const y = (event.clientY - pageRect.y) / scaleInfo.baseScaleY;
+        zoomIn(x, y);
     };
 
     presenter.zoomButtonCallback = function (event) {
@@ -153,35 +265,23 @@ function AddonZoom_create() {
             return;
         }
 
-        if (isEnabledZoomInCursor()) {
-            enableZoomInCursor(false);
+        if (isTargetedAreaModeActive()) {
+            zoomInOwnArea();
         } else {
-            enableZoomInCursor(true);
+            if (isEnabledZoomInCursor()) {
+                enableZoomInCursor(false);
+            } else {
+                enableZoomInCursor(true);
+            }
         }
-    };
-
-    presenter.pageCallback = function (event) {
-        event.stopPropagation();
-        if (!isEnabledZoomInCursor()) {
-            return;
-        }
-        const pageRect = findPageElement().getBoundingClientRect();
-        const scaleInfo = presenter.playerController.getScaleInformation();
-        const x = (event.clientX - pageRect.x) / scaleInfo.baseScaleX;
-        const y = (event.clientY - pageRect.y) / scaleInfo.baseScaleY;
-        zoomIn(x, y, false);
     };
 
     presenter.zoomIn = function (x, y) {
-        let _y, _x;
         if (Array.isArray(x) && x.length === 2 && y === undefined) {
-            _y = parseInt(x[1]);
-            _x = parseInt(x[0]);
-        } else {
-            _y = y;
-            _x = x;
+            y = parseInt(x[1]);
+            x = parseInt(x[0]);
         }
-        zoomIn(_x, _y);
+        zoomIn(x, y);
     };
 
     function zoomIn(x, y) {
@@ -189,69 +289,189 @@ function AddonZoom_create() {
             return;
         }
 
-        document.body.addEventListener( "keyup", keyUpHandler);
-
         presenter.scaleModifier = presenter.DEFAULT_ZOOM;
         setFinalScaleInformation();
-        const scaleInfo = presenter.playerController.getScaleInformation();
 
-        const adjustedPosition = adjustSelectedPositionToPageBoundaries(x, y);
-        const page = findPageElement();
-        const pageRect = page.getBoundingClientRect();
+        const page = findPage();
+        const adjustedPosition = adjustSelectedPointPositionToPageBoundaries(x, y);
 
-        page.classList.add(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
         zoom.to({
             x: adjustedPosition.x,
             y: adjustedPosition.y,
             scale: presenter.scaleModifier,
-            topWindowHeight: pageRect.height / scaleInfo.baseScaleY,
-            topWindowWidth: pageRect.width / scaleInfo.baseScaleX,
+            topWindowHeight: page.offsetHeight,
+            topWindowWidth: page.offsetWidth,
             elementToZoom: page
         });
 
         preventOfIncludingScrollOffsetToTransformOrigin();
-        createZoomedSpaceContainer();
+        createZoomedAreaContainer();
         enableZoomInCursor(false);
         hideZoomButtonContainer();
     }
 
+    function zoomInOwnArea() {
+        let left = presenter.view.offsetLeft;
+        let top = presenter.view.offsetTop;
+        if (presenter.view.parentElement.classList.contains(presenter.CSS_CLASSES.MODULES_GROUP)) {
+            left += presenter.view.parentElement.offsetLeft;
+            top += presenter.view.parentElement.offsetTop;
+        }
+        zoomInArea(
+            left,
+            top,
+            presenter.view.offsetWidth,
+            presenter.view.offsetHeight
+        );
+    }
+
+    presenter.zoomInArea = function (x, y, width, height) {
+        if (Array.isArray(x) && x.length === 4 && y === undefined && width === undefined && height === undefined) {
+            height = parseInt(x[3]);
+            width = parseInt(x[2]);
+            y = parseInt(x[1]);
+            x = parseInt(x[0]);
+        }
+        const modifiedAttributes = adjustZoomInAreaCommandToRestOfFunctionality(x, y, width, height);
+        zoomInArea(modifiedAttributes.left, modifiedAttributes.top, modifiedAttributes.width, modifiedAttributes.height);
+    };
+
+    /**
+     * Adjust the data given by a zoomInArea command to rest of functionality.
+     *
+     * Prevent also, from zooming the area outside the page boundaries.
+     *
+     * @method adjustZoomInAreaCommandToRestOfFunctionality
+     * @param x:number Center point X coordinate
+     * @param y:number Center point Y coordinate
+     * @param width:number Width of area to zoom
+     * @param height:number Height of area to zoom
+     * @return {{left: number, top: number, width: number, height: number}} adjusted data
+     */
+    function adjustZoomInAreaCommandToRestOfFunctionality(x, y, width, height) {
+        const page = findPage();
+
+        let left = x - width / 2;
+        let top = y - height / 2;
+
+        const pageWidth = page.offsetWidth;
+        width = Math.min(width, pageWidth);
+        const minLeft = 0;
+        const maxLeft = pageWidth - width;
+        left = Math.min(Math.max(left, minLeft), maxLeft);
+
+        const pageHeight = page.offsetHeight;
+        height = Math.min(height, pageHeight);
+        const minTop = 0;
+        const maxTop = pageHeight - height;
+        top = Math.min(Math.max(top, minTop), maxTop);
+
+        return {left, top, width, height};
+    }
+
+    function zoomInArea(left, top, width, height) {
+        if (isZoomed()) {
+            return;
+        }
+
+        const page = findPage();
+        const topWindowHeight = page.offsetHeight;
+        const topWindowWidth = page.offsetWidth;
+        presenter.scaleModifier = calculateScaleForArea(width, height, topWindowWidth, topWindowHeight);
+        setFinalScaleInformation();
+
+        const adjustedPosition = adjustSelectedAreaPositionToPageBoundaries(left, top, width, height);
+
+        zoom.to({
+            x: adjustedPosition.left,
+            y: adjustedPosition.top,
+            width: width,
+            height: height,
+            topWindowHeight: topWindowHeight,
+            topWindowWidth: topWindowWidth,
+            elementToZoom: page
+        });
+
+        preventOfIncludingScrollOffsetToTransformOrigin();
+        createZoomedAreaContainer();
+        enableZoomInCursor(false);
+        hideZoomButtonContainer();
+    }
+
+    function calculateScaleForArea(areaWidth, areaHeight, topWindowWidth, topWindowHeight) {
+        let scale = Math.max( Math.min( topWindowWidth / areaWidth, topWindowHeight / areaHeight ), 1 );
+        if (Math.min( topWindowWidth / areaWidth, topWindowHeight / areaHeight ) <= 1){
+            scale = Math.min( topWindowWidth / areaWidth, topWindowHeight / areaHeight )+1;
+        }
+        return scale;
+    }
+
     function preventOfIncludingScrollOffsetToTransformOrigin() {
-        findPageElement().style.transformOrigin = "0px 0px";
+        findPage().style.transformOrigin = "0px 0px";
     }
 
     /**
-     * Adjust selected position to get center of zoomed space, that will not exit boundaries of page
+     * Adjust the position data of a selected point, which is the center point of the zoomed area, so that the zoomed
+     * area is within the boundaries of the page.
      *
-     * @method adjustSelectedPositionToPageBoundaries
-     * @return {{x: number, y: number}} zoomed space center position
+     * @method adjustSelectedPointPositionToPageBoundaries
+     * @param centerX:number Center point X coordinate
+     * @param centerY:number Center point Y coordinate
+     * @return {{x: number, y: number}} Center point position for zoomed area
      */
-    function adjustSelectedPositionToPageBoundaries(x, y) {
-        const scaleInfo = presenter.playerController.getScaleInformation();
-        const pageRect = findPageElement().getBoundingClientRect();
+    function adjustSelectedPointPositionToPageBoundaries(centerX, centerY) {
+        const page = findPage();
 
-        const pageHeight = pageRect.height / scaleInfo.baseScaleY;
-        const zoomedSpaceHeight = pageHeight / presenter.scaleModifier;
-        const halfOfZoomedSpaceHeight = zoomedSpaceHeight / 2;
-        const minY = halfOfZoomedSpaceHeight;
-        const maxY = pageHeight - halfOfZoomedSpaceHeight;
-        if (y < minY) {
-            y = minY;
-        } else if (y > maxY) {
-            y = maxY;
-        }
+        const pageWidth = page.offsetWidth;
+        const zoomedAreaWidth = pageWidth / presenter.scaleModifier;
+        const halfOfZoomedAreaWidth = zoomedAreaWidth / 2;
+        const minX = halfOfZoomedAreaWidth;
+        const maxX = pageWidth - halfOfZoomedAreaWidth;
+        centerX = Math.min(Math.max(centerX, minX), maxX);
 
-        const pageWidth = pageRect.width / scaleInfo.baseScaleX;
-        const zoomedScapeWidth = pageWidth / presenter.scaleModifier;
-        const halfOfZoomedSpaceWidth = zoomedScapeWidth / 2;
-        const minX = halfOfZoomedSpaceWidth;
-        const maxX = pageWidth - halfOfZoomedSpaceWidth;
-        if (x < minX) {
-            x = minX;
-        } else if (x > maxX) {
-            x = maxX;
-        }
+        const pageHeight = page.offsetHeight;
+        const zoomedAreaHeight = pageHeight / presenter.scaleModifier;
+        const halfOfZoomedAreaHeight = zoomedAreaHeight / 2;
+        const minY = halfOfZoomedAreaHeight;
+        const maxY = pageHeight - halfOfZoomedAreaHeight;
+        centerY = Math.min(Math.max(centerY, minY), maxY);
 
-        return {x, y};
+        return {x: centerX, y: centerY};
+    }
+
+    /**
+     * Adjust the position data of a selected area, which is the left top apex point of the zoomed area,
+     * so that the zoomed area is within the boundaries of the page.
+     *
+     * @method adjustSelectedAreaPositionToPageBoundaries
+     * @param left:number Left top apex point X coordinate
+     * @param top:number Left top apex point Y coordinate
+     * @param width:number Width of area to zoom
+     * @param height:number Height of area to zoom
+     * @return {{left: number, top: number}} Left top apex point position for zoomed area
+     */
+    function adjustSelectedAreaPositionToPageBoundaries(left, top, width, height) {
+        const page = findPage();
+
+        const pageWidth = page.offsetWidth;
+        const zoomedAreaWidth = pageWidth / presenter.scaleModifier;
+        const halfOfZoomedAreaWidth = zoomedAreaWidth / 2;
+        const centerMinX = halfOfZoomedAreaWidth;
+        const centerMaxX = pageWidth - halfOfZoomedAreaWidth;
+        let centerX = left + halfOfZoomedAreaWidth;
+        centerX = Math.min(Math.max(centerX, centerMinX), centerMaxX);
+        left = centerX - width / 2;
+
+        const pageHeight = page.offsetHeight;
+        const zoomedAreaHeight = pageHeight / presenter.scaleModifier;
+        const halfOfZoomedAreaHeight = zoomedAreaHeight / 2;
+        const centerMinY = halfOfZoomedAreaHeight;
+        const centerMaxY = pageHeight - halfOfZoomedAreaHeight;
+        let centerY = top + halfOfZoomedAreaHeight;
+        centerY = Math.min(Math.max(centerY, centerMinY), centerMaxY);
+        top = centerY - height / 2;
+
+        return {left, top};
     }
 
     function setFinalScaleInformation() {
@@ -262,47 +482,42 @@ function AddonZoom_create() {
         });
     }
 
-    function createZoomedSpaceContainer() {
-        presenter.zoomedSpaceContainer = document.createElement("div");
-        presenter.zoomedSpaceContainer.classList.add(presenter.CSS_CLASSES.ZOOMED_SPACE_CONTAINER);
-        presenter.zoomedSpaceContainer.style.visibility = "hidden";
-        presenter.zoomedSpaceContainer.style.width = "1px";
-        presenter.zoomedSpaceContainer.style.height = "1px";
-        presenter.zoomedSpaceContainer.style.left = "0px";
-        presenter.zoomedSpaceContainer.style.top = "0px";
+    function createZoomedAreaContainer() {
+        presenter.zoomedAreaContainer = document.createElement("div");
+        presenter.zoomedAreaContainer.classList.add(presenter.CSS_CLASSES.ZOOMED_AREA_CONTAINER);
+        presenter.zoomedAreaContainer.style.visibility = "hidden";
 
         const buttonContainer = document.createElement("div");
         buttonContainer.classList.add(presenter.CSS_CLASSES.ZOOM_OUT_BUTTON_CONTAINER);
-        presenter.zoomedSpaceContainer.append(buttonContainer);
+        presenter.zoomedAreaContainer.append(buttonContainer);
 
         const button = document.createElement("div");
         button.classList.add(presenter.CSS_CLASSES.ZOOM_OUT_BUTTON);
+        button.addEventListener("click", presenter.zoomOutButtonCallback);
         buttonContainer.append(button);
-        $(button).click(presenter.zoomOutButtonCallback);
 
-        document.body.append(presenter.zoomedSpaceContainer);
+        document.body.append(presenter.zoomedAreaContainer);
 
         const timeout = 1000; // zoom.TRANSITION_DURATION + 200
         presenter.zoomingTimeoutID = setTimeout(() => {
-            setUpZoomedSpaceContainerAfterZoomIn();
+            findPage().classList.add(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
+            setUpZoomedAreaContainerAfterZoomIn();
             presenter.zoomingTimeoutID = null;
         }, timeout);
     }
 
-    function setUpZoomedSpaceContainerAfterZoomIn() {
+    function setUpZoomedAreaContainerAfterZoomIn() {
         const scrollElements = findScrollElements();
         let maxScrollTop = 0;
         try {
             for (let i = 0; i < scrollElements.length; i++) {
                 let elementScrollTop = scrollElements[i].scrollTop();
-                if (elementScrollTop > maxScrollTop) {
-                    maxScrollTop = elementScrollTop;
-                }
+                maxScrollTop = Math.max(elementScrollTop, maxScrollTop);
             }
         } catch(e) {}
-        adjustZoomedSpaceContainerCSS(undefined, maxScrollTop);
-        addHandlersNeededInZoomedPage();
-        presenter.zoomedSpaceContainer.style.visibility = "visible";
+        adjustZoomedAreaContainerCSS(undefined, maxScrollTop);
+        addHandlersNeededWhenZoomed();
+        presenter.zoomedAreaContainer.style.visibility = "visible";
     }
 
     function findScrollElements() {
@@ -310,66 +525,94 @@ function AddonZoom_create() {
         const $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
         const $mAuthorMobileScrollElement = $(window);
         const $mCourserMobileScrollElement = $("#content-view");
-        return [$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement, $mCourserMobileScrollElement];
+        const $mLibroDesktopScrollElement = $($("#_icplayerContent")[0]?.shadowRoot.querySelector(".inner-scroll"));
+        return [
+            $defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement,
+            $mCourserMobileScrollElement, $mLibroDesktopScrollElement
+        ];
     }
 
-    function addHandlersNeededInZoomedPage() {
-        if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) {
-            return;
+    function isScreenOrientationChangeHandlerNeeded() {
+        const isIOS = window.MobileUtils.isSafariMobile(navigator.userAgent);
+        const isSafari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+        // TODO can be safari or Chrome ?
+        console.log("Is Safari: " + isSafari);
+        return isIOS && isSafari && screen && screen.orientation;
+    }
+
+    function addHandlersNeededWhenZoomed() {
+        addEscHandlerNeededWhenZoomed();
+        addOnScrollHandlersNeededWhenZoomed();
+        if (isScreenOrientationChangeHandlerNeeded) {
+            addOnScreenOrientationChangeHandler();
         }
-        addOnScrollHandlers();
-        addOnScreenOrientationChangeHandler();
     }
 
-    function addOnScrollHandlers() {
+    function addOnScrollHandlersNeededWhenZoomed() {
         const scrollElements = findScrollElements();
         try {
             for (let i = 0; i < scrollElements.length; i++) {
-                scrollElements[i].scroll(adjustZoomedSpaceContainerCSS);
+                scrollElements[i].scroll(adjustZoomedAreaContainerCSS);
             }
-        } catch(e) {}
+        } catch (e) {}
+    }
+
+    function addEscHandlerNeededWhenZoomed() {
+        document.body.addEventListener( "keyup", keyUpHandler);
     }
 
     function addOnScreenOrientationChangeHandler() {
-        screen.orientation.addEventListener("change", adjustZoomedSpaceContainerCSS);
+        screen.orientation.addEventListener("change", adjustZoomedAreaContainerCSS);
     }
 
-    function removeHandlersNeededInZoomedPage() {
-        if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) {
-            return;
+    function keyUpHandler(event) {
+        const escKeyCode = 27;
+        if (event.keyCode === escKeyCode) {
+            presenter.zoomOut();
         }
-        removeOnScrollHandlers();
-        removeOnScreenOrientationChangeHandler();
     }
 
-    function removeOnScrollHandlers() {
+    function removeHandlersNeededWhenZoomed() {
+        removeEscHandlerNeededWhenZoomed();
+        removeOnScrollHandlersNeededWhenZoomed();
+        if (isScreenOrientationChangeHandlerNeeded) {
+            removeOnScreenOrientationChangeHandler();
+        }
+    }
+
+    function removeOnScrollHandlersNeededWhenZoomed() {
         const scrollElements = findScrollElements();
         try {
             for (let i = 0; i < scrollElements.length; i++) {
-                scrollElements[i][0].removeEventListener("scroll", adjustZoomedSpaceContainerCSS);
+                scrollElements[i][0].removeEventListener("scroll", adjustZoomedAreaContainerCSS);
             }
-        } catch(e) {}
+        } catch (e) {}
+    }
+
+    function removeEscHandlerNeededWhenZoomed() {
+        document.body.removeEventListener( "keyup", keyUpHandler);
     }
 
     function removeOnScreenOrientationChangeHandler() {
-        screen.orientation.removeEventListener("change", adjustZoomedSpaceContainerCSS);
+        screen.orientation.removeEventListener("change", adjustZoomedAreaContainerCSS);
     }
 
-    function removeZoomedSpaceContainer() {
-        if (presenter.zoomedSpaceContainer) {
-            presenter.zoomedSpaceContainer.remove();
-            presenter.zoomedSpaceContainer = null;
+    function removeZoomedAreaContainer() {
+        if (presenter.zoomedAreaContainer) {
+            presenter.zoomedAreaContainer.remove();
+            presenter.zoomedAreaContainer = null;
         }
     }
 
-    function adjustZoomedSpaceContainerCSS(event, scrollTop) {
-        if (!presenter.zoomedSpaceContainer) {
+    function adjustZoomedAreaContainerCSS(event, scrollTop) {
+        if (!presenter.zoomedAreaContainer) {
             return;
         }
         if (!scrollTop) {
             scrollTop = $(this).scrollTop();
         }
-        setFinalScaleInformation();
+        setFinalScaleInformation(); // Prevent scale information from being overwritten
+
         const isInIframe = window.parent.location !== window.location;
         if (isInIframe) {
             adjustHeightAndVerticalPositionWhenInIframe(scrollTop);
@@ -377,7 +620,7 @@ function AddonZoom_create() {
             adjustHeightAndVerticalPositionWhenNotInIframe();
         }
         adjustWidthAndHorizontalPosition();
-        adjustZoomedSpaceContainerTransform();
+        adjustZoomedAreaContainerTransform();
     }
 
     function adjustHeightAndVerticalPositionWhenInIframe(scrollTop) {
@@ -402,17 +645,17 @@ function AddonZoom_create() {
             newTop = scrollTop - iframeSize.offsetTop;
         }
 
-        presenter.zoomedSpaceContainer.style.height = newHeight / iframeSize.scaleX + "px";
-        presenter.zoomedSpaceContainer.style.top = newTop / iframeSize.scaleX + "px";
+        presenter.zoomedAreaContainer.style.height = newHeight / iframeSize.scaleX + "px";
+        presenter.zoomedAreaContainer.style.top = newTop / iframeSize.scaleX + "px";
     }
 
     function adjustHeightAndVerticalPositionWhenNotInIframe() {
         const scaleInfo = presenter.playerController.getScaleInformation();
-        const pagePanelRect = findPagePanel()[0].getBoundingClientRect();
-        const $footerPagePanel = findFooterPagePanel();
+        const pagePanelRect = findPagePanel().getBoundingClientRect();
+        const footerPagePanel = findFooterPagePanel();
         let footerHeight = 0;
-        if ($footerPagePanel.length > 0) {
-            footerHeight = $footerPagePanel[0].getBoundingClientRect().height;
+        if (footerPagePanel) {
+            footerHeight = footerPagePanel.getBoundingClientRect().height;
         }
 
         const topOffset = pagePanelRect.top;
@@ -428,17 +671,16 @@ function AddonZoom_create() {
             newHeight += bottomOffset;
         }
 
-        presenter.zoomedSpaceContainer.style.height = newHeight / scaleInfo.scaleY + "px";
-        presenter.zoomedSpaceContainer.style.top = newTop + "px";
+        presenter.zoomedAreaContainer.style.height = newHeight / scaleInfo.scaleY + "px";
+        presenter.zoomedAreaContainer.style.top = newTop + "px";
     }
 
     function adjustWidthAndHorizontalPosition() {
         const scaleInfo = presenter.playerController.getScaleInformation();
-        const pagePanelRect = findPagePanel()[0].getBoundingClientRect();
+        const pagePanelRect = findPagePanel().getBoundingClientRect();
 
         const leftOffset = pagePanelRect.left;
         const rightOffset = window.innerWidth - pagePanelRect.width - leftOffset;
-
         let newWidth = pagePanelRect.width;
         let newLeft = leftOffset;
         if (leftOffset < 0) {
@@ -449,52 +691,45 @@ function AddonZoom_create() {
             newWidth += rightOffset;
         }
 
-        presenter.zoomedSpaceContainer.style.width = newWidth / scaleInfo.scaleX + "px";
-        presenter.zoomedSpaceContainer.style.left = newLeft + "px";
+        presenter.zoomedAreaContainer.style.width = newWidth / scaleInfo.scaleX + "px";
+        presenter.zoomedAreaContainer.style.left = newLeft + "px";
     }
 
-    function adjustZoomedSpaceContainerTransform() {
+    function adjustZoomedAreaContainerTransform() {
         const scaleInfo = presenter.playerController.getScaleInformation();
 
-        presenter.zoomedSpaceContainer.style.transform = "scale(" + scaleInfo.scaleX + ", " + scaleInfo.scaleY + ")";
-        presenter.zoomedSpaceContainer.style.transformOrigin = "left top";
+        presenter.zoomedAreaContainer.style.transform = "scale(" + scaleInfo.scaleX + ", " + scaleInfo.scaleY + ")";
+        presenter.zoomedAreaContainer.style.transformOrigin = "left top";
     }
 
     function isZoomed() {
-        const $icPagePanel = findPagePanel();
-        const isIWBToolbarActive = ($icPagePanel.hasClass(presenter.CSS_CLASSES.IWB_ZOOM_IN) ||
-            $icPagePanel.hasClass(presenter.CSS_CLASSES.IWB_ZOOM_OUT));
+        const icPagePanel = findPagePanel();
+        const isIWBToolbarActive = (icPagePanel.classList.contains(presenter.CSS_CLASSES.IWB_ZOOM_IN) ||
+            icPagePanel.classList.contains(presenter.CSS_CLASSES.IWB_ZOOM_OUT));
         if (isIWBToolbarActive) {
             return true;
         }
 
         const scaleInfo = presenter.playerController.getScaleInformation();
         return ((scaleInfo.baseScaleX !== scaleInfo.scaleX || scaleInfo.baseScaleY !== scaleInfo.scaleY) ||
-            document.body.getElementsByClassName(presenter.CSS_CLASSES.ZOOMED_SPACE_CONTAINER).length > 0
+            document.body.getElementsByClassName(presenter.CSS_CLASSES.ZOOMED_AREA_CONTAINER).length > 0
         );
     }
 
     function enableZoomInCursor(enable) {
-        const $page = findPage();
-        const $zoomButton = findViewElement(presenter.CSS_CLASSES.ZOOM_BUTTON);
+        const page = findPage();
+        const zoomButton = findInView(presenter.CSS_CLASSES.ZOOM_BUTTON);
         if (enable) {
-            $page.addClass(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
-            $zoomButton.addClass(presenter.CSS_CLASSES.SELECTED);
+            page.classList.add(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
+            zoomButton.classList.add(presenter.CSS_CLASSES.SELECTED);
         } else {
-            $page.removeClass(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
-            $zoomButton.removeClass(presenter.CSS_CLASSES.SELECTED);
+            page.classList.remove(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
+            zoomButton.classList.remove(presenter.CSS_CLASSES.SELECTED);
         }
     }
 
     function isEnabledZoomInCursor() {
-        return findPage().hasClass(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
-    }
-
-    function keyUpHandler(event) {
-        const escKeyCode = 27;
-        if (event.keyCode === escKeyCode) {
-            presenter.zoomOut();
-        }
+        return findPage().classList.contains(presenter.CSS_CLASSES.ZOOM_IN_CURSOR);
     }
 
     presenter.zoomOutButtonCallback = function (event) {
@@ -508,15 +743,14 @@ function AddonZoom_create() {
         }
         presenter.scaleModifier = 1.0;
         setFinalScaleInformation();
-        removeZoomedSpaceContainer();
+        removeZoomedAreaContainer();
         if (presenter.zoomingTimeoutID) {
             clearTimeout(presenter.zoomingTimeoutID);
             presenter.zoomingTimeoutID = null;
         }
         zoom.out();
-        removeHandlersNeededInZoomedPage();
-        findPage().removeClass(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
-        document.body.removeEventListener("keyup", keyUpHandler);
+        removeHandlersNeededWhenZoomed();
+        findPage().classList.remove(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
         showZoomButtonContainer();
     };
 
@@ -535,6 +769,26 @@ function AddonZoom_create() {
         presenter.setVisibility(parsedState.isVisible);
     };
 
+    function isTargetedAreaModeActive() {
+        return presenter.configuration.mode === "TARGETED_AREA";
+    }
+
+    function findPage() {
+        return presenter.view.closest('.' + presenter.CSS_CLASSES.IC_PAGE);
+    }
+
+    function findPagePanel() {
+        return findPage().closest('.' + presenter.CSS_CLASSES.IC_PAGE_PANEL);
+    }
+
+    function findFooterPagePanel() {
+        return document.body.querySelector('.' + presenter.CSS_CLASSES.IC_FOOTER)?.closest('.' + presenter.CSS_CLASSES.IC_PAGE_PANEL);
+    }
+
+    function findInView(cssClass) {
+        return presenter.view.querySelector('.' + cssClass);
+    }
+
     presenter.reset = function() {
         presenter.zoomOut();
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -552,6 +806,95 @@ function AddonZoom_create() {
         }
 
         presenter.removeHandlers();
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            zoomIn: presenter.DEFAULT_TTS_PHRASES.ZOOM_IN,
+            zoomOut: presenter.DEFAULT_TTS_PHRASES.ZOOM_OUT
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            zoomIn: TTSUtils.getSpeechTextProperty(
+                speechTexts.zoomIn.zoomIn,
+                presenter.speechTexts.zoomIn),
+            zoomOut: TTSUtils.getSpeechTextProperty(
+                speechTexts.zoomOut.zoomOut,
+                presenter.speechTexts.zoomOut)
+        };
+    };
+
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new ZoomKeyboardController([], 1);
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    function ZoomKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+        this.updateMapping();
+    }
+
+    ZoomKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ZoomKeyboardController.prototype.constructor = ZoomKeyboardController;
+
+    ZoomKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
+
+    ZoomKeyboardController.prototype.updateMapping = function () {
+        this.mapping[window.KeyboardControllerKeys.ENTER] = this.select;
+        this.mapping[window.KeyboardControllerKeys.ARROW_UP] = this.preventDefaultEvent;
+        this.mapping[window.KeyboardControllerKeys.ARROW_DOWN] = this.preventDefaultEvent;
+        this.mapping[window.KeyboardControllerKeys.ARROW_RIGHT] = this.preventDefaultEvent;
+        this.mapping[window.KeyboardControllerKeys.ARROW_LEFT] = this.preventDefaultEvent;
+        this.mapping[window.KeyboardControllerKeys.SPACE] = this.preventDefaultEvent;
+
+        // Functionality of moving to previous/next element is handled by
+        // changeCurrentModule method of KeyboardNavigationController KeyDownHandler
+        this.mapping[window.KeyboardControllerKeys.TAB] = this.preventDefaultEvent;
+        this.shiftKeysMapping[window.KeyboardControllerKeys.TAB] = this.preventDefaultEvent;
+    };
+
+    ZoomKeyboardController.prototype.preventDefaultEvent = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+    };
+
+    ZoomKeyboardController.prototype.select = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        if (!this.isSelectEnabled) {
+            return;
+        }
+        // TODO
+    };
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+        return null;
     };
 
     return presenter;
