@@ -2488,5 +2488,8 @@ var ice_dictionary_bl = {
     "edit_ordered_list_type_a": "a, b, c",
     "edit_ordered_list_type_A": "A, B, C",
     "edit_ordered_list_type_i": "i, ii, iii",
-    "edit_ordered_list_type_I": "I, II, III"
+    "edit_ordered_list_type_I": "I, II, III",
+	"Zoom_name": "Zoom",
+	"Zoom_info": "",
+	"Zoom_property_mode": "Mode"
 };

@@ -16,9 +16,14 @@ function AddonDrawing_create() {
         bottomRight: 3,
     };
 
+    presenter.playerController = null;
     presenter.imageInputElement = null;
 
     presenter.$textWrapper = null;
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
+    };
 
     function setDefaultAddonMode() {
         setAddonMode(ModeEnum.pencil);
@@ -102,14 +107,26 @@ function AddonDrawing_create() {
     }
 
     function getScale() {
-        var $content = $("#content"); // the div transform css is attached to
-		if($content.size()>0){
-            var contentElem = $content[0];
-            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
-            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
-            return {X:scaleX, Y:scaleY};
-		};
-		return {X:1.0, Y:1.0};
+        if (presenter.playerController) {
+            const scaleInformation = presenter.playerController.getScaleInformation();
+            if (scaleInformation.baseScaleX !== 1.0 ||
+                scaleInformation.baseScaleY !== 1.0 ||
+                scaleInformation.scaleX !== 1.0 ||
+                scaleInformation.scaleY !== 1.0
+            ) {
+                return {X: scaleInformation.scaleX, Y: scaleInformation.scaleY};
+            }
+        }
+
+        const $content = $("#content");
+        if ($content.size() > 0) {
+            const contentElem = $content[0];
+            const scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            const scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X: scaleX, Y: scaleY};
+        } else {
+            return {X: 1.0, Y: 1.0};
+        }
     }
 
     presenter.hexToRGBA = function(hex, opacity) {
