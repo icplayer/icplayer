@@ -61,7 +61,6 @@ function AddonZoom_create() {
     presenter.onEventReceived = function(eventName) {
         switch (eventName) {
             case "ResizeWindow":
-                console.log("ResizeWindow");
                 setFinalScaleInformation();
                 break;
         }
@@ -82,7 +81,6 @@ function AddonZoom_create() {
     };
 
     presenter.presenterLogic = function(view, model, isPreview) {
-        console.log("v0.13");
         presenter.view = view;
         presenter.$view = $(view);
 
@@ -163,7 +161,6 @@ function AddonZoom_create() {
             left += presenter.view.parentElement.offsetLeft;
             top += presenter.view.parentElement.offsetTop;
         }
-        console.log(left, top, presenter.view.offsetWidth, presenter.view.offsetHeight)
         if (left < 0 || left + presenter.view.offsetWidth > page.offsetWidth) {
             return getErrorObject("SIZE_1");
         }
@@ -220,7 +217,9 @@ function AddonZoom_create() {
     presenter.addHandlers = function () {
         presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
         if (isTargetedAreaModeActive()) {
-            addMouseOverZoomButtonListener();
+            if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
+                addMouseOverZoomButtonListener();
+            }
         } else {
             findPage().addEventListener("click", presenter.pageCallback);
         }
@@ -458,7 +457,7 @@ function AddonZoom_create() {
         const halfOfZoomedAreaWidth = zoomedAreaWidth / 2;
         const centerMinX = halfOfZoomedAreaWidth;
         const centerMaxX = pageWidth - halfOfZoomedAreaWidth;
-        let centerX = left + halfOfZoomedAreaWidth;
+        let centerX = left + width / 2;
         centerX = Math.min(Math.max(centerX, centerMinX), centerMaxX);
         left = centerX - width / 2;
 
@@ -467,7 +466,7 @@ function AddonZoom_create() {
         const halfOfZoomedAreaHeight = zoomedAreaHeight / 2;
         const centerMinY = halfOfZoomedAreaHeight;
         const centerMaxY = pageHeight - halfOfZoomedAreaHeight;
-        let centerY = top + halfOfZoomedAreaHeight;
+        let centerY = top + height / 2;
         centerY = Math.min(Math.max(centerY, centerMinY), centerMaxY);
         top = centerY - height / 2;
 
@@ -533,17 +532,15 @@ function AddonZoom_create() {
     }
 
     function isScreenOrientationChangeHandlerNeeded() {
-        const isIOS = window.MobileUtils.isSafariMobile(navigator.userAgent);
+        const isIOS = MobileUtils.isSafariMobile(window.navigator.userAgent);
         const isSafari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
-        // TODO can be safari or Chrome ?
-        console.log("Is Safari: " + isSafari);
         return isIOS && isSafari && screen && screen.orientation;
     }
 
     function addHandlersNeededWhenZoomed() {
         addEscHandlerNeededWhenZoomed();
         addOnScrollHandlersNeededWhenZoomed();
-        if (isScreenOrientationChangeHandlerNeeded) {
+        if (isScreenOrientationChangeHandlerNeeded()) {
             addOnScreenOrientationChangeHandler();
         }
     }
@@ -575,7 +572,7 @@ function AddonZoom_create() {
     function removeHandlersNeededWhenZoomed() {
         removeEscHandlerNeededWhenZoomed();
         removeOnScrollHandlersNeededWhenZoomed();
-        if (isScreenOrientationChangeHandlerNeeded) {
+        if (isScreenOrientationChangeHandlerNeeded()) {
             removeOnScreenOrientationChangeHandler();
         }
     }

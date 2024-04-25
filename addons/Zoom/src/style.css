@@ -38,6 +38,7 @@
     bottom: 4px;
     right: 4px;
     pointer-events: auto;
+    z-index: 2;
 }
 
 .zoom-wrapper .zoom-button-container .zoom-button {

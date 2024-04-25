@@ -43,6 +43,9 @@ zoom = (function(){
      *     topWindowHeight - width of the top window
      */
     function magnify( rect, scale, iframe) {
+        if (!lastZoomedElement) {
+            return;
+        }
         if (!iframe) {
             iframe = {
                 iframeTopOffset: 0,
