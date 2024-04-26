@@ -181,6 +181,7 @@ This module does not send events.
 * IWB Toolbar
 * Slider
 * PieChart
+* Points and Lines
 * Editable Window
 * File Sender
 * Glossary
