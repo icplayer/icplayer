@@ -5,7 +5,10 @@ The Zoom module allows to zoom in on a lesson page (`.ic_page` element) and inte
 If the lesson page does not fit on the screen then note that the zoomed in area will also not fit on the page. 
 However, using the scroll, it will be possible to get to the specified area. For this reason, it is recommended to 
 test if the set width and height of the addon for the mobile layout is sufficient so that the user does not have to 
-scroll too much. 
+scroll too much.
+
+Addons embedded in the header and footer that need scale information (like Ordering module) will work incorrectly 
+when zoomed in by the Zoom addon (even if neither header nor footer is zoomed in).
 
 ## Requirements
 If the content of the player is scaled then to make addon work, it is necessary to set the scale information 
