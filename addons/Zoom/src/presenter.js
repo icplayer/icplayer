@@ -98,15 +98,15 @@ function AddonZoom_create() {
         const upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (!upgradedModel["mode"]) {
-            upgradedModel["mode"] = "Targeted area";
+        if (!upgradedModel["Mode"]) {
+            upgradedModel["Mode"] = "Targeted area";
         }
 
         return upgradedModel;
     };
 
     presenter.validateModel = function(model) {
-        const mode = ModelValidationUtils.validateOption(presenter.MODE, model["mode"]);
+        const mode = ModelValidationUtils.validateOption(presenter.MODE, model["Mode"]);
 
         const validatedSize = validateSizeRelativeToPageSize(mode);
         if (!validatedSize.isValid) {
