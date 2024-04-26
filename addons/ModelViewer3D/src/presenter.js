@@ -91,7 +91,6 @@ function AddonModelViewer3D_create() {
         $(presenter.modelViewer).attr("shadow-intensity", presenter.configuration.shadowIntensity);
         $(presenter.modelViewer).attr("shadow-softness", presenter.configuration.shadowSoftness);
         $(presenter.modelViewer).attr("alt", presenter.configuration.altText);
-        $(presenter.modelViewer).attr("interaction-prompt", presenter.configuration.interactionPrompt);
 
         presenter.addAttributesFromModel();
     };
