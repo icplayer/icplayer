@@ -45,12 +45,6 @@ The list starts with the common properties, learn more about them by visiting th
             </table>
         </td>
     </tr>
-    <tr>
-        <td>Speech texts</td>
-        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module 
-            in the TTS mode. Speech texts are always read using the content's default language.
-        </td>
-    </tr>
 </table>
 
 ## Supported commands
@@ -178,3 +172,15 @@ This module does not send events.
 ## Keyboard navigation
 
 * Esc – Zoom out.
+
+## Addons and functionalities without support or partial support for zoomed in area by Zoom addon
+
+* IWB Toolbar
+* Slider
+* PieChart
+* Editable Window
+* File Sender
+* Glossary
+* Open Popup Button
+* Command <a href='//www.mauthor.com/doc/en/PlayerServices/page/Player-services' target='_blank'>showPopup</a>
+* mAuthor and mCourser "Full screen" option

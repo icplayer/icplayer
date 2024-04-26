@@ -23,8 +23,8 @@
 }
 
 .zoom-wrapper.targeted-area .zoom-button-container{
-    bottom: 4px;
-    right: 4px;
+    bottom: 0px;
+    right: 0px;
 }
 
 .zoomed-area-container{

@@ -2472,8 +2472,5 @@ var ice_dictionary_fr = {
     "edit_ordered_list_type_I": "I, II, III",
     "Zoom_name": "Zoom",
     "Zoom_info": "Zoom module allows to zoom in on a lesson page and interact with modules while zoomed in.",
-	"Zoom_property_mode": "Mode",
-	"Zoom_property_speech_texts": "Speech texts",
-	"Zoom_property_speech_text_zoom_in": "Zoom in",
-	"Zoom_property_speech_text_zoom_out": "Zoom out"
+	"Zoom_property_mode": "Mode"
 };

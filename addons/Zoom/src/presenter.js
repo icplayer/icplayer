@@ -10,10 +10,6 @@ function AddonZoom_create() {
     presenter.zoomingTimeoutID = null;
 
     presenter.DEFAULT_ZOOM = 2;
-    presenter.isWCAGOn = false;
-    presenter.keyboardControllerObject = null;
-    presenter.speechTexts = null;
-
     presenter.ERROR_CODES = {
         "SIZE_1": "Addon must fit within page size limits",
     };
@@ -67,11 +63,11 @@ function AddonZoom_create() {
     };
 
     presenter.createPreview = function(view, model) {
-        presenter.presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model);
     };
 
     presenter.run = function(view, model) {
-        presenter.presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model);
         
         if (!presenter.configuration.isValid) {
             return;
@@ -80,7 +76,7 @@ function AddonZoom_create() {
         presenter.addHandlers();
     };
 
-    presenter.presenterLogic = function(view, model, isPreview) {
+    presenter.presenterLogic = function(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
 
@@ -92,14 +88,10 @@ function AddonZoom_create() {
         }
         presenter.addModeCSSClassName();
         presenter.setVisibility(presenter.configuration.isVisible);
-        if (!isPreview) {
-            presenter.setSpeechTexts(model["speechTexts"]);
-        }
     };
 
     presenter.upgradeModel = function(model) {
-        const upgradedModel = presenter.upgradeModelPropertyMode(model);
-        return presenter.upgradeModelPropertySpeechTexts(upgradedModel);
+        return presenter.upgradeModelPropertyMode(model);
     };
 
     presenter.upgradeModelPropertyMode = function(model) {
@@ -108,23 +100,6 @@ function AddonZoom_create() {
 
         if (!upgradedModel["mode"]) {
             upgradedModel["mode"] = "Targeted area";
-        }
-
-        return upgradedModel;
-    };
-
-    presenter.upgradeModelPropertySpeechTexts = function (model) {
-        const upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
-        if (!upgradedModel["speechTexts"]) {
-            upgradedModel["speechTexts"] = {};
-        }
-        if (!upgradedModel["speechTexts"]["zoomIn"]) {
-            upgradedModel["speechTexts"]["zoomIn"] = {zoomIn: ""};
-        }
-        if (!upgradedModel["speechTexts"]["zoomOut"]) {
-            upgradedModel["speechTexts"]["zoomOut"] = {zoomOut: ""};
         }
 
         return upgradedModel;
@@ -803,95 +778,6 @@ function AddonZoom_create() {
         }
 
         presenter.removeHandlers();
-    };
-
-    presenter.setSpeechTexts = function(speechTexts) {
-        presenter.speechTexts = {
-            zoomIn: presenter.DEFAULT_TTS_PHRASES.ZOOM_IN,
-            zoomOut: presenter.DEFAULT_TTS_PHRASES.ZOOM_OUT
-        };
-
-        if (!speechTexts) {
-            return;
-        }
-
-        presenter.speechTexts = {
-            zoomIn: TTSUtils.getSpeechTextProperty(
-                speechTexts.zoomIn.zoomIn,
-                presenter.speechTexts.zoomIn),
-            zoomOut: TTSUtils.getSpeechTextProperty(
-                speechTexts.zoomOut.zoomOut,
-                presenter.speechTexts.zoomOut)
-        };
-    };
-
-    presenter.keyboardController = function(keycode, isShiftDown, event) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
-    };
-
-    presenter.buildKeyboardController = function () {
-        presenter.keyboardControllerObject = new ZoomKeyboardController([], 1);
-    };
-
-    presenter.setWCAGStatus = function(isWCAGOn) {
-        presenter.isWCAGOn = isWCAGOn;
-    };
-
-    function ZoomKeyboardController (elements, columnsCount) {
-        KeyboardController.call(this, elements, columnsCount);
-        this.updateMapping();
-    }
-
-    ZoomKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
-    ZoomKeyboardController.prototype.constructor = ZoomKeyboardController;
-
-    ZoomKeyboardController.prototype.exitWCAGMode = function () {
-        KeyboardController.prototype.exitWCAGMode.call(this);
-        presenter.setWCAGStatus(false);
-    };
-
-    ZoomKeyboardController.prototype.updateMapping = function () {
-        this.mapping[window.KeyboardControllerKeys.ENTER] = this.select;
-        this.mapping[window.KeyboardControllerKeys.ARROW_UP] = this.preventDefaultEvent;
-        this.mapping[window.KeyboardControllerKeys.ARROW_DOWN] = this.preventDefaultEvent;
-        this.mapping[window.KeyboardControllerKeys.ARROW_RIGHT] = this.preventDefaultEvent;
-        this.mapping[window.KeyboardControllerKeys.ARROW_LEFT] = this.preventDefaultEvent;
-        this.mapping[window.KeyboardControllerKeys.SPACE] = this.preventDefaultEvent;
-
-        // Functionality of moving to previous/next element is handled by
-        // changeCurrentModule method of KeyboardNavigationController KeyDownHandler
-        this.mapping[window.KeyboardControllerKeys.TAB] = this.preventDefaultEvent;
-        this.shiftKeysMapping[window.KeyboardControllerKeys.TAB] = this.preventDefaultEvent;
-    };
-
-    ZoomKeyboardController.prototype.preventDefaultEvent = function (event) {
-        if (event) {
-            event.preventDefault();
-        }
-    };
-
-    ZoomKeyboardController.prototype.select = function (event) {
-        if (event) {
-            event.preventDefault();
-        }
-        if (!this.isSelectEnabled) {
-            return;
-        }
-        // TODO
-    };
-
-    presenter.speak = function (data) {
-        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts && presenter.isWCAGOn) {
-            tts.speak(data);
-        }
-    };
-
-    presenter.getTextToSpeechOrNull = function (playerController) {
-        if (playerController) {
-            return playerController.getModule('Text_To_Speech1');
-        }
-        return null;
     };
 
     return presenter;
