@@ -260,16 +260,16 @@ TestCase("[Paragraph Keyboard] Model parsing", {
         assertEquals(0, validatedModel.maxScore);
     },
 
-    'test given float as maxScore when properties set than should be parsed to valid integer': function () {
+    'test given float as maxScore when properties set than should return "MS_01" error code': function () {
         const model = {
             'ID': 'Paragraph ID',
-            'maxScore': '0.88'
+            'maxScore': '0.8'
         };
 
         const upgradedModel = this.presenter.upgradeModel(model);
         const validatedModel = this.presenter.parseModel(upgradedModel);
 
-        assertEquals(0, validatedModel.maxScore);
+        assertEquals("MS_01", validatedModel.error);
     },
 
     'test given random string as maxScore when properties set than should return "MS_01" error code': function () {

@@ -205,6 +205,9 @@ function AddonParagraph_Keyboard_create() {
         if (validatedMaxScore.value < 0) {
             return { error: "MS_01" };
         }
+         if (("" + validatedMaxScore.value).length !== maxScore.length) {
+             return { error: "MS_01" };
+         }
         return validatedMaxScore;
     };
 

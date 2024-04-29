@@ -479,6 +479,9 @@ function AddonParagraph_create() {
          if (validatedMaxScore.value < 0) {
             return { isError: true, errorCode: "MS_01" };
          }
+         if (("" + validatedMaxScore.value).length !== maxScore.length) {
+             return { isError: true, errorCode: "MS_01" };
+         }
          return validatedMaxScore;
      };
 
