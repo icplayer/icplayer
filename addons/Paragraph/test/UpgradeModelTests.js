@@ -11,6 +11,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.upgradeLangTagStub = sinon.stub(this.presenter, 'upgradeLangTag');
         this.upgradeSpeechTextsStub = sinon.stub(this.presenter, 'upgradeSpeechTexts');
         this.upgradeBlockInErrorCheckingModeStub = sinon.stub(this.presenter, 'upgradeBlockInErrorCheckingMode');
+        this.upgradeMaxScoreStub = sinon.stub(this.presenter, 'upgradeMaxScore');
     },
 
     tearDown: function () {
@@ -22,6 +23,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter.upgradeLangTag.restore();
         this.presenter.upgradeSpeechTexts.restore();
         this.presenter.upgradeBlockInErrorCheckingMode.restore();
+        this.presenter.upgradeMaxScore.restore();
     },
 
     'test upgrade model': function () {
@@ -36,6 +38,7 @@ TestCase("[Paragraph] Upgrade model", {
         assertTrue(this.upgradeLangTagStub.calledOnce);
         assertTrue(this.upgradeSpeechTextsStub.calledOnce);
         assertTrue(this.upgradeBlockInErrorCheckingModeStub.calledOnce);
+        assertTrue(this.upgradeMaxScoreStub.calledOnce);
     }
 });
 
@@ -258,4 +261,31 @@ TestCase("[Paragraph] Upgrade model with Block in error checking mode", {
 
         assertEquals("True", upgradedModel["Block in error checking mode"]);
     },
+});
+
+TestCase("[Paragraph] Upgrading maxScore property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test when model has maxScore property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "maxScore": "1"
+        };
+
+        var upgradedModel = this.presenter.upgradeMaxScore(model);
+
+        assertEquals("1", upgradedModel["maxScore"]);
+    },
+
+    'test when model has no maxScore property then maxScore should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeMaxScore(model);
+
+        assertEquals("", upgradedModel["maxScore"]);
+    }
 });

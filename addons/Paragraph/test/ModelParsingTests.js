@@ -178,6 +178,66 @@ TestCase("[Paragraph] Model parsing", {
 
         assertEquals(true, validatedModel.isBlockedInErrorCheckingMode);
     },
+
+    'test given positive number as maxScore when properties set than should be parsed to valid integer': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'maxScore': '10'
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals(10, validatedModel.maxScore);
+    },
+
+    'test given zero as maxScore when properties set than should be parsed to valid integer': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'maxScore': '0'
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals(0, validatedModel.maxScore);
+    },
+
+    'test given float as maxScore when properties set than should be parsed to valid integer': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'maxScore': '0.88'
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals(0, validatedModel.maxScore);
+    },
+
+    'test given random string as maxScore when properties set than should return "MS_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'maxScore': 'Lorem'
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals("MS_01", validatedModel.errorCode);
+    },
+
+    'test given negative number as maxScore when properties set than should return "MS_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'maxScore': '-1'
+        };
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals("MS_01", validatedModel.errorCode);
+    },
 });
 
 TestCase("[Paragraph] ToolbarValidation", {

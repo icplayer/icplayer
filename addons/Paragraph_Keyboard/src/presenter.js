@@ -35,7 +35,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.',
-        'weightError' : 'Weight must be a positive number between 0 and 100'
+        'weightError' : 'Weight must be a positive number between 0 and 100',
+        'MS_01' : 'Max score must be a positive number, 0 or left empty',
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -193,6 +194,20 @@ function AddonParagraph_Keyboard_create() {
         presenter.isLocked = false;
     };
 
+    presenter.validateMaxScore = function (maxScore) {
+        if (ModelValidationUtils.isStringEmpty(maxScore)) {
+            return { isValid: true, value: 0};
+        }
+        const validatedMaxScore = ModelValidationUtils.validateInteger(maxScore);
+        if (!validatedMaxScore.isValid) {
+            return { error: "MS_01"};
+        }
+        if (validatedMaxScore.value < 0) {
+            return { error: "MS_01" };
+        }
+        return validatedMaxScore;
+    };
+
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
         if (!controls) {
             controls = presenter.DEFAULTS.TOOLBAR;
@@ -323,7 +338,8 @@ function AddonParagraph_Keyboard_create() {
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
             weight = model['Weight'],
-            modelAnswer = model['Show Answers'];
+            modelAnswer = model['Show Answers'],
+            maxScore = model["maxScore"];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -356,6 +372,11 @@ function AddonParagraph_Keyboard_create() {
 
         if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
             return {error: 'weightError'}
+        }
+
+        const validatedMaxScore = presenter.validateMaxScore(maxScore);
+        if (validatedMaxScore.error) {
+            return validatedMaxScore;
         }
 
         var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
@@ -391,7 +412,8 @@ function AddonParagraph_Keyboard_create() {
             manualGrading: manualGrading,
             title: title,
             weight: weight,
-            modelAnswer: modelAnswer
+            modelAnswer: modelAnswer,
+            maxScore: validatedMaxScore.value
         };
     };
 
@@ -432,7 +454,7 @@ function AddonParagraph_Keyboard_create() {
         upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         upgradedModel = presenter.upgradePlaceholderText(upgradedModel);
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
-        return upgradedModel;
+        return presenter.upgradeMaxScore(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -457,6 +479,10 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.upgradeModelAnswer = function (model) {
         return presenter.upgradeAttribute(model, "Show Answers", "");
+    };
+
+    presenter.upgradeMaxScore = function (model) {
+        return presenter.upgradeAttribute(model, "maxScore", "");
     };
 
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
@@ -1185,6 +1211,10 @@ function AddonParagraph_Keyboard_create() {
         if (presenter.configuration.isPlaceholderSet) {
             presenter.placeholder.setPlaceholderAfterEditorChange();
         }
+    };
+
+    presenter.getMaxScore = function () {
+        return presenter.configuration.error ? 0 : presenter.configuration.maxScore;
     };
 
     return presenter;

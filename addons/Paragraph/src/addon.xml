@@ -51,5 +51,6 @@
 		</property>
 		<property displayName="Lang attribute" name="langAttribute" nameLabel="Paragraph_property_lang_attribute" type="string"/>
 		<property name="Block in error checking mode" nameLabel="Paragraph_property_block_in_error_checking_mode" type="boolean" />
+        <property name="maxScore" nameLabel="Paragraph_property_max_score" type="string" />
 	</model>
 </addon>

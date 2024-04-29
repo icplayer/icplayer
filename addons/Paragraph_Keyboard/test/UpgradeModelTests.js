@@ -8,6 +8,7 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
         this.upgradeModelAnswerStub = sinon.stub(this.presenter, 'upgradeModelAnswer');
         this.upgradePlaceholderTextStub = sinon.stub(this.presenter, 'upgradePlaceholderText');
         this.upgradeEditablePlaceholderStub = sinon.stub(this.presenter, 'upgradeEditablePlaceholder');
+        this.upgradeMaxScoreStub = sinon.stub(this.presenter, 'upgradeMaxScore');
     },
 
     tearDown: function () {
@@ -17,17 +18,19 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
         this.presenter.upgradeModelAnswer.restore();
         this.presenter.upgradePlaceholderText.restore();
         this.presenter.upgradeEditablePlaceholder.restore();
+        this.presenter.upgradeMaxScore.restore();
     },
 
     'test upgrade model': function () {
         this.presenter.upgradeModel({});
 
-        assertTrue(this.upgradeTitleStub.called);
-        assertTrue(this.upgradeManualGradingStub.called);
-        assertTrue(this.upgradeWeightStub.called);
-        assertTrue(this.upgradeModelAnswerStub.called);
-        assertTrue(this.upgradePlaceholderTextStub.called);
-        assertTrue(this.upgradeEditablePlaceholderStub.called);
+        assertTrue(this.upgradeTitleStub.calledOnce);
+        assertTrue(this.upgradeManualGradingStub.calledOnce);
+        assertTrue(this.upgradeWeightStub.calledOnce);
+        assertTrue(this.upgradeModelAnswerStub.calledOnce);
+        assertTrue(this.upgradePlaceholderTextStub.calledOnce);
+        assertTrue(this.upgradeEditablePlaceholderStub.calledOnce);
+        assertTrue(this.upgradeMaxScoreStub.calledOnce);
     }
 });
 
@@ -105,5 +108,32 @@ TestCase("[Paragraph Keyboard] Upgrading weight property", {
         var upgradedModel = this.presenter.upgradeWeight(model);
 
         assertEquals("", upgradedModel["Weight"]);
+    }
+});
+
+TestCase("[Paragraph Keyboard] Upgrading maxScore property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_Keyboard_create();
+    },
+
+    'test when model has maxScore property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "maxScore": "1"
+        };
+
+        var upgradedModel = this.presenter.upgradeMaxScore(model);
+
+        assertEquals("1", upgradedModel["maxScore"]);
+    },
+
+    'test when model has no maxScore property then maxScore should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeMaxScore(model);
+
+        assertEquals("", upgradedModel["maxScore"]);
     }
 });

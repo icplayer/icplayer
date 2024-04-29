@@ -44,7 +44,8 @@ function AddonParagraph_create() {
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
 
     presenter.ERROR_CODES = {
-        'W_01': 'Weight must be a positive number between 0 and 100'
+        'W_01': 'Weight must be a positive number between 0 and 100',
+        'MS_01': 'Max score must be a positive number, 0 or left empty'
     };
 
     presenter.TOOLBAR_ARIAS = {
@@ -465,7 +466,21 @@ function AddonParagraph_create() {
          }
 
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
-    };
+     };
+
+     presenter.validateMaxScore = function (maxScore) {
+         if (ModelValidationUtils.isStringEmpty(maxScore)) {
+             return {isError: false, value: 0};
+         }
+         const validatedMaxScore = ModelValidationUtils.validateInteger(maxScore);
+         if (!validatedMaxScore.isValid) {
+             return {isError: true, errorCode: "MS_01"};
+         }
+         if (validatedMaxScore.value < 0) {
+            return { isError: true, errorCode: "MS_01" };
+         }
+         return validatedMaxScore;
+     };
 
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
         if (!controls) {
@@ -535,7 +550,8 @@ function AddonParagraph_create() {
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
             weight = model['Weight'],
-            modelAnswer = model['Show Answers'];
+            modelAnswer = model['Show Answers'],
+            maxScore = model["maxScore"];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -549,6 +565,11 @@ function AddonParagraph_create() {
 
         if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
             return {isError: true, errorCode: 'W_01'}
+        }
+
+        const validatedMaxScore = presenter.validateMaxScore(maxScore);
+        if (validatedMaxScore.isError) {
+            return validatedMaxScore;
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -578,6 +599,7 @@ function AddonParagraph_create() {
             modelAnswer: modelAnswer,
             langTag: model["langAttribute"],
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
+            maxScore: validatedMaxScore.value
         };
     };
 
@@ -611,7 +633,8 @@ function AddonParagraph_create() {
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeBlockInErrorCheckingMode(upgradedModel);
-        return presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        return presenter.upgradeMaxScore(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -689,6 +712,10 @@ function AddonParagraph_create() {
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeMaxScore = function (model) {
+        return presenter.upgradeAttribute(model, "maxScore", "");
     };
 
     presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
@@ -1384,6 +1411,10 @@ function AddonParagraph_create() {
             }
         });
         return answersCount;
+    };
+
+    presenter.getMaxScore = function () {
+        return presenter.configuration.isError ? 0 : presenter.configuration.maxScore;
     };
 
     return presenter;
