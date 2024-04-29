@@ -10,6 +10,8 @@ scroll too much.
 Addons embedded in the header and footer that need scale information (like Ordering module) will work incorrectly 
 when zoomed in by the Zoom addon (even if neither header nor footer is zoomed in).
 
+Addon must not be placed in the header or footer to work properly.
+
 ## Requirements
 If the content of the player is scaled then to make addon work, it is necessary to set the scale information 
 using the `player.setScaleInformation` command. 
