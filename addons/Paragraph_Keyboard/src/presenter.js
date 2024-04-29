@@ -36,7 +36,7 @@ function AddonParagraph_Keyboard_create() {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.',
         'weightError' : 'Weight must be a positive number between 0 and 100',
-        'MS_01' : 'Max score must be a positive number, 0 or left empty',
+        'MS_01' : 'Max score must be a whole number or left empty',
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {

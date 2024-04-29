@@ -45,7 +45,7 @@ function AddonParagraph_create() {
 
     presenter.ERROR_CODES = {
         'W_01': 'Weight must be a positive number between 0 and 100',
-        'MS_01': 'Max score must be a positive number, 0 or left empty'
+        'MS_01': 'Max score must be a whole number or left empty'
     };
 
     presenter.TOOLBAR_ARIAS = {
