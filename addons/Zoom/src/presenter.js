@@ -150,6 +150,9 @@ function AddonZoom_create() {
 
     presenter.addModeCSSClassName = function () {
         const zoomWrapper = findInView(presenter.CSS_CLASSES.ZOOM_WRAPPER);
+        if (!zoomWrapper) {
+            return;
+        }
         const modeCSSClassName = isTargetedAreaModeActive()
             ? presenter.CSS_CLASSES.TARGETED_AREA
             : presenter.CSS_CLASSES.AREA_AROUND_CLICKED_POINT;
@@ -190,7 +193,7 @@ function AddonZoom_create() {
     };
 
     presenter.addHandlers = function () {
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.view.addEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (isTargetedAreaModeActive()) {
             if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
                 addMouseOverZoomButtonListener();
@@ -202,7 +205,7 @@ function AddonZoom_create() {
     };
 
     presenter.removeHandlers = function () {
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.view.removeEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (!isTargetedAreaModeActive()) {
             findPage().removeEventListener("click", presenter.pageCallback);
         }
