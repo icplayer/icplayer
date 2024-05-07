@@ -1,0 +1,39 @@
+.geometric_construct_wrapper {
+    height: 100%;
+    display: flex;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper {
+    display: flex;
+    height: 100%;
+    flex-wrap: wrap;
+}
+
+.geometric_construct_wrapper .workspace_wrapper {
+    display: inline-block;
+    height: 100%;
+    flex-grow: 1;
+    border: 1px solid;
+    position: relative;
+}
+
+.geometric_construct_wrapper .workspace_wrapper canvas {
+    height: 100%;
+    width: 100%;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
+    display: inline-block;
+    width: 50px;
+    height: 80px;
+    margin: 10px 5px 5px 5px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .toolbar-button-label {
+    text-align: center;
+    font-size: 0.7em;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton.selected {
+    border: 1px solid blue;
+}

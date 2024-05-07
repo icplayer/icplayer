@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -60,6 +61,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		this.isPreview = isPreview;
 		createUI(isPreview);
 		mathJaxLoaded();
+		JavaScriptUtils.log("Geometric Construct 6");
 	}
 
 	@Override

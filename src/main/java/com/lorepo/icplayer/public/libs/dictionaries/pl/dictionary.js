@@ -2468,5 +2468,7 @@ var ice_dictionary_pl = {
     "edit_ordered_list_type_a": "a, b, c",
     "edit_ordered_list_type_A": "A, B, C",
     "edit_ordered_list_type_i": "i, ii, iii",
-    "edit_ordered_list_type_I": "I, II, III"
+    "edit_ordered_list_type_I": "I, II, III",
+    "GeometricConstruct_name" : "Geometric Construct",
+    "GeometricConstruct_info" : "GeometricConstruct info placeholder TODO"
 };
