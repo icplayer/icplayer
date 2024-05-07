@@ -89,7 +89,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Max score</td>
-        <td>The maximum score that can be awarded in this addon. It is accepted to leave the field blank (equivalent to 0) or provide a whole numbers.</td>
+        <td>The maximum score that can be awarded in this addon. It is accepted to leave the field blank (equivalent to 0) or provide a whole number.</td>
     </tr>
 </table>
 
