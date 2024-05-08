@@ -1,5 +1,5 @@
 function AddonModelViewer3D_create() {
-
+    // to create version on mauthor-dev use storage.googleapis URL
     var presenter = function() {};
 
     presenter.wasInitiated = false;

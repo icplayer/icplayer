@@ -16,6 +16,6 @@
         <property name="attributes" nameLabel="Model_Viewer_attributes" type="text"/>
         <property name="copyInfo" nameLabel="Model_Viewer_copyInfo" type="html"/>
         <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="boolean" value="True"/>
-        <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/4870371301916673"/>
+        <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/5059308589809664"/>
     </model>
 </addon>
