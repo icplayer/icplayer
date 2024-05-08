@@ -1,5 +1,5 @@
 function AddonModelViewer3D_create() {
-    // the use storage.googleapis for model-viewer library allows you to create versions for mauthor-dev, mauthor and for use on external LMS
+    // to create version on mauthor-dev use storage.googleapis URL
     var presenter = function() {};
 
     presenter.wasInitiated = false;
