@@ -1,0 +1,142 @@
+.md-webcam {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+model-viewer {
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    background-color: transparent !important;
+}
+
+model-viewer::part(default-progress-bar) {
+    background-color: #2196F3;
+}
+
+.buttonsContainer {
+    position: absolute;
+    top: 25px;
+    left: auto;
+    right: 25px;
+}
+
+.copyButton {
+    position: absolute;
+}
+
+.copyMessage {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 75px;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.copyMessage-visible {
+    display: block;
+}
+
+.copyContainer {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin: -170px 0 0 -300px;
+    padding: 40px;
+    text-align: center;
+    width: 520px;
+    height: auto;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 3px 5px 1px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.copyButton,
+.labelsButton {
+    width: 75px;
+    height: 50px;
+    background-color: #78909C;
+    margin-bottom: 10px;
+}
+
+.copyButton-selected,
+.labelsButton-selected {
+    background-color: #0A8DBD;
+}
+
+.Hotspot {
+    background: #fff;
+    border-radius: 32px;
+    border: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 24px;
+    padding: 8px;
+    position: relative;
+    transition: opacity 0.3s;
+    width: 24px;
+}
+
+.Hotspot:not([data-visible]) {
+    background: transparent;
+    border: 4px solid #fff;
+    box-shadow: none;
+    height: 32px;
+    pointer-events: none;
+    width: 32px;
+}
+
+.Hotspot:focus {
+    border: 4px solid rgb(0, 128, 200);
+    height: 32px;
+    outline: none;
+    width: 32px;
+}
+
+.Hotspot > * {
+    opacity: 1;
+    transform: translateY(-50%);
+}
+
+.HotspotAnnotation {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    color: rgba(0, 0, 0, 0.8);
+    display: block;
+    font-family: Futura, Helvetica Neue, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    left: calc(100% + 1em);
+    max-width: 200px;
+    overflow-wrap: break-word;
+    padding: 0.5em 1em;
+    position: absolute;
+    top: 50%;
+    width: max-content;
+}
+
+.Hotspot:not([data-visible]) > * {
+    opacity: 0.5;
+    pointer-events: none;
+    transform: translateY(calc(-50% + 4px));
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.hidden {
+    visibility: hidden
+}
+
+.error {
+    text-align: center;
+    color: red;
+}

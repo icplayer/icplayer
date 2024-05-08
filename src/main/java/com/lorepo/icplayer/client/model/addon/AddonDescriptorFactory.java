@@ -120,6 +120,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Line", "media_menu");
 		addDescriptor("LottiePlayer", "media_menu");
 		addDescriptor("MultiAudio", "media_menu");
+		addDescriptor("ModelViewer3D", "media_menu");
 		addDescriptor("Shape_Tracing", "media_menu");
 		addDescriptor("Slideshow", "media_menu");
 		addDescriptor("Standard_Shapes", "media_menu");
