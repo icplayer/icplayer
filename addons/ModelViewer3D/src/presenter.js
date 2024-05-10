@@ -309,10 +309,10 @@ function AddonModelViewer3D_create() {
 
     presenter.handleAnimationState = function (state) {
         $(presenter.modelViewer).attr("animation-name", state.selectedAnimation);
-        presenter.jumpTo(state.animationTime);
 
         setTimeout(function () {
             state.isPlaying ? presenter.play() : presenter.pause();
+            presenter.jumpTo(state.animationTime);
         }, 100);
     };
 
