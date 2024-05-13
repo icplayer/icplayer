@@ -72,6 +72,7 @@ Math
 Maze
 Media_Recorder
 MenuPanel
+ModelViewer3D
 MultiAudio
 Multiple_Audio_Controls_Binder
 multiplegap
@@ -124,5 +125,6 @@ Vimeo
 Visual_Feedback_Creator
 WritingCalculations
 YouTube_Addon
+Zoom
 Zoom_Image
 MathText
