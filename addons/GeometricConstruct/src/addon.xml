@@ -2,6 +2,7 @@
 
 <addon id='GeometricConstruct'>
 	<model>
-
+		<property name="stroke color" nameLabel="GeometricConstruct_property_stroke_color" type="string"/>
+		<property name="fill color" nameLabel="GeometricConstruct_property_fill_color" type="string"/>
 	</model>
 </addon>

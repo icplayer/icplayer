@@ -4,6 +4,11 @@ function AddonGeometricConstruct_create() {
     presenter.pointsList = [];
     presenter.figuresList = [];
     presenter.newFigure = null;
+    presenter.editFigure = null;
+    presenter.isEditMode = false;
+    presenter.isDragging = false;
+
+    presenter.playerController = null;
 
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model, true);
@@ -14,17 +19,29 @@ function AddonGeometricConstruct_create() {
     };
 
     function presenterLogic(view, model, isPreview) {
-        console.log("Geometric construct test");
-        console.log(view);
-        console.log(model);
         presenter.configuration = presenter.validateModel(model);
         presenter.setElements(view);
         presenter.createView(isPreview);
     }
 
+    presenter.show = function() {
+        presenter.$view.css('visibility', '');
+        presenter.$view.css('display', '');
+    }
+
+    presenter.hide = function() {
+        presenter.$view.css('visibility', 'hidden');
+        presenter.$view.css('display', 'none');
+    }
+
     presenter.validateModel = function (model) {
+        var strokeColor = "black";
+        if (model["stroke color"] && model["stroke color"].trim().length > 0) strokeColor = model["stroke color"];
+        var fillColor = "blue";
+        if (model["fill color"] && model["fill color"].trim().length > 0) fillColor = model["fill color"];
         return {
-            toolbarWidth: 220
+            fillColor: fillColor,
+            strokeColor: strokeColor
         };
     }
 
@@ -37,25 +54,34 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createView = function(isPreview) {
-        presenter.setDimensions();
-        presenter.createWorkspace();
+        presenter.createWorkspace(isPreview);
         presenter.createToolbar();
     };
 
-    presenter.setDimensions = function() {
-        presenter.$toolbarWrapper.css('width', presenter.configuration.toolbarWidth + 'px');
-    };
-
-    presenter.createWorkspace = function() {
+    presenter.createWorkspace = function(isPreview) {
         presenter.canvas = document.createElement("canvas");
         presenter.$canvas = $(presenter.canvas);
         var rect = presenter.workspaceWrapper.getBoundingClientRect();
         presenter.canvas.setAttribute('width', rect.width);
         presenter.canvas.setAttribute('height', rect.height);
         presenter.context = presenter.canvas.getContext("2d");
-        presenter.$workspaceWrapper.append(presenter.canvas);
+        presenter.$workspaceWrapper.prepend(presenter.canvas);
         presenter.canvasRect = presenter.canvas.getBoundingClientRect();
-        presenter.$canvas.click(canvasOnClickHandler);
+        if (!isPreview) {
+            presenter.$canvasOverlay = presenter.$workspaceWrapper.find(".canvas_overlay");
+            presenter.$canvasOverlay.on('mousedown', canvasOnMouseDownHandler);
+            presenter.$canvasOverlay.on('touchstart', canvasOnMouseDownHandler);
+            presenter.$canvasOverlay.on('mousemove', canvasOnMouseMoveHandler);
+            presenter.$canvasOverlay.on('touchmove', canvasOnMouseMoveHandler);
+            presenter.$canvasOverlay.on('mouseup', canvasOnMouseUpHandler);
+            presenter.$canvasOverlay.on('touchend', canvasOnMouseUpHandler);
+        }
+
+        presenter.$removeFigure = presenter.$workspaceWrapper.find(".remove_figure");
+        presenter.$removeFigure.css('display', 'none');
+        if (!isPreview) {
+            presenter.$removeFigure.on('click', removeFigureOnClickHandler);
+        }
     };
 
     presenter.clearCanvas = function () {
@@ -77,25 +103,94 @@ function AddonGeometricConstruct_create() {
         }
     };
 
-    function canvasOnClickHandler (e) {
-        console.log("canvas onlick");
+    function canvasOnMouseDownHandler (e) {
         var location = getCanvasEventLocation(e);
         if (presenter.newFigure != null) {
-            presenter.newFigure.clickHandler(e);
+            presenter.newFigure.insertClickHandler(e);
+            presenter.redrawCanvas();
+        } else if (presenter.isEditMode) {
+            var selectedFigure = null;
+            for (var i = 0; i < presenter.figuresList.length; i++) {
+                var figure = presenter.figuresList[i];
+                if (figure.isClicked(e)) {
+                    selectedFigure = figure;
+                    break;
+                }
+            }
+            if (selectedFigure != null || presenter.editFigure != null) {
+                if (selectedFigure != null) {
+                    if (presenter.editFigure != selectedFigure) {
+                        presenter.clearFigureSelection();
+                        presenter.editFigure = selectedFigure;
+                        presenter.editFigure.setSelected(true);
+                        presenter.$removeFigure.css('display', '');
+                    }
+                } else {
+                    presenter.clearFigureSelection();
+                    presenter.editFigure = null;
+                }
+                presenter.isDragging = true;
+            }
+            presenter.redrawCanvas();
         }
     };
 
+    function canvasOnMouseMoveHandler (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (presenter.isEditMode && presenter.isDragging && presenter.editFigure != null) {
+            presenter.editFigure.moveHandler(e);
+            presenter.redrawCanvas();
+        }
+    }
+
+    function canvasOnMouseUpHandler (e) {
+        if (presenter.isEditMode && presenter.isDragging) {
+            presenter.isDragging = false;
+        }
+    }
+
+    function removeFigureOnClickHandler (e) {
+        if (presenter.editFigure != null) {
+            presenter.editFigure.remove();
+            presenter.editFigure = null;
+            presenter.redrawCanvas();
+            presenter.updateLabels();
+            presenter.$removeFigure.css('display', 'none');
+        }
+    }
+
+    presenter.updateLabels = function() {
+        for (var i = 0; i < presenter.figuresList.length; i++) {
+            presenter.figuresList[i].updateLabel();
+        }
+    }
+
     function getCanvasEventLocation (e) {
+        var scale = {scaleX: 1.0, scaleY: 1.0};
+        if (presenter.playerController) {
+            scale = presenter.playerController.getScaleInformation();
+        }
+        var pageX = 0;
+        var pageY = 0;
+        if (e.type == "mousedown" || e.type == "mousemove" || e.type == "mouseup") {
+            pageX = e.pageX;
+            pageY = e.pageY;
+        } else if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 0) {
+            var touch = e.originalEvent.touches[0];
+            pageX = touch.pageX;
+            pageY = touch.pageY;
+        }
         return {
-            x: e.pageX - presenter.$canvas.offset().left,
-            y: e.pageY - presenter.$canvas.offset().top
+            x: (pageX - presenter.$canvas.offset().left) / scale.scaleX,
+            y: (pageY - presenter.$canvas.offset().top) / scale.scaleY
         };
     }
 
     presenter.createToolbar = function() {
-        presenter.createToolbarButton("Cursor", $("<div></div>")[0], () => {
-            console.log("Edit mode");
-        });
+        presenter.createToolbarButton("Cursor", $("<div class='cursor-image'></div>")[0], () => {
+            presenter.setEditMode(true);
+        }, ()=>{});
         presenter.createGeometricElementButton("Point", Point);
 
     };
@@ -121,6 +216,18 @@ function AddonGeometricConstruct_create() {
         presenter.$toolbarWrapper.find('.selected').removeClass('selected');
     };
 
+    presenter.setEditMode = function(isEditMode) {
+        presenter.editFigure = null;
+        presenter.clearFigureSelection();
+        presenter.isDragging = false;
+        presenter.isEditMode = isEditMode;
+    }
+
+    presenter.clearFigureSelection = function() {
+        for (var i = 0; i < presenter.figuresList.length; i++) presenter.figuresList[i].setSelected(false);
+        presenter.$removeFigure.css('display', 'none');
+    }
+
     class GeometricElement {
 
         constructor(){}
@@ -145,8 +252,32 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.remove is abstract but has not been implemented");
         }
 
-        clickHandler(event) {
-            throw new Error("GeometricElement.clickHandler is abstract but has not been implemented");
+        insertClickHandler(event) {
+            throw new Error("GeometricElement.insertClickHandler is abstract but has not been implemented");
+        }
+
+        moveHandler(event) {
+            throw new Error("GeometricElement.moveHandler is abstract but has not been implemented");
+        }
+
+        isClicked(event) {
+            throw new Error("GeometricElement.isClicked is abstract but has not been implemented");
+        }
+
+        addLabel() {
+            throw new Error("GeometricElement.addLabel is abstract but has not been implemented");
+        }
+
+        updateLabel() {
+            throw new Error("GeometricElement.updateLabel is abstract but has not been implemented");
+        }
+
+        hideLabel() {
+            throw new Error("GeometricElement.hideLabel is abstract but has not been implemented");
+        }
+
+        setSelected() {
+            throw new Error("GeometricElement.setSelected is abstract but has not been implemented");
         }
 
         toJSON() {
@@ -165,6 +296,7 @@ function AddonGeometricConstruct_create() {
         y;
         $label;
         isRoot = true;
+        isSelected = false;
 
         constructor() {
             super();
@@ -190,28 +322,39 @@ function AddonGeometricConstruct_create() {
             if (figuresIndex != -1) {
                 presenter.figuresList.splice(figuresIndex, 1);
             }
+            this.removeLabel();
         }
 
-        clickHandler(e) {
+        insertClickHandler(e) {
             if (presenter.newFigure == this) {
                 var location = getCanvasEventLocation(e);
                 this.x = location.x;
                 this.y = location.y;
                 this.append();
                 presenter.endInsert(false);
-                presenter.redrawCanvas();
-                console.log(this.toJSON());
             }
+        }
+
+        moveHandler(e) {
+            var location = getCanvasEventLocation(e);
+            this.x = location.x;
+            this.y = location.y;
+            if (this.$label) this.addLabel();
+        }
+
+        isClicked(e) {
+            var location = getCanvasEventLocation(e);
+            return Math.abs(location.x - this.x) < 10 && Math.abs(location.y - this.y) < 10;
         }
 
         draw() {
             if (this.x == null || this.y == null) return;
-            Point.drawPoint(presenter.context, this.x, this.y, false);
+            Point.drawPoint(presenter.context, this.x, this.y, this.isSelected);
         }
 
         static drawPoint(context, x, y, isSelected) {
-            context.fillStyle = "#8888FF";
-            context.strokeStyle = "#000000";
+            context.fillStyle = presenter.configuration.fillColor;
+            context.strokeStyle = presenter.configuration.strokeColor;
             context.beginPath();
             context.arc(x, y, 4, 0, 2 * Math.PI);
             context.fill();
@@ -219,7 +362,6 @@ function AddonGeometricConstruct_create() {
             context.closePath();
             if (isSelected) {
                 context.beginPath();
-                context.strokeStyle = "#8888FF";
                 context.arc(x, y, 8, 0, 2 * Math.PI);
                 context.stroke();
                 context.closePath();
@@ -228,10 +370,10 @@ function AddonGeometricConstruct_create() {
 
         static getIcon() {
             var canvas = document.createElement("canvas");
-            canvas.setAttribute("width", '50px');
-            canvas.setAttribute("height", '50px');
+            canvas.setAttribute("width", '40px');
+            canvas.setAttribute("height", '40px');
             var ctx = canvas.getContext("2d");
-            Point.drawPoint(ctx, 25, 25, true);
+            Point.drawPoint(ctx, 20, 20, false);
             return canvas;
         }
 
@@ -241,12 +383,24 @@ function AddonGeometricConstruct_create() {
                 this.$label = $('<div></div>');
                 this.$label.addClass('geometricConstructLabel');
                 this.$label.css('position', 'absolute');
-                presenter.$workspaceWrapper.append(this.$label);
+                this.$label.insertBefore(presenter.$canvasOverlay);
+                this.$label.html(presenter.getLabel(this));
             }
-            this.$label.html(presenter.getLabel(this));
             this.$label.css('top', 'calc(' + (this.y) +'px - 1em)');
             this.$label.css('left', (this.x+5)+'px');
         };
+
+        updateLabel() {
+            this.$label.html(presenter.getLabel(this));
+            this.$label.css('top', 'calc(' + (this.y) +'px - 1em)');
+            this.$label.css('left', (this.x+5)+'px');
+        }
+
+        hideLabel() {
+            if (!this.$label) {
+                !this.$label.css('display', 'none');
+            }
+        }
 
         removeLabel() {
             if (this.$label) {
@@ -254,6 +408,10 @@ function AddonGeometricConstruct_create() {
                 this.$label = null;
             }
         };
+
+        setSelected(isSelected) {
+            this.isSelected = isSelected;
+        }
 
         toJSON() {
             if (this.x == null || this.y == null) return null;
@@ -267,20 +425,14 @@ function AddonGeometricConstruct_create() {
         }
 
         loadJSON(json) {
-            console.log("loadJSON");
-            console.log(json);
             if (json.type != Point.TYPE) return;
             this.x = json.state.x;
             this.y = json.state.y;
-            console.log("loadJSON Done");
         }
 
     }
 
     presenter.createGeometricElementButton = function(name, _class) {
-        console.log("createGeometricElementButton 5");
-        console.log(name);
-        console.log(_class);
         presenter.createToolbarButton(name, _class.getIcon(), () => {
             presenter.newFigure = new _class();
         },
@@ -288,7 +440,6 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbarButton = function(name, icon, selectedCallback, deselectedCallback) {
-        console.log("createToolbarButton");
         var element = $('<div></div>');
         element.append($(icon));
         element.append("<div class='toolbar-button-label'>"+name+"</div>");
@@ -296,12 +447,14 @@ function AddonGeometricConstruct_create() {
         element.click((e) => {
             var isSelected = element.hasClass('selected');
             presenter.endInsert(true);
+            presenter.setEditMode(false);
             if (!isSelected) {
                 selectedCallback();
                 element.addClass('selected');
             } else {
                 deselectedCallback();
             }
+            presenter.redrawCanvas();
         });
         presenter.$toolbarWrapper.append(element);
     }
@@ -325,7 +478,6 @@ function AddonGeometricConstruct_create() {
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             state.figures.push(presenter.figuresList[i].toJSON());
         }
-        console.log(state);
         return JSON.stringify(state);
     }
 
@@ -344,6 +496,11 @@ function AddonGeometricConstruct_create() {
             }
         }
         presenter.redrawCanvas();
+    }
+
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+
     }
 
     return presenter;

@@ -2471,5 +2471,7 @@ var ice_dictionary_fr = {
     "edit_ordered_list_type_i": "i, ii, iii",
     "edit_ordered_list_type_I": "I, II, III",
     "GeometricConstruct_name" : "Geometric Construct",
-    "GeometricConstruct_info" : "GeometricConstruct info placeholder TODO"
+    "GeometricConstruct_info" : "The Geometric Construct addon allows the user to create, move, edit and remove geometric figures within a workspace.",
+    "GeometricConstruct_property_stroke_color": "Stroke color",
+    "GeometricConstruct_property_fill_color": "Fill color"
 };

@@ -6,6 +6,7 @@
 .geometric_construct_wrapper .toolbar_wrapper {
     display: flex;
     height: 100%;
+    width: 220px;
     flex-wrap: wrap;
 }
 
@@ -22,11 +23,47 @@
     width: 100%;
 }
 
+.geometric_construct_wrapper .workspace_wrapper .canvas_overlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .remove_figure {
+    display: block;
+    height: 35px;
+    width: 30px;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: url('resources/delete_24dp.svg') no-repeat center;
+    background-size: 40px;
+}
+
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
     display: inline-block;
-    width: 50px;
+    max-width: 100px;
     height: 80px;
     margin: 10px 5px 5px 5px;
+    padding: 5px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .cursor-image {
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    background: url('resources/pan_tool_alt_24dp.svg') no-repeat center;
+    background-size: 30px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .toolbar-button-label {
@@ -35,5 +72,5 @@
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton.selected {
-    border: 1px solid blue;
+    border: 1px solid;
 }
