@@ -13,6 +13,7 @@
         <property name="HidePrevNext" displayName="Hide Previous and Next Buttons" nameLabel="FlashCards_property_Hide_Previous_and_Next_Buttons" type="boolean"/>
         <property name="ShowButtons" displayName="Show Activity Buttons" nameLabel="FlashCards_property_Show_Activity_Buttons" type="boolean"/>
         <property name="IsActivity" displayName="Is Activity" nameLabel="FlashCards_property_Is_Activity" type="boolean"/>
+        <property name="sendEventOnCardChanged" displayName="Send event only on card changed" nameLabel="FlashCards_property_eventOnCardChanged" type="boolean"/>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="FlashCards_property_lang_attribute" type="string" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="FlashCards_property_speech_texts" type="staticlist">
 

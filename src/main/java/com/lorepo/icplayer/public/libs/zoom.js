@@ -14,6 +14,9 @@
  *
  * Modified by Maciej Zawlocki:
  * - fixed issue with positioning when zooming in an iframe
+ *
+ * Modified by Michał Sawoniuk:
+ * - added option to zoom in on an element other than document.body
  */
 zoom = (function(){
 
@@ -25,8 +28,8 @@ zoom = (function(){
     // Timeout for callback function
     var callbackTimeout = -1;
 
-    // Check for transform support so that we can fallback otherwise
-    var supportsTransforms;
+    // Last element what was zoomed
+    var lastZoomedElement;
 
     /**
      * Applies the CSS required to zoom in, prefers the use of CSS3
@@ -37,12 +40,17 @@ zoom = (function(){
      * @param {Object} iframe - optional, to be used when calling the method inside an iframe. Object has two fields:
      *     iframeTopOffset - total offset from the top of the window (usually scrollTop - top)
      *     topWindowHeight - height of the top window
+     *     topWindowHeight - width of the top window
      */
     function magnify( rect, scale, iframe) {
+        if (!lastZoomedElement) {
+            return;
+        }
         if (!iframe) {
             iframe = {
                 iframeTopOffset: 0,
-                topWindowHeight: 0
+                topWindowHeight: 0,
+                topWindowWidth: 0
             };
         }
 
@@ -52,66 +60,71 @@ zoom = (function(){
         rect.width = rect.width || 1;
         rect.height = rect.height || 1;
 
-
-        // If a a different top.window height is provided, use that value
+        // If a different top.window height is provided, use that value
         var innerHeight = window.innerHeight;
         if (iframe.topWindowHeight > 0) {
             innerHeight = iframe.topWindowHeight;
         }
 
+        // If a different top.window width is provided, use that value
+        var innerWidth = window.innerWidth;
+        if (iframe.topWindowWidth > 0) {
+            innerWidth = iframe.topWindowWidth;
+        }
+
         // Center the rect within the zoomed viewport
-        rect.x -= ( window.innerWidth - ( rect.width * scale ) ) / 2;
+        rect.x -= ( innerWidth - ( rect.width * scale ) ) / 2;
         rect.y -= ( innerHeight - ( rect.height * scale ) ) / 2;
 
         // Make corrections to positioning when inside an iframe
         rect.y -= iframe.iframeTopOffset * scale;
         scrollOffset.y += iframe.iframeTopOffset;
 
-        if( supportsTransforms ) {
+        if( isSupportsTransforms(lastZoomedElement) ) {
             // Reset
             if( scale === 1 ) {
-                document.body.style.transform = '';
-                document.body.style.OTransform = '';
-                document.body.style.msTransform = '';
-                document.body.style.MozTransform = '';
-                document.body.style.WebkitTransform = '';
+                lastZoomedElement.style.transform = '';
+                lastZoomedElement.style.OTransform = '';
+                lastZoomedElement.style.msTransform = '';
+                lastZoomedElement.style.MozTransform = '';
+                lastZoomedElement.style.WebkitTransform = '';
             }
             // Scale
             else {
                 var origin = scrollOffset.x +'px '+ scrollOffset.y +'px',
                     transform = 'translate('+ -rect.x +'px,'+ -rect.y +'px) scale('+ scale +')';
 
-                document.body.style.transformOrigin = origin;
-                document.body.style.OTransformOrigin = origin;
-                document.body.style.msTransformOrigin = origin;
-                document.body.style.MozTransformOrigin = origin;
-                document.body.style.WebkitTransformOrigin = origin;
+                lastZoomedElement.style.transformOrigin = origin;
+                lastZoomedElement.style.OTransformOrigin = origin;
+                lastZoomedElement.style.msTransformOrigin = origin;
+                lastZoomedElement.style.MozTransformOrigin = origin;
+                lastZoomedElement.style.WebkitTransformOrigin = origin;
 
-                document.body.style.transform = transform;
-                document.body.style.OTransform = transform;
-                document.body.style.msTransform = transform;
-                document.body.style.MozTransform = transform;
-                document.body.style.WebkitTransform = transform;
+                lastZoomedElement.style.transform = transform;
+                lastZoomedElement.style.OTransform = transform;
+                lastZoomedElement.style.msTransform = transform;
+                lastZoomedElement.style.MozTransform = transform;
+                lastZoomedElement.style.WebkitTransform = transform;
             }
         }
         else {
             // Reset
             if( scale === 1 ) {
-                document.body.style.position = '';
-                document.body.style.left = '';
-                document.body.style.top = '';
-                document.body.style.width = '';
-                document.body.style.height = '';
-                document.body.style.zoom = '';
+                lastZoomedElement.style.position = '';
+                lastZoomedElement.style.left = '';
+                lastZoomedElement.style.top = '';
+                lastZoomedElement.style.width = '';
+                lastZoomedElement.style.height = '';
+                lastZoomedElement.style.zoom = '';
             }
             // Scale
             else {
-                document.body.style.position = 'relative';
-                document.body.style.left = ( - ( scrollOffset.x + rect.x ) / scale ) + 'px';
-                document.body.style.top = ( - ( scrollOffset.y + rect.y ) / scale ) + 'px';
-                document.body.style.width = ( scale * 100 ) + '%';
-                document.body.style.height = ( scale * 100 ) + '%';
-                document.body.style.zoom = scale;
+                lastZoomedElement.style.position = 'relative';
+                lastZoomedElement.style.left = ( - ( scrollOffset.x + rect.x ) / scale ) + 'px';
+                lastZoomedElement.style.top = ( - ( scrollOffset.y + rect.y ) / scale ) + 'px';
+                lastZoomedElement.style.width = ( scale * 100 ) + '%';
+                lastZoomedElement.style.height = ( scale * 100 ) + '%';
+                lastZoomedElement.style.zoom = scale;
             }
         }
 
@@ -131,6 +144,18 @@ zoom = (function(){
         }
     }
 
+    function getElementToBeZoomed(options) {
+        return (options && options.elementToZoom) ? options.elementToZoom : document.body;
+    }
+
+    function isSupportsTransforms(elementToZoom) {
+        return 'WebkitTransform' in elementToZoom.style ||
+            'MozTransform' in elementToZoom.style ||
+            'msTransform' in elementToZoom.style ||
+            'OTransform' in elementToZoom.style ||
+            'transform' in elementToZoom.style;
+    }
+
     return {
         /**
          * Zooms in on either a rectangle or HTML element.
@@ -141,33 +166,30 @@ zoom = (function(){
          *   - element: HTML element to zoom in on
          *   OR
          *   - x/y: coordinates in non-transformed space to zoom in on
+         *   - topWindowHeight/topWindowWidth: height and width of non-transformed space that will be zoomed
          *   - width/height: the portion of the screen to zoom in on
          *   - scale: can be used instead of width/height to explicitly set scale
          *
          *   (optional)
          *   - callback: call back when zooming in ends
          *   - padding: spacing around the zoomed in element
+         *   - elementToZoom: HTML element to be zoomed. If not provided use document.body
          */
-        init: function () {
+        init: function ( options ) {
             // Zoom out if the user hits escape
             document.addEventListener( 'keyup', keyupHandler);
 
-            supportsTransforms = 'WebkitTransform' in document.body.style ||
-                'MozTransform' in document.body.style ||
-                'msTransform' in document.body.style ||
-                'OTransform' in document.body.style ||
-                'transform' in document.body.style;
+            var elementToZoom = getElementToBeZoomed(options);
 
-            if( supportsTransforms ) {
+            if( isSupportsTransforms(elementToZoom) ) {
                 // The easing that will be applied when we zoom in/out
-                document.body.style.transition = 'transform '+ TRANSITION_DURATION +'ms ease';
-                document.body.style.OTransition = '-o-transform '+ TRANSITION_DURATION +'ms ease';
-                document.body.style.msTransition = '-ms-transform '+ TRANSITION_DURATION +'ms ease';
-                document.body.style.MozTransition = '-moz-transform '+ TRANSITION_DURATION +'ms ease';
-                document.body.style.WebkitTransition = '-webkit-transform '+ TRANSITION_DURATION +'ms ease';
+                elementToZoom.style.transition = 'transform '+ TRANSITION_DURATION +'ms ease';
+                elementToZoom.style.OTransition = '-o-transform '+ TRANSITION_DURATION +'ms ease';
+                elementToZoom.style.msTransition = '-ms-transform '+ TRANSITION_DURATION +'ms ease';
+                elementToZoom.style.MozTransition = '-moz-transform '+ TRANSITION_DURATION +'ms ease';
+                elementToZoom.style.WebkitTransition = '-webkit-transform '+ TRANSITION_DURATION +'ms ease';
             }
         },
-
 
         destroy: function () {
             document.removeEventListener('keyup', keyupHandler);
@@ -180,9 +202,13 @@ zoom = (function(){
             if( level !== 1 ) {
                 this.out();
             } else {
+
+                lastZoomedElement = getElementToBeZoomed(options);
+
                 options.x = options.x || 0;
                 options.y = options.y || 0;
                 options.topWindowHeight = options.topWindowHeight || 0;
+                options.topWindowWidth = options.topWindowWidth || 0;
                 options.iframeTopOffset = options.iframeTopOffset || 0;
 
                 // If an element is set, that takes precedence
@@ -201,12 +227,16 @@ zoom = (function(){
                 if (options.topWindowHeight > 0) {
                     innerHeight = options.topWindowHeight;
                 }
+                var innerWidth = window.innerWidth;
+                if (options.topWindowWidth > 0) {
+                    innerWidth = options.topWindowWidth;
+                }
 
                 // If width/height values are set, calculate scale from those values
                 if ( options.width !== undefined && options.height !== undefined ) {
-                    options.scale = Math.max( Math.min( window.innerWidth / options.width, innerHeight / options.height ), 1 );
-                    if(Math.min( window.innerWidth / options.width, innerHeight / options.height ) <= 1){
-                        options.scale = Math.min( window.innerWidth / options.width, innerHeight / options.height )+1;
+                    options.scale = Math.max( Math.min( innerWidth / options.width, innerHeight / options.height ), 1 );
+                    if(Math.min( innerWidth / options.width, innerHeight / options.height ) <= 1){
+                        options.scale = Math.min( innerWidth / options.width, innerHeight / options.height )+1;
                     }
                 }
 

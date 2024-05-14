@@ -1,4 +1,15 @@
 2024-04-12 Added floatScore field to the PlayerUtils lesson score
+2024-05-09 Fixed state and reset functionality in the Model Viewer 3D
+2024-05-08 Added Zoom module
+2024-05-07 Change URL to library in Model Viewer 3D
+2024-04-26 Added Model Viewer 3D addon
+2024-04-19 Fixed mathjax not being rendered when added to a text module via the setText method
+2924-04-18 Fixed magic boxes throwing errors in iceditor on reload
+2024-04-05 Fixed adding special characters into iframe tag in Paragraph
+2024-04-04 Fixed issue with apostrophes in answers in Text and Table addons
+2024-04-02 Added Send only card changed event property to the FlashCards
+2024-03-27 Fixed issues with pause events in multiaudio and multiplegap addons
+2024-03-22 Fixed showing next or prev page index in ANB
 2024-03-22 Fixed draggable gaps with markup in Text weren't receiving correct classes in checkErrorsMode
 2024-03-22 Fixed the conflict between showAllCards vs ShowAllCards in FlashCards
 2024-03-22 Added base width/height properties to the Animation addon

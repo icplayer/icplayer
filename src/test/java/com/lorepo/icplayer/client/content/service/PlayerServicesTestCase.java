@@ -36,18 +36,19 @@ public class PlayerServicesTestCase {
 		Mockito.when(mockedPlayerServices.getScaleInformation()).thenCallRealMethod();
 		Mockito.doNothing().when(mockedPlayerServices).fixDroppable();
 		Mockito.doCallRealMethod().when(mockedPlayerServices).setScaleInformation(Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class));
-		
+		Mockito.doCallRealMethod().when(mockedPlayerServices).setFinalScaleInformation(Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class));
 	};
 	
 	@Test
 	public void setCorrectScaleInformation() {
 		mockedPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
 		ScaleInformation scaleInfo = mockedPlayerServices.getScaleInformation();
+		assertTrue(scaleInfo.baseScaleX==0.5);
+		assertTrue(scaleInfo.baseScaleX==0.5);
 		assertTrue(scaleInfo.scaleX==0.5);
 		assertTrue(scaleInfo.scaleY==0.5);
 		assertTrue(scaleInfo.transform.equals("scale(0.5)"));
 		assertTrue(scaleInfo.transformOrigin.equals("top left"));
-		
 	};
 	
 	@Test
@@ -60,6 +61,32 @@ public class PlayerServicesTestCase {
 	public void setIncorrectScaleXYScaleInformation() {
 		exception.expect(NumberFormatException.class);
 		mockedPlayerServices.setScaleInformation("abc", "hello", "scale(0.5)", "top left");
+	};
+
+	@Test
+	public void setCorrectFinalScaleInformation() {
+		mockedPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
+		mockedPlayerServices.setFinalScaleInformation("2", "2", "scale(2)", "top right");
+		ScaleInformation scaleInfo = mockedPlayerServices.getScaleInformation();
+		assertTrue(scaleInfo.baseScaleX==0.5);
+		assertTrue(scaleInfo.baseScaleX==0.5);
+		assertTrue(scaleInfo.scaleX==2);
+		assertTrue(scaleInfo.scaleY==2);
+		assertTrue(scaleInfo.transform.equals("scale(2)"));
+		assertTrue(scaleInfo.transformOrigin.equals("top right"));
+	};
+
+	@Test
+	public void setCorrectTransformFinalScaleInformationWithoutTransform() {
+		mockedPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
+		mockedPlayerServices.setFinalScaleInformation("2", "2", null, null);
+		ScaleInformation scaleInfo = mockedPlayerServices.getScaleInformation();
+		assertTrue(scaleInfo.baseScaleX==0.5);
+		assertTrue(scaleInfo.baseScaleX==0.5);
+		assertTrue(scaleInfo.scaleX==2);
+		assertTrue(scaleInfo.scaleY==2);
+		assertTrue(scaleInfo.transform.equals("scale(0.5)"));
+		assertTrue(scaleInfo.transformOrigin.equals("top left"));
 	};
 	
 	@Test

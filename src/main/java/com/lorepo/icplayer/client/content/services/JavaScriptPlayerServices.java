@@ -315,6 +315,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::escapeXMLEntities(Ljava/lang/String;)(text);
 			}
 
+			commands.parseAnswer = function (rawAnswer) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAnswer(Ljava/lang/String;)(rawAnswer);
+			}
+
 			return commands;
 		};
 
@@ -418,6 +422,8 @@ public class JavaScriptPlayerServices {
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
+				baseScaleX: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::baseScaleX,
+				baseScaleY: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::baseScaleY,
 				scaleX: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX,
 				scaleY: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY,
 				transform: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::transform,
@@ -430,6 +436,10 @@ public class JavaScriptPlayerServices {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setScaleInformation(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(scaleInfo.scaleX,scaleInfo.scaleY,scaleInfo.transform,scaleInfo.transformOrigin);
 		};
 		
+		playerServices.setFinalScaleInformation = function(scaleInfo) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setFinalScaleInformation(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(scaleInfo.scaleX,scaleInfo.scaleY,scaleInfo.transform,scaleInfo.transformOrigin);
+		};
+
 		playerServices.isPlayerInCrossDomain = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPlayerInCrossDomain()();
 		}
@@ -923,8 +933,13 @@ public class JavaScriptPlayerServices {
 		return this.playerServices.getScaleInformation();
 	}
 	
-	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin) {
-		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);
+	public void setScaleInformation(String baseScaleX, String baseScaleY, String baseTransform, String baseTransformOrigin) {
+		this.playerServices.setScaleInformation(baseScaleX, baseScaleY, baseTransform, baseTransformOrigin);
+		PlayerApp.prepareStaticScaledElements();
+	}
+	
+	public void setFinalScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin) {
+		this.playerServices.setFinalScaleInformation(scaleX, scaleY, transform, transformOrigin);
 		PlayerApp.prepareStaticScaledElements();
 	}
 	
@@ -1049,5 +1064,9 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getResponsiveLayouts() {
 		return playerServices.getApplication().getSemiResponsiveLayouts();
+	}
+
+	private String parseAnswer(String rawAnswer) {
+		return TextParser.parseAnswer(rawAnswer);
 	}
 }

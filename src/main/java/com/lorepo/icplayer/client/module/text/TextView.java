@@ -1179,7 +1179,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				score.setUserAnswer(userAnswer);
 				boolean isCorrect = false;
 				if (userAnswer.length() != 0) {
-					isCorrect = allAnswers.indexOf(userAnswer) != -1;
+					isCorrect = allAnswers.indexOf(TextParser.parseAnswer(userAnswer)) != -1;
 				}
 				score.setIsCorrect(isCorrect);
 				score.setAllAnswers(allAnswers);

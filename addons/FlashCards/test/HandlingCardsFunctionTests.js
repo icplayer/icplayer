@@ -95,6 +95,7 @@ TestCase('[FlashCards] handling Flash Cards function', {
         ];
         this.presenter.state.cardsFavourites = [true, true, false, true];
 
+        this.presenter.generateCardMap();
         var unfavourites = this.presenter.countNonFavouritesBefore(4);
 
         assertEquals(unfavourites, 1);
