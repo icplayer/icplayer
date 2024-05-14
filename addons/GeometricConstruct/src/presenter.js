@@ -15,13 +15,11 @@ function AddonGeometricConstruct_create() {
     };
 
     presenter.run = function (view, model) {
-        console.log("GC 1");
         presenterLogic(view, model, false);
     };
 
     function presenterLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
-        console.log(presenter.configuration);
         presenter.setElements(view);
         presenter.createView(isPreview);
     }
@@ -37,8 +35,6 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.validateModel = function (model) {
-        console.log("model");
-        console.log(model);
         var strokeColor = "black";
         if (model["stroke color"] && model["stroke color"].trim().length > 0) strokeColor = model["stroke color"];
         var fillColor = "blue";
@@ -67,19 +63,16 @@ function AddonGeometricConstruct_create() {
     presenter.createWorkspace = function(isPreview) {
         presenter.canvas = document.createElement("canvas");
         presenter.$canvas = $(presenter.canvas);
-        /*var scale = {scaleX: 1.0, scaleY: 1.0};
-        if (presenter.playerController) {
-            scale = presenter.playerController.getScaleInformation();
-        }
-        var rect = presenter.workspaceWrapper.getBoundingClientRect();*/
-        presenter.canvas.setAttribute('width', presenter.configuration.width - 220);
-        presenter.canvas.setAttribute('height', presenter.configuration.height);
+        var width = presenter.$workspaceWrapper.width();
+        var height = presenter.configuration.height;
+        presenter.canvas.setAttribute('width', width);
+        presenter.canvas.setAttribute('height', height);
         presenter.context = presenter.canvas.getContext("2d");
         presenter.$workspaceWrapper.prepend(presenter.canvas);
         presenter.canvasRect = presenter.canvas.getBoundingClientRect();
         presenter.$canvasOverlay = presenter.$workspaceWrapper.find(".canvas_overlay");
-        presenter.$canvasOverlay.css('width', (presenter.configuration.width - 220) + 'px');
-        presenter.$canvasOverlay.css('height', presenter.configuration.height + 'px');
+        presenter.$canvasOverlay.css('width', width);
+        presenter.$canvasOverlay.css('height', height);
         if (!isPreview) {
             presenter.$canvasOverlay.on('mousedown', canvasOnMouseDownHandler);
             presenter.$canvasOverlay.on('touchstart', canvasOnMouseDownHandler);
@@ -432,8 +425,6 @@ function AddonGeometricConstruct_create() {
         }
 
         loadJSON(json) {
-            console.log("loadJSON");
-            console.log(json);
             if (json.type != Point.TYPE) return;
             this.x = json.state.x;
             this.y = json.state.y;
