@@ -986,7 +986,7 @@ function AddonText_Selection_create() {
 
     presenter.retrieveMathJax = function (text) {
         for (var i = 0; i < presenter.markedMathJaxContent.length; i++) {
-            text = text.replace(new RegExp(MATH_JAX_MARKER + i, 'g'), presenter.markedMathJaxContent[i]);
+            text = text.replace(MATH_JAX_MARKER + i, presenter.markedMathJaxContent[i]);
         }
         return text;
     };

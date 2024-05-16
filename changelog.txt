@@ -1,3 +1,4 @@
+2024-05-16 Fixed incorrect display of formulas in the Text Selection
 2024-05-08 Added Zoom module
 2024-05-07 Change URL to library in Model Viewer 3D
 2024-04-26 Added Model Viewer 3D addon
