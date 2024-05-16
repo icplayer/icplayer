@@ -110,7 +110,7 @@ function AddonModelViewer3D_create() {
     presenter.setAnnotations = function () {
         $(presenter.modelViewer).append(presenter.configuration.annotations);
         presenter.configuration.labelsEnabledOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
-        presenter.areAnnotationsVisibleOnStart = presenter.annotationsVisibility;
+        presenter.areAnnotationsVisibleOnStart = presenter.annotationsVisibility === 'visible';
     };
 
     presenter.setAutoRotation = function () {
@@ -216,14 +216,16 @@ function AddonModelViewer3D_create() {
             presenter.isVisibleOnStart ? presenter.show() : presenter.hide();
         }
 
-        if (presenter.areAnnotationsVisibleOnStart !== presenter.annotationsVisibility) {
-            presenter.areAnnotationsVisibleOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
-        }
+        // set annotations visibility to default
+        presenter.areAnnotationsVisibleOnStart ? presenter.showAnnotations() : presenter.hideAnnotations();
 
         if ($(presenter.copyButton).hasClass("copyButton-selected")) {
             $(presenter.copyButton).removeClass("copyButton-selected");
             $(presenter.copyMessage).removeClass("copyMessage-visible");
         }
+
+        // handle animation
+        presenter.setAnimationToDefault();
     };
 
     presenter.getErrorCount = function(){
@@ -278,10 +280,13 @@ function AddonModelViewer3D_create() {
         return presenter.modelViewer.currentTime;
     };
 
-    presenter.getState = function(){
+    presenter.getState = function() {
         return JSON.stringify({
             annotationsVisibility: presenter.annotationsVisibility,
-            isVisible: presenter.configuration.isVisible
+            isVisible: presenter.configuration.isVisible,
+            isPlaying: !presenter.isPaused(),
+            selectedAnimation: $(presenter.modelViewer).attr("animation-name"),
+            animationTime: presenter.modelViewer.currentTime
         });
     };
 
@@ -298,6 +303,17 @@ function AddonModelViewer3D_create() {
         } else {
             presenter.hide();
         }
+
+        presenter.handleAnimationState(state);
+    };
+
+    presenter.handleAnimationState = function (state) {
+        $(presenter.modelViewer).attr("animation-name", state.selectedAnimation);
+
+        setTimeout(function () {
+            state.isPlaying ? presenter.play() : presenter.pause();
+            presenter.jumpTo(state.animationTime);
+        }, 100);
     };
 
     presenter.show = function() {
@@ -316,6 +332,39 @@ function AddonModelViewer3D_create() {
 
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.setAnimationToDefault = function () {
+        const animations = presenter.listAnimations();
+        const userSelectedAnimations = presenter.getUserSelectedAnimation();
+        const isAutoplay = presenter.getAutoplayStatus();
+        if (userSelectedAnimations) {
+            presenter.changeAnimation(userSelectedAnimations);
+        } else if (animations.length) {
+            presenter.changeAnimation(animations[0]);
+        }
+
+        presenter.jumpTo(0);
+
+        if (isAutoplay) {
+            presenter.modelViewer.play();
+        } else {
+            presenter.pause();
+        }
+    };
+
+    presenter.getUserSelectedAnimation = function () {
+        if (presenter.configuration.additionalAttributes && presenter.configuration.additionalAttributes.hasOwnProperty('animation-name')) {
+            return presenter.configuration.additionalAttributes['animation-name'];
+        }
+    };
+
+    presenter.getAutoplayStatus = function () {
+        if (presenter.configuration.additionalAttributes && presenter.configuration.additionalAttributes.hasOwnProperty('autoplay')) {
+            return presenter.configuration.additionalAttributes['autoplay'];
+        }
+
+        return false;
     };
 
     function showErrorMessage() {

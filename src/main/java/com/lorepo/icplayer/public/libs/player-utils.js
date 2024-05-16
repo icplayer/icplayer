@@ -131,11 +131,14 @@
             }
 
             var scaledScore = 0;
+            var floatScore = 0;
             if (count > 0) {
                 if (sumOfWeights) {
                     scaledScore = Math.round((sumOfScaledScore / sumOfWeights) * 100) / 100;
+                    floatScore = sumOfScaledScore / sumOfWeights;
                 } else {
                     scaledScore = 1;
+                    floatScore = 1;
                 }
             }
 
@@ -145,6 +148,7 @@
                 minScore: 0,
                 maxScore: reportableCount,
                 rawScore: sumOfScaledScore,
+                floatScore: floatScore,
                 scaledScore: scaledScore,
                 errorsCount: sumOfErrors,
                 checksCount: sumOfChecks,
