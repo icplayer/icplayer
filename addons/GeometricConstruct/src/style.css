@@ -50,14 +50,21 @@
     padding: 5px;
 }
 
-.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .cursor-image {
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon {
     display: block;
     width: 40px;
     height: 40px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.cursor-image {
     background: url('resources/pan_tool_alt_24dp.svg') no-repeat center;
     background-size: 30px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.point-image {
+    background: url('resources/gc_point_icon.png') no-repeat center;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {

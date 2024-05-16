@@ -136,6 +136,7 @@ function AddonGeometricConstruct_create() {
             } else if (presenter.editFigure != null) {
                 presenter.editFigure.setSelected(false);
                 presenter.editFigure = null;
+                presenter.$removeFigure.css('display', 'none');
             }
             presenter.redrawCanvas();
         }
@@ -196,7 +197,7 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbar = function() {
-        var cursorElement = presenter.createToolbarButton("Cursor", "Cursor", $("<div class='cursor-image'></div>")[0], () => {
+        var cursorElement = presenter.createToolbarButton("Cursor", "Cursor", "cursor-image", () => {
             presenter.setEditMode(true);
         }, ()=>{});
         presenter.createGeometricElementButton("Point", Point);
@@ -273,10 +274,6 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.draw is abstract but has not been implemented");
         };
 
-        static getIcon() {
-            throw new Error("GeometricElement.getIcon is abstract but has not been implemented");
-        };
-
         addLabel() {
             throw new Error("GeometricElement.addLabel is abstract but has not been implemented");
         };
@@ -330,6 +327,7 @@ function AddonGeometricConstruct_create() {
 
         static TYPE = "Point";
         static LABEL_CLASS = "point_label";
+        static ICON_CLASS = "point-image";
         x;
         y;
         $label;
@@ -407,15 +405,6 @@ function AddonGeometricConstruct_create() {
             }
         }
 
-        static getIcon() {
-            var canvas = document.createElement("canvas");
-            canvas.setAttribute("width", '40px');
-            canvas.setAttribute("height", '40px');
-            var ctx = canvas.getContext("2d");
-            Point.drawPoint(ctx, 20, 20, false);
-            return canvas;
-        }
-
         addLabel() {
             if (this.x == null || this.y == null) return;
             if (!this.$label) {
@@ -474,17 +463,26 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createGeometricElementButton = function(name, _class) {
-        return presenter.createToolbarButton(name, _class.TYPE, _class.getIcon(), () => {
+        return presenter.createToolbarButton(name, _class.TYPE, _class.ICON_CLASS, () => {
             presenter.newFigure = new _class();
         },
         () => {});
     }
 
-    presenter.createToolbarButton = function(name, type, icon, selectedCallback, deselectedCallback) {
+    presenter.createToolbarButton = function(name, type, iconClass, selectedCallback, deselectedCallback) {
         var element = $('<div></div>');
-        element.append($(icon));
-        element.append("<div class='toolbar-button-label'>"+name+"</div>");
         element.addClass('toolbarButton');
+
+        var iconElement = $('<div></div>');
+        iconElement.addClass('icon');
+        iconElement.addClass(iconClass);
+        element.append(iconElement);
+
+        var labelElement = $('<div></div>');
+        labelElement.addClass('toolbar-button-label');
+        labelElement.html(name);
+        element.append(labelElement);
+
         element.click((e) => {
             var isSelected = element.hasClass('selected');
             presenter.endInsert(true);
@@ -512,6 +510,10 @@ function AddonGeometricConstruct_create() {
         presenter.clearLabels();
         presenter.clearFigures();
         presenter.redrawCanvas();
+        var $button = presenter.toolbarButtonsDict['Cursor'];
+        if ($button && !$button.hasClass('selected')) {
+            $button.click();
+        }
     }
 
     presenter.getSelectedButtonType = function() {
