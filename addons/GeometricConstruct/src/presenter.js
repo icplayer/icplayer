@@ -1,8 +1,9 @@
 function AddonGeometricConstruct_create() {
     var presenter = function () {};
 
-    presenter.pointsCounter = 0;
+    presenter.labelsList = [];
     presenter.figuresList = [];
+    presenter.toolbarButtonsDict = {};
     presenter.newFigure = null;
     presenter.editFigure = null;
     presenter.isEditMode = false;
@@ -109,6 +110,8 @@ function AddonGeometricConstruct_create() {
     };
 
     function canvasOnMouseDownHandler (e) {
+        e.preventDefault();
+        e.stopPropagation();
         var location = getCanvasEventLocation(e);
         if (presenter.newFigure != null) {
             presenter.newFigure.insertClickHandler(e);
@@ -123,13 +126,16 @@ function AddonGeometricConstruct_create() {
                 }
             }
             if (selectedFigure != null) {
-                if (selectedFigure != null && presenter.editFigure != selectedFigure) {
+                if (presenter.editFigure != selectedFigure) {
                     presenter.clearFigureSelection();
                     presenter.editFigure = selectedFigure;
                     presenter.editFigure.setSelected(true);
                     presenter.$removeFigure.css('display', '');
                 }
                 presenter.isDragging = true;
+            } else if (presenter.editFigure != null) {
+                presenter.editFigure.setSelected(false);
+                presenter.editFigure = null;
             }
             presenter.redrawCanvas();
         }
@@ -145,6 +151,8 @@ function AddonGeometricConstruct_create() {
     }
 
     function canvasOnMouseUpHandler (e) {
+        e.preventDefault();
+        e.stopPropagation();
         if (presenter.isEditMode && presenter.isDragging) {
             presenter.isDragging = false;
         }
@@ -188,11 +196,13 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbar = function() {
-        presenter.createToolbarButton("Cursor", $("<div class='cursor-image'></div>")[0], () => {
+        var cursorElement = presenter.createToolbarButton("Cursor", "Cursor", $("<div class='cursor-image'></div>")[0], () => {
             presenter.setEditMode(true);
         }, ()=>{});
         presenter.createGeometricElementButton("Point", Point);
 
+        cursorElement.addClass('selected');
+        presenter.setEditMode(true);
     };
 
     presenter.getLabel = function(index) {
@@ -204,6 +214,35 @@ function AddonGeometricConstruct_create() {
             index = Math.floor(index / 26) - 1;
         }
         return result;
+    }
+
+    presenter.createLabel = function() {
+        var labelValue = '';
+        var index = presenter.labelsList.indexOf('');
+        if (index == -1) {
+            labelValue = presenter.getLabel(presenter.labelsList.length);
+            presenter.labelsList.push(labelValue);
+        } else {
+            labelValue = presenter.getLabel(index);
+            presenter.labelsList[index] = labelValue;
+        }
+        return labelValue;
+    }
+
+    presenter.destroyLabel = function(labelValue) {
+        var index = presenter.labelsList.indexOf(labelValue);
+        if (index != -1) {
+            presenter.labelsList[index] = '';
+            if (index ===  presenter.labelsList.length - 1) {
+                for (var i = presenter.labelsList.length - 1; i > -1; i--) {
+                    if (presenter.labelsList[i] == '') {
+                        presenter.labelsList.pop();
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     presenter.endInsert = function(abandonChanges) {
@@ -308,8 +347,7 @@ function AddonGeometricConstruct_create() {
 
         append() {
             if (!this.labelValue) {
-                presenter.pointsCounter += 1;
-                this.labelValue = presenter.getLabel(presenter.pointsCounter - 1);
+                this.labelValue = presenter.createLabel();
             }
             if (this.isRoot) {
                 presenter.figuresList.push(this);
@@ -317,6 +355,8 @@ function AddonGeometricConstruct_create() {
         }
 
         remove() {
+            presenter.destroyLabel(this.labelValue);
+            this.labelValue = '';
             var figuresIndex = presenter.figuresList.indexOf(this);
             if (figuresIndex != -1) {
                 presenter.figuresList.splice(figuresIndex, 1);
@@ -330,7 +370,7 @@ function AddonGeometricConstruct_create() {
                 this.x = location.x;
                 this.y = location.y;
                 this.append();
-                presenter.endInsert(false);
+                presenter.newFigure = new Point();
             }
         }
 
@@ -434,13 +474,13 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createGeometricElementButton = function(name, _class) {
-        presenter.createToolbarButton(name, _class.getIcon(), () => {
+        return presenter.createToolbarButton(name, _class.TYPE, _class.getIcon(), () => {
             presenter.newFigure = new _class();
         },
         () => {});
     }
 
-    presenter.createToolbarButton = function(name, icon, selectedCallback, deselectedCallback) {
+    presenter.createToolbarButton = function(name, type, icon, selectedCallback, deselectedCallback) {
         var element = $('<div></div>');
         element.append($(icon));
         element.append("<div class='toolbar-button-label'>"+name+"</div>");
@@ -458,6 +498,8 @@ function AddonGeometricConstruct_create() {
             presenter.redrawCanvas();
         });
         presenter.$toolbarWrapper.append(element);
+        presenter.toolbarButtonsDict[type] = element;
+        return element;
     }
 
     presenter.clearFigures = function() {
@@ -472,10 +514,20 @@ function AddonGeometricConstruct_create() {
         presenter.redrawCanvas();
     }
 
+    presenter.getSelectedButtonType = function() {
+        for ([type, $element] of Object.entries(presenter.toolbarButtonsDict)) {
+            if ($element.hasClass('selected')) {
+                return type;
+            }
+        }
+        return '';
+    }
+
     presenter.getState = function() {
         var state = {
             figures: [],
-            pointsCounter: presenter.pointsCounter
+            labelsList: [...presenter.labelsList],
+            selectedButton: presenter.getSelectedButtonType()
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             state.figures.push(presenter.figuresList[i].toJSON());
@@ -497,8 +549,12 @@ function AddonGeometricConstruct_create() {
                 figure.append();
             }
         }
-        presenter.pointsCounter = parsedState.pointsCounter;
+        presenter.labelsList = [...parsedState.labelsList];
         presenter.redrawCanvas();
+        var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
+        if ($button && !$button.hasClass('selected')) {
+            $button.click();
+        }
     }
 
     presenter.setPlayerController = function (controller) {
