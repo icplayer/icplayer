@@ -151,7 +151,7 @@ function AddonCross_Lesson_create(){
 
         const filteredIds = ids
             .map(id => id.trim())
-            .filter((id) => (id.length > 0 && (onlyDigitsRegex.test(id) || isLessonId)));
+            .filter((id) => (id.length > 0 && (onlyDigitsRegex.test(id) || onlyDigitsRegex.test(isLessonId))));
 
         if (ids.length !== filteredIds.length) {
             return {isValid: false};
