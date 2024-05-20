@@ -44,8 +44,7 @@ function AddonParagraph_create() {
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
 
     presenter.ERROR_CODES = {
-        'W_01': 'Weight must be a positive number between 0 and 100',
-        'MS_01': 'Max score must be a whole number or left empty'
+        'W_01': 'Weight must be a whole number between 0 and 100'
     };
 
     presenter.TOOLBAR_ARIAS = {
@@ -154,7 +153,7 @@ function AddonParagraph_create() {
     };
 
     presenter.createPreview = function AddonParagraph_createPreview(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, true);
         presenter.setVisibility(true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
@@ -332,16 +331,16 @@ function AddonParagraph_create() {
         presenter.isLocked = false;
     };
 
-    presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
+    presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model, isPreview) {
         if (presenter.loaded){ return;}
         presenter.loaded = true;
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.model = upgradedModel;
-        presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.configuration = presenter.validateModel(upgradedModel, isPreview);
 
-        if (presenter.configuration.isError) {
+        if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
@@ -468,23 +467,6 @@ function AddonParagraph_create() {
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
      };
 
-     presenter.validateMaxScore = function (maxScore) {
-         if (ModelValidationUtils.isStringEmpty(maxScore)) {
-             return {isError: false, value: 0};
-         }
-         const validatedMaxScore = ModelValidationUtils.validateInteger(maxScore);
-         if (!validatedMaxScore.isValid) {
-             return {isError: true, errorCode: "MS_01"};
-         }
-         if (validatedMaxScore.value < 0) {
-            return { isError: true, errorCode: "MS_01" };
-         }
-         if (("" + validatedMaxScore.value).length !== maxScore.length) {
-             return { isError: true, errorCode: "MS_01" };
-         }
-         return validatedMaxScore;
-     };
-
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
         if (!controls) {
             controls = presenter.DEFAULTS.TOOLBAR;
@@ -537,10 +519,11 @@ function AddonParagraph_create() {
     /**
      * Parses model and set settings to default values if either of them is empty
      *
-     * @param model
+     * @param model:object
+     * @param isPreview:boolean
      * @returns {{fontFamily: *, fontSize: *}}
      */
-    presenter.validateModel = function AddonParagraph_validateModel(model) {
+    presenter.validateModel = function AddonParagraph_validateModel(model, isPreview) {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
@@ -553,8 +536,7 @@ function AddonParagraph_create() {
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
             weight = model['Weight'],
-            modelAnswer = model['Show Answers'],
-            maxScore = model["maxScore"];
+            modelAnswer = model['Show Answers'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -566,13 +548,9 @@ function AddonParagraph_create() {
             hasDefaultFontSize = true;
         }
 
-        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
-            return {isError: true, errorCode: 'W_01'}
-        }
-
-        const validatedMaxScore = presenter.validateMaxScore(maxScore);
-        if (validatedMaxScore.isError) {
-            return validatedMaxScore;
+        const validatedWeight = presenter.validateWeight(weight, isPreview);
+        if (!validatedWeight.isValid) {
+            return validatedWeight;
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -598,13 +576,30 @@ function AddonParagraph_create() {
             isPlaceholderEditable: isPlaceholderEditable,
             title: title,
             manualGrading: manualGrading,
-            weight: weight,
+            weight: validatedWeight.value,
             modelAnswer: modelAnswer,
             langTag: model["langAttribute"],
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
-            maxScore: validatedMaxScore.value
         };
     };
+
+    presenter.validateWeight = function (weight, isPreview) {
+        if (ModelValidationUtils.isStringEmpty(weight)) {
+            return getCorrectObject(1);
+        }
+
+        const validatedInteger = ModelValidationUtils.validateIntegerInRange(weight, 100, 0);
+        if (!validatedInteger.isValid) {
+            return getErrorObject("W_01");
+        }
+        if (isPreview && (validatedInteger.value + "") !== weight) {
+            return getErrorObject("W_01");
+        }
+        return getCorrectObject(validatedInteger.value);
+    };
+
+    function getCorrectObject(val) { return { isValid: true, value: val }; }
+    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     /**
      * Initialize the addon.
@@ -636,8 +631,7 @@ function AddonParagraph_create() {
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeBlockInErrorCheckingMode(upgradedModel);
-        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
-        return presenter.upgradeMaxScore(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -715,10 +709,6 @@ function AddonParagraph_create() {
         }
 
         return upgradedModel;
-    };
-
-    presenter.upgradeMaxScore = function (model) {
-        return presenter.upgradeAttribute(model, "maxScore", "");
     };
 
     presenter.setSpeechTexts = function AddonParagraph_setSpeechTexts (speechTexts) {
@@ -1231,7 +1221,7 @@ function AddonParagraph_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
-        var configuration = presenter.validateModel(model);
+        var configuration = presenter.validateModel(model, false);
         var modelAnswers = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
@@ -1417,7 +1407,10 @@ function AddonParagraph_create() {
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.isError ? 0 : presenter.configuration.maxScore;
+        if (!presenter.configuration.isValid || !presenter.configuration.manualGrading) {
+            return 0;
+        }
+        return presenter.configuration.weight;
     };
 
     return presenter;

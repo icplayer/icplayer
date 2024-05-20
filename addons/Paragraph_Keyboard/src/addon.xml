@@ -18,6 +18,5 @@
 		<property name="Title" nameLabel="Paragraph_Keyboard_property_title" type="string" />
 		<property name="Weight" nameLabel="Paragraph_Keyboard_property_weight" type="string" />
 		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
-		<property name="maxScore" nameLabel="Paragraph_Keyboard_property_max_score" type="string" />
 	</model>
 </addon>

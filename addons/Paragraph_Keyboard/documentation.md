@@ -79,10 +79,6 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Weight</td>
         <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a natural number. The default Paragraph’s weight equals 1.</td>
     </tr>
-    <tr>
-        <td>Max score</td>
-        <td>The maximum score that can be awarded in this addon. It is accepted to leave the field blank (equivalent to 0) or provide a whole numbers.</td>
-    </tr>
 </table>
 
 ## Supported commands
