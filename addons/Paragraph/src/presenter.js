@@ -442,7 +442,7 @@ function AddonParagraph_create() {
         };
     };
 
-     presenter.findIframeAndSetStyles = function AddonParagraph_findIframeAndSetStyles() {
+    presenter.findIframeAndSetStyles = function AddonParagraph_findIframeAndSetStyles() {
         var iframe = presenter.$view.find(".paragraph-wrapper").find("iframe"),
             body = $(iframe).contents().find("#tinymce"),
             element = body.find("p");
@@ -465,7 +465,7 @@ function AddonParagraph_create() {
          }
 
         presenter.$view.find(".paragraph-wrapper").css("overflow", "scroll");
-     };
+    };
 
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
         if (!controls) {

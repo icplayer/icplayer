@@ -389,7 +389,6 @@ function AddonParagraph_Keyboard_create() {
             pluginName: presenter.makePluginName(model["ID"]),
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
-            error: false,
             manualGrading: manualGrading,
             title: title,
             weight: validatedWeight.value,
@@ -477,10 +476,6 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.upgradeModelAnswer = function (model) {
         return presenter.upgradeAttribute(model, "Show Answers", "");
-    };
-
-    presenter.upgradeMaxScore = function (model) {
-        return presenter.upgradeAttribute(model, "maxScore", "");
     };
 
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
