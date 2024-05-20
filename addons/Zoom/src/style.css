@@ -1,0 +1,69 @@
+.addon_Zoom {
+    pointer-events: none;
+}
+
+.ic_page.zoom-cursor-zoom-in {
+    cursor: zoom-in;
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+}
+
+.zoom-wrapper{
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+}
+
+.zoom-wrapper.zoom-wrapper-highlight {
+    border: dashed red;
+}
+
+.zoom-wrapper .zoom-button-container{
+    position: absolute;
+    pointer-events: auto;
+}
+
+.zoom-wrapper.targeted-area .zoom-button-container{
+    bottom: 0px;
+    right: 0px;
+}
+
+.zoomed-area-container{
+    position: fixed;
+    z-index: 102;
+    pointer-events: none;
+}
+
+.zoomed-area-container .zoom-out-button-container{
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    pointer-events: auto;
+    z-index: 2;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button {
+    background-image: url('resources/zoom_in.svg');
+    width: 55px;
+    height: 55px;
+}
+
+.zoomed-area-container .zoom-out-button-container .zoom-out-button {
+    background-image: url('resources/zoom_out.svg');
+    width: 55px;
+    height: 55px;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button,
+.zoomed-area-container .zoom-out-button-container .zoom-out-button {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #3F51B5;
+    background-size: 65%;
+    border-radius: 50%;
+    text-align: center;
+    cursor: pointer;
+}
+
+.zoom-wrapper .zoom-button-container .zoom-button.selected {
+   	background-color: #2196F3;
+}
