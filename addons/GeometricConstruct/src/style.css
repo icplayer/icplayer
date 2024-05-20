@@ -8,6 +8,31 @@
     height: 100%;
     width: 220px;
     flex-wrap: wrap;
+    position: relative;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .static_tools {
+    display: block;
+    width: 100%;
+    height: 35px;
+    position: absolute;
+    bottom: 0px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .static_tools .undo_button {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url('resources/undo_24dp.svg') no-repeat center;
+    background-size: 35px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .static_tools .redo_button {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url('resources/redo_24dp.svg') no-repeat center;
+    background-size: 35px;
 }
 
 .geometric_construct_wrapper .workspace_wrapper {

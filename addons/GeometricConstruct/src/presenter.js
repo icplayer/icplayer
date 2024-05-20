@@ -4,10 +4,16 @@ function AddonGeometricConstruct_create() {
     presenter.labelsList = [];
     presenter.figuresList = [];
     presenter.toolbarButtonsDict = {};
+
+    var MAX_PREV_STATES = 20;
+    presenter.prevStateIndex = -1;
+    presenter.previousStates = [];
+
     presenter.newFigure = null;
     presenter.editFigure = null;
     presenter.isEditMode = false;
     presenter.isDragging = false;
+    presenter.hasMoved = false;
 
     presenter.playerController = null;
 
@@ -23,6 +29,7 @@ function AddonGeometricConstruct_create() {
         presenter.configuration = presenter.validateModel(model);
         presenter.setElements(view);
         presenter.createView(isPreview);
+        presenter.pushState();
     }
 
     presenter.show = function() {
@@ -52,6 +59,8 @@ function AddonGeometricConstruct_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.$toolbarWrapper = presenter.$view.find('.toolbar_wrapper');
+        presenter.$undoButton = presenter.$toolbarWrapper.find('.undo_button');
+        presenter.$redoButton = presenter.$toolbarWrapper.find('.redo_button');
         presenter.$workspaceWrapper = presenter.$view.find('.workspace_wrapper');
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
     }
@@ -116,6 +125,7 @@ function AddonGeometricConstruct_create() {
         if (presenter.newFigure != null) {
             presenter.newFigure.insertClickHandler(e);
             presenter.redrawCanvas();
+            presenter.pushState();
         } else if (presenter.isEditMode) {
             var selectedFigure = null;
             for (var i = 0; i < presenter.figuresList.length; i++) {
@@ -133,6 +143,7 @@ function AddonGeometricConstruct_create() {
                     presenter.$removeFigure.css('display', '');
                 }
                 presenter.isDragging = true;
+                presenter.hasMoved = false;
             } else if (presenter.editFigure != null) {
                 presenter.editFigure.setSelected(false);
                 presenter.editFigure = null;
@@ -146,6 +157,7 @@ function AddonGeometricConstruct_create() {
         e.preventDefault();
         e.stopPropagation();
         if (presenter.isEditMode && presenter.isDragging && presenter.editFigure != null) {
+            presenter.hasMoved = true;
             presenter.editFigure.moveHandler(e);
             presenter.redrawCanvas();
         }
@@ -156,6 +168,10 @@ function AddonGeometricConstruct_create() {
         e.stopPropagation();
         if (presenter.isEditMode && presenter.isDragging) {
             presenter.isDragging = false;
+            if (presenter.hasMoved) {
+                presenter.hasMoved = false;
+                presenter.pushState();
+            }
         }
     }
 
@@ -166,6 +182,7 @@ function AddonGeometricConstruct_create() {
             presenter.redrawCanvas();
             presenter.updateLabels();
             presenter.$removeFigure.css('display', 'none');
+            presenter.pushState();
         }
     }
 
@@ -204,6 +221,10 @@ function AddonGeometricConstruct_create() {
 
         cursorElement.addClass('selected');
         presenter.setEditMode(true);
+
+        presenter.$undoButton.on('click', presenter.prevState);
+        presenter.$redoButton.on('click', presenter.nextState);
+        presenter.updateUndoRedoButtonsVisibility();
     };
 
     presenter.getLabel = function(index) {
@@ -506,7 +527,13 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    presenter.clearPrevStates = function() {
+        presenter.previousStates = [];
+        presenter.prevStateIndex = -1;
+    }
+
     presenter.reset = function() {
+        presenter.clearPrevStates();
         presenter.clearLabels();
         presenter.clearFigures();
         presenter.redrawCanvas();
@@ -540,8 +567,18 @@ function AddonGeometricConstruct_create() {
     presenter.setState = function(state) {
         presenter.clearFigures();
         var parsedState = JSON.parse(state);
-        for (var i = 0; i < parsedState.figures.length; i++) {
-            var figureState = parsedState.figures[i];
+        presenter.loadFiguresFromState(parsedState.figures);
+        presenter.labelsList = [...parsedState.labelsList];
+        presenter.redrawCanvas();
+        var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
+        if ($button && !$button.hasClass('selected')) {
+            $button.click();
+        }
+    }
+
+    presenter.loadFiguresFromState = function(figuresState) {
+        for (var i = 0; i < figuresState.length; i++) {
+            var figureState = figuresState[i];
             var figure = null;
             if (figureState.type == Point.TYPE) {
                 figure = new Point();
@@ -551,11 +588,68 @@ function AddonGeometricConstruct_create() {
                 figure.append();
             }
         }
-        presenter.labelsList = [...parsedState.labelsList];
+    }
+
+    presenter.pushState = function() {
+        var state = {
+            figures: [],
+            labelsList: [...presenter.labelsList]
+        };
+        for (var i = 0 ; i < presenter.figuresList.length; i++) {
+            state.figures.push(presenter.figuresList[i].toJSON());
+        }
+        if (presenter.prevStateIndex !== presenter.previousStates.length - 1) {
+            presenter.previousStates.splice(presenter.prevStateIndex + 1 - presenter.previousStates.length);
+        }
+
+        if (presenter.previousStates.length > MAX_PREV_STATES) {
+            presenter.previousStates.splice(0, presenter.previousStates.length - MAX_PREV_STATES);
+        }
+
+        presenter.previousStates.push(state);
+        presenter.prevStateIndex = presenter.previousStates.length - 1;
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.prevState = function() {
+        if (presenter.previousStates.length < 2 || presenter.prevStateIndex < 1) return;
+        presenter.prevStateIndex -= 1;
+        presenter.setStateByIndex(presenter.prevStateIndex);
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.nextState = function() {
+        if (presenter.prevStateIndex == presenter.previousStates.length - 1 || presenter.prevStateIndex == -1) return;
+        presenter.prevStateIndex += 1;
+        presenter.setStateByIndex(presenter.prevStateIndex);
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.setStateByIndex = function(index) {
+        if (presenter.previousStates.length == 0) return;
+        var state = presenter.previousStates[index];
+
+        presenter.clearLabels();
+        presenter.clearFigures();
+
+        presenter.loadFiguresFromState(state.figures);
+        presenter.labelsList = [...state.labelsList];
+
         presenter.redrawCanvas();
-        var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
-        if ($button && !$button.hasClass('selected')) {
-            $button.click();
+    }
+
+    presenter.updateUndoRedoButtonsVisibility = function() {
+        if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2) {
+            presenter.$undoButton.css('visibility', 'hidden');
+            presenter.$redoButton.css('visibility', 'hidden');
+            return;
+        }
+        presenter.$undoButton.css('visibility', '');
+        presenter.$redoButton.css('visibility', '');
+        if (presenter.prevStateIndex == 0) {
+            presenter.$undoButton.css('visibility', 'hidden');
+        } else if (presenter.prevStateIndex == presenter.previousStates.length - 1) {
+            presenter.$redoButton.css('visibility', 'hidden');
         }
     }
 
