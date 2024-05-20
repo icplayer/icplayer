@@ -61,6 +61,7 @@ function AddonGeometricConstruct_create() {
         presenter.$toolbarWrapper = presenter.$view.find('.toolbar_wrapper');
         presenter.$undoButton = presenter.$toolbarWrapper.find('.undo_button');
         presenter.$redoButton = presenter.$toolbarWrapper.find('.redo_button');
+        presenter.$resetButton = presenter.$toolbarWrapper.find('.reset_button');
         presenter.$workspaceWrapper = presenter.$view.find('.workspace_wrapper');
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
     }
@@ -224,6 +225,7 @@ function AddonGeometricConstruct_create() {
 
         presenter.$undoButton.on('click', presenter.prevState);
         presenter.$redoButton.on('click', presenter.nextState);
+        presenter.$resetButton.on('click', presenter.reset);
         presenter.updateUndoRedoButtonsVisibility();
     };
 
@@ -541,6 +543,7 @@ function AddonGeometricConstruct_create() {
         if ($button && !$button.hasClass('selected')) {
             $button.click();
         }
+        presenter.updateUndoRedoButtonsVisibility();
     }
 
     presenter.getSelectedButtonType = function() {
@@ -574,6 +577,7 @@ function AddonGeometricConstruct_create() {
         if ($button && !$button.hasClass('selected')) {
             $button.click();
         }
+        presenter.updateUndoRedoButtonsVisibility();
     }
 
     presenter.loadFiguresFromState = function(figuresState) {
@@ -642,10 +646,12 @@ function AddonGeometricConstruct_create() {
         if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2) {
             presenter.$undoButton.css('visibility', 'hidden');
             presenter.$redoButton.css('visibility', 'hidden');
+            presenter.$resetButton.css('visibility', 'hidden');
             return;
         }
         presenter.$undoButton.css('visibility', '');
         presenter.$redoButton.css('visibility', '');
+        presenter.$resetButton.css('visibility', '');
         if (presenter.prevStateIndex == 0) {
             presenter.$undoButton.css('visibility', 'hidden');
         } else if (presenter.prevStateIndex == presenter.previousStates.length - 1) {

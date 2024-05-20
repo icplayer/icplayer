@@ -35,6 +35,14 @@
     background-size: 35px;
 }
 
+.geometric_construct_wrapper .toolbar_wrapper .static_tools .reset_button {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url('resources/restart_alt_24dp.svg') no-repeat center;
+    background-size: 35px;
+}
+
 .geometric_construct_wrapper .workspace_wrapper {
     display: inline-block;
     height: 100%;
