@@ -65,7 +65,8 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Manual grading</td>
-        <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possible to be verified without previewing the lesson.</td>
+        <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possibly be verified without previewing the lesson. If selected, the value of `weight` property will be treated as max score. The score awarded by the teacher will not affect the content of the lesson, only the summary.</td>
+    </tr>
     </tr>
     <tr>
         <td>Show answers</td>
@@ -77,7 +78,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Weight</td>
-        <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a whole number in range from 0 to 100. The default Paragraph’s weight equals 1.</td>
+        <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a whole number in range from 0 to 100. The default Paragraph’s weight equals 1. If the `Manual grading` property is selected, this value will be used as the max score.</td>
     </tr>
 </table>
 
@@ -133,7 +134,33 @@ The list starts with the common properties, learn more about them by visiting th
 
 ## Scoring
 
-This module does not provide any score information.
+Selecting Paragraph's `Manual grading` property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Property</th>
+        <th>Description</th>
+        <th>Is addon method supported. For more information see [Scoring](https://www.mauthor.com/doc/en/getScore/page/Scoring) section</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>maxScore</td>
+            <td>Equal to the value in `Weight` propety. </td>
+            <td>Method `getMaxScore` is supported.</td>
+        </tr>
+        <tr>
+            <td>score</td>
+            <td>Equal to the value given by teacher.</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td>errorCount</td>
+            <td>N/A</td>
+            <td>N/A</td>
+        </tr>
+</tbody>
+</table>
 
 ## Events
 
