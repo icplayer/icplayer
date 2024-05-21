@@ -25,6 +25,7 @@
     height: 30px;
     background: url('resources/undo_24dp.svg') no-repeat center;
     background-size: 35px;
+    border: none;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .static_tools .redo_button {
@@ -33,6 +34,7 @@
     height: 30px;
     background: url('resources/redo_24dp.svg') no-repeat center;
     background-size: 35px;
+    border: none;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .static_tools .reset_button {
@@ -41,6 +43,7 @@
     height: 30px;
     background: url('resources/restart_alt_24dp.svg') no-repeat center;
     background-size: 35px;
+    border: none;
 }
 
 .geometric_construct_wrapper .workspace_wrapper {
@@ -73,6 +76,7 @@
     bottom: 10px;
     background: url('resources/delete_24dp.svg') no-repeat center;
     background-size: 40px;
+    border: none;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
@@ -81,6 +85,7 @@
     height: 80px;
     margin: 10px 5px 5px 5px;
     padding: 5px;
+    border: none;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon {

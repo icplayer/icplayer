@@ -18,12 +18,20 @@ function AddonGeometricConstruct_create() {
     presenter.playerController = null;
 
     presenter.CSS_CLASSES = {
+        SELECTED: 'selected',
         TOOLBAR_WRAPPER: 'toolbar_wrapper',
         WORKSPACE_WRAPPER: 'workspace_wrapper',
         CANVAS_OVERLAY: 'canvas_overlay',
         REMOVE_FIGURE_BUTTON: 'remove_figure',
         CURSOR: 'Cursor',
-        CURSOR_IMAGE: 'cursor-image'
+        CURSOR_IMAGE: 'cursor-image',
+        UNDO_BUTTON: 'undo_button',
+        REDO_BUTTON: 'redo_button',
+        RESET_BUTTON: 'reset_button',
+        LABEL: 'geometricConstructLabel',
+        TOOLBAR_BUTTON: 'toolbarButton',
+        TOOLBAR_BUTTON_LABEL: 'toolbar-button-label',
+        TOOLBAR_BUTTON_ICON: 'icon'
     };
 
     presenter.createPreview = function (view, model) {
@@ -38,7 +46,6 @@ function AddonGeometricConstruct_create() {
         presenter.configuration = presenter.validateModel(model);
         presenter.setElements(view);
         presenter.createView(isPreview);
-        presenter.pushState();
         if (!presenter.configuration.defaultVisibility) presenter.hide();
         presenter.pushState();
     }
@@ -58,7 +65,6 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.validateModel = function (model) {
-        console.log(model);
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
         return {
@@ -74,9 +80,9 @@ function AddonGeometricConstruct_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.$toolbarWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_WRAPPER);
-        presenter.$undoButton = presenter.$toolbarWrapper.find('.undo_button');
-        presenter.$redoButton = presenter.$toolbarWrapper.find('.redo_button');
-        presenter.$resetButton = presenter.$toolbarWrapper.find('.reset_button');
+        presenter.$undoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.UNDO_BUTTON);
+        presenter.$redoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.REDO_BUTTON);
+        presenter.$resetButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.RESET_BUTTON);
         presenter.$workspaceWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.WORKSPACE_WRAPPER);
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
     }
@@ -235,7 +241,7 @@ function AddonGeometricConstruct_create() {
         }, ()=>{});
         presenter.createGeometricElementButton("Point", Point);
 
-        cursorElement.addClass('selected');
+        cursorElement.addClass(presenter.CSS_CLASSES.SELECTED);
         presenter.setEditMode(true);
 
         presenter.$undoButton.on('click', presenter.prevState);
@@ -290,7 +296,7 @@ function AddonGeometricConstruct_create() {
             presenter.newFigure.remove();
         }
         presenter.newFigure = null;
-        presenter.$toolbarWrapper.find('.selected').removeClass('selected');
+        presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.SELECTED).removeClass(presenter.CSS_CLASSES.SELECTED);
     };
 
     presenter.setEditMode = function(isEditMode) {
@@ -444,7 +450,7 @@ function AddonGeometricConstruct_create() {
             if (this.x == null || this.y == null) return;
             if (!this.$label) {
                 this.$label = $('<div></div>');
-                this.$label.addClass('geometricConstructLabel');
+                this.$label.addClass(presenter.CSS_CLASSES.LABEL);
                 this.$label.addClass(Point.LABEL_CLASS);
                 this.$label.css('position', 'absolute');
                 this.$label.insertBefore(presenter.$canvasOverlay);
@@ -505,26 +511,26 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbarButton = function(name, type, iconClass, selectedCallback, deselectedCallback) {
-        var element = $('<div></div>');
-        element.addClass('toolbarButton');
+        var element = $('<button></button>');
+        element.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON);
 
         var iconElement = $('<div></div>');
-        iconElement.addClass('icon');
+        iconElement.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON_ICON);
         iconElement.addClass(iconClass);
         element.append(iconElement);
 
         var labelElement = $('<div></div>');
-        labelElement.addClass('toolbar-button-label');
+        labelElement.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON_LABEL);
         labelElement.html(name);
         element.append(labelElement);
 
         element.click((e) => {
-            var isSelected = element.hasClass('selected');
+            var isSelected = element.hasClass(presenter.CSS_CLASSES.SELECTED);
             presenter.finishInsert(true);
             presenter.setEditMode(false);
             if (!isSelected) {
                 selectedCallback();
-                element.addClass('selected');
+                element.addClass(presenter.CSS_CLASSES.SELECTED);
             } else {
                 deselectedCallback();
             }
@@ -553,9 +559,12 @@ function AddonGeometricConstruct_create() {
         presenter.clearFigures();
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict['Cursor'];
-        if ($button && !$button.hasClass('selected')) {
+        if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
             $button.click();
         }
+        presenter.prevStateIndex = -1;
+        presenter.previousStates = [];
+        presenter.pushState();
         presenter.updateUndoRedoButtonsVisibility();
         if (presenter.configuration.defaultVisibility) {
             presenter.show();
@@ -566,7 +575,7 @@ function AddonGeometricConstruct_create() {
 
     presenter.getSelectedButtonType = function() {
         for ([type, $element] of Object.entries(presenter.toolbarButtonsDict)) {
-            if ($element.hasClass('selected')) {
+            if ($element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
                 return type;
             }
         }
@@ -598,9 +607,13 @@ function AddonGeometricConstruct_create() {
         presenter.labelsList = [...parsedState.labelsList];
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
-        if ($button && !$button.hasClass('selected')) {
+        if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
             $button.click();
         }
+
+        presenter.prevStateIndex = -1;
+        presenter.previousStates = [];
+        presenter.pushState();
         presenter.updateUndoRedoButtonsVisibility();
     }
 
@@ -687,7 +700,10 @@ function AddonGeometricConstruct_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'reset': presenter.reset
+            'reset': presenter.reset,
+            'prevState': presenter.prevState,
+            'nextState': presenter.nextState
+
         };
         Commands.dispatch(commands, name, params, presenter);
     };
