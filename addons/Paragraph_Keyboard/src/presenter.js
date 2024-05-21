@@ -305,6 +305,9 @@ function AddonParagraph_Keyboard_create() {
     /**
      * Parses model and set settings to default values if either of them is empty
      *
+     * IMPORTANT. Validation resulting in a validation error, e.g. W_01, must be implemented in Open Activities
+     * on the mCourser side.
+     *
      * @param model:object
      * @param isPreview:boolean
      * @returns {{fontFamily: *, fontSize: *}}
