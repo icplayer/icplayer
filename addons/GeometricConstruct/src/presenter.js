@@ -17,6 +17,15 @@ function AddonGeometricConstruct_create() {
 
     presenter.playerController = null;
 
+    presenter.CSS_CLASSES = {
+        TOOLBAR_WRAPPER: 'toolbar_wrapper',
+        WORKSPACE_WRAPPER: 'workspace_wrapper',
+        CANVAS_OVERLAY: 'canvas_overlay',
+        REMOVE_FIGURE_BUTTON: 'remove_figure',
+        CURSOR: 'Cursor',
+        CURSOR_IMAGE: 'cursor-image'
+    };
+
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model, true);
     };
@@ -30,6 +39,8 @@ function AddonGeometricConstruct_create() {
         presenter.setElements(view);
         presenter.createView(isPreview);
         presenter.pushState();
+        if (!presenter.configuration.defaultVisibility) presenter.hide();
+        presenter.pushState();
     }
 
     presenter.show = function() {
@@ -42,27 +53,31 @@ function AddonGeometricConstruct_create() {
         presenter.$view.css('display', 'none');
     }
 
+    presenter.isVisible = function() {
+        return presenter.$view.css('display') != 'none' &&  presenter.$view.css('visibility') != 'hidden';
+    }
+
     presenter.validateModel = function (model) {
-        var strokeColor = "black";
-        if (model["stroke color"] && model["stroke color"].trim().length > 0) strokeColor = model["stroke color"];
-        var fillColor = "blue";
-        if (model["fill color"] && model["fill color"].trim().length > 0) fillColor = model["fill color"];
+        console.log(model);
+        var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
+        var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
         return {
             fillColor: fillColor,
             strokeColor: strokeColor,
             width: parseInt(model["Width"]),
-            height: parseInt(model["Height"])
+            height: parseInt(model["Height"]),
+            defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"])
         };
     }
 
     presenter.setElements = function(view) {
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.$toolbarWrapper = presenter.$view.find('.toolbar_wrapper');
+        presenter.$toolbarWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_WRAPPER);
         presenter.$undoButton = presenter.$toolbarWrapper.find('.undo_button');
         presenter.$redoButton = presenter.$toolbarWrapper.find('.redo_button');
         presenter.$resetButton = presenter.$toolbarWrapper.find('.reset_button');
-        presenter.$workspaceWrapper = presenter.$view.find('.workspace_wrapper');
+        presenter.$workspaceWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.WORKSPACE_WRAPPER);
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
     }
 
@@ -81,7 +96,7 @@ function AddonGeometricConstruct_create() {
         presenter.context = presenter.canvas.getContext("2d");
         presenter.$workspaceWrapper.prepend(presenter.canvas);
         presenter.canvasRect = presenter.canvas.getBoundingClientRect();
-        presenter.$canvasOverlay = presenter.$workspaceWrapper.find(".canvas_overlay");
+        presenter.$canvasOverlay = presenter.$workspaceWrapper.find("."+presenter.CSS_CLASSES.CANVAS_OVERLAY);
         presenter.$canvasOverlay.css('width', width);
         presenter.$canvasOverlay.css('height', height);
         if (!isPreview) {
@@ -93,7 +108,7 @@ function AddonGeometricConstruct_create() {
             presenter.$canvasOverlay.on('touchend', canvasOnMouseUpHandler);
         }
 
-        presenter.$removeFigure = presenter.$workspaceWrapper.find(".remove_figure");
+        presenter.$removeFigure = presenter.$workspaceWrapper.find("."+presenter.CSS_CLASSES.REMOVE_FIGURE_BUTTON);
         presenter.$removeFigure.css('display', 'none');
         if (!isPreview) {
             presenter.$removeFigure.on('click', removeFigureOnClickHandler);
@@ -215,7 +230,7 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbar = function() {
-        var cursorElement = presenter.createToolbarButton("Cursor", "Cursor", "cursor-image", () => {
+        var cursorElement = presenter.createToolbarButton("Cursor", presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, () => {
             presenter.setEditMode(true);
         }, ()=>{});
         presenter.createGeometricElementButton("Point", Point);
@@ -255,21 +270,22 @@ function AddonGeometricConstruct_create() {
 
     presenter.destroyLabel = function(labelValue) {
         var index = presenter.labelsList.indexOf(labelValue);
-        if (index != -1) {
-            presenter.labelsList[index] = '';
-            if (index ===  presenter.labelsList.length - 1) {
-                for (var i = presenter.labelsList.length - 1; i > -1; i--) {
-                    if (presenter.labelsList[i] == '') {
-                        presenter.labelsList.pop();
-                    } else {
-                        break;
-                    }
+        if (index == -1) return;
+
+        presenter.labelsList[index] = '';
+        if (index ===  presenter.labelsList.length - 1) {
+            for (var i = presenter.labelsList.length - 1; i > -1; i--) {
+                if (presenter.labelsList[i] == '') {
+                    presenter.labelsList.pop();
+                } else {
+                    break;
                 }
             }
         }
+
     }
 
-    presenter.endInsert = function(abandonChanges) {
+    presenter.finishInsert = function(abandonChanges) {
         if (abandonChanges && presenter.newFigure != null) {
             presenter.newFigure.remove();
         }
@@ -294,55 +310,51 @@ function AddonGeometricConstruct_create() {
         constructor(){}
 
         draw() {
-            throw new Error("GeometricElement.draw is abstract but has not been implemented");
-        };
-
-        addLabel() {
-            throw new Error("GeometricElement.addLabel is abstract but has not been implemented");
+            throw new Error("GeometricElement.draw is abstract and has not been implemented");
         };
 
         append() {
-            throw new Error("GeometricElement.append is abstract but has not been implemented");
+            throw new Error("GeometricElement.append is abstract and has not been implemented");
         }
 
         remove() {
-            throw new Error("GeometricElement.remove is abstract but has not been implemented");
+            throw new Error("GeometricElement.remove is abstract and has not been implemented");
         }
 
         insertClickHandler(event) {
-            throw new Error("GeometricElement.insertClickHandler is abstract but has not been implemented");
+            throw new Error("GeometricElement.insertClickHandler is abstract and has not been implemented");
         }
 
         moveHandler(event) {
-            throw new Error("GeometricElement.moveHandler is abstract but has not been implemented");
+            throw new Error("GeometricElement.moveHandler is abstract and has not been implemented");
         }
 
         isClicked(event) {
-            throw new Error("GeometricElement.isClicked is abstract but has not been implemented");
+            throw new Error("GeometricElement.isClicked is abstract and has not been implemented");
         }
 
         addLabel() {
-            throw new Error("GeometricElement.addLabel is abstract but has not been implemented");
+            throw new Error("GeometricElement.addLabel is abstract and has not been implemented");
         }
 
         updateLabel() {
-            throw new Error("GeometricElement.updateLabel is abstract but has not been implemented");
+            throw new Error("GeometricElement.updateLabel is abstract and has not been implemented");
         }
 
         hideLabel() {
-            throw new Error("GeometricElement.hideLabel is abstract but has not been implemented");
+            throw new Error("GeometricElement.hideLabel is abstract and has not been implemented");
         }
 
         setSelected() {
-            throw new Error("GeometricElement.setSelected is abstract but has not been implemented");
+            throw new Error("GeometricElement.setSelected is abstract and has not been implemented");
         }
 
         toJSON() {
-            throw new Error("GeometricElement.toJSON is abstract but has not been implemented");
+            throw new Error("GeometricElement.toJSON is abstract and has not been implemented");
         }
 
         loadJSON(json) {
-            throw new Error("GeometricElement.loadJSON is abstract but has not been implemented");
+            throw new Error("GeometricElement.loadJSON is abstract and has not been implemented");
         }
     }
 
@@ -508,7 +520,7 @@ function AddonGeometricConstruct_create() {
 
         element.click((e) => {
             var isSelected = element.hasClass('selected');
-            presenter.endInsert(true);
+            presenter.finishInsert(true);
             presenter.setEditMode(false);
             if (!isSelected) {
                 selectedCallback();
@@ -524,6 +536,7 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.clearFigures = function() {
+        presenter.clearFigureSelection();
         for (var i = presenter.figuresList.length - 1; i > -1; i--) {
             presenter.figuresList[i].remove();
         }
@@ -544,6 +557,11 @@ function AddonGeometricConstruct_create() {
             $button.click();
         }
         presenter.updateUndoRedoButtonsVisibility();
+        if (presenter.configuration.defaultVisibility) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
     }
 
     presenter.getSelectedButtonType = function() {
@@ -559,7 +577,8 @@ function AddonGeometricConstruct_create() {
         var state = {
             figures: [],
             labelsList: [...presenter.labelsList],
-            selectedButton: presenter.getSelectedButtonType()
+            selectedButton: presenter.getSelectedButtonType(),
+            visibility: presenter.isVisible()
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             state.figures.push(presenter.figuresList[i].toJSON());
@@ -570,6 +589,11 @@ function AddonGeometricConstruct_create() {
     presenter.setState = function(state) {
         presenter.clearFigures();
         var parsedState = JSON.parse(state);
+        if (parsedState.visibility) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
         presenter.loadFiguresFromState(parsedState.figures);
         presenter.labelsList = [...parsedState.labelsList];
         presenter.redrawCanvas();
@@ -658,6 +682,15 @@ function AddonGeometricConstruct_create() {
             presenter.$redoButton.css('visibility', 'hidden');
         }
     }
+
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
+            'reset': presenter.reset
+        };
+        Commands.dispatch(commands, name, params, presenter);
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
