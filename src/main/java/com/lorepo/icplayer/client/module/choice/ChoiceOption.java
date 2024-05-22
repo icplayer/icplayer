@@ -186,8 +186,8 @@ public class ChoiceOption extends BasicPropertyProvider{
 				text = StringUtils.unescapeXML(text);
 			}
 			if (baseUrl != null || contentBaseURL != null){
-			    text = StringUtils.updateLinks(text, baseUrl, contentBaseURL);
-            }
+				text = StringUtils.updateLinks(text, baseUrl, contentBaseURL);
+			}
 
 			NodeList feedbackNodes = element.getElementsByTagName("feedback");
 			if(feedbackNodes.getLength() > 0){
@@ -224,11 +224,11 @@ public class ChoiceOption extends BasicPropertyProvider{
 	}
 
 	public void setContentBaseURL(String baseURL) {
-	    this.contentBaseURL = baseURL;
+		this.contentBaseURL = baseURL;
 	}
 
 	public String getContentBaseURL() {
-	    return this.contentBaseURL;
+		return this.contentBaseURL;
 	}
 	
 }

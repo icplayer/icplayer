@@ -954,7 +954,7 @@ public class TextParser {
 				String group = matchResult.getGroup(0);
 				String filePath = matchResult.getGroup(1);
 				if (contentBaseURL != null) {
-				    filePath = URLUtils.resolveURL(contentBaseURL, filePath, true);
+					filePath = URLUtils.resolveURL(contentBaseURL, filePath, true);
 				}
 				int lastIndex = matchResult.getIndex();
 				int groupLength = group.length();
@@ -1186,7 +1186,7 @@ public class TextParser {
 	}
 
 	public void setContentBaseURL(String baseURL) {
-	    this.contentBaseURL = baseURL;
+		this.contentBaseURL = baseURL;
 	}
 
 }

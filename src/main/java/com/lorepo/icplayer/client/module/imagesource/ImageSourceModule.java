@@ -48,17 +48,17 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 		
 		String contentBaseURL = this.getContentBaseURL();
 		if (contentBaseURL == null) {
-		    if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
-                return imagePath;
-            }
-            return this.baseURL + imagePath;
+			if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
+				return imagePath;
+			}
+			return this.baseURL + imagePath;
 		} else {
-		    if (imagePath.startsWith("http")) {
-                return imagePath;
-            } else if (imagePath.startsWith("//")) {
-                return "https:" + imagePath;
-            }
-            return contentBaseURL + imagePath;
+			if (imagePath.startsWith("http")) {
+				return imagePath;
+			} else if (imagePath.startsWith("//")) {
+				return "https:" + imagePath;
+			}
+			return contentBaseURL + imagePath;
 		}
 	}
 

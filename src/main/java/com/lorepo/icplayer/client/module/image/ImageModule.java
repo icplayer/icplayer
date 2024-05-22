@@ -50,20 +50,20 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 		if (imagePath.isEmpty()){
 			return GWT.getModuleBaseURL() + "media/no_image.gif";
 		}
-
+		
 		String contentBaseURL = this.getContentBaseURL();
 		if (contentBaseURL == null) {
-		    if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
-                return imagePath;
-            }
-            return this.baseURL + imagePath;
+			if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
+				return imagePath;
+			}
+			return this.baseURL + imagePath;
 		} else {
-		    if (imagePath.startsWith("http")) {
-                return imagePath;
-            } else if (imagePath.startsWith("//")) {
-                return "https:" + imagePath;
-            }
-            return contentBaseURL + imagePath;
+			if (imagePath.startsWith("http")) {
+				return imagePath;
+			} else if (imagePath.startsWith("//")) {
+				return "https:" + imagePath;
+			}
+			return contentBaseURL + imagePath;
 		}
 	}
 

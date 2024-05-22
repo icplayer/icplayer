@@ -517,11 +517,11 @@ public class PlayerApp {
 	 * @return Content base URL when given in ContextMetadata, otherwise null
 	 */
 	private String getContentBaseURL() {
-	    JavaScriptObject contextMetadata = getContextMetadata();
-	    if (contextMetadata != null) {
-	        return JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
-	    }
-	    return null;
+		JavaScriptObject contextMetadata = getContextMetadata();
+		if (contextMetadata != null) {
+			return JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+		}
+		return null;
 	}
 
 	public void setExternalVariables(JavaScriptObject contextData) {

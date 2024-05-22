@@ -61,7 +61,7 @@ public class LinkInfo {
 	}
 	
 	public void setBaseUrl(String newBaseUrl) {
-	    setBaseUrl(newBaseUrl, false);
+		setBaseUrl(newBaseUrl, false);
 	}
 	
 	public void setBaseUrl(String newBaseUrl, boolean useContentBaseURL) {
@@ -73,7 +73,7 @@ public class LinkInfo {
 				|| href.startsWith("file") || href.startsWith("javascript")){
 			return;
 		} else if (useContentBaseURL && href.startsWith("//")) {
-		    updatedHref = "https:" + href;
+			updatedHref = "https:" + href;
 		} else {
 			updatedHref = newBaseUrl + href;
 		}
