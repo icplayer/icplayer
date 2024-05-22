@@ -199,26 +199,49 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void setScaleInformation(String scaleX, 
-									String scaleY,
-									String transform, 
-									String transformOrigin) 
+	public void setScaleInformation(String baseScaleX,
+									String baseScaleY,
+									String baseTransform,
+									String baseTransformOrigin)
 	{
 		ScaleInformation scaleInfo = new ScaleInformation();
-		scaleInfo.scaleX = Double.parseDouble(scaleX);
-		scaleInfo.scaleY = Double.parseDouble(scaleY);
-		if (transform!=null) {
-			scaleInfo.transform = transform;
+		scaleInfo.baseScaleX = Double.parseDouble(baseScaleX);
+		scaleInfo.baseScaleY = Double.parseDouble(baseScaleY);
+		scaleInfo.scaleX = scaleInfo.baseScaleX;
+		scaleInfo.scaleY = scaleInfo.baseScaleY;
+		if (baseTransform != null) {
+			scaleInfo.transform = baseTransform;
 		} else {
 			throw new NullPointerException("ScaleInformation.transform cannot be null");
 		}
-		if (transformOrigin!=null) {
-			scaleInfo.transformOrigin = transformOrigin;
+		if (baseTransformOrigin != null) {
+			scaleInfo.transformOrigin = baseTransformOrigin;
 		} else {
 			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
 		}
 		this.scaleInformation = scaleInfo;
 		
+		JavaScriptUtils.setScaleInformation(this.scaleInformation.baseScaleX, this.scaleInformation.baseScaleY);
+		this.fixDroppable();
+	}
+
+	@Override
+	public void setFinalScaleInformation(String scaleX,
+										 String scaleY,
+										 String transform,
+										 String transformOrigin)
+    {
+		this.scaleInformation.scaleX = Double.parseDouble(scaleX);
+		this.scaleInformation.scaleY = Double.parseDouble(scaleY);
+
+		if (transform != null) {
+			this.scaleInformation.transform = transform;
+		}
+		if (transformOrigin != null) {
+			this.scaleInformation.transformOrigin = transformOrigin;
+		}
+		
+		JavaScriptUtils.setFinalScaleInformation(this.scaleInformation.scaleX, this.scaleInformation.scaleY);
 		this.fixDroppable();
 	}
 

@@ -1,4 +1,9 @@
 2024-05-22 Added support for content base URL
+2024-05-13 Added validation to course ID in the Cross Lesson
+2024-05-12 Added floatScore field to the PlayerUtils lesson score
+2024-05-09 Fixed state and reset functionality in the Model Viewer 3D
+2024-05-08 Added Zoom module
+2024-05-07 Change URL to library in Model Viewer 3D
 2024-04-26 Added Model Viewer 3D addon
 2024-04-19 Fixed mathjax not being rendered when added to a text module via the setText method
 2924-04-18 Fixed magic boxes throwing errors in iceditor on reload
