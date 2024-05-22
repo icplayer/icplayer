@@ -10,6 +10,13 @@ import com.lorepo.icplayer.client.model.addon.AddonDescriptorFactory;
 public class AddonLoaderFactory {
 	private AddonDescriptorFactory localAddons;
 	private String baseUrl;
+	private String contentBaseURL;
+
+	public AddonLoaderFactory(String baseUrl, String contentBaseURL) {
+		this.baseUrl = baseUrl;
+		this.contentBaseURL = contentBaseURL;
+		this.localAddons = AddonDescriptorFactory.getInstance();
+	}
 	
 	public AddonLoaderFactory(String baseUrl) {
 		this.baseUrl = baseUrl;
@@ -23,7 +30,7 @@ public class AddonLoaderFactory {
 			localLoader.setAddonDescriptor(descriptor);
 			loader = localLoader;
 		} else {
-			String url = URLUtils.resolveURL(this.baseUrl, descriptor.getHref());
+			String url = URLUtils.resolveURL(this.baseUrl, descriptor.getHref(), this.contentBaseURL);
 			loader = new PrivateAddonLoader(descriptor, url);
 		}
 

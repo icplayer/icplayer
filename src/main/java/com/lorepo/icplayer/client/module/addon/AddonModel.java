@@ -376,16 +376,15 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	private void addPropertyToModel(JavaScriptObject jsModel, IProperty property){
 		String value = property.getValue();
 		
-		if(	property instanceof IAudioProperty || 
+		if (property instanceof IAudioProperty ||
 			property instanceof IImageProperty ||
 			property instanceof IVideoProperty ||
 			property instanceof IScriptProperty ||
 			property instanceof IFileProperty)
 		{
-			value = URLUtils.resolveURL(this.getBaseURL(), value);
-		}
-		else if(property instanceof IHtmlProperty){
-			value = StringUtils.updateLinks(value, this.getBaseURL());
+			value = URLUtils.resolveURL(this.getBaseURL(), value, this.getContentBaseURL());
+		} else if (property instanceof IHtmlProperty){
+            value = StringUtils.updateLinks(value, this.getBaseURL(), this.getContentBaseURL());
 		}
 		addPropertyToJSObject(jsModel, property.getName(), value);
 	}

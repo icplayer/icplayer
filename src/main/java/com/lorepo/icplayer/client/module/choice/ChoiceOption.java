@@ -18,6 +18,7 @@ public class ChoiceOption extends BasicPropertyProvider{
 	private String feedback = "";
 	private String id;
 	private String parentId = "";
+	private String contentBaseURL = "";
 	
 	public ChoiceOption(String id){
 		
@@ -184,10 +185,10 @@ public class ChoiceOption extends BasicPropertyProvider{
 				text = XMLUtils.getText(textElement);
 				text = StringUtils.unescapeXML(text);
 			}
-			if(baseUrl != null){
-				text = StringUtils.updateLinks(text, baseUrl);
-			}
-			
+			if (baseUrl != null || contentBaseURL != null){
+			    text = StringUtils.updateLinks(text, baseUrl, contentBaseURL);
+            }
+
 			NodeList feedbackNodes = element.getElementsByTagName("feedback");
 			if(feedbackNodes.getLength() > 0){
 				rawFeedback = XMLUtils.getText((Element) feedbackNodes.item(0));
@@ -220,6 +221,14 @@ public class ChoiceOption extends BasicPropertyProvider{
 		optionElement.appendChild(feedbackElement);
 		
 		return optionElement;
+	}
+
+	public void setContentBaseURL(String baseURL) {
+	    this.contentBaseURL = baseURL;
+	}
+
+	public String getContentBaseURL() {
+	    return this.contentBaseURL;
 	}
 	
 }

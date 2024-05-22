@@ -7,6 +7,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -43,6 +44,7 @@ public class TextParser {
 	private boolean hasSyntaxError = false;
 	private String langTag = "";
 	private boolean isNumericOnly = false;
+	private String contentBaseURL;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -951,6 +953,9 @@ public class TextParser {
 			if (matchResult.getGroupCount() > 0) {
 				String group = matchResult.getGroup(0);
 				String filePath = matchResult.getGroup(1);
+				if (contentBaseURL != null) {
+				    filePath = URLUtils.resolveURL(contentBaseURL, filePath, true);
+				}
 				int lastIndex = matchResult.getIndex();
 				int groupLength = group.length();
 
@@ -1180,5 +1185,8 @@ public class TextParser {
 		return answer;
 	}
 
+	public void setContentBaseURL(String baseURL) {
+	    this.contentBaseURL = baseURL;
+	}
 
 }

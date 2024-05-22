@@ -50,6 +50,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	private void initUI(boolean isMulti) {
 		
 		TextParser parser = new TextParser();
+		parser.setContentBaseURL(choiceOption.getContentBaseURL());
 		parserResult = parser.parse(choiceOption.getText());
 		audioInfos = parserResult.audioInfos;
 		this.setHTML(parserResult.parsedText);

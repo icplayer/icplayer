@@ -15,6 +15,7 @@ public class OrderingItem extends BasicPropertyProvider {
 
 	private String html;
 	private final String baseURL;
+	private final String contentBaseURL;
 	private final int index;
 	private final ArrayList<Integer> alternativeIndexes = new ArrayList<Integer>();
 	private Integer startingPosition;
@@ -24,11 +25,26 @@ public class OrderingItem extends BasicPropertyProvider {
 	private static final String DIV_WITHOUT_AUDIO = "<div><br></div>";
 
 	public OrderingItem(int index, String safeHtml, String baseURL, Integer startingPosition) {
-
 		super(DictionaryWrapper.get("ordering_item"));
 		this.index = index;
 		this.html = safeHtml;
 		this.baseURL = baseURL;
+		this.contentBaseURL = null;
+		this.startingPosition = startingPosition;
+		if (this.startingPosition != null) {
+			this.startingPositionString = String.valueOf(this.startingPosition);
+		}
+
+		this.addPropertyText();
+		this.addPropertyStartingPosition();
+	}
+
+	public OrderingItem(int index, String safeHtml, String baseURL, Integer startingPosition, String contentBaseURL) {
+		super(DictionaryWrapper.get("ordering_item"));
+		this.index = index;
+		this.html = safeHtml;
+		this.baseURL = baseURL;
+		this.contentBaseURL = contentBaseURL;
 		this.startingPosition = startingPosition;
 		if (this.startingPosition != null) {
 			this.startingPositionString = String.valueOf(this.startingPosition);
@@ -39,7 +55,7 @@ public class OrderingItem extends BasicPropertyProvider {
 	}
 
 	public String getText() {
-		return baseURL == null ? html : StringUtils.updateLinks(html, baseURL);
+        return (baseURL == null || contentBaseURL == null) ? html : StringUtils.updateLinks(html, baseURL, contentBaseURL);
 	}
 
 	private void addPropertyText() {

@@ -21,6 +21,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String moduleName;
 	private String id;
 	protected String baseURL;
+	protected String contentBaseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
@@ -74,7 +75,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 
 	@Override
 	public void setInlineStyle(String style) {
-		String css = URLUtils.resolveCSSURL(this.baseURL, style);
+		String css = URLUtils.resolveCSSURL(this.baseURL, style, this.contentBaseURL);
 		super.setInlineStyle(css);
 	}
 	
@@ -371,11 +372,21 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 
 	public String getBaseURL() {
-		return baseURL;
+		return this.baseURL;
 	}
 
+    @Override
 	public void setBaseUrl(String baseUrl) {
 		this.baseURL = baseUrl;
+    }
+
+	@Override
+	public void setContentBaseURL(String baseURL) {
+		this.contentBaseURL = baseURL;
+	}
+
+	public String getContentBaseURL() {
+		return this.contentBaseURL;
 	}
 
 	@Override
