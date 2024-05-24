@@ -973,7 +973,7 @@ function AddonText_Selection_create() {
     };
 
     presenter.markMathJax = function (text) {
-        var findMathJaxRex = /\\\(.*?\\\)/g;
+        var findMathJaxRex = /\\\(.*?\\\)/;
         var match = findMathJaxRex.exec(text);
         while (match !== null) {
             text = text.replace(match[0], MATH_JAX_MARKER + presenter.markedMathJaxContent.length);
