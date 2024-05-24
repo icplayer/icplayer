@@ -1,4 +1,5 @@
 2024-05-20 Added max score to Paragraph and Paragraph Keyboard addons
+2024-05-16 Fixed incorrect display of formulas in the Text Selection
 2024-05-13 Added validation to course ID in the Cross Lesson
 2024-04-12 Added floatScore field to the PlayerUtils lesson score
 2024-05-09 Fixed state and reset functionality in the Model Viewer 3D
