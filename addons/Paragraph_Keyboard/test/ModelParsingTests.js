@@ -157,8 +157,7 @@ TestCase("[Paragraph Keyboard] Model parsing", {
 
         var validatedModel = this.presenter.parseModel(model);
 
-        assertEquals('evaluationError', validatedModel.error);
-
+        assertEquals('evaluationError', validatedModel.errorCode);
     },
 
     'test invalid Custom Keyboard Layout': function() {
@@ -170,8 +169,7 @@ TestCase("[Paragraph Keyboard] Model parsing", {
 
         var validatedModel = this.presenter.parseModel(model);
 
-        assertEquals('defaultLayoutError', validatedModel.error);
-
+        assertEquals('defaultLayoutError', validatedModel.errorCode);
     },
 
     'test proper Custom Keyboard Layout': function() {
@@ -183,11 +181,10 @@ TestCase("[Paragraph Keyboard] Model parsing", {
 
         var validatedModel = this.presenter.parseModel(model);
 
-        assertEquals(false, validatedModel.error);
-
+        assertTrue(validatedModel.isValid);
     },
 
-    'test given manual grading and title when properties set than should be the same in model': function () {
+    'test given manual grading and title when properties set then should be the same in model': function () {
         var model = {
             'ID': 'Paragraph_Keyboard1',
             'Manual grading': false,
@@ -201,7 +198,7 @@ TestCase("[Paragraph Keyboard] Model parsing", {
         assertEquals(false, validatedModel.manualGrading);
     },
 
-    'test given manual grading and title when properties are empty than should be empty and false in model': function () {
+    'test given manual grading and title when properties are empty then should be empty and false in model': function () {
         var model = {
             'ID': 'Paragraph_Keyboard1'
         };
@@ -213,26 +210,197 @@ TestCase("[Paragraph Keyboard] Model parsing", {
         assertEquals(false, validatedModel.manualGrading);
     },
 
-    'test given weight when properties set than should be the same in model': function () {
-        var model = {
-            'ID': 'Paragraph_Keyboard1',
-            'Weight': '0'
+    'test not given value as weight when validating model in run mode then use default value 1 as weight': function () {
+        const model = {
+            'ID': 'Paragraph ID'
         };
+        const isPreview = false;
 
-        var upgradedModel = this.presenter.upgradeModel(model);
-        var validatedModel = this.presenter.parseModel(upgradedModel);
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
 
-        assertEquals('0', validatedModel.weight);
+        assertEquals(1, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
     },
 
-    'test given weight when properties are empty than should be empty in model': function () {
-        var model = {
-            'ID': 'Paragraph_Keyboard1'
+    'test not given value as weight when validating model in preview mode then use default value 1 as weight': function () {
+        const model = {
+            'ID': 'Paragraph ID'
         };
+        const isPreview = true;
 
-        var upgradedModel = this.presenter.upgradeModel(model);
-        var validatedModel = this.presenter.parseModel(upgradedModel);
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
 
-        assertEquals('', validatedModel.weight);
-    }
+        assertEquals(1, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given the lowest number that can be accepted as weight when validating model in run mode then accept it to the model': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '0'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals(0, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given the lowest number that can be accepted as weight when validating model in preview mode then accept it to the model': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '0'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals(0, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given the largest number that can be accepted as weight when validating model in run mode then accept it to the model': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '100'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals(100, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given the largest number that can be accepted as weight when validating model in preview mode then accept it to the model': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '100'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals(100, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given random string as weight when validating model in run mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': 'Lorem'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given random string as weight when validating model in preview mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': 'Lorem'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given negative number as weight when validating model in run mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '-1'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given negative number as weight when validating model in preview mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '-1'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given number larger then 100 as weight when validating model in run mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '101'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given number larger then 100 as weight when validating model in preview mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '101'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test given float as weight when validating model in run mode then execute floor on value and accept it to the model': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '2.8'
+        };
+        const isPreview = false;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals(2, validatedModel.weight);
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given float as weight when validating model in preview mode then return "W_01" error code': function () {
+        const model = {
+            'ID': 'Paragraph ID',
+            'Weight': '2.8'
+        };
+        const isPreview = true;
+
+        const upgradedModel = this.presenter.upgradeModel(model);
+        const validatedModel = this.presenter.parseModel(upgradedModel, isPreview);
+
+        assertEquals("W_01", validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+    },
 });
