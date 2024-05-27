@@ -67,7 +67,6 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Manual grading</td>
         <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possibly be verified without previewing the lesson. If selected, the value of `weight` property will be treated as max score. The score awarded by the teacher will not affect the content of the lesson, only the summary of Assignment.</td>
     </tr>
-    </tr>
     <tr>
         <td>Show answers</td>
         <td>Text to display on Show Answers.</td>

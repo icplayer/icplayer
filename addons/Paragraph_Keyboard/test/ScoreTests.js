@@ -107,4 +107,3 @@ TestCase("[Paragraph Keyboard] Get error count method tests", {
         assertEquals(2, errorCount);
     }
 });
-
