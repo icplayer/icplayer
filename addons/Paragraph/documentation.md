@@ -171,9 +171,7 @@ To activate scoring addon must have the `Manual grading` property selected.
     </tr>
     <tr>
         <td>errorCount</td>
-        <td>Equal to the result of the subtraction operation of max score and score.<br>
-            If `Manual grading` property is not selected then returns 0.
-        </td>
+        <td>Always returns 0.</td>
     </tr>
 </tbody>
 </table>

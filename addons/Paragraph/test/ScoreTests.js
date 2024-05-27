@@ -98,12 +98,12 @@ TestCase("[Paragraph] Get error count method tests", {
         this.presenter.getMaxScore = this.stubs.getMaxScoreStub;
     },
 
-    'test given max score and score when getErrorCount executed then return the result of subtracting these values': function () {
+    'test given max score and score when getErrorCount executed then return 0': function () {
         this.stubs.getScoreStub.returns(1);
         this.stubs.getMaxScoreStub.returns(3);
 
         const errorCount = this.presenter.getErrorCount();
 
-        assertEquals(2, errorCount);
+        assertEquals(0, errorCount);
     }
 });

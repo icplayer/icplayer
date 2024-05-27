@@ -1233,7 +1233,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.getErrorCount = function(){
-        return presenter.getMaxScore() - presenter.getScore();
+        return 0;
     };
 
     presenter.isAIReady = function() {
