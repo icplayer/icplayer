@@ -154,7 +154,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			};
 
 			player.setOpenActivitiesScores = function(scores) {
-			    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setOpenActivitiesScores(Lcom/google/gwt/core/client/JavaScriptObject;)(scores);
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setOpenActivitiesScores(Lcom/google/gwt/core/client/JavaScriptObject;)(scores);
 			};
 		}
 
@@ -415,6 +415,6 @@ public class PlayerEntryPoint implements EntryPoint {
 	}
 
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
-        this.theApplication.getScoreService().setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
+		this.theApplication.getScoreService().setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
 	}
 }

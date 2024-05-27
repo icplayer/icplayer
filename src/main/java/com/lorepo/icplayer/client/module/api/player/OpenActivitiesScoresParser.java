@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 
 public class OpenActivitiesScoresParser extends JavaScriptObject{
@@ -12,12 +11,12 @@ public class OpenActivitiesScoresParser extends JavaScriptObject{
 	protected OpenActivitiesScoresParser(){}
 
 	public static HashMap<String, PageOpenActivitiesScore> toHashMap(JavaScriptObject jsObject) {
-	    OpenActivitiesScoresParser parser = createParser(jsObject);
-	    return parser.toHashMap();
+		OpenActivitiesScoresParser parser = createParser(jsObject);
+		return parser.toHashMap();
 	};
 
 	private native static OpenActivitiesScoresParser createParser(JavaScriptObject jsObject) /*-{
-	    return jsObject;
+		return jsObject;
 	}-*/;
 	
 	public final HashMap<String, PageOpenActivitiesScore> toHashMap(){
@@ -27,17 +26,17 @@ public class OpenActivitiesScoresParser extends JavaScriptObject{
 		for (int i = 0; i < this.length(); i++){
 			String pageID = this.getPageID(i);
 			if (scores.containsKey(pageID)) {
-			    score = scores.get(pageID);
+				score = scores.get(pageID);
 			} else {
-                score = new PageOpenActivitiesScore();
-                scores.put(pageID, score);
+				score = new PageOpenActivitiesScore();
+				scores.put(pageID, score);
 			}
-            score.addScore(
-                this.getModuleID(i),
-                this.getAIGradedScore(i),
-                this.getManualGradedScore(i),
-                this.getMaxScore(i)
-            );
+			score.addScore(
+				this.getModuleID(i),
+				this.getAIGradedScore(i),
+				this.getManualGradedScore(i),
+				this.getMaxScore(i)
+			);
 		}
 		
 		return scores;

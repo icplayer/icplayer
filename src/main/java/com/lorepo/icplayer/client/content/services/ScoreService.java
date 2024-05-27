@@ -182,20 +182,20 @@ public class ScoreService implements IScoreService {
 
 	@Override
 	public void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores) {
-        this.pagesOpenActivitiesScores = scores;
+		this.pagesOpenActivitiesScores = scores;
 	}
 
 	@Override
 	public ScoreInfo getOpenActivityScores(String pageID, String moduleID) {
-	    PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
-	    if (pageScore == null) {
-	        return new ScoreInfo(null, null, null);
-	    }
-	    ScoreInfo scoreInfo = pageScore.get(moduleID);
-	    if (scoreInfo == null) {
-	        return new ScoreInfo(null, null, null);
-	    }
-	    return scoreInfo;
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			return new ScoreInfo(null, null, null);
+		}
+		ScoreInfo scoreInfo = pageScore.get(moduleID);
+		if (scoreInfo == null) {
+			return new ScoreInfo(null, null, null);
+		}
+		return scoreInfo;
 	}
 
 }
