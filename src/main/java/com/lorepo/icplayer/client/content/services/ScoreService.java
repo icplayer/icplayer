@@ -8,6 +8,8 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 public class ScoreService implements IScoreService {
 
@@ -15,6 +17,7 @@ public class ScoreService implements IScoreService {
 	// Helper field for mapping page name to its ID (backwards compatibility)
 	private final HashMap<String, String>	pagesNamesToIds;
 	private final HashMap<String, PageScore>	pageScores;
+	private HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores;
 	private final boolean useLast;
 	private final ScoreType scoreType;
 	private IPlayerServices playerServices;
@@ -25,6 +28,7 @@ public class ScoreService implements IScoreService {
 		scores = new HashMap<String, Integer>();
 		pagesNamesToIds = new HashMap<String, String>();
 		pageScores = new HashMap<String, PageScore>();
+		pagesOpenActivitiesScores = new HashMap<String, PageOpenActivitiesScore>();
 	}
 
 	@Override
@@ -174,6 +178,24 @@ public class ScoreService implements IScoreService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores) {
+        this.pagesOpenActivitiesScores = scores;
+	}
+
+	@Override
+	public ScoreInfo getOpenActivityScores(String pageID, String moduleID) {
+	    PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+	    if (pageScore == null) {
+	        return new ScoreInfo(null, null, null);
+	    }
+	    ScoreInfo scoreInfo = pageScore.get(moduleID);
+	    if (scoreInfo == null) {
+	        return new ScoreInfo(null, null, null);
+	    }
+	    return scoreInfo;
 	}
 
 }

@@ -350,12 +350,12 @@ function AddonParagraph_Keyboard_create() {
                 eval('keyboardLayout = ' + keyboardLayout);
             } catch(e) {
                 presenter.ERROR_CODES['evaluationError'] = 'Custom keyboard layout parsing error: ' + e.message;
-                return getErrorObject('evaluationError');
+                return ModelErrorUtils.getErrorObject('evaluationError');
             }
         }
 
         if (typeof keyboardLayout['default'] !== 'object' || keyboardLayout['default'].length < 1) {
-            return getErrorObject('defaultLayoutError');
+            return ModelErrorUtils.getErrorObject('defaultLayoutError');
         }
 
         const validatedWeight = presenter.validateWeight(weight, isPreview);
@@ -406,16 +406,15 @@ function AddonParagraph_Keyboard_create() {
 
         const validatedInteger = ModelValidationUtils.validateIntegerInRange(weight, 100, 0);
         if (!validatedInteger.isValid) {
-            return getErrorObject("W_01");
+            return ModelErrorUtils.getErrorObject("W_01");
         }
         if (isPreview && (validatedInteger.value + "") !== weight) {
-            return getErrorObject("W_01");
+            return ModelErrorUtils.getErrorObject("W_01");
         }
         return getCorrectObject(validatedInteger.value);
     };
 
     function getCorrectObject(val) { return { isValid: true, value: val }; }
-    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     presenter.setWrapperID = function AddonParagraph_Keyboard_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -947,6 +946,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        const currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        presenter.pageID = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
@@ -1008,7 +1009,8 @@ function AddonParagraph_Keyboard_create() {
             'unlock': presenter.unlock,
             'getText': presenter.getText,
             'setText': presenter.setText,
-            'isAttempted': presenter.isAttempted
+            'isAttempted': presenter.isAttempted,
+            'isAIReady': presenter.isAIReady,
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1209,11 +1211,43 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
+    presenter.getScore = function () {
+        if (!presenter.configuration.isValid
+            || !presenter.configuration.manualGrading
+            || !presenter.playerController
+        ) {
+            return 0;
+        }
+        return OpenActivitiesUtils.getOpenActivityScore(
+            presenter.playerController,
+            presenter.pageID,
+            presenter.configuration.ID
+        );
+    };
+
     presenter.getMaxScore = function () {
         if (!presenter.configuration.isValid || !presenter.configuration.manualGrading) {
             return 0;
         }
         return presenter.configuration.weight;
+    };
+
+    presenter.getErrorCount = function(){
+        return presenter.getMaxScore() - presenter.getScore();
+    };
+
+    presenter.isAIReady = function() {
+        if (!presenter.configuration.isValid
+            || !presenter.configuration.manualGrading
+            || !presenter.playerController
+        ) {
+            return false;
+        }
+        return OpenActivitiesUtils.isAIReady(
+            presenter.playerController,
+            presenter.pageID,
+            presenter.configuration.ID
+        );
     };
 
     return presenter;
