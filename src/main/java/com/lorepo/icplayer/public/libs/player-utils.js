@@ -70,19 +70,16 @@
                 pageScaledScore = 0,
                 reportableCount = 0,
                 count = 0, i, page, score,
-                pageOpenActivitiesScore, pageScoreWithoutOpenActivitiesScore,
                 paginatedResults = [];
 
             for (i = 0; i < presentation.getPageCount(); i++) {
                 page = presentation.getPage(i);
 
                 if (page.isReportable()) {
-                    score = this.scoreService.getPageScoreById(page.getId());
-                    pageOpenActivitiesScore = this.scoreService.getPageOpenActivitiesScoreById(page.getId());
-                    pageScoreWithoutOpenActivitiesScore = score.score - pageOpenActivitiesScore.score;
+                    score = this.scoreService.getPageScoreWithoutOpenActivitiesById(page.getId());
 
                     if (score['maxScore']) {
-                        pageScaledScore = pageScoreWithoutOpenActivitiesScore / score['maxScore'];
+                        pageScaledScore = score['score'] / score['maxScore'];
                     } else {
                         pageScaledScore = page.isVisited() ? 1 : 0;
                     }
@@ -90,7 +87,7 @@
                     var _weight = page.getPageWeight();
                     var weight =  !_weight && _weight !== 0 ? 1 : _weight;
                     sumOfScaledScore += pageScaledScore * weight;
-                    sumOfScore += pageScoreWithoutOpenActivitiesScore;
+                    sumOfScore += score.score;
                     sumOfErrors += score.errorCount;
                     sumOfChecks += score.checkCount;
                     sumOfMaxScore += score.maxScore;
@@ -102,7 +99,7 @@
                         "page_name": page.getName(),
                         "page_id": page.getId(),
                         "score": Math.round(pageScaledScore * 100) / 100,
-                        "absolute_score": pageScoreWithoutOpenActivitiesScore,
+                        "absolute_score": score['score'],
                         "max_score": score['maxScore'] ? score['maxScore'] : page.getModulesMaxScore(),
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,

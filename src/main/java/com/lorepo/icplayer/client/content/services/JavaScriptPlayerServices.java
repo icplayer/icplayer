@@ -372,8 +372,8 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenActivityScores(Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID);
 			};
 
-			score.getPageOpenActivitiesScoreById = function(pageID){
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageOpenActivitiesScoreById(Ljava/lang/String;)(pageID);
+			score.getPageScoreWithoutOpenActivitiesById = function(pageID){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreWithoutOpenActivitiesById(Ljava/lang/String;)(pageID);
 			};
 
 			return score;
@@ -791,11 +791,12 @@ public class JavaScriptPlayerServices {
 		return model;
 	}
 
-	private JavaScriptObject getPageOpenActivitiesScoreById(String id){
-		PageOpenActivitiesScore score = playerServices.getScoreService().getPageOpenActivitiesScoreById(id);
-
-		JavaScriptObject model = openActivityScoreToJs(score);
-
+	private JavaScriptObject getPageScoreWithoutOpenActivitiesById(String id){
+		PageScore score = playerServices.getScoreService().getPageScoreWithoutOpenActivitiesById(id);
+		Long time = playerServices.getTimeService().getPageTimeById(id);
+		
+		JavaScriptObject model = scoreToJs(score, time);
+		
 		return model;
 	}
 
@@ -819,12 +820,6 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "weight", score.getWeight());
 		JavaScriptUtils.addPropertyToJSArray(model, "scaledScore", score.getScaledScore());
-		return model;
-	}
-
-	private static JavaScriptObject openActivityScoreToJs(PageOpenActivitiesScore score) {
-		JavaScriptObject model = JavaScriptObject.createArray();
-		JavaScriptUtils.addPropertyToJSArray(model, "score", score.getScore());
 		return model;
 	}
 

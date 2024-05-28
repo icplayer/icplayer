@@ -11,8 +11,7 @@ TestCase("Player Utils", {
         };
 
         this.scoreService = {
-            getPageScoreById: function () {},
-            getPageOpenActivitiesScoreById: function () {},
+            getPageScoreWithoutOpenActivitiesById: function () {}
         };
 
         this.timeService = {
@@ -23,15 +22,14 @@ TestCase("Player Utils", {
         sinon.stub(this.playerServices, 'getScore');
         sinon.stub(this.playerServices, 'getPresentation');
         sinon.stub(this.playerServices, 'getTimeService');
-        sinon.stub(this.scoreService, 'getPageScoreById');
-        sinon.stub(this.scoreService, 'getPageOpenActivitiesScoreById');
+        sinon.stub(this.scoreService, 'getPageScoreWithoutOpenActivitiesById');
         sinon.stub(this.timeService, 'getTotalTime');
 
         this.player.getPlayerServices.returns(this.playerServices);
         this.playerServices.getScore.returns(this.scoreService);
         this.playerServices.getTimeService.returns(this.timeService);
 
-        this.scoreService.getPageScoreById.withArgs('Page1').returns({
+        this.scoreService.getPageScoreWithoutOpenActivitiesById.withArgs('Page1').returns({
             score: 1,
             maxScore: 4,
             mistakeCount: 3,
@@ -39,20 +37,12 @@ TestCase("Player Utils", {
             errorCount: 2
         });
 
-        this.scoreService.getPageScoreById.withArgs('Page2').returns({
+        this.scoreService.getPageScoreWithoutOpenActivitiesById.withArgs('Page2').returns({
             score: 2,
             maxScore: 3,
             mistakeCount: 1,
             checkCount: 3,
             errorCount: 1
-        });
-
-        this.scoreService.getPageOpenActivitiesScoreById.withArgs('Page1').returns({
-            score: 0,
-        });
-
-        this.scoreService.getPageOpenActivitiesScoreById.withArgs('Page2').returns({
-            score: 0,
         });
 
         this.timeService.getTotalTime.returns("1");
@@ -179,89 +169,5 @@ TestCase("Player Utils", {
         assertEquals(2, score.paginatedResult[1].absolute_score);
         assertEquals(3, score.paginatedResult[1].max_score);
         assertEquals(0.67, score.paginatedResult[1].score);
-    },
-
-    'test all reportable pages with open activities': function () {
-        var playerUtils = new PlayerUtils(this.player),
-            presentation = {
-                getPageCount: function () { return 2; },
-                getPage: function (i) {
-                    if (i == 0) {
-                        return {
-                            isReportable: function () { return true; },
-                            isVisited: function () { return true; },
-                            getName: function () { return "Page 1" },
-                            getId: function () { return "Page1" },
-                            getPageWeight: function () {return 1}
-                        }
-                    }
-
-                    return {
-                        isReportable: function () { return true; },
-                        getName: function () { return "Page 2" },
-                        getId: function () { return "Page2" },
-                        getPageWeight: function () {return 1}
-                    }
-                }
-            };
-
-        this.scoreService.getPageOpenActivitiesScoreById.withArgs('Page2').returns({
-            score: 1,
-        });
-
-        var score = playerUtils.getPresentationScore(presentation);
-
-        assertEquals(0, score.minScore);
-        assertEquals(2, score.maxScore);
-        assertEquals(((1 / 3) *1 + (1 / 4) * 1), score.rawScore);
-        assertEquals(0.29, score.scaledScore);
-        assertEquals((((1 / 3) * 1 + (1 / 4) * 1)/(1+1)), score.floatScore);
-        assertEquals(3, score.errorsCount);
-        assertEquals(5, score.checksCount);
-        assertEquals(1, score.paginatedResult[1].absolute_score);
-        assertEquals(3, score.paginatedResult[1].max_score);
-        assertEquals(0.33, score.paginatedResult[1].score);
-    },
-
-    'test all reportable pages with open activities and weights': function () {
-        var playerUtils = new PlayerUtils(this.player),
-            presentation = {
-                getPageCount: function () { return 2; },
-                getPage: function (i) {
-                    if (i == 0) {
-                        return {
-                            isReportable: function () { return true; },
-                            isVisited: function () { return true; },
-                            getName: function () { return "Page 1" },
-                            getId: function () { return "Page1" },
-                            getPageWeight: function () {return 3}
-                        }
-                    }
-
-                    return {
-                        isReportable: function () { return true; },
-                        getName: function () { return "Page 2" },
-                        getId: function () { return "Page2" },
-                        getPageWeight: function () {return 2}
-                    }
-                }
-            };
-
-        this.scoreService.getPageOpenActivitiesScoreById.withArgs('Page2').returns({
-            score: 1,
-        });
-
-        var score = playerUtils.getPresentationScore(presentation);
-
-        assertEquals(0, score.minScore);
-        assertEquals(2, score.maxScore);
-        assertEquals(((1 / 3) * 2 + (1 / 4) * 3), score.rawScore);
-        assertEquals(0.28, score.scaledScore);
-        assertEquals((((1 / 3) * 2 + (1 / 4) * 3)/(3+2)), score.floatScore);
-        assertEquals(3, score.errorsCount);
-        assertEquals(5, score.checksCount);
-        assertEquals(1, score.paginatedResult[1].absolute_score);
-        assertEquals(3, score.paginatedResult[1].max_score);
-        assertEquals(0.33, score.paginatedResult[1].score);
     }
 });
