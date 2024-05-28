@@ -46,10 +46,6 @@ public class PageOpenActivitiesScore {
 			return 0;
 		}
 		
-		public int getErrorCount() {
-			return getMaxScore() - getScore();
-		}
-		
 		public JavaScriptObject getAsJSObject() {
 			return createJSObject(aiGradedScore, manualGradedScore);
 		}
@@ -92,14 +88,6 @@ public class PageOpenActivitiesScore {
 		int result = 0;
 		for (ScoreInfo scoreInfo : scores.values()) {
 			result += scoreInfo.getMaxScore();
-		}
-		return result;
-	}
-	
-	public int getErrorCount(){
-		int result = 0;
-		for (ScoreInfo scoreInfo : scores.values()) {
-			result += scoreInfo.getErrorCount();
 		}
 		return result;
 	}

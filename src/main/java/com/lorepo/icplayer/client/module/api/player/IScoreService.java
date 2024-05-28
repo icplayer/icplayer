@@ -22,4 +22,5 @@ public interface IScoreService {
 	void lessonScoreReset(boolean resetChecks, boolean resetMistakes);
 	void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores);
 	ScoreInfo getOpenActivityScores(String pageID, String moduleID);
+	PageOpenActivitiesScore getPageOpenActivitiesScoreById(String pageID);
 }
