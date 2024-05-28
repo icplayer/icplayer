@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.api.player;
 import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 
 /**
@@ -33,10 +32,6 @@ public class PageOpenActivitiesScore {
 		}
 		
 		public int getScore() {
-			JavaScriptUtils.log("MODULE");
-			JavaScriptUtils.log(manualGradedScore);
-			JavaScriptUtils.log(aiGradedScore);
-			JavaScriptUtils.log("---MODULE---");
 			if (manualGradedScore != -1) {
 				return manualGradedScore;
 			}
@@ -85,16 +80,9 @@ public class PageOpenActivitiesScore {
 	
 	public int getScore(){
 		int result = 0;
-		JavaScriptUtils.log("START CALCULATING FOR PAGE");
 		for (ScoreInfo scoreInfo : scores.values()) {
-		    int score = scoreInfo.getScore();
-			result += score;
-			JavaScriptUtils.log("RESULT");
-			JavaScriptUtils.log(score);
-			JavaScriptUtils.log("---RESULT---");
+			result += scoreInfo.getScore();
 		}
-		JavaScriptUtils.log("STOP CALCULATING FOR PAGE");
-		JavaScriptUtils.log(result);
 		return result;
 	}
 	
