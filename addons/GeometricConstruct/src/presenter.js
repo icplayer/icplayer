@@ -50,7 +50,6 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.validateModel = function (model) {
-        console.log(model);
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
         return {
@@ -78,16 +77,16 @@ function AddonGeometricConstruct_create() {
     presenter.createWorkspace = function(isPreview) {
         presenter.canvas = document.createElement("canvas");
         presenter.$canvas = $(presenter.canvas);
-        var width = presenter.$workspaceWrapper.width();
-        var height = presenter.configuration.height;
-        presenter.canvas.setAttribute('width', width);
-        presenter.canvas.setAttribute('height', height);
+        presenter.canvasWidth = presenter.$workspaceWrapper.width();
+        presenter.canvasHeight = presenter.configuration.height;
+        presenter.canvas.setAttribute('width', presenter.canvasWidth);
+        presenter.canvas.setAttribute('height', presenter.canvasHeight);
         presenter.context = presenter.canvas.getContext("2d");
         presenter.$workspaceWrapper.prepend(presenter.canvas);
         presenter.canvasRect = presenter.canvas.getBoundingClientRect();
         presenter.$canvasOverlay = presenter.$workspaceWrapper.find("."+presenter.CSS_CLASSES.CANVAS_OVERLAY);
-        presenter.$canvasOverlay.css('width', width);
-        presenter.$canvasOverlay.css('height', height);
+        presenter.$canvasOverlay.css('width', presenter.canvasWidth);
+        presenter.$canvasOverlay.css('height', presenter.canvasHeight);
         if (!isPreview) {
             presenter.$canvasOverlay.on('mousedown', canvasOnMouseDownHandler);
             presenter.$canvasOverlay.on('touchstart', canvasOnMouseDownHandler);
@@ -204,10 +203,15 @@ function AddonGeometricConstruct_create() {
             pageX = touch.pageX;
             pageY = touch.pageY;
         }
-        return {
+        var result = {
             x: (pageX - presenter.$canvas.offset().left) / scale.scaleX,
             y: (pageY - presenter.$canvas.offset().top) / scale.scaleY
         };
+        if (result.x < 0) result.x = 0;
+        if (result.x > presenter.canvasWidth) result.x = presenter.canvasWidth;
+        if (result.y < 0) result.y = 0;
+        if (result.y > presenter.canvasHeight) result.y = presenter.canvasHeight;
+        return result;
     }
 
     presenter.createToolbar = function() {
