@@ -4,9 +4,18 @@
 }
 
 .geometric_construct_wrapper .toolbar_wrapper {
-    display: flex;
     height: 100%;
     width: 220px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbar_options {
+    height: calc(100% - 36px);
+    width: 220px;
+    overflow-y: auto;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbar_options .toolbar_section {
+    display: flex;
     flex-wrap: wrap;
 }
 
@@ -44,7 +53,7 @@
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
     display: inline-block;
-    max-width: 100px;
+    max-width: 80px;
     height: 80px;
     margin: 10px 5px 5px 5px;
     padding: 5px;
@@ -65,6 +74,18 @@
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.point-image {
     background: url('resources/gc_point_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.line-segment-image {
+    background: url('resources/gc_line_segment_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.half-open-line-segment-image {
+    background: url('resources/gc_half_open_line_segment_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.open-line-segment-image {
+    background: url('resources/gc_open_line_segment_icon.png') no-repeat center;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
