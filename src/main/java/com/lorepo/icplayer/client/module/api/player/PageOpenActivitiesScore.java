@@ -3,7 +3,6 @@ package com.lorepo.icplayer.client.module.api.player;
 import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 
 /**

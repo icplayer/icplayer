@@ -173,8 +173,6 @@ function AddonParagraph_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        console.log('onEventReceived ', eventName)
-        console.log('onEventReceived ', eventData)
         switch (eventName) {
             case "GradualShowAnswers":
                 presenter.gradualShowAnswers(eventData);
@@ -392,7 +390,6 @@ function AddonParagraph_create() {
     };
 
     presenter.run = function AddonParagraph_run(view, model) {
-        console.log('run 20');
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.isLocked = false;

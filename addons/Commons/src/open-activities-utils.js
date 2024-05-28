@@ -82,5 +82,22 @@
         return 0;
     };
 
+    /**
+     Update addon score with AI grade.
+     @method updateOpenActivityScore
+
+     @param {object} playerController player controller
+     @param {String} pageID page ID
+     @param {String} moduleID module ID
+     @param {Integer} gradeAI grade
+    */
+    OpenActivitiesUtils.updateOpenActivityScore = function OpenActivitiesUtils_updateOpenActivityScore(playerController, pageID, moduleID, gradeAI) {
+        if (!this.isEnabled(playerController)) {
+            return;
+        }
+
+        playerController.getScore().updateOpenActivityScore(pageID, moduleID, gradeAI);
+    };
+
     window.OpenActivitiesUtils = OpenActivitiesUtils;
 })(window);
