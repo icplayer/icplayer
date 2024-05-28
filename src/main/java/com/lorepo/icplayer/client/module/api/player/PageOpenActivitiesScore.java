@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.api.player;
 import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 
 /**
@@ -74,6 +75,11 @@ public class PageOpenActivitiesScore {
 	
 	public void addScore(String moduleID, Integer aiGradedScore, Integer manualGradedScore, Integer maxScore) {
 		scores.put(moduleID, new ScoreInfo(aiGradedScore, manualGradedScore, maxScore));
+	}
+
+	public void updateAIScore(String moduleID, Integer aiGradedScore) {
+		ScoreInfo score = get(moduleID);
+		score.aiGradedScore = aiGradedScore;
 	}
 	
 	public boolean hasScore(String moduleID) {

@@ -3,7 +3,9 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.HashMap;
 
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -198,4 +200,43 @@ public class ScoreService implements IScoreService {
 		return scoreInfo;
 	}
 
+	
+	@Override
+	public void updateOpenActivityScore(String pageID, String moduleID, String grade) {
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
+
+			newPageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
+			pagesOpenActivitiesScores.put(pageID, newPageScore);
+
+			sendValueChangedEvent(moduleID);
+
+			int _score = newPageScore.get(moduleID).getScore();
+			JavaScriptUtils.log("updateOpenActivityScore1 " + _score);
+
+			return;
+		}
+
+		ScoreInfo scoreInfo = pageScore.get(moduleID);
+		if (scoreInfo == null) {
+			pageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
+			sendValueChangedEvent(moduleID);
+
+			int _score = pageScore.get(moduleID).getScore();
+			JavaScriptUtils.log("updateOpenActivityScore2 " + _score);
+
+			return;
+		}
+
+		pageScore.updateAIScore(moduleID, Integer.parseInt(grade));
+		sendValueChangedEvent(moduleID);
+
+		int _score = pageScore.get(moduleID).getScore();
+		JavaScriptUtils.log("updateOpenActivityScore " + _score);
+	}
+
+	private void sendValueChangedEvent(String moduleID) {
+		playerServices.getEventBusService().sendValueChangedEvent("", moduleID, "", "updateScore", "");
+	}
 }
