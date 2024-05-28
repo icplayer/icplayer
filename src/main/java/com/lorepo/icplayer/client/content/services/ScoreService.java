@@ -198,4 +198,17 @@ public class ScoreService implements IScoreService {
 		return scoreInfo;
 	}
 
+	@Override
+	public PageOpenActivitiesScore getPageOpenActivitiesScoreById(String pageID) {
+		if (scoreType.equals(ScoreType.last)) {
+			playerServices.getCommands().updateCurrentPageScore(false);
+		}
+
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			pageScore = new PageOpenActivitiesScore();
+		}
+		return pageScore;
+	}
+
 }
