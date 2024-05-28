@@ -412,7 +412,7 @@ public class PlayerEntryPoint implements EntryPoint {
 	private void setNVDAAvailability(boolean shouldUseNVDA) {
 		this.theApplication.setNVDAAvailability(shouldUseNVDA);
 	}
-
+	
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
 		// TODO Add functionality
 	}
