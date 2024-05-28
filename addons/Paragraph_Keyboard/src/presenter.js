@@ -1,6 +1,8 @@
 function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
     var eventBus;
+    var userAnswerAIReviewRequest = 'gradeByAi';
+    var userAnswerAIReviewResponse = 'aiGraded';
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -16,6 +18,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.isShowAnswersActive = false;
     presenter.eKeyboardButtons = [];
     presenter.isEditorLoaded = false;
+    presenter.currentPageIndex = null;
     var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
@@ -165,7 +168,66 @@ function AddonParagraph_Keyboard_create() {
         presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) return;
         presenter.showAnswers();
-    }
+    };
+
+    presenter.sendUserAnswerToAICheck = function () {
+        if(!presenter.isAIReady()) { return; }
+
+        const data = presenter.getDataRequestToAI();
+
+        window.addEventListener("message", presenter.onExternalMessage);
+        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, JSON.stringify(data));
+    };
+
+    presenter.getDataRequestToAI = function () {
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const activityMaxScore = presenter.getMaxScore();
+        const pageWeight = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getPageWeight();
+        const pageMaxScore = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getModulesMaxScore();
+        const answer = presenter.getText().replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+
+        return JSON.stringify({
+            'page_id': pageID,
+            'activity_id': activityID,
+            'activity_max_score': activityMaxScore,
+            'page_weight': pageWeight,
+            'page_max_score': pageMaxScore,
+            'answer': answer
+        });
+    };
+
+    presenter.onExternalMessage = function (event) {
+        const data = event.data;
+
+        if (presenter.isValidResponse(data)) {
+            presenter.updateOpenActivityScore(data);
+        }
+    };
+
+    presenter.isValidResponse = function (data) {
+        const isAIResponse = data.includes(userAnswerAIReviewResponse);
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const isValidPageID = data.includes(pageID);
+        const isValidActivityID = data.includes(activityID);
+
+        return isAIResponse && isValidPageID && isValidActivityID;
+    };
+
+    presenter.updateOpenActivityScore = function (data) {
+        const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
+        const pageID = parsedData.page_id;
+        const activityID = parsedData.activity_id;
+        const grade = parsedData.ai_grade;
+
+        OpenActivitiesUtils.updateOpenActivityScore(
+            presenter.playerController,
+            pageID,
+            activityID,
+            grade
+        );
+    };
 
     presenter.setShowErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
@@ -946,7 +1008,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
-        const currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
         presenter.pageID = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
     };
 
@@ -1011,6 +1073,7 @@ function AddonParagraph_Keyboard_create() {
             'setText': presenter.setText,
             'isAttempted': presenter.isAttempted,
             'isAIReady': presenter.isAIReady,
+            'sendUserAnswerToAICheck': presenter.sendUserAnswerToAICheck,
         };
 
         Commands.dispatch(commands, name, params, presenter);

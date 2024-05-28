@@ -1,8 +1,8 @@
 function AddonParagraph_create() {
     var presenter = function () {};
     var eventBus;
-    var paragraphUserAnswerAIReviewRequest = 'gradeByAi';
-    var paragraphUserAnswerAIReviewResponse = 'aiGraded';
+    var userAnswerAIReviewRequest = 'gradeByAi';
+    var userAnswerAIReviewResponse = 'aiGraded';
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -24,7 +24,6 @@ function AddonParagraph_create() {
 
     presenter.toolbarChangeHeightTimeoutID = null;
     presenter.paragraphInitTimeoutID = null;
-
     presenter.currentPageIndex = null;
 
     presenter.LANGUAGES = {
@@ -174,6 +173,8 @@ function AddonParagraph_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        console.log('onEventReceived ', eventName)
+        console.log('onEventReceived ', eventData)
         switch (eventName) {
             case "GradualShowAnswers":
                 presenter.gradualShowAnswers(eventData);
@@ -305,10 +306,9 @@ function AddonParagraph_create() {
         if(!presenter.isAIReady()) { return; }
 
         const data = presenter.getDataRequestToAI();
-        console.log('sendUserAnswerToAICheck ', data);
 
         window.addEventListener("message", presenter.onExternalMessage);
-        presenter.playerController.sendExternalEvent(paragraphUserAnswerAIReviewRequest, JSON.stringify(data));
+        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, JSON.stringify(data));
     };
 
     presenter.getDataRequestToAI = function () {
@@ -330,7 +330,6 @@ function AddonParagraph_create() {
     };
 
     presenter.onExternalMessage = function (event) {
-        console.log('onExternalMessage ', event);
         const data = event.data;
 
         if (presenter.isValidResponse(data)) {
@@ -339,21 +338,17 @@ function AddonParagraph_create() {
     };
 
     presenter.isValidResponse = function (data) {
-        const isAIResponse = data.includes(paragraphUserAnswerAIReviewResponse);
+        const isAIResponse = data.includes(userAnswerAIReviewResponse);
         const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
         const activityID = presenter.configuration.ID;
         const isValidPageID = data.includes(pageID);
         const isValidActivityID = data.includes(activityID);
-        console.log('isValidResponse');
-        console.log('isAIResponse ', isAIResponse);
-        console.log('isValidPageID ', isValidPageID);
-        console.log('isValidActivityID ', isValidActivityID);
 
         return isAIResponse && isValidPageID && isValidActivityID;
     };
 
     presenter.updateOpenActivityScore = function (data) {
-        const parsedData = JSON.parse(data.replace(`EXTERNAL_${paragraphUserAnswerAIReviewResponse}:`, '').trim());
+        const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
         const pageID = parsedData.page_id;
         const activityID = parsedData.activity_id;
         const grade = parsedData.ai_grade;
@@ -397,7 +392,7 @@ function AddonParagraph_create() {
     };
 
     presenter.run = function AddonParagraph_run(view, model) {
-        console.log('run 15');
+        console.log('run 20');
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.isLocked = false;

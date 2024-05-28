@@ -77,7 +77,7 @@ public class PageOpenActivitiesScore {
 		scores.put(moduleID, new ScoreInfo(aiGradedScore, manualGradedScore, maxScore));
 	}
 
-	public void updateAIScore(String moduleID, Integer aiGradedScore) {
+	public void setAIGradedScore(String moduleID, Integer aiGradedScore) {
 		ScoreInfo score = get(moduleID);
 		score.aiGradedScore = aiGradedScore;
 	}

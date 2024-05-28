@@ -3,9 +3,7 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.HashMap;
 
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -209,11 +207,7 @@ public class ScoreService implements IScoreService {
 
 			newPageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
 			pagesOpenActivitiesScores.put(pageID, newPageScore);
-
 			sendValueChangedEvent(moduleID);
-
-			int _score = newPageScore.get(moduleID).getScore();
-			JavaScriptUtils.log("updateOpenActivityScore1 " + _score);
 
 			return;
 		}
@@ -223,17 +217,11 @@ public class ScoreService implements IScoreService {
 			pageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
 			sendValueChangedEvent(moduleID);
 
-			int _score = pageScore.get(moduleID).getScore();
-			JavaScriptUtils.log("updateOpenActivityScore2 " + _score);
-
 			return;
 		}
 
-		pageScore.updateAIScore(moduleID, Integer.parseInt(grade));
+		pageScore.setAIGradedScore(moduleID, Integer.parseInt(grade));
 		sendValueChangedEvent(moduleID);
-
-		int _score = pageScore.get(moduleID).getScore();
-		JavaScriptUtils.log("updateOpenActivityScore " + _score);
 	}
 
 	private void sendValueChangedEvent(String moduleID) {
