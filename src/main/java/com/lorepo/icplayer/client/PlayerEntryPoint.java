@@ -151,6 +151,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.setNVDAAvailability = function(shouldUseNVDA) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setNVDAAvailability(Z)(shouldUseNVDA);
 			};
+
+			player.setOpenActivitiesScores = function(scores) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setOpenActivitiesScores(Lcom/google/gwt/core/client/JavaScriptObject;)(scores);
+			};
 		}
 
 		// CreatePlayer
@@ -407,5 +411,9 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setNVDAAvailability(boolean shouldUseNVDA) {
 		this.theApplication.setNVDAAvailability(shouldUseNVDA);
+	}
+	
+	private void setOpenActivitiesScores(JavaScriptObject scores) {
+		// TODO Add functionality
 	}
 }
