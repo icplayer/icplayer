@@ -306,7 +306,7 @@ function AddonParagraph_create() {
         const data = presenter.getDataRequestToAI();
 
         window.addEventListener("message", presenter.onExternalMessage);
-        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, JSON.stringify(data));
+        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, data);
     };
 
     presenter.getDataRequestToAI = function () {
