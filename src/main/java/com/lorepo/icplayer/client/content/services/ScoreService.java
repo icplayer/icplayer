@@ -189,11 +189,11 @@ public class ScoreService implements IScoreService {
 	public ScoreInfo getOpenActivityScores(String pageID, String moduleID) {
 		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
 		if (pageScore == null) {
-			return new ScoreInfo(null, null, null);
+			return new ScoreInfo(-1, -1, -1);
 		}
 		ScoreInfo scoreInfo = pageScore.get(moduleID);
 		if (scoreInfo == null) {
-			return new ScoreInfo(null, null, null);
+			return new ScoreInfo(-1, -1, -1);
 		}
 		return scoreInfo;
 	}
@@ -205,7 +205,7 @@ public class ScoreService implements IScoreService {
 		if (pageScore == null) {
 			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
 
-			newPageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
+			newPageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
 			pagesOpenActivitiesScores.put(pageID, newPageScore);
 			sendValueChangedEvent(moduleID);
 
@@ -214,7 +214,7 @@ public class ScoreService implements IScoreService {
 
 		ScoreInfo scoreInfo = pageScore.get(moduleID);
 		if (scoreInfo == null) {
-			pageScore.addScore(moduleID, Integer.parseInt(grade), null, null);
+			pageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
 			sendValueChangedEvent(moduleID);
 
 			return;
