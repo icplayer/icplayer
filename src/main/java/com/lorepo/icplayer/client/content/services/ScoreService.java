@@ -116,7 +116,6 @@ public class ScoreService implements IScoreService {
 		PageScore pageScore = pageScores.get(page.getId());
 
 		if (getScoreType().equals(ScoreType.last) || pageScore == null) {
-
 			pageScores.put(page.getId(), score);
 			pagesNamesToIds.put(page.getName(), page.getId());
 		}
@@ -221,7 +220,7 @@ public class ScoreService implements IScoreService {
 	private PageScore updatePageScoreWithOpenActivitiesScore(PageScore pageScore, String pageID) {
 		PageOpenActivitiesScore pageActivityScore = pagesOpenActivitiesScores.get(pageID);
 		IPage page = playerServices.getModel().getPageById(pageID);
-		if (pageActivityScore == null || page == null || page.isReportable()) {
+		if (pageActivityScore == null || page == null || !page.isReportable() || pageScore.getMaxScore() == 0) {
 			return pageScore;
 		}
 		return pageScore.updateScoreWithOpenActivityScore(pageActivityScore.getScore());
