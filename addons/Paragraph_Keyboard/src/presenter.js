@@ -35,7 +35,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.',
-        'weightError' : 'Weight must be a positive number between 0 and 100'
+        'W_01' : 'Weight must be a whole number between 0 and 100'
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -73,7 +73,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.createPreview = function AddonParagraph_Keyboard_createPreview(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, true);
         presenter.setVisibility(true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
@@ -185,7 +185,7 @@ function AddonParagraph_Keyboard_create() {
             body = $(iframe).contents().find("#tinymce");
 
         return body.find("p");
-    }
+    };
 
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
@@ -305,10 +305,14 @@ function AddonParagraph_Keyboard_create() {
     /**
      * Parses model and set settings to default values if either of them is empty
      *
-     * @param model
+     * IMPORTANT. Validation resulting in a validation error, e.g. W_01, must be implemented in Open Activities
+     * on the mCourser side.
+     *
+     * @param model:object
+     * @param isPreview:boolean
      * @returns {{fontFamily: *, fontSize: *}}
      */
-    presenter.parseModel = function AddonParagraph_Keyboard_parseModel(model) {
+    presenter.parseModel = function AddonParagraph_Keyboard_parseModel(model, isPreview) {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
@@ -346,16 +350,17 @@ function AddonParagraph_Keyboard_create() {
                 eval('keyboardLayout = ' + keyboardLayout);
             } catch(e) {
                 presenter.ERROR_CODES['evaluationError'] = 'Custom keyboard layout parsing error: ' + e.message;
-                return {error: 'evaluationError'};
+                return getErrorObject('evaluationError');
             }
         }
 
         if (typeof keyboardLayout['default'] !== 'object' || keyboardLayout['default'].length < 1) {
-            return {error: 'defaultLayoutError'};
+            return getErrorObject('defaultLayoutError');
         }
 
-        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
-            return {error: 'weightError'}
+        const validatedWeight = presenter.validateWeight(weight, isPreview);
+        if (!validatedWeight.isValid) {
+            return validatedWeight;
         }
 
         var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
@@ -387,13 +392,30 @@ function AddonParagraph_Keyboard_create() {
             pluginName: presenter.makePluginName(model["ID"]),
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
-            error: false,
             manualGrading: manualGrading,
             title: title,
-            weight: weight,
+            weight: validatedWeight.value,
             modelAnswer: modelAnswer
         };
     };
+
+    presenter.validateWeight = function (weight, isPreview) {
+        if (ModelValidationUtils.isStringEmpty(weight)) {
+            return getCorrectObject(1);
+        }
+
+        const validatedInteger = ModelValidationUtils.validateIntegerInRange(weight, 100, 0);
+        if (!validatedInteger.isValid) {
+            return getErrorObject("W_01");
+        }
+        if (isPreview && (validatedInteger.value + "") !== weight) {
+            return getErrorObject("W_01");
+        }
+        return getCorrectObject(validatedInteger.value);
+    };
+
+    function getCorrectObject(val) { return { isValid: true, value: val }; }
+    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     presenter.setWrapperID = function AddonParagraph_Keyboard_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -459,14 +481,14 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
-    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
+    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
-        presenter.configuration = presenter.parseModel(upgradedModel);
+        presenter.configuration = presenter.parseModel(upgradedModel, isPreview);
 
-        if (presenter.configuration.error) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.error);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
@@ -1065,7 +1087,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
-        const configuration = presenter.parseModel(model);
+        const configuration = presenter.parseModel(model, false);
         const modelAnswer = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
@@ -1185,6 +1207,13 @@ function AddonParagraph_Keyboard_create() {
         if (presenter.configuration.isPlaceholderSet) {
             presenter.placeholder.setPlaceholderAfterEditorChange();
         }
+    };
+
+    presenter.getMaxScore = function () {
+        if (!presenter.configuration.isValid || !presenter.configuration.manualGrading) {
+            return 0;
+        }
+        return presenter.configuration.weight;
     };
 
     return presenter;

@@ -4,79 +4,81 @@ The Paragraph eKeyboard module allows a student to enter a free form text. It al
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border="1">
     <tr>
-      <th>Property name</th>
-      <th>Description</th>
+        <th>Property name</th>
+        <th>Description</th>
     </tr>
     <tr>
-      <td>Default font family</td>
-      <td>Set the default font family for the editor body. The value should be expressed in the same way as in CSS. It is a comma separated list of font names. <br/>For example: Helvetica, Arial, Verdana. <br/>For more information, visit <a href="http://www.w3schools.com/cssref/pr_font_font-family.asp">http://www.w3schools.com/cssref/pr_font_font-family.asp</a>.</td>
+        <td>Default font family</td>
+        <td>Set the default font family for the editor body. The value should be expressed in the same way as in CSS. It is a comma separated list of font names. <br/>For example: Helvetica, Arial, Verdana. <br/>For more information, visit <a href="http://www.w3schools.com/cssref/pr_font_font-family.asp">http://www.w3schools.com/cssref/pr_font_font-family.asp</a>.</td>
     </tr>
     <tr>
-      <td>Default font size</td>
-      <td>Set the default font size for the editor body. The value should be expressed in the same way as in CSS. It is a numeric value with a unit. <br/>For example: 14px, 3em.<br/>For more information, please visit <a href="http://www.w3schools.com/cssref/pr_font_font-size.asp">http://www.w3schools.com/cssref/pr_font_font-size.asp</a>.</td>
+        <td>Default font size</td>
+        <td>Set the default font size for the editor body. The value should be expressed in the same way as in CSS. It is a numeric value with a unit. <br/>For example: 14px, 3em.<br/>For more information, please visit <a href="http://www.w3schools.com/cssref/pr_font_font-size.asp">http://www.w3schools.com/cssref/pr_font_font-size.asp</a>.</td>
     </tr>
     <tr>
-      <td>Hide toolbar</td>
-      <td>Hides a toolbar and so extends the editable area space.</td>
+        <td>Hide toolbar</td>
+        <td>Hides a toolbar and so extends the editable area space.</td>
     </tr>
     <tr>
-      <td>Editable placeholder</td>
-      <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module</td>
+        <td>Editable placeholder</td>
+        <td>Makes placeholder editable, so it's contents will not be cleared on the focus on the module.</td>
     </tr>
     <tr>
-      <td>Custom toolbar</td>
-      <td>Enables to define a custom toolbar. Below is a list of all available toolbar/menu controls that you can add to your Paragraph addon:<br><br>
-newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect bullist numlist outdent indent blockquote undo redo removeformat subscript superscript<br><br>
-<strong>Note:</strong> Use pipe "|" to group buttons.
-      </td>
+        <td>Custom toolbar</td>
+        <td>Enables to define a custom toolbar. Below is a list of all available toolbar/menu controls that you can add to your Paragraph addon:<br><br>
+            newdocument bold italic underline strikethrough alignleft aligncenter alignright alignjustify styleselect formatselect fontselect fontsizeselect bullist numlist outdent indent blockquote undo redo removeformat subscript superscript<br><br>
+            <strong>Note:</strong> Use pipe "|" to group buttons.
+        </td>
     </tr>
     <tr>
-      <td>Placeholder text</td>
-      <td>This property enables you to specify a free text content to be used as a placeholder. Allows for html styling.
-      </td>
+        <td>Placeholder text</td>
+        <td>This property enables you to specify a free text content to be used as a placeholder. Allows for html styling.</td>
     </tr>
     <tr>
-      <td>Custom CSS</td>
-      <td>This property enables you to specify a separate file with custom CSS styles that extend the main CSS content. This CSS file is the one used within the editor (the editable area).<br /> If "Default font family" and "Default font size" are defined, they have higher priority than styles used in Custom CSS file.
-        <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
-      </td>
+        <td>Custom CSS</td>
+        <td>This property enables you to specify a separate file with custom CSS styles that extend the main CSS content. This CSS file is the one used within the editor (the editable area).<br /> If "Default font family" and "Default font size" are defined, they have higher priority than styles used in Custom CSS file.
+            <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
+        </td>
     </tr>
     <tr>
-      <td>Keyboard Layout Type</td>
-      <td>Type of the eKeyboard layout. You can choose one of the standard layouts: French, German and Spanish special characters or Custom which means you can set whatever Layout you like by configuring Custom Layout field.
-      </td>
+        <td>Keyboard Layout Type</td>
+        <td>Type of the eKeyboard layout. You can choose one of the standard layouts: French, German and Spanish special characters or Custom which means you can set whatever Layout you like by configuring Custom Layout field.
+        </td>
     </tr>
     <tr>
-      <td>Custom Keyboard Layout</td>
-      <td>Buttons should be space separated, group of buttons (rows) should be new line separated. Layout object has to have at least a "default" property with standard keyboard. The following action keys are supported: 
-        <ul>
-          <li>{shift} – used as CapsLock</li>
-          <li>{empty} – used as an empty space</li>
-        </ul>
-      </td>
+        <td>Custom Keyboard Layout</td>
+        <td>Buttons should be space separated, group of buttons (rows) should be new line separated. Layout object has to have at least a "default" property with standard keyboard. The following action keys are supported: 
+            <ul>
+                <li>{shift} – used as CapsLock</li>
+                <li>{empty} – used as an empty space</li>
+            </ul>
+        </td>
     </tr>
     <tr>
-      <td>Keyboard Position</td>
-      <td>Position of the Keyboard in relation to the text field. If position is right or left, the keyboard layout will be transposed. If position is set as Custom, you have to specify the position by presentation CSS styles.
-      </td>
+        <td>Keyboard Position</td>
+        <td>Position of the Keyboard in relation to the text field. If position is right or left, the keyboard layout will be transposed. If position is set as Custom, you have to specify the position by presentation CSS styles.
+        </td>
     </tr>
     <tr>
-      <td>Manual grading</td>
-      <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possible to be verified without previewing the lesson.</td>
+        <td>Manual grading</td>
+        <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possibly be verified without previewing the lesson. If selected, the value of `weight` property will be treated as max score. The score awarded by the teacher will not affect the content of the lesson, only the summary of Assignment.</td>
+    </tr>
     </tr>
     <tr>
-      <td>Show answers</td>
-      <td>Text to display on Show Answers.</td>
+        <td>Show answers</td>
+        <td>Text to display on Show Answers.</td>
     </tr>
     <tr>
-      <td>Title</td>
-      <td>The title of the Paragraph visible when the Assignment’s open activities are manually graded on mCourser. The title is visible above each Paragraph's preview, however, it is not visible in the lesson itself.</td>
+        <td>Title</td>
+        <td>The title of the Paragraph visible when the Assignment’s open activities are manually graded on mCourser. The title is visible above each Paragraph's preview, however, it is not visible in the lesson itself.</td>
     </tr>
     <tr>
-      <td>Weight</td>
-      <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a natural number. The default Paragraph’s weight equals 1.</td>
+        <td>Weight</td>
+        <td>The maximum number of points the teacher can grant when grading the Assignment's open activities. This can be only a whole number in range from 0 to 100. The default Paragraph’s weight equals 1. If the `Manual grading` property is selected, this value will be used as the max score.</td>
     </tr>
 </table>
 
@@ -132,11 +134,46 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
 
 ## Scoring
 
-This module does not provide any score information.
+Selecting Paragraph's `Manual grading` property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Property</th>
+        <th>Description</th>
+        <th>Is addon method supported. For more information see [Scoring](https://www.mauthor.com/doc/en/getScore/page/Scoring) section</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>maxScore</td>
+            <td>Equal to the value in `Weight` propety. </td>
+            <td>Method `getMaxScore` is supported.</td>
+        </tr>
+        <tr>
+            <td>score</td>
+            <td>Equal to the value given by teacher.</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td>errorCount</td>
+            <td>N/A</td>
+            <td>N/A</td>
+        </tr>
+</tbody>
+</table>
 
 ## Events
 
-This module does not generate any events.     
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>blur - event send on exiting the module</td>
+    </tr>
+</table>
 
 ## CSS Classes
 

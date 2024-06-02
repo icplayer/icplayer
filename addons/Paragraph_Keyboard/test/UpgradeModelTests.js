@@ -22,12 +22,12 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
     'test upgrade model': function () {
         this.presenter.upgradeModel({});
 
-        assertTrue(this.upgradeTitleStub.called);
-        assertTrue(this.upgradeManualGradingStub.called);
-        assertTrue(this.upgradeWeightStub.called);
-        assertTrue(this.upgradeModelAnswerStub.called);
-        assertTrue(this.upgradePlaceholderTextStub.called);
-        assertTrue(this.upgradeEditablePlaceholderStub.called);
+        assertTrue(this.upgradeTitleStub.calledOnce);
+        assertTrue(this.upgradeManualGradingStub.calledOnce);
+        assertTrue(this.upgradeWeightStub.calledOnce);
+        assertTrue(this.upgradeModelAnswerStub.calledOnce);
+        assertTrue(this.upgradePlaceholderTextStub.calledOnce);
+        assertTrue(this.upgradeEditablePlaceholderStub.calledOnce);
     }
 });
 
