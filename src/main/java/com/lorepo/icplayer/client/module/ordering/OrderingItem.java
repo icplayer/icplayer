@@ -55,7 +55,7 @@ public class OrderingItem extends BasicPropertyProvider {
 	}
 
 	public String getText() {
-		return (baseURL == null || contentBaseURL == null) ? html : StringUtils.updateLinks(html, baseURL, contentBaseURL);
+		return (baseURL == null && contentBaseURL == null) ? html : StringUtils.updateLinks(html, baseURL, contentBaseURL);
 	}
 
 	private void addPropertyText() {
