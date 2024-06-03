@@ -65,7 +65,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private final ModuleList modules = new ModuleList();
 	/** base url to this document with ending '/' */
 	private String baseURL = "";
-	private String contentBaseURL = "";
+	private String contentBaseURL;
 	private IStyleListener styleListener;
 	private boolean loaded = false;
 

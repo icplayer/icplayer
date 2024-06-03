@@ -18,7 +18,7 @@ public class ChoiceOption extends BasicPropertyProvider{
 	private String feedback = "";
 	private String id;
 	private String parentId = "";
-	private String contentBaseURL = "";
+	private String contentBaseURL;
 	
 	public ChoiceOption(String id){
 		

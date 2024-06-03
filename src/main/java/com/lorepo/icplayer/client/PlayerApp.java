@@ -30,6 +30,7 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PlayerApp {
 
@@ -519,7 +520,8 @@ public class PlayerApp {
 	private String getContentBaseURL() {
 		JavaScriptObject contextMetadata = getContextMetadata();
 		if (contextMetadata != null) {
-			return JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			String contentBaseURL = JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			return contentBaseURL == "" ? null : contentBaseURL;
 		}
 		return null;
 	}
@@ -614,6 +616,7 @@ public class PlayerApp {
 	}
 
 	private void loadActualLayoutCSSStyles() {
+		JavaScriptUtils.log("Execute loadActualLayoutCSSStyles");
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.getValue();
@@ -825,6 +828,7 @@ public class PlayerApp {
 	};
 
 	private String getCurrentUserStyles() {
+		JavaScriptUtils.log("Execute getCurrentUserStyles");
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.getValue();

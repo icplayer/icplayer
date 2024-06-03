@@ -890,7 +890,8 @@ public class PlayerController implements IPlayerController {
 	public String getContentBaseURL() {
 	    JavaScriptObject contextMetadata = getPlayerServices().getContextMetadata();
 	    if (contextMetadata != null) {
-	        return JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			String contentBaseURL = JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			return contentBaseURL == "" ? null : contentBaseURL;
 	    }
 	    return null;
 	}
