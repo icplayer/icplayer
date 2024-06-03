@@ -58,7 +58,7 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Restores the changes to the workspace that were undone by prevState.</td>
     </tr>
     <tr>
-        <td>reset</td>
+        <td>prevState</td>
         <td>---</td>
         <td>Undoes all changes to the workspace and restores it to the default state.</td>
     </tr>
