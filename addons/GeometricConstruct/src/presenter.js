@@ -212,10 +212,15 @@ function AddonGeometricConstruct_create() {
             pageX = touch.pageX;
             pageY = touch.pageY;
         }
-        return {
+        var result = {
             x: (pageX - presenter.$canvas.offset().left) / scale.scaleX,
             y: (pageY - presenter.$canvas.offset().top) / scale.scaleY
         };
+        if (result.x < 0) result.x = 0;
+        if (result.x > presenter.canvasWidth) result.x = presenter.canvasWidth;
+        if (result.y < 0) result.y = 0;
+        if (result.y > presenter.canvasHeight) result.y = presenter.canvasHeight;
+        return result;
     }
 
     presenter.getClickedPoint = function(event) {
