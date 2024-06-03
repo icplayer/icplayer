@@ -399,6 +399,12 @@ function AddonGeometricConstruct_create() {
 
         setIsRoot(isRoot) {
             this.isRoot = isRoot;
+            var figuresIndex = presenter.figuresList.indexOf(this);
+            if (this.isRoot && figuresIndex == -1) {
+                presenter.figuresList.push(this);
+            } else if (!this.isRoot && figuresIndex != -1) {
+                presenter.figuresList.splice(figuresIndex, 1);
+            }
         }
 
         append() {
@@ -652,9 +658,9 @@ function AddonGeometricConstruct_create() {
             } else {
                 var location = getCanvasEventLocation(event);
                 point = new Point();
-                point.setIsRoot(false);
                 point.setLocation(location.x, location.y);
             }
+            point.setIsRoot(false);
             point.addParent(this);
             this.endpoints.push(point);
             this.append();
