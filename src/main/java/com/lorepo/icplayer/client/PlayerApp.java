@@ -828,7 +828,6 @@ public class PlayerApp {
 	};
 
 	private String getCurrentUserStyles() {
-		JavaScriptUtils.log("Execute getCurrentUserStyles");
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.getValue();
