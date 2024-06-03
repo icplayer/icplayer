@@ -3,6 +3,8 @@ function AddonGeometricConstruct_create() {
 
     presenter.labelsList = [];
     presenter.figuresList = [];
+    presenter.pointsList = [];
+    presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
     presenter.newFigure = null;
     presenter.editFigure = null;
@@ -216,6 +218,22 @@ function AddonGeometricConstruct_create() {
         };
     }
 
+    presenter.getClickedPoint = function(event) {
+        for (var i = 0; i < presenter.pointsList.length; i++) {
+            var point = presenter.pointsList[i];
+            if (point.isClicked(event)) return point;
+        }
+        return null;
+    }
+
+    presenter.getPointByID = function(id) {
+        for (var i = 0; i < presenter.pointsList.length; i++) {
+            var point = presenter.pointsList[i];
+            if (point.id == id) return point;
+        }
+        return null;
+    }
+
     presenter.createToolbar = function() {
         var basicSection = presenter.createToolbarSection();
         var cursorElement = presenter.createToolbarButton("Cursor", presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, basicSection, () => {
@@ -370,9 +388,13 @@ function AddonGeometricConstruct_create() {
         labelValue = "";
         isRoot = true;
         isSelected = false;
+        id;
+        parentFigures = [];
 
         constructor() {
             super();
+            presenter.maxPointIndex += 1;
+            this.id = presenter.maxPointIndex;
         }
 
         setIsRoot(isRoot) {
@@ -383,9 +405,34 @@ function AddonGeometricConstruct_create() {
             if (!this.labelValue) {
                 this.labelValue = presenter.createLabel();
             }
+            if (presenter.pointsList.indexOf(this) == -1) {
+                presenter.pointsList.push(this);
+            };
             if (this.isRoot && presenter.figuresList.indexOf(this) == -1) {
                 presenter.figuresList.push(this);
             };
+        }
+
+        addParent(figure) {
+            if (this.parentFigures.indexOf(figure) == -1) this.parentFigures.push(figure);
+        }
+
+        removeParent(figure) {
+            var parentIndex = this.parentFigures.indexOf(figure);
+            if (parentIndex != -1) {
+                this.parentFigures.splice(parentIndex, 1);
+            }
+        }
+
+        hasParents() {
+            return this.parentFigures.length > 0;
+        }
+
+        removeAllParents() {
+            while (this.parentFigures.length > 0) {
+                var parent = this.parentFigures.pop();
+                parent.remove();
+            }
         }
 
         remove() {
@@ -495,7 +542,8 @@ function AddonGeometricConstruct_create() {
                 state: {
                     x: this.x,
                     y: this.y,
-                    labelValue: this.labelValue
+                    labelValue: this.labelValue,
+                    id: this.id
                 }
             }
         }
@@ -505,6 +553,7 @@ function AddonGeometricConstruct_create() {
             this.x = json.state.x;
             this.y = json.state.y;
             this.labelValue = json.state.labelValue;
+            this.id = json.state.id;
         }
 
     }
@@ -518,6 +567,7 @@ function AddonGeometricConstruct_create() {
         endpoints = [];
         selectedPoint;
         creationLineLocation;
+        draggingDiff;
 
         constructor(){
             super();
@@ -555,7 +605,18 @@ function AddonGeometricConstruct_create() {
         }
 
         remove() {
-            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].remove();
+            if (presenter.editFigure == this && this.selectedPoint != null) {
+                var selectedPoint = this.selectedPoint;
+                this.selectedPoint = null;
+                selectedPoint.removeAllParents();
+                return;
+            }
+            for (var i = 0; i < this.endpoints.length; i++) {
+                var point = this.endpoints[i];
+                point.removeParent(this);
+                point.setSelected(false);
+                if (!point.hasParents() && !point.isRoot) point.remove();
+            }
             var figuresIndex = presenter.figuresList.indexOf(this);
             if (figuresIndex != -1) {
                 presenter.figuresList.splice(figuresIndex, 1);
@@ -584,23 +645,81 @@ function AddonGeometricConstruct_create() {
         }
 
         insertEndpoint(event) {
-            var location = getCanvasEventLocation(event);
-            var point = new Point();
-            point.setIsRoot(false);
-            point.setLocation(location.x, location.y);
+            var point;
+            var clickedPoint = presenter.getClickedPoint(event);
+            if (clickedPoint != null) {
+                point = clickedPoint;
+            } else {
+                var location = getCanvasEventLocation(event);
+                point = new Point();
+                point.setIsRoot(false);
+                point.setLocation(location.x, location.y);
+            }
+            point.addParent(this);
             this.endpoints.push(point);
             this.append();
         }
 
         moveHandler(event) {
             if (this.selectedPoint) this.selectedPoint.moveHandler(event);
+            if (this.draggingDiff) {
+                var location = getCanvasEventLocation(event);
+                for (var i = 0; i < this.endpoints.length; i++)
+                    this.endpoints[i].setLocation(location.x + this.draggingDiff[i].x, location.y + this.draggingDiff[i].y);
+            }
         }
 
         isClicked(event) {
             for (var i = 0; i < this.endpoints.length; i++) {
                 if (this.endpoints[i].isClicked(event)) return true;
             }
-            return false;
+            return this.isLineClicked(event);
+        }
+
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            var left, right, top, bottom;
+            if (this.endpoints[0].x > this.endpoints[1].x) {
+                left = this.endpoints[1].x;
+                right = this.endpoints[0].x;
+            } else {
+                left = this.endpoints[0].x;
+                right = this.endpoints[1].x;
+            }
+
+            if (this.endpoints[0].y > this.endpoints[1].y) {
+                top = this.endpoints[1].y;
+                bottom = this.endpoints[0].y;
+            } else {
+                top = this.endpoints[0].y;
+                bottom = this.endpoints[1].y;
+            }
+
+            if (right - left < 10) {
+                right += 5;
+                left -= 5;
+            }
+
+            if (bottom - top < 10) {
+                top -= 5;
+                bottom += 5;
+            }
+
+            if (location.x < left || location.x > right || location.y < top || location.y > bottom) return false;
+            return this.distanceFromPoint(location.x, location.y) < 5;
+
+        }
+
+        distanceFromPoint(x,y) {
+            if (this.endpoints.length < 2) return null;
+            var x1 = this.endpoints[0].x;
+            var y1 = this.endpoints[0].y;
+            var x2 = this.endpoints[1].x;
+            var y2 = this.endpoints[1].y;
+            var base = Math.pow((x2-x1),2) + Math.pow((y2-y1),2);
+            if (base <= 0) return null;
+            return Math.abs((x2-x1)*(y-y1)-(x-x1)*(y2-y1)) / Math.sqrt(base);
         }
 
         addLabel() {
@@ -629,13 +748,28 @@ function AddonGeometricConstruct_create() {
             if (this.endpoints.length == 0) return;
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].setSelected(false, event);
             this.selectedPoint = null;
+            this.draggingDiff = null;
             if (isSelected) {
                 if (this.endpoints.length == 2 && this.endpoints[1].isClicked(event)) {
                     this.selectedPoint = this.endpoints[1];
-                } else {
+                } else if (this.endpoints[0].isClicked(event)) {
                     this.selectedPoint = this.endpoints[0];
                 }
-                this.selectedPoint.setSelected(isSelected, event);
+                if (this.selectedPoint) {
+                    this.selectedPoint.setSelected(isSelected, event);
+                } else {
+                    for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].setSelected(isSelected, event);
+                    var location = getCanvasEventLocation(event);
+                    this.draggingDiff = [];
+                    this.draggingDiff.push({
+                        x: this.endpoints[0].x - location.x,
+                        y: this.endpoints[0].y - location.y,
+                    });
+                    this.draggingDiff.push({
+                        x: this.endpoints[1].x - location.x,
+                        y: this.endpoints[1].y - location.y,
+                    });
+                }
             }
         }
 
@@ -664,8 +798,15 @@ function AddonGeometricConstruct_create() {
                 if (i < this.endpoints.length) {
                     this.endpoints[i].loadJSON(json.state.endpointStates[i]);
                 } else {
-                    var point = new Point();
-                    point.setIsRoot(false);
+                    var point;
+                    var existingPoint = presenter.getPointByID(json.state.endpointStates[i].state.id);
+                    if (existingPoint != null) {
+                        point = existingPoint;
+                    } else {
+                        point = new Point();
+                        point.setIsRoot(false);
+                    }
+                    point.addParent(this);
                     this.endpoints.push(point);
                     point.loadJSON(json.state.endpointStates[i]);
                 }
@@ -721,6 +862,22 @@ function AddonGeometricConstruct_create() {
             }
         }
 
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            if (this.endpoints[0].x < this.endpoints[1].x) {
+                if (location.x < this.endpoints[0].x) return false;
+            } else {
+                if (location.x > this.endpoints[0].x) return false;
+            }
+            if (this.endpoints[0].y < this.endpoints[1].y) {
+                if (location.y < this.endpoints[0].y) return false;
+            } else {
+                if (location.y > this.endpoints[0].y) return false;
+            }
+            return this.distanceFromPoint(location.x, location.y) < 5;
+        }
+
         insertClickHandler(event) {
             if (presenter.newFigure == this && this.endpoints.length < 2) {
                 this.insertEndpoint(event);
@@ -749,6 +906,12 @@ function AddonGeometricConstruct_create() {
             } else if (this.endpoints.length == 2) {
                 this.drawLineExtension(this.endpoints[1], this.endpoints[0]);
             }
+        }
+
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            return this.distanceFromPoint(location.x, location.y) < 5;
         }
 
         insertClickHandler(event) {
@@ -847,7 +1010,8 @@ function AddonGeometricConstruct_create() {
             figures: [],
             labelsList: [...presenter.labelsList],
             selectedButton: presenter.getSelectedButtonType(),
-            visibility: presenter.isVisible()
+            visibility: presenter.isVisible(),
+            maxPointIndex: presenter.maxPointIndex
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figure = presenter.figuresList[i];
@@ -893,6 +1057,7 @@ function AddonGeometricConstruct_create() {
             }
         }
         presenter.labelsList = [...parsedState.labelsList];
+        presenter.maxPointIndex = parsedState.maxPointIndex;
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
         if ($button && !$button.hasClass('selected')) {
