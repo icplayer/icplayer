@@ -337,6 +337,8 @@ function AddonParagraph_create() {
 
     presenter.isValidResponse = function (data) {
         const isAIResponse = data.includes(userAnswerAIReviewResponse);
+        if (!isAIResponse) { return isAIResponse; }
+
         const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
         const activityID = presenter.configuration.ID;
         const isValidPageID = data.includes(pageID);

@@ -207,6 +207,8 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.isValidResponse = function (data) {
         const isAIResponse = data.includes(userAnswerAIReviewResponse);
+        if (!isAIResponse) { return isAIResponse; }
+
         const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
         const activityID = presenter.configuration.ID;
         const isValidPageID = data.includes(pageID);
@@ -1009,7 +1011,7 @@ function AddonParagraph_Keyboard_create() {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
         presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
-        presenter.pageID = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
+        presenter.pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
