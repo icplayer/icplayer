@@ -13,7 +13,7 @@ public class PageOpenActivitiesScore {
 	public static class ScoreInfo {
 		int aiGradedScore = -1;
 		int manualGradedScore = -1;
-		int maxScore = -1; 
+		int maxScore = -1;
 		
 		public ScoreInfo(int aiGradedScore, int manualGradedScore, int maxScore) {
 			this.manualGradedScore = manualGradedScore;

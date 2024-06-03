@@ -1476,29 +1476,11 @@ function AddonParagraph_create() {
         return answersCount;
     };
 
-    presenter.getScore = function () {
-        if (!presenter.configuration.isValid
-            || !presenter.configuration.manualGrading
-            || !presenter.playerController
-        ) {
-            return 0;
-        }
-        return OpenActivitiesUtils.getOpenActivityScore(
-            presenter.playerController,
-            presenter.pageID,
-            presenter.configuration.ID
-        );
-    };
-
     presenter.getMaxScore = function () {
         if (!presenter.configuration.isValid || !presenter.configuration.manualGrading) {
             return 0;
         }
         return presenter.configuration.weight;
-    };
-
-    presenter.getErrorCount = function(){
-        return 0;
     };
 
     presenter.isAIReady = function() {

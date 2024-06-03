@@ -376,6 +376,10 @@ public class JavaScriptPlayerServices {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::updateOpenActivityScore(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID, grade);
 			};
 
+			score.getPageScoreWithoutOpenActivitiesById = function(pageID){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreWithoutOpenActivitiesById(Ljava/lang/String;)(pageID);
+			};
+
 			return score;
 		};
 
@@ -788,6 +792,15 @@ public class JavaScriptPlayerServices {
 
 		JavaScriptObject model = scoreToJs(score, time);
 
+		return model;
+	}
+
+	private JavaScriptObject getPageScoreWithoutOpenActivitiesById(String id){
+		PageScore score = playerServices.getScoreService().getPageScoreWithoutOpenActivitiesById(id);
+		Long time = playerServices.getTimeService().getPageTimeById(id);
+		
+		JavaScriptObject model = scoreToJs(score, time);
+		
 		return model;
 	}
 
