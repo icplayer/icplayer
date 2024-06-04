@@ -194,6 +194,15 @@ TestCase("[Commons - Open activities utils] Methods tests", {
         assertEquals(1, result);
     },
 
+    'test given enabled open activities and module at AI ready list and with both scores when executing getOpenActivityScore then return manual graded score when is 0': function () {
+        this.setUpExampleOfAIReadyList();
+        this.setUpPlayerController(true, this.aiReadyList, this.createOpenActivityScore(0, 2));
+
+        const result = OpenActivitiesUtils.getOpenActivityScore(this.playerController, this.pageID, this.moduleID);
+
+        assertEquals(0, result);
+    },
+
     'test given enabled open activities and module at AI ready list and with manual graded score when executing getOpenActivityScore then return manual graded score': function () {
         this.setUpExampleOfAIReadyList();
         this.setUpPlayerController(true, this.aiReadyList, this.createOpenActivityScore(1, null));

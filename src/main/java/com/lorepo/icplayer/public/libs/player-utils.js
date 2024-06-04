@@ -57,8 +57,8 @@
      as well as the time spent on non reportable pages
      */
     window.PlayerUtils.prototype.getFullPresentationScore = function(presentation) {
-            return this.getPresentationScoreBase(presentation, true);
-        }
+        return this.getPresentationScoreBase(presentation, true);
+    }
 
     window.PlayerUtils.prototype.getPresentationScoreBase = function(presentation, includeNonReportable) {
         if (this.hasOwnProperty('scoreService')) {
@@ -76,7 +76,7 @@
                 page = presentation.getPage(i);
 
                 if (page.isReportable()) {
-                    score = this.scoreService.getPageScoreById(page.getId());
+                    score = this.scoreService.getPageScoreWithoutOpenActivitiesById(page.getId());
 
                     if (score['maxScore']) {
                         pageScaledScore = score['score'] / score['maxScore'];

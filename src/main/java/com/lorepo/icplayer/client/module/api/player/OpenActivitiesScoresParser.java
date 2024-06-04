@@ -46,16 +46,16 @@ public class OpenActivitiesScoresParser extends JavaScriptObject{
 		return this.length;
 	}-*/;
 
-	public final native Integer getAIGradedScore(int index) /*-{
-		return this[index].ai_score !== undefined ? this[index].ai_score : null;
+	public final native int getAIGradedScore(int index) /*-{
+		return (this[index].ai_score !== undefined && this[index].ai_score !== null) ? this[index].ai_score : -1;
 	}-*/;
 
-	public final native Integer getManualGradedScore(int index) /*-{
-		return this[index].score !== undefined ? this[index].score : null;
+	public final native int getManualGradedScore(int index) /*-{
+		return (this[index].score !== undefined && this[index].score !== null) ? this[index].score : -1;
 	}-*/;
 
-	public final native Integer getMaxScore(int index) /*-{
-		return this[index].max_score !== undefined ? this[index].max_score : null;
+	public final native int getMaxScore(int index) /*-{
+		return (this[index].max_score !== undefined && this[index].max_score !== null) ? this[index].max_score : -1;
 	}-*/;
 
 	public final native String getPageID(int index) /*-{
