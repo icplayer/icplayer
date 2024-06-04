@@ -60,7 +60,7 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		int total = 0;
 		for (Map.Entry<String, PageScore> scoreEntry : pageScores.entrySet()) {
 			String pageID = scoreEntry.getKey();
@@ -85,7 +85,7 @@ public class ScoreService implements IScoreService {
 		if(score == null){
 			score = new PageScore();
 		}
-		
+
 		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
 		return updatedPageScore;
 	}
@@ -151,22 +151,22 @@ public class ScoreService implements IScoreService {
 			score = new PageScore();
 		}
 		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
-		
+
 		return updatedPageScore;
 	}
-	
+
 	@Override
 	public PageScore getPageScoreWithoutOpenActivitiesById(String pageID) {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		PageScore score = pageScores.get(pageID);
-		
+
 		if (score == null) {
 			score = new PageScore();
 		}
-		
+
 		return score;
 	}
 
@@ -215,6 +215,35 @@ public class ScoreService implements IScoreService {
 			return new ScoreInfo();
 		}
 		return scoreInfo;
+	}
+
+	@Override
+	public void updateOpenActivityScore(String pageID, String moduleID, String grade) {
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
+
+			newPageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
+			pagesOpenActivitiesScores.put(pageID, newPageScore);
+			sendValueChangedEvent(moduleID);
+
+			return;
+		}
+
+		ScoreInfo scoreInfo = pageScore.get(moduleID);
+		if (scoreInfo == null) {
+			pageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
+			sendValueChangedEvent(moduleID);
+
+			return;
+		}
+
+		pageScore.setAIGradedScore(moduleID, Integer.parseInt(grade));
+		sendValueChangedEvent(moduleID);
+	}
+
+	private void sendValueChangedEvent(String moduleID) {
+		playerServices.getEventBusService().sendValueChangedEvent("", moduleID, "", "updateScore", "");
 	}
 
 	private PageScore updatePageScoreWithOpenActivitiesScore(PageScore pageScore, String pageID) {

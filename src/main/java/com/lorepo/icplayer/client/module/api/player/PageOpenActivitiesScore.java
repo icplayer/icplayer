@@ -73,6 +73,11 @@ public class PageOpenActivitiesScore {
 	public void addScore(String moduleID, int aiGradedScore, int manualGradedScore, int maxScore) {
 		scores.put(moduleID, new ScoreInfo(aiGradedScore, manualGradedScore, maxScore));
 	}
+
+	public void setAIGradedScore(String moduleID, int aiGradedScore) {
+		ScoreInfo score = get(moduleID);
+		score.aiGradedScore = aiGradedScore;
+	}
 	
 	public boolean hasScore(String moduleID) {
 		return scores.containsKey(moduleID);

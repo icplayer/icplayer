@@ -1,6 +1,8 @@
 function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
     var eventBus;
+    var userAnswerAIReviewRequest = 'gradeByAi';
+    var userAnswerAIReviewResponse = 'aiGraded';
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -16,6 +18,12 @@ function AddonParagraph_Keyboard_create() {
     presenter.isShowAnswersActive = false;
     presenter.eKeyboardButtons = [];
     presenter.isEditorLoaded = false;
+    presenter.currentPageIndex = null;
+    presenter.isWaitingForAIGrade = false;
+    presenter.aiGradeInterval = null;
+    presenter.MAX_WAIT_TIME = 15;
+    presenter.startTime = null;
+    presenter.updateScoreEventName = 'updateScore';
     var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
@@ -35,7 +43,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.',
-        'W_01' : 'Weight must be a whole number between 0 and 100'
+        'W_01' : 'Weight must be a whole number between 0 and 100',
+        'W_02': 'Occurs a problem with checking your answers. Please try later.'
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -86,6 +95,7 @@ function AddonParagraph_Keyboard_create() {
         eventBus.addEventListener('HideAnswers', this);
         eventBus.addEventListener('GradualShowAnswers', this);
         eventBus.addEventListener('GradualHideAnswers', this);
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
@@ -101,6 +111,10 @@ function AddonParagraph_Keyboard_create() {
             case "HideAnswers":
             case "GradualHideAnswers":
                 presenter.hideAnswers();
+                break;
+
+            case "ValueChanged":
+                presenter.handleUpdateScoreEvent(eventData);
                 break;
         }
     };
@@ -165,7 +179,70 @@ function AddonParagraph_Keyboard_create() {
         presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) return;
         presenter.showAnswers();
-    }
+    };
+
+    presenter.sendUserAnswerToAICheck = function () {
+        if(!presenter.isAIReady() || presenter.isWaitingForAIGrade) { return; }
+
+        const data = presenter.getDataRequestToAI();
+
+        window.addEventListener("message", presenter.onExternalMessage);
+        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, data);
+        presenter.isWaitingForAIGrade = true;
+        presenter.waitForAIGrade();
+    };
+
+    presenter.getDataRequestToAI = function () {
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const activityMaxScore = presenter.getMaxScore();
+        const pageWeight = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getPageWeight();
+        const pageMaxScore = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getModulesMaxScore();
+        const answer = presenter.getText().replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+
+        return JSON.stringify({
+            'page_id': pageID,
+            'activity_id': activityID,
+            'activity_max_score': activityMaxScore,
+            'page_weight': pageWeight,
+            'page_max_score': pageMaxScore,
+            'answer': answer
+        });
+    };
+
+    presenter.onExternalMessage = function (event) {
+        const data = event.data;
+
+        if (presenter.isValidResponse(data)) {
+            presenter.updateOpenActivityScore(data);
+        }
+    };
+
+    presenter.isValidResponse = function (data) {
+        const isAIResponse = data.includes(userAnswerAIReviewResponse);
+        if (!isAIResponse) { return isAIResponse; }
+
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const isValidPageID = data.includes(pageID);
+        const isValidActivityID = data.includes(activityID);
+
+        return isAIResponse && isValidPageID && isValidActivityID;
+    };
+
+    presenter.updateOpenActivityScore = function (data) {
+        const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
+        const pageID = parsedData.page_id;
+        const activityID = parsedData.activity_id;
+        const grade = parsedData.ai_grade;
+
+        OpenActivitiesUtils.updateOpenActivityScore(
+            presenter.playerController,
+            pageID,
+            activityID,
+            grade
+        );
+    };
 
     presenter.setShowErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
@@ -946,8 +1023,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
-        const currentPageIndex = presenter.playerController.getCurrentPageIndex();
-        presenter.pageID = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
+        presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        presenter.pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
@@ -1011,6 +1088,7 @@ function AddonParagraph_Keyboard_create() {
             'setText': presenter.setText,
             'isAttempted': presenter.isAttempted,
             'isAIReady': presenter.isAIReady,
+            'sendUserAnswerToAICheck': presenter.sendUserAnswerToAICheck,
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1231,6 +1309,31 @@ function AddonParagraph_Keyboard_create() {
             presenter.configuration.ID
         );
     };
+
+    presenter.waitForAIGrade = function () {
+        presenter.startTime = new Date().getTime();
+        presenter.disableEdit();
+        presenter.aiGradeInterval = setInterval(function () {
+            presenter.checkTimer();
+        }, 1000);
+    };
+
+    presenter.checkTimer = function () {
+        const currentTime = new Date().getTime();
+        if ((currentTime - presenter.startTime) / 1_000 >= presenter.MAX_WAIT_TIME) {
+            clearInterval(presenter.aiGradeInterval);
+            presenter.isWaitingForAIGrade = false;
+            presenter.enableEdit();
+        }
+    }
+
+    presenter.handleUpdateScoreEvent = function (eventData) {
+        if (eventData.source !== presenter.configuration.ID && eventData.value !== presenter.updateScoreEventName) { return; }
+
+        clearInterval(presenter.aiGradeInterval);
+        presenter.isWaitingForAIGrade = false;
+        presenter.enableEdit();
+    }
 
     return presenter;
 }
