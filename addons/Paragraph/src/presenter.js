@@ -93,7 +93,8 @@ function AddonParagraph_create() {
             'setText': presenter.setText,
             'isAttempted': presenter.isAttempted,
             'lock': presenter.lock,
-            'unlock': presenter.unlock
+            'unlock': presenter.unlock,
+            'isAIReady': presenter.isAIReady,
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -593,16 +594,15 @@ function AddonParagraph_create() {
 
         const validatedInteger = ModelValidationUtils.validateIntegerInRange(weight, 100, 0);
         if (!validatedInteger.isValid) {
-            return getErrorObject("W_01");
+            return ModelErrorUtils.getErrorObject("W_01");
         }
         if (isPreview && (validatedInteger.value + "") !== weight) {
-            return getErrorObject("W_01");
+            return ModelErrorUtils.getErrorObject("W_01");
         }
         return getCorrectObject(validatedInteger.value);
     };
 
     function getCorrectObject(val) { return { isValid: true, value: val }; }
-    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
 
     /**
      * Initialize the addon.
@@ -1108,6 +1108,8 @@ function AddonParagraph_create() {
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        const currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        presenter.pageID = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
     };
 
     presenter.getState = function AddonParagraph_getState() {
@@ -1414,6 +1416,20 @@ function AddonParagraph_create() {
             return 0;
         }
         return presenter.configuration.weight;
+    };
+
+    presenter.isAIReady = function() {
+        if (!presenter.configuration.isValid
+            || !presenter.configuration.manualGrading
+            || !presenter.playerController
+        ) {
+            return false;
+        }
+        return OpenActivitiesUtils.isAIReady(
+            presenter.playerController,
+            presenter.pageID,
+            presenter.configuration.ID
+        );
     };
 
     return presenter;

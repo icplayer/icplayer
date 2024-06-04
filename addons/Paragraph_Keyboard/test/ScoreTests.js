@@ -37,5 +37,4 @@ TestCase("[Paragraph Keyboard] Get max score method tests", {
 
         assertEquals(0, maxScore);
     }
-
 });

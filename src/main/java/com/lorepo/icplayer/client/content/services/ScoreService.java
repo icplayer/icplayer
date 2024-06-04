@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
@@ -8,6 +9,8 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 public class ScoreService implements IScoreService {
 
@@ -15,6 +18,7 @@ public class ScoreService implements IScoreService {
 	// Helper field for mapping page name to its ID (backwards compatibility)
 	private final HashMap<String, String>	pagesNamesToIds;
 	private final HashMap<String, PageScore>	pageScores;
+	private HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores;
 	private final boolean useLast;
 	private final ScoreType scoreType;
 	private IPlayerServices playerServices;
@@ -25,6 +29,7 @@ public class ScoreService implements IScoreService {
 		scores = new HashMap<String, Integer>();
 		pagesNamesToIds = new HashMap<String, String>();
 		pageScores = new HashMap<String, PageScore>();
+		pagesOpenActivitiesScores = new HashMap<String, PageOpenActivitiesScore>();
 	}
 
 	@Override
@@ -55,10 +60,13 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-
+		
 		int total = 0;
-		for (PageScore scoreObj : pageScores.values()) {
-			total += scoreObj.getScore() * scoreObj.getWeight();
+		for (Map.Entry<String, PageScore> scoreEntry : pageScores.entrySet()) {
+			String pageID = scoreEntry.getKey();
+			PageScore pageScore = scoreEntry.getValue();
+			PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(pageScore, pageID);
+			total += updatedPageScore.getScore() * updatedPageScore.getWeight();
 		}
 
 		return total;
@@ -77,9 +85,9 @@ public class ScoreService implements IScoreService {
 		if(score == null){
 			score = new PageScore();
 		}
-
-		assert(score != null);
-		return score;
+		
+		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
+		return updatedPageScore;
 	}
 
 	@Override
@@ -108,7 +116,6 @@ public class ScoreService implements IScoreService {
 		PageScore pageScore = pageScores.get(page.getId());
 
 		if (getScoreType().equals(ScoreType.last) || pageScore == null) {
-
 			pageScores.put(page.getId(), score);
 			pagesNamesToIds.put(page.getName(), page.getId());
 		}
@@ -143,7 +150,23 @@ public class ScoreService implements IScoreService {
 		if (score == null) {
 			score = new PageScore();
 		}
-
+		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
+		
+		return updatedPageScore;
+	}
+	
+	@Override
+	public PageScore getPageScoreWithoutOpenActivitiesById(String pageID) {
+		if (scoreType.equals(ScoreType.last)) {
+			playerServices.getCommands().updateCurrentPageScore(false);
+		}
+		
+		PageScore score = pageScores.get(pageID);
+		
+		if (score == null) {
+			score = new PageScore();
+		}
+		
 		return score;
 	}
 
@@ -174,6 +197,33 @@ public class ScoreService implements IScoreService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores) {
+		this.pagesOpenActivitiesScores = scores;
+	}
+
+	@Override
+	public ScoreInfo getOpenActivityScores(String pageID, String moduleID) {
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			return new ScoreInfo();
+		}
+		ScoreInfo scoreInfo = pageScore.get(moduleID);
+		if (scoreInfo == null) {
+			return new ScoreInfo();
+		}
+		return scoreInfo;
+	}
+
+	private PageScore updatePageScoreWithOpenActivitiesScore(PageScore pageScore, String pageID) {
+		PageOpenActivitiesScore pageActivityScore = pagesOpenActivitiesScores.get(pageID);
+		IPage page = playerServices.getModel().getPageById(pageID);
+		if (pageActivityScore == null || page == null || !page.isReportable() || pageScore.getMaxScore() == 0) {
+			return pageScore;
+		}
+		return pageScore.updateScoreWithOpenActivityScore(pageActivityScore.getScore());
 	}
 
 }

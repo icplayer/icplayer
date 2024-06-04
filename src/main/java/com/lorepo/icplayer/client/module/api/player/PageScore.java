@@ -17,7 +17,8 @@ public class PageScore {
 	private final int 	mistakeCount;
 	private int weight;
 	private boolean hasScore = true;
-
+	private int	openActivitiesScore;
+	private boolean hasOpenActivitiesScore = false;
 
 
 	public PageScore(float score, float maxScore, int checkCount,
@@ -55,7 +56,7 @@ public class PageScore {
 	 * @return score
 	 */
 	public float getScore(){
-		return score;
+		return getScoreWithOpenActivityScore();
 	}
 
 	/**
@@ -71,9 +72,10 @@ public class PageScore {
 	public int getPercentageScore() {
 
 		if (maxScore > 0) {
-			int percentageScore = Math.round(score*100/maxScore);
-			if (percentageScore == 100 && score != maxScore) return 99;
-			if (percentageScore == 0 && score != 0) return 1;
+			float summedScore = getScoreWithOpenActivityScore();
+			int percentageScore = Math.round(summedScore*100/maxScore);
+			if (percentageScore == 100 && summedScore != maxScore) return 99;
+			if (percentageScore == 0 && summedScore != 0) return 1;
 			return percentageScore;
 		}
 
@@ -103,7 +105,7 @@ public class PageScore {
 	 * @return scaled score
 	 */
 	public float getScaledScore() {
-		return maxScore == 0 ? 0 : score / maxScore;
+		return maxScore == 0 ? 0 : getScoreWithOpenActivityScore() / maxScore;
 	}
 
 
@@ -181,6 +183,27 @@ public class PageScore {
 
 	public int getWeight() {
 		return this.weight;
+	}
+	
+	public PageScore updateScoreWithOpenActivityScore(int score) {
+		PageScore newPageScore = new PageScore(this.score, maxScore, checkCount, errorCount, mistakeCount);
+		newPageScore.setOpenActivityScore(score);
+		newPageScore.setWeight(this.getWeight());
+		return newPageScore;
+	}
+	
+	protected void setOpenActivityScore(int score) {
+		this.openActivitiesScore = score;
+		this.hasOpenActivitiesScore = true;
+		this.hasScore = true;
+	}
+	
+	public boolean hasOpenActivitiesScore(){
+		return hasOpenActivitiesScore;
+	}
+	
+	private float getScoreWithOpenActivityScore() {
+		return hasOpenActivitiesScore ? (score + (float) openActivitiesScore) : score;
 	}
 
 }
