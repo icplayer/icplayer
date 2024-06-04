@@ -1,5 +1,6 @@
-2024-05-28 Removed inclusion of Open Activities scores for mc
-2024-05-27 Added score and error count to Paragraph and Paragraph Keyboard addons
+2024-06-04 Removed inclusion of Open Activities scores for mc
+2024-06-04 Added score and error count to Paragraph and Paragraph Keyboard addons
+2024-05-28 Added mockup method for setOpenActivitiesScores
 2024-05-20 Added max score to Paragraph and Paragraph Keyboard addons
 2024-05-16 Fixed incorrect display of formulas in the Text Selection
 2024-05-13 Added validation to course ID in the Cross Lesson
