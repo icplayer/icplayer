@@ -25,6 +25,11 @@ function AddonParagraph_create() {
     presenter.toolbarChangeHeightTimeoutID = null;
     presenter.paragraphInitTimeoutID = null;
     presenter.currentPageIndex = null;
+    presenter.isWaitingForAIGrade = false;
+    presenter.aiGradeInterval = null;
+    presenter.MAX_WAIT_TIME = 15;
+    presenter.startTime = null;
+    presenter.updateScoreEventName = 'updateScore';
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
@@ -47,7 +52,8 @@ function AddonParagraph_create() {
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
 
     presenter.ERROR_CODES = {
-        'W_01': 'Weight must be a whole number between 0 and 100'
+        'W_01': 'Weight must be a whole number between 0 and 100',
+        'W_02': 'Occurs a problem with checking your answers. Please try later.'
     };
 
     presenter.TOOLBAR_ARIAS = {
@@ -166,7 +172,7 @@ function AddonParagraph_create() {
 
     presenter.setEventBus = function (wrappedEventBus) {
         eventBus = wrappedEventBus;
-        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers', 'ValueChanged'];
         for (var i = 0; i < events.length; i++) {
             eventBus.addEventListener(events[i], this);
         }
@@ -185,6 +191,10 @@ function AddonParagraph_create() {
             case "HideAnswers":
             case "GradualHideAnswers":
                 presenter.hideAnswers();
+                break;
+
+            case "ValueChanged":
+                presenter.handleUpdateScoreEvent(eventData);
                 break;
         }
     };
@@ -301,12 +311,14 @@ function AddonParagraph_create() {
     };
 
     presenter.sendUserAnswerToAICheck = function () {
-        if(!presenter.isAIReady()) { return; }
+        if(!presenter.isAIReady() || presenter.isWaitingForAIGrade) { return; }
 
         const data = presenter.getDataRequestToAI();
 
         window.addEventListener("message", presenter.onExternalMessage);
         presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, data);
+        presenter.isWaitingForAIGrade = true;
+        presenter.waitForAIGrade();
     };
 
     presenter.getDataRequestToAI = function () {
@@ -1496,6 +1508,32 @@ function AddonParagraph_create() {
             presenter.configuration.ID
         );
     };
+
+    presenter.waitForAIGrade = function () {
+        presenter.startTime = new Date().getTime();
+        presenter.disableEdit();
+        presenter.aiGradeInterval = setInterval(function () {
+            presenter.checkTimer();
+        }, 1000);
+    };
+
+    presenter.checkTimer = function () {
+        const currentTime = new Date().getTime();
+        if ((currentTime - presenter.startTime) / 1_000 >= presenter.MAX_WAIT_TIME) {
+            clearInterval(presenter.aiGradeInterval);
+            presenter.isWaitingForAIGrade = false;
+            presenter.enableEdit();
+            DOMOperationsUtils.showErrorMessage(presenter.view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+        }
+    }
+
+    presenter.handleUpdateScoreEvent = function (eventData) {
+        if (eventData.source !== presenter.configuration.ID && eventData.value !== presenter.updateScoreEventName) { return; }
+
+        clearInterval(presenter.aiGradeInterval);
+        presenter.isWaitingForAIGrade = false;
+        presenter.enableEdit();
+    }
 
     return presenter;
 }
