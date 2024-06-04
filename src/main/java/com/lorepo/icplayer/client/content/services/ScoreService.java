@@ -60,7 +60,7 @@ public class ScoreService implements IScoreService {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		int total = 0;
 		for (Map.Entry<String, PageScore> scoreEntry : pageScores.entrySet()) {
 			String pageID = scoreEntry.getKey();
@@ -85,7 +85,7 @@ public class ScoreService implements IScoreService {
 		if(score == null){
 			score = new PageScore();
 		}
-		
+
 		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
 		return updatedPageScore;
 	}
@@ -151,22 +151,22 @@ public class ScoreService implements IScoreService {
 			score = new PageScore();
 		}
 		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
-		
+
 		return updatedPageScore;
 	}
-	
+
 	@Override
 	public PageScore getPageScoreWithoutOpenActivitiesById(String pageID) {
 		if (scoreType.equals(ScoreType.last)) {
 			playerServices.getCommands().updateCurrentPageScore(false);
 		}
-		
+
 		PageScore score = pageScores.get(pageID);
-		
+
 		if (score == null) {
 			score = new PageScore();
 		}
-		
+
 		return score;
 	}
 

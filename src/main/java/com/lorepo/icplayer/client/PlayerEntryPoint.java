@@ -415,6 +415,6 @@ public class PlayerEntryPoint implements EntryPoint {
 	}
 
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
-		// TODO Add functionality
+		this.theApplication.setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
 	}
 }

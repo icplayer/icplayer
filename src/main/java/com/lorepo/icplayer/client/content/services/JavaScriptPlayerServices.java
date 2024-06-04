@@ -372,12 +372,12 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenActivityScores(Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID);
 			};
 
-			score.updateOpenActivityScore = function(pageID, moduleID, grade){
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::updateOpenActivityScore(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID, grade);
-			};
-
 			score.getPageScoreWithoutOpenActivitiesById = function(pageID){
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreWithoutOpenActivitiesById(Ljava/lang/String;)(pageID);
+			};
+
+			score.updateOpenActivityScore = function(pageID, moduleID, grade){
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::updateOpenActivityScore(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID, grade);
 			};
 
 			return score;
@@ -798,9 +798,9 @@ public class JavaScriptPlayerServices {
 	private JavaScriptObject getPageScoreWithoutOpenActivitiesById(String id){
 		PageScore score = playerServices.getScoreService().getPageScoreWithoutOpenActivitiesById(id);
 		Long time = playerServices.getTimeService().getPageTimeById(id);
-		
+
 		JavaScriptObject model = scoreToJs(score, time);
-		
+
 		return model;
 	}
 
