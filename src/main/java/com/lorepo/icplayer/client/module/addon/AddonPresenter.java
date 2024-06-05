@@ -602,6 +602,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			String propertyName = propetry.getName(); 
 			if (propertyName.equalsIgnoreCase("Is Disabled") ||
 				propertyName.equalsIgnoreCase("IsDisabled") ||
+				propertyName.equalsIgnoreCase("isDisable") ||
 				propertyName.equalsIgnoreCase("Disable")) {
 					return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
 			}
