@@ -30,6 +30,7 @@ function AddonGeometricConstruct_create() {
     };
 
     presenter.run = function (view, model) {
+        console.log("gc 6");
         presenterLogic(view, model, false);
     };
 
@@ -246,6 +247,10 @@ function AddonGeometricConstruct_create() {
         }, ()=>{});
         presenter.createGeometricElementButton("Point", Point, basicSection);
 
+        var circleSection = presenter.createToolbarSection();
+        presenter.createGeometricElementButton("Circle", CircleBase, circleSection);
+        presenter.createGeometricElementButton("Circle passing through a point", CircleWithPoint, circleSection);
+
         var pointLineSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton("Line Segment", LineSegment, pointLineSection);
         presenter.createGeometricElementButton("Half-open Line Segment", HalfOpenLineSegment, pointLineSection);
@@ -344,7 +349,7 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.moveHandler is abstract and has not been implemented");
         }
 
-        isClicked(event) {
+        x(event) {
             throw new Error("GeometricElement.isClicked is abstract and has not been implemented");
         }
 
@@ -937,6 +942,251 @@ function AddonGeometricConstruct_create() {
         getClassType() {
             return OpenLineSegment.TYPE;
         }
+
+    }
+
+    class CircleBase extends GeometricElement {
+        static TYPE = "CircleBaseSegment";
+        static LABEL_CLASS = "circle_base_label";
+        static ICON_CLASS = "circle-base-image";
+
+        centerPoint;
+        radius = 50;
+        draggingDiff;
+
+        constructor() {
+            super();
+        }
+
+        draw() {
+            if (this.centerPoint != null) {
+                this.drawCircle(this.radius);
+                this.centerPoint.draw();
+            }
+        };
+
+        drawCircle(radius) {
+            if (this.centerPoint == null) return;
+            presenter.context.fillStyle = presenter.configuration.fillColor;
+            presenter.context.strokeStyle = presenter.configuration.strokeColor;
+            presenter.context.beginPath();
+            presenter.context.arc(this.centerPoint.x, this.centerPoint.y, radius, 0, 2 * Math.PI);
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
+
+        append() {
+            this.centerPoint.append();
+            if (presenter.figuresList.indexOf(this) == -1) {
+                presenter.figuresList.push(this);
+            }
+        }
+
+        remove() {
+            if (this.centerPoint == null) return;
+            this.centerPoint.removeParent(this);
+            this.centerPoint.setSelected(false);
+            this.centerPoint.removeAllParents();
+            if (!this.centerPoint.hasParents() && !this.centerPoint.isRoot) this.centerPoint.remove();
+
+            var figuresIndex = presenter.figuresList.indexOf(this);
+            if (figuresIndex != -1) {
+                presenter.figuresList.splice(figuresIndex, 1);
+            }
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this) {
+                if (this.centerPoint == null) {
+                    this.insertCenterPoint(event);
+                    presenter.newFigure = new CircleBase();
+                }
+            }
+        }
+
+        insertCenterPoint(event) {
+            var point;
+            var clickedPoint = presenter.getClickedPoint(event);
+            if (clickedPoint != null) {
+                point = clickedPoint;
+            } else {
+                var location = getCanvasEventLocation(event);
+                point = new Point();
+                point.setLocation(location.x, location.y);
+            }
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.centerPoint = point;
+            this.append();
+        }
+
+        insertMoveHandler(event) {
+            return false;
+        }
+
+        moveHandler(event) {
+            if (!this.centerPoint) return;
+            if (this.draggingDiff) {
+                var location = getCanvasEventLocation(event);
+                this.centerPoint.setLocation(location.x + this.draggingDiff.x, location.y + this.draggingDiff.y);
+            } else if (this.centerPoint.isClicked()) {
+                this.centerPoint.moveHandler(event);
+            }
+        }
+
+        isClicked(event) {
+            if (!this.centerPoint) return false;
+            if(this.centerPoint.isClicked(event)) return true;
+            return this.isRimClicked(event);
+        }
+
+        isRimClicked(event) {
+            if (!this.centerPoint) return false;
+            var location = getCanvasEventLocation(event);
+            var distance = this.distanceFromCenter(location.x, location.y);
+            return Math.abs(this.radius - distance) < 5;
+        }
+
+        distanceFromCenter(x, y) {
+            var diffX = this.centerPoint.x - x;
+            var diffY = this.centerPoint.y - y;
+            return Math.sqrt(diffX * diffX + diffY * diffY);
+        }
+
+        addLabel() {
+            if (this.centerPoint) this.centerPoint.addLabel();
+        }
+
+        updateLabel() {
+            if (this.centerPoint) this.centerPoint.updateLabel(event);
+        }
+
+        hideLabel() {
+            if (this.centerPoint) this.centerPoint.hideLabel(event);
+        }
+
+        removeLabel() {
+            if (this.centerPoint) this.centerPoint.removeLabel(event);
+        }
+
+        getLabelValues() {
+            if (this.centerPoint) return this.centerPoint.getLabelValues(event);
+            return [];
+        }
+
+        setSelected(isSelected, event) {
+            if (!this.centerPoint) return;
+            this.draggingDiff = null;
+            this.centerPoint.setSelected(isSelected, event);
+            if (isSelected && !this.centerPoint.isClicked(event) && !!event) {
+                var location = getCanvasEventLocation(event);
+                this.draggingDiff = {
+                    x: this.centerPoint.x - location.x,
+                    y: this.centerPoint.y - location.y
+                };
+            }
+        }
+
+        toJSON() {
+            if (this.centerPoint == null || this.radius == 0) return null;
+            var centerPointState = this.centerPoint.toJSON();
+            if (centerPointState == null) return null;
+
+            return {
+                type: this.getClassType(),
+                state: {
+                    centerPoint: centerPointState,
+                    radius: this.radius
+                }
+            }
+        }
+
+        loadJSON(json) {
+            if (json.type != this.getClassType()) return;
+            if (this.centerPoint == null) {
+                var point;
+                var existingPoint = presenter.getPointByID(json.state.centerPoint.state.id);
+                if (existingPoint != null) {
+                    point = existingPoint;
+                } else {
+                    point = new Point();
+                    point.setIsRoot(false);
+                }
+                point.addParent(this);
+                this.centerPoint = point;
+            }
+            this.centerPoint.loadJSON(json.state.centerPoint);
+            this.radius = json.state.radius;
+        }
+    }
+
+    class CircleWithPoint extends CircleBase {
+            static TYPE = "CircleWithPointSegment";
+            static LABEL_CLASS = "circle_with_point_label";
+            static ICON_CLASS = "circle-with-point-image";
+
+            rimPoint;
+            radius = 0;
+
+            insertClickHandler(event) {
+                if (presenter.newFigure == this) {
+                    if (this.centerPoint == null) {
+                        this.insertCenterPoint(event);
+                    } else if (this.rimPoint == null) {
+                        this.insertRimPoint(event);
+                        presenter.newFigure = new CircleWithPoint();
+                    }
+                }
+            }
+
+            insertRimPoint(event) {
+                var point;
+                var clickedPoint = presenter.getClickedPoint(event);
+                if (clickedPoint != null) {
+                    point = clickedPoint;
+                } else {
+                    var location = getCanvasEventLocation(event);
+                    point = new Point();
+                    point.setLocation(location.x, location.y);
+                }
+                point.setIsRoot(false);
+                point.addParent(this);
+                this.rimPoint = point;
+                this.radius = this.distanceFromCenter(this.rimPoint.x, this.rimPoint.y);
+                this.append();
+            }
+
+            insertMoveHandler(event) {
+                if (this.centerPoint != null && this.rimPoint == null) {
+                    var location = getCanvasEventLocation(event);
+                    var newRadius = this.distanceFromCenter(location.x, location.y);
+                    if (Math.abs(this.radius - newRadius) >= 1) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            draw() {
+                super.draw();
+                if (this.rimPoint != null) {
+                    this.radius = this.distanceFromCenter(this.rimPoint.x, this.rimPoint.y);
+                    this.rimPoint.draw();
+                }
+            };
+
+            moveHandler(event) {
+
+                // TODO FINISH
+                if (!this.centerPoint || !this.rimPoint) return;
+
+                if (this.draggingDiff) {
+                    var location = getCanvasEventLocation(event);
+                    this.rimPoint.setLocation(location.x + this.draggingDiff.x, location.y + this.draggingDiff.y);
+                } else if (this.rimPoint.isClicked()) {
+                    this.centerPoint.moveHandler(event);
+                }
+            }
 
     }
 
