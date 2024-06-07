@@ -602,12 +602,28 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			String propertyName = propetry.getName(); 
 			if (propertyName.equalsIgnoreCase("Is Disabled") ||
 				propertyName.equalsIgnoreCase("IsDisabled") ||
+				propertyName.equalsIgnoreCase("isDisable") ||
 				propertyName.equalsIgnoreCase("Disable")) {
+					boolean isDisabled = isAddonDisabled(this.getAsJavaScript());
+					if (isDisabled == true || isDisabled == false) {
+						return isDisabled;
+					}
 					return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
 			}
 		}
 		return false;
 	}
+
+	private native boolean isAddonDisabled(JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isDisabled')) {
+			try {
+				return obj.isDisabled();
+			} catch (err) {
+				return null;
+			}
+		};
+		return null;
+	}-*/;
 
 	@Override
 	public void setPageController (PageController pc) {
