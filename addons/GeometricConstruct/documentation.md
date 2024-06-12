@@ -45,7 +45,7 @@ In order to add a new geometric figure to a workspace, you should select it from
     <tr>
         <td>reset</td>
         <td>---</td>
-        <td>Resets the contents of the addon to the default value</td>
+        <td>Resets the addon to the default value</td>
     </tr>
     <tr>
         <td>prevState</td>
@@ -56,11 +56,6 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>nextState</td>
         <td>---</td>
         <td>Restores the changes to the workspace that were undone by prevState.</td>
-    </tr>
-    <tr>
-        <td>prevState</td>
-        <td>---</td>
-        <td>Undoes all changes to the workspace and restores it to the default state.</td>
     </tr>
 </tbody>
 </table>

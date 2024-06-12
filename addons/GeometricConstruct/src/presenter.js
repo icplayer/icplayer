@@ -251,7 +251,7 @@ function AddonGeometricConstruct_create() {
 
         presenter.$undoButton.on('click', presenter.prevState);
         presenter.$redoButton.on('click', presenter.nextState);
-        presenter.$resetButton.on('click', presenter.reset);
+        presenter.$resetButton.on('click', presenter.resetWithoutVisibility);
         presenter.updateUndoRedoButtonsVisibility();
     };
 
@@ -559,6 +559,15 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.reset = function() {
+        presenter.resetWithoutVisibility();
+        if (presenter.configuration.defaultVisibility) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
+    }
+
+    presenter.resetWithoutVisibility = function() {
         presenter.clearPrevStates();
         presenter.clearLabels();
         presenter.clearFigures();
@@ -571,11 +580,6 @@ function AddonGeometricConstruct_create() {
         presenter.previousStates = [];
         presenter.pushState();
         presenter.updateUndoRedoButtonsVisibility();
-        if (presenter.configuration.defaultVisibility) {
-            presenter.show();
-        } else {
-            presenter.hide();
-        }
     }
 
     presenter.getSelectedButtonType = function() {
