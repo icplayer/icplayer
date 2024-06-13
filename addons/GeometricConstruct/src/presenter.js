@@ -621,17 +621,25 @@ function AddonGeometricConstruct_create() {
         }
 
         remove() {
-            if (presenter.editFigure == this && this.selectedPoint != null) {
-                var selectedPoint = this.selectedPoint;
+            var selectedPoint = this.selectedPoint;
+            if (presenter.editFigure == this && selectedPoint != null) {
                 this.selectedPoint = null;
+                selectedPoint.removeParent(this);
                 selectedPoint.removeAllParents();
-                return;
             }
             for (var i = 0; i < this.endpoints.length; i++) {
                 var point = this.endpoints[i];
                 point.removeParent(this);
-                point.setSelected(false);
-                if (!point.hasParents() && !point.isRoot) point.remove();
+                if (!point.hasParents()) {
+                    if (point.isSelected) {
+                        point.remove();
+                    } else if (!point.isRoot) {
+                        point.setIsRoot(true);
+                    }
+                } else if (presenter.editFigure == this) {
+                    point.setSelected(false);
+                }
+
             }
             var figuresIndex = presenter.figuresList.indexOf(this);
             if (figuresIndex != -1) {
