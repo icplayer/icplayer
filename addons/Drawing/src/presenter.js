@@ -461,9 +461,7 @@ function AddonDrawing_create() {
         connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
 
         tmp_canvas.addEventListener("click", presenter.onTmpCanvasClick, false);
-        document.addEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
-        document.addEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
-        
+
         // KEYBOARD DELETE EDIT IMAGE 
         document.addEventListener("keydown", presenter.removeImage, false);
     };
@@ -654,6 +652,7 @@ function AddonDrawing_create() {
     };
 
     presenter.run = function(view, model) {
+        console.log("RUN v0.1")
         presenter.presenterLogic(view, model, false);
     };
 
@@ -1392,33 +1391,6 @@ function AddonDrawing_create() {
         return presenter.buildTextEditorResult(textArray, lineHeight, x, y);
     }
 
-    presenter.embedTextByTouchEndOnDocument = function (e) {
-        presenter.embedTextByEventOnDocument(false, e);
-    }
-
-    presenter.embedTextByMouseDownOnDocument = function (e) {
-        presenter.embedTextByEventOnDocument(true, e);
-    }
-
-    presenter.embedTextByEventOnDocument = function (turnOnOverflow, e) {
-        if (!isOnTextEditionMode()) {
-            return;
-        }
-
-        let isTargetInsideAddon = false;
-        for (const child of presenter.view.children) {
-            if (child.contains(e.target)) {
-                isTargetInsideAddon = true;
-            }
-        }
-        if (isTargetInsideAddon) {
-            return;
-        }
-
-        setOverflowWorkAround(turnOnOverflow);
-        presenter.finishEditTextMode();
-    }
-
     presenter.destroy = function (event) {
         if (event.target !== this) {
             return;
@@ -1427,8 +1399,6 @@ function AddonDrawing_create() {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
         document.removeEventListener("keydown", presenter.removeImage, false);
-        document.removeEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
-        document.removeEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
 
         if (presenter.imageInputElement) presenter.imageInputElement.remove();
         presenter.closeTextFieldPopup();
