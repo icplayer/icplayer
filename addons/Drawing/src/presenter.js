@@ -652,7 +652,6 @@ function AddonDrawing_create() {
     };
 
     presenter.run = function(view, model) {
-        console.log("RUN v0.1")
         presenter.presenterLogic(view, model, false);
     };
 
@@ -1154,15 +1153,9 @@ function AddonDrawing_create() {
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
         presenter.configuration.addonMode = addonMode;
-        if (isOnTextEditionMode()) {
+        const wasTextEditionMode = addonMode === ModeEnum.textEdition;
+        if (wasTextEditionMode) {
             setDefaultAddonMode();
-            if (parsedState.textEditorResult) {
-                const textEditorResult = presenter.buildTextEditorResult(
-                    parsedState.textEditorResult.brokenText, parsedState.textEditorResult.lineHeight,
-                    parsedState.textEditorResult.x, parsedState.textEditorResult.y
-                );
-                textEditorResult.embed();
-            }
         }
         if (isOnPencilMode()) {
             presenter.setColor(color);
@@ -1173,6 +1166,15 @@ function AddonDrawing_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
         presenter.setFont(parsedState.font);
+        if (wasTextEditionMode) {
+            if (parsedState.textEditorResult) {
+                const textEditorResult = presenter.buildTextEditorResult(
+                    parsedState.textEditorResult.brokenText, parsedState.textEditorResult.lineHeight,
+                    parsedState.textEditorResult.x, parsedState.textEditorResult.y
+                );
+                textEditorResult.embed();
+            }
+        }
     };
 
     presenter.addText = function() {
