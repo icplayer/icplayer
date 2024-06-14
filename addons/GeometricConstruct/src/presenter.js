@@ -3,6 +3,8 @@ function AddonGeometricConstruct_create() {
 
     presenter.labelsList = [];
     presenter.figuresList = [];
+    presenter.pointsList = [];
+    presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
     presenter.newFigure = null;
     presenter.editFigure = null;
@@ -17,7 +19,10 @@ function AddonGeometricConstruct_create() {
         CANVAS_OVERLAY: 'canvas_overlay',
         REMOVE_FIGURE_BUTTON: 'remove_figure',
         CURSOR: 'Cursor',
-        CURSOR_IMAGE: 'cursor-image'
+        CURSOR_IMAGE: 'cursor-image',
+        TOOLBAR_OPTIONS: 'toolbar_options',
+        TOOLBAR_SECTION: 'toolbar_section',
+        TOOLBAR_BUTTON: 'toolbarButton'
     };
 
     presenter.createPreview = function (view, model) {
@@ -65,6 +70,7 @@ function AddonGeometricConstruct_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.$toolbarWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_WRAPPER);
+        presenter.$toolbarOptions = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_OPTIONS);
         presenter.$workspaceWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.WORKSPACE_WRAPPER);
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
     }
@@ -142,9 +148,9 @@ function AddonGeometricConstruct_create() {
                 if (presenter.editFigure != selectedFigure) {
                     presenter.clearFigureSelection();
                     presenter.editFigure = selectedFigure;
-                    presenter.editFigure.setSelected(true);
                     presenter.$removeFigure.css('display', '');
                 }
+                presenter.editFigure.setSelected(true, e);
                 presenter.isDragging = true;
             } else if (presenter.editFigure != null) {
                 presenter.editFigure.setSelected(false);
@@ -161,6 +167,9 @@ function AddonGeometricConstruct_create() {
         if (presenter.isEditMode && presenter.isDragging && presenter.editFigure != null) {
             presenter.editFigure.moveHandler(e);
             presenter.redrawCanvas();
+        } else if (presenter.newFigure != null) {
+            var redraw = presenter.newFigure.insertMoveHandler(e);
+            if (redraw) presenter.redrawCanvas();
         }
     }
 
@@ -214,11 +223,33 @@ function AddonGeometricConstruct_create() {
         return result;
     }
 
+    presenter.getClickedPoint = function(event) {
+        for (var i = 0; i < presenter.pointsList.length; i++) {
+            var point = presenter.pointsList[i];
+            if (point.isClicked(event)) return point;
+        }
+        return null;
+    }
+
+    presenter.getPointByID = function(id) {
+        for (var i = 0; i < presenter.pointsList.length; i++) {
+            var point = presenter.pointsList[i];
+            if (point.id == id) return point;
+        }
+        return null;
+    }
+
     presenter.createToolbar = function() {
-        var cursorElement = presenter.createToolbarButton("Cursor", presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, () => {
+        var basicSection = presenter.createToolbarSection();
+        var cursorElement = presenter.createToolbarButton("Cursor", presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, basicSection, () => {
             presenter.setEditMode(true);
         }, ()=>{});
-        presenter.createGeometricElementButton("Point", Point);
+        presenter.createGeometricElementButton("Point", Point, basicSection);
+
+        var pointLineSection = presenter.createToolbarSection();
+        presenter.createGeometricElementButton("Line Segment", LineSegment, pointLineSection);
+        presenter.createGeometricElementButton("Half-open Line Segment", HalfOpenLineSegment, pointLineSection);
+        presenter.createGeometricElementButton("Open Line Segment", OpenLineSegment, pointLineSection);
 
         cursorElement.addClass('selected');
         presenter.setEditMode(true);
@@ -248,21 +279,20 @@ function AddonGeometricConstruct_create() {
         return labelValue;
     }
 
-    presenter.destroyLabel = function(labelValue) {
-        var index = presenter.labelsList.indexOf(labelValue);
+    presenter.destroyLabel = function(labelValue, labelsList) {
+        if (labelsList == undefined) labelsList = presenter.labelsList;
+        var index = labelsList.indexOf(labelValue);
         if (index == -1) return;
-
-        presenter.labelsList[index] = '';
-        if (index ===  presenter.labelsList.length - 1) {
-            for (var i = presenter.labelsList.length - 1; i > -1; i--) {
-                if (presenter.labelsList[i] == '') {
-                    presenter.labelsList.pop();
+        labelsList[index] = '';
+        if (index ===  labelsList.length - 1) {
+            for (var i = labelsList.length - 1; i > -1; i--) {
+                if (labelsList[i] == '') {
+                    labelsList.pop();
                 } else {
                     break;
                 }
             }
         }
-
     }
 
     presenter.finishInsert = function(abandonChanges) {
@@ -305,6 +335,11 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.insertClickHandler is abstract and has not been implemented");
         }
 
+        insertMoveHandler(event) {
+            // returns true if canvas needs to be redrawn
+            throw new Error("GeometricElement.insertMoveHandler is abstract and has not been implemented");
+        }
+
         moveHandler(event) {
             throw new Error("GeometricElement.moveHandler is abstract and has not been implemented");
         }
@@ -325,7 +360,16 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.hideLabel is abstract and has not been implemented");
         }
 
-        setSelected() {
+        removeLabel() {
+            throw new Error("GeometricElement.removeLabel is abstract and has not been implemented");
+        }
+
+        getLabelValues() {
+            throw new Error("GeometricElement.hideLabel is abstract and has not been implemented");
+        }
+
+        setSelected(isSelected, event) {
+            // event is optional
             throw new Error("GeometricElement.setSelected is abstract and has not been implemented");
         }
 
@@ -349,22 +393,57 @@ function AddonGeometricConstruct_create() {
         labelValue = "";
         isRoot = true;
         isSelected = false;
+        id;
+        parentFigures = [];
 
         constructor() {
             super();
+            presenter.maxPointIndex += 1;
+            this.id = presenter.maxPointIndex;
         }
 
         setIsRoot(isRoot) {
             this.isRoot = isRoot;
+            var figuresIndex = presenter.figuresList.indexOf(this);
+            if (this.isRoot && figuresIndex == -1) {
+                presenter.figuresList.push(this);
+            } else if (!this.isRoot && figuresIndex != -1) {
+                presenter.figuresList.splice(figuresIndex, 1);
+            }
         }
 
         append() {
             if (!this.labelValue) {
                 this.labelValue = presenter.createLabel();
             }
-            if (this.isRoot) {
+            if (presenter.pointsList.indexOf(this) == -1) {
+                presenter.pointsList.push(this);
+            };
+            if (this.isRoot && presenter.figuresList.indexOf(this) == -1) {
                 presenter.figuresList.push(this);
             };
+        }
+
+        addParent(figure) {
+            if (this.parentFigures.indexOf(figure) == -1) this.parentFigures.push(figure);
+        }
+
+        removeParent(figure) {
+            var parentIndex = this.parentFigures.indexOf(figure);
+            if (parentIndex != -1) {
+                this.parentFigures.splice(parentIndex, 1);
+            }
+        }
+
+        hasParents() {
+            return this.parentFigures.length > 0;
+        }
+
+        removeAllParents() {
+            while (this.parentFigures.length > 0) {
+                var parent = this.parentFigures.pop();
+                parent.remove();
+            }
         }
 
         remove() {
@@ -380,17 +459,22 @@ function AddonGeometricConstruct_create() {
         insertClickHandler(e) {
             if (presenter.newFigure == this) {
                 var location = getCanvasEventLocation(e);
-                this.x = location.x;
-                this.y = location.y;
+                this.setLocation(location.x, location.y);
                 this.append();
                 presenter.newFigure = new Point();
             }
         }
 
+        insertMoveHandler(e) {return false;};
+
+        setLocation(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
         moveHandler(e) {
             var location = getCanvasEventLocation(e);
-            this.x = location.x;
-            this.y = location.y;
+            this.setLocation(location.x, location.y);
             if (this.$label) this.addLabel();
         }
 
@@ -452,7 +536,13 @@ function AddonGeometricConstruct_create() {
             }
         };
 
-        setSelected(isSelected) {
+        getLabelValues() {
+            var values = [];
+            if (this.labelValue.length > 0) values.push(this.labelValue);
+            return values;
+        }
+
+        setSelected(isSelected, event) {
             this.isSelected = isSelected;
         }
 
@@ -463,7 +553,8 @@ function AddonGeometricConstruct_create() {
                 state: {
                     x: this.x,
                     y: this.y,
-                    labelValue: this.labelValue
+                    labelValue: this.labelValue,
+                    id: this.id
                 }
             }
         }
@@ -473,20 +564,407 @@ function AddonGeometricConstruct_create() {
             this.x = json.state.x;
             this.y = json.state.y;
             this.labelValue = json.state.labelValue;
+            this.id = json.state.id;
         }
 
     }
 
-    presenter.createGeometricElementButton = function(name, _class) {
-        return presenter.createToolbarButton(name, _class.TYPE, _class.ICON_CLASS, () => {
+    class LineSegment extends GeometricElement {
+
+        static TYPE = "LineSegment";
+        static LABEL_CLASS = "line_segment_label";
+        static ICON_CLASS = "line-segment-image";
+
+        endpoints = [];
+        selectedPoint;
+        creationLineLocation;
+        draggingDiff;
+
+        constructor(){
+            super();
+        }
+
+        draw() {
+            if (this.endpoints.length == 1 && this.creationLineLocation != null) {
+                presenter.context.strokeStyle = presenter.configuration.strokeColor;
+                presenter.context.beginPath();
+                presenter.context.moveTo(this.endpoints[0].x, this.endpoints[0].y);
+                presenter.context.lineTo(this.creationLineLocation.x, this.creationLineLocation.y);
+                presenter.context.stroke();
+                presenter.context.closePath();
+            }
+            this.drawLines();
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].draw();
+        };
+
+        drawLines() {
+            if (this.endpoints.length == 2) {
+                presenter.context.strokeStyle = presenter.configuration.strokeColor;
+                presenter.context.beginPath();
+                presenter.context.moveTo(this.endpoints[0].x, this.endpoints[0].y);
+                presenter.context.lineTo(this.endpoints[1].x, this.endpoints[1].y);
+                presenter.context.stroke();
+                presenter.context.closePath();
+            }
+        }
+
+        append() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].append();
+            if (presenter.figuresList.indexOf(this) == -1) {
+                presenter.figuresList.push(this);
+            }
+        }
+
+        remove() {
+            var selectedPoint = this.selectedPoint;
+            if (presenter.editFigure == this && selectedPoint != null) {
+                this.selectedPoint = null;
+                selectedPoint.removeParent(this);
+                selectedPoint.removeAllParents();
+            }
+            for (var i = 0; i < this.endpoints.length; i++) {
+                var point = this.endpoints[i];
+                point.removeParent(this);
+                if (!point.hasParents()) {
+                    if (point.isSelected) {
+                        point.remove();
+                    } else if (!point.isRoot) {
+                        point.setIsRoot(true);
+                    }
+                } else if (presenter.editFigure == this) {
+                    point.setSelected(false);
+                }
+
+            }
+            var figuresIndex = presenter.figuresList.indexOf(this);
+            if (figuresIndex != -1) {
+                presenter.figuresList.splice(figuresIndex, 1);
+            }
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this && this.endpoints.length < 2) {
+                this.insertEndpoint(event);
+            }
+            if (this.endpoints.length == 2) {
+                this.creationLineLocation = null;
+                presenter.newFigure = new LineSegment();
+            }
+        }
+
+        insertMoveHandler(event) {
+            if (this.endpoints.length == 1) {
+                var location = getCanvasEventLocation(event);
+                if (this.creationLineLocation == null || (Math.abs(location.x - this.creationLineLocation.x) >= 1 || Math.abs(location.y - this.creationLineLocation.y) >= 1)) {
+                    this.creationLineLocation = location;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        insertEndpoint(event) {
+            var point;
+            var clickedPoint = presenter.getClickedPoint(event);
+            if (clickedPoint != null) {
+                point = clickedPoint;
+            } else {
+                var location = getCanvasEventLocation(event);
+                point = new Point();
+                point.setLocation(location.x, location.y);
+            }
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.endpoints.push(point);
+            this.append();
+        }
+
+        moveHandler(event) {
+            if (this.selectedPoint) this.selectedPoint.moveHandler(event);
+            if (this.draggingDiff) {
+                var location = getCanvasEventLocation(event);
+                for (var i = 0; i < this.endpoints.length; i++)
+                    this.endpoints[i].setLocation(location.x + this.draggingDiff[i].x, location.y + this.draggingDiff[i].y);
+            }
+        }
+
+        isClicked(event) {
+            for (var i = 0; i < this.endpoints.length; i++) {
+                if (this.endpoints[i].isClicked(event)) return true;
+            }
+            return this.isLineClicked(event);
+        }
+
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            var left, right, top, bottom;
+            if (this.endpoints[0].x > this.endpoints[1].x) {
+                left = this.endpoints[1].x;
+                right = this.endpoints[0].x;
+            } else {
+                left = this.endpoints[0].x;
+                right = this.endpoints[1].x;
+            }
+
+            if (this.endpoints[0].y > this.endpoints[1].y) {
+                top = this.endpoints[1].y;
+                bottom = this.endpoints[0].y;
+            } else {
+                top = this.endpoints[0].y;
+                bottom = this.endpoints[1].y;
+            }
+
+            if (right - left < 10) {
+                right += 5;
+                left -= 5;
+            }
+
+            if (bottom - top < 10) {
+                top -= 5;
+                bottom += 5;
+            }
+
+            if (location.x < left || location.x > right || location.y < top || location.y > bottom) return false;
+            return this.distanceFromPoint(location.x, location.y) < 5;
+
+        }
+
+        distanceFromPoint(x,y) {
+            if (this.endpoints.length < 2) return null;
+            var x1 = this.endpoints[0].x;
+            var y1 = this.endpoints[0].y;
+            var x2 = this.endpoints[1].x;
+            var y2 = this.endpoints[1].y;
+            var base = Math.pow((x2-x1),2) + Math.pow((y2-y1),2);
+            if (base <= 0) return null;
+            return Math.abs((x2-x1)*(y-y1)-(x-x1)*(y2-y1)) / Math.sqrt(base);
+        }
+
+        addLabel() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].addLabel();
+        }
+
+        updateLabel() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].updateLabel();
+        }
+
+        hideLabel() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].hideLabel();
+        }
+
+        removeLabel() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].removeLabel();
+        }
+
+        getLabelValues() {
+            var values = [];
+            for (var i = 0; i < this.endpoints.length; i++) values = values.concat(this.endpoints[i].getLabelValues());
+            return values;
+        }
+
+        setSelected(isSelected, event) {
+            if (this.endpoints.length == 0) return;
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].setSelected(false, event);
+            this.selectedPoint = null;
+            this.draggingDiff = null;
+            if (isSelected) {
+                if (this.endpoints.length == 2 && this.endpoints[1].isClicked(event)) {
+                    this.selectedPoint = this.endpoints[1];
+                } else if (this.endpoints[0].isClicked(event)) {
+                    this.selectedPoint = this.endpoints[0];
+                }
+                if (this.selectedPoint) {
+                    this.selectedPoint.setSelected(isSelected, event);
+                } else {
+                    for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].setSelected(isSelected, event);
+                    var location = getCanvasEventLocation(event);
+                    this.draggingDiff = [];
+                    this.draggingDiff.push({
+                        x: this.endpoints[0].x - location.x,
+                        y: this.endpoints[0].y - location.y,
+                    });
+                    this.draggingDiff.push({
+                        x: this.endpoints[1].x - location.x,
+                        y: this.endpoints[1].y - location.y,
+                    });
+                }
+            }
+        }
+
+        getClassType() {
+            return LineSegment.TYPE;
+        }
+
+        toJSON() {
+            if (this.endpoints.length < 2) return null;
+            var endpointStates = [null, null];
+            for (var i = 0; i < this.endpoints.length; i++) {
+                endpointStates[i] = this.endpoints[i].toJSON();
+                if (endpointStates[i] == null) return null;
+            }
+            return {
+                type: this.getClassType(),
+                state: {
+                    endpointStates: endpointStates
+                }
+            }
+        }
+
+        loadJSON(json) {
+            if (json.type != this.getClassType()) return;
+            for (var i = 0; i < 2; i++) {
+                if (i < this.endpoints.length) {
+                    this.endpoints[i].loadJSON(json.state.endpointStates[i]);
+                } else {
+                    var point;
+                    var existingPoint = presenter.getPointByID(json.state.endpointStates[i].state.id);
+                    if (existingPoint != null) {
+                        point = existingPoint;
+                    } else {
+                        point = new Point();
+                        point.setIsRoot(false);
+                    }
+                    point.addParent(this);
+                    this.endpoints.push(point);
+                    point.loadJSON(json.state.endpointStates[i]);
+                }
+            }
+        }
+    }
+
+    class HalfOpenLineSegment extends LineSegment {
+
+        static TYPE = "HalfOpenLineSegment";
+        static LABEL_CLASS = "half_open_line_segment_label";
+        static ICON_CLASS = "half-open-line-segment-image";
+
+        drawLines() {
+            super.drawLines();
+            if (this.endpoints.length == 1 && this.creationLineLocation != null) {
+                this.drawLineExtension(this.endpoints[0], this.creationLineLocation);
+            } else if (this.endpoints.length == 2) {
+                this.drawLineExtension(this.endpoints[0], this.endpoints[1]);
+            }
+        }
+
+        drawLineExtension(point1, point2) {
+            var targetX = -1;
+            var targetY = -1;
+            var dx = point2.x - point1.x;
+            var dy = point2.y - point1.y;
+            if (dx == 0 && dy == 0) return;
+
+            var maxX = dx > 0 ? presenter.canvasWidth - point2.x : point2.x;
+            var y = maxX * dy / dx;
+            y = dx > 0 ? point2.y + y : point2.y - y;
+            if (y > 0 && y < presenter.canvasHeight) {
+                targetX = dx > 0 ? presenter.canvasWidth : 0;
+                targetY = y;
+            } else {
+                var maxY = dy > 0 ? presenter.canvasHeight - point2.y : point2.y;
+                var x = maxY * dx / dy;
+                x = dy > 0 ? point2.x + x : point2.x - x;
+                if (x > 0 && x < presenter.canvasWidth) {
+                    targetX = x;
+                    targetY = dy > 0 ? presenter.canvasHeight : 0;
+                }
+            }
+
+            if (targetX >= 0 && targetY >= 0) {
+                presenter.context.strokeStyle = presenter.configuration.strokeColor;
+                presenter.context.beginPath();
+                presenter.context.moveTo(point2.x, point2.y);
+                presenter.context.lineTo(targetX, targetY);
+                presenter.context.stroke();
+                presenter.context.closePath();
+            }
+        }
+
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            if (this.endpoints[0].x < this.endpoints[1].x) {
+                if (location.x < this.endpoints[0].x) return false;
+            } else {
+                if (location.x > this.endpoints[0].x) return false;
+            }
+            if (this.endpoints[0].y < this.endpoints[1].y) {
+                if (location.y < this.endpoints[0].y) return false;
+            } else {
+                if (location.y > this.endpoints[0].y) return false;
+            }
+            return this.distanceFromPoint(location.x, location.y) < 5;
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this && this.endpoints.length < 2) {
+                this.insertEndpoint(event);
+            }
+            if (this.endpoints.length == 2) {
+                presenter.newFigure = new HalfOpenLineSegment();
+            }
+        }
+
+        getClassType() {
+            return HalfOpenLineSegment.TYPE;
+        }
+
+    }
+
+    class OpenLineSegment extends HalfOpenLineSegment {
+
+        static TYPE = "OpenLineSegment";
+        static LABEL_CLASS = "open_line_segment_label";
+        static ICON_CLASS = "open-line-segment-image";
+
+        drawLines() {
+            super.drawLines();
+            if (this.endpoints.length == 1 && this.creationLineLocation != null) {
+                this.drawLineExtension(this.creationLineLocation, this.endpoints[0]);
+            } else if (this.endpoints.length == 2) {
+                this.drawLineExtension(this.endpoints[1], this.endpoints[0]);
+            }
+        }
+
+        isLineClicked(event) {
+            if (this.endpoints.length < 2) return false;
+            var location = getCanvasEventLocation(event);
+            return this.distanceFromPoint(location.x, location.y) < 5;
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this && this.endpoints.length < 2) {
+                this.insertEndpoint(event);
+            }
+            if (this.endpoints.length == 2) {
+                presenter.newFigure = new OpenLineSegment();
+            }
+        }
+
+        getClassType() {
+            return OpenLineSegment.TYPE;
+        }
+
+    }
+
+    presenter.createToolbarSection = function() {
+        var element = $('<div></div>');
+        element.addClass(presenter.CSS_CLASSES.TOOLBAR_SECTION);
+        presenter.$toolbarOptions.append(element);
+        return element;
+    }
+
+    presenter.createGeometricElementButton = function(name, _class, parent) {
+        return presenter.createToolbarButton(name, _class.TYPE, _class.ICON_CLASS, parent, () => {
             presenter.newFigure = new _class();
         },
         () => {});
     }
 
-    presenter.createToolbarButton = function(name, type, iconClass, selectedCallback, deselectedCallback) {
+    presenter.createToolbarButton = function(name, type, iconClass, parent, selectedCallback, deselectedCallback) {
         var element = $('<div></div>');
-        element.addClass('toolbarButton');
+        element.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON);
 
         var iconElement = $('<div></div>');
         iconElement.addClass('icon');
@@ -510,7 +988,7 @@ function AddonGeometricConstruct_create() {
             }
             presenter.redrawCanvas();
         });
-        presenter.$toolbarWrapper.append(element);
+        parent.append(element);
         presenter.toolbarButtonsDict[type] = element;
         return element;
     }
@@ -551,10 +1029,20 @@ function AddonGeometricConstruct_create() {
             figures: [],
             labelsList: [...presenter.labelsList],
             selectedButton: presenter.getSelectedButtonType(),
-            visibility: presenter.isVisible()
+            visibility: presenter.isVisible(),
+            maxPointIndex: presenter.maxPointIndex
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
-            state.figures.push(presenter.figuresList[i].toJSON());
+            var figure = presenter.figuresList[i];
+            var figureState = figure.toJSON();
+            if (figureState != null) {
+                state.figures.push(figureState);
+            } else {
+                var labels = figure.getLabelValues();
+                for (var j = 0; j < labels.length; j++) {
+                    presenter.destroyLabel(labels[j], state.labelsList);
+                }
+            }
         }
         return JSON.stringify(state);
     }
@@ -573,12 +1061,22 @@ function AddonGeometricConstruct_create() {
             if (figureState.type == Point.TYPE) {
                 figure = new Point();
             }
+            if (figureState.type == LineSegment.TYPE) {
+                figure = new LineSegment();
+            }
+            if (figureState.type == HalfOpenLineSegment.TYPE) {
+                figure = new HalfOpenLineSegment();
+            }
+            if (figureState.type == OpenLineSegment.TYPE) {
+                figure = new OpenLineSegment();
+            }
             if (figure != null) {
                 figure.loadJSON(figureState);
                 figure.append();
             }
         }
         presenter.labelsList = [...parsedState.labelsList];
+        presenter.maxPointIndex = parsedState.maxPointIndex;
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
         if ($button && !$button.hasClass('selected')) {
