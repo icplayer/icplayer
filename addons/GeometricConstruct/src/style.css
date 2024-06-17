@@ -51,10 +51,21 @@
     background-size: 40px;
 }
 
+.geometric_construct_wrapper .workspace_wrapper .edit_figure {
+    display: block;
+    height: 35px;
+    width: 30px;
+    position: absolute;
+    right: 10px;
+    bottom: 55px;
+    background: url('resources/edit_24dp.svg') no-repeat center;
+    background-size: 40px;
+}
+
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
     display: inline-block;
     max-width: 80px;
-    height: 80px;
+    min-height: 80px;
     margin: 10px 5px 5px 5px;
     padding: 5px;
 }
@@ -88,6 +99,14 @@
     background: url('resources/gc_open_line_segment_icon.png') no-repeat center;
 }
 
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.circle-image {
+    background: url('resources/gc_circle_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.circle-with-point-image {
+  background: url('resources/gc_circle_with_point_icon.png') no-repeat center;
+}
+
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
     display: block;
     margin-left: auto;
@@ -101,4 +120,53 @@
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton.selected {
     border: 1px solid;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup {
+    height: 180px;
+    width: 300px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border: solid 1px black;
+    font-size: 0.8em;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .title {
+    padding: 5px;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .values {
+    flex-grow: 1;
+    padding: 10px 0px;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .values .property_wrapper {
+    padding: 10px;
+    width: calc(100%-20px);
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .values .property_wrapper .property_title {
+    font-size: 0.6em;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .values .property_wrapper input {
+    width: 100%;
+    border: 0px;
+    border-bottom: 1px solid;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .buttons {
+    display: flex;
+    padding: 5px;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .config_popup .buttons button {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    border: solid 1px black;
+    padding: 3px;
 }
