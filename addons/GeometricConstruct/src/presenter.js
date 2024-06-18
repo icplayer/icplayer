@@ -499,7 +499,7 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.moveHandler is abstract and has not been implemented");
         }
 
-        x(event) {
+        isClicked(event) {
             throw new Error("GeometricElement.isClicked is abstract and has not been implemented");
         }
 
