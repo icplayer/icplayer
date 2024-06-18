@@ -35,13 +35,18 @@ function AddonGeometricConstruct_create() {
         CONFIG_PROP_INPUT: 'property_input'
     };
 
-    presenter.titles = {
+    presenter.labels = {
         point: "Point",
+        cursor: "Cursor",
         circle: "Circle with a specified radius",
         circleWithPoint: "Circle passing through a point",
         lineSegment: "Line Segment",
         halfOpenLineSegment: "Half-open Line Segment",
-        openLineSegment: "Open Line Segment"
+        openLineSegment: "Open Line Segment",
+        circlePopupTitle: "Circle with a specified radius",
+        accept: "ACCEPT",
+        cancel: "CANCEL",
+        radius: "Radius"
     }
 
     presenter.createPreview = function (view, model) {
@@ -76,6 +81,7 @@ function AddonGeometricConstruct_create() {
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
+        setLabels(model["labels"]);
         return {
             fillColor: fillColor,
             strokeColor: strokeColor,
@@ -84,6 +90,36 @@ function AddonGeometricConstruct_create() {
             defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"])
         };
     }
+    
+    function getLabelValue (rawValue, defaultValue) {
+                var value = rawValue.trim();
+    
+                if (value === undefined || value === null || value === '') {
+                    return defaultValue;
+                }
+    
+                return value;
+            }
+    
+    function setLabels(labels) {
+            if (!labels) {
+                return;
+            }
+    
+            presenter.labels = {
+                point: getLabelValue(labels['Point']['Point'], presenter.labels.point),
+                cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
+                circle: getLabelValue(labels['Circle']['Circle'], presenter.labels.circle),
+                circleWithPoint: getLabelValue(labels['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+                lineSegment: getLabelValue(labels['LineSegment']['LineSegment'], presenter.labels.lineSegment),
+                halfOpenLineSegment: getLabelValue(labels['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
+                openLineSegment: getLabelValue(labels['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
+                circlePopupTitle: getLabelValue(labels['CirclePopupTitle']['CirclePopupTitle'], presenter.labels.circlePopupTitle),
+                accept: getLabelValue(labels['Accept']['Accept'], presenter.labels.accept),
+                cancel: getLabelValue(labels['Cancel']['Cancel'], presenter.labels.cancel),
+                radius: getLabelValue(labels['Radius']['Radius'], presenter.labels.radius)
+            };
+        }
 
     presenter.setElements = function(view) {
         presenter.view = view;
@@ -143,6 +179,8 @@ function AddonGeometricConstruct_create() {
         presenter.$configPopupValues = presenter.$configPopup.find('.'+presenter.CSS_CLASSES.CONFIG_POPUP_VALUES);
         presenter.$configPopupAccept = presenter.$configPopup.find('.'+presenter.CSS_CLASSES.CONFIG_POPUP_ACCEPT);
         presenter.$configPopupCancel = presenter.$configPopup.find('.'+presenter.CSS_CLASSES.CONFIG_POPUP_CANCEL);
+        presenter.$configPopupAccept.html(presenter.labels.accept);
+        presenter.$configPopupCancel.html(presenter.labels.cancel);
     };
 
     presenter.clearCanvas = function () {
@@ -288,19 +326,19 @@ function AddonGeometricConstruct_create() {
 
     presenter.createToolbar = function() {
         var basicSection = presenter.createToolbarSection();
-        var cursorElement = presenter.createToolbarButton("Cursor", presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, basicSection, () => {
+        var cursorElement = presenter.createToolbarButton(presenter.labels.cursor, presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, basicSection, () => {
             presenter.setEditMode(true);
         }, ()=>{});
-        presenter.createGeometricElementButton(presenter.titles.point, Point, basicSection);
+        presenter.createGeometricElementButton(presenter.labels.point, Point, basicSection);
 
         var circleSection = presenter.createToolbarSection();
-        presenter.createGeometricElementButton(presenter.titles.circle, Circle, circleSection);
-        presenter.createGeometricElementButton(presenter.titles.circleWithPoint, CircleWithPoint, circleSection);
+        presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
+        presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
 
         var pointLineSection = presenter.createToolbarSection();
-        presenter.createGeometricElementButton(presenter.titles.lineSegment, LineSegment, pointLineSection);
-        presenter.createGeometricElementButton(presenter.titles.halfOpenLineSegment, HalfOpenLineSegment, pointLineSection);
-        presenter.createGeometricElementButton(presenter.titles.openLineSegment, OpenLineSegment, pointLineSection);
+        presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
+        presenter.createGeometricElementButton(presenter.labels.halfOpenLineSegment, HalfOpenLineSegment, pointLineSection);
+        presenter.createGeometricElementButton(presenter.labels.openLineSegment, OpenLineSegment, pointLineSection);
 
         cursorElement.addClass('selected');
         presenter.setEditMode(true);
@@ -1432,9 +1470,9 @@ function AddonGeometricConstruct_create() {
                 if (presenter.newFigure == this) {
                     if (this.centerPoint == null) {
                         var self = this;
-                        presenter.showConfigPopup(presenter.titles.circle, [{
+                        presenter.showConfigPopup(presenter.labels.circlePopupTitle, [{
                             name: 'radius',
-                            title: 'Radius',
+                            title: presenter.labels.radius,
                             value: '',
                             type: 'number',
                             min: 0
@@ -1457,9 +1495,9 @@ function AddonGeometricConstruct_create() {
 
             openEditPopup() {
                 var self = this;
-                presenter.showConfigPopup(presenter.titles.circle, [{
+                presenter.showConfigPopup(presenter.labels.circlePopupTitle, [{
                     name: 'radius',
-                    title: 'Radius',
+                    title: presenter.labels.radius,
                     value: this.radius,
                     type: 'number',
                     min: 0

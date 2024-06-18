@@ -2490,5 +2490,17 @@ var ice_dictionary_pl = {
     "GeometricConstruct_name" : "Geometric Construct",
     "GeometricConstruct_info" : "The Geometric Construct addon allows the user to create, move, edit and remove geometric figures within a workspace.",
     "GeometricConstruct_property_stroke_color": "Stroke color",
-    "GeometricConstruct_property_fill_color": "Fill color"
+    "GeometricConstruct_property_fill_color": "Fill color",
+    "GeometricConstruct_property_labels": "Labels",
+    "GeometricConstruct_property_point": "Point",
+    "GeometricConstruct_property_cursor": "Cursor",
+    "GeometricConstruct_property_circle": "Circle with a specified radius",
+    "GeometricConstruct_property_circle_with_point": "Circle passing through a point",
+    "GeometricConstruct_property_line_segment": "Line Segment",
+    "GeometricConstruct_property_half_open_line_segment": "Half-open Line Segment",
+    "GeometricConstruct_property_open_line_segment": "Open Line Segment",
+    "GeometricConstruct_property_circle_popup_title": "Circle with a specified radius (Popup)",
+    "GeometricConstruct_property_accept": "ACCEPT",
+    "GeometricConstruct_property_cancel": "CANCEL",
+    "GeometricConstruct_property_radius": "Radius"
 };
