@@ -40,6 +40,7 @@ function AddonGeometricConstruct_create() {
         cursor: "Cursor",
         circle: "Circle with a specified radius",
         circleWithPoint: "Circle passing through a point",
+        compasses: "Compasses",
         lineSegment: "Line Segment",
         halfOpenLineSegment: "Half-open Line Segment",
         openLineSegment: "Open Line Segment",
@@ -111,6 +112,7 @@ function AddonGeometricConstruct_create() {
                 cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
                 circle: getLabelValue(labels['Circle']['Circle'], presenter.labels.circle),
                 circleWithPoint: getLabelValue(labels['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+                compasses: getLabelValue(labels['Compasses']['Compasses'], presenter.labels.compasses),
                 lineSegment: getLabelValue(labels['LineSegment']['LineSegment'], presenter.labels.lineSegment),
                 halfOpenLineSegment: getLabelValue(labels['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
                 openLineSegment: getLabelValue(labels['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
@@ -334,6 +336,7 @@ function AddonGeometricConstruct_create() {
         var circleSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
         presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
+        presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
 
         var pointLineSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
@@ -1100,7 +1103,7 @@ function AddonGeometricConstruct_create() {
         static ICON_CLASS = "circle-base-image";
 
         centerPoint;
-        radius = 50;
+        radius = 0;
         draggingDiff;
 
         constructor() {
@@ -1109,17 +1112,16 @@ function AddonGeometricConstruct_create() {
 
         draw() {
             if (this.centerPoint != null) {
-                this.drawCircle(this.radius);
+                this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
                 this.centerPoint.draw();
             }
         };
 
-        drawCircle(radius) {
-            if (this.centerPoint == null) return;
+        drawCircle(x, y, radius) {
             presenter.context.fillStyle = presenter.configuration.fillColor;
             presenter.context.strokeStyle = presenter.configuration.strokeColor;
             presenter.context.beginPath();
-            presenter.context.arc(this.centerPoint.x, this.centerPoint.y, radius, 0, 2 * Math.PI);
+            presenter.context.arc(x, y, radius, 0, 2 * Math.PI);
             presenter.context.stroke();
             presenter.context.closePath();
         }
@@ -1277,7 +1279,7 @@ function AddonGeometricConstruct_create() {
     }
 
     class CircleWithPoint extends CircleBase {
-            static TYPE = "CircleWithPointSegment";
+            static TYPE = "CircleWithPoint";
             static LABEL_CLASS = "circle_with_point_label";
             static ICON_CLASS = "circle-with-point-image";
 
@@ -1456,7 +1458,7 @@ function AddonGeometricConstruct_create() {
     }
 
     class Circle extends CircleBase {
-            static TYPE = "CircleSegment";
+            static TYPE = "Circle";
             static LABEL_CLASS = "circle_label";
             static ICON_CLASS = "circle-image";
 
@@ -1512,6 +1514,74 @@ function AddonGeometricConstruct_create() {
                         }
                     }
                 }, ()=>{});
+            }
+
+    }
+
+    class Compasses extends CircleBase {
+            static TYPE = "Compasses";
+            static LABEL_CLASS = "compasses_label";
+            static ICON_CLASS = "compasses-image";
+
+            referencePoints = [];
+            tmpLocation;
+
+            getClassType() {
+                return Compasses.TYPE;
+            }
+
+            draw() {
+                if (this.radius > 0 && this.centerPoint == null && tmpLocation != null && presenter.editFigure == this) {
+                    this.drawCircle(this.tmpLocation.x, this.tmpLocation.y, this.radius);
+                } else if (this.centerPoint != null) {
+                    this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
+                    this.centerPoint.draw();
+                }
+            }
+
+            insertClickHandler(event) {
+                if (this.referencePoints.length < 2) {
+                    var clickedPoint = presenter.getClickedPoint(event);
+                    if (clickedPoint != null) {
+                        if (this.referencePoints.length == 1 && this.referencePoints[0] == clickedPoint) {
+                            clickedPoint.setSelected(false);
+                            this.referencePoints.pop();
+                        }
+                        clickedPoint.setSelected(true, event);
+                        this.referencePoints.push(clickedPoint);
+                        if (this.referencePoints.length == 2) {
+                            this.radius = this.distanceBetweenPoints(this.referencePoints[0], this.referencePoints[1]);
+                        }
+                    }
+                } else if (this.centerPoint == null) {
+                    var clickedPoint = presenter.getClickedPoint(event);
+                    if (clickedPoint != null) {
+                        this.centerPoint = clickedPoint;
+                    } else {
+                        var location = getCanvasEventLocation(event);
+                        this.centerPoint = new Point();
+                        this.centerPoint.setLocation(location.x, location.y);
+                    }
+                    this.centerPoint.setIsRoot(false);
+                    this.centerPoint.addParent(this);
+                    this.append();
+                    presenter.newFigure = new Compasses();
+                }
+            }
+
+            insertMoveHandler(event) {
+                if (this.radius > 0 && this.centerPoint == null) {
+                    var newLocation = getCanvasEventLocation(event);
+                    if (this.tmpLocation == null || Math.abs(this.tmpLocation.x - newLocation.x) >= 1 || Math.abs(this.tmpLocation.y - newLocation.y) >= 1) {
+                        this.tmpLocation = newLocation;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            distanceBetweenPoints(point1, point2) {
+                return Math.sqrt(Math.pow(point1.x-point2.x, 2) + Math.pow(point1.y-point2.y, 2));
             }
 
     }
@@ -1643,6 +1713,9 @@ function AddonGeometricConstruct_create() {
             }
             if (figureState.type == Circle.TYPE) {
                 figure = new Circle();
+            }
+            if (figureState.type == Compasses.TYPE) {
+                figure = new Compasses();
             }
             if (figure != null) {
                 figure.loadJSON(figureState);

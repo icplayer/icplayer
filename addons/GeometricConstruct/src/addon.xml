@@ -22,6 +22,10 @@
 				<property name="CircleWithPoint" nameLabel="GeometricConstruct_property_circle_with_point" type="string"/>
 			</property>
 
+			<property name="Compasses" nameLabel="GeometricConstruct_property_compasses" type="staticrow">
+				<property name="Compasses" nameLabel="GeometricConstruct_property_compasses" type="string"/>
+			</property>
+
 			<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="staticrow">
 				<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="string"/>
 			</property>
