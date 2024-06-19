@@ -20,6 +20,10 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Stroke color</td>
         <td>Specifies the stroke color used while drawing the geometric figures ("black" by default)</td>
     </tr>
+    <tr>
+        <td>Labels</td>
+        <td>The property allows the author to change the text labels used by the addon.</td>
+    </tr>
 </tbody>
 </table>
 
