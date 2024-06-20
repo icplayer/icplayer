@@ -6,15 +6,22 @@ function AddonGeometricConstruct_create() {
     presenter.pointsList = [];
     presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
+
+    var MAX_PREV_STATES = 20;
+    presenter.prevStateIndex = -1;
+    presenter.previousStates = [];
+
     presenter.newFigure = null;
     presenter.editFigure = null;
     presenter.isEditMode = false;
     presenter.isDragging = false;
+    presenter.hasMoved = false;
     var originalConfigPopupDisplay = '';
 
     presenter.playerController = null;
 
     presenter.CSS_CLASSES = {
+        SELECTED: 'selected',
         TOOLBAR_WRAPPER: 'toolbar_wrapper',
         WORKSPACE_WRAPPER: 'workspace_wrapper',
         CANVAS_OVERLAY: 'canvas_overlay',
@@ -22,6 +29,13 @@ function AddonGeometricConstruct_create() {
         EDIT_FIGURE_BUTTON: 'edit_figure',
         CURSOR: 'Cursor',
         CURSOR_IMAGE: 'cursor-image',
+        UNDO_BUTTON: 'undo_button',
+        REDO_BUTTON: 'redo_button',
+        RESET_BUTTON: 'reset_button',
+        LABEL: 'geometricConstructLabel',
+        TOOLBAR_BUTTON: 'toolbarButton',
+        TOOLBAR_BUTTON_LABEL: 'toolbar-button-label',
+        TOOLBAR_BUTTON_ICON: 'icon',
         TOOLBAR_OPTIONS: 'toolbar_options',
         TOOLBAR_SECTION: 'toolbar_section',
         TOOLBAR_BUTTON: 'toolbarButton',
@@ -62,6 +76,7 @@ function AddonGeometricConstruct_create() {
         presenter.setElements(view);
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
+        presenter.pushState();
     }
 
     presenter.show = function() {
@@ -125,6 +140,9 @@ function AddonGeometricConstruct_create() {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.$toolbarWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_WRAPPER);
+        presenter.$undoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.UNDO_BUTTON);
+        presenter.$redoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.REDO_BUTTON);
+        presenter.$resetButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.RESET_BUTTON);
         presenter.$toolbarOptions = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_OPTIONS);
         presenter.$workspaceWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.WORKSPACE_WRAPPER);
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
@@ -209,6 +227,7 @@ function AddonGeometricConstruct_create() {
         if (presenter.newFigure != null) {
             presenter.newFigure.insertClickHandler(e);
             presenter.redrawCanvas();
+            //presenter.pushState();
         } else if (presenter.isEditMode) {
             var selectedFigure = null;
             for (var i = 0; i < presenter.figuresList.length; i++) {
@@ -229,6 +248,7 @@ function AddonGeometricConstruct_create() {
                 }
                 presenter.editFigure.setSelected(true, e);
                 presenter.isDragging = true;
+                presenter.hasMoved = false;
             } else if (presenter.editFigure != null) {
                 presenter.editFigure.setSelected(false);
                 presenter.editFigure = null;
@@ -243,6 +263,7 @@ function AddonGeometricConstruct_create() {
         e.preventDefault();
         e.stopPropagation();
         if (presenter.isEditMode && presenter.isDragging && presenter.editFigure != null) {
+            presenter.hasMoved = true;
             presenter.editFigure.moveHandler(e);
             presenter.redrawCanvas();
         } else if (presenter.newFigure != null) {
@@ -256,6 +277,10 @@ function AddonGeometricConstruct_create() {
         e.stopPropagation();
         if (presenter.isEditMode && presenter.isDragging) {
             presenter.isDragging = false;
+            if (presenter.hasMoved) {
+                presenter.hasMoved = false;
+                presenter.pushState();
+            }
         }
     }
 
@@ -266,6 +291,7 @@ function AddonGeometricConstruct_create() {
             presenter.redrawCanvas();
             presenter.updateLabels();
             presenter.$removeFigure.css('display', 'none');
+            presenter.pushState();
             presenter.$editFigure.css('display', 'none');
         }
     }
@@ -340,8 +366,13 @@ function AddonGeometricConstruct_create() {
         presenter.createGeometricElementButton(presenter.labels.halfOpenLineSegment, HalfOpenLineSegment, pointLineSection);
         presenter.createGeometricElementButton(presenter.labels.openLineSegment, OpenLineSegment, pointLineSection);
 
-        cursorElement.addClass('selected');
+        cursorElement.addClass(presenter.CSS_CLASSES.SELECTED);
         presenter.setEditMode(true);
+
+        presenter.$undoButton.on('click', presenter.prevState);
+        presenter.$redoButton.on('click', presenter.nextState);
+        presenter.$resetButton.on('click', presenter.resetWithoutVisibility);
+        presenter.updateUndoRedoButtonsVisibility();
     };
 
     presenter.getLabel = function(index) {
@@ -389,7 +420,7 @@ function AddonGeometricConstruct_create() {
             presenter.newFigure.remove();
         }
         presenter.newFigure = null;
-        presenter.$toolbarWrapper.find('.selected').removeClass('selected');
+        presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.SELECTED).removeClass(presenter.CSS_CLASSES.SELECTED);
     };
 
     presenter.setEditMode = function(isEditMode) {
@@ -616,6 +647,7 @@ function AddonGeometricConstruct_create() {
                 var location = getCanvasEventLocation(e);
                 this.setLocation(location.x, location.y);
                 this.append();
+                presenter.pushState();
                 presenter.newFigure = new Point();
             }
         }
@@ -663,7 +695,7 @@ function AddonGeometricConstruct_create() {
             if (this.x == null || this.y == null) return;
             if (!this.$label) {
                 this.$label = $('<div></div>');
-                this.$label.addClass('geometricConstructLabel');
+                this.$label.addClass(presenter.CSS_CLASSES.LABEL);
                 this.$label.addClass(Point.LABEL_CLASS);
                 this.$label.css('position', 'absolute');
                 this.$label.insertBefore(presenter.$canvasOverlay);
@@ -794,6 +826,7 @@ function AddonGeometricConstruct_create() {
             }
             if (this.endpoints.length == 2) {
                 this.creationLineLocation = null;
+                presenter.pushState();
                 presenter.newFigure = new LineSegment();
             }
         }
@@ -1048,6 +1081,7 @@ function AddonGeometricConstruct_create() {
                 this.insertEndpoint(event);
             }
             if (this.endpoints.length == 2) {
+                presenter.pushState();
                 presenter.newFigure = new HalfOpenLineSegment();
             }
         }
@@ -1084,6 +1118,7 @@ function AddonGeometricConstruct_create() {
                 this.insertEndpoint(event);
             }
             if (this.endpoints.length == 2) {
+                presenter.pushState();
                 presenter.newFigure = new OpenLineSegment();
             }
         }
@@ -1151,6 +1186,7 @@ function AddonGeometricConstruct_create() {
             if (presenter.newFigure == this) {
                 if (this.centerPoint == null) {
                     this.insertCenterPoint(event);
+                    presenter.pushState();
                     presenter.newFigure = new CircleBase();
                 }
             }
@@ -1316,6 +1352,7 @@ function AddonGeometricConstruct_create() {
                     this.insertCenterPoint(event);
                 } else if (this.rimPoint == null) {
                     this.insertRimPoint(event);
+                    presenter.pushState();
                     presenter.newFigure = new CircleWithPoint();
                 }
             }
@@ -1483,6 +1520,7 @@ function AddonGeometricConstruct_create() {
                                         self.radius = result[i].value;
                                         self.insertCenterPoint(event);
                                         presenter.redrawCanvas();
+                                        presenter.pushState();
                                         presenter.newFigure = new Circle();
                                     }
                                     return;
@@ -1506,6 +1544,7 @@ function AddonGeometricConstruct_create() {
                         if (result[i].name == 'radius') {
                             if (result[i].value > 0) {
                                 self.radius = result[i].value;
+                                presenter.pushState();
                                 presenter.redrawCanvas();
                             }
                             return;
@@ -1531,26 +1570,26 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.createToolbarButton = function(name, type, iconClass, parent, selectedCallback, deselectedCallback) {
-        var element = $('<div></div>');
+        var element = $('<button></button>');
         element.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON);
 
         var iconElement = $('<div></div>');
-        iconElement.addClass('icon');
+        iconElement.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON_ICON);
         iconElement.addClass(iconClass);
         element.append(iconElement);
 
         var labelElement = $('<div></div>');
-        labelElement.addClass('toolbar-button-label');
+        labelElement.addClass(presenter.CSS_CLASSES.TOOLBAR_BUTTON_LABEL);
         labelElement.html(name);
         element.append(labelElement);
 
         element.click((e) => {
-            var isSelected = element.hasClass('selected');
+            var isSelected = element.hasClass(presenter.CSS_CLASSES.SELECTED);
             presenter.finishInsert(true);
             presenter.setEditMode(false);
             if (!isSelected) {
                 selectedCallback();
-                element.addClass('selected');
+                element.addClass(presenter.CSS_CLASSES.SELECTED);
             } else {
                 deselectedCallback();
             }
@@ -1563,19 +1602,19 @@ function AddonGeometricConstruct_create() {
 
     presenter.clearFigures = function() {
         presenter.clearFigureSelection();
-        for (var i = presenter.figuresList.length - 1; i > -1; i--) {
-            presenter.figuresList[i].remove();
+        while (presenter.figuresList.length > 0) {
+            presenter.figuresList[presenter.figuresList.length - 1].remove();
         }
+        presenter.pointsList = [];
+    }
+
+    presenter.clearPrevStates = function() {
+        presenter.previousStates = [];
+        presenter.prevStateIndex = -1;
     }
 
     presenter.reset = function() {
-        presenter.clearLabels();
-        presenter.clearFigures();
-        presenter.redrawCanvas();
-        var $button = presenter.toolbarButtonsDict['Cursor'];
-        if ($button && !$button.hasClass('selected')) {
-            $button.click();
-        }
+        presenter.resetWithoutVisibility();
         if (presenter.configuration.defaultVisibility) {
             presenter.show();
         } else {
@@ -1583,9 +1622,24 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    presenter.resetWithoutVisibility = function() {
+        presenter.clearPrevStates();
+        presenter.clearLabels();
+        presenter.clearFigures();
+        presenter.redrawCanvas();
+        var $button = presenter.toolbarButtonsDict['Cursor'];
+        if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+            $button.click();
+        }
+        presenter.prevStateIndex = -1;
+        presenter.previousStates = [];
+        presenter.pushState();
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
     presenter.getSelectedButtonType = function() {
         for ([type, $element] of Object.entries(presenter.toolbarButtonsDict)) {
-            if ($element.hasClass('selected')) {
+            if ($element.hasClass(presenter.CSS_CLASSES.SELECTED)) {
                 return type;
             }
         }
@@ -1623,8 +1677,23 @@ function AddonGeometricConstruct_create() {
         } else {
             presenter.hide();
         }
-        for (var i = 0; i < parsedState.figures.length; i++) {
-            var figureState = parsedState.figures[i];
+        presenter.loadFiguresFromState(parsedState.figures);
+        presenter.labelsList = [...parsedState.labelsList];
+        presenter.redrawCanvas();
+        var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
+        if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
+            $button.click();
+        }
+
+        presenter.prevStateIndex = -1;
+        presenter.previousStates = [];
+        presenter.pushState();
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.loadFiguresFromState = function(figuresState) {
+        for (var i = 0; i < figuresState.length; i++) {
+            var figureState = figuresState[i];
             var figure = null;
             if (figureState.type == Point.TYPE) {
                 figure = new Point();
@@ -1649,12 +1718,71 @@ function AddonGeometricConstruct_create() {
                 figure.append();
             }
         }
-        presenter.labelsList = [...parsedState.labelsList];
-        presenter.maxPointIndex = parsedState.maxPointIndex;
+    }
+
+    presenter.pushState = function() {
+        var state = {
+            figures: [],
+            labelsList: [...presenter.labelsList]
+        };
+        for (var i = 0 ; i < presenter.figuresList.length; i++) {
+            var figureState = presenter.figuresList[i].toJSON();
+            if (figureState != null) {
+                state.figures.push(figureState);
+            }
+        }
+        if (presenter.prevStateIndex !== presenter.previousStates.length - 1) {
+            presenter.previousStates.splice(presenter.prevStateIndex + 1 - presenter.previousStates.length);
+        }
+
+        if (presenter.previousStates.length > MAX_PREV_STATES) {
+            presenter.previousStates.splice(0, presenter.previousStates.length - MAX_PREV_STATES);
+        }
+        presenter.previousStates.push(state);
+        presenter.prevStateIndex = presenter.previousStates.length - 1;
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.prevState = function() {
+        if (presenter.previousStates.length < 2 || presenter.prevStateIndex < 1) return;
+        presenter.prevStateIndex -= 1;
+        presenter.setStateByIndex(presenter.prevStateIndex);
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.nextState = function() {
+        if (presenter.prevStateIndex == presenter.previousStates.length - 1 || presenter.prevStateIndex == -1) return;
+        presenter.prevStateIndex += 1;
+        presenter.setStateByIndex(presenter.prevStateIndex);
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
+    presenter.setStateByIndex = function(index) {
+        if (presenter.previousStates.length == 0) return;
+        var state = presenter.previousStates[index];
+
+        presenter.clearLabels();
+        presenter.clearFigures();
+        presenter.loadFiguresFromState(state.figures);
+        presenter.labelsList = [...state.labelsList];
+        presenter.maxPointIndex = state.maxPointIndex;
         presenter.redrawCanvas();
-        var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
-        if ($button && !$button.hasClass('selected')) {
-            $button.click();
+    }
+
+    presenter.updateUndoRedoButtonsVisibility = function() {
+        if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2) {
+            presenter.$undoButton.css('visibility', 'hidden');
+            presenter.$redoButton.css('visibility', 'hidden');
+            presenter.$resetButton.css('visibility', 'hidden');
+            return;
+        }
+        presenter.$undoButton.css('visibility', '');
+        presenter.$redoButton.css('visibility', '');
+        presenter.$resetButton.css('visibility', '');
+        if (presenter.prevStateIndex == 0) {
+            presenter.$undoButton.css('visibility', 'hidden');
+        } else if (presenter.prevStateIndex == presenter.previousStates.length - 1) {
+            presenter.$redoButton.css('visibility', 'hidden');
         }
     }
 
@@ -1662,7 +1790,10 @@ function AddonGeometricConstruct_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'reset': presenter.reset
+            'reset': presenter.reset,
+            'prevState': presenter.prevState,
+            'nextState': presenter.nextState
+
         };
         Commands.dispatch(commands, name, params, presenter);
     };
