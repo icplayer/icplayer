@@ -69,7 +69,6 @@ function AddonGeometricConstruct_create() {
     };
 
     presenter.run = function (view, model) {
-        console.log("gc1");
         presenterLogic(view, model, false);
     };
 
