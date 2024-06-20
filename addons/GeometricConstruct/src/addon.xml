@@ -4,5 +4,52 @@
 	<model>
 		<property name="strokeColor" nameLabel="GeometricConstruct_property_stroke_color" type="string"/>
 		<property name="fillColor" nameLabel="GeometricConstruct_property_fill_color" type="string"/>
+		<property name="labels" displayName="Labels" nameLabel="GeometricConstruct_property_labels" type="staticlist">
+
+			<property name="Point" nameLabel="GeometricConstruct_property_point" type="staticrow">
+				<property name="Point" nameLabel="GeometricConstruct_property_point" type="string"/>
+			</property>
+
+			<property name="Cursor" nameLabel="GeometricConstruct_property_cursor" type="staticrow">
+				<property name="Cursor" nameLabel="GeometricConstruct_property_cursor" type="string"/>
+			</property>
+
+			<property name="Circle" nameLabel="GeometricConstruct_property_circle" type="staticrow">
+				<property name="Circle" nameLabel="GeometricConstruct_property_circle" type="string"/>
+			</property>
+
+			<property name="CircleWithPoint" nameLabel="GeometricConstruct_property_circle_with_point" type="staticrow">
+				<property name="CircleWithPoint" nameLabel="GeometricConstruct_property_circle_with_point" type="string"/>
+			</property>
+
+			<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="staticrow">
+				<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="string"/>
+			</property>
+
+			<property name="HalfOpenLineSegment" nameLabel="GeometricConstruct_property_half_open_line_segment" type="staticrow">
+				<property name="HalfOpenLineSegment" nameLabel="GeometricConstruct_property_half_open_line_segment" type="string"/>
+			</property>
+
+			<property name="OpenLineSegment" nameLabel="GeometricConstruct_property_open_line_segment" type="staticrow">
+				<property name="OpenLineSegment" nameLabel="GeometricConstruct_property_open_line_segment" type="string"/>
+			</property>
+
+			<property name="CirclePopupTitle" nameLabel="GeometricConstruct_property_circle_popup_title" type="staticrow">
+				<property name="CirclePopupTitle" nameLabel="GeometricConstruct_property_circle_popup_title" type="string"/>
+			</property>
+
+			<property name="Accept" nameLabel="GeometricConstruct_property_accept" type="staticrow">
+				<property name="Accept" nameLabel="GeometricConstruct_property_accept" type="string"/>
+			</property>
+
+			<property name="Cancel" nameLabel="GeometricConstruct_property_cancel" type="staticrow">
+				<property name="Cancel" nameLabel="GeometricConstruct_property_cancel" type="string"/>
+			</property>
+
+			<property name="Radius" nameLabel="GeometricConstruct_property_radius" type="staticrow">
+				<property name="Radius" nameLabel="GeometricConstruct_property_radius" type="string"/>
+			</property>
+
+		</property>
 	</model>
 </addon>
