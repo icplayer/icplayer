@@ -55,6 +55,7 @@ function AddonGeometricConstruct_create() {
     };
 
     presenter.run = function (view, model) {
+        console.log("gc1");
         presenterLogic(view, model, false);
     };
 
@@ -1127,7 +1128,9 @@ function AddonGeometricConstruct_create() {
         }
 
         append() {
-            this.centerPoint.append();
+            if (this.centerPoint) {
+                this.centerPoint.append();
+            }
             if (presenter.figuresList.indexOf(this) == -1) {
                 presenter.figuresList.push(this);
             }
@@ -1190,7 +1193,7 @@ function AddonGeometricConstruct_create() {
 
         isClicked(event) {
             if (!this.centerPoint) return false;
-            if(this.centerPoint.isClicked(event)) return true;
+            if (this.centerPoint.isClicked(event)) return true;
             return this.isRimClicked(event);
         }
 
@@ -1525,18 +1528,53 @@ function AddonGeometricConstruct_create() {
 
             referencePoints = [];
             tmpLocation;
+            angle;
+            isReady = false;
 
             getClassType() {
                 return Compasses.TYPE;
             }
 
             draw() {
-                if (this.radius > 0 && this.centerPoint == null && tmpLocation != null && presenter.editFigure == this) {
+                if (this.radius > 0 && this.centerPoint == null && this.tmpLocation != null && presenter.newFigure == this) {
                     this.drawCircle(this.tmpLocation.x, this.tmpLocation.y, this.radius);
                 } else if (this.centerPoint != null) {
-                    this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
+                    if (this.isReady) {
+                        this.drawArc();
+                    } else {
+                        this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
+                        this.drawArcCenterPoint();
+                    }
                     this.centerPoint.draw();
                 }
+            }
+
+            drawArc() {
+                presenter.context.fillStyle = presenter.configuration.fillColor;
+                presenter.context.strokeStyle = presenter.configuration.strokeColor;
+                presenter.context.beginPath();
+                presenter.context.arc(this.centerPoint.x, this.centerPoint.y, this.radius, this.angle - Math.PI / 8, this.angle + Math.PI / 8);
+                presenter.context.stroke();
+                presenter.context.closePath();
+            }
+
+            drawArcCenterPoint() {
+                var x = this.centerPoint.x + this.radius * Math.cos(this.angle);
+                var y = this.centerPoint.y + this.radius * Math.sin(this.angle);
+                Point.drawPoint(presenter.context, x, y, false);
+            }
+
+            isArcClicked(event) {
+                if (!this.isRimClicked(event)) return false;
+                var location = getCanvasEventLocation(event);
+                var angle = this.getAngle(location.x, location.y);
+                return angle <= this.angle + Math.PI / 8 && angle >= this.angle - Math.PI / 8;
+            }
+
+            isClicked(event) {
+                if (!this.centerPoint) return false;
+                if (this.centerPoint.isClicked(event)) return true;
+                return this.isArcClicked(event);
             }
 
             insertClickHandler(event) {
@@ -1551,9 +1589,12 @@ function AddonGeometricConstruct_create() {
                         this.referencePoints.push(clickedPoint);
                         if (this.referencePoints.length == 2) {
                             this.radius = this.distanceBetweenPoints(this.referencePoints[0], this.referencePoints[1]);
+                            this.append();
+                            presenter.redrawCanvas();
                         }
                     }
-                } else if (this.centerPoint == null) {
+                } else {
+                    if (this.centerPoint == null) {
                     var clickedPoint = presenter.getClickedPoint(event);
                     if (clickedPoint != null) {
                         this.centerPoint = clickedPoint;
@@ -1564,16 +1605,29 @@ function AddonGeometricConstruct_create() {
                     }
                     this.centerPoint.setIsRoot(false);
                     this.centerPoint.addParent(this);
+                    this.centerPoint.setSelected(true);
                     this.append();
-                    presenter.newFigure = new Compasses();
+                    } else {
+                        var location = getCanvasEventLocation(event);
+                        this.angle = this.getAngle(location.x, location.y);
+                        this.isReady = true;
+                        this.centerPoint.setSelected(false);
+                        for (var i = 0; i < this.referencePoints.length; i++) {
+                            this.referencePoints[i].setSelected(false);
+                        }
+                        presenter.newFigure = new Compasses();
+                    }
                 }
             }
 
             insertMoveHandler(event) {
-                if (this.radius > 0 && this.centerPoint == null) {
+                if (this.referencePoints.length == 2) {
                     var newLocation = getCanvasEventLocation(event);
                     if (this.tmpLocation == null || Math.abs(this.tmpLocation.x - newLocation.x) >= 1 || Math.abs(this.tmpLocation.y - newLocation.y) >= 1) {
                         this.tmpLocation = newLocation;
+                        if (this.centerPoint != null) {
+                            this.angle = this.getAngle(newLocation.x, newLocation.y);
+                        }
                         return true;
                     }
                 }
@@ -1582,6 +1636,65 @@ function AddonGeometricConstruct_create() {
 
             distanceBetweenPoints(point1, point2) {
                 return Math.sqrt(Math.pow(point1.x-point2.x, 2) + Math.pow(point1.y-point2.y, 2));
+            }
+
+            getAngle(x, y) {
+                if (this.centerPoint == null) return 0;
+                return Math.atan2(y-this.centerPoint.y, x-this.centerPoint.x);
+            }
+
+            setSelected(isSelected, event) {
+                if (!this.centerPoint) return;
+                this.angleDiff = null;
+                this.centerPoint.setSelected(isSelected, event);
+                if (isSelected && !this.centerPoint.isClicked(event) && !!event) {
+                    var location = getCanvasEventLocation(event);
+                    var newAngle = this.getAngle(location.x, location.y);
+                    this.angleDiff = this.angle - newAngle;
+                }
+            }
+
+            moveHandler(event) {
+                if (!this.centerPoint) return;
+                if (this.angleDiff != null) {
+                    var location = getCanvasEventLocation(event);
+                    var newAngle = this.getAngle(location.x, location.y);
+                    this.angle = newAngle + this.angleDiff;
+                } else {
+                    this.centerPoint.moveHandler(event);
+                }
+            }
+
+            remove() {
+                if (presenter.editFigure == this && this.angleDiff == null) {
+                    this.centerPoint.removeParent(this);
+                    this.centerPoint.removeAllParents();
+                }
+
+                if (!!this.centerPoint) {
+                    presenter.removePointFromFigure(this.centerPoint, this);
+                }
+
+                var figuresIndex = presenter.figuresList.indexOf(this);
+                if (figuresIndex != -1) {
+                    presenter.figuresList.splice(figuresIndex, 1);
+                }
+            }
+
+            toJSON() {
+                if (!this.isReady) return null;
+                var circleState = super.toJSON();
+                if (circleState != null) {
+                    circleState.state.angle = this.angle;
+                }
+                return circleState;
+            }
+
+            loadJSON(json) {
+                if (json.type != this.getClassType()) return;
+                super.loadJSON(json);
+                this.angle = json.state.angle;
+                this.isReady = true;
             }
 
     }
@@ -1633,8 +1746,8 @@ function AddonGeometricConstruct_create() {
 
     presenter.clearFigures = function() {
         presenter.clearFigureSelection();
-        for (var i = presenter.figuresList.length - 1; i > -1; i--) {
-            presenter.figuresList[i].remove();
+        while (presenter.figuresList.length > 0) {
+            presenter.figuresList[presenter.figuresList.length - 1].remove();
         }
     }
 

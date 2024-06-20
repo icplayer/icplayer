@@ -104,7 +104,12 @@
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.circle-with-point-image {
-  background: url('resources/gc_circle_with_point_icon.png') no-repeat center;
+    background: url('resources/gc_circle_with_point_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.compasses-image {
+    background: url('resources/gc_compasses_icon.png') no-repeat center;
+    background-size: 40px;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
