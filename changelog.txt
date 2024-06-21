@@ -1,3 +1,4 @@
+2024-06-21 Removed listeners to close Drawing addon's text editor after click outside canvas
 2024-06-18 Fixed LimitedCheck with maintain state selected
 2024-06-05 Fixed enabling locked Clock addon
 2024-06-04 Added grading user answer by AI in Paragraph and Paragraph Keyboard
