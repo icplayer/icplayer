@@ -25,6 +25,7 @@
 			<property name="Compasses" nameLabel="GeometricConstruct_property_compasses" type="staticrow">
 				<property name="Compasses" nameLabel="GeometricConstruct_property_compasses" type="string"/>
 			</property>
+
 			<property name="ArcWithCenterPoint" nameLabel="GeometricConstruct_property_arc_with_center_point" type="staticrow">
 				<property name="ArcWithCenterPoint" nameLabel="GeometricConstruct_property_arc_with_center_point" type="string"/>
 			</property>
