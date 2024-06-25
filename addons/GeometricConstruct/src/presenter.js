@@ -55,6 +55,7 @@ function AddonGeometricConstruct_create() {
         circle: "Circle with a specified radius",
         circleWithPoint: "Circle passing through a point",
         compasses: "Compasses",
+        arcWithCenterPoint: "Arc with a defined center",
         lineSegment: "Line Segment",
         halfOpenLineSegment: "Half-open Line Segment",
         openLineSegment: "Open Line Segment",
@@ -63,6 +64,8 @@ function AddonGeometricConstruct_create() {
         cancel: "CANCEL",
         radius: "Radius"
     }
+
+    var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model, true);
@@ -128,6 +131,7 @@ function AddonGeometricConstruct_create() {
                 circle: getLabelValue(labels['Circle']['Circle'], presenter.labels.circle),
                 circleWithPoint: getLabelValue(labels['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
                 compasses: getLabelValue(labels['Compasses']['Compasses'], presenter.labels.compasses),
+                arcWithCenterPoint: getLabelValue(labels['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
                 lineSegment: getLabelValue(labels['LineSegment']['LineSegment'], presenter.labels.lineSegment),
                 halfOpenLineSegment: getLabelValue(labels['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
                 openLineSegment: getLabelValue(labels['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
@@ -229,7 +233,6 @@ function AddonGeometricConstruct_create() {
         if (presenter.newFigure != null) {
             presenter.newFigure.insertClickHandler(e);
             presenter.redrawCanvas();
-            //presenter.pushState();
         } else if (presenter.isEditMode) {
             var selectedFigure = null;
             for (var i = 0; i < presenter.figuresList.length; i++) {
@@ -344,12 +347,42 @@ function AddonGeometricConstruct_create() {
         return null;
     }
 
+    presenter.getClickedOrCreatePoint = function(event) {
+        var point;
+        var clickedPoint = presenter.getClickedPoint(event);
+        if (clickedPoint != null) {
+            point = clickedPoint;
+        } else {
+            var location = getCanvasEventLocation(event);
+            point = new Point();
+            point.setLocation(location.x, location.y);
+        }
+        return point;
+    }
+
+    presenter.getAngle = function(x1, y1, x2, y2) {
+        return Math.atan2(y2 - y1, x2 - x1);
+    }
+
     presenter.getPointByID = function(id) {
         for (var i = 0; i < presenter.pointsList.length; i++) {
             var point = presenter.pointsList[i];
             if (point.id == id) return point;
         }
         return null;
+    }
+
+    presenter.getOrCreateChildPointByID = function(id, parent) {
+        var point;
+        var existingPoint = presenter.getPointByID(id);
+        if (existingPoint != null) {
+            point = existingPoint;
+        } else {
+            point = new Point();
+            point.setIsRoot(false);
+        }
+        point.addParent(parent);
+        return point;
     }
 
     presenter.createToolbar = function() {
@@ -363,6 +396,7 @@ function AddonGeometricConstruct_create() {
         presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
         presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
         presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
+        presenter.createGeometricElementButton(presenter.labels.arcWithCenterPoint, ArcWithCenterPoint, circleSection);
 
         var pointLineSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
@@ -378,32 +412,30 @@ function AddonGeometricConstruct_create() {
         presenter.updateUndoRedoButtonsVisibility();
     };
 
-    presenter.getLabel = function(index) {
-        var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    presenter.getLabel = function(index, alphabet) {
         var result = "";
         while (index >= 0) {
-            var mod = index % 26;
-            result = ALPHABET[mod] + result;
-            index = Math.floor(index / 26) - 1;
+            var mod = index % alphabet.length;
+            result = alphabet[mod] + result;
+            index = Math.floor(index / alphabet.length) - 1;
         }
         return result;
     }
 
-    presenter.createLabel = function() {
+    presenter.createLabel = function(labelsList, alphabet) {
         var labelValue = '';
-        var index = presenter.labelsList.indexOf('');
+        var index = labelsList.indexOf('');
         if (index == -1) {
-            labelValue = presenter.getLabel(presenter.labelsList.length);
-            presenter.labelsList.push(labelValue);
+            labelValue = presenter.getLabel(labelsList.length, alphabet);
+            labelsList.push(labelValue);
         } else {
-            labelValue = presenter.getLabel(index);
-            presenter.labelsList[index] = labelValue;
+            labelValue = presenter.getLabel(index, alphabet);
+            labelsList[index] = labelValue;
         }
         return labelValue;
     }
 
     presenter.destroyLabel = function(labelValue, labelsList) {
-        if (labelsList == undefined) labelsList = presenter.labelsList;
         var index = labelsList.indexOf(labelValue);
         if (index == -1) return;
         labelsList[index] = '';
@@ -603,7 +635,7 @@ function AddonGeometricConstruct_create() {
 
         append() {
             if (!this.labelValue) {
-                this.labelValue = presenter.createLabel();
+                this.labelValue = presenter.createLabel(presenter.labelsList, ALPHABET);
             }
             if (presenter.pointsList.indexOf(this) == -1) {
                 presenter.pointsList.push(this);
@@ -636,7 +668,7 @@ function AddonGeometricConstruct_create() {
         }
 
         remove() {
-            presenter.destroyLabel(this.labelValue);
+            presenter.destroyLabel(this.labelValue, presenter.labelsList);
             this.labelValue = '';
             var figuresIndex = presenter.figuresList.indexOf(this);
             if (figuresIndex != -1) {
@@ -1429,17 +1461,23 @@ function AddonGeometricConstruct_create() {
 
         updateLabel() {
             super.updateLabel();
-            if (this.rimPoint) this.rimPoint.updateLabel(event);
+            if (this.rimPoint) this.rimPoint.updateLabel();
         }
 
         hideLabel() {
             super.hideLabel();
-            if (this.rimPoint) this.rimPoint.hideLabel(event);
+            if (this.rimPoint) this.rimPoint.hideLabel();
         }
 
         removeLabel() {
             super.removeLabel();
-            if (this.rimPoint) this.rimPoint.removeLabel(event);
+            if (this.rimPoint) this.rimPoint.removeLabel();
+        }
+
+        getLabelValues() {
+            var values = super.getLabelValues();
+            if (!!this.rimPoint) values = values.concat(this.rimPoint.getLabelValues());
+            return values;
         }
 
         getClassType() {
@@ -1607,7 +1645,11 @@ function AddonGeometricConstruct_create() {
                 if (!this.isRimClicked(event)) return false;
                 var location = getCanvasEventLocation(event);
                 var angle = this.getAngle(location.x, location.y);
-                return angle <= this.angle + Math.PI / 8 && angle >= this.angle - Math.PI / 8;
+                var maxAngle = this.angle + Math.PI / 8;
+                var minAngle = this.angle - Math.PI / 8;
+                if (minAngle < -1.0 * Math.PI && 2.0 * Math.PI + minAngle < angle) return true;
+                if (maxAngle > Math.PI && -2.0 * Math.PI + maxAngle > angle) return true;
+                return angle <= maxAngle && angle >= minAngle;
             }
 
             isClicked(event) {
@@ -1680,7 +1722,7 @@ function AddonGeometricConstruct_create() {
 
             getAngle(x, y) {
                 if (this.centerPoint == null) return 0;
-                return Math.atan2(y-this.centerPoint.y, x-this.centerPoint.x);
+                return presenter.getAngle(this.centerPoint.x, this.centerPoint.y, x, y);
             }
 
             setSelected(isSelected, event) {
@@ -1737,6 +1779,258 @@ function AddonGeometricConstruct_create() {
                 this.isReady = true;
             }
 
+    }
+
+    class ArcWithCenterPoint extends CircleBase {
+        static TYPE = "ArcWithCenterPoint";
+        static LABEL_CLASS = "arc_with_center_point_label";
+        static ICON_CLASS = "arc-with-center-point-image";
+
+        arcStartPoint;
+        arcEndPoint;
+        tmpEndLocation;
+
+        getClassType() {
+            return ArcWithCenterPoint.TYPE;
+        }
+
+        draw() {
+            if (this.centerPoint) this.centerPoint.draw();
+            if (this.arcEndPoint || this.tmpEndLocation) {
+                this.drawArc();
+            }
+            if (this.arcStartPoint) this.arcStartPoint.draw();
+            if (this.arcEndPoint) this.arcEndPoint.draw();
+        }
+
+        drawArc() {
+            var startAngle = this.getStartAngle();
+            var endAngle;
+            if (this.arcEndPoint) {
+                endAngle = this.getEndAngle();
+            } else if (this.tmpEndLocation) {
+                endAngle = this.getTmpEndAngle();
+            } else {
+                return;
+            }
+            presenter.context.fillStyle = presenter.configuration.fillColor;
+            presenter.context.strokeStyle = presenter.configuration.strokeColor;
+            presenter.context.beginPath();
+            presenter.context.arc(this.centerPoint.x, this.centerPoint.y, this.radius, endAngle, startAngle);
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
+
+        getStartAngle() {
+            return presenter.getAngle(this.centerPoint.x, this.centerPoint.y, this.arcStartPoint.x, this.arcStartPoint.y);
+        }
+
+        getEndAngle() {
+            return presenter.getAngle(this.centerPoint.x, this.centerPoint.y, this.arcEndPoint.x, this.arcEndPoint.y);
+        }
+
+        getTmpEndAngle() {
+            return presenter.getAngle(this.centerPoint.x, this.centerPoint.y, this.tmpEndLocation.x, this.tmpEndLocation.y);
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this) {
+                if (this.centerPoint == null) {
+                    this.insertCenterPoint(event);
+                } else if (this.arcStartPoint == null) {
+                    this.insertArcStartPoint(event);
+                } else if (this.arcEndPoint == null) {
+                    this.insertArcEndPoint(event);
+                    if (this.arcEndPoint != null) {
+                        presenter.pushState();
+                        presenter.newFigure = new ArcWithCenterPoint();
+                    }
+                }
+            }
+        }
+
+        insertArcStartPoint(event) {
+            var point = presenter.getClickedOrCreatePoint(event);
+            if (point == this.centerPoint) return;
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.arcStartPoint = point;
+            this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
+            this.append();
+        }
+
+        insertArcEndPoint(event) {
+            var point = presenter.getClickedOrCreatePoint(event);
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.arcEndPoint = point;
+            this.append();
+        }
+
+        append() {
+            super.append();
+            if (this.arcStartPoint != null) {
+                this.arcStartPoint.append();
+            }
+            if (this.arcEndPoint != null) {
+                this.arcEndPoint.append();
+            }
+        }
+
+        insertMoveHandler(event) {
+            if (this.centerPoint != null && this.arcStartPoint != null && this.arcEndPoint == null) {
+                var location = getCanvasEventLocation(event);
+                if (this.tmpEndLocation == null || Math.abs(this.tmpEndLocation.x - location.x) > 1 || Math.abs(this.tmpEndLocation.y - location.y) > 1) {
+                    this.tmpEndLocation = location;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        addLabel() {
+            super.addLabel();
+            if (this.arcStartPoint) this.arcStartPoint.addLabel();
+            if (this.arcEndPoint) this.arcEndPoint.addLabel();
+        }
+
+        updateLabel() {
+            super.updateLabel();
+            if (this.arcStartPoint) this.arcStartPoint.updateLabel();
+            if (this.arcEndPoint) this.arcEndPoint.updateLabel();
+        }
+
+        hideLabel() {
+            super.hideLabel();
+            if (this.arcStartPoint) this.arcStartPoint.hideLabel();
+            if (this.arcEndPoint) this.arcEndPoint.hideLabel();
+        }
+
+        removeLabel() {
+            super.removeLabel();
+            if (this.arcStartPoint) this.arcStartPoint.removeLabel();
+            if (this.arcEndPoint) this.arcEndPoint.removeLabel();
+        }
+
+        remove() {
+            if (presenter.editFigure == this && this.draggingDiff == null) {
+                if (!!this.centerPoint && this.centerPoint.isSelected) {
+                    this.centerPoint.removeParent(this);
+                    this.centerPoint.removeAllParents();
+                }
+                if (!!this.arcStartPoint && this.arcStartPoint.isSelected) {
+                    this.arcStartPoint.removeParent(this);
+                    this.arcStartPoint.removeAllParents();
+                }
+                if (!!this.arcEndPoint && this.arcEndPoint.isSelected) {
+                    this.arcEndPoint.removeParent(this);
+                    this.arcEndPoint.removeAllParents();
+                }
+            }
+
+            if (!!this.centerPoint) presenter.removePointFromFigure(this.centerPoint, this);
+            if (!!this.arcStartPoint) presenter.removePointFromFigure(this.arcStartPoint, this);
+            if (!!this.arcEndPoint) presenter.removePointFromFigure(this.arcEndPoint, this);
+
+            var figuresIndex = presenter.figuresList.indexOf(this);
+            if (figuresIndex != -1) {
+                presenter.figuresList.splice(figuresIndex, 1);
+            }
+        }
+
+        setSelected(isSelected, event) {
+            if (!this.centerPoint || !this.arcStartPoint|| !this.arcEndPoint) return;
+            this.draggingDiff = null;
+            this.centerPoint.setSelected(false);
+            this.arcStartPoint.setSelected(false);
+            this.arcEndPoint.setSelected(false);
+            if (!!event) {
+                if (this.centerPoint.isClicked(event)) {
+                    this.centerPoint.setSelected(isSelected, event);
+                } else if (this.arcStartPoint.isClicked(event)) {
+                    this.arcStartPoint.setSelected(isSelected, event);
+                } else if (this.arcEndPoint.isClicked(event)) {
+                   this.arcEndPoint.setSelected(isSelected, event);
+                } else {
+                    this.centerPoint.setSelected(isSelected, event);
+                    this.arcStartPoint.setSelected(isSelected, event);
+                    this.arcEndPoint.setSelected(isSelected, event);
+                    var location = getCanvasEventLocation(event);
+                    this.draggingDiff = {
+                        x: this.centerPoint.x - location.x,
+                        y: this.centerPoint.y - location.y
+                    };
+                }
+            }
+        }
+
+        moveHandler(event) {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return;
+
+            if (this.draggingDiff != null) {
+                var oldX = this.centerPoint.x;
+                var oldY = this.centerPoint.y;
+                var location = getCanvasEventLocation(event);
+                this.centerPoint.setLocation(location.x + this.draggingDiff.x, location.y + this.draggingDiff.y);
+                this.arcStartPoint.setLocation(this.arcStartPoint.x + this.centerPoint.x - oldX, this.arcStartPoint.y + this.centerPoint.y - oldY);
+                this.arcEndPoint.setLocation(this.arcEndPoint.x + this.centerPoint.x - oldX, this.arcEndPoint.y + this.centerPoint.y - oldY);
+            } else if (this.centerPoint.isSelected) {
+                this.centerPoint.moveHandler(event);
+                this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
+            } else if (this.arcStartPoint.isSelected) {
+                this.arcStartPoint.moveHandler(event);
+                this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
+            } else if (this.arcEndPoint.isSelected) {
+                this.arcEndPoint.moveHandler(event);
+            }
+        }
+
+        isArcClicked(event) {
+            if (!this.isRimClicked(event)) return false;
+            var location = getCanvasEventLocation(event);
+            var angle = presenter.getAngle(this.centerPoint.x, this.centerPoint.y, location.x, location.y);
+            var startAngle = this.getStartAngle();
+            var endAngle = this.getEndAngle();
+            if (startAngle > endAngle) {
+                return endAngle <= angle && angle <= startAngle;
+            } else {
+                return endAngle <= angle || angle <= startAngle;
+            }
+        }
+
+        isClicked(event) {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return false;
+            if (this.centerPoint.isClicked(event)) return true;
+            if (this.arcStartPoint.isClicked(event)) return true;
+            if (this.arcEndPoint.isClicked(event)) return true;
+            return this.isArcClicked(event);
+        }
+
+        getLabelValues() {
+            var values = super.getLabelValues();
+            if (!!this.arcStartPoint) values = values.concat(this.arcStartPoint.getLabelValues());
+            if (!!this.arcEndPoint) values = values.concat(this.arcEndPoint.getLabelValues());
+            return values;
+        }
+
+        toJSON() {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return null;
+            var circleState = super.toJSON();
+            if (circleState != null) {
+                circleState.state.arcStartPoint = this.arcStartPoint.toJSON();
+                circleState.state.arcEndPoint = this.arcEndPoint.toJSON();
+            }
+            return circleState;
+        }
+
+        loadJSON(json) {
+            if (json.type != this.getClassType()) return;
+            super.loadJSON(json);
+            this.arcStartPoint = presenter.getOrCreateChildPointByID(json.state.arcStartPoint.state.id, this);
+            this.arcStartPoint.loadJSON(json.state.arcStartPoint);
+            this.arcEndPoint = presenter.getOrCreateChildPointByID(json.state.arcEndPoint.state.id, this);
+            this.arcEndPoint.loadJSON(json.state.arcEndPoint);
+        }
     }
 
     presenter.createToolbarSection = function() {
@@ -1899,6 +2193,9 @@ function AddonGeometricConstruct_create() {
             }
             if (figureState.type == Compasses.TYPE) {
                 figure = new Compasses();
+            }
+            if (figureState.type == ArcWithCenterPoint.TYPE) {
+                figure = new ArcWithCenterPoint();
             }
             if (figure != null) {
                 figure.loadJSON(figureState);
