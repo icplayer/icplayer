@@ -2519,6 +2519,7 @@ var ice_dictionary_en = {
     "GeometricConstruct_property_cursor": "Cursor",
     "GeometricConstruct_property_circle": "Circle with a specified radius",
     "GeometricConstruct_property_circle_with_point": "Circle passing through a point",
+    "GeometricConstruct_property_compasses": "Compasses",
     "GeometricConstruct_property_line_segment": "Line Segment",
     "GeometricConstruct_property_half_open_line_segment": "Half-open Line Segment",
     "GeometricConstruct_property_open_line_segment": "Open Line Segment",

@@ -99,6 +99,17 @@
     background-size: 40px;
 }
 
+.geometric_construct_wrapper .workspace_wrapper .edit_figure {
+    display: block;
+    height: 35px;
+    width: 30px;
+    position: absolute;
+    right: 10px;
+    bottom: 55px;
+    background: url('resources/edit_24dp.svg') no-repeat center;
+    background-size: 40px;
+}
+
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton {
     display: inline-block;
     max-width: 80px;
@@ -142,7 +153,12 @@
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.circle-with-point-image {
-  background: url('resources/gc_circle_with_point_icon.png') no-repeat center;
+    background: url('resources/gc_circle_with_point_icon.png') no-repeat center;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.compasses-image {
+    background: url('resources/gc_compasses_icon.png') no-repeat center;
+    background-size: 40px;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {

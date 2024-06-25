@@ -54,6 +54,7 @@ function AddonGeometricConstruct_create() {
         cursor: "Cursor",
         circle: "Circle with a specified radius",
         circleWithPoint: "Circle passing through a point",
+        compasses: "Compasses",
         lineSegment: "Line Segment",
         halfOpenLineSegment: "Half-open Line Segment",
         openLineSegment: "Open Line Segment",
@@ -126,6 +127,7 @@ function AddonGeometricConstruct_create() {
                 cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
                 circle: getLabelValue(labels['Circle']['Circle'], presenter.labels.circle),
                 circleWithPoint: getLabelValue(labels['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+                compasses: getLabelValue(labels['Compasses']['Compasses'], presenter.labels.compasses),
                 lineSegment: getLabelValue(labels['LineSegment']['LineSegment'], presenter.labels.lineSegment),
                 halfOpenLineSegment: getLabelValue(labels['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
                 openLineSegment: getLabelValue(labels['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
@@ -360,6 +362,7 @@ function AddonGeometricConstruct_create() {
         var circleSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
         presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
+        presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
 
         var pointLineSection = presenter.createToolbarSection();
         presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
@@ -1135,7 +1138,7 @@ function AddonGeometricConstruct_create() {
         static ICON_CLASS = "circle-base-image";
 
         centerPoint;
-        radius = 50;
+        radius = 0;
         draggingDiff;
 
         constructor() {
@@ -1144,23 +1147,25 @@ function AddonGeometricConstruct_create() {
 
         draw() {
             if (this.centerPoint != null) {
-                this.drawCircle(this.radius);
+                this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
                 this.centerPoint.draw();
             }
         };
 
-        drawCircle(radius) {
-            if (this.centerPoint == null) return;
+        drawCircle(x, y, radius) {
             presenter.context.fillStyle = presenter.configuration.fillColor;
             presenter.context.strokeStyle = presenter.configuration.strokeColor;
             presenter.context.beginPath();
-            presenter.context.arc(this.centerPoint.x, this.centerPoint.y, radius, 0, 2 * Math.PI);
+            presenter.context.arc(x, y, radius, 0, 2 * Math.PI);
             presenter.context.stroke();
             presenter.context.closePath();
         }
 
         append() {
-            this.centerPoint.append();
+            if (this.centerPoint) {
+                this.centerPoint.append();
+            }
+
             if (presenter.figuresList.indexOf(this) == -1) {
                 presenter.figuresList.push(this);
             }
@@ -1224,7 +1229,7 @@ function AddonGeometricConstruct_create() {
 
         isClicked(event) {
             if (!this.centerPoint) return false;
-            if(this.centerPoint.isClicked(event)) return true;
+            if (this.centerPoint.isClicked(event)) return true;
             return this.isRimClicked(event);
         }
 
@@ -1313,7 +1318,7 @@ function AddonGeometricConstruct_create() {
     }
 
     class CircleWithPoint extends CircleBase {
-            static TYPE = "CircleWithPointSegment";
+            static TYPE = "CircleWithPoint";
             static LABEL_CLASS = "circle_with_point_label";
             static ICON_CLASS = "circle-with-point-image";
 
@@ -1493,7 +1498,7 @@ function AddonGeometricConstruct_create() {
     }
 
     class Circle extends CircleBase {
-            static TYPE = "CircleSegment";
+            static TYPE = "Circle";
             static LABEL_CLASS = "circle_label";
             static ICON_CLASS = "circle-image";
 
@@ -1551,6 +1556,185 @@ function AddonGeometricConstruct_create() {
                         }
                     }
                 }, ()=>{});
+            }
+
+    }
+
+    class Compasses extends CircleBase {
+            static TYPE = "Compasses";
+            static LABEL_CLASS = "compasses_label";
+            static ICON_CLASS = "compasses-image";
+
+            referencePoints = [];
+            tmpLocation;
+            angle;
+            isReady = false;
+
+            getClassType() {
+                return Compasses.TYPE;
+            }
+
+            draw() {
+                if (this.radius > 0 && this.centerPoint == null && this.tmpLocation != null && presenter.newFigure == this) {
+                    this.drawCircle(this.tmpLocation.x, this.tmpLocation.y, this.radius);
+                } else if (this.centerPoint != null) {
+                    if (this.isReady) {
+                        this.drawArc();
+                    } else {
+                        this.drawCircle(this.centerPoint.x, this.centerPoint.y, this.radius);
+                        this.drawArcCenterPoint();
+                    }
+                    this.centerPoint.draw();
+                }
+            }
+
+            drawArc() {
+                presenter.context.fillStyle = presenter.configuration.fillColor;
+                presenter.context.strokeStyle = presenter.configuration.strokeColor;
+                presenter.context.beginPath();
+                presenter.context.arc(this.centerPoint.x, this.centerPoint.y, this.radius, this.angle - Math.PI / 8, this.angle + Math.PI / 8);
+                presenter.context.stroke();
+                presenter.context.closePath();
+            }
+
+            drawArcCenterPoint() {
+                var x = this.centerPoint.x + this.radius * Math.cos(this.angle);
+                var y = this.centerPoint.y + this.radius * Math.sin(this.angle);
+                Point.drawPoint(presenter.context, x, y, false);
+            }
+
+            isArcClicked(event) {
+                if (!this.isRimClicked(event)) return false;
+                var location = getCanvasEventLocation(event);
+                var angle = this.getAngle(location.x, location.y);
+                return angle <= this.angle + Math.PI / 8 && angle >= this.angle - Math.PI / 8;
+            }
+
+            isClicked(event) {
+                if (!this.centerPoint) return false;
+                if (this.centerPoint.isClicked(event)) return true;
+                return this.isArcClicked(event);
+            }
+
+            insertClickHandler(event) {
+                if (this.referencePoints.length < 2) {
+                    var clickedPoint = presenter.getClickedPoint(event);
+                    if (clickedPoint != null) {
+                        if (this.referencePoints.length == 1 && this.referencePoints[0] == clickedPoint) {
+                            clickedPoint.setSelected(false);
+                            this.referencePoints.pop();
+                        }
+                        clickedPoint.setSelected(true, event);
+                        this.referencePoints.push(clickedPoint);
+                        if (this.referencePoints.length == 2) {
+                            this.radius = this.distanceBetweenPoints(this.referencePoints[0], this.referencePoints[1]);
+                            this.append();
+                            presenter.redrawCanvas();
+                        }
+                    }
+                } else {
+                    if (this.centerPoint == null) {
+                    var clickedPoint = presenter.getClickedPoint(event);
+                    if (clickedPoint != null) {
+                        this.centerPoint = clickedPoint;
+                    } else {
+                        var location = getCanvasEventLocation(event);
+                        this.centerPoint = new Point();
+                        this.centerPoint.setLocation(location.x, location.y);
+                    }
+                    this.centerPoint.setIsRoot(false);
+                    this.centerPoint.addParent(this);
+                    this.centerPoint.setSelected(true);
+                    this.append();
+                    } else {
+                        var location = getCanvasEventLocation(event);
+                        this.angle = this.getAngle(location.x, location.y);
+                        this.isReady = true;
+                        this.centerPoint.setSelected(false);
+                        for (var i = 0; i < this.referencePoints.length; i++) {
+                            this.referencePoints[i].setSelected(false);
+                        }
+                        presenter.pushState();
+                        presenter.newFigure = new Compasses();
+                    }
+                }
+            }
+
+            insertMoveHandler(event) {
+                if (this.referencePoints.length == 2) {
+                    var newLocation = getCanvasEventLocation(event);
+                    if (this.tmpLocation == null || Math.abs(this.tmpLocation.x - newLocation.x) >= 1 || Math.abs(this.tmpLocation.y - newLocation.y) >= 1) {
+                        this.tmpLocation = newLocation;
+                        if (this.centerPoint != null) {
+                            this.angle = this.getAngle(newLocation.x, newLocation.y);
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            distanceBetweenPoints(point1, point2) {
+                return Math.sqrt(Math.pow(point1.x-point2.x, 2) + Math.pow(point1.y-point2.y, 2));
+            }
+
+            getAngle(x, y) {
+                if (this.centerPoint == null) return 0;
+                return Math.atan2(y-this.centerPoint.y, x-this.centerPoint.x);
+            }
+
+            setSelected(isSelected, event) {
+                if (!this.centerPoint) return;
+                this.angleDiff = null;
+                this.centerPoint.setSelected(isSelected, event);
+                if (isSelected && !this.centerPoint.isClicked(event) && !!event) {
+                    var location = getCanvasEventLocation(event);
+                    var newAngle = this.getAngle(location.x, location.y);
+                    this.angleDiff = this.angle - newAngle;
+                }
+            }
+
+            moveHandler(event) {
+                if (!this.centerPoint) return;
+                if (this.angleDiff != null) {
+                    var location = getCanvasEventLocation(event);
+                    var newAngle = this.getAngle(location.x, location.y);
+                    this.angle = newAngle + this.angleDiff;
+                } else {
+                    this.centerPoint.moveHandler(event);
+                }
+            }
+
+            remove() {
+                if (presenter.editFigure == this && this.angleDiff == null) {
+                    this.centerPoint.removeParent(this);
+                    this.centerPoint.removeAllParents();
+                }
+
+                if (!!this.centerPoint) {
+                    presenter.removePointFromFigure(this.centerPoint, this);
+                }
+
+                var figuresIndex = presenter.figuresList.indexOf(this);
+                if (figuresIndex != -1) {
+                    presenter.figuresList.splice(figuresIndex, 1);
+                }
+            }
+
+            toJSON() {
+                if (!this.isReady) return null;
+                var circleState = super.toJSON();
+                if (circleState != null) {
+                    circleState.state.angle = this.angle;
+                }
+                return circleState;
+            }
+
+            loadJSON(json) {
+                if (json.type != this.getClassType()) return;
+                super.loadJSON(json);
+                this.angle = json.state.angle;
+                this.isReady = true;
             }
 
     }
@@ -1712,6 +1896,9 @@ function AddonGeometricConstruct_create() {
             }
             if (figureState.type == Circle.TYPE) {
                 figure = new Circle();
+            }
+            if (figureState.type == Compasses.TYPE) {
+                figure = new Compasses();
             }
             if (figure != null) {
                 figure.loadJSON(figureState);
