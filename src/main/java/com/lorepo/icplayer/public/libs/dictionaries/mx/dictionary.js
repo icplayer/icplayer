@@ -1877,6 +1877,8 @@ var ice_dictionary_mx = {
 	"IWB_Toolbar_property_disable_module_zoom": "Disable module zoom",
     "IWB_Toolbar_property_default_zoom": "Default zoom",
     "IWB_Toolbar_expansion_direction": "Expansion direction",
+    "IWB_Toolbar_vertical_popups_direction": "Vertical popups direction",
+    "IWB_Toolbar_horizontal_popups_direction": "Horizontal popups direction",
 	"SVG2_info": "El módulo SVG permite insertar una imagen SVG en una presentación.",
 	"SVG2_name": "Imagen SVG",
 	"SVG2_property_svg_file": "Archivo SVG",

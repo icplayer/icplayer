@@ -1872,6 +1872,8 @@ var ice_dictionary_bl = {
 	"IWB_Toolbar_property_disable_module_zoom": "Disable module zoom",
     "IWB_Toolbar_property_default_zoom": "Default zoom",
     "IWB_Toolbar_expansion_direction": "Expansion direction",
+	"IWB_Toolbar_vertical_popups_direction": "Vertical popups direction",
+    "IWB_Toolbar_horizontal_popups_direction": "Horizontal popups direction",
 	"SVG2_info": "Модул SVG позволява поставянето на SVG изображение в презентацията.",
 	"SVG2_name": "SVG",
 	"SVG2_property_svg_file": "SVG файл",

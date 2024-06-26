@@ -133,7 +133,7 @@ TestCase("[IWB Toolbar] State", {
         assertFalse(this.presenter.shouldRestoreStateAndPosition(model, state));
     },
 
-    'test individual state should not be restored because of Keep state and position property': function () {
+    'test individual state should be restored because of Keep state and position property': function () {
         var model = {
             keepStateAndPosition: 'True'
         }, state = {
@@ -143,10 +143,10 @@ TestCase("[IWB Toolbar] State", {
             }
         };
 
-        assertFalse(this.presenter.shouldRestoreStateAndPosition(model, state));
+        assertTrue(this.presenter.shouldRestoreStateAndPosition(model, state));
     },
 
-    'test individual state should be restored': function () {
+    'test individual state should not be restored': function () {
         var model = {
             keepStateAndPosition: 'False'
         }, state = {
@@ -156,7 +156,7 @@ TestCase("[IWB Toolbar] State", {
             }
         };
 
-        assertTrue(this.presenter.shouldRestoreStateAndPosition(model, state));
+        assertFalse(this.presenter.shouldRestoreStateAndPosition(model, state));
     },
 
     'test state saving tool': function () {
