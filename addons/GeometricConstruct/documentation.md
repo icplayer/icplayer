@@ -24,6 +24,10 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Labels</td>
         <td>The property allows the author to change the text labels used by the addon.</td>
     </tr>
+    <tr>
+        <td>Labels visibility</td>
+        <td>Specified whether the labels of geometric figures in the workspace will be visible by defualt.</td>
+    </tr>
 </tbody>
 </table>
 
@@ -60,6 +64,16 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>nextState</td>
         <td>---</td>
         <td>Restores the changes to the workspace that were undone by prevState.</td>
+    </tr>
+    <tr>
+        <td>showLabels</td>
+        <td>---</td>
+        <td>Displays the labels of geometric figures in the workspace if they were hidden</td>
+    </tr>
+    <tr>
+        <td>hideLabels</td>
+        <td>---</td>
+        <td>Hides the labels of geometric figures in the workspace.</td>
     </tr>
 </tbody>
 </table>

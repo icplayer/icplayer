@@ -2504,5 +2504,6 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_circle_popup_title": "Circle with a specified radius (Popup)",
     "GeometricConstruct_property_accept": "ACCEPT",
     "GeometricConstruct_property_cancel": "CANCEL",
-    "GeometricConstruct_property_radius": "Radius"
+    "GeometricConstruct_property_radius": "Radius",
+    "GeometricConstruct_property_labels_visibility": "Labels visibility"
 };
