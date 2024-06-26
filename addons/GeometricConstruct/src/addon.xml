@@ -59,5 +59,6 @@
 			</property>
 
 		</property>
+		<property name="labelsVisibility" nameLabel="GeometricConstruct_property_labels_visibility" type="boolean"/>
 	</model>
 </addon>

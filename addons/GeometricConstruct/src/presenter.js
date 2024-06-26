@@ -6,6 +6,7 @@ function AddonGeometricConstruct_create() {
     presenter.pointsList = [];
     presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
+    presenter.labelsVisibility = true;
 
     var MAX_PREV_STATES = 20;
     presenter.prevStateIndex = -1;
@@ -32,6 +33,9 @@ function AddonGeometricConstruct_create() {
         UNDO_BUTTON: 'undo_button',
         REDO_BUTTON: 'redo_button',
         RESET_BUTTON: 'reset_button',
+        LABELS_BUTTON: 'labels_button',
+        LABELS_BUTTON_SHOW: 'show',
+        LABELS_BUTTON_HIDE: 'hide',
         LABEL: 'geometricConstructLabel',
         TOOLBAR_BUTTON: 'toolbarButton',
         TOOLBAR_BUTTON_LABEL: 'toolbar-button-label',
@@ -80,6 +84,7 @@ function AddonGeometricConstruct_create() {
         presenter.setElements(view);
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
+        presenter.setLabelsVisibility(presenter.configuration.labelsDefaultVisibility);
         presenter.pushState();
     }
 
@@ -97,6 +102,33 @@ function AddonGeometricConstruct_create() {
         return presenter.$view.css('display') != 'none' &&  presenter.$view.css('visibility') != 'hidden';
     }
 
+    presenter.showLabels = function() {
+        presenter.setLabelsVisibility(true);
+    }
+
+    presenter.hideLabels = function() {
+        presenter.setLabelsVisibility(false);
+    }
+
+    presenter.setLabelsVisibility = function(visible) {
+        presenter.labelsVisibility = visible;
+        for (var i = 0; i < presenter.figuresList.length; i++) {
+            var figure = presenter.figuresList[i];
+            if (presenter.labelsVisibility) {
+                figure.showLabel();
+            } else {
+                figure.hideLabel();
+            }
+        }
+        if (presenter.labelsVisibility) {
+            presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
+            presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
+        } else {
+            presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
+            presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
+        };
+    }
+
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
@@ -106,7 +138,8 @@ function AddonGeometricConstruct_create() {
             strokeColor: strokeColor,
             width: parseInt(model["Width"]),
             height: parseInt(model["Height"]),
-            defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"])
+            defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"])
         };
     }
     
@@ -149,6 +182,7 @@ function AddonGeometricConstruct_create() {
         presenter.$undoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.UNDO_BUTTON);
         presenter.$redoButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.REDO_BUTTON);
         presenter.$resetButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.RESET_BUTTON);
+        presenter.$labelsButton = presenter.$toolbarWrapper.find('.'+presenter.CSS_CLASSES.LABELS_BUTTON);
         presenter.$toolbarOptions = presenter.$view.find('.'+presenter.CSS_CLASSES.TOOLBAR_OPTIONS);
         presenter.$workspaceWrapper = presenter.$view.find('.'+presenter.CSS_CLASSES.WORKSPACE_WRAPPER);
         presenter.workspaceWrapper = presenter.$workspaceWrapper[0];
@@ -307,6 +341,10 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    function labelsButtonHandler (e) {
+        presenter.setLabelsVisibility(!presenter.labelsVisibility);
+    }
+
     presenter.updateLabels = function() {
         for (var i = 0; i < presenter.figuresList.length; i++) {
             presenter.figuresList[i].updateLabel();
@@ -410,6 +448,7 @@ function AddonGeometricConstruct_create() {
         presenter.$redoButton.on('click', presenter.nextState);
         presenter.$resetButton.on('click', presenter.resetWithoutVisibility);
         presenter.updateUndoRedoButtonsVisibility();
+        presenter.$labelsButton.on('click', labelsButtonHandler);
     };
 
     presenter.getLabel = function(index, alphabet) {
@@ -581,12 +620,16 @@ function AddonGeometricConstruct_create() {
             throw new Error("GeometricElement.hideLabel is abstract and has not been implemented");
         }
 
+        showLabel() {
+            throw new Error("GeometricElement.showLabel is abstract and has not been implemented");
+        }
+
         removeLabel() {
             throw new Error("GeometricElement.removeLabel is abstract and has not been implemented");
         }
 
         getLabelValues() {
-            throw new Error("GeometricElement.hideLabel is abstract and has not been implemented");
+            throw new Error("GeometricElement.getLabelValues is abstract and has not been implemented");
         }
 
         setSelected(isSelected, event) {
@@ -738,6 +781,7 @@ function AddonGeometricConstruct_create() {
             this.$label.html(this.labelValue);
             this.$label.css('top', 'calc(' + (this.y) +'px - 1em)');
             this.$label.css('left', (this.x+5)+'px');
+            if (!presenter.labelsVisibility) this.hideLabel();
         };
 
         updateLabel() {
@@ -746,8 +790,14 @@ function AddonGeometricConstruct_create() {
         }
 
         hideLabel() {
-            if (!this.$label) {
-                !this.$label.css('display', 'none');
+            if (this.$label) {
+                this.$label.css('display', 'none');
+            }
+        }
+
+        showLabel() {
+            if (this.$label) {
+                this.$label.css('display', '');
             }
         }
 
@@ -965,6 +1015,10 @@ function AddonGeometricConstruct_create() {
 
         hideLabel() {
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].hideLabel();
+        }
+
+        showLabel() {
+            for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].showLabel();
         }
 
         removeLabel() {
@@ -1290,6 +1344,10 @@ function AddonGeometricConstruct_create() {
             if (this.centerPoint) this.centerPoint.hideLabel(event);
         }
 
+        showLabel() {
+            if (this.centerPoint) this.centerPoint.showLabel(event);
+        }
+
         removeLabel() {
             if (this.centerPoint) this.centerPoint.removeLabel(event);
         }
@@ -1467,6 +1525,11 @@ function AddonGeometricConstruct_create() {
         hideLabel() {
             super.hideLabel();
             if (this.rimPoint) this.rimPoint.hideLabel();
+        }
+
+        showLabel() {
+            super.showLabel();
+            if (this.rimPoint) this.rimPoint.showLabel(event);
         }
 
         removeLabel() {
@@ -2114,6 +2177,7 @@ function AddonGeometricConstruct_create() {
         presenter.previousStates = [];
         presenter.pushState();
         presenter.updateUndoRedoButtonsVisibility();
+        presenter.setLabelsVisibility(presenter.labelsDefaultVisibility);
     }
 
     presenter.getSelectedButtonType = function() {
@@ -2131,7 +2195,8 @@ function AddonGeometricConstruct_create() {
             labelsList: [...presenter.labelsList],
             selectedButton: presenter.getSelectedButtonType(),
             visibility: presenter.isVisible(),
-            maxPointIndex: presenter.maxPointIndex
+            maxPointIndex: presenter.maxPointIndex,
+            labelsVisibility: presenter.labelsVisibility
         };
         var validFiguresLabels = [];
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
@@ -2163,6 +2228,7 @@ function AddonGeometricConstruct_create() {
         } else {
             presenter.hide();
         }
+        presenter.setLabelsVisibility(parsedState.labelsVisibility);
         presenter.loadFiguresFromState(parsedState.figures);
         presenter.labelsList = [...parsedState.labelsList];
         presenter.redrawCanvas();
@@ -2284,7 +2350,9 @@ function AddonGeometricConstruct_create() {
             'hide': presenter.hide,
             'reset': presenter.reset,
             'prevState': presenter.prevState,
-            'nextState': presenter.nextState
+            'nextState': presenter.nextState,
+            'showLabels': presenter.showLabels,
+            'hideLabels': presenter.hideLabels
 
         };
         Commands.dispatch(commands, name, params, presenter);

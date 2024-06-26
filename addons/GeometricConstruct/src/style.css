@@ -55,6 +55,15 @@
     border: none;
 }
 
+.geometric_construct_wrapper .toolbar_wrapper .static_tools .labels_button {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url('resources/gc_labels_visibility_24dp.svg') no-repeat center;
+    background-size: 35px;
+    border: none;
+}
+
 .geometric_construct_wrapper .workspace_wrapper {
     display: inline-block;
     height: 100%;
