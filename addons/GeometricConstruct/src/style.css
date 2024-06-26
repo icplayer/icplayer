@@ -70,6 +70,7 @@
     flex-grow: 1;
     border: 1px solid;
     position: relative;
+    overflow: hidden;
 }
 
 .geometric_construct_wrapper .workspace_wrapper canvas {
@@ -168,6 +169,10 @@
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.compasses-image {
     background: url('resources/gc_compasses_icon.png') no-repeat center;
     background-size: 40px;
+}
+
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.arc-with-center-point-image {
+    background: url('resources/gc_arc_with_center_point_icon.png') no-repeat center;
 }
 
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
