@@ -474,7 +474,7 @@ function AddonGeometricConstruct_create() {
     presenter.removePointFromFigure = function(point, parent) {
         point.removeParent(parent);
         if (!point.hasParents()) {
-            if (point.isSelected) {
+            if (point.isSelected || presenter.newFigure == parent) {
                 point.remove();
             } else if (!point.isRoot) {
                 point.setIsRoot(true);
@@ -1861,6 +1861,7 @@ function AddonGeometricConstruct_create() {
 
         insertArcEndPoint(event) {
             var point = presenter.getClickedOrCreatePoint(event);
+            if (point == this.centerPoint || point == this.arcStartPoint) return;
             point.setIsRoot(false);
             point.addParent(this);
             this.arcEndPoint = point;
@@ -2132,15 +2133,22 @@ function AddonGeometricConstruct_create() {
             visibility: presenter.isVisible(),
             maxPointIndex: presenter.maxPointIndex
         };
+        var validFiguresLabels = [];
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figure = presenter.figuresList[i];
             var figureState = figure.toJSON();
+            var labels = figure.getLabelValues();
             if (figureState != null) {
                 state.figures.push(figureState);
+                validFiguresLabels = validFiguresLabels.concat(labels);
             } else {
-                var labels = figure.getLabelValues();
+                // labels of invalid figures need to be removed from the state's labels list,
+                // unless they are also a part of a valid figure
                 for (var j = 0; j < labels.length; j++) {
-                    presenter.destroyLabel(labels[j], state.labelsList);
+                    var label = labels[j];
+                    if (validFiguresLabels.indexOf(label) == -1) {
+                        presenter.destroyLabel(label, state.labelsList);
+                    }
                 }
             }
         }
