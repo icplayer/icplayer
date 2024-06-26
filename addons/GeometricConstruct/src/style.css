@@ -70,6 +70,7 @@
     flex-grow: 1;
     border: 1px solid;
     position: relative;
+    overflow: hidden;
 }
 
 .geometric_construct_wrapper .workspace_wrapper canvas {

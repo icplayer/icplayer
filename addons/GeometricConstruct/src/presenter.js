@@ -1867,6 +1867,7 @@ function AddonGeometricConstruct_create() {
         }
 
         drawArc() {
+            this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
             var startAngle = this.getStartAngle();
             var endAngle;
             if (this.arcEndPoint) {
@@ -1970,6 +1971,12 @@ function AddonGeometricConstruct_create() {
             if (this.arcEndPoint) this.arcEndPoint.hideLabel();
         }
 
+        showLabel() {
+            super.showLabel();
+            if (this.arcStartPoint) this.arcStartPoint.showLabel();
+            if (this.arcEndPoint) this.arcEndPoint.showLabel();
+        }
+
         removeLabel() {
             super.removeLabel();
             if (this.arcStartPoint) this.arcStartPoint.removeLabel();
@@ -2040,10 +2047,8 @@ function AddonGeometricConstruct_create() {
                 this.arcEndPoint.setLocation(this.arcEndPoint.x + this.centerPoint.x - oldX, this.arcEndPoint.y + this.centerPoint.y - oldY);
             } else if (this.centerPoint.isSelected) {
                 this.centerPoint.moveHandler(event);
-                this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
             } else if (this.arcStartPoint.isSelected) {
                 this.arcStartPoint.moveHandler(event);
-                this.radius = this.distanceFromCenter(this.arcStartPoint.x, this.arcStartPoint.y);
             } else if (this.arcEndPoint.isSelected) {
                 this.arcEndPoint.moveHandler(event);
             }
@@ -2331,7 +2336,11 @@ function AddonGeometricConstruct_create() {
         if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2) {
             presenter.$undoButton.css('visibility', 'hidden');
             presenter.$redoButton.css('visibility', 'hidden');
-            presenter.$resetButton.css('visibility', 'hidden');
+            if (presenter.figuresList.length == 0) {
+                presenter.$resetButton.css('visibility', 'hidden');
+            } else {
+                presenter.$resetButton.css('visibility', '');
+            }
             return;
         }
         presenter.$undoButton.css('visibility', '');
