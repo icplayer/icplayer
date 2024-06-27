@@ -69,6 +69,17 @@ function AddonGeometricConstruct_create() {
         radius: "Radius"
     }
 
+    presenter.enabledFigures = {
+        point: true,
+        circle: true,
+        circleWithPoint: true,
+        compasses: true,
+        arcWithCenterPoint: true,
+        lineSegment: true,
+        halfOpenLineSegment: true,
+        openLineSegment: true
+    }
+
     var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     presenter.createPreview = function (view, model) {
@@ -120,26 +131,32 @@ function AddonGeometricConstruct_create() {
                 figure.hideLabel();
             }
         }
-        if (presenter.labelsVisibility) {
-            presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
-            presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
-        } else {
-            presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
-            presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
-        };
+        if (!presenter.configuration.disableLabelToggle) {
+            if (presenter.labelsVisibility) {
+                presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
+                presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
+            } else {
+                presenter.$labelsButton.removeClass(presenter.CSS_CLASSES.LABELS_BUTTON_HIDE);
+                presenter.$labelsButton.addClass(presenter.CSS_CLASSES.LABELS_BUTTON_SHOW);
+            }
+        }
     }
 
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
-        setLabels(model["labels"]);
+        setLabels(model["labels"], model["figures"]);
+        setEnabledFigures(model["figures"]);
         return {
             fillColor: fillColor,
             strokeColor: strokeColor,
             width: parseInt(model["Width"]),
             height: parseInt(model["Height"]),
             defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"])
+            labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"]),
+            disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
+            disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
+            disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"])
         };
     }
     
@@ -152,28 +169,43 @@ function AddonGeometricConstruct_create() {
     
                 return value;
             }
-    
-    function setLabels(labels) {
-            if (!labels) {
-                return;
-            }
-    
-            presenter.labels = {
-                point: getLabelValue(labels['Point']['Point'], presenter.labels.point),
-                cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
-                circle: getLabelValue(labels['Circle']['Circle'], presenter.labels.circle),
-                circleWithPoint: getLabelValue(labels['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
-                compasses: getLabelValue(labels['Compasses']['Compasses'], presenter.labels.compasses),
-                arcWithCenterPoint: getLabelValue(labels['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
-                lineSegment: getLabelValue(labels['LineSegment']['LineSegment'], presenter.labels.lineSegment),
-                halfOpenLineSegment: getLabelValue(labels['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
-                openLineSegment: getLabelValue(labels['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
-                circlePopupTitle: getLabelValue(labels['CirclePopupTitle']['CirclePopupTitle'], presenter.labels.circlePopupTitle),
-                accept: getLabelValue(labels['Accept']['Accept'], presenter.labels.accept),
-                cancel: getLabelValue(labels['Cancel']['Cancel'], presenter.labels.cancel),
-                radius: getLabelValue(labels['Radius']['Radius'], presenter.labels.radius)
-            };
+
+    function setLabels(labels, figures) {
+        if (!labels || !figures) {
+            return;
         }
+
+        presenter.labels = {
+            point: getLabelValue(figures['Point']['Point'], presenter.labels.point),
+            cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
+            circle: getLabelValue(figures['Circle']['Circle'], presenter.labels.circle),
+            circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+            compasses: getLabelValue(figures['Compasses']['Compasses'], presenter.labels.compasses),
+            arcWithCenterPoint: getLabelValue(figures['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
+            lineSegment: getLabelValue(figures['LineSegment']['LineSegment'], presenter.labels.lineSegment),
+            halfOpenLineSegment: getLabelValue(figures['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
+            openLineSegment: getLabelValue(figures['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
+            circlePopupTitle: getLabelValue(labels['CirclePopupTitle']['CirclePopupTitle'], presenter.labels.circlePopupTitle),
+            accept: getLabelValue(labels['Accept']['Accept'], presenter.labels.accept),
+            cancel: getLabelValue(labels['Cancel']['Cancel'], presenter.labels.cancel),
+            radius: getLabelValue(labels['Radius']['Radius'], presenter.labels.radius)
+        };
+    }
+
+    function setEnabledFigures(figures) {
+        if (!figures) return;
+
+        presenter.enabledFigures = {
+            point: !ModelValidationUtils.validateBoolean(figures['Point']["Disabled"]),
+            circle: !ModelValidationUtils.validateBoolean(figures['Circle']["Disabled"]),
+            circleWithPoint: !ModelValidationUtils.validateBoolean(figures['CircleWithPoint']["Disabled"]),
+            compasses: !ModelValidationUtils.validateBoolean(figures['Compasses']["Disabled"]),
+            arcWithCenterPoint: !ModelValidationUtils.validateBoolean(figures['ArcWithCenterPoint']["Disabled"]),
+            lineSegment: !ModelValidationUtils.validateBoolean(figures['LineSegment']["Disabled"]),
+            halfOpenLineSegment: !ModelValidationUtils.validateBoolean(figures['HalfOpenLineSegment']["Disabled"]),
+            openLineSegment: !ModelValidationUtils.validateBoolean(figures['OpenLineSegment']["Disabled"])
+        }
+    }
 
     presenter.setElements = function(view) {
         presenter.view = view;
@@ -428,27 +460,44 @@ function AddonGeometricConstruct_create() {
         var cursorElement = presenter.createToolbarButton(presenter.labels.cursor, presenter.CSS_CLASSES.CURSOR, presenter.CSS_CLASSES.CURSOR_IMAGE, basicSection, () => {
             presenter.setEditMode(true);
         }, ()=>{});
-        presenter.createGeometricElementButton(presenter.labels.point, Point, basicSection);
+        if (presenter.enabledFigures.point)
+            presenter.createGeometricElementButton(presenter.labels.point, Point, basicSection);
 
         var circleSection = presenter.createToolbarSection();
-        presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
-        presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
-        presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
-        presenter.createGeometricElementButton(presenter.labels.arcWithCenterPoint, ArcWithCenterPoint, circleSection);
+        if (presenter.enabledFigures.circle)
+            presenter.createGeometricElementButton(presenter.labels.circle, Circle, circleSection);
+        if (presenter.enabledFigures.circleWithPoint)
+            presenter.createGeometricElementButton(presenter.labels.circleWithPoint, CircleWithPoint, circleSection);
+        if (presenter.enabledFigures.compasses)
+            presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
+        if (presenter.enabledFigures.arcWithCenterPoint)
+            presenter.createGeometricElementButton(presenter.labels.arcWithCenterPoint, ArcWithCenterPoint, circleSection);
+        if (circleSection.children().length == 0) circleSection.remove();
 
         var pointLineSection = presenter.createToolbarSection();
-        presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
-        presenter.createGeometricElementButton(presenter.labels.halfOpenLineSegment, HalfOpenLineSegment, pointLineSection);
-        presenter.createGeometricElementButton(presenter.labels.openLineSegment, OpenLineSegment, pointLineSection);
+        if (presenter.enabledFigures.lineSegment)
+            presenter.createGeometricElementButton(presenter.labels.lineSegment, LineSegment, pointLineSection);
+        if (presenter.enabledFigures.halfOpenLineSegment)
+            presenter.createGeometricElementButton(presenter.labels.halfOpenLineSegment, HalfOpenLineSegment, pointLineSection);
+        if (presenter.enabledFigures.openLineSegment)
+            presenter.createGeometricElementButton(presenter.labels.openLineSegment, OpenLineSegment, pointLineSection);
+        if (pointLineSection.children().length == 0) pointLineSection.remove();
 
         cursorElement.addClass(presenter.CSS_CLASSES.SELECTED);
         presenter.setEditMode(true);
 
-        presenter.$undoButton.on('click', presenter.prevState);
-        presenter.$redoButton.on('click', presenter.nextState);
-        presenter.$resetButton.on('click', presenter.resetWithoutVisibility);
-        presenter.updateUndoRedoButtonsVisibility();
-        presenter.$labelsButton.on('click', labelsButtonHandler);
+        if (!presenter.configuration.disableUndoRedoButton) {
+            presenter.$undoButton.on('click', presenter.prevState);
+            presenter.$redoButton.on('click', presenter.nextState);
+        }
+        if (!presenter.configuration.disableResetButton)
+            presenter.$resetButton.on('click', presenter.resetWithoutVisibility);
+        presenter.updateStateButtonsVisibility();
+        if (!presenter.configuration.disableLabelToggle) {
+            presenter.$labelsButton.on('click', labelsButtonHandler);
+        } else {
+            presenter.$labelsButton.css('visibility', 'hidden');
+        }
     };
 
     presenter.getLabel = function(index, alphabet) {
@@ -2181,7 +2230,7 @@ function AddonGeometricConstruct_create() {
         presenter.prevStateIndex = -1;
         presenter.previousStates = [];
         presenter.pushState();
-        presenter.updateUndoRedoButtonsVisibility();
+        presenter.updateStateButtonsVisibility();
         presenter.setLabelsVisibility(presenter.labelsDefaultVisibility);
     }
 
@@ -2245,7 +2294,7 @@ function AddonGeometricConstruct_create() {
         presenter.prevStateIndex = -1;
         presenter.previousStates = [];
         presenter.pushState();
-        presenter.updateUndoRedoButtonsVisibility();
+        presenter.updateStateButtonsVisibility();
     }
 
     presenter.loadFiguresFromState = function(figuresState) {
@@ -2303,21 +2352,21 @@ function AddonGeometricConstruct_create() {
         }
         presenter.previousStates.push(state);
         presenter.prevStateIndex = presenter.previousStates.length - 1;
-        presenter.updateUndoRedoButtonsVisibility();
+        presenter.updateStateButtonsVisibility();
     }
 
     presenter.prevState = function() {
         if (presenter.previousStates.length < 2 || presenter.prevStateIndex < 1) return;
         presenter.prevStateIndex -= 1;
         presenter.setStateByIndex(presenter.prevStateIndex);
-        presenter.updateUndoRedoButtonsVisibility();
+        presenter.updateStateButtonsVisibility();
     }
 
     presenter.nextState = function() {
         if (presenter.prevStateIndex == presenter.previousStates.length - 1 || presenter.prevStateIndex == -1) return;
         presenter.prevStateIndex += 1;
         presenter.setStateByIndex(presenter.prevStateIndex);
-        presenter.updateUndoRedoButtonsVisibility();
+        presenter.updateStateButtonsVisibility();
     }
 
     presenter.setStateByIndex = function(index) {
@@ -2332,24 +2381,33 @@ function AddonGeometricConstruct_create() {
         presenter.redrawCanvas();
     }
 
+    presenter.updateStateButtonsVisibility = function() {
+        presenter.updateResetButtonVisibility();
+        presenter.updateUndoRedoButtonsVisibility();
+    }
+
     presenter.updateUndoRedoButtonsVisibility = function() {
-        if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2) {
+        if (presenter.prevStateIndex == -1 || presenter.previousStates.length < 2
+            || presenter.configuration.disableUndoRedoButton) {
             presenter.$undoButton.css('visibility', 'hidden');
             presenter.$redoButton.css('visibility', 'hidden');
-            if (presenter.figuresList.length == 0) {
-                presenter.$resetButton.css('visibility', 'hidden');
-            } else {
-                presenter.$resetButton.css('visibility', '');
-            }
             return;
         }
         presenter.$undoButton.css('visibility', '');
         presenter.$redoButton.css('visibility', '');
-        presenter.$resetButton.css('visibility', '');
         if (presenter.prevStateIndex == 0) {
             presenter.$undoButton.css('visibility', 'hidden');
         } else if (presenter.prevStateIndex == presenter.previousStates.length - 1) {
             presenter.$redoButton.css('visibility', 'hidden');
+        }
+    }
+
+    presenter.updateResetButtonVisibility = function() {
+        if (((presenter.prevStateIndex == -1 || presenter.previousStates.length < 2)
+            && presenter.figuresList.length == 0) || presenter.configuration.disableResetButton) {
+            presenter.$resetButton.css('visibility', 'hidden');
+        } else {
+            presenter.$resetButton.css('visibility', '');
         }
     }
 
