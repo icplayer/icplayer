@@ -290,7 +290,7 @@ function AddonZoom_Image_create() {
             position: {
                 my: "center",
                 at: "center",
-                of: playerController.isPlayerInCrossDomain() ? window : window.parent
+                of: playerController.isPlayerInCrossDomain() ? window : window.top
             },
             create: presenter.bigImageCreated,
             open: function(event, ui) {
@@ -317,24 +317,17 @@ function AddonZoom_Image_create() {
     };
 
     function getScrollInformation() {
-        if (playerController.isPlayerInCrossDomain()) {
-            return null;
-        }
-        const isMLibroDesktop = $($("#_icplayerContent")[0]?.shadowRoot.querySelector(".inner-scroll")).length > 0;
-        if (isMLibroDesktop) {
-            return null;
-        }
-        const isMobile = MobileUtils.isMobileUserAgent(window.navigator.userAgent) || MobileUtils.isEventSupported('touchend');
         const isIOS = MobileUtils.isSafariMobile(window.navigator.userAgent);
-        if (isMobile && !(isIOS && isMAuthor())) {
+        const isMAuthorOnIOS = isIOS && isMAuthor();
+        if (playerController.isPlayerInCrossDomain() || (window.frameElement === null && !isMAuthorOnIOS)) {
             return null;
         }
+
         const $defaultScrollElement = $(window.parent.document.documentElement);
         const $mAuthorFullScreenScrollElement = $defaultScrollElement.find('#content-view');
         const $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
         const $scrollElements = [$defaultScrollElement, $mAuthorFullScreenScrollElement, $mCourserScrollElement];
-
-        if (isMobile) {
+        if (isMAuthorOnIOS) {
             const $mAuthorMobileScrollElement = $(window.document.documentElement);
             $scrollElements.push($mAuthorMobileScrollElement);
         }
@@ -367,21 +360,36 @@ function AddonZoom_Image_create() {
     }
 
     function adjustDialogPosition(dialogElement, scrollInformation) {
-        let viewPortHeight = window.parent.innerHeight;
+        if (!!window.frameElement) {
+            dialogElement.style.left = calculatePopupLeft(dialogElement) + "px";
+        }
+        dialogElement.style.top = calculatePopupTop(dialogElement, scrollInformation) + "px";
+        scrollInformation.scrollElement.scrollTo({top: scrollInformation.scrollTop});
+    }
+
+    function calculatePopupTop(dialogElement, scrollInformation) {
+        let availableHeight = window.top.innerHeight;
         let offsetTop = scrollInformation.scrollTop;
         if (!!window.frameElement) {
             const frameScale = getFrameScale();
             if (frameScale !== 1) {
-                viewPortHeight /= frameScale;
-                offsetTop /= frameScale;
+                availableHeight /= frameScale;
+                offsetTop = offsetTop/frameScale - window.iframeSize.frameOffset;
             }
         }
 
-        const elementHeight = dialogElement.getBoundingClientRect().height;
-        const halfOfEmptySpace = (viewPortHeight - elementHeight)/2;
-        const dialogTop = halfOfEmptySpace + offsetTop - window.iframeSize.frameOffset;
-        dialogElement.style.top = dialogTop + "px";
-        scrollInformation.scrollElement.scrollTo({top: scrollInformation.scrollTop});
+        const dialogHeight = dialogElement.getBoundingClientRect().height;
+        const halfOfEmptySpace = (availableHeight - dialogHeight)/2;
+        return halfOfEmptySpace + offsetTop;
+    }
+
+    function calculatePopupLeft(dialogElement) {
+        const availableWidth = window.top.innerWidth < window.frameElement.offsetWidth
+            ? window.top.innerWidth
+            : window.frameElement.offsetWidth;
+        const dialogWidth = dialogElement.offsetWidth;
+        const scaleInfo = playerController.getScaleInformation();
+        return (availableWidth - dialogWidth) / 2 * scaleInfo.baseScaleX;
     }
 
     /**
