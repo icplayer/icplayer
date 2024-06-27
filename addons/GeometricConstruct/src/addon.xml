@@ -31,10 +31,6 @@
 				<property name="Disabled" nameLabel="GeometricConstruct_property_disabled" type="boolean"/>
 			</property>
 
-			<property name="ArcWithCenterPoint" nameLabel="GeometricConstruct_property_arc_with_center_point" type="staticrow">
-				<property name="ArcWithCenterPoint" nameLabel="GeometricConstruct_property_arc_with_center_point" type="string"/>
-			</property>
-
 			<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="staticrow">
 				<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="string"/>
 				<property name="Disabled" nameLabel="GeometricConstruct_property_disabled" type="boolean"/>

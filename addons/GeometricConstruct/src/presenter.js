@@ -173,6 +173,7 @@ function AddonGeometricConstruct_create() {
     function setLabels(labels, figures) {
         if (!labels || !figures) {
             return;
+        }
 
         presenter.labels = {
             point: getLabelValue(figures['Point']['Point'], presenter.labels.point),
