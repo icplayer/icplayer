@@ -9,7 +9,6 @@ function AddonZoom_Image_create() {
     var opacity;
 
     function setup_presenter() {
-        presenter.$player = null;
         presenter.view = null;
         presenter.$view = null;
         presenter.$image = null;
@@ -104,11 +103,7 @@ function AddonZoom_Image_create() {
             presenter.setVisibility(presenter.configuration.isVisible);
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
         return false;
     };
@@ -158,7 +153,10 @@ function AddonZoom_Image_create() {
         };
     }
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
         if (presenter.isOpened) {
             presenter.removeOpenedDialog();
             presenter.$image.dialog("close");
@@ -264,12 +262,7 @@ function AddonZoom_Image_create() {
     };
 
     presenter.bigImageLoaded = function(){
-        if(document.getElementById('_icplayer') != null){
-            presenter.$player  = document.getElementById('_icplayer');
-        }else{
-            presenter.$player  = document.getElementsByClassName('ic_page_panel');
-        }
-
+        var scrollInformation = getScrollInformation();
         var dialogSize = calculateImageSize(this);
 
         presenter.$image.appendTo(presenter.$view);
@@ -297,15 +290,20 @@ function AddonZoom_Image_create() {
             position: {
                 my: "center",
                 at: "center",
-                of: presenter.$player
+                of: playerController.isPlayerInCrossDomain() ? window : window.top
             },
             create: presenter.bigImageCreated,
-            open: function() {
+            open: function(event, ui) {
                 opacity = $('.ui-widget-overlay').css("opacity");
                 backgroundColorStyle = $('.ui-widget-overlay').css("background");
                 $('.ui-widget-overlay').css("background", "black");
                 $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
+
+                const dialogElement = $(event.target).closest('.ui-dialog')[0];
+                if (!!scrollInformation) {
+                    adjustDialogPosition(dialogElement, scrollInformation);
+                }
             }
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
@@ -317,6 +315,99 @@ function AddonZoom_Image_create() {
             oldFocus = null;
         }
     };
+
+    function getScrollInformation() {
+        const isIOS = MobileUtils.isSafariMobile(window.navigator.userAgent);
+        const isMAuthorOnIOS = isIOS && isMAuthor();
+        if (playerController.isPlayerInCrossDomain() || (window.frameElement === null && !isMAuthorOnIOS)) {
+            return null;
+        }
+
+        const $defaultScrollElement = $(window.parent.document.documentElement);
+        const $mAuthorFullScreenScrollElement = $defaultScrollElement.find('#content-view');
+        const $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+        const $scrollElements = [$defaultScrollElement, $mAuthorFullScreenScrollElement, $mCourserScrollElement];
+        if (isMAuthorOnIOS) {
+            const $mAuthorMobileScrollElement = $(window.document.documentElement);
+            $scrollElements.push($mAuthorMobileScrollElement);
+        }
+
+        let maxScrollTop = 0;
+        let $scrollElement = null;
+        try {
+            for (let i = 0; i < $scrollElements.length; i++) {
+                let elementScrollTop = $scrollElements[i].scrollTop();
+                if (elementScrollTop !== null && elementScrollTop >= maxScrollTop) {
+                    maxScrollTop = elementScrollTop;
+                    $scrollElement = $scrollElements[i];
+                }
+            }
+        } catch(e) {}
+        if ($scrollElement === null) {
+            return null;
+        }
+
+        return {
+            scrollTop: maxScrollTop,
+            scrollElement: $scrollElement[0]
+        };
+    }
+
+    function isMAuthor() {
+        const names = ["lorepo", "mauthor"];
+        const origin = window.origin;
+        return names.some((name) => origin.includes(name));
+    }
+
+    function adjustDialogPosition(dialogElement, scrollInformation) {
+        if (!!window.frameElement) {
+            dialogElement.style.left = calculatePopupLeft(dialogElement) + "px";
+        }
+        dialogElement.style.top = calculatePopupTop(dialogElement, scrollInformation) + "px";
+        scrollInformation.scrollElement.scrollTo({top: scrollInformation.scrollTop});
+    }
+
+    function calculatePopupTop(dialogElement, scrollInformation) {
+        let availableHeight = window.top.innerHeight;
+        let offsetTop = scrollInformation.scrollTop;
+        if (!!window.frameElement) {
+            const frameScale = getFrameScale();
+            if (frameScale !== 1) {
+                availableHeight /= frameScale;
+                offsetTop = offsetTop/frameScale - window.iframeSize.frameOffset;
+            }
+        }
+
+        const dialogHeight = dialogElement.getBoundingClientRect().height;
+        const halfOfEmptySpace = (availableHeight - dialogHeight)/2;
+        return halfOfEmptySpace + offsetTop;
+    }
+
+    function calculatePopupLeft(dialogElement) {
+        const availableWidth = window.top.innerWidth < window.frameElement.offsetWidth
+            ? window.top.innerWidth
+            : window.frameElement.offsetWidth;
+        const dialogWidth = dialogElement.offsetWidth;
+        const scaleInfo = playerController.getScaleInformation();
+        return (availableWidth - dialogWidth) / 2 * scaleInfo.baseScaleX;
+    }
+
+    /**
+     * The mAuthor's and mCourser's methods (e.g. Full screen) do not set a scale information in a player, despite
+     * setting CSS's transform scale on iframe with player. Gets iframe' scale.
+     *
+     * @method getFrameScale
+     * @return {number} Scale on iframe with player
+     */
+    function getFrameScale(){
+        const matrixScale = getComputedStyle(window.frameElement).transform;
+        if (!matrixScale || !matrixScale.includes('matrix')) {
+            return 1;
+        }
+
+        const matrix = matrixScale.replace('matrix(', '').split(',');
+        return +matrix[0];
+    }
 
     presenter.createPopUp = function createPopUp(e) {
         if(e) {
