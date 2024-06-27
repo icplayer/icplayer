@@ -21,12 +21,28 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Specifies the stroke color used while drawing the geometric figures ("black" by default)</td>
     </tr>
     <tr>
+        <td>Figures</td>
+        <td>The property allows the author to define which figures will be available in the addon as well as their labels.</td>
+    </tr>
+    <tr>
         <td>Labels</td>
-        <td>The property allows the author to change the text labels used by the addon.</td>
+        <td>The property allows the author to change the text labels used by the addon (labels used by the figures are defined in the "Figures" property instead).</td>
     </tr>
     <tr>
         <td>Labels visibility</td>
         <td>Specified whether the labels of geometric figures in the workspace will be visible by defualt.</td>
+    </tr>
+    <tr>
+        <td>Disable undo/redo buttons</td>
+        <td>If checked, undo/redo buttons will no longer be visible in the toolbar. The nextState and prevState commands will still be available.</td>
+    </tr>
+    <tr>
+        <td>Disable reset button</td>
+        <td>If checked, the reset button will no longer be visible in the toolbar. The reset command will still be available.</td>
+    </tr>
+    <tr>
+        <td>Disable 'toggle labels' button</td>
+        <td>If checked, the toggle labels button will no longer be visible in the toolbar. The showLabels and hideLabels commands will still be available.</td>
     </tr>
 </tbody>
 </table>

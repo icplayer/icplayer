@@ -2525,5 +2525,10 @@ var ice_dictionary_bl = {
     "GeometricConstruct_property_accept": "ACCEPT",
     "GeometricConstruct_property_cancel": "CANCEL",
     "GeometricConstruct_property_radius": "Radius",
-    "GeometricConstruct_property_labels_visibility": "Labels visibility"
+    "GeometricConstruct_property_labels_visibility": "Labels visibility",
+    "GeometricConstruct_property_figures": "Figures",
+    "GeometricConstruct_property_disabled": "Disabled",
+    "GeometricConstruct_property_disable_undo_redo": "Disable undo/redo buttons",
+    "GeometricConstruct_property_disable_reset_button": "Disable reset button",
+    "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button"
 };
