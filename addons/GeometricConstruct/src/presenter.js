@@ -169,11 +169,10 @@ function AddonGeometricConstruct_create() {
     
                 return value;
             }
-    
+
     function setLabels(labels, figures) {
         if (!labels || !figures) {
             return;
-        }
 
         presenter.labels = {
             point: getLabelValue(figures['Point']['Point'], presenter.labels.point),
