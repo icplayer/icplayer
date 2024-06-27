@@ -1,4 +1,4 @@
-2024-05-25 Change absolute to relative library url in LottiePlayer
+2024-06-25 Change absolute to relative library url in LottiePlayer
 2024-06-05 Fixed enabling locked Clock addon
 2024-06-04 Added grading user answer by AI in Paragraph and Paragraph Keyboard
 2024-06-04 Removed inclusion of Open Activities scores for mc
