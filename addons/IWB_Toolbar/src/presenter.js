@@ -2490,14 +2490,14 @@ function AddonIWB_Toolbar_create() {
         presenter.stopwatchAdded = true;
     };
     
-    presenter.getLeftValue = function (popupType) {
+    presenter.getLeftValueVerticalPopups = function (popupType) {
         const panelLeftValue = parseInt(presenter.$panel.css('left'), 10);
         const toolbarWidth = parseInt(presenter.$panel.outerWidth(), 10);
 
         return panelLeftValue + toolbarWidth + GAP_VALUE + presenter.getHorizontalOffset(popupType);
     }
 
-    presenter.getHorizontalLeftValue = function (popupType) {
+    presenter.getLeftValueHorizontalPopups = function (popupType) {
         const panelLeftValue = parseInt(presenter.$panel.css('left'), 10);
         const offset = presenter.getHorizontalPopupOffset(popupType);
 
@@ -2510,24 +2510,26 @@ function AddonIWB_Toolbar_create() {
                 return 0;
 
             case presenter.POPUP_TYPE.CLOCK:
-                return presenter.getStopwatchWidth();
+                return presenter.getStopwatchWidth() + GAP_VALUE;
 
             case presenter.POPUP_TYPE.NOTE:
-                return presenter.getStopwatchWidth() + presenter.getClockWidth() + presenter.notesCounter * GAP_VALUE;
+                return presenter.getStopwatchWidth() + GAP_VALUE
+                    + presenter.getClockWidth() + GAP_VALUE
+                    + presenter.notesCounter * GAP_VALUE;
         }
     }
 
     presenter.getStopwatchWidth = function () {
         const stopwatchWidth = $('.iwb-toolbar-stopwatch').outerWidth();
-        return stopwatchWidth ? stopwatchWidth + GAP_VALUE : 180 + GAP_VALUE;
+        return stopwatchWidth ? stopwatchWidth : 180;
     }
 
     presenter.getClockWidth = function () {
         const clockWidth = $('.iwb-toolbar-clock').outerWidth();
-        return clockWidth ? clockWidth + GAP_VALUE : 100 + GAP_VALUE;
+        return clockWidth ? clockWidth : 100;
     }
 
-    presenter.getRightValue = function (popupType) {
+    presenter.getRightValueVerticalPopups = function (popupType) {
         const panelRightValue = parseInt(presenter.$panel.css('right'), 10);
         const toolbarWidth = parseInt(presenter.$panel.outerWidth(), 10);
 
@@ -2603,13 +2605,13 @@ function AddonIWB_Toolbar_create() {
         switch (presenter.config.popupsDirection) {
             case 'down':
             case 'up':
-                return {'left': presenter.getHorizontalLeftValue(popupType)};
+                return {'left': presenter.getLeftValueHorizontalPopups(popupType)};
 
             case 'right':
-                return {'left': presenter.getLeftValue(popupType)};
+                return {'left': presenter.getLeftValueVerticalPopups(popupType)};
 
             case 'left':
-               return {'right': presenter.getRightValue(popupType)};
+               return {'right': presenter.getRightValueVerticalPopups(popupType)};
         }
     }
 
