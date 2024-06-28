@@ -25,12 +25,19 @@ import com.lorepo.icplayer.client.xml.page.PageFactory;
 public class ContentDataLoader {
 
 	private String baseUrl;
+	private String contentBaseURL;
 	private ILoadListener listener;
 	private int count;
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
 	private AddonLoaderFactory addonsLoaderFactory;
 	private String defaultLayoutID = null;
+
+	public ContentDataLoader(String baseUrl, String contentBaseURL) {
+		this.baseUrl = baseUrl;
+		this.contentBaseURL = contentBaseURL;
+		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl, contentBaseURL);
+	}
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
@@ -114,6 +121,7 @@ public class ContentDataLoader {
 
 	private void loadPage(Page page) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
+		page.setContentBaseURL(this.contentBaseURL);
 
 		PageFactory factory = new PageFactory((Page) page);
 		if (this.defaultLayoutID != null) {

@@ -34,4 +34,5 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public boolean isVisible();
 	public String getTTSTitle();
 	public void setTTSTitle(String title);
+	public void setContentBaseURL(String baseURL);
 }

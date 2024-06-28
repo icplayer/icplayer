@@ -35,6 +35,7 @@ public class ItemWidget extends HTML {
 	public ItemWidget(OrderingItem item, OrderingModule container) {
 		this.container = container;
 		TextParser parser = new TextParser();
+		parser.setContentBaseURL(container.getContentBaseURL());
 		parserResult = parser.parse(item.getText());
 		audioInfos = parserResult.audioInfos;
 		setHTML(parserResult.parsedText);

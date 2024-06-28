@@ -31,6 +31,7 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PlayerApp {
 
@@ -509,6 +510,24 @@ public class PlayerApp {
 		return this.entryPoint.getContextMetadata();
 	}
 
+	/**
+	 * Get base URL from context metadata what will be used to get relative content.
+	 * Content base URL is used to create absolute links with addition of relative paths existing in content
+	 * (urls in CSS values, properties values, HTML content, etc.).
+	 * Content base URL is needed when files referenced by the content cannot be found using relative paths.
+	 * e.g. /file/123 fill not exist on mLibro when referring to online resource on mcourser.
+	 *
+	 * @return Content base URL when given in ContextMetadata, otherwise null
+	 */
+	private String getContentBaseURL() {
+		JavaScriptObject contextMetadata = getContextMetadata();
+		if (contextMetadata != null) {
+			String contentBaseURL = JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			return contentBaseURL == "" ? null : contentBaseURL;
+		}
+		return null;
+	}
+
 	public void setExternalVariables(JavaScriptObject contextData) {
 		this.entryPoint.setExternalVariables(contextData);
 	}
@@ -573,7 +592,7 @@ public class PlayerApp {
 		this.loadActualLayoutCSSStyles();
 		this.loadAttachedLibraries();
 
-		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl(), getContentBaseURL());
 		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
@@ -609,9 +628,10 @@ public class PlayerApp {
 	private void loadAttachedLibraries() {
 		Map<String, ScriptAsset> attachedLibraries = playerController.getAssetsService().getAttachedLibraries();
 		String baseUrl = contentModel.getBaseUrl();
+		String contentBaseURL = getContentBaseURL();
 		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
 			DOMInjector.injectLibrary(
-				URLUtils.resolveURL(baseUrl, libraryAsset.getHref()),
+				URLUtils.resolveURL(baseUrl, libraryAsset.getHref(), contentBaseURL),
 				libraryAsset.getFileName(),
 				libraryAsset.isModule()
 			);
@@ -815,13 +835,12 @@ public class PlayerApp {
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.getValue();
-		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
-		
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue, getContentBaseURL());
 		return css;
 	}
 	
 	public String getCurrentStyles () {
-		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl(), getContentBaseURL());
 		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());

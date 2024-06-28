@@ -430,4 +430,9 @@ public class ModuleModelMockup implements IModuleModel {
 	public List<IProperty> getProperties() {
 		return null;
 	}
+
+	@Override
+	public void setContentBaseURL(String baseURL) {
+	    // TODO Auto-generated method stub
+    }
 }

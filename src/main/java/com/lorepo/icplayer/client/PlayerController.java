@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
@@ -324,6 +325,7 @@ public class PlayerController implements IPlayerController {
 	}
 
 	private void switchToPage(IPage page, IPage previousPage, final PageController pageController){
+		page.setContentBaseURL(getContentBaseURL());
 		pageController.getGradualShowAnswersService().hideAll();
 		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
@@ -526,6 +528,7 @@ public class PlayerController implements IPlayerController {
 		}
 		this.setPopupEnabled(true);
 		PopupPage page  = new PopupPage(this.contentModel.findPageByName(pageName));
+		page.setContentBaseURL(getContentBaseURL());
 		PageController popupPageControler = new PageController(this);
 		popupPageControler.setContent(this.getModel());
 
@@ -882,5 +885,14 @@ public class PlayerController implements IPlayerController {
 
 	public void setNVDAAvailability(boolean shouldUseNVDA) {
 		keyboardController.handleNVDAAvailability(shouldUseNVDA);
+	}
+
+	public String getContentBaseURL() {
+	    JavaScriptObject contextMetadata = getPlayerServices().getContextMetadata();
+	    if (contextMetadata != null) {
+			String contentBaseURL = JavaScriptUtils.getArrayItemByKey(contextMetadata, "contentBaseURL");
+			return contentBaseURL == "" ? null : contentBaseURL;
+	    }
+	    return null;
 	}
 }

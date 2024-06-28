@@ -116,7 +116,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				addWidget(itemWidget);
 			}
 		} else {
-			ItemWidget error = new ItemWidget( new OrderingItem(0, module.getValidationError(), "", null), module );
+			ItemWidget error = new ItemWidget( new OrderingItem(0, module.getValidationError(), "", null, module.getContentBaseURL()), module );
 			addWidget(error);
 		}
 
