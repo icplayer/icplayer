@@ -43,6 +43,8 @@ import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 public class JavaScriptPlayerServices {
 	private final IPlayerServices playerServices;
@@ -364,6 +366,18 @@ public class JavaScriptPlayerServices {
 
 			score.getPageScoreById = function(pageId) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(pageId);
+			};
+
+			score.getOpenActivityScores = function(pageID, moduleID){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenActivityScores(Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID);
+			};
+
+			score.getPageScoreWithoutOpenActivitiesById = function(pageID){
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreWithoutOpenActivitiesById(Ljava/lang/String;)(pageID);
+			};
+
+			score.updateOpenActivityScore = function(pageID, moduleID, grade){
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::updateOpenActivityScore(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID, grade);
 			};
 
 			return score;
@@ -779,6 +793,24 @@ public class JavaScriptPlayerServices {
 		JavaScriptObject model = scoreToJs(score, time);
 
 		return model;
+	}
+
+	private JavaScriptObject getPageScoreWithoutOpenActivitiesById(String id){
+		PageScore score = playerServices.getScoreService().getPageScoreWithoutOpenActivitiesById(id);
+		Long time = playerServices.getTimeService().getPageTimeById(id);
+
+		JavaScriptObject model = scoreToJs(score, time);
+
+		return model;
+	}
+
+	private JavaScriptObject getOpenActivityScores(String pageID, String moduleID){
+		ScoreInfo scoreInfo = playerServices.getScoreService().getOpenActivityScores(pageID, moduleID);
+		return scoreInfo.getAsJSObject();
+	}
+
+	private void updateOpenActivityScore(String pageID, String moduleID, String grade) {
+		playerServices.getScoreService().updateOpenActivityScore(pageID, moduleID, grade);
 	}
 
 	private static JavaScriptObject scoreToJs(PageScore score, Long time) {

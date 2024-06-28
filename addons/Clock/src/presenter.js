@@ -79,6 +79,9 @@ function AddonClock_create() {
             case 'reset'.toLowerCase():
                 presenter.reset();
                 break;
+            case 'isDisabled'.toLowerCase():
+                presenter.isDisabled();
+                break;
         }
     };
 
@@ -1316,6 +1319,13 @@ function AddonClock_create() {
         var $myDiv = presenter.$view.find('.analog-clock')[0];
         $($myDiv).removeClass('disable');
     };
+
+    /**
+     * Returns current disable status of the addon.
+     */
+    presenter.isDisabled = function () {
+        return presenter.isDisable;
+    }
 
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");

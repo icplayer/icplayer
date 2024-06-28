@@ -268,3 +268,59 @@ TestCase("[Paragraph] isAttempted method", {
         assertFalse(result);
     },
 });
+
+TestCase("[Paragraph] Is AI ready method tests", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+        this.presenter.configuration = {
+            isValid: true,
+            manualGrading: true,
+        };
+        this.presenter.playerController = {};
+        sinon.stub(OpenActivitiesUtils, 'isAIReady');
+    },
+
+    tearDown: function () {
+        OpenActivitiesUtils.isAIReady.restore();
+    },
+
+    'test given configuration with turned off manual grading when isAIReady executed then return false': function () {
+        this.presenter.configuration.manualGrading = false;
+
+        const result = this.presenter.isAIReady();
+
+        assertFalse(result);
+    },
+
+    'test given not valid configuration when isAIReady executed then return false': function () {
+        this.presenter.configuration.isValid = false;
+
+        const result = this.presenter.isAIReady();
+
+        assertFalse(result);
+    },
+
+    'test given presenter without player controller when isAIReady executed then return false': function () {
+        this.presenter.playerController = undefined;
+
+        const result = this.presenter.isAIReady();
+
+        assertFalse(result);
+    },
+
+    'test given set up player to return true when isAIReady executed then return true': function () {
+        OpenActivitiesUtils.isAIReady.returns(true);
+
+        const result = this.presenter.isAIReady();
+
+        assertTrue(result);
+    },
+
+    'test given set up player to return false when isAIReady executed then return false': function () {
+        OpenActivitiesUtils.isAIReady.returns(false);
+
+        const result = this.presenter.isAIReady();
+
+        assertFalse(result);
+    },
+});

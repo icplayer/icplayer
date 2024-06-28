@@ -57,8 +57,8 @@
      as well as the time spent on non reportable pages
      */
     window.PlayerUtils.prototype.getFullPresentationScore = function(presentation) {
-            return this.getPresentationScoreBase(presentation, true);
-        }
+        return this.getPresentationScoreBase(presentation, true);
+    }
 
     window.PlayerUtils.prototype.getPresentationScoreBase = function(presentation, includeNonReportable) {
         if (this.hasOwnProperty('scoreService')) {
@@ -76,7 +76,7 @@
                 page = presentation.getPage(i);
 
                 if (page.isReportable()) {
-                    score = this.scoreService.getPageScoreById(page.getId());
+                    score = this.scoreService.getPageScoreWithoutOpenActivitiesById(page.getId());
 
                     if (score['maxScore']) {
                         pageScaledScore = score['score'] / score['maxScore'];
@@ -131,11 +131,14 @@
             }
 
             var scaledScore = 0;
+            var floatScore = 0;
             if (count > 0) {
                 if (sumOfWeights) {
                     scaledScore = Math.round((sumOfScaledScore / sumOfWeights) * 100) / 100;
+                    floatScore = sumOfScaledScore / sumOfWeights;
                 } else {
                     scaledScore = 1;
+                    floatScore = 1;
                 }
             }
 
@@ -145,6 +148,7 @@
                 minScore: 0,
                 maxScore: reportableCount,
                 rawScore: sumOfScaledScore,
+                floatScore: floatScore,
                 scaledScore: scaledScore,
                 errorsCount: sumOfErrors,
                 checksCount: sumOfChecks,
