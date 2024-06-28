@@ -1876,6 +1876,8 @@ var ice_dictionary_pl = {
 	"IWB_Toolbar_property_disable_module_zoom": "Disable module zoom",
     "IWB_Toolbar_property_default_zoom": "Default zoom",
     "IWB_Toolbar_expansion_direction": "Expansion direction",
+	"IWB_Toolbar_vertical_popups_direction": "Vertical popups direction",
+    "IWB_Toolbar_horizontal_popups_direction": "Horizontal popups direction",
 	"SVG2_info" : "Pozwala wstawić do prezentacji obraz w formacie SVG.",
 	"SVG2_name" : "Obraz SVG",
 	"SVG2_property_svg_file": "Plik SVG",

@@ -46,6 +46,10 @@ function AddonIWB_Toolbar_create() {
     presenter.areZoomEventHandlersAttached = false;
 
     var DEFAULT_COLOR = '#0fa9f0';
+    var GAP_VALUE = 10;
+    var STOPWATCH_OFFSET = 60;
+    var CLOCK_OFFSET = 60;
+    var NOTE_OFFSET = 120;
     presenter.activeButton = '';
     presenter.activeFunction;
     presenter.isRecklicked = false;
@@ -82,6 +86,13 @@ function AddonIWB_Toolbar_create() {
 
     presenter.penUsed = false;
     presenter.markerUsed = false;
+
+    presenter.notesCounter = 0;
+    presenter.POPUP_TYPE = {
+        STOPWATCH: 'stopwatch',
+        CLOCK: 'clock',
+        NOTE: 'note'
+    };
 
     presenter.zoomConfiguration = {
         initialWindowHeight: 0,
@@ -753,6 +764,7 @@ function AddonIWB_Toolbar_create() {
         var upgradedModel = presenter.upgradeEnableUndoRedo(model);
         upgradedModel = presenter.upgradeDefaultZoom(upgradedModel);
         upgradedModel = presenter.upgradeExpansionDirection(upgradedModel);
+        upgradedModel = presenter.upgradePopupsDirection(upgradedModel);
         return upgradedModel;
     };
 
@@ -773,6 +785,21 @@ function AddonIWB_Toolbar_create() {
         if (!upgradedModel["expansionDirection"]) {
             upgradedModel["expansionDirection"] = "right";
         }
+        return upgradedModel;
+    };
+
+    presenter.upgradePopupsDirection = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["verticalPopupDirection"]) {
+            upgradedModel["verticalPopupDirection"] = "right";
+        }
+
+        if (!upgradedModel["horizontalPopupDirection"]) {
+            upgradedModel["horizontalPopupDirection"] = "down";
+        }
+
         return upgradedModel;
     };
 
@@ -902,8 +929,13 @@ function AddonIWB_Toolbar_create() {
             'enableUndoRedo': enableUndoRedo,
             'disableModuleZoom': disableModuleZoom,
             'defaultZoom': defaultZoom,
-            'expansionDirection': model['expansionDirection']
+            'expansionDirection': model['expansionDirection'],
+            'popupsDirection': presenter.isVerticalExpansion(model['expansionDirection']) ? model['verticalPopupDirection'] : model['horizontalPopupDirection']
         };
+    }
+
+    presenter.isVerticalExpansion = function (expansionDirection) {
+        return expansionDirection === 'up' || expansionDirection === 'down';
     }
 
     presenter.setImagePosition = function IWB_Toolbar_setImagePosition() {
@@ -2356,8 +2388,8 @@ function AddonIWB_Toolbar_create() {
                     opacity: 0.35,
                     create: function(event, _) {
                         $(event.target).css({
-                            'top' : savedStopwatch ? savedStopwatch.top : top,
-                            'left' : savedStopwatch ? savedStopwatch.left : presenter.$panel.css('left'),
+                            'top': presenter.getVerticalPosition(savedStopwatch, presenter.POPUP_TYPE.STOPWATCH),
+                            ...presenter.getHorizontalPosition(savedStopwatch, presenter.POPUP_TYPE.STOPWATCH),
                             'position' : 'absolute'
                         });
                     },
@@ -2457,6 +2489,131 @@ function AddonIWB_Toolbar_create() {
 
         presenter.stopwatchAdded = true;
     };
+    
+    presenter.getLeftValueVerticalPopups = function (popupType) {
+        const panelLeftValue = parseInt(presenter.$panel.css('left'), 10);
+        const toolbarWidth = parseInt(presenter.$panel.outerWidth(), 10);
+
+        return panelLeftValue + toolbarWidth + GAP_VALUE + presenter.getHorizontalOffset(popupType);
+    }
+
+    presenter.getLeftValueHorizontalPopups = function (popupType) {
+        const panelLeftValue = parseInt(presenter.$panel.css('left'), 10);
+        const offset = presenter.getHorizontalPopupOffset(popupType);
+
+        return panelLeftValue + offset;
+    }
+
+    presenter.getHorizontalPopupOffset = function (popupType) {
+        switch (popupType) {
+            case presenter.POPUP_TYPE.STOPWATCH:
+                return 0;
+
+            case presenter.POPUP_TYPE.CLOCK:
+                return presenter.getStopwatchWidth() + GAP_VALUE;
+
+            case presenter.POPUP_TYPE.NOTE:
+                return presenter.getStopwatchWidth() + GAP_VALUE
+                    + presenter.getClockWidth() + GAP_VALUE
+                    + presenter.notesCounter * GAP_VALUE;
+        }
+    }
+
+    presenter.getStopwatchWidth = function () {
+        const stopwatchWidth = $('.iwb-toolbar-stopwatch').outerWidth();
+        return stopwatchWidth ? stopwatchWidth : 180;
+    }
+
+    presenter.getClockWidth = function () {
+        const clockWidth = $('.iwb-toolbar-clock').outerWidth();
+        return clockWidth ? clockWidth : 100;
+    }
+
+    presenter.getRightValueVerticalPopups = function (popupType) {
+        const panelRightValue = parseInt(presenter.$panel.css('right'), 10);
+        const toolbarWidth = parseInt(presenter.$panel.outerWidth(), 10);
+
+        return panelRightValue + toolbarWidth + GAP_VALUE + presenter.getHorizontalOffset(popupType);
+    }
+
+    presenter.getTopValue = function (popupType) {
+        const panelTopValue = parseInt(presenter.$panel.css('top'), 10);
+        let offset;
+        if (presenter.config.popupsDirection === 'left' || presenter.config.popupsDirection === 'right') {
+            offset = presenter.getVerticalOffset(popupType);
+        } else if (presenter.config.popupsDirection === 'down') {
+            const toolbarHeight = parseInt(presenter.$panel.outerHeight(), 10);
+            const noteOffset = popupType === presenter.POPUP_TYPE.NOTE ? presenter.notesCounter * GAP_VALUE : 0;
+            offset = toolbarHeight + GAP_VALUE + noteOffset;
+        } else if (presenter.config.popupsDirection === 'up') {
+            const noteOffset = popupType === presenter.POPUP_TYPE.NOTE ? presenter.notesCounter * GAP_VALUE : 0;
+            offset = -(presenter.getPopupHeight(popupType) + GAP_VALUE + noteOffset);
+        }
+
+        return panelTopValue + offset;
+    }
+    
+    presenter.getPopupHeight = function (popupType) {
+        switch (popupType) {
+            case presenter.POPUP_TYPE.STOPWATCH:
+                return STOPWATCH_OFFSET;
+
+            case presenter.POPUP_TYPE.CLOCK:
+                return CLOCK_OFFSET - 8;
+
+            case presenter.POPUP_TYPE.NOTE:
+                return NOTE_OFFSET;
+        }
+    }
+2
+    presenter.getVerticalOffset = function (popupType) {
+        switch (popupType) {
+            case presenter.POPUP_TYPE.STOPWATCH:
+                return 0;
+
+            case presenter.POPUP_TYPE.CLOCK:
+                return CLOCK_OFFSET + GAP_VALUE;
+
+            case presenter.POPUP_TYPE.NOTE:
+                return NOTE_OFFSET + GAP_VALUE + presenter.notesCounter * GAP_VALUE;
+        }
+    }
+
+    presenter.getHorizontalOffset = function (popupType) {
+        switch (popupType) {
+            case presenter.POPUP_TYPE.CLOCK:
+            case presenter.POPUP_TYPE.STOPWATCH:
+                return 0;
+
+            case presenter.POPUP_TYPE.NOTE:
+                return presenter.notesCounter * GAP_VALUE;
+        }
+    }
+
+    presenter.getVerticalPosition = function (savedElement, popupType) {
+        if (savedElement) {
+            return savedElement.top
+        }
+
+        return presenter.getTopValue(popupType)
+    }
+
+    presenter.getHorizontalPosition = function (savedElement, popupType) {
+        if (savedElement) {
+            return {'left' : savedElement.left}
+        }
+        switch (presenter.config.popupsDirection) {
+            case 'down':
+            case 'up':
+                return {'left': presenter.getLeftValueHorizontalPopups(popupType)};
+
+            case 'right':
+                return {'left': presenter.getLeftValueVerticalPopups(popupType)};
+
+            case 'left':
+               return {'right': presenter.getRightValueVerticalPopups(popupType)};
+        }
+    }
 
     function closeClock() {
         presenter._clockwatch.clock.remove();
@@ -2509,8 +2666,8 @@ function AddonIWB_Toolbar_create() {
                 opacity: 0.35,
                 create: function(event, _) {
                     $(event.target).css({
-                        'top' : savedClock ? savedClock.top : top,
-                        'left' : savedClock ? savedClock.left : presenter.$panel.css('left'),
+                        'top': presenter.getVerticalPosition(savedClock, presenter.POPUP_TYPE.CLOCK),
+                        ...presenter.getHorizontalPosition(savedClock, presenter.POPUP_TYPE.CLOCK),
                         'position' : 'absolute'
                     });
                 },
@@ -2721,8 +2878,8 @@ function AddonIWB_Toolbar_create() {
             opacity: 0.35,
             create: function(event, _) {
                 $(event.target).css({
-                    'top' : savedNote ? savedNote.top : top,
-                    'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
+                    'top': presenter.getVerticalPosition(savedNote, presenter.POPUP_TYPE.NOTE),
+                    ...presenter.getHorizontalPosition(savedNote, presenter.POPUP_TYPE.NOTE),
                     'position' : 'absolute'
                 });
             },
@@ -2732,6 +2889,7 @@ function AddonIWB_Toolbar_create() {
                 presenter.pushStateToStack();
             }
         });
+        presenter.notesCounter += 1;
     };
 
     presenter.Note.prototype.destroy = function () {
@@ -2761,6 +2919,8 @@ function AddonIWB_Toolbar_create() {
             this.$noteBody = null;
             this.$textarea = null;
             this.$buttonSave = null;
+
+            presenter.notesCounter -= 1;
         }
     };
     
