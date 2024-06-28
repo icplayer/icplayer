@@ -1,7 +1,9 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import com.lorepo.icplayer.client.model.Content.ScoreType;
+import java.util.HashMap;
 
+import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 public interface IScoreService {
 
@@ -9,6 +11,7 @@ public interface IScoreService {
 	public PageScore getPageScore(String pageName);
 	public PageScore getPageScoreById(String pageId);
 	public PageScore getPageScoreByName(String pageName);
+	public PageScore getPageScoreWithoutOpenActivitiesById(String pageID);
 	public void	setScore(String moduleName, int score, int maxScore);
 	int getTotalMaxScore();
 	int getTotalScore();
@@ -17,4 +20,7 @@ public interface IScoreService {
 	void setPageScore(IPage page, PageScore score);
 	public ScoreType getScoreType();
 	void lessonScoreReset(boolean resetChecks, boolean resetMistakes);
+	void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores);
+	ScoreInfo getOpenActivityScores(String pageID, String moduleID);
+	void updateOpenActivityScore(String pageID, String moduleID, String grade);
 }

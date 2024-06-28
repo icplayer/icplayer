@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableParams;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -42,6 +43,7 @@ public class PlayerApp {
 	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
+	private HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores;
 	private boolean bookMode = false;
 	private boolean showCover = false;
 	private String analyticsId = null;
@@ -675,6 +677,9 @@ public class PlayerApp {
 				this.playerController.loadVisitedPagesFromString(this.loadedState.get("visitedPages"));
 			}
 		}
+		if (pagesOpenActivitiesScores != null) {
+			playerController.getPlayerServices().getScoreService().setOpenActivitiesScores(this.pagesOpenActivitiesScores);
+		}
 
 		// All reportable values for pages should be loaded before start.
 		Content playerModel = this.playerController.getModel();
@@ -925,4 +930,11 @@ public class PlayerApp {
 			}
 		}
 	}-*/;
+	
+	public void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores) {
+		this.pagesOpenActivitiesScores = pagesOpenActivitiesScores;
+		if (playerController != null) {
+			playerController.getPlayerServices().getScoreService().setOpenActivitiesScores(this.pagesOpenActivitiesScores);
+		}
+	}
 }

@@ -65,8 +65,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Manual grading</td>
-        <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possibly be verified without previewing the lesson. If selected, the value of `weight` property will be treated as max score. The score awarded by the teacher will not affect the content of the lesson, only the summary of Assignment.</td>
-    </tr>
+        <td>Selecting this Paragraph's property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS and possibly be verified without previewing the lesson. If selected, the value of `weight` property will be treated as max score.</td>
     </tr>
     <tr>
         <td>Show answers</td>
@@ -130,35 +129,42 @@ The list starts with the common properties, learn more about them by visiting th
         <td>---</td>
         <td>returns true if any text was inserted</td> 
     </tr>
+    <tr>
+        <td>isAIReady</td>
+        <td>---</td>
+        <td>Returns true if model AI is ready to score addon.</td> 
+    </tr>
 </table>
 
 ## Scoring
 
-Selecting Paragraph's `Manual grading` property allows the teacher to manually grade the Paragraph’s content when the lesson is part of the submitted Assignment. The Paragraph can be instantly viewed by the teacher in the Assignment's results on the LMS.
+Paragraph thanks to `Open Activity` functionality can be scored by AI and/or Teacher. 
+To activate scoring addon must have the `Manual grading` property selected.
 
 <table border='1'>
 <tbody>
     <tr>
         <th>Property</th>
         <th>Description</th>
-        <th>Is addon method supported. For more information see [Scoring](https://www.mauthor.com/doc/en/getScore/page/Scoring) section</th>
     </tr>
     <tr>
-        <tr>
-            <td>maxScore</td>
-            <td>Equal to the value in `Weight` propety. </td>
-            <td>Method `getMaxScore` is supported.</td>
-        </tr>
-        <tr>
-            <td>score</td>
-            <td>Equal to the value given by teacher.</td>
-            <td>N/A</td>
-        </tr>
-        <tr>
-            <td>errorCount</td>
-            <td>N/A</td>
-            <td>N/A</td>
-        </tr>
+        <td>maxScore</td>
+        <td>Equal to the value provided in `Weight` propety.<br>
+            If `Manual grading` property is not selected then returns 0.
+        </td>
+    </tr>
+    <tr>
+        <td>score</td>
+        <td>Content of addon can be scored by Teacher and AI.<br>
+            If `Manual grading` property is not selected then returns 0.<br>
+            If addon was scored by Teacher and AI, then use score provided by Teacher.<br>
+            If addon was neither scored by Teacher and AI, then score will be equal to 0.
+        </td>
+    </tr>
+    <tr>
+        <td>errorCount</td>
+        <td>Always returns 0.</td>
+    </tr>
 </tbody>
 </table>
 

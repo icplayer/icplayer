@@ -7,6 +7,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableParams;
+import com.lorepo.icplayer.client.module.api.player.OpenActivitiesScoresParser;
 
 import java.util.List;
 
@@ -412,8 +413,8 @@ public class PlayerEntryPoint implements EntryPoint {
 	private void setNVDAAvailability(boolean shouldUseNVDA) {
 		this.theApplication.setNVDAAvailability(shouldUseNVDA);
 	}
-	
+
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
-		// TODO Add functionality
+		this.theApplication.setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
 	}
 }

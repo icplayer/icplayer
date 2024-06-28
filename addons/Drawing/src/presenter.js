@@ -461,9 +461,7 @@ function AddonDrawing_create() {
         connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
 
         tmp_canvas.addEventListener("click", presenter.onTmpCanvasClick, false);
-        document.addEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
-        document.addEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
-        
+
         // KEYBOARD DELETE EDIT IMAGE 
         document.addEventListener("keydown", presenter.removeImage, false);
     };
@@ -1155,15 +1153,9 @@ function AddonDrawing_create() {
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
         presenter.configuration.addonMode = addonMode;
-        if (isOnTextEditionMode()) {
+        const wasTextEditionMode = addonMode === ModeEnum.textEdition;
+        if (wasTextEditionMode) {
             setDefaultAddonMode();
-            if (parsedState.textEditorResult) {
-                const textEditorResult = presenter.buildTextEditorResult(
-                    parsedState.textEditorResult.brokenText, parsedState.textEditorResult.lineHeight,
-                    parsedState.textEditorResult.x, parsedState.textEditorResult.y
-                );
-                textEditorResult.embed();
-            }
         }
         if (isOnPencilMode()) {
             presenter.setColor(color);
@@ -1174,6 +1166,15 @@ function AddonDrawing_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
         presenter.setFont(parsedState.font);
+        if (wasTextEditionMode) {
+            if (parsedState.textEditorResult) {
+                const textEditorResult = presenter.buildTextEditorResult(
+                    parsedState.textEditorResult.brokenText, parsedState.textEditorResult.lineHeight,
+                    parsedState.textEditorResult.x, parsedState.textEditorResult.y
+                );
+                textEditorResult.embed();
+            }
+        }
     };
 
     presenter.addText = function() {
@@ -1392,33 +1393,6 @@ function AddonDrawing_create() {
         return presenter.buildTextEditorResult(textArray, lineHeight, x, y);
     }
 
-    presenter.embedTextByTouchEndOnDocument = function (e) {
-        presenter.embedTextByEventOnDocument(false, e);
-    }
-
-    presenter.embedTextByMouseDownOnDocument = function (e) {
-        presenter.embedTextByEventOnDocument(true, e);
-    }
-
-    presenter.embedTextByEventOnDocument = function (turnOnOverflow, e) {
-        if (!isOnTextEditionMode()) {
-            return;
-        }
-
-        let isTargetInsideAddon = false;
-        for (const child of presenter.view.children) {
-            if (child.contains(e.target)) {
-                isTargetInsideAddon = true;
-            }
-        }
-        if (isTargetInsideAddon) {
-            return;
-        }
-
-        setOverflowWorkAround(turnOnOverflow);
-        presenter.finishEditTextMode();
-    }
-
     presenter.destroy = function (event) {
         if (event.target !== this) {
             return;
@@ -1427,8 +1401,6 @@ function AddonDrawing_create() {
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
         document.removeEventListener("keydown", presenter.removeImage, false);
-        document.removeEventListener("mousedown", presenter.embedTextByMouseDownOnDocument, false);
-        document.removeEventListener("touchend", presenter.embedTextByTouchEndOnDocument, false);
 
         if (presenter.imageInputElement) presenter.imageInputElement.remove();
         presenter.closeTextFieldPopup();
