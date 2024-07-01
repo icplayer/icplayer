@@ -90,9 +90,9 @@ The list starts with the common properties, learn more about them by visiting th
         <tr>
             <td>addText</td>
             <td>---</td>
-            <td>Open text editor. 
-                Clicking on non-editor elements will close the text editor and save the text to the canvas. 
-                To cancel writing, click the close button belonging to the editor.
+            <td>Open text editor.<br>
+                To cancel writing, click the close button belonging to the editor.<br>                
+                Clicking canvas will close the text editor and save the text to the canvas.
             </td>
         </tr>
         <tr>

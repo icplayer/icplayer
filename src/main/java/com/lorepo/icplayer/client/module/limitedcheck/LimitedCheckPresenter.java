@@ -153,15 +153,6 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         IJsonServices json = playerServices.getJsonServices();
         HashMap<String, String> decodedState = json.decodeHashMap(state);
 
-        if (decodedState.containsKey("isVisible")) {
-            isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
-            if (isVisible) {
-                show();
-            } else {
-                hide();
-            }
-        }
-        
         if (model.getMaintainState() && decodedState.containsKey("isShowErrorsMode")) {
         	boolean isShowErrorsMode = Boolean.parseBoolean(decodedState.get("isShowErrorsMode"));
         	if (isShowErrorsMode) {
@@ -171,10 +162,18 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         				view.setChecked();
         			}
         		};
-        		t.schedule(0);
+        		t.schedule(250);
         	}
         }
 
+        if (decodedState.containsKey("isVisible")) {
+            isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+            if (isVisible) {
+                show();
+            } else {
+                hide();
+            }
+        }
     }
 
     protected void show() {

@@ -248,10 +248,15 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		linkInfos = parsedTextInfo.linkInfos;
         audioInfos = parsedTextInfo.audioInfos;
 		syntaxError = parsedTextInfo.hasSyntaxError;
-		if (getBaseURL() != null) {
+		if (this.getContentBaseURL() != null) {
+		    parsedText = StringUtils.updateLinks(parsedText, this.getContentBaseURL(), true);
+			for (LinkInfo link: linkInfos) {
+				link.setBaseUrl(getContentBaseURL(), true);
+			}
+		} else if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
 			for (LinkInfo link: linkInfos) {
-				link.setBaseUrl(getBaseURL()); 
+				link.setBaseUrl(getBaseURL());
 			}
 		}
 	}

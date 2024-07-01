@@ -46,11 +46,20 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 			return GWT.getModuleBaseURL() + "media/no_image.gif";
 		}
 		
-		if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
-			return imagePath;
+		String contentBaseURL = this.getContentBaseURL();
+		if (contentBaseURL == null) {
+			if (imagePath.startsWith("http") || imagePath.startsWith("/")) {
+				return imagePath;
+			}
+			return this.baseURL + imagePath;
+		} else {
+			if (imagePath.startsWith("http")) {
+				return imagePath;
+			} else if (imagePath.startsWith("//")) {
+				return "https:" + imagePath;
+			}
+			return contentBaseURL + imagePath;
 		}
-		
-		return this.baseURL + imagePath;
 	}
 
 	@Override

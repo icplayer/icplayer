@@ -135,6 +135,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			Element element = (Element)optionNodes.item(i);
 			String optionID = Integer.toString(i+1);
 			ChoiceOption option = new ChoiceOption(optionID);
+			option.setContentBaseURL(this.getContentBaseURL());
 			option.load(element, this.getBaseURL());
 			addOption(option);
 		}

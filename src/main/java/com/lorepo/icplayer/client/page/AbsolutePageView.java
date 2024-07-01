@@ -40,8 +40,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	public void setPage(Page newPage) {
 		this.currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;-webkit-text-size-adjust: 100%;";
-		if(this.currentPage.getInlineStyle() != null){
-			styles += URLUtils.resolveCSSURL(this.currentPage.getBaseURL(), this.currentPage.getInlineStyle());
+		if (this.currentPage.getInlineStyle() != null){
+			styles += URLUtils.resolveCSSURL(this.currentPage.getBaseURL(), currentPage.getInlineStyle(), this.currentPage.getContentBaseURL());
 		}
 
 		DOMUtils.applyInlineStyle(this.getElement(), styles);

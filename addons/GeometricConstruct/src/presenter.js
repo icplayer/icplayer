@@ -274,7 +274,6 @@ function AddonGeometricConstruct_create() {
             yAxisSpacing: yAxisSpacing,
             xAxisIncrement: xAxisIncrement,
             yAxisIncrement: yAxisIncrement
-
         };
     }
     

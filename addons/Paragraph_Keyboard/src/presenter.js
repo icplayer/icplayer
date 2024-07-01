@@ -1,6 +1,8 @@
 function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
     var eventBus;
+    var userAnswerAIReviewRequest = 'gradeByAi';
+    var userAnswerAIReviewResponse = 'aiGraded';
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -16,6 +18,12 @@ function AddonParagraph_Keyboard_create() {
     presenter.isShowAnswersActive = false;
     presenter.eKeyboardButtons = [];
     presenter.isEditorLoaded = false;
+    presenter.currentPageIndex = null;
+    presenter.isWaitingForAIGrade = false;
+    presenter.aiGradeInterval = null;
+    presenter.MAX_WAIT_TIME = 15;
+    presenter.startTime = null;
+    presenter.updateScoreEventName = 'updateScore';
     var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
@@ -35,7 +43,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.',
-        'weightError' : 'Weight must be a positive number between 0 and 100'
+        'W_01' : 'Weight must be a whole number between 0 and 100',
+        'W_02': 'Occurs a problem with checking your answers. Please try later.'
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -73,7 +82,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.createPreview = function AddonParagraph_Keyboard_createPreview(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, true);
         presenter.setVisibility(true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
@@ -86,6 +95,7 @@ function AddonParagraph_Keyboard_create() {
         eventBus.addEventListener('HideAnswers', this);
         eventBus.addEventListener('GradualShowAnswers', this);
         eventBus.addEventListener('GradualHideAnswers', this);
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
@@ -101,6 +111,10 @@ function AddonParagraph_Keyboard_create() {
             case "HideAnswers":
             case "GradualHideAnswers":
                 presenter.hideAnswers();
+                break;
+
+            case "ValueChanged":
+                presenter.handleUpdateScoreEvent(eventData);
                 break;
         }
     };
@@ -165,7 +179,70 @@ function AddonParagraph_Keyboard_create() {
         presenter.disableEdit();
         if (data.moduleID !== presenter.configuration.ID) return;
         presenter.showAnswers();
-    }
+    };
+
+    presenter.sendUserAnswerToAICheck = function () {
+        if(!presenter.isAIReady() || presenter.isWaitingForAIGrade) { return; }
+
+        const data = presenter.getDataRequestToAI();
+
+        window.addEventListener("message", presenter.onExternalMessage);
+        presenter.playerController.sendExternalEvent(userAnswerAIReviewRequest, data);
+        presenter.isWaitingForAIGrade = true;
+        presenter.waitForAIGrade();
+    };
+
+    presenter.getDataRequestToAI = function () {
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const activityMaxScore = presenter.getMaxScore();
+        const pageWeight = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getPageWeight();
+        const pageMaxScore = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getModulesMaxScore();
+        const answer = presenter.getText().replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+
+        return JSON.stringify({
+            'page_id': pageID,
+            'activity_id': activityID,
+            'activity_max_score': activityMaxScore,
+            'page_weight': pageWeight,
+            'page_max_score': pageMaxScore,
+            'answer': answer
+        });
+    };
+
+    presenter.onExternalMessage = function (event) {
+        const data = event.data;
+
+        if (presenter.isValidResponse(data)) {
+            presenter.updateOpenActivityScore(data);
+        }
+    };
+
+    presenter.isValidResponse = function (data) {
+        const isAIResponse = data.includes(userAnswerAIReviewResponse);
+        if (!isAIResponse) { return isAIResponse; }
+
+        const pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        const activityID = presenter.configuration.ID;
+        const isValidPageID = data.includes(pageID);
+        const isValidActivityID = data.includes(activityID);
+
+        return isAIResponse && isValidPageID && isValidActivityID;
+    };
+
+    presenter.updateOpenActivityScore = function (data) {
+        const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
+        const pageID = parsedData.page_id;
+        const activityID = parsedData.activity_id;
+        const grade = parsedData.ai_grade;
+
+        OpenActivitiesUtils.updateOpenActivityScore(
+            presenter.playerController,
+            pageID,
+            activityID,
+            grade
+        );
+    };
 
     presenter.setShowErrorsMode = function () {
         if (presenter.isShowAnswersActive) {
@@ -185,7 +262,7 @@ function AddonParagraph_Keyboard_create() {
             body = $(iframe).contents().find("#tinymce");
 
         return body.find("p");
-    }
+    };
 
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
@@ -305,10 +382,14 @@ function AddonParagraph_Keyboard_create() {
     /**
      * Parses model and set settings to default values if either of them is empty
      *
-     * @param model
+     * IMPORTANT. Validation resulting in a validation error, e.g. W_01, must be implemented in Open Activities
+     * on the mCourser side.
+     *
+     * @param model:object
+     * @param isPreview:boolean
      * @returns {{fontFamily: *, fontSize: *}}
      */
-    presenter.parseModel = function AddonParagraph_Keyboard_parseModel(model) {
+    presenter.parseModel = function AddonParagraph_Keyboard_parseModel(model, isPreview) {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
@@ -346,16 +427,17 @@ function AddonParagraph_Keyboard_create() {
                 eval('keyboardLayout = ' + keyboardLayout);
             } catch(e) {
                 presenter.ERROR_CODES['evaluationError'] = 'Custom keyboard layout parsing error: ' + e.message;
-                return {error: 'evaluationError'};
+                return ModelErrorUtils.getErrorObject('evaluationError');
             }
         }
 
         if (typeof keyboardLayout['default'] !== 'object' || keyboardLayout['default'].length < 1) {
-            return {error: 'defaultLayoutError'};
+            return ModelErrorUtils.getErrorObject('defaultLayoutError');
         }
 
-        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
-            return {error: 'weightError'}
+        const validatedWeight = presenter.validateWeight(weight, isPreview);
+        if (!validatedWeight.isValid) {
+            return validatedWeight;
         }
 
         var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
@@ -387,13 +469,29 @@ function AddonParagraph_Keyboard_create() {
             pluginName: presenter.makePluginName(model["ID"]),
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
-            error: false,
             manualGrading: manualGrading,
             title: title,
-            weight: weight,
+            weight: validatedWeight.value,
             modelAnswer: modelAnswer
         };
     };
+
+    presenter.validateWeight = function (weight, isPreview) {
+        if (ModelValidationUtils.isStringEmpty(weight)) {
+            return getCorrectObject(1);
+        }
+
+        const validatedInteger = ModelValidationUtils.validateIntegerInRange(weight, 100, 0);
+        if (!validatedInteger.isValid) {
+            return ModelErrorUtils.getErrorObject("W_01");
+        }
+        if (isPreview && (validatedInteger.value + "") !== weight) {
+            return ModelErrorUtils.getErrorObject("W_01");
+        }
+        return getCorrectObject(validatedInteger.value);
+    };
+
+    function getCorrectObject(val) { return { isValid: true, value: val }; }
 
     presenter.setWrapperID = function AddonParagraph_Keyboard_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -459,14 +557,14 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
-    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
+    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
-        presenter.configuration = presenter.parseModel(upgradedModel);
+        presenter.configuration = presenter.parseModel(upgradedModel, isPreview);
 
-        if (presenter.configuration.error) {
-            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.error);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
@@ -925,6 +1023,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        presenter.pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
@@ -986,7 +1086,9 @@ function AddonParagraph_Keyboard_create() {
             'unlock': presenter.unlock,
             'getText': presenter.getText,
             'setText': presenter.setText,
-            'isAttempted': presenter.isAttempted
+            'isAttempted': presenter.isAttempted,
+            'isAIReady': presenter.isAIReady,
+            'sendUserAnswerToAICheck': presenter.sendUserAnswerToAICheck,
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1065,7 +1167,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
-        const configuration = presenter.parseModel(model);
+        const configuration = presenter.parseModel(model, false);
         const modelAnswer = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
@@ -1186,6 +1288,52 @@ function AddonParagraph_Keyboard_create() {
             presenter.placeholder.setPlaceholderAfterEditorChange();
         }
     };
+
+    presenter.getMaxScore = function () {
+        if (!presenter.configuration.isValid || !presenter.configuration.manualGrading) {
+            return 0;
+        }
+        return presenter.configuration.weight;
+    };
+
+    presenter.isAIReady = function() {
+        if (!presenter.configuration.isValid
+            || !presenter.configuration.manualGrading
+            || !presenter.playerController
+        ) {
+            return false;
+        }
+        return OpenActivitiesUtils.isAIReady(
+            presenter.playerController,
+            presenter.pageID,
+            presenter.configuration.ID
+        );
+    };
+
+    presenter.waitForAIGrade = function () {
+        presenter.startTime = new Date().getTime();
+        presenter.disableEdit();
+        presenter.aiGradeInterval = setInterval(function () {
+            presenter.checkTimer();
+        }, 1000);
+    };
+
+    presenter.checkTimer = function () {
+        const currentTime = new Date().getTime();
+        if ((currentTime - presenter.startTime) / 1_000 >= presenter.MAX_WAIT_TIME) {
+            clearInterval(presenter.aiGradeInterval);
+            presenter.isWaitingForAIGrade = false;
+            presenter.enableEdit();
+        }
+    }
+
+    presenter.handleUpdateScoreEvent = function (eventData) {
+        if (eventData.source !== presenter.configuration.ID && eventData.value !== presenter.updateScoreEventName) { return; }
+
+        clearInterval(presenter.aiGradeInterval);
+        presenter.isWaitingForAIGrade = false;
+        presenter.enableEdit();
+    }
 
     return presenter;
 }
