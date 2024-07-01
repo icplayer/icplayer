@@ -7,6 +7,10 @@ function AddonGeometricConstruct_create() {
     presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
     presenter.labelsVisibility = true;
+    presenter.axisLabels = {
+        x: {},
+        y: {}
+    }
 
     var MAX_PREV_STATES = 20;
     presenter.prevStateIndex = -1;
@@ -50,7 +54,8 @@ function AddonGeometricConstruct_create() {
         CONFIG_POPUP_CANCEL: 'cancel',
         CONFIG_PROP_WRAPPER: 'property_wrapper',
         CONFIG_PROP_TITLE: 'property_title',
-        CONFIG_PROP_INPUT: 'property_input'
+        CONFIG_PROP_INPUT: 'property_input',
+        AXIS_LABEL: 'axis_label'
     };
 
     presenter.labels = {
@@ -67,6 +72,15 @@ function AddonGeometricConstruct_create() {
         accept: "ACCEPT",
         cancel: "CANCEL",
         radius: "Radius"
+    }
+
+    presenter.ERROR_CODES = {
+        'IV_01': "Default workspace width must be a positive number or left empty",
+        'IV_02': "Default workspace height must be a positive number or left empty",
+        'IV_03': "X axis spacing must be a positive number or left empty",
+        'IV_04': "Y axis spacing must be a positive number or left empty",
+        'IV_05': "X axis increment must be a positive number or left empty",
+        'IV_06': "y axis increment must be a positive number or left empty",
     }
 
     presenter.enabledFigures = {
@@ -91,7 +105,12 @@ function AddonGeometricConstruct_create() {
     };
 
     function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+        if (!presenter.configuration.isValid) {
+            $(view).html([presenter.ERROR_CODES[presenter.configuration.errorCode]]);
+            return;
+        }
         presenter.setElements(view);
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
@@ -142,12 +161,103 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeAxisConfig(model);
+    }
+
+    presenter.upgradeAxisConfig = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        if (upgradedModel["defaultWidth"] === undefined) {
+            upgradedModel["defaultWidth"] =  '';
+        }
+        if (upgradedModel["defaultHeight"] === undefined) {
+            upgradedModel["defaultHeight"] =  '';
+        }
+        if (upgradedModel["xAxisSpacing"] === undefined) {
+            upgradedModel["xAxisSpacing"] =  '';
+        }
+        if (upgradedModel["yAxisSpacing"] === undefined) {
+            upgradedModel["yAxisSpacing"] =  '';
+        }
+        if (upgradedModel["xAxisIncrement"] === undefined) {
+            upgradedModel["xAxisIncrement"] =  '';
+        }
+        if (upgradedModel["yAxisIncrement"] === undefined) {
+            upgradedModel["yAxisIncrement"] =  '';
+        }
+        if (upgradedModel["axisColor"] === undefined) {
+            upgradedModel["axisColor"] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
+        var axisColor = (model["axisColor"] && model["axisColor"].trim().length > 0) ? model["axisColor"] : "#444444";
+
+        var defaultWidth = 0;
+        if (model['defaultWidth'].trim().length != 0) {
+            var defaultWidthResult = ModelValidationUtils.validateInteger(model['defaultWidth']);
+            if (!defaultWidthResult.isValid || defaultWidthResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_01'};
+            }
+            defaultWidth = defaultWidthResult.value;
+        }
+
+        var defaultHeight = 0;
+        if (model['defaultHeight'].trim().length != 0) {
+            var defaultHeightResult = ModelValidationUtils.validateInteger(model['defaultHeight']);
+            if (!defaultHeightResult.isValid || defaultHeightResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_02'};
+            }
+            defaultHeight = defaultHeightResult.value;
+        }
+
+        var xAxisSpacing = 50;
+        if (model['xAxisSpacing'].trim().length != 0) {
+            var xAxisSpacingResult = ModelValidationUtils.validateInteger(model['xAxisSpacing']);
+            if (!xAxisSpacingResult.isValid || xAxisSpacingResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_03'};
+            }
+            xAxisSpacing = xAxisSpacingResult.value;
+        }
+
+        var yAxisSpacing = 50;
+        if (model['yAxisSpacing'].trim().length != 0) {
+            var yAxisSpacingResult = ModelValidationUtils.validateInteger(model['yAxisSpacing']);
+            if (!yAxisSpacingResult.isValid || yAxisSpacingResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_04'};
+            }
+            yAxisSpacing = yAxisSpacingResult.value;
+        }
+
+        var xAxisIncrement = 1;
+        if (model['xAxisIncrement'].trim().length != 0) {
+            var xAxisIncrementResult = ModelValidationUtils.validateInteger(model['xAxisIncrement']);
+            if (!xAxisIncrementResult.isValid || xAxisIncrementResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_05'};
+            }
+            xAxisIncrement = xAxisIncrementResult.value;
+        }
+
+        var yAxisIncrement = 1;
+        if (model['yAxisIncrement'].trim().length != 0) {
+            var yAxisIncrementResult = ModelValidationUtils.validateInteger(model['yAxisIncrement']);
+            if (!yAxisIncrementResult.isValid || yAxisIncrementResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_06'};
+            }
+            yAxisIncrement = yAxisIncrementResult.value;
+        }
+
+
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
         return {
+            isValid: true,
             fillColor: fillColor,
             strokeColor: strokeColor,
             width: parseInt(model["Width"]),
@@ -156,7 +266,15 @@ function AddonGeometricConstruct_create() {
             labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"]),
             disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
-            disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"])
+            disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
+            axisColor: axisColor,
+            defaultWidth: defaultWidth,
+            defaultHeight: defaultHeight,
+            xAxisSpacing: xAxisSpacing,
+            yAxisSpacing: yAxisSpacing,
+            xAxisIncrement: xAxisIncrement,
+            yAxisIncrement: yAxisIncrement
+
         };
     }
     
@@ -223,6 +341,7 @@ function AddonGeometricConstruct_create() {
     presenter.createView = function(isPreview) {
         presenter.createWorkspace(isPreview);
         presenter.createToolbar();
+        presenter.redrawCanvas();
     };
 
     presenter.createWorkspace = function(isPreview) {
@@ -285,6 +404,7 @@ function AddonGeometricConstruct_create() {
 
     presenter.redrawCanvas = function () {
         presenter.clearCanvas();
+        presenter.drawBackground();
         for (var i = 0; i < presenter.figuresList.length; i++) {
             var f = presenter.figuresList[i];
             f.draw();
@@ -620,6 +740,106 @@ function AddonGeometricConstruct_create() {
 
     presenter.hideConfigPopup = function() {
         presenter.$configPopup.css('display','none');
+    }
+
+    presenter.drawBackground = function() {
+        var defaultWidth = presenter.configuration.defaultWidth != 0 ? presenter.configuration.defaultWidth : presenter.canvasWidth;
+        var defaultHeight = presenter.configuration.defaultHeight != 0 ? presenter.configuration.defaultHeight : presenter.canvasHeight;
+        var spacingX = Math.round((presenter.configuration.xAxisSpacing / defaultWidth) * presenter.canvasWidth);
+        var spacingY = Math.round((presenter.configuration.yAxisSpacing / defaultHeight) * presenter.canvasHeight);
+        presenter.drawAxis(presenter.canvasWidth/2, presenter.canvasHeight/2, spacingX, spacingY, presenter.configuration.xAxisIncrement, presenter.configuration.yAxisIncrement);
+    }
+
+    presenter.getOrCreateAxisLabel = function(value, isVertical) {
+        var axis = isVertical ? 'y' : 'x';
+        if (presenter.axisLabels[axis][value] != undefined) {
+            return presenter.axisLabels[axis][value];
+        } else {
+            var $el = $("<div></div>");
+            $el.addClass(presenter.CSS_CLASSES.AXIS_LABEL);
+            $el.css('position','absolute');
+            $el.html(value);
+            presenter.axisLabels[axis][value] = $el;
+            return $el;
+        }
+    }
+
+    presenter.drawAxisLabel = function(value, isVertical, x, y) {
+        var $label = presenter.getOrCreateAxisLabel(value, isVertical);
+        if ($label.parent().length == 0) {
+            $label.insertBefore(presenter.$canvasOverlay);
+        }
+        var rect = $label[0].getBoundingClientRect();
+        if (isVertical) {
+            y -= Math.round(rect.height/2);
+        } else {
+            x -= Math.round(rect.width/2);
+        }
+        $label.css('top', y+'px');
+        $label.css('left', x+'px');
+    }
+
+    presenter.drawAxis = function(centerX, centerY, spacingX, spacingY, incrementX, incrementY) {
+        if (0 <= centerX && centerX < presenter.canvasWidth) {
+            presenter.context.strokeStyle = presenter.configuration.axisColor;
+            presenter.context.beginPath();
+            presenter.context.moveTo(centerX, presenter.canvasHeight);
+            presenter.context.lineTo(centerX, 0);
+            presenter.context.moveTo(centerX + 5, 5);
+            presenter.context.lineTo(centerX, 0);
+            presenter.context.moveTo(centerX - 5, 5);
+            presenter.context.lineTo(centerX, 0);
+            var tmpY = centerY + spacingY;
+            var multiplier = 0;
+            while (tmpY < presenter.canvasHeight - 10) {
+                multiplier -= 1;
+                presenter.drawAxisLabel(incrementY * multiplier, true, centerX + 10, tmpY);
+                presenter.context.moveTo(centerX - 5, tmpY);
+                presenter.context.lineTo(centerX + 5, tmpY);
+                tmpY += spacingY;
+            }
+            tmpY = centerY - spacingY;
+            multiplier = 0;
+            while (tmpY > 0) {
+                multiplier += 1;
+                presenter.drawAxisLabel(incrementY * multiplier, true, centerX + 10, tmpY);
+                presenter.context.moveTo(centerX - 5, tmpY);
+                presenter.context.lineTo(centerX + 5, tmpY);
+                tmpY -= spacingY;
+            }
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
+        if (0 <= centerY && centerY < presenter.canvasHeight) {
+            presenter.context.strokeStyle = presenter.configuration.axisColor;
+            presenter.context.beginPath();
+            presenter.context.moveTo(0, centerY);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            presenter.context.moveTo(presenter.canvasWidth - 5, centerY - 5);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            presenter.context.moveTo(presenter.canvasWidth - 5, centerY + 5);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            var tmpX = centerX + spacingX;
+            var multiplier = 0;
+            while (tmpX < presenter.canvasWidth) {
+                multiplier += 1;
+                presenter.drawAxisLabel(incrementX * multiplier, false, tmpX, centerY + 10);
+                presenter.context.moveTo(tmpX, centerY - 5);
+                presenter.context.lineTo(tmpX, centerY + 5);
+                tmpX += spacingX;
+            }
+            tmpX = centerX - spacingX;
+            multiplier = 0;
+            while (tmpX > 10) {
+                multiplier -= 1;
+                presenter.drawAxisLabel(incrementX * multiplier, false, tmpX, centerY + 10);
+                presenter.context.moveTo(tmpX, centerY - 5);
+                presenter.context.lineTo(tmpX, centerY + 5);
+                tmpX -= spacingX;
+            }
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
     }
 
     class GeometricElement {

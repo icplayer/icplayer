@@ -1,3 +1,4 @@
+2024-07-01 Added x and y axis to the Geometric Construct
 2024-05-13 Added Geometric Construct addon
 2024-05-09 Fixed state and reset functionality in the Model Viewer 3D
 2024-05-08 Added Zoom module
