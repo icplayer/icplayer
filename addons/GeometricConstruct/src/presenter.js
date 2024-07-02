@@ -80,7 +80,7 @@ function AddonGeometricConstruct_create() {
         'IV_03': "X axis spacing must be a positive number or left empty",
         'IV_04': "Y axis spacing must be a positive number or left empty",
         'IV_05': "X axis increment must be a positive number or left empty",
-        'IV_06': "y axis increment must be a positive number or left empty",
+        'IV_06': "Y axis increment must be a positive number or left empty",
     }
 
     presenter.enabledFigures = {
@@ -108,7 +108,7 @@ function AddonGeometricConstruct_create() {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
-            $(view).html([presenter.ERROR_CODES[presenter.configuration.errorCode]]);
+            $(view).html(presenter.ERROR_CODES[presenter.configuration.errorCode]);
             return;
         }
         presenter.setElements(view);
@@ -252,7 +252,6 @@ function AddonGeometricConstruct_create() {
             }
             yAxisIncrement = yAxisIncrementResult.value;
         }
-
 
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
