@@ -20,6 +20,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 import com.lorepo.icplayer.client.model.page.PopupPage;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -178,75 +179,74 @@ public class PagePopupPanel extends DialogBox {
 		e.getStyle().setProperty("transform", "translate3d(0,0,0)");
 		e.getStyle().setProperty("-webkit-transform", "translate3d(0,0,0)");
 	}
-	
-	public static native int getParentWindowOffset() /*-{
-		var current_window = $wnd;
-		var global_offset = 0;
-		
-		while (current_window != current_window.parent) {
-			var iframe_offset = 0,
-				iframes = current_window.parent.document.getElementsByTagName("iframe");
-	
-			for (var i=0; i < iframes.length; i++) {
-				var current_iframe = iframes[i];
-	
-				if (current_window.location.href == current_iframe.src){
-					var iframe_placement = current_iframe.getBoundingClientRect().top,
-						body_placement = current_window.parent.document.body.getBoundingClientRect().top;
-	
-					iframe_offset = Math.round(iframe_placement - body_placement);
-				}
-			}
-		
-			global_offset += current_window.parent.pageYOffset - iframe_offset;
-			current_window = current_window.parent;
-		}
-		
-		global_offset = Math.max(0, global_offset);
-		return global_offset;
-		
+
+	private static native int calculateTopForCentredPopup(Element popupElement) /*-{
+		var elementHeight = popupElement.getBoundingClientRect().height;
+		return $wnd.PositioningUtils.calculateTopForCentredPopup(elementHeight);
+	}-*/;
+
+	private static native int calculateLeftForCentredPopup(Element popupElement) /*-{
+		var elementWidth = popupElement.getBoundingClientRect().width;
+		return $wnd.PositioningUtils.calculateLeftForCentredPopup(elementWidth);
 	}-*/;
 
 	/**
 	 * Center popup
-	 * @param parentWidget
 	 */
-	public void center() {	
-		if(parentWidget != null){
-			int left = parentWidget.getAbsoluteLeft();
+	public void center() {
+		JavaScriptUtils.log("V1.7");
+		if (parentWidget != null){
+			int left = scaleInt(parentWidget.getAbsoluteLeft(), scale.scaleX);
 			int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
+			JavaScriptUtils.log("OLD. left: " + left);
+			JavaScriptUtils.log("OLD. offsetX: " + offsetX);
 			left = left+offsetX/2;
 			if (left<0) {
 				left = 0;
 			}
+			JavaScriptUtils.log("OLD. finalLeft: " + left);
 			
-			int top;
-			if(Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
+
+		    JavaScriptUtils.log("ABS TOP: " + Math.abs(parentWidget.getAbsoluteTop()));
+		    JavaScriptUtils.log("SCROLL TOP: " + Window.getScrollTop());
+		    // czemu Window ? Przecież window to nie musi mieć scrolla
+		    int top;
+			if (Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
 				top = Math.abs(parentWidget.getAbsoluteTop());
-			}
-			else{
+			} else{
 				top = Window.getScrollTop();
 			}
 
-			try{
-				top += getParentWindowOffset();
-			}catch(Exception e) {
-				top += 0;
-			}
+			top = calculateTopForCentredPopup(this.getElement());
+			JavaScriptUtils.log("NEW TOP: " + top);
+			left = calculateLeftForCentredPopup(this.getElement());
+			JavaScriptUtils.log("NEW LEFT: " + left);
 
-			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+			JavaScriptUtils.log("this.top: " + this.top);
+
+			if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
+				JavaScriptUtils.log("PATH 1 (Defined left and top in properties)");
+				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.baseScaleX);
+				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
+				JavaScriptUtils.log("propertyLeft: " + propertyLeft + ", propertyTop: " + propertyTop);
 				setPopupPosition(propertyLeft, propertyTop);
 			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
+				JavaScriptUtils.log("PATH 2 (Defined top in properties)");
+				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
+				JavaScriptUtils.log("left: " + left + ", propertyTop: " + propertyTop);
 				setPopupPosition(left, propertyTop);
-			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
-				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
+			} else if (this.left != null && this.left != "" && isInteger(this.left)) {
+				JavaScriptUtils.log("PATH 3 (Defined left in properties)");
+				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.baseScaleX);
+				JavaScriptUtils.log("propertyLeft: " + propertyLeft + ", top: " + top);
 				setPopupPosition(propertyLeft, top);
 			} else {
+				JavaScriptUtils.log("PATH 4 (Not defined left and top in properties)");
+				JavaScriptUtils.log("left: " + left + ", top: " + top);
 				setPopupPosition(left, top);
 			}
+		} else {
+		    JavaScriptUtils.log("UPS. parentWidget does not exist. Cannot center");
 		}
 	}
 
