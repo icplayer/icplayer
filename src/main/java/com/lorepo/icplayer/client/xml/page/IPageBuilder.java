@@ -39,4 +39,5 @@ public interface IPageBuilder {
 	public void setRandomizeInPrint(boolean value);
 	public void setSplitInPrintBlocked(boolean value);
 	public void setNotAssignable(boolean value);
+	public String getContentBaseURL();
 }

@@ -382,4 +382,10 @@ public class SkipLinkModuleMockup implements ISkipLinkModule {
     public List<IProperty> getProperties() {
         return null;
     }
+
+    @Override
+    public void setContentBaseURL(String baseURL) {
+        // TODO Auto-generated method stub
+    }
+
 }

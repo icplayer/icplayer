@@ -19,5 +19,7 @@
         <property name="disableModuleZoom" nameLabel="IWB_Toolbar_property_disable_module_zoom" type="boolean" />
         <property name="defaultZoom" nameLabel="IWB_Toolbar_property_default_zoom" type="string" />
         <property name="expansionDirection" displayName="Expansion direction" nameLabel="IWB_Toolbar_expansion_direction" type="{right, left, up, down}" />
+        <property name="verticalPopupDirection" displayName="Vertical popups direction" nameLabel="IWB_Toolbar_vertical_popups_direction" type="{right, left}"/>
+        <property name="horizontalPopupDirection" displayName="Horizontal popups direction" nameLabel="IWB_Toolbar_horizontal_popups_direction" type="{down, up}"/>
     </model>
 </addon>

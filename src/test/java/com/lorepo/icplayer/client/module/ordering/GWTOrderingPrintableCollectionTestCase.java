@@ -50,9 +50,9 @@ public class GWTOrderingPrintableCollectionTestCase extends GWTPowerMockitoTest 
 
 	@Test
 	public void addItemToAppropriateArrayWhenAllItemsHaveStartingPosition() {
-		item1 = new OrderingItem(1, "element 1", "string", 1);
-		item2 = new OrderingItem(2, "element 2", "string", 2);
-		item3 = new OrderingItem(3, "element 3", "string", 3);
+		item1 = new OrderingItem(1, "element 1", "string", 1, "contentBaseURL");
+		item2 = new OrderingItem(2, "element 2", "string", 2, "contentBaseURL");
+		item3 = new OrderingItem(3, "element 3", "string", 3, "contentBaseURL");
 		addItems();
 
 		int tries = 8;
