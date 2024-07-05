@@ -65,6 +65,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private final ModuleList modules = new ModuleList();
 	/** base url to this document with ending '/' */
 	private String baseURL = "";
+	private String contentBaseURL;
 	private IStyleListener styleListener;
 	private boolean loaded = false;
 
@@ -261,6 +262,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public void setBaseURL(String fetchUrl) {
 		this.baseURL = fetchUrl.substring(0, fetchUrl.lastIndexOf("/") + 1);
+	}
+
+	@Override
+	public void setContentBaseURL(String baseURL) {
+		this.contentBaseURL = baseURL;
+	}
+
+	@Override
+	public String getContentBaseURL() {
+		return this.contentBaseURL;
 	}
 
 	public void setSemiResponsiveLayoutID(String newLayoutID) {
@@ -1156,7 +1167,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void setStyleCss(String style) {
-		String css = URLUtils.resolveCSSURL(baseURL, style);
+		String css = URLUtils.resolveCSSURL(baseURL, style, contentBaseURL);
 		setInlineStyle(css);
 	}
 

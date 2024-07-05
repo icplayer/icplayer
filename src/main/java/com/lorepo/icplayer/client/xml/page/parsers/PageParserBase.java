@@ -151,6 +151,7 @@ public abstract class PageParserBase implements IPageParser{
 					if (defaultLayoutID != null) {
 						module.setContentDefaultLayoutID(defaultLayoutID);
 					}
+					module.setContentBaseURL(page.getContentBaseURL());
 					module.load((Element) node, page.getBaseURL(), Integer.toString(pageVersion));
 					page.addModule(module);
 				}

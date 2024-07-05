@@ -62,9 +62,9 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
 		
-		addItem(new OrderingItem(1, "1", getBaseURL(), null));
-		addItem(new OrderingItem(2, "2", getBaseURL(), null));
-		addItem(new OrderingItem(3, "3", getBaseURL(), null));
+		addItem(new OrderingItem(1, "1", getBaseURL(), null, null));
+		addItem(new OrderingItem(2, "2", getBaseURL(), null, null));
+		addItem(new OrderingItem(3, "3", getBaseURL(), null, null));
 
 		addPropertyIsVertical();
 		addPropertyItems();
@@ -195,12 +195,12 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			String startingPositionString = XMLUtils.getAttributeAsString(element, "startingPosition");
 			try {
 				Integer startingPosition = startingPositionString.isEmpty() ? null : Integer.parseInt(startingPositionString); 
-				item = new OrderingItem(i + 1, text, getBaseURL(), startingPosition);
+				item = new OrderingItem(i + 1, text, getBaseURL(), startingPosition, getContentBaseURL());
 			} catch (NumberFormatException ex) {
 				this.isValid = false;
 				this.validationError = ERROR_POSITION_NOT_INTEGER;
 
-				item = new OrderingItem(i+ 1, text, getBaseURL(), null);
+				item = new OrderingItem(i+ 1, text, getBaseURL(), null, getContentBaseURL());
 				item.setStartingPositionString(startingPositionString);
 			}
 			
@@ -420,7 +420,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			for (int i = 0; i < count; i++) {
 				int index = items.size()+1;
 				String name = DictionaryWrapper.get("ordering_new_item");
-				addItem(new OrderingItem(index, name, getBaseURL(), null));
+				addItem(new OrderingItem(index, name, getBaseURL(), null, getContentBaseURL()));
 			}
 		}
 	}

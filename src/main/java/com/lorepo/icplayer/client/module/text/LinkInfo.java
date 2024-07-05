@@ -61,15 +61,20 @@ public class LinkInfo {
 	}
 	
 	public void setBaseUrl(String newBaseUrl) {
+		setBaseUrl(newBaseUrl, false);
+	}
+	
+	public void setBaseUrl(String newBaseUrl, boolean useContentBaseURL) {
 		if (this.type.equals(LinkType.PAGE) || this.type.equals(LinkType.DEFINITION)) {
 			return;
 		}
 
-		if(href.startsWith("#") || href.startsWith("/") || href.startsWith("http")
+		if (href.startsWith("#") || (!useContentBaseURL && href.startsWith("/")) || href.startsWith("http")
 				|| href.startsWith("file") || href.startsWith("javascript")){
 			return;
-		}
-		else{
+		} else if (useContentBaseURL && href.startsWith("//")) {
+			updatedHref = "https:" + href;
+		} else {
 			updatedHref = newBaseUrl + href;
 		}
 	}

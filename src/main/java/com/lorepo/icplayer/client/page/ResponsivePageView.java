@@ -36,8 +36,8 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 	
 		currentPage = newPage;
 		String styles = "";
-		if(currentPage.getInlineStyle() != null){
-			styles += URLUtils.resolveCSSURL(currentPage.getBaseURL(), currentPage.getInlineStyle()); 
+		if (currentPage.getInlineStyle() != null){
+			styles += URLUtils.resolveCSSURL(currentPage.getBaseURL(), currentPage.getInlineStyle(), currentPage.getContentBaseURL());
 		}
 		DOMUtils.applyInlineStyle(getElement(), styles);
 		if(!currentPage.getStyleClass().isEmpty()){

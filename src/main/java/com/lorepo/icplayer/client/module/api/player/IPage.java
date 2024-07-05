@@ -21,4 +21,6 @@ public interface IPage extends IContentNode{
 	void setPageWeight(int w);
 	public void setAsReportable();
 	public void setAsNonReportable();
+	public void setContentBaseURL(String baseURL);
+	public String getContentBaseURL();
 }

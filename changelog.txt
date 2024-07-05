@@ -1,4 +1,10 @@
-2024-06-25 Change absolute to relative library url in LottiePlayer
+2024-07-05 Change absolute to relative library url in LottiePlayer
+2024-07-05 Fixed placement of Zoom Image's "Full Screen image"
+2024-06-28 Added support for content base URL
+2024-06-28 Added Geometric Construct addon
+2024-06-25 Added popups direction in IWB Toolbar
+2024-06-21 Removed listeners to close Drawing addon's text editor after click outside canvas
+2024-06-18 Fixed LimitedCheck with maintain state selected
 2024-06-05 Fixed enabling locked Clock addon
 2024-06-04 Added grading user answer by AI in Paragraph and Paragraph Keyboard
 2024-06-04 Removed inclusion of Open Activities scores for mc
@@ -7,7 +13,7 @@
 2024-05-20 Added max score to Paragraph and Paragraph Keyboard addons
 2024-05-16 Fixed incorrect display of formulas in the Text Selection
 2024-05-13 Added validation to course ID in the Cross Lesson
-2024-04-12 Added floatScore field to the PlayerUtils lesson score
+2024-05-12 Added floatScore field to the PlayerUtils lesson score
 2024-05-09 Fixed state and reset functionality in the Model Viewer 3D
 2024-05-08 Added Zoom module
 2024-05-07 Change URL to library in Model Viewer 3D
