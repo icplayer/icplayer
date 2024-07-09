@@ -2,6 +2,7 @@ function AddonGeometricConstruct_create() {
     var presenter = function () {};
 
     presenter.labelsList = [];
+    presenter.greekLabelsList = [];
     presenter.figuresList = [];
     presenter.pointsList = [];
     presenter.maxPointIndex = 0;
@@ -60,6 +61,7 @@ function AddonGeometricConstruct_create() {
         circleWithPoint: "Circle passing through a point",
         compasses: "Compasses",
         arcWithCenterPoint: "Arc with a defined center",
+        angle: "Angle",
         lineSegment: "Line Segment",
         halfOpenLineSegment: "Half-open Line Segment",
         openLineSegment: "Open Line Segment",
@@ -75,12 +77,14 @@ function AddonGeometricConstruct_create() {
         circleWithPoint: true,
         compasses: true,
         arcWithCenterPoint: true,
+        angle: true,
         lineSegment: true,
         halfOpenLineSegment: true,
         openLineSegment: true
     }
 
     var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω"
 
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model, true);
@@ -91,7 +95,8 @@ function AddonGeometricConstruct_create() {
     };
 
     function presenterLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.setElements(view);
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
@@ -161,14 +166,32 @@ function AddonGeometricConstruct_create() {
     }
     
     function getLabelValue (rawValue, defaultValue) {
-                var value = rawValue.trim();
-    
-                if (value === undefined || value === null || value === '') {
-                    return defaultValue;
-                }
-    
-                return value;
-            }
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeAngle(model);
+    }
+
+    presenter.upgradeAngle = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["figures"]["Angle"] === undefined) {
+            upgradedModel["figures"]["Angle"] =  {
+                "Angle": "",
+                "Disabled": ""
+            };
+        }
+
+        return upgradedModel;
+    }
 
     function setLabels(labels, figures) {
         if (!labels || !figures) {
@@ -182,6 +205,7 @@ function AddonGeometricConstruct_create() {
             circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
             compasses: getLabelValue(figures['Compasses']['Compasses'], presenter.labels.compasses),
             arcWithCenterPoint: getLabelValue(figures['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
+            angle: getLabelValue(figures['Angle']['Angle'], presenter.labels.angle),
             lineSegment: getLabelValue(figures['LineSegment']['LineSegment'], presenter.labels.lineSegment),
             halfOpenLineSegment: getLabelValue(figures['HalfOpenLineSegment']['HalfOpenLineSegment'], presenter.labels.halfOpenLineSegment),
             openLineSegment: getLabelValue(figures['OpenLineSegment']['OpenLineSegment'], presenter.labels.openLineSegment),
@@ -201,6 +225,7 @@ function AddonGeometricConstruct_create() {
             circleWithPoint: !ModelValidationUtils.validateBoolean(figures['CircleWithPoint']["Disabled"]),
             compasses: !ModelValidationUtils.validateBoolean(figures['Compasses']["Disabled"]),
             arcWithCenterPoint: !ModelValidationUtils.validateBoolean(figures['ArcWithCenterPoint']["Disabled"]),
+            angle: !ModelValidationUtils.validateBoolean(figures['Angle']["Disabled"]),
             lineSegment: !ModelValidationUtils.validateBoolean(figures['LineSegment']["Disabled"]),
             halfOpenLineSegment: !ModelValidationUtils.validateBoolean(figures['HalfOpenLineSegment']["Disabled"]),
             openLineSegment: !ModelValidationUtils.validateBoolean(figures['OpenLineSegment']["Disabled"])
@@ -472,6 +497,8 @@ function AddonGeometricConstruct_create() {
             presenter.createGeometricElementButton(presenter.labels.compasses, Compasses, circleSection);
         if (presenter.enabledFigures.arcWithCenterPoint)
             presenter.createGeometricElementButton(presenter.labels.arcWithCenterPoint, ArcWithCenterPoint, circleSection);
+        if (presenter.enabledFigures.angle)
+            presenter.createGeometricElementButton(presenter.labels.angle, Angle, circleSection);
         if (circleSection.children().length == 0) circleSection.remove();
 
         var pointLineSection = presenter.createToolbarSection();
@@ -2151,6 +2178,196 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    class Angle extends ArcWithCenterPoint {
+        static TYPE = "Angle";
+        static LABEL_CLASS = "angle_label";
+        static ICON_CLASS = "angle-image";
+
+        $angleLabel = null;
+
+        getClassType() {
+            return Angle.TYPE;
+        }
+
+        drawArc() {
+            this.radius = 20;
+            this.updateAngleLabel();
+            var startAngle = this.getStartAngle();
+            var endAngle;
+            if (this.arcEndPoint) {
+                endAngle = this.getEndAngle();
+            } else if (this.tmpEndLocation) {
+                endAngle = this.getTmpEndAngle();
+            } else {
+                return;
+            }
+            var endX = this.centerPoint.x + this.radius * Math.cos(endAngle);
+            var endY = this.centerPoint.y + this.radius * Math.sin(endAngle);
+            presenter.context.fillStyle = presenter.configuration.fillColor;
+            presenter.context.strokeStyle = presenter.configuration.strokeColor;
+            presenter.context.beginPath();
+            presenter.context.moveTo(this.centerPoint.x, this.centerPoint.y);
+            presenter.context.lineTo(endX, endY);
+            presenter.context.arc(this.centerPoint.x, this.centerPoint.y, this.radius, endAngle, startAngle);
+            presenter.context.lineTo(this.centerPoint.x, this.centerPoint.y);
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
+
+        getAngleDegreeValue() {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return null;
+            var radResult = null;
+            var startAngle = this.getStartAngle();
+            var endAngle = this.getEndAngle();
+            if (startAngle > endAngle) {
+                radResult = startAngle - endAngle;
+            } else {
+                radResult = 2*Math.PI + startAngle - endAngle;
+            }
+            return radResult * 180.0 / Math.PI;
+        }
+
+        addAngleLabel() {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return null;
+            if (!this.$angleLabel) {
+                this.$angleLabel = $('<div></div>');
+                this.$angleLabel.addClass(presenter.CSS_CLASSES.LABEL);
+                this.$angleLabel.addClass(Angle.LABEL_CLASS);
+                this.$angleLabel.css('position', 'absolute');
+                this.$angleLabel.insertBefore(presenter.$canvasOverlay);
+            }
+            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(1000.0 * this.getAngleDegreeValue())/1000.0 + '°');
+            var position = this.getAngleLabelPosition();
+            this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
+            this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
+        };
+
+        updateAngleLabel() {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint || !this.$angleLabel) return null;
+            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(1000.0 * this.getAngleDegreeValue())/1000.0 + '°');
+            var position = this.getAngleLabelPosition();
+            this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
+            this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
+        }
+
+        getAngleLabelPosition() {
+            if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint) return null;
+            var resultAngle;
+            var startAngle = this.getStartAngle();
+            var endAngle = this.getEndAngle();
+            if (startAngle > endAngle) {
+                resultAngle = (startAngle + endAngle) / 2;
+            } else {
+                resultAngle = endAngle + (2 * Math.PI + startAngle - endAngle)/2;
+            }
+
+            var x = Math.round(this.centerPoint.x + this.radius * Math.cos(resultAngle));
+            var y = Math.round(this.centerPoint.y + this.radius * Math.sin(resultAngle));
+            return {x:x, y:y};
+        }
+
+        hideAngleLabel() {
+            if (this.$angleLabel) {
+                this.$angleLabel.css('display', 'none');
+            }
+        }
+
+        showAngleLabel() {
+            if (this.$angleLabel) {
+                this.$angleLabel.css('display', '');
+            }
+        }
+
+        removeAngleLabel() {
+           if (this.$angleLabel) {
+                this.$angleLabel.remove();
+                this.$angleLabel = null;
+            }
+        }
+
+        isArcClicked(event) {
+            if (!this.centerPoint) return false;
+            var location = getCanvasEventLocation(event);
+            var distance = this.distanceFromCenter(location.x, location.y);
+            if (distance > this.radius + 5 || distance < 10) return false;
+            var angle = presenter.getAngle(this.centerPoint.x, this.centerPoint.y, location.x, location.y);
+            var startAngle = this.getStartAngle();
+            var endAngle = this.getEndAngle();
+            if (startAngle > endAngle) {
+                return endAngle <= angle && angle <= startAngle;
+            } else {
+                return endAngle <= angle || angle <= startAngle;
+            }
+        }
+
+        append() {
+            super.append();
+            if (!this.angleLabelValue) {
+                this.angleLabelValue = presenter.createLabel(presenter.greekLabelsList, GREEK_ALPHABET);
+            }
+        }
+
+        insertClickHandler(event) {
+            if (presenter.newFigure == this) {
+                if (this.arcStartPoint == null) {
+                    this.insertArcStartPoint(event);
+                } else if (this.centerPoint == null) {
+                    this.insertCenterPoint(event);
+                } else if (this.arcEndPoint == null) {
+                    this.insertArcEndPoint(event);
+                    if (this.arcEndPoint != null) {
+                        this.addAngleLabel();
+                        presenter.pushState();
+                        presenter.newFigure = new Angle();
+                    }
+                }
+            }
+        }
+
+        insertCenterPoint(event) {
+            var point = presenter.getClickedOrCreatePoint(event);
+            if (point == this.arcStartPoint) return;
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.centerPoint = point;
+            this.append();
+        }
+
+        insertArcStartPoint(event) {
+            var point = presenter.getClickedOrCreatePoint(event);
+            point.setIsRoot(false);
+            point.addParent(this);
+            this.arcStartPoint = point;
+            this.append();
+        }
+
+        remove() {
+            super.remove();
+            this.removeAngleLabel();
+            presenter.destroyLabel(this.angleLabelValue, presenter.greekLabelsList);
+        }
+
+        getGreekLabelValues() {
+            var values = [];
+            if (!!this.angleLabelValue) values.push(this.angleLabelValue);
+            return values;
+        }
+
+        toJSON() {
+            var json = super.toJSON();
+            if (json == null) return null;
+            json.state.angleLabelValue = !!this.angleLabelValue ? this.angleLabelValue : "";
+            return json;
+        }
+
+        loadJSON(json) {
+            if (json.type != this.getClassType()) return;
+            this.angleLabelValue = json.state.angleLabelValue;
+            super.loadJSON(json);
+            this.addAngleLabel();
+        }
+}
+
     presenter.createToolbarSection = function() {
         var element = $('<div></div>');
         element.addClass(presenter.CSS_CLASSES.TOOLBAR_SECTION);
@@ -2247,19 +2464,24 @@ function AddonGeometricConstruct_create() {
         var state = {
             figures: [],
             labelsList: [...presenter.labelsList],
+            greekLabelsList: [...presenter.greekLabelsList],
             selectedButton: presenter.getSelectedButtonType(),
             visibility: presenter.isVisible(),
             maxPointIndex: presenter.maxPointIndex,
             labelsVisibility: presenter.labelsVisibility
         };
+
         var validFiguresLabels = [];
+        var validFiguresGreekLabels = [];
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figure = presenter.figuresList[i];
             var figureState = figure.toJSON();
             var labels = figure.getLabelValues();
+            var greekLabels = !!(figure["getGreekLabelValues"]) ? figure.getGreekLabelValues() : [];
             if (figureState != null) {
                 state.figures.push(figureState);
                 validFiguresLabels = validFiguresLabels.concat(labels);
+                validFiguresGreekLabels = validFiguresGreekLabels.concat(greekLabels);
             } else {
                 // labels of invalid figures need to be removed from the state's labels list,
                 // unless they are also a part of a valid figure
@@ -2269,14 +2491,28 @@ function AddonGeometricConstruct_create() {
                         presenter.destroyLabel(label, state.labelsList);
                     }
                 }
+                for (var j = 0; j < greekLabels.length; j++) {
+                    var label = greekLabels[j];
+                    if (validFiguresGreekLabels.indexOf(label) == -1) {
+                        presenter.destroyLabel(label, state.greekLabelsList);
+                    }
+                }
             }
         }
+
         return JSON.stringify(state);
+    }
+
+    presenter.upgradeState = function(state) {
+        if (state["greekLabelsList"] == undefined) {
+            state["greekLabelsList"] = [];
+        }
     }
 
     presenter.setState = function(state) {
         presenter.clearFigures();
         var parsedState = JSON.parse(state);
+        presenter.upgradeState(parsedState);
         if (parsedState.visibility) {
             presenter.show();
         } else {
@@ -2285,6 +2521,7 @@ function AddonGeometricConstruct_create() {
         presenter.setLabelsVisibility(parsedState.labelsVisibility);
         presenter.loadFiguresFromState(parsedState.figures);
         presenter.labelsList = [...parsedState.labelsList];
+        presenter.greekLabelsList = [...parsedState.greekLabelsList];
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
         if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
@@ -2325,6 +2562,9 @@ function AddonGeometricConstruct_create() {
             if (figureState.type == ArcWithCenterPoint.TYPE) {
                 figure = new ArcWithCenterPoint();
             }
+            if (figureState.type == Angle.TYPE) {
+                figure = new Angle();
+            }
             if (figure != null) {
                 figure.loadJSON(figureState);
                 figure.append();
@@ -2335,7 +2575,8 @@ function AddonGeometricConstruct_create() {
     presenter.pushState = function() {
         var state = {
             figures: [],
-            labelsList: [...presenter.labelsList]
+            labelsList: [...presenter.labelsList],
+            greekLabelsList: [...presenter.greekLabelsList],
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figureState = presenter.figuresList[i].toJSON();
@@ -2377,6 +2618,7 @@ function AddonGeometricConstruct_create() {
         presenter.clearFigures();
         presenter.loadFiguresFromState(state.figures);
         presenter.labelsList = [...state.labelsList];
+        presenter.greekLabelsList = [...state.greekLabelsList];
         presenter.maxPointIndex = state.maxPointIndex;
         presenter.redrawCanvas();
     }

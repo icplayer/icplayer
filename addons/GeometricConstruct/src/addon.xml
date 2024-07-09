@@ -31,6 +31,11 @@
 				<property name="Disabled" nameLabel="GeometricConstruct_property_disabled" type="boolean"/>
 			</property>
 
+			<property name="Angle" nameLabel="GeometricConstruct_property_angle" type="staticrow">
+				<property name="Angle" nameLabel="GeometricConstruct_property_angle" type="string"/>
+				<property name="Disabled" nameLabel="GeometricConstruct_property_disabled" type="boolean"/>
+			</property>
+
 			<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="staticrow">
 				<property name="LineSegment" nameLabel="GeometricConstruct_property_line_segment" type="string"/>
 				<property name="Disabled" nameLabel="GeometricConstruct_property_disabled" type="boolean"/>
