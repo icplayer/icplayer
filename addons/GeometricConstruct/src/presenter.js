@@ -81,6 +81,7 @@ function AddonGeometricConstruct_create() {
         'IV_04': "Y axis spacing must be a positive number or left empty",
         'IV_05': "X axis increment must be a positive number or left empty",
         'IV_06': "Y axis increment must be a positive number or left empty",
+        'IV_07': "Unit length must be a positive number or left empty",
     }
 
     presenter.enabledFigures = {
@@ -189,6 +190,9 @@ function AddonGeometricConstruct_create() {
         if (upgradedModel["axisColor"] === undefined) {
             upgradedModel["axisColor"] =  '';
         }
+        if (upgradedModel["unitLength"] === undefined) {
+            upgradedModel["unitLength"] =  '';
+        }
 
         return upgradedModel;
     };
@@ -253,6 +257,15 @@ function AddonGeometricConstruct_create() {
             yAxisIncrement = yAxisIncrementResult.value;
         }
 
+        var unitLength = 1;
+        if (model['unitLength'].trim().length != 0) {
+            var unitLengthResult = ModelValidationUtils.validateInteger(model['unitLength']);
+            if (!unitLengthResult.isValid || unitLengthResult.value <= 0) {
+                return {isValid: false, errorCode: 'IV_07'};
+            }
+            unitLength = unitLengthResult.value;
+        }
+
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
         return {
@@ -272,7 +285,8 @@ function AddonGeometricConstruct_create() {
             xAxisSpacing: xAxisSpacing,
             yAxisSpacing: yAxisSpacing,
             xAxisIncrement: xAxisIncrement,
-            yAxisIncrement: yAxisIncrement
+            yAxisIncrement: yAxisIncrement,
+            unitLength: unitLength
         };
     }
     
@@ -722,7 +736,7 @@ function AddonGeometricConstruct_create() {
                 var property = properties[i];
                 result.push({
                     name: property.name,
-                    value: property.input.val()
+                    value: property.input.val() * presenter.configuration.unitLength
                 });
             }
             acceptCallback(result);
