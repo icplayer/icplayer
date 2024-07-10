@@ -75,13 +75,14 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.ERROR_CODES = {
-        'IV_01': "Default workspace width must be a positive number or left empty",
-        'IV_02': "Default workspace height must be a positive number or left empty",
+        'IV_01': "Base workspace width must be a positive number or left empty",
+        'IV_02': "Base workspace height must be a positive number or left empty",
         'IV_03': "X axis spacing must be a positive number or left empty",
         'IV_04': "Y axis spacing must be a positive number or left empty",
         'IV_05': "X axis increment must be a positive number or left empty",
         'IV_06': "Y axis increment must be a positive number or left empty",
         'IV_07': "Unit length must be a positive number or left empty",
+        'IV_08': "X and Y axis position must be a positive number or left empty",
     }
 
     presenter.enabledFigures = {
@@ -169,11 +170,11 @@ function AddonGeometricConstruct_create() {
     presenter.upgradeAxisConfig = function (model) {
         const upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
-        if (upgradedModel["defaultWidth"] === undefined) {
-            upgradedModel["defaultWidth"] =  '';
+        if (upgradedModel["baseWidth"] === undefined) {
+            upgradedModel["baseWidth"] =  '';
         }
-        if (upgradedModel["defaultHeight"] === undefined) {
-            upgradedModel["defaultHeight"] =  '';
+        if (upgradedModel["baseHeight"] === undefined) {
+            upgradedModel["baseHeight"] =  '';
         }
         if (upgradedModel["xAxisSpacing"] === undefined) {
             upgradedModel["xAxisSpacing"] =  '';
@@ -187,6 +188,12 @@ function AddonGeometricConstruct_create() {
         if (upgradedModel["yAxisIncrement"] === undefined) {
             upgradedModel["yAxisIncrement"] =  '';
         }
+        if (upgradedModel["xAxisPosition"] === undefined) {
+            upgradedModel["xAxisPosition"] =  '';
+        }
+        if (upgradedModel["yAxisPosition"] === undefined) {
+            upgradedModel["yAxisPosition"] =  '';
+        }
         if (upgradedModel["axisColor"] === undefined) {
             upgradedModel["axisColor"] =  '';
         }
@@ -197,74 +204,64 @@ function AddonGeometricConstruct_create() {
         return upgradedModel;
     };
 
+    presenter.getActualUnitLength = function() {
+        var baseWidth = presenter.configuration.baseWidth != 0 ? presenter.configuration.baseWidth : presenter.canvasWidth;
+        return (presenter.configuration.unitLength / baseWidth) * presenter.canvasWidth;
+    }
+
+    presenter.validatePositiveInteger = function (rawValue, defaultValue, errorCode) {
+        var resultValue = defaultValue;
+        if (rawValue.trim().length != 0) {
+            var result = ModelValidationUtils.validateInteger(rawValue);
+            if (!result.isValid || result.value <= 0) {
+                return {isValid: false, errorCode: errorCode};
+            }
+            return result;
+        }
+        return {isValid: true, value: resultValue};
+    }
+
 
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
         var axisColor = (model["axisColor"] && model["axisColor"].trim().length > 0) ? model["axisColor"] : "#444444";
 
-        var defaultWidth = 0;
-        if (model['defaultWidth'].trim().length != 0) {
-            var defaultWidthResult = ModelValidationUtils.validateInteger(model['defaultWidth']);
-            if (!defaultWidthResult.isValid || defaultWidthResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_01'};
-            }
-            defaultWidth = defaultWidthResult.value;
-        }
+        var baseWidthResult = presenter.validatePositiveInteger(model['baseWidth'], 0, 'IV_01');
+        if (!baseWidthResult.isValid) return baseWidthResult;
+        var baseWidth = baseWidthResult.value;
 
-        var defaultHeight = 0;
-        if (model['defaultHeight'].trim().length != 0) {
-            var defaultHeightResult = ModelValidationUtils.validateInteger(model['defaultHeight']);
-            if (!defaultHeightResult.isValid || defaultHeightResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_02'};
-            }
-            defaultHeight = defaultHeightResult.value;
-        }
+        var baseHeightResult = presenter.validatePositiveInteger(model['baseHeight'], 0, 'IV_02');
+        if (!baseHeightResult.isValid) return baseHeightResult;
+        var baseHeight = baseHeightResult.value;
 
-        var xAxisSpacing = 50;
-        if (model['xAxisSpacing'].trim().length != 0) {
-            var xAxisSpacingResult = ModelValidationUtils.validateInteger(model['xAxisSpacing']);
-            if (!xAxisSpacingResult.isValid || xAxisSpacingResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_03'};
-            }
-            xAxisSpacing = xAxisSpacingResult.value;
-        }
+        var xAxisSpacingResult = presenter.validatePositiveInteger(model['xAxisSpacing'], 50, 'IV_03');
+        if (!xAxisSpacingResult.isValid) return xAxisSpacingResult;
+        var xAxisSpacing = xAxisSpacingResult.value;
 
-        var yAxisSpacing = 50;
-        if (model['yAxisSpacing'].trim().length != 0) {
-            var yAxisSpacingResult = ModelValidationUtils.validateInteger(model['yAxisSpacing']);
-            if (!yAxisSpacingResult.isValid || yAxisSpacingResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_04'};
-            }
-            yAxisSpacing = yAxisSpacingResult.value;
-        }
+        var yAxisSpacingResult = presenter.validatePositiveInteger(model['yAxisSpacing'], 50, 'IV_04');
+        if (!yAxisSpacingResult.isValid) return yAxisSpacingResult;
+        var yAxisSpacing = yAxisSpacingResult.value;
 
-        var xAxisIncrement = 1;
-        if (model['xAxisIncrement'].trim().length != 0) {
-            var xAxisIncrementResult = ModelValidationUtils.validateInteger(model['xAxisIncrement']);
-            if (!xAxisIncrementResult.isValid || xAxisIncrementResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_05'};
-            }
-            xAxisIncrement = xAxisIncrementResult.value;
-        }
+        var xAxisIncrementResult = presenter.validatePositiveInteger(model['xAxisIncrement'], 1, 'IV_05');
+        if (!xAxisIncrementResult.isValid) return xAxisIncrementResult;
+        var xAxisIncrement = xAxisIncrementResult.value;
 
-        var yAxisIncrement = 1;
-        if (model['yAxisIncrement'].trim().length != 0) {
-            var yAxisIncrementResult = ModelValidationUtils.validateInteger(model['yAxisIncrement']);
-            if (!yAxisIncrementResult.isValid || yAxisIncrementResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_06'};
-            }
-            yAxisIncrement = yAxisIncrementResult.value;
-        }
+        var yAxisIncrementResult = presenter.validatePositiveInteger(model['yAxisIncrement'], 1, 'IV_06');
+        if (!yAxisIncrementResult.isValid) return yAxisIncrementResult;
+        var yAxisIncrement = yAxisIncrementResult.value;
 
-        var unitLength = 1;
-        if (model['unitLength'].trim().length != 0) {
-            var unitLengthResult = ModelValidationUtils.validateInteger(model['unitLength']);
-            if (!unitLengthResult.isValid || unitLengthResult.value <= 0) {
-                return {isValid: false, errorCode: 'IV_07'};
-            }
-            unitLength = unitLengthResult.value;
-        }
+        var unitLengthResult = presenter.validatePositiveInteger(model['unitLength'], 1, 'IV_07');
+        if (!unitLengthResult.isValid) return unitLengthResult;
+        var unitLength = unitLengthResult.value;
+
+        var xAxisPositionResult = presenter.validatePositiveInteger(model['xAxisPosition'], 0, 'IV_08');
+        if (!xAxisPositionResult.isValid) return xAxisPositionResult;
+        var xAxisPosition = xAxisPositionResult.value;
+
+        var yAxisPositionResult = presenter.validatePositiveInteger(model['yAxisPosition'], 0, 'IV_08');
+        if (!yAxisPositionResult.isValid) return yAxisPositionResult;
+        var yAxisPosition = yAxisPositionResult.value;
 
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
@@ -280,13 +277,15 @@ function AddonGeometricConstruct_create() {
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
             disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
             axisColor: axisColor,
-            defaultWidth: defaultWidth,
-            defaultHeight: defaultHeight,
+            baseWidth: baseWidth,
+            baseHeight: baseHeight,
             xAxisSpacing: xAxisSpacing,
             yAxisSpacing: yAxisSpacing,
             xAxisIncrement: xAxisIncrement,
             yAxisIncrement: yAxisIncrement,
-            unitLength: unitLength
+            unitLength: unitLength,
+            xAxisPosition: xAxisPosition,
+            yAxisPosition: yAxisPosition
         };
     }
     
@@ -309,7 +308,7 @@ function AddonGeometricConstruct_create() {
             point: getLabelValue(figures['Point']['Point'], presenter.labels.point),
             cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
             circle: getLabelValue(figures['Circle']['Circle'], presenter.labels.circle),
-            circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+            circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circleWithPoint),
             compasses: getLabelValue(figures['Compasses']['Compasses'], presenter.labels.compasses),
             arcWithCenterPoint: getLabelValue(figures['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
             lineSegment: getLabelValue(figures['LineSegment']['LineSegment'], presenter.labels.lineSegment),
@@ -736,7 +735,7 @@ function AddonGeometricConstruct_create() {
                 var property = properties[i];
                 result.push({
                     name: property.name,
-                    value: property.input.val() * presenter.configuration.unitLength
+                    value: property.input.val() * presenter.getActualUnitLength()
                 });
             }
             acceptCallback(result);
@@ -755,11 +754,13 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.drawBackground = function() {
-        var defaultWidth = presenter.configuration.defaultWidth != 0 ? presenter.configuration.defaultWidth : presenter.canvasWidth;
-        var defaultHeight = presenter.configuration.defaultHeight != 0 ? presenter.configuration.defaultHeight : presenter.canvasHeight;
-        var spacingX = Math.round((presenter.configuration.xAxisSpacing / defaultWidth) * presenter.canvasWidth);
-        var spacingY = Math.round((presenter.configuration.yAxisSpacing / defaultHeight) * presenter.canvasHeight);
-        presenter.drawAxis(presenter.canvasWidth/2, presenter.canvasHeight/2, spacingX, spacingY, presenter.configuration.xAxisIncrement, presenter.configuration.yAxisIncrement);
+        var baseWidth = presenter.configuration.baseWidth != 0 ? presenter.configuration.baseWidth : presenter.canvasWidth;
+        var baseHeight = presenter.configuration.baseHeight != 0 ? presenter.configuration.baseHeight : presenter.canvasHeight;
+        var spacingX = Math.round((presenter.configuration.xAxisSpacing / baseWidth) * presenter.canvasWidth);
+        var spacingY = Math.round((presenter.configuration.yAxisSpacing / baseHeight) * presenter.canvasHeight);
+        var xAxisPosition = presenter.configuration.xAxisPosition != 0 ? Math.round((presenter.configuration.xAxisPosition / baseHeight) * presenter.canvasHeight) : presenter.canvasHeight/2;
+        var yAxisPosition = presenter.configuration.yAxisPosition != 0 ? Math.round((presenter.configuration.yAxisPosition / baseWidth) * presenter.canvasWidth) : presenter.canvasWidth/2;
+        presenter.drawAxis(yAxisPosition, xAxisPosition, spacingX, spacingY, presenter.configuration.xAxisIncrement, presenter.configuration.yAxisIncrement);
     }
 
     presenter.getOrCreateAxisLabel = function(value, isVertical) {
@@ -1923,7 +1924,7 @@ function AddonGeometricConstruct_create() {
                 presenter.showConfigPopup(presenter.labels.circlePopupTitle, [{
                     name: 'radius',
                     title: presenter.labels.radius,
-                    value: this.radius,
+                    value: this.radius / presenter.getActualUnitLength(),
                     type: 'number',
                     min: 0
                 }], (result) => {

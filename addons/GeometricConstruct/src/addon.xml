@@ -76,10 +76,13 @@
 		<property name="DisableLabelToggle" nameLabel="GeometricConstruct_property_disable_label_toggle" type="boolean"/>
 		<property name="baseWidth" nameLabel="GeometricConstruct_property_base_width" type="string"/>
 		<property name="baseHeight" nameLabel="GeometricConstruct_property_base_height" type="string"/>
+		<property name="xAxisPosition" nameLabel="GeometricConstruct_property_x_axis_position" type="string"/>
+		<property name="yAxisPosition" nameLabel="GeometricConstruct_property_y_axis_position" type="string"/>
 		<property name="xAxisSpacing" nameLabel="GeometricConstruct_property_x_axis_spacing" type="string"/>
 		<property name="yAxisSpacing" nameLabel="GeometricConstruct_property_y_axis_spacing" type="string"/>
 		<property name="xAxisIncrement" nameLabel="GeometricConstruct_property_x_axis_increment" type="string"/>
 		<property name="yAxisIncrement" nameLabel="GeometricConstruct_property_y_axis_increment" type="string"/>
+		<property name="unitLength" nameLabel="GeometricConstruct_property_unit_length" type="string"/>
 
 	</model>
 </addon>

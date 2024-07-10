@@ -2535,8 +2535,11 @@ var ice_dictionary_bl = {
     "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button",
     "GeometricConstruct_property_base_width": "Base workspace width",
     "GeometricConstruct_property_base_height": "Base workspace height",
+    "GeometricConstruct_property_x_axis_position": "X-axis position",
+    "GeometricConstruct_property_y_axis_position": "Y-axis position",
     "GeometricConstruct_property_x_axis_spacing": "X-axis spacing",
     "GeometricConstruct_property_y_axis_spacing": "Y-axis spacing",
     "GeometricConstruct_property_x_axis_increment": "X-axis increment",
-    "GeometricConstruct_property_y_axis_increment": "Y-axis increment"
+    "GeometricConstruct_property_y_axis_increment": "Y-axis increment",
+    "GeometricConstruct_property_unit_length": "Unit length"
 };
