@@ -71,6 +71,10 @@ function AddonGeometricConstruct_create() {
         radius: "Radius"
     }
 
+    presenter.ERROR_CODES = {
+        'IV_09': "X and Y axis position must be a positive number or left empty",
+    }
+
     presenter.enabledFigures = {
         point: true,
         circle: true,
@@ -84,7 +88,7 @@ function AddonGeometricConstruct_create() {
     }
 
     var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    var GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω"
+    var GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω";
 
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model, true);
@@ -97,6 +101,10 @@ function AddonGeometricConstruct_create() {
     function presenterLogic(view, model, isPreview) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+        if (!presenter.configuration.isValid) {
+            $(view).html(presenter.ERROR_CODES[presenter.configuration.errorCode]);
+            return;
+        }
         presenter.setElements(view);
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
@@ -152,7 +160,18 @@ function AddonGeometricConstruct_create() {
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
+
+        var angleDecimalPoint = 0;
+        if (model["angleDecimalPoint"].trim().length > 0) {
+            var angleDecimalPointResult = ModelValidationUtils.validateInteger(model["angleDecimalPoint"]);
+            if (!angleDecimalPointResult.isValid || angleDecimalPointResult.value < 0) {
+                return {isValid: false, errorCode: "IV_09"};
+            }
+            angleDecimalPoint = angleDecimalPointResult.value;
+        }
+
         return {
+            isValid: true,
             fillColor: fillColor,
             strokeColor: strokeColor,
             width: parseInt(model["Width"]),
@@ -161,7 +180,8 @@ function AddonGeometricConstruct_create() {
             labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"]),
             disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
-            disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"])
+            disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
+            angleDecimalPoint: angleDecimalPoint
         };
     }
     
@@ -188,6 +208,9 @@ function AddonGeometricConstruct_create() {
                 "Angle": "",
                 "Disabled": ""
             };
+        }
+        if (upgradedModel["angleDecimalPoint"] == undefined) {
+            upgradedModel["angleDecimalPoint"] = "";
         }
 
         return upgradedModel;
@@ -2182,6 +2205,7 @@ function AddonGeometricConstruct_create() {
         static TYPE = "Angle";
         static LABEL_CLASS = "angle_label";
         static ICON_CLASS = "angle-image";
+        static DEF_RADIUS = 20;
 
         $angleLabel = null;
 
@@ -2190,7 +2214,7 @@ function AddonGeometricConstruct_create() {
         }
 
         drawArc() {
-            this.radius = 20;
+            this.radius = Angle.DEF_RADIUS;
             this.updateAngleLabel();
             var startAngle = this.getStartAngle();
             var endAngle;
@@ -2236,7 +2260,8 @@ function AddonGeometricConstruct_create() {
                 this.$angleLabel.css('position', 'absolute');
                 this.$angleLabel.insertBefore(presenter.$canvasOverlay);
             }
-            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(1000.0 * this.getAngleDegreeValue())/1000.0 + '°');
+            var angleLabelMultiplier = Math.pow(10,presenter.configuration.angleDecimalPoint) * 1.0;
+            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°');
             var position = this.getAngleLabelPosition();
             this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
             this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
@@ -2244,7 +2269,8 @@ function AddonGeometricConstruct_create() {
 
         updateAngleLabel() {
             if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint || !this.$angleLabel) return null;
-            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(1000.0 * this.getAngleDegreeValue())/1000.0 + '°');
+            var angleLabelMultiplier = Math.pow(10,presenter.configuration.angleDecimalPoint) * 1.0;
+            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°');
             var position = this.getAngleLabelPosition();
             this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
             this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');

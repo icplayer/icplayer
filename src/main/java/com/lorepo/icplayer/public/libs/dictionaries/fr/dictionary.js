@@ -2514,5 +2514,6 @@ var ice_dictionary_fr = {
     "GeometricConstruct_property_disabled": "Disabled",
     "GeometricConstruct_property_disable_undo_redo": "Disable undo/redo buttons",
     "GeometricConstruct_property_disable_reset_button": "Disable reset button",
-    "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button"
+    "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button",
+    "GeometricConstruct_property_angle_decimal_point": "Angle's decimal point"
 };

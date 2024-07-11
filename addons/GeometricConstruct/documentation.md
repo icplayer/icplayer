@@ -44,6 +44,10 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Disable 'toggle labels' button</td>
         <td>If checked, the toggle labels button will no longer be visible in the toolbar. The showLabels and hideLabels commands will still be available.</td>
     </tr>
+    <tr>
+        <td>Angle's decimal point</td>
+        <td>This property specifies how many digits past the decimal point of an angle's value should be displayed. Default is 0.</td>
+    </tr>
 </tbody>
 </table>
 
