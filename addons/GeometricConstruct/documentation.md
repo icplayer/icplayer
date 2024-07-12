@@ -45,44 +45,23 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>If checked, the toggle labels button will no longer be visible in the toolbar. The showLabels and hideLabels commands will still be available.</td>
     </tr>
     <tr>
-        <td>Base workspace width</td>
-        <td>The base width of the workspace, which is used for calculating the size of other elements when the addon is scaled. For instance, if the base width is set to 100, and the X-axis spacing property is set to 10, then the ticks on the x-axis will be displayed every 1/10th of the workspace width, regardless of the addon's scale and dimensions in different layouts. If this property is left empty, the current width of the workspace will always be used.</td>
+        <td>Axis color</td>
+        <td>Specifies the color of the axis. The default value is #444444.</td>
     </tr>
-    <tr>
-        <td>Base workspace height</td>
-        <td>The base height of the workspace, which is used for calculating the size of other elements when the addon is scaled. See "Base workspace width" for more details.</td>
-    </tr>
-    <tr>
-        <td>X-axis spacing</td>
-        <td>The spacing in between the ticks on the x-axis, measured in relation to the default workspace width property, or in pixels. Default value is 50.</td>
-    </tr>
-    <tr>
-        <td>Y-axis spacing</td>
-        <td>The spacing in between the ticks on the y-axis, measured in relation to the default workspace height property, or in pixels. Default value is 50.</td>
-    </tr>
-    <tr>
-        <td>X-axis increment</td>
-        <td>The increment used when labeling ticks on the x-axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
-    </tr>
-    <tr>
-        <td>Y-axis increment</td>
-        <td>The increment used when labeling ticks on the y-axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
+        <td>Axis increment</td>
+        <td>The increment used when labeling ticks on the axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
     </tr>
     <tr>
         <td>X-axis position</td>
-        <td>The default position of the x axis, starting from the top edge of the workspace. The value is scaled to the base workspace height if that property has been provided, otherwise it is measured in pixels. If left empty, the X axis will be displayed in the middle of the workspace.</td>
+        <td>The default position of the x axis, starting from the top edge of the workspace, measured in pixels. If left empty, the X axis will be displayed in the middle of the workspace.</td>
     </tr>
     <tr>
         <td>Y-axis position</td>
-        <td>The default position of the y axis, starting from the left edge of the workspace. The value is scaled to the base workspace width if that property has been provided, otherwise it is measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
-    </tr>
-    <tr>
-        <td>Y-axis spacing</td>
-        <td>The spacing in between the ticks on the y-axis, measured in relation to the default workspace height property, or in pixels. Default value is 50.</td>
+        <td>The default position of the y axis, starting from the left edge of the workspace, measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
     </tr>
     <tr>
         <td>Unit length</td>
-        <td>The default length of a single unit of measure. The value is scaled to the base workspace width if that property has been provided, otherwise it is measured in pixels. The default value is 1.</td>
+        <td>The default length of a single unit of measure in pixels. The default value is 25.</td>
     </tr>
 </tbody>
 </table>
