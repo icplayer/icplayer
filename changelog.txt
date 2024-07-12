@@ -1,3 +1,4 @@
+2024-07-09 Added Angle figure to the Geometric Construct addon
 2024-07-05 Change absolute to relative library url in LottiePlayer
 2024-07-05 Fixed placement of Zoom Image's "Full Screen image"
 2024-06-28 Added support for content base URL

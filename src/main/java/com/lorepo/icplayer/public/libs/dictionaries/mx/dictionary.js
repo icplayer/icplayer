@@ -2501,6 +2501,7 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_circle_with_point": "Circle passing through a point",
     "GeometricConstruct_property_compasses": "Compasses",
     "GeometricConstruct_property_arc_with_center_point": "Arc with a defined center",
+    "GeometricConstruct_property_angle": "Angle",
     "GeometricConstruct_property_line_segment": "Line Segment",
     "GeometricConstruct_property_half_open_line_segment": "Half-open Line Segment",
     "GeometricConstruct_property_open_line_segment": "Open Line Segment",
@@ -2513,5 +2514,6 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_disabled": "Disabled",
     "GeometricConstruct_property_disable_undo_redo": "Disable undo/redo buttons",
     "GeometricConstruct_property_disable_reset_button": "Disable reset button",
-    "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button"
+    "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button",
+    "GeometricConstruct_property_angle_decimal_point": "Angle's decimal point"
 };
