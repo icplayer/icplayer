@@ -2523,6 +2523,7 @@ var ice_dictionary_en = {
     "GeometricConstruct_property_circle_with_point": "Circle passing through a point",
     "GeometricConstruct_property_compasses": "Compasses",
     "GeometricConstruct_property_arc_with_center_point": "Arc with a defined center",
+    "GeometricConstruct_property_angle": "Angle",
     "GeometricConstruct_property_line_segment": "Line Segment",
     "GeometricConstruct_property_half_open_line_segment": "Half-open Line Segment",
     "GeometricConstruct_property_open_line_segment": "Open Line Segment",
@@ -2540,5 +2541,6 @@ var ice_dictionary_en = {
     "GeometricConstruct_property_y_axis_position": "Y-axis position",
     "GeometricConstruct_property_axis_increment": "Axis increment",
     "GeometricConstruct_property_unit_length": "Unit length",
-    "GeometricConstruct_property_axis_color": "Axis color"
+    "GeometricConstruct_property_axis_color": "Axis color",
+    "GeometricConstruct_property_angle_decimal_point": "Angle's decimal point"
 };

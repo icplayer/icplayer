@@ -63,6 +63,10 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Unit length</td>
         <td>The default length of a single unit of measure in pixels. The default value is 25.</td>
     </tr>
+    <tr>
+        <td>Angle's decimal point</td>
+        <td>This property specifies how many digits past the decimal point of an angle's value should be displayed. Default is 0.</td>
+    </tr>
 </tbody>
 </table>
 

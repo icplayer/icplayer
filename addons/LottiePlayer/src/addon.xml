@@ -40,6 +40,6 @@
                 <property name="Stopped" nameLabel="LottiePlayer_property_speech_text_stopped" type="string"/>
             </property>
         </property>
-        <property name="{library}" nameLabel="LottiePlayer_property_library" type="script" value="//www.mauthor.com/file/serve/4732428471631872"/>
+        <property name="{library}" nameLabel="LottiePlayer_property_library" type="script" value="/file/serve/4732428471631872"/>
     </model>
 </addon>
