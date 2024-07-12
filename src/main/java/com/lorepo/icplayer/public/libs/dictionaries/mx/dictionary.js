@@ -2515,5 +2515,10 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_disable_undo_redo": "Disable undo/redo buttons",
     "GeometricConstruct_property_disable_reset_button": "Disable reset button",
     "GeometricConstruct_property_disable_label_toggle": "Disable 'toggle labels' button",
+    "GeometricConstruct_property_x_axis_position": "X-axis position",
+    "GeometricConstruct_property_y_axis_position": "Y-axis position",
+    "GeometricConstruct_property_axis_increment": "Axis increment",
+    "GeometricConstruct_property_unit_length": "Unit length",
+    "GeometricConstruct_property_axis_color": "Axis color",
     "GeometricConstruct_property_angle_decimal_point": "Angle's decimal point"
 };

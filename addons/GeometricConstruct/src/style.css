@@ -242,3 +242,8 @@
     border: solid 1px black;
     padding: 3px;
 }
+
+.geometric_construct_wrapper .workspace_wrapper .axis_label {
+    font-size: 0.7em;
+    color: #444444;
+}

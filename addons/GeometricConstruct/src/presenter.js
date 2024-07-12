@@ -8,6 +8,10 @@ function AddonGeometricConstruct_create() {
     presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
     presenter.labelsVisibility = true;
+    presenter.axisLabels = {
+        x: {},
+        y: {}
+    }
 
     var MAX_PREV_STATES = 20;
     presenter.prevStateIndex = -1;
@@ -51,7 +55,8 @@ function AddonGeometricConstruct_create() {
         CONFIG_POPUP_CANCEL: 'cancel',
         CONFIG_PROP_WRAPPER: 'property_wrapper',
         CONFIG_PROP_TITLE: 'property_title',
-        CONFIG_PROP_INPUT: 'property_input'
+        CONFIG_PROP_INPUT: 'property_input',
+        AXIS_LABEL: 'axis_label'
     };
 
     presenter.labels = {
@@ -72,7 +77,10 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.ERROR_CODES = {
-        'IV_09': "X and Y axis position must be a positive number or left empty",
+        'IV_01': "Axis increment must be a positive number or left empty",
+        'IV_02': "Unit length must be a positive number or left empty",
+        'IV_03': "X and Y axis position must be a positive number or left empty",
+        'IV_04': "Angle's decimal point must be an non-negative integer or left empty"
     }
 
     presenter.enabledFigures = {
@@ -155,9 +163,74 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeAxisConfig(model);
+    }
+
+    presenter.upgradeAxisConfig = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+        if (upgradedModel["axisIncrement"] === undefined) {
+            upgradedModel["axisIncrement"] =  '';
+        }
+        if (upgradedModel["xAxisPosition"] === undefined) {
+            upgradedModel["xAxisPosition"] =  '';
+        }
+        if (upgradedModel["yAxisPosition"] === undefined) {
+            upgradedModel["yAxisPosition"] =  '';
+        }
+        if (upgradedModel["axisColor"] === undefined) {
+            upgradedModel["axisColor"] =  '';
+        }
+        if (upgradedModel["unitLength"] === undefined) {
+            upgradedModel["unitLength"] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.getActualUnitLength = function() {
+        return presenter.configuration.unitLength;
+    }
+
+    presenter.convertToUnit = function(value) {
+        return value / presenter.getActualUnitLength();
+    }
+
+    presenter.validatePositiveInteger = function (rawValue, defaultValue, errorCode) {
+        var resultValue = defaultValue;
+        if (rawValue.trim().length != 0) {
+            var result = ModelValidationUtils.validateInteger(rawValue);
+            if (!result.isValid || result.value <= 0) {
+                return {isValid: false, errorCode: errorCode};
+            }
+            return result;
+        }
+        return {isValid: true, value: resultValue};
+    }
+
+
     presenter.validateModel = function (model) {
         var strokeColor = (model["strokeColor"] && model["strokeColor"].trim().length > 0) ? model["strokeColor"] : "black";
         var fillColor = (model["fillColor"] && model["fillColor"].trim().length > 0) ? model["fillColor"] : "blue";
+        var axisColor = (model["axisColor"] && model["axisColor"].trim().length > 0) ? model["axisColor"] : "#444444";
+
+        var axisIncrementResult = presenter.validatePositiveInteger(model['axisIncrement'], 1, 'IV_01');
+        if (!axisIncrementResult.isValid) return axisIncrementResult;
+        var axisIncrement = axisIncrementResult.value;
+
+        var unitLengthResult = presenter.validatePositiveInteger(model['unitLength'], 25, 'IV_02');
+        if (!unitLengthResult.isValid) return unitLengthResult;
+        var unitLength = unitLengthResult.value;
+
+        var xAxisPositionResult = presenter.validatePositiveInteger(model['xAxisPosition'], 0, 'IV_03');
+        if (!xAxisPositionResult.isValid) return xAxisPositionResult;
+        var xAxisPosition = xAxisPositionResult.value;
+
+        var yAxisPositionResult = presenter.validatePositiveInteger(model['yAxisPosition'], 0, 'IV_03');
+        if (!yAxisPositionResult.isValid) return yAxisPositionResult;
+        var yAxisPosition = yAxisPositionResult.value;
+
         setLabels(model["labels"], model["figures"]);
         setEnabledFigures(model["figures"]);
 
@@ -165,7 +238,7 @@ function AddonGeometricConstruct_create() {
         if (model["angleDecimalPoint"].trim().length > 0) {
             var angleDecimalPointResult = ModelValidationUtils.validateInteger(model["angleDecimalPoint"]);
             if (!angleDecimalPointResult.isValid || angleDecimalPointResult.value < 0) {
-                return {isValid: false, errorCode: "IV_09"};
+                return {isValid: false, errorCode: "IV_04"};
             }
             angleDecimalPoint = angleDecimalPointResult.value;
         }
@@ -181,6 +254,11 @@ function AddonGeometricConstruct_create() {
             disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
             disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
+            axisColor: axisColor,
+            axisIncrement: axisIncrement,
+            unitLength: unitLength,
+            xAxisPosition: xAxisPosition,
+            yAxisPosition: yAxisPosition,
             angleDecimalPoint: angleDecimalPoint
         };
     }
@@ -225,7 +303,7 @@ function AddonGeometricConstruct_create() {
             point: getLabelValue(figures['Point']['Point'], presenter.labels.point),
             cursor: getLabelValue(labels['Cursor']['Cursor'], presenter.labels.cursor),
             circle: getLabelValue(figures['Circle']['Circle'], presenter.labels.circle),
-            circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circle),
+            circleWithPoint: getLabelValue(figures['CircleWithPoint']['CircleWithPoint'], presenter.labels.circleWithPoint),
             compasses: getLabelValue(figures['Compasses']['Compasses'], presenter.labels.compasses),
             arcWithCenterPoint: getLabelValue(figures['ArcWithCenterPoint']['ArcWithCenterPoint'], presenter.labels.arcWithCenterPoint),
             angle: getLabelValue(figures['Angle']['Angle'], presenter.labels.angle),
@@ -271,6 +349,7 @@ function AddonGeometricConstruct_create() {
     presenter.createView = function(isPreview) {
         presenter.createWorkspace(isPreview);
         presenter.createToolbar();
+        presenter.redrawCanvas();
     };
 
     presenter.createWorkspace = function(isPreview) {
@@ -333,6 +412,7 @@ function AddonGeometricConstruct_create() {
 
     presenter.redrawCanvas = function () {
         presenter.clearCanvas();
+        presenter.drawBackground();
         for (var i = 0; i < presenter.figuresList.length; i++) {
             var f = presenter.figuresList[i];
             f.draw();
@@ -654,7 +734,7 @@ function AddonGeometricConstruct_create() {
                 var property = properties[i];
                 result.push({
                     name: property.name,
-                    value: property.input.val()
+                    value: property.input.val() * presenter.getActualUnitLength()
                 });
             }
             acceptCallback(result);
@@ -670,6 +750,105 @@ function AddonGeometricConstruct_create() {
 
     presenter.hideConfigPopup = function() {
         presenter.$configPopup.css('display','none');
+    }
+
+    presenter.drawBackground = function() {
+        var spacing = presenter.configuration.axisIncrement * presenter.getActualUnitLength();
+        var yPosition = presenter.configuration.yAxisPosition != 0 ? presenter.configuration.yAxisPosition : Math.round(presenter.canvasWidth/2);
+        var xPosition = presenter.configuration.xAxisPosition != 0 ? presenter.configuration.xAxisPosition : Math.round(presenter.canvasHeight/2);
+        presenter.drawAxis(yPosition, xPosition, spacing, presenter.configuration.axisIncrement);
+    }
+
+    presenter.getOrCreateAxisLabel = function(value, isVertical) {
+        var axis = isVertical ? 'y' : 'x';
+        if (presenter.axisLabels[axis][value] != undefined) {
+            return presenter.axisLabels[axis][value];
+        } else {
+            var $el = $("<div></div>");
+            $el.addClass(presenter.CSS_CLASSES.AXIS_LABEL);
+            $el.css('position','absolute');
+            $el.html(value);
+            presenter.axisLabels[axis][value] = $el;
+            return $el;
+        }
+    }
+
+    presenter.drawAxisLabel = function(value, isVertical, x, y) {
+        var $label = presenter.getOrCreateAxisLabel(value, isVertical);
+        if ($label.parent().length == 0) {
+            $label.insertBefore(presenter.$canvasOverlay);
+        }
+        var rect = $label[0].getBoundingClientRect();
+        if (isVertical) {
+            y -= Math.round(rect.height/2);
+        } else {
+            x -= Math.round(rect.width/2);
+        }
+        $label.css('top', y+'px');
+        $label.css('left', x+'px');
+    }
+
+    presenter.drawAxis = function(centerX, centerY, spacing, increment) {
+        if (0 <= centerX && centerX < presenter.canvasWidth) {
+            presenter.context.strokeStyle = presenter.configuration.axisColor;
+            presenter.context.beginPath();
+            presenter.context.moveTo(centerX, presenter.canvasHeight);
+            presenter.context.lineTo(centerX, 0);
+            presenter.context.moveTo(centerX + 5, 5);
+            presenter.context.lineTo(centerX, 0);
+            presenter.context.moveTo(centerX - 5, 5);
+            presenter.context.lineTo(centerX, 0);
+            var tmpY = centerY + spacing;
+            var multiplier = 0;
+            while (tmpY < presenter.canvasHeight - 10) {
+                multiplier -= 1;
+                presenter.drawAxisLabel(increment * multiplier, true, centerX + 10, tmpY);
+                presenter.context.moveTo(centerX - 5, tmpY);
+                presenter.context.lineTo(centerX + 5, tmpY);
+                tmpY += spacing;
+            }
+            tmpY = centerY - spacing;
+            multiplier = 0;
+            while (tmpY > 0) {
+                multiplier += 1;
+                presenter.drawAxisLabel(increment * multiplier, true, centerX + 10, tmpY);
+                presenter.context.moveTo(centerX - 5, tmpY);
+                presenter.context.lineTo(centerX + 5, tmpY);
+                tmpY -= spacing;
+            }
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
+        if (0 <= centerY && centerY < presenter.canvasHeight) {
+            presenter.context.strokeStyle = presenter.configuration.axisColor;
+            presenter.context.beginPath();
+            presenter.context.moveTo(0, centerY);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            presenter.context.moveTo(presenter.canvasWidth - 5, centerY - 5);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            presenter.context.moveTo(presenter.canvasWidth - 5, centerY + 5);
+            presenter.context.lineTo(presenter.canvasWidth, centerY);
+            var tmpX = centerX + spacing;
+            var multiplier = 0;
+            while (tmpX < presenter.canvasWidth) {
+                multiplier += 1;
+                presenter.drawAxisLabel(increment * multiplier, false, tmpX, centerY + 10);
+                presenter.context.moveTo(tmpX, centerY - 5);
+                presenter.context.lineTo(tmpX, centerY + 5);
+                tmpX += spacing;
+            }
+            tmpX = centerX - spacing;
+            multiplier = 0;
+            while (tmpX > 10) {
+                multiplier -= 1;
+                presenter.drawAxisLabel(increment * multiplier, false, tmpX, centerY + 10);
+                presenter.context.moveTo(tmpX, centerY - 5);
+                presenter.context.lineTo(tmpX, centerY + 5);
+                tmpX -= spacing;
+            }
+            presenter.context.stroke();
+            presenter.context.closePath();
+        }
     }
 
     class GeometricElement {
@@ -1741,7 +1920,7 @@ function AddonGeometricConstruct_create() {
                 presenter.showConfigPopup(presenter.labels.circlePopupTitle, [{
                     name: 'radius',
                     title: presenter.labels.radius,
-                    value: this.radius,
+                    value: presenter.convertToUnit(this.radius),
                     type: 'number',
                     min: 0
                 }], (result) => {
