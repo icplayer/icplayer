@@ -76,6 +76,7 @@
 
 		</property>
 		<property name="labelsVisibility" nameLabel="GeometricConstruct_property_labels_visibility" type="boolean"/>
+		<property name="angleLabelsVisibility" nameLabel="GeometricConstruct_property_angle_labels_visibility" type="boolean"/>
 		<property name="DisableUndoRedoButton" nameLabel="GeometricConstruct_property_disable_undo_redo" type="boolean"/>
 		<property name="DisableResetButton" nameLabel="GeometricConstruct_property_disable_reset_button" type="boolean"/>
 		<property name="DisableLabelToggle" nameLabel="GeometricConstruct_property_disable_label_toggle" type="boolean"/>

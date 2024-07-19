@@ -176,8 +176,8 @@ function AddonGeometricConstruct_create() {
         presenter.angleLabelsVisibility = visible;
         for (var i = 0; i < presenter.figuresList.length; i++) {
             var figure = presenter.figuresList[i];
-            if (figure.hasOwnProperty('showAngleLabel')) {
-                if (presenter.labelsVisibility) {
+            if (figure.showAngleLabel !== undefined) {
+                if (presenter.angleLabelsVisibility) {
                     figure.showAngleLabel();
                 } else {
                     figure.hideAngleLabel();
@@ -189,7 +189,8 @@ function AddonGeometricConstruct_create() {
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeAxisConfig(model);
         upgradedModel = presenter.upgradeAngle(upgradedModel);
-        return presenter.upgradeHideAxes(upgradedModel);
+        upgradedModel = presenter.upgradeHideAxes(upgradedModel);
+        return presenter.upgradeAngleLabelsVisibility(upgradedModel);
     }
 
     presenter.upgradeAngle = function(model) {
@@ -240,6 +241,17 @@ function AddonGeometricConstruct_create() {
         }
         if (upgradedModel["hideYAxis"] == undefined) {
             upgradedModel["hideYAxis"] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeAngleLabelsVisibility = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["angleLabelsVisibility"] == undefined) {
+            upgradedModel["angleLabelsVisibility"] = "";
         }
 
         return upgradedModel;
@@ -307,6 +319,7 @@ function AddonGeometricConstruct_create() {
             height: parseInt(model["Height"]),
             defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"]),
+            angleLabelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["angleLabelsVisibility"]),
             disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
             disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
@@ -2919,7 +2932,9 @@ function AddonGeometricConstruct_create() {
             'prevState': presenter.prevState,
             'nextState': presenter.nextState,
             'showLabels': presenter.showLabels,
-            'hideLabels': presenter.hideLabels
+            'hideLabels': presenter.hideLabels,
+            'showAngleLabels': presenter.showAngleLabels,
+            'hideAngleLabels': presenter.hideAngleLabels
 
         };
         Commands.dispatch(commands, name, params, presenter);
