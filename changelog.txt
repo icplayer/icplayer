@@ -1,3 +1,4 @@
+2024-07-18 Changed contentDataLoader to download addons individually by default
 2024-07-12 Fixed displaying popups in mobile mCourser
 2024-07-12 Added x and y axis to the Geometric Construct
 2024-07-09 Added Angle figure to the Geometric Construct addon
