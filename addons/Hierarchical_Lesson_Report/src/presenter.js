@@ -1268,7 +1268,7 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.setPagesVisited = function () {
-        if (presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
             presentationController.getCommands().setAllPagesAsVisited();
         }
     }
