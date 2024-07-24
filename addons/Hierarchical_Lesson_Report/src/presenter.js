@@ -1083,10 +1083,22 @@ function AddonHierarchical_Lesson_Report_create() {
         return upgradedModel;
     }
 
+    presenter.upgradeExcludeUnvisitedPages = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel["excludeUnvisitedPages"] === undefined) {
+            upgradedModel["excludeUnvisitedPages"] = "False";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeAlternativePageNamesProperty(model);
         upgradedModel = presenter.upgradeTextToSpeechSupport(upgradedModel);
         upgradedModel = presenter.upgradeIsWeightedArithmeticMean(upgradedModel);
+        upgradedModel = presenter.upgradeExcludeUnvisitedPages(upgradedModel);
 
         return upgradedModel;
     };
@@ -1192,7 +1204,8 @@ function AddonHierarchical_Lesson_Report_create() {
             enablePages: validatedEnablePages.value,
             alternativePageTitles: validatedAlternativePageTitles.value,
             langTag: model['langAttribute'],
-            isWeightedArithmeticMean: ModelValidationUtils.validateBoolean(model["isWeightedArithmeticMean"])
+            isWeightedArithmeticMean: ModelValidationUtils.validateBoolean(model["isWeightedArithmeticMean"]),
+            areExcludedUnvisitedPagesInTotal: ModelValidationUtils.validateBoolean(model["excludeUnvisitedPages"])
         };
     };
 
@@ -1231,6 +1244,7 @@ function AddonHierarchical_Lesson_Report_create() {
         if (isPreview) {
             presenter.createPreviewTree();
         } else {
+            presenter.setPagesVisited();
             var $view = $("#" + presenter.treeID);
             var rootNode = createRunStructure();
             presenter.createTree($view, rootNode, null);
@@ -1252,6 +1266,12 @@ function AddonHierarchical_Lesson_Report_create() {
 
         checkIfChapterHasChildren();
     };
+
+    presenter.setPagesVisited = function () {
+        if (presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+            presentationController.getCommands().setAllPagesAsVisited();
+        }
+    }
 
     function initLessonScore() {
         var initLessonScore = createEmptyScore();

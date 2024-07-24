@@ -1,3 +1,4 @@
+2024-07-24 Added calculating total score from all pages in Hierarchical_Lesson_Report
 2024-07-05 Change absolute to relative library url in LottiePlayer
 2024-07-05 Fixed placement of Zoom Image's "Full Screen image"
 2024-06-28 Added support for content base URL
