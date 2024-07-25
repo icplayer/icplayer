@@ -49,4 +49,5 @@ public interface IPlayerCommands {
 	void disableKeyboardNavigation();
 	
 	public String getPageStamp();
+	public void setPageAsVisited(String pageId);
 }

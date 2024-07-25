@@ -871,6 +871,16 @@ public class PlayerController implements IPlayerController {
 		}
 	}
 
+	@Override
+	public void setPageAsVisited(String pageId) {
+		IPage page = this.getModel().getPageById(pageId);
+		if (!visitedPages.contains(page)) {
+			visitedPages.add(page);
+			PageScore newPageScore = new PageScore(0, page.getModulesMaxScore());
+			scoreService.setPageScore(page, newPageScore);
+		}
+	}
+
 	public void setTextReading(boolean isWCAGOn) {
 		if (this.pageController1 != null) {
 			this.pageController1.setTextReading(isWCAGOn);

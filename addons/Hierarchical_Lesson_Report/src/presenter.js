@@ -15,6 +15,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
     presenter.printableState = null;
     presenter.printableStateMode = null;
+    presenter.userVisitedPages = [];
 
     var CSS_CLASSES = {
         SELECTED_CELL: "keyboard_navigation_active_element",
@@ -1265,12 +1266,30 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         checkIfChapterHasChildren();
+        presenter.setPrevVisitedPageStatus();
     };
 
     presenter.setPagesVisited = function () {
+        presenter.saveUserVisitedPages();
+
         if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
             presentationController.getCommands().setAllPagesAsVisited();
         }
+    }
+
+    presenter.saveUserVisitedPages = function () {
+        const root = presentationController.getPresentation().getTableOfContents();
+        for (let i = 0; i < root.size(); i++) {
+            const childNode = root.get(i);
+            const node = createNodeRepresentationBaseOnNode(childNode);
+            if (node.visited) {
+                presenter.userVisitedPages.push(node.id);
+            }
+        }
+    }
+
+    presenter.setPrevVisitedPageStatus = function () {
+        presentationController.setPrevVisitedPages(presenter.userVisitedPages.join(','));
     }
 
     function initLessonScore() {
