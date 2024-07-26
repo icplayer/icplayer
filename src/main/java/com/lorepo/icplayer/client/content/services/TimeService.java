@@ -10,7 +10,6 @@ public class TimeService implements ITimeService {
 
 	private final HashMap<String, Long>	pagesTimes;
 	private long lastTimeStamp = 0;
-	private static final long REPLACEMENT_FOR_NEGATIVE_TIME = 55;
 	
 	public TimeService() {
 		pagesTimes = new HashMap<String, Long>();
@@ -20,9 +19,7 @@ public class TimeService implements ITimeService {
 	public Long getTotalTime() {
 		Long t = (long) 0;
 		for (Long page_time : pagesTimes.values()){
-			if (page_time < 0) {
-				t += REPLACEMENT_FOR_NEGATIVE_TIME;
-			} else {
+			if (page_time >= 0) {
 				t += page_time;
 			}
 		}

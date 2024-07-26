@@ -45,7 +45,7 @@ public class GWTTimeTestCase extends GwtTest {
 		timeService.loadFromString(timeState);
 		
 		long totalTime = (long) timeService.getTotalTime();
-		long expectedTime = 35158 + 55;
+		long expectedTime = 35158;
 		assertEquals(totalTime, expectedTime);
 	}
 }
