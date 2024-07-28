@@ -17,7 +17,6 @@
     <property name="libs.commons.destination.file" location="${build.dist.folder}/libs.commons.min.js"/>
     <property name="libs.createjs.destination.file" location="${build.dist.folder}/libs.createjs.min.js"/>
     <property name="libs.dictionaries.destination.file" location="${build.dist.folder}/libs.dictionaries.min.js"/>
-    <property name="libs.eKeyboard_layouts.destination.file" location="${build.dist.folder}/libs.eKeyboard_layouts.min.js"/>
     <property name="libs.jqplot.destination.file" location="${build.dist.folder}/libs.jqplot.min.js"/>
     <property name="libs.jquery.destination.file" location="${build.dist.folder}/libs.jquery.min.js"/>
     <property name="libs.math.destination.file" location="${build.dist.folder}/libs.math.min.js"/>
@@ -97,7 +96,6 @@
         <antcall target="js.concatenate.commons"/>
         <antcall target="js.concatenate.createjs"/>
         <antcall target="js.concatenate.dictionaries"/>
-        <antcall target="js.concatenate.eKeyboard_layouts"/>
         <antcall target="js.concatenate.jqplot"/>
         <antcall target="js.concatenate.jquery"/>
         <antcall target="js.concatenate.math"/>
@@ -162,19 +160,6 @@
         <echo>Concatenating dictionaries' js files ended with: SUCCESS</echo>
     </target>
 
-    <target name="js.concatenate.eKeyboard_layouts" description="Concatenates eKeyboard_layouts' JavaScript libs">
-        <echo>Concatenate eKeyboard_layouts' js files into single one</echo>
-        <concat destfile="${libs.eKeyboard_layouts.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
-            <filelist>
-                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
-            </filelist>
-        </concat>
-        <echo>Concatenating eKeyboard_layouts' js files ended with: SUCCESS</echo>
-    </target>
-
     <target name="js.concatenate.jqplot" description="Concatenates jqplot's JavaScript libs">
         <echo>Concatenate jqplot's js files into single one</echo>
         <concat destfile="${libs.jqplot.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
@@ -203,6 +188,10 @@
                 <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
                 <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
                 <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
             </filelist>
         </concat>
         <echo>Concatenating jquery's js files ended with: SUCCESS</echo>
@@ -242,14 +231,14 @@
         <echo>Concatenate other's js files into single one</echo>
         <concat destfile="${libs.other.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
             <filelist>
+                <file name="${build.temp.folder}/raphael-min.js"/>
+                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
                 <file name="${build.temp.folder}/jsc3d.min.js"/>
                 <file name="${build.temp.folder}/js-expression-eval.js"/>
                 <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
                 <file name="${build.temp.folder}/player-utils.js"/>
                 <file name="${build.temp.folder}/polyfills/startswith.js"/>
                 <file name="${build.temp.folder}/purify.js"/>
-                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
-                <file name="${build.temp.folder}/raphael-min.js"/>
                 <file name="${build.temp.folder}/scorm.js"/>
                 <file name="${build.temp.folder}/scorm_1_2.js"/>
                 <file name="${build.temp.folder}/sonic.js"/>
@@ -307,7 +296,7 @@
         <antcall target="compile.and.copy.commons"/>
         <antcall target="js.concatenate"/>
         <antcall target="addons.compress"/>
-        <!--<antcall target="clear.temp"/>-->
+        <antcall target="clear.temp"/>
         <echo>Bundling ended with: SUCCESS</echo>
     </target>
 </project>

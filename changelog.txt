@@ -1,4 +1,4 @@
-2024-07-24 Chunked libs.min.js
+2024-07-28 Chunked libs.min.js
 2024-07-19 Added hide x/y axis property to the Geometric Construct addon
 2024-07-12 Fixed displaying popups in mobile mCourser
 2024-07-12 Added x and y axis to the Geometric Construct
