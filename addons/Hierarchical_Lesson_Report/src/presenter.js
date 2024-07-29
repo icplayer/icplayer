@@ -16,6 +16,7 @@ function AddonHierarchical_Lesson_Report_create() {
     presenter.printableState = null;
     presenter.printableStateMode = null;
     presenter.userVisitedPages = [];
+    presenter.totalScore = 0; // only for ExcludedUnvisitedPagesInTotal
 
     var CSS_CLASSES = {
         SELECTED_CELL: "keyboard_navigation_active_element",
@@ -387,6 +388,11 @@ function AddonHierarchical_Lesson_Report_create() {
             }
             return printableController.getContentInformation().find(x => x.id === pageId).isVisited === "true";
         }
+
+        if (presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+            return true;
+        }
+
         return presentationController.getPresentation().getPageById(pageId).isVisited();
     };
 
@@ -427,7 +433,7 @@ function AddonHierarchical_Lesson_Report_create() {
             addErrorsCell($row, score.errorCount);
         }
         if (configuration.showPageScore) {
-            addPageScoreRowCell($row, score);
+            addPageScoreRowCell($row, score, node.getId());
         }
         if (configuration.showMaxScoreField) {
             addMaxScoreAwardRowCell($row, score, node.getId());
@@ -470,8 +476,8 @@ function AddonHierarchical_Lesson_Report_create() {
         return createEmptyScore();
     }
 
-    function addPageScoreRowCell($view, score) {
-        var innerHTML = createInnerHTMLForScoreCell(score);
+    function addPageScoreRowCell($view, score, pageId) {
+        var innerHTML = createInnerHTMLForScoreCell(score, pageId);
         addPageScoreCell($view, innerHTML);
     }
 
@@ -585,7 +591,7 @@ function AddonHierarchical_Lesson_Report_create() {
         return result;
     };
 
-    function updateChapterRow($row, chapterIndex, score) {
+    function updateChapterRow($row, chapterIndex, score, pageId) {
         const hasChildren = score.pageCount > 0;
         const configuration = getConfiguration();
 
@@ -602,7 +608,7 @@ function AddonHierarchical_Lesson_Report_create() {
             updateChapterRowErrorsCell($row, score.errorCount, hasChildren);
         }
         if (configuration.showPageScore) {
-            updateChapterRowScoreCell($row, score, hasChildren);
+            updateChapterRowScoreCell($row, score, hasChildren, pageId);
         }
     }
 
@@ -654,19 +660,27 @@ function AddonHierarchical_Lesson_Report_create() {
         updateCell($row, errors, hasChildren, className);
     }
 
-    function updateChapterRowScoreCell($row, score, hasChildren) {
+    function updateChapterRowScoreCell($row, score, hasChildren, pageId) {
         const className = isInPrintableStateMode()
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
             : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
-        const innerHTML = createInnerHTMLForScoreCell(score);
+        const innerHTML = createInnerHTMLForScoreCell(score, pageId);
         updateCell($row, innerHTML, hasChildren, className);
     }
 
-    function createInnerHTMLForScoreCell (score) {
+    function createInnerHTMLForScoreCell (score, pageId) {
+        const $separator = generateSeparator();
+        if (score.maxScore === 0 && !presenter.configuration.areExcludedUnvisitedPagesInTotal && pageId && presentationController) {
+            const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
+            presenter.totalScore += +maxScore;
+
+            return score.score + $separator[0].outerHTML + maxScore;
+        }
+
         if (score.score === 0 && score.maxScore === 0 && score.scaledScore === 0) {
             return getConfiguration().labels.unvisitedPageScore;
         }
-        const $separator = generateSeparator();
+
         return score.score + $separator[0].outerHTML + score.maxScore;
     }
 
@@ -803,7 +817,7 @@ function AddonHierarchical_Lesson_Report_create() {
             if (nodeRepresentation.isChapter()) {
                 const childChapterScore = presenter.createTree($view, nodeRepresentation, currentNodeRelativeIndex);
                 let $row = findChapterElement($view, currentNodeRelativeIndex);
-                updateChapterRow($row, currentNodeRelativeIndex, childChapterScore);
+                updateChapterRow($row, currentNodeRelativeIndex, childChapterScore, nodeRepresentation.getId());
                 pageScore = childChapterScore;
             } else {
                 pageScore = getScoreByPageIdForScoreCell(nodeRepresentation.getId());
@@ -1245,7 +1259,6 @@ function AddonHierarchical_Lesson_Report_create() {
         if (isPreview) {
             presenter.createPreviewTree();
         } else {
-            presenter.setPagesVisited();
             var $view = $("#" + presenter.treeID);
             var rootNode = createRunStructure();
             presenter.createTree($view, rootNode, null);
@@ -1266,31 +1279,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         checkIfChapterHasChildren();
-        presenter.setPrevVisitedPageStatus();
     };
-
-    presenter.setPagesVisited = function () {
-        presenter.saveUserVisitedPages();
-
-        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
-            presentationController.getCommands().setAllPagesAsVisited();
-        }
-    }
-
-    presenter.saveUserVisitedPages = function () {
-        const root = presentationController.getPresentation().getTableOfContents();
-        for (let i = 0; i < root.size(); i++) {
-            const childNode = root.get(i);
-            const node = createNodeRepresentationBaseOnNode(childNode);
-            if (node.visited) {
-                presenter.userVisitedPages.push(node.id);
-            }
-        }
-    }
-
-    presenter.setPrevVisitedPageStatus = function () {
-        presentationController.setPrevVisitedPages(presenter.userVisitedPages.join(','));
-    }
 
     function initLessonScore() {
         var initLessonScore = createEmptyScore();
@@ -1323,6 +1312,12 @@ function AddonHierarchical_Lesson_Report_create() {
     function getLessonScore() {
         if (isInPrintableStateMode())
             return presenter.printableLessonScore;
+
+        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+            presenter.lessonScore.maxScore = presenter.totalScore;
+            return presenter.lessonScore;
+        }
+
         return presenter.lessonScore;
     }
 
@@ -1799,7 +1794,6 @@ function AddonHierarchical_Lesson_Report_create() {
         }
         addIndentationsInTable($table);
 
-        cleanAfterPrintableState();
         return $view[0].outerHTML;
     };
 

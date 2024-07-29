@@ -564,10 +564,6 @@ public class JavaScriptPlayerServices {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::clearVisitedPages()();
 		};
 
-		playerServices.setPrevVisitedPages = function(userVisitedPages) {
-			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setPrevVisitedPages(Ljava/lang/String;)(userVisitedPages);
-		};
-
 		playerServices.getResponsiveLayouts = function () {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getResponsiveLayouts()();
 		}
@@ -1097,16 +1093,6 @@ public class JavaScriptPlayerServices {
 	private void setAllPagesAsVisited() {
 		this.playerServices.getCommands().setAllPagesAsVisited();
 		playerServices.getEventBusService().sendEvent("visitedPagesUpdate", JavaScriptObject.createObject());
-	}
-
-	private void setPrevVisitedPages(String visitedPages) {
-		this.playerServices.clearVisitedPages();
-		List<String> _visitedPages = Arrays.asList(visitedPages.split(","));
-		if (_visitedPages.size() > 0) {
-			for (String pageId : _visitedPages) {
-				this.playerServices.getCommands().setPageAsVisited(pageId);
-			}
-		}
 	}
 
 	private JavaScriptObject getResponsiveLayouts() {

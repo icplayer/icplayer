@@ -250,9 +250,4 @@ public class PlayerCommands implements IPlayerCommands {
 		controller.setAllPagesAsVisited();
 		pageController.getPlayerServices().getEventBusService().sendEvent("visitedPagesUpdate", JavaScriptObject.createObject());
 	}
-
-	@Override
-	public void setPageAsVisited(String userVisitedPages) {
-		controller.setPageAsVisited(userVisitedPages);
-	}
 }

@@ -240,7 +240,4 @@ public class CommandsMockup implements IPlayerCommands {
 
 	@Override
 	public void setAllPagesAsVisited() {}
-
-	@Override
-	public void setPageAsVisited(String visitedPages) {}
 }
