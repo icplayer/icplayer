@@ -1794,6 +1794,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
         addIndentationsInTable($table);
 
+        cleanAfterPrintableState();
         return $view[0].outerHTML;
     };
 
