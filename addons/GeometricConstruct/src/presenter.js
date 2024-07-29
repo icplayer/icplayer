@@ -164,7 +164,26 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeAxisConfig(model);
+        var upgradedModel = presenter.upgradeAxisConfig(model);
+        upgradedModel = presenter.upgradeAngle(upgradedModel);
+        return presenter.upgradeHideAxes(upgradedModel);
+    }
+
+    presenter.upgradeAngle = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["figures"]["Angle"] === undefined) {
+            upgradedModel["figures"]["Angle"] =  {
+                "Angle": "",
+                "Disabled": ""
+            };
+        }
+        if (upgradedModel["angleDecimalPoint"] == undefined) {
+            upgradedModel["angleDecimalPoint"] = "";
+        }
+
+        return upgradedModel;
     }
 
     presenter.upgradeAxisConfig = function (model) {
@@ -188,6 +207,20 @@ function AddonGeometricConstruct_create() {
 
         return upgradedModel;
     };
+
+    presenter.upgradeHideAxes = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["hideXAxis"] == undefined) {
+            upgradedModel["hideXAxis"] = "";
+        }
+        if (upgradedModel["hideYAxis"] == undefined) {
+            upgradedModel["hideYAxis"] = "";
+        }
+
+        return upgradedModel;
+    }
 
     presenter.getActualUnitLength = function() {
         return presenter.configuration.unitLength;
@@ -259,7 +292,9 @@ function AddonGeometricConstruct_create() {
             unitLength: unitLength,
             xAxisPosition: xAxisPosition,
             yAxisPosition: yAxisPosition,
-            angleDecimalPoint: angleDecimalPoint
+            angleDecimalPoint: angleDecimalPoint,
+            hideXAxis: ModelValidationUtils.validateBoolean(model["hideXAxis"]),
+            hideYAxis: ModelValidationUtils.validateBoolean(model["hideYAxis"])
         };
     }
     
@@ -271,27 +306,6 @@ function AddonGeometricConstruct_create() {
         }
 
         return value;
-    }
-
-    presenter.upgradeModel = function(model) {
-        return presenter.upgradeAngle(model);
-    }
-
-    presenter.upgradeAngle = function(model) {
-        const upgradedModel = {};
-        $.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (upgradedModel["figures"]["Angle"] === undefined) {
-            upgradedModel["figures"]["Angle"] =  {
-                "Angle": "",
-                "Disabled": ""
-            };
-        }
-        if (upgradedModel["angleDecimalPoint"] == undefined) {
-            upgradedModel["angleDecimalPoint"] = "";
-        }
-
-        return upgradedModel;
     }
 
     function setLabels(labels, figures) {
@@ -789,7 +803,7 @@ function AddonGeometricConstruct_create() {
     }
 
     presenter.drawAxis = function(centerX, centerY, spacing, increment) {
-        if (0 <= centerX && centerX < presenter.canvasWidth) {
+        if (!presenter.configuration.hideYAxis && 0 <= centerX && centerX < presenter.canvasWidth) {
             presenter.context.strokeStyle = presenter.configuration.axisColor;
             presenter.context.beginPath();
             presenter.context.moveTo(centerX, presenter.canvasHeight);
@@ -800,6 +814,10 @@ function AddonGeometricConstruct_create() {
             presenter.context.lineTo(centerX, 0);
             var tmpY = centerY + spacing;
             var multiplier = 0;
+            if (presenter.configuration.hideXAxis) {
+                multiplier = 1;
+                tmpY = centerY;
+            }
             while (tmpY < presenter.canvasHeight - 10) {
                 multiplier -= 1;
                 presenter.drawAxisLabel(increment * multiplier, true, centerX + 10, tmpY);
@@ -819,7 +837,7 @@ function AddonGeometricConstruct_create() {
             presenter.context.stroke();
             presenter.context.closePath();
         }
-        if (0 <= centerY && centerY < presenter.canvasHeight) {
+        if (!presenter.configuration.hideXAxis && 0 <= centerY && centerY < presenter.canvasHeight) {
             presenter.context.strokeStyle = presenter.configuration.axisColor;
             presenter.context.beginPath();
             presenter.context.moveTo(0, centerY);
@@ -830,6 +848,10 @@ function AddonGeometricConstruct_create() {
             presenter.context.lineTo(presenter.canvasWidth, centerY);
             var tmpX = centerX + spacing;
             var multiplier = 0;
+            if (presenter.configuration.hideYAxis) {
+                multiplier = -1;
+                tmpX = centerX;
+            }
             while (tmpX < presenter.canvasWidth) {
                 multiplier += 1;
                 presenter.drawAxisLabel(increment * multiplier, false, tmpX, centerY + 10);
