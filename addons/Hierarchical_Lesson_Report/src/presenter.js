@@ -389,7 +389,7 @@ function AddonHierarchical_Lesson_Report_create() {
             return printableController.getContentInformation().find(x => x.id === pageId).isVisited === "true";
         }
 
-        if (presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) { //mocked value
             return true;
         }
 
@@ -672,7 +672,8 @@ function AddonHierarchical_Lesson_Report_create() {
         const $separator = generateSeparator();
         if (score.maxScore === 0 && !presenter.configuration.areExcludedUnvisitedPagesInTotal && pageId && presentationController) {
             const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
-            presenter.totalScore += +maxScore;
+            presenter.totalScore += maxScore;
+
 
             return score.score + $separator[0].outerHTML + maxScore;
         }
@@ -680,6 +681,7 @@ function AddonHierarchical_Lesson_Report_create() {
         if (score.score === 0 && score.maxScore === 0 && score.scaledScore === 0) {
             return getConfiguration().labels.unvisitedPageScore;
         }
+        presenter.totalScore += score.maxScore;
 
         return score.score + $separator[0].outerHTML + score.maxScore;
     }
@@ -761,8 +763,10 @@ function AddonHierarchical_Lesson_Report_create() {
         if (score.maxScore) {
             mainScore.weightedScaledScoreNumerator += score.score * weight / score.maxScore;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (presenter.isPageVisited(pageId)) {
+        } else if (presenter.isPageVisited(pageId) && presenter.configuration.areExcludedUnvisitedPagesInTotal) {
             mainScore.weightedScaledScoreNumerator += weight;
+            mainScore.weightedScaledScoreDenominator += weight;
+        } else if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
             mainScore.weightedScaledScoreDenominator += weight;
         }
     }
@@ -770,6 +774,11 @@ function AddonHierarchical_Lesson_Report_create() {
     presenter.updateScaledScore = function (score, pageId) {
         if (isInPrintableEmptyStateMode() || isPreviewConsideringPrintableState()) {
             score.scaledScore = 0
+            return;
+        }
+
+        if (!presentationController.getPresentation().getPageById(pageId).isVisited() && !presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+            score.scaledScore = 0;
             return;
         }
 
