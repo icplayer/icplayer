@@ -34,8 +34,6 @@ public class LocalAddonsLoader implements IAddonLoader {
 	private final String ADDONS_DISTRIBUTION_XML = "addons.min.xml";
 	private boolean requestSend = false;
 	private boolean addonsXMLFetched = false;
-	private boolean firstAddonRequestSent = false;
-	private boolean firstAddonXMLFetched = false;
 	private AddonDescriptor currentAddonDescriptor;
 	private HashMap<String, Element> addonsXMLs = new HashMap<String, Element>();
 	private String fetchURL = URLUtils.resolveURL(GWT.getModuleBaseURL() + "build/dist/", ADDONS_DISTRIBUTION_XML);
@@ -46,22 +44,14 @@ public class LocalAddonsLoader implements IAddonLoader {
 
 	@Override
 	public void load(ILoadListener callbacks) {
-		if (this.firstAddonRequestSent) {
-			if (this.firstAddonXMLFetched) {
-				if (this.requestSend) {
-					if(this.addonsXMLFetched) {
-						this.flushAddon(this.currentAddonDescriptor, callbacks);
-					} else {
-						this.addToWaitingQue(this.currentAddonDescriptor, callbacks);
-					}
-				} else {
-					this.loadSingleAddon(this.currentAddonDescriptor, callbacks);
-				}
+		if (this.requestSend) {
+			if(this.addonsXMLFetched) {
+				this.flushAddon(this.currentAddonDescriptor, callbacks);
 			} else {
 				this.addToWaitingQue(this.currentAddonDescriptor, callbacks);
 			}
-		}else {
-			this.loadFirstAddon(this.currentAddonDescriptor, callbacks);
+		} else {
+			this.requestLoad(callbacks);
 		}
 	}
 	
@@ -160,48 +150,6 @@ public class LocalAddonsLoader implements IAddonLoader {
 		for(WaitingDescriptor descriptor : this.queue){
 			descriptor.listener.onError(errorString);
 		}	
-		this.queue.clear();
-	}
-
-	private String getLocalAddonURL(String addonID) {
-		return URLUtils.resolveURL(GWT.getModuleBaseURL() + "addons/",addonID+".xml");
-	}
-
-	private void loadSingleAddon(AddonDescriptor descriptor, ILoadListener callbacks) {
-		String fetchURL = getLocalAddonURL(descriptor.getAddonId());
-		PrivateAddonLoader addonLoader = new PrivateAddonLoader(descriptor, fetchURL);
-		addonLoader.load(callbacks);
-	}
-
-	private void loadFirstAddon(AddonDescriptor descriptor, ILoadListener callbacks) {
-		this.firstAddonRequestSent = true;
-		final LocalAddonsLoader self = this;
-		final ILoadListener finalCallbacks = callbacks;
-		final AddonDescriptor finalDescriptor = descriptor;
-		ILoadListener firstListener = new ILoadListener() {
-			@Override
-			public void onFinishedLoading(Object obj) {
-				self.firstAddonXMLFetched = true;
-				self.loadWaitingAddons();
-				finalCallbacks.onFinishedLoading(obj);
-			}
-
-			@Override
-			public void onError(String error) {
-				JavaScriptUtils.log("Error loading addon: " + finalDescriptor.getAddonId());
-				JavaScriptUtils.log("Fallback: attempt to load addons.min.xml");
-				self.firstAddonXMLFetched = true;
-				self.currentAddonDescriptor = finalDescriptor;
-				self.requestLoad(finalCallbacks);
-			}
-		};
-		this.loadSingleAddon(descriptor, firstListener);
-	}
-
-	private void loadWaitingAddons() {
-		for(WaitingDescriptor descriptor : this.queue){
-			this.loadSingleAddon(descriptor.descriptor, descriptor.listener);
-		}
 		this.queue.clear();
 	}
 }
