@@ -102,7 +102,7 @@ public class PlayerController implements IPlayerController {
 		this.keyboardController.run(entryPoint);
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
-		this.handleCurrentPageIdRequest(this);
+		this.handleCurrentPageIdRequest();
 		this.lang = content.getMetadataValue("lang");
 		this.responsiveVoice = content.getMetadataValue("responsiveVoiceLang");
 
@@ -708,6 +708,10 @@ public class PlayerController implements IPlayerController {
 		}
 	}
 
+	public void handleCurrentPageIdRequest() {
+		this.handleCurrentPageIdRequest(this);
+	}
+
 	@Override
 	public boolean isPlayerInCrossDomain() {
 		return this.isIframeInCrossDomain;
@@ -738,7 +742,7 @@ public class PlayerController implements IPlayerController {
 		}, false);
 	}-*/;
 
-	public native int handleCurrentPageIdRequest (PlayerController x) /*-{
+	public native void handleCurrentPageIdRequest (PlayerController x) /*-{
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 	
