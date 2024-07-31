@@ -118,6 +118,7 @@ function AddonGeometricConstruct_create() {
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
         presenter.setLabelsVisibility(presenter.configuration.labelsDefaultVisibility);
+        presenter.setAngleLabelsVisibility(presenter.configuration.angleLabelsDefaultVisibility);
         presenter.pushState();
     }
 
@@ -552,7 +553,9 @@ function AddonGeometricConstruct_create() {
     }
 
     function labelsButtonHandler (e) {
-        presenter.setLabelsVisibility(!presenter.labelsVisibility);
+        var newLabelsVisibilityValue = !presenter.labelsVisibility
+        presenter.setLabelsVisibility(newLabelsVisibilityValue);
+        presenter.setAngleLabelsVisibility(newLabelsVisibilityValue);
     }
 
     presenter.updateLabels = function() {

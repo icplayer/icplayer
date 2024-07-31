@@ -126,6 +126,16 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>---</td>
         <td>Hides the labels of geometric figures in the workspace.</td>
     </tr>
+    <tr>
+        <td>showAngleLabels</td>
+        <td>---</td>
+        <td>Displays the labels of angles in the workspace if they were hidden</td>
+    </tr>
+    <tr>
+        <td>hideAngleLabels</td>
+        <td>---</td>
+        <td>Hides the labels of angles in the workspace.</td>
+    </tr>
 </tbody>
 </table>
 
