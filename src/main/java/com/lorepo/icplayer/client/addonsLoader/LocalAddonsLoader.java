@@ -229,7 +229,7 @@ public class LocalAddonsLoader implements IAddonLoader {
 	}
 
 	private void loadWaitingAddons() {
-		for(WaitingDescriptor descriptor : this.queue){
+		for (WaitingDescriptor descriptor : this.queue){
 			this.loadSingleAddon(descriptor.descriptor, descriptor.listener);
 		}
 		this.queue.clear();

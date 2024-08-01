@@ -21,8 +21,8 @@ public class PrivateAddonLoader extends XMLLoader implements IAddonLoader{
 	public String getXML() {
 	    return xml;
 	}
-
-    @Override
+	
+	@Override
 	protected void successCallback(String xmlString, String resolvedURL) {
 		this.xml = xmlString;
 		super.successCallback(xmlString, resolvedURL);
