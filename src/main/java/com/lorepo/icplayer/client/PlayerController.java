@@ -102,6 +102,7 @@ public class PlayerController implements IPlayerController {
 		this.keyboardController.run(entryPoint);
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
+		this.handleCurrentPageIdRequest();
 		this.lang = content.getMetadataValue("lang");
 		this.responsiveVoice = content.getMetadataValue("responsiveVoiceLang");
 
@@ -706,6 +707,12 @@ public class PlayerController implements IPlayerController {
 		}
 	}
 
+	public void handleCurrentPageIdRequest() {
+		if (this.currentMainPageIndex > -1) {
+			this.handleCurrentPageIdRequest(this);
+		}
+	}
+
 	@Override
 	public boolean isPlayerInCrossDomain() {
 		return this.isIframeInCrossDomain;
@@ -732,6 +739,17 @@ public class PlayerController implements IPlayerController {
 			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
 				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
 				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
+			}
+		}, false);
+	}-*/;
+
+	public native void handleCurrentPageIdRequest (PlayerController x) /*-{
+		$wnd.addEventListener('message', function (event) {
+			var data = event.data;
+	
+			if ((typeof data == 'string' || data instanceof String) && data.indexOf('GET_CURRENT_PAGE_ID') === 0) {
+				var currentPageId = x.@com.lorepo.icplayer.client.PlayerController::getCurrentPageId()();
+				$wnd.parent.postMessage('CURRENT_PAGE_ID:' + currentPageId, '*');
 			}
 		}, false);
 	}-*/;
