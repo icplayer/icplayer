@@ -2717,7 +2717,8 @@ function AddonGeometricConstruct_create() {
         presenter.previousStates = [];
         presenter.pushState();
         presenter.updateStateButtonsVisibility();
-        presenter.setLabelsVisibility(presenter.labelsDefaultVisibility);
+        presenter.setLabelsVisibility(presenter.configuration.labelsDefaultVisibility);
+        presenter.setAngleLabelsVisibility(presenter.configuration.angleLabelsDefaultVisibility);
     }
 
     presenter.getSelectedButtonType = function() {
