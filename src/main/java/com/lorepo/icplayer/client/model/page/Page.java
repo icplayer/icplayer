@@ -1090,7 +1090,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 
 		if (playerServices.getCurrentPageIndex() == index) {
-			return true;
+			return playerServices.isPageVisited(this);
 		}
 
 		pageId = playerServices.getModel().getPage(index).getId();
