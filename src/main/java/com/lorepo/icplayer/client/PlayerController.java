@@ -709,7 +709,9 @@ public class PlayerController implements IPlayerController {
 	}
 
 	public void handleCurrentPageIdRequest() {
-		this.handleCurrentPageIdRequest(this);
+		if (this.currentMainPageIndex > -1) {
+			this.handleCurrentPageIdRequest(this);
+		}
 	}
 
 	@Override
