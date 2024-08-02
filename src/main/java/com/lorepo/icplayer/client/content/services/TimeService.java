@@ -19,7 +19,9 @@ public class TimeService implements ITimeService {
 	public Long getTotalTime() {
 		Long t = (long) 0;
 		for (Long page_time : pagesTimes.values()){
-			t += page_time;
+			if (page_time >= 0) {
+				t += page_time;
+			}
 		}
 		return t;
 	}
