@@ -1,4 +1,10 @@
 2024-07-30 Added displaying default page order in test generator preview
+2024-07-29 Chunked libs.min.js
+2024-07-29 Added protection against negative total time
+2024-07-19 Added hide x/y axis property to the Geometric Construct addon
+2024-07-12 Fixed displaying popups in mobile mCourser
+2024-07-12 Added x and y axis to the Geometric Construct
+2024-07-09 Added Angle figure to the Geometric Construct addon
 2024-07-05 Change absolute to relative library url in LottiePlayer
 2024-07-05 Fixed placement of Zoom Image's "Full Screen image"
 2024-06-28 Added support for content base URL

@@ -44,6 +44,29 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Disable 'toggle labels' button</td>
         <td>If checked, the toggle labels button will no longer be visible in the toolbar. The showLabels and hideLabels commands will still be available.</td>
     </tr>
+    <tr>
+        <td>Axis color</td>
+        <td>Specifies the color of the axis. The default value is #444444.</td>
+    </tr>
+        <td>Axis increment</td>
+        <td>The increment used when labeling ticks on the axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
+    </tr>
+    <tr>
+        <td>X-axis position</td>
+        <td>The default position of the x axis, starting from the top edge of the workspace, measured in pixels. If left empty, the X axis will be displayed in the middle of the workspace.</td>
+    </tr>
+    <tr>
+        <td>Y-axis position</td>
+        <td>The default position of the y axis, starting from the left edge of the workspace, measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
+    </tr>
+    <tr>
+        <td>Unit length</td>
+        <td>The default length of a single unit of measure in pixels. The default value is 25.</td>
+    </tr>
+    <tr>
+        <td>Angle's decimal point</td>
+        <td>This property specifies how many digits past the decimal point of an angle's value should be displayed. Default is 0.</td>
+    </tr>
 </tbody>
 </table>
 

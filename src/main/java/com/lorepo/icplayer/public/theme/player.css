@@ -75,7 +75,6 @@ hr, table, fieldset {
   opacity:1;
   filter:alpha(opacity=100); /* For IE8 and earlier */ 
   animation:slideUp 1s ease;
-//  -webkit-animation:slideUp 1s ease;  /* Safari and Chrome */
   z-index:150;
 }
 
