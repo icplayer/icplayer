@@ -327,7 +327,6 @@ public class PlayerController implements IPlayerController {
 	private void switchToPage(IPage page, IPage previousPage, final PageController pageController){
 		page.setContentBaseURL(getContentBaseURL());
 		pageController.getGradualShowAnswersService().hideAll();
-		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
@@ -369,7 +368,7 @@ public class PlayerController implements IPlayerController {
 		}
 		pageLoaded(page, pageController);
 		visitedPages.add(page);
-		if(pageLoadListener != null){
+		if (pageLoadListener != null){
 			pageLoadListener.onFinishedLoading(producedItem);
 		}
 		playerView.hideWaitDialog();
