@@ -487,7 +487,7 @@ public class PageTestCase {
 	}
 	
 	@Test
-	public void testGivenCurrentlyDisplayedPageWhenTestingIfPageIsVisitedThenReturnTrue(){
+	public void testGivenCurrentlyDisplayedAndNotFullyLoadedPageWhenTestingIfPageIsVisitedThenReturnFalse(){
 		Page page1 = new Page("Page 1", "");
 		Page page2 = new Page("Page 2", "");
 		
@@ -499,6 +499,29 @@ public class PageTestCase {
 		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
 		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
 		Mockito.doReturn(1).when(mockedServices).getCurrentPageIndex();
+		Mockito.doReturn(false).when(mockedServices).isPageVisited(page2);
+		
+		page2.setPlayerServices(mockedServices);
+		
+		boolean result = page2.isVisited(false);
+		
+		assertFalse(result);
+	}
+	
+	@Test
+	public void testGivenCurrentlyDisplayedAndFullyLoadedPageWhenTestingIfPageIsVisitedThenReturnTrue(){
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 2", "");
+		
+		Content mockedModel = Mockito.mock(Content.class);
+		Mockito.doReturn(2).when(mockedModel).getPageCount();
+		Mockito.doReturn(page1).when(mockedModel).getPage(0);
+		Mockito.doReturn(page2).when(mockedModel).getPage(1);
+		
+		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
+		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
+		Mockito.doReturn(1).when(mockedServices).getCurrentPageIndex();
+		Mockito.doReturn(true).when(mockedServices).isPageVisited(page2);
 		
 		page2.setPlayerServices(mockedServices);
 		
