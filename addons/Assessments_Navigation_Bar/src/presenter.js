@@ -427,6 +427,11 @@ function AddonAssessments_Navigation_Bar_create(){
         } else if (presenter.randomizeLesson != null) {
             keepDefaultOrder = !presenter.randomizeLesson;
         }
+
+        if (isTestGeneratorPreview()) {
+            keepDefaultOrder = true;
+        }
+
         var pagesToCreate = keepDefaultOrder ? pages : shuffleArray(pages);
 
         return pagesToCreate.map(function (page, index) {
@@ -440,6 +445,13 @@ function AddonAssessments_Navigation_Bar_create(){
             return page != null;
         });
     };
+
+    // keep default page order in test generator preview
+    function isTestGeneratorPreview() {
+        const parentUrl = window.parent?.location.href;
+
+        return parentUrl.includes('lesson/view/assessment') && parentUrl.includes('preview');
+    }
 
     presenter.Sections = function (sections) {
         this.sections = this.createSections(sections);
