@@ -16,6 +16,7 @@ function AddonText_To_Speech_create() {
     }
 
     var presenter = function () {};
+    var observer = null;
 
     presenter.savedSentences = [];
     presenter.savedSentencesIndex = -1;
@@ -109,10 +110,16 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.presenterLogic = function (view, model, isPreview) {
+        console.log('presenterLogic TTS on MOS 4')
         presenter.$view = $(view);
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+
+        if (!isPreview) {
+            presenter.createObserver();
+            presenter.setObserver();
+        }
+
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return false;
@@ -133,6 +140,35 @@ function AddonText_To_Speech_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
 
         return false;
+    };
+
+    presenter.createObserver = function () {
+        observer = new MutationObserver(function (records){
+            records.forEach(function (record) {
+                if (record.removedNodes.length) {
+                    presenter.destroy();
+                }
+
+                if (record.target.childNodes.length === 0) {
+                    observer.disconnect();
+                    presenter.setObservedAttr(false);
+                }
+            });
+        });
+    };
+
+    presenter.setObserver = function () {
+        const config = {attributes: true, childList: true};
+        observer.observe($('.ic_page').get(0), config);
+        presenter.setObservedAttr(true);
+    };
+
+    presenter.setObservedAttr = function (value) {
+        $('.ic_page').attr('observed', value);
+    };
+
+    presenter.isObserverSet = function () {
+        return $('.ic_page').attr('observed');
     };
 
     presenter.run = function (view, model) {
@@ -899,7 +935,7 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.destroy = function () {
-        presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
+        console.log('destroy TTS')
         presenter.cancelSpeechSynthesis();
         presenter.configuration = null;
         presenter.$view = null;

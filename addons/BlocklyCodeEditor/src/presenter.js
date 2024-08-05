@@ -9,6 +9,7 @@
  */
 function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
+    var observer = null;
 
 
     presenter.ERROR_CODES = {
@@ -171,16 +172,45 @@ function AddonBlocklyCodeEditor_create () {
 
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        if (!isPreview) {
+            presenter.createObserver();
+            presenter.setObserver();
+        }
 
         if (isPreview) {
             presenter.$view.css('z-index','0');
         }
     };
+
+    presenter.createObserver = function () {
+        observer = new MutationObserver(function (records){
+            records.forEach(function (record) {
+                if (record.removedNodes.length) {
+                    presenter.destroy();
+                }
+
+                if (record.target.childNodes.length === 0) {
+                    observer.disconnect();
+                    presenter.setObservedAttr(false);
+                }
+            });
+        });
+    };
+
+    presenter.setObserver = function () {
+        const config = {attributes: true, childList: true};
+        observer.observe($('.ic_page').get(0), config);
+        presenter.setObservedAttr(true);
+    };
+
+    presenter.setObservedAttr = function (value) {
+        $('.ic_page').attr('observed', value);
+    };
+
+    presenter.isObserverSet = function () {
+        return $('.ic_page').attr('observed');
+    };
+
 
     presenter.setConfiguration = function(configuration) {
         if(configuration) {
@@ -231,12 +261,12 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.destroy = function Blockly_destroy_function () {
+        console.log('destroy Blockly_destroy_function')
         var key, i;
         if (presenter.configuration.isPreview) {
             $("#content").off("scroll", presenter.scrollFixHandler);
         }
 
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.workspace.dispose();
 
         presenter.configuration.workspace = null;
