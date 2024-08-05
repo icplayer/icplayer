@@ -186,7 +186,9 @@ function AddonBlocklyCodeEditor_create () {
         observer = new MutationObserver(function (records){
             records.forEach(function (record) {
                 if (record.removedNodes.length) {
-                    presenter.destroy();
+                    try {
+                        presenter.destroy();
+                    } catch (e) { }
                 }
 
                 if (record.target.childNodes.length === 0) {
@@ -261,7 +263,6 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.destroy = function Blockly_destroy_function () {
-        console.log('destroy Blockly_destroy_function')
         var key, i;
         if (presenter.configuration.isPreview) {
             $("#content").off("scroll", presenter.scrollFixHandler);

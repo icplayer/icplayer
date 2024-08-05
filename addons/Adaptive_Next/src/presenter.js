@@ -111,7 +111,6 @@ function AddonAdaptive_Next_create() {
         if (event.target !== this) {
             return;
         }
-        console.log('destroy AN');
 
         presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS).off("click", presenter.clickHandler);
     };

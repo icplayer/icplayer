@@ -110,7 +110,6 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.presenterLogic = function (view, model, isPreview) {
-        console.log('presenterLogic TTS on MOS 4')
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -151,7 +150,6 @@ function AddonText_To_Speech_create() {
 
                 if (record.target.childNodes.length === 0) {
                     observer.disconnect();
-                    presenter.setObservedAttr(false);
                 }
             });
         });
@@ -160,11 +158,6 @@ function AddonText_To_Speech_create() {
     presenter.setObserver = function () {
         const config = {attributes: true, childList: true};
         observer.observe($('.ic_page').get(0), config);
-        presenter.setObservedAttr(true);
-    };
-
-    presenter.setObservedAttr = function (value) {
-        $('.ic_page').attr('observed', value);
     };
 
     presenter.isObserverSet = function () {
@@ -935,7 +928,6 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.destroy = function () {
-        console.log('destroy TTS')
         presenter.cancelSpeechSynthesis();
         presenter.configuration = null;
         presenter.$view = null;

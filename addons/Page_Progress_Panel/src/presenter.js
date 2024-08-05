@@ -103,7 +103,6 @@ function AddonPage_Progress_Panel_create(){
 
                 if (record.target.childNodes.length === 0) {
                     observer.disconnect();
-                    presenter.setObservedAttr(false);
                 }
             });
         });
@@ -112,11 +111,6 @@ function AddonPage_Progress_Panel_create(){
     presenter.setObserver = function () {
         const config = {attributes: true, childList: true};
         observer.observe($('.ic_page').get(0), config);
-        presenter.setObservedAttr(true);
-    };
-
-    presenter.setObservedAttr = function (value) {
-        $('.ic_page').attr('observed', value);
     };
 
     presenter.isObserverSet = function () {
@@ -139,7 +133,7 @@ function AddonPage_Progress_Panel_create(){
 		presenter.displayScores(presenter.lastScores);
 	};
 
-    presenter.destroy = function (event) { console.log('destroy PPP')};
+    presenter.destroy = function (event) { };
 
     function removeHidden(shouldRemove, $element) {
         if (shouldRemove) {
