@@ -4,125 +4,116 @@
 
 (function (window) {
     /**
-     Positioning of popups utils.
+     Utils to calculate popup's position.
      @class PositioningUtils
      */
     var PositioningUtils = {};
 
-    PositioningUtils.calculateTopForPopupCentredToVisiblePlayerArea = function PositioningUtils_calculateTopForPopupCentredToVisiblePlayerArea(popupHeight) {
-        var newTopAndHeight = getVisiblePlayerIframeHeightAndTop();
-        var newHeight = newTopAndHeight.height;
-        var newTop = newTopAndHeight.top;
+    PositioningUtils.calculateTopForPopupToBeCentred = function PositioningUtils_calculateTopForPopupToBeCentred(popupHeight) {
+        var visibleIframeWithPlayerHeightAndTop = getVisibleIframeWithPlayerHeightAndTop();
+        var visiblePlayerAreaSize = getVisiblePlayerAreaHeightAndTop(visibleIframeWithPlayerHeightAndTop);
 
-        var playerElement = findPlayerElement();
-        if (playerElement) {
-            var playerElementBoundingClientRect = playerElement.getBoundingClientRect();
-            var playerScale = getElementScale(playerElement);
-            console.log("Y. playerElementBoundingClientRect.height: " + playerElementBoundingClientRect.height);
-            console.log("Y. playerElement.clientHeight: " + playerElement.clientHeight);
-            console.log("Y. newHeight: " + newHeight);
-            console.log("Y. playerElementBoundingClientRect.top: " + playerElementBoundingClientRect.top);
-            if (playerElementBoundingClientRect.height < newHeight) {
-                console.log("playerElement.clientHeight < newHeight");
-                newHeight = playerElementBoundingClientRect.height;
-                newTop += playerElementBoundingClientRect.top;
-            } else if (playerElementBoundingClientRect.top > 0) {
-                console.log("playerElement.clientHeight >= newHeight && playerElementBoundingClientRect.top > 0");
-                newHeight -= playerElementBoundingClientRect.top;
-                newTop += playerElementBoundingClientRect.top;
-            }
-        }
-
-        if (newHeight > popupHeight) {
-            newTop += (newHeight - popupHeight)/2;
+        var newTop = visiblePlayerAreaSize.top;
+        if (visiblePlayerAreaSize.height > popupHeight) {
+            newTop += (visiblePlayerAreaSize.height - popupHeight)/2;
         }
         newTop = Math.max(0, newTop);
-        console.log("Y. scale: " + getElementScale(window.frameElement));
-        console.log("Y. playerScale: " + getElementScale(playerElement));
-        console.log("Y. newTopAndHeight.height: " + newTopAndHeight.height);
-        console.log("Y. newTopAndHeight.top: " + newTopAndHeight.top);
-        console.log("Y. newHeight: " + newHeight);
-        console.log("Y. popupHeight: " + popupHeight);
-        console.log("Y. newTop: " + newTop);
         return newTop;
     };
 
-    function getVisiblePlayerIframeHeightAndTop() {
+    function getVisibleIframeWithPlayerHeightAndTop() {
         var scale = getElementScale(window.frameElement);
-        var offsets = getRelativeOffset();
         var visibleViewportHeight = window.top.innerHeight/scale;
-        var topRelativeToVisibleContent = 0;
+        var offsets = getRelativeOffset();
+        var topRelativeToVisibleContent = Math.max(0, offsets.top);
         if (offsets.top < 0) {
             visibleViewportHeight += offsets.top;
-        } else {
-            topRelativeToVisibleContent = offsets.top;
         }
         visibleViewportHeight += Math.min(0, offsets.bottom);
         visibleViewportHeight = Math.min(visibleViewportHeight, window.innerHeight);
         return {height: visibleViewportHeight, top: topRelativeToVisibleContent};
     }
 
-    PositioningUtils.calculateLeftForPopupCentredToVisiblePlayerArea = function PositioningUtils_calculateLeftForPopupCentredToVisiblePlayerArea(popupWidth) {
-        var newWidthAndLeft = getVisiblePlayerIframeWidthAndLeft();
-        var newWidth = newWidthAndLeft.width;
-        var newLeft = newWidthAndLeft.left;
-        var playerElement = findPlayerElement();
-        if (playerElement) {
-            var playerElementBoundingClientRect = playerElement.getBoundingClientRect();
-            var playerScale = getElementScale(playerElement);
-            console.log("X. playerElementBondingClientRect.width: " + playerElementBoundingClientRect.width);
-            console.log("X. playerElement.clientWidth: " + playerElement.clientWidth);
-            console.log("X. newWidth: " + newWidth);
-            console.log("X. playerElementBondingClientRect.left: " + playerElementBoundingClientRect.left);
-            if (playerElementBoundingClientRect.width < newWidth) {
-                console.log("playerElement.clientWidth < newWidth");
-                newWidth = playerElementBoundingClientRect.width;
-                newLeft += playerElementBoundingClientRect.left;
-            } else if (playerElementBoundingClientRect.left > 0) {
-                console.log("playerElement.clientWidth >= newWidth && playerElementBoundingClientRect.left > 0");
-                newWidth -= playerElementBoundingClientRect.left;
-                newLeft += playerElementBoundingClientRect.left;
+    function getVisiblePlayerAreaHeightAndTop(visibleIframeWithPlayerHeightAndTop) {
+        var visiblePlayerAreaHeightAndTop = {
+            height: visibleIframeWithPlayerHeightAndTop.height,
+            top: visibleIframeWithPlayerHeightAndTop.top
+        };
+        var playerElementBoundingClientRect = getPlayerBoundingClientRect();
+        if (playerElementBoundingClientRect) {
+            if (playerElementBoundingClientRect.height < visiblePlayerAreaHeightAndTop.height) {
+                visiblePlayerAreaHeightAndTop.height = playerElementBoundingClientRect.height;
+                visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
+            } else if (playerElementBoundingClientRect.top > 0) {
+                visiblePlayerAreaHeightAndTop.height -= playerElementBoundingClientRect.top;
+                visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
             }
         }
+        return visiblePlayerAreaHeightAndTop;
+    }
 
-        newLeft += (newWidth - popupWidth)/2;
+    PositioningUtils.calculateLeftForPopupToBeCentred = function PositioningUtils_calculateLeftForPopupToBeCentred(popupWidth) {
+        var visibleIframeWithPlayerWidthAndLeft = getVisibleIframeWithPlayerWidthAndLeft();
+        var visiblePlayerAreaSize = getVisiblePlayerAreaWidthAndLeft(visibleIframeWithPlayerWidthAndLeft);
+
+        // Do not use if like in calculateTopForPopupCentredToVisiblePlayerArea to get values below 0
+        var newLeft = visiblePlayerAreaSize.left;
+        newLeft += (visiblePlayerAreaSize.width - popupWidth)/2;
         newLeft = Math.max(0, newLeft);
-        console.log("X. scale: " + getElementScale(window.frameElement));
-        console.log("X. playerScale: " + getElementScale(playerElement));
-        console.log("X. newWidthAndLeft.width: " + newWidthAndLeft.width);
-        console.log("X. newWidthAndLeft.left: " + newWidthAndLeft.left);
-        console.log("X. newWidth: " + newWidth);
-        console.log("X. popupWidth: " + popupWidth);
-        console.log("X. newLeft: " + newLeft);
         return newLeft;
     };
 
-    function getVisiblePlayerIframeWidthAndLeft() {
+    function getVisibleIframeWithPlayerWidthAndLeft() {
         var scale = getElementScale(window.frameElement);
-        var offsets = getRelativeOffset();
         var visibleViewportWidth = window.top.innerWidth/scale;
-        var leftRelativeToVisibleContent = 0;
+        var offsets = getRelativeOffset();
+        var leftRelativeToVisibleContent = Math.max(0, offsets.left);
         if (offsets.left < 0) {
             visibleViewportWidth += offsets.left;
-        } else {
-            leftRelativeToVisibleContent = offsets.left;
         }
         visibleViewportWidth += Math.min(0, offsets.right);
         visibleViewportWidth = Math.min(visibleViewportWidth, window.innerWidth);
         return {width: visibleViewportWidth, left: leftRelativeToVisibleContent};
     }
 
-    function getElementScale(element){
-        if (!element) {
-            return 1;
+    function getVisiblePlayerAreaWidthAndLeft(visibleIframeWithPlayerWidthAndLeft) {
+        var visiblePlayerAreaWidthAndLeft = {
+            width: visibleIframeWithPlayerWidthAndLeft.width,
+            left: visibleIframeWithPlayerWidthAndLeft.left
+        };
+        var playerElementBoundingClientRect = getPlayerBoundingClientRect();
+        if (playerElementBoundingClientRect) {
+            if (playerElementBoundingClientRect.width < visiblePlayerAreaWidthAndLeft.width) {
+                visiblePlayerAreaWidthAndLeft.width = playerElementBoundingClientRect.width;
+                visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
+            } else if (playerElementBoundingClientRect.left > 0) {
+                visiblePlayerAreaWidthAndLeft.width -= playerElementBoundingClientRect.left;
+                visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
+            }
         }
-        return element.getBoundingClientRect().width / element.offsetWidth;
+        return visiblePlayerAreaWidthAndLeft;
     }
 
-    function findPlayerElement() {
-        return $(window.document.documentElement).find("#_icplayer").find(".ic_player")[0];
-    }
-
+    /**
+     * Gets relative offset between iframe with player and topmost window.
+     * @method getRelativeOffset
+     *
+     * The returned value is a dict object {left: a, top: b, right: c. bottom: d} is an object representing the
+     * difference in distance between the largest visible area of the iframe with the player relative to the topmost
+     * window (window.top.parent).
+     *
+     * Examples:
+     * - A value of 0 for a given direction means that for a given direction the edge of the iframe with the player
+     *   is visible and the distance between the edge of the viewport and the iframe is 0 pixels.
+     * - A negative value of e.g. -64 for a given direction means that for a given direction the edge of the iframe
+     *   with the player is visible and the distance between the edge of the viewport and the iframe is 64 pixels.
+     * - A positive value of e.g. 64  for a given direction means that for a given direction the edge of the iframe
+     *   with the player is not visible and the distance between the edge of the viewport and the iframe is 64 pixels.
+     * The same calculation method is used for all pages, so bottom != height + top.
+     * The method does not take fixed elements in the calculation.
+     *
+     * @returns {{top: number, left: number, bottom: number, right: number}}
+     */
     function getRelativeOffset() {
         var currentWindow = window;
 		var relativeOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
@@ -142,8 +133,24 @@
 			currentWindow = currentWindow.parent;
 		}
 
-        console.log("relativeOffset", relativeOffset);
 		return relativeOffset;
+    }
+
+    function getElementScale(element){
+        if (!element) {
+            return 1;
+        }
+        return element.getBoundingClientRect().width / element.offsetWidth;
+    }
+
+    function getPlayerBoundingClientRect() {
+        // On mobile devices, the element with #_icplayer does not have its width (only width) calculated correctly
+        // using the getBoundingClientRect method. Use its child to get the correct values.
+        var playerElement = $(window.document.documentElement).find("#_icplayer").find(".ic_player")[0];
+        if (!playerElement) {
+            return;
+        }
+        return playerElement.getBoundingClientRect();
     }
 
     function getScrollOffset() {

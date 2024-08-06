@@ -185,42 +185,35 @@ public class PagePopupPanel extends DialogBox {
 	 * @param parentWidget
 	 */
 	public void center() {
-		JavaScriptUtils.log("v0.11");
 		if (parentWidget == null) {
 		    return;
         }
-        ScaleInformation scaleInformation = this.openingPageController.getPlayerServices().getScaleInformation();
+
         int top = calculateNewTop(this.getElement());
-        JavaScriptUtils.log("NEW TOP: " + top);
         int left = calculateNewLeft(this.getElement());
-        JavaScriptUtils.log("NEW LEFT: " + left);
         if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-            JavaScriptUtils.log("LEFT AND TOP");
             int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
             int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
             setPopupPosition(propertyLeft, propertyTop);
         } else if (this.top != null && this.top != "" && isInteger(this.top)) {
-            JavaScriptUtils.log("ONLY TOP");
             int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
             setPopupPosition(left, propertyTop);
         } else if (this.left != null && this.left != "" && isInteger(this.left)) {
-            JavaScriptUtils.log("ONLY LEFT");
             int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
             setPopupPosition(propertyLeft, top);
         } else {
-            JavaScriptUtils.log("NONE");
             setPopupPosition(left, top);
         }
 	}
 
 	private static native int calculateNewTop(Element popupElement) /*-{
 		var elementHeight = popupElement.getBoundingClientRect().height;
-		return $wnd.PositioningUtils.calculateTopForPopupCentredToVisiblePlayerArea(elementHeight);
+		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
 	}-*/;
 
 	private static native int calculateNewLeft(Element popupElement) /*-{
 		var elementWidth = popupElement.getBoundingClientRect().width;
-		return $wnd.PositioningUtils.calculateLeftForPopupCentredToVisiblePlayerArea(elementWidth);
+		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
 	}-*/;
 
 	public boolean isInteger(String s) {
