@@ -186,24 +186,24 @@ public class PagePopupPanel extends DialogBox {
 	 */
 	public void center() {
 		if (parentWidget == null) {
-		    return;
-        }
-
-        int top = calculateNewTop(this.getElement());
-        int left = calculateNewLeft(this.getElement());
-        if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-            int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-            int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-            setPopupPosition(propertyLeft, propertyTop);
-        } else if (this.top != null && this.top != "" && isInteger(this.top)) {
-            int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-            setPopupPosition(left, propertyTop);
-        } else if (this.left != null && this.left != "" && isInteger(this.left)) {
-            int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-            setPopupPosition(propertyLeft, top);
-        } else {
-            setPopupPosition(left, top);
-        }
+			return;
+		}
+		
+		int top = calculateNewTop(this.getElement());
+		int left = calculateNewLeft(this.getElement());
+		if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
+			int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+			int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+			setPopupPosition(propertyLeft, propertyTop);
+		} else if (this.top != null && this.top != "" && isInteger(this.top)) {
+			int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+			setPopupPosition(left, propertyTop);
+		} else if (this.left != null && this.left != "" && isInteger(this.left)) {
+			int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+			setPopupPosition(propertyLeft, top);
+		} else {
+			setPopupPosition(left, top);
+		}
 	}
 
 	private static native int calculateNewTop(Element popupElement) /*-{
