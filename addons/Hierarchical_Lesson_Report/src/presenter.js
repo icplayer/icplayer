@@ -389,11 +389,11 @@ function AddonHierarchical_Lesson_Report_create() {
             return printableController.getContentInformation().find(x => x.id === pageId).isVisited === "true";
         }
 
-        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) { //mocked value
+        if (!presenter.configuration.excludeUnvisitedPages) { //mocked value
             return true;
         }
 
-        return presentationController.getPresentation().getPageById(pageId).isVisited();
+        return presenter.isVisited(pageId);
     };
 
     presenter.getPageScaledScore = function(maxScore, score, isChapter, pageID) {
@@ -670,10 +670,9 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function createInnerHTMLForScoreCell (score, pageId) {
         const $separator = generateSeparator();
-        if (score.maxScore === 0 && !presenter.configuration.areExcludedUnvisitedPagesInTotal && pageId && presentationController) {
+        if (score.maxScore === 0 && !presenter.configuration.excludeUnvisitedPages && pageId && presentationController) {
             const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
             presenter.totalScore += maxScore;
-
 
             return score.score + $separator[0].outerHTML + maxScore;
         }
@@ -763,10 +762,13 @@ function AddonHierarchical_Lesson_Report_create() {
         if (score.maxScore) {
             mainScore.weightedScaledScoreNumerator += score.score * weight / score.maxScore;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (presenter.isPageVisited(pageId) && presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        } else if (presenter.isPageVisited(pageId) && presenter.configuration.excludeUnvisitedPages) {
             mainScore.weightedScaledScoreNumerator += weight;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        }  else if (presenter.isVisited(pageId) && !presenter.configuration.excludeUnvisitedPages) {
+            mainScore.weightedScaledScoreNumerator += weight;
+            mainScore.weightedScaledScoreDenominator += weight;
+         }else if (!presenter.configuration.excludeUnvisitedPages) {
             mainScore.weightedScaledScoreDenominator += weight;
         }
     }
@@ -777,7 +779,7 @@ function AddonHierarchical_Lesson_Report_create() {
             return;
         }
 
-        if (!presentationController.getPresentation().getPageById(pageId).isVisited() && !presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        if (!presentationController.getPresentation().getPageById(pageId).isVisited() && !presenter.configuration.excludeUnvisitedPages) {
             score.scaledScore = 0;
             return;
         }
@@ -789,6 +791,10 @@ function AddonHierarchical_Lesson_Report_create() {
         } else {
             score.scaledScore = 0;
         }
+    }
+
+    presenter.isVisited = function (pageId) {
+        return presentationController.getPresentation().getPageById(pageId).isVisited();
     }
 
     presenter.createPreviewTree = function() {
@@ -1229,7 +1235,7 @@ function AddonHierarchical_Lesson_Report_create() {
             alternativePageTitles: validatedAlternativePageTitles.value,
             langTag: model['langAttribute'],
             isWeightedArithmeticMean: ModelValidationUtils.validateBoolean(model["isWeightedArithmeticMean"]),
-            areExcludedUnvisitedPagesInTotal: ModelValidationUtils.validateBoolean(model["excludeUnvisitedPages"])
+            excludeUnvisitedPages: ModelValidationUtils.validateBoolean(model["excludeUnvisitedPages"])
         };
     };
 
@@ -1322,7 +1328,7 @@ function AddonHierarchical_Lesson_Report_create() {
         if (isInPrintableStateMode())
             return presenter.printableLessonScore;
 
-        if (!presenter.configuration.areExcludedUnvisitedPagesInTotal) {
+        if (!presenter.configuration.excludeUnvisitedPages) {
             presenter.lessonScore.maxScore = presenter.totalScore;
             return presenter.lessonScore;
         }
