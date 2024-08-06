@@ -173,46 +173,14 @@ function AddonBlocklyCodeEditor_create () {
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
         if (!isPreview) {
-            presenter.createObserver();
-            presenter.setObserver();
+            MutationObserverSingleton.createObserver(presenter.destroy, this);
+            MutationObserverSingleton.setObserver();
         }
 
         if (isPreview) {
             presenter.$view.css('z-index','0');
         }
     };
-
-    presenter.createObserver = function () {
-        observer = new MutationObserver(function (records){
-            records.forEach(function (record) {
-                if (record.removedNodes.length) {
-                    try {
-                        presenter.destroy();
-                    } catch (e) { }
-                }
-
-                if (record.target.childNodes.length === 0) {
-                    observer.disconnect();
-                    presenter.setObservedAttr(false);
-                }
-            });
-        });
-    };
-
-    presenter.setObserver = function () {
-        const config = {attributes: true, childList: true};
-        observer.observe($('.ic_page').get(0), config);
-        presenter.setObservedAttr(true);
-    };
-
-    presenter.setObservedAttr = function (value) {
-        $('.ic_page').attr('observed', value);
-    };
-
-    presenter.isObserverSet = function () {
-        return $('.ic_page').attr('observed');
-    };
-
 
     presenter.setConfiguration = function(configuration) {
         if(configuration) {

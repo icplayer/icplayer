@@ -132,41 +132,11 @@ function AddonAdaptive_Next_create() {
         presenter.initView();
 
         if (!isPreview) {
-            presenter.createObserver();
-            presenter.setObserver();
+            MutationObserverSingleton.createObserver(presenter.destroy, this);
+            MutationObserverSingleton.setObserver();
             handleMouseActions();
         }
     }
-
-    presenter.createObserver = function () {
-        const _this = this;
-        observer = new MutationObserver(function (records){
-            records.forEach(function (record) {
-                if (record.removedNodes.length) {
-                    presenter.destroy(_this);
-                }
-
-                if (record.target.childNodes.length === 0) {
-                    observer.disconnect();
-                    presenter.setObservedAttr(false);
-                }
-            });
-        });
-    };
-
-    presenter.setObserver = function () {
-        const config = {attributes: true, childList: true};
-        observer.observe($('.ic_page').get(0), config);
-        presenter.setObservedAttr(true);
-    };
-
-    presenter.setObservedAttr = function (value) {
-        $('.ic_page').attr('observed', value);
-    };
-
-    presenter.isObserverSet = function () {
-        return $('.ic_page').attr('observed');
-    };
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;

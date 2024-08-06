@@ -87,36 +87,12 @@ function AddonPage_Progress_Panel_create(){
 			var score = presenter.playerController.getScore().getPageScoreById(pageId);
 			presenter.lastScores.sumOfMaxScore = score.maxScore;
 			presenter.displayScores(presenter.lastScores);
-            presenter.createObserver();
-            presenter.setObserver();
+            MutationObserverSingleton.createObserver(presenter.destroy);
+            MutationObserverSingleton.setObserver();
 			presenter.view.addEventListener('ShowAnswers', this);
 		}
 
     };
-
-    presenter.createObserver = function () {
-        observer = new MutationObserver(function (records){
-            records.forEach(function (record) {
-                if (record.removedNodes.length) {
-                    presenter.destroy();
-                }
-
-                if (record.target.childNodes.length === 0) {
-                    observer.disconnect();
-                }
-            });
-        });
-    };
-
-    presenter.setObserver = function () {
-        const config = {attributes: true, childList: true};
-        observer.observe($('.ic_page').get(0), config);
-    };
-
-    presenter.isObserverSet = function () {
-        return $('.ic_page').attr('observed');
-    };
-
 
 	presenter.onEventReceived = function (eventName) {
         if (eventName == "ShowAnswers") {

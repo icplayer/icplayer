@@ -115,8 +115,8 @@ function AddonText_To_Speech_create() {
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (!isPreview) {
-            presenter.createObserver();
-            presenter.setObserver();
+            MutationObserverSingleton.createObserver(presenter.destroy);
+            MutationObserverSingleton.setObserver();
         }
 
         if (!presenter.configuration.isValid) {
@@ -139,29 +139,6 @@ function AddonText_To_Speech_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
 
         return false;
-    };
-
-    presenter.createObserver = function () {
-        observer = new MutationObserver(function (records){
-            records.forEach(function (record) {
-                if (record.removedNodes.length) {
-                    presenter.destroy();
-                }
-
-                if (record.target.childNodes.length === 0) {
-                    observer.disconnect();
-                }
-            });
-        });
-    };
-
-    presenter.setObserver = function () {
-        const config = {attributes: true, childList: true};
-        observer.observe($('.ic_page').get(0), config);
-    };
-
-    presenter.isObserverSet = function () {
-        return $('.ic_page').attr('observed');
     };
 
     presenter.run = function (view, model) {
