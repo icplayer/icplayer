@@ -1,6 +1,7 @@
 function AddonPage_Progress_Panel_create(){
 
     var presenter = function(){};
+    var observer = null;
 
     presenter.playerController = null;
     presenter.eventBus = null;
@@ -86,11 +87,8 @@ function AddonPage_Progress_Panel_create(){
 			var score = presenter.playerController.getScore().getPageScoreById(pageId);
 			presenter.lastScores.sumOfMaxScore = score.maxScore;
 			presenter.displayScores(presenter.lastScores);
-			presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
-				if (event.target === this) {
-					presenter.destroy();
-				}
-			});
+            MutationObserverSingleton.createObserver(presenter.destroy);
+            MutationObserverSingleton.setObserver();
 			presenter.view.addEventListener('ShowAnswers', this);
 		}
 
@@ -111,9 +109,7 @@ function AddonPage_Progress_Panel_create(){
 		presenter.displayScores(presenter.lastScores);
 	};
 
-    presenter.destroy = function (event) {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-    };
+    presenter.destroy = function (event) { };
 
     function removeHidden(shouldRemove, $element) {
         if (shouldRemove) {

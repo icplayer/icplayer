@@ -9,6 +9,7 @@
  */
 function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
+    var observer = null;
 
 
     presenter.ERROR_CODES = {
@@ -171,11 +172,10 @@ function AddonBlocklyCodeEditor_create () {
 
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        if (!isPreview) {
+            MutationObserverSingleton.createObserver(presenter.destroy, this);
+            MutationObserverSingleton.setObserver();
+        }
 
         if (isPreview) {
             presenter.$view.css('z-index','0');
@@ -236,7 +236,6 @@ function AddonBlocklyCodeEditor_create () {
             $("#content").off("scroll", presenter.scrollFixHandler);
         }
 
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.workspace.dispose();
 
         presenter.configuration.workspace = null;

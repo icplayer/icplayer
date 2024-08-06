@@ -1,5 +1,6 @@
 function AddonAdaptive_Next_create() {
     var presenter = function() {};
+    var observer = null;
 
     presenter.isAdaptivePreviewMode = false;
 
@@ -107,11 +108,10 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.destroy = function (event) {
-         if (event.target !== this) {
+        if (event.target !== this) {
             return;
         }
 
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS).off("click", presenter.clickHandler);
     };
 
@@ -132,6 +132,8 @@ function AddonAdaptive_Next_create() {
         presenter.initView();
 
         if (!isPreview) {
+            MutationObserverSingleton.createObserver(presenter.destroy, this);
+            MutationObserverSingleton.setObserver();
             handleMouseActions();
         }
     }

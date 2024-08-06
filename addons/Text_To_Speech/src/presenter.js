@@ -16,6 +16,7 @@ function AddonText_To_Speech_create() {
     }
 
     var presenter = function () {};
+    var observer = null;
 
     presenter.savedSentences = [];
     presenter.savedSentencesIndex = -1;
@@ -110,9 +111,14 @@ function AddonText_To_Speech_create() {
 
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+
+        if (!isPreview) {
+            MutationObserverSingleton.createObserver(presenter.destroy);
+            MutationObserverSingleton.setObserver();
+        }
+
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return false;
@@ -899,7 +905,6 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.destroy = function () {
-        presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.cancelSpeechSynthesis();
         presenter.configuration = null;
         presenter.$view = null;
