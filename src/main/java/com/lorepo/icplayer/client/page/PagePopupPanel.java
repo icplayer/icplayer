@@ -17,6 +17,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 import com.lorepo.icplayer.client.model.page.PopupPage;
@@ -92,7 +93,7 @@ public class PagePopupPanel extends DialogBox {
 		});
 	}
 
-	private void initPanel(PopupPage page){
+	private void initPanel(PopupPage page) {
 		pageWidget = new PageView("ic_popup_page");
 		String classes = additionalClasses == "" ? "ic_popup" : "ic_popup " + additionalClasses;
 
@@ -166,11 +167,15 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
 		
-		center();
+		center(page.getHeight());
 	}
 	
 	private native int getWindowHeight() /*-{
 		return $wnd.$($wnd.document).height();
+	}-*/;
+
+	private native int getAbsoluteWindowHeight() /*-{
+		return $wnd.$($wnd).height();
 	}-*/;
 	
 	// This method makes the device use hardware acceleration on the provided element, increasing performance
@@ -211,7 +216,7 @@ public class PagePopupPanel extends DialogBox {
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center() {	
+	public void center(int popupHeight) {	
 		if(parentWidget != null){
 			int left = parentWidget.getAbsoluteLeft();
 			int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
@@ -237,18 +242,40 @@ public class PagePopupPanel extends DialogBox {
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
 				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
 				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-				setPopupPosition(propertyLeft, propertyTop);
+				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
+				setPopupPosition(propertyLeft, updatedTop);
 			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
 				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
-				setPopupPosition(left, propertyTop);
+				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
+				setPopupPosition(left, updatedTop);
 			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
 				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
-				setPopupPosition(propertyLeft, top);
+				int updatedTop = getMobileMcourserTop(top, popupHeight);
+				setPopupPosition(propertyLeft, updatedTop);
 			} else {
-				setPopupPosition(left, top);
+				int updatedTop = getMobileMcourserTop(top, popupHeight);
+				setPopupPosition(left, updatedTop);
 			}
 		}
 	}
+
+	// return popup top value for mobile mCourser instances
+	private int getMobileMcourserTop(int top, int popupHeight) {
+		if (DevicesUtils.isMobile() && !isMAuthor()) {
+			int windowHeight = getAbsoluteWindowHeight();
+	
+			return (windowHeight - popupHeight) / 2;
+		}
+		
+		return top;
+	}
+
+	private static native boolean isMAuthor() /*-{
+		var names = ["lorepo", "mauthor"];
+        var origin = window.origin;
+
+        return origin.includes(names[0]) || origin.includes(names[1]);
+	}-*/;
 
 	public boolean isInteger(String s) {
       boolean isValidInteger = false;

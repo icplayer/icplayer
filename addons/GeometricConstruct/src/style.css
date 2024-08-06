@@ -175,6 +175,10 @@
     background: url('resources/gc_arc_with_center_point_icon.png') no-repeat center;
 }
 
+.geometric_construct_wrapper .toolbar_wrapper .toolbarButton .icon.angle-image {
+    background: url('resources/gc_angle_icon.png') no-repeat center;
+}
+
 .geometric_construct_wrapper .toolbar_wrapper .toolbarButton canvas {
     display: block;
     margin-left: auto;
@@ -237,4 +241,9 @@
     background-color: white;
     border: solid 1px black;
     padding: 3px;
+}
+
+.geometric_construct_wrapper .workspace_wrapper .axis_label {
+    font-size: 0.7em;
+    color: #444444;
 }
