@@ -7,16 +7,49 @@
      Positioning of popups utils.
      @class PositioningUtils
      */
-    var PositioningUtils = {
-        scale: 1
+    var PositioningUtils = {};
+
+    PositioningUtils.calculateTopForPopupCentredToVisiblePlayerArea = function PositioningUtils_calculateTopForPopupCentredToVisiblePlayerArea(popupHeight) {
+        var newTopAndHeight = getVisiblePlayerIframeHeightAndTop();
+        var newHeight = newTopAndHeight.height;
+        var newTop = newTopAndHeight.top;
+
+        var playerElement = findPlayerElement();
+        if (playerElement) {
+            var playerElementBoundingClientRect = playerElement.getBoundingClientRect();
+            var playerScale = getElementScale(playerElement);
+            console.log("Y. playerElementBoundingClientRect.height: " + playerElementBoundingClientRect.height);
+            console.log("Y. playerElement.clientHeight: " + playerElement.clientHeight);
+            console.log("Y. newHeight: " + newHeight);
+            console.log("Y. playerElementBoundingClientRect.top: " + playerElementBoundingClientRect.top);
+            if (playerElementBoundingClientRect.height < newHeight) {
+                console.log("playerElement.clientHeight < newHeight");
+                newHeight = playerElementBoundingClientRect.height;
+                newTop += playerElementBoundingClientRect.top;
+            } else if (playerElementBoundingClientRect.top > 0) {
+                console.log("playerElement.clientHeight >= newHeight && playerElementBoundingClientRect.top > 0");
+                newHeight -= playerElementBoundingClientRect.top;
+                newTop += playerElementBoundingClientRect.top;
+            }
+        }
+
+        if (newHeight > popupHeight) {
+            newTop += (newHeight - popupHeight)/2;
+        }
+        newTop = Math.max(0, newTop);
+        console.log("Y. scale: " + getElementScale(window.frameElement));
+        console.log("Y. playerScale: " + getElementScale(playerElement));
+        console.log("Y. newTopAndHeight.height: " + newTopAndHeight.height);
+        console.log("Y. newTopAndHeight.top: " + newTopAndHeight.top);
+        console.log("Y. newHeight: " + newHeight);
+        console.log("Y. popupHeight: " + popupHeight);
+        console.log("Y. newTop: " + newTop);
+        return newTop;
     };
 
-    PositioningUtils.calculateTopForCentredPopup = function PositioningUtils_calculateTopForCentredPopup(popupHeight) {
+    function getVisiblePlayerIframeHeightAndTop() {
         var scale = getElementScale(window.frameElement);
-        var offsets = getVisibleViewportOffset();
-        // var playerElement = findPlayerElement();
-        // var playerElementHeight = playerElement.getBoundingClientRect().height;
-        // var visibleViewportHeight = playerElementHeight < window.top.innerHeight/scale ? playerElementHeight : window.top.innerHeight/scale;
+        var offsets = getRelativeOffset();
         var visibleViewportHeight = window.top.innerHeight/scale;
         var topRelativeToVisibleContent = 0;
         if (offsets.top < 0) {
@@ -24,63 +57,75 @@
         } else {
             topRelativeToVisibleContent = offsets.top;
         }
-        if (offsets.bottom < 0) {
-            visibleViewportHeight += offsets.bottom;
+        visibleViewportHeight += Math.min(0, offsets.bottom);
+        visibleViewportHeight = Math.min(visibleViewportHeight, window.innerHeight);
+        return {height: visibleViewportHeight, top: topRelativeToVisibleContent};
+    }
+
+    PositioningUtils.calculateLeftForPopupCentredToVisiblePlayerArea = function PositioningUtils_calculateLeftForPopupCentredToVisiblePlayerArea(popupWidth) {
+        var newWidthAndLeft = getVisiblePlayerIframeWidthAndLeft();
+        var newWidth = newWidthAndLeft.width;
+        var newLeft = newWidthAndLeft.left;
+        var playerElement = findPlayerElement();
+        if (playerElement) {
+            var playerElementBoundingClientRect = playerElement.getBoundingClientRect();
+            var playerScale = getElementScale(playerElement);
+            console.log("X. playerElementBondingClientRect.width: " + playerElementBoundingClientRect.width);
+            console.log("X. playerElement.clientWidth: " + playerElement.clientWidth);
+            console.log("X. newWidth: " + newWidth);
+            console.log("X. playerElementBondingClientRect.left: " + playerElementBoundingClientRect.left);
+            if (playerElementBoundingClientRect.width < newWidth) {
+                console.log("playerElement.clientWidth < newWidth");
+                newWidth = playerElementBoundingClientRect.width;
+                newLeft += playerElementBoundingClientRect.left;
+            } else if (playerElementBoundingClientRect.left > 0) {
+                console.log("playerElement.clientWidth >= newWidth && playerElementBoundingClientRect.left > 0");
+                newWidth -= playerElementBoundingClientRect.left;
+                newLeft += playerElementBoundingClientRect.left;
+            }
         }
-        console.log("Y. scale: " + getElementScale(window.frameElement));
-        console.log("Y. popupOffset: " + topRelativeToVisibleContent);
-        console.log("Y. visibleViewportHeight: " + visibleViewportHeight);
-        console.log("Y. popupHeight: " + popupHeight);
-        // var newTop = topRelativeToVisibleContent + playerElement.offsetTop + (visibleViewportHeight - popupHeight)/2;
-        var newTop = topRelativeToVisibleContent + (visibleViewportHeight - popupHeight)/2;
-        newTop = newTop < 0 ? 0 : newTop;
-        return newTop;
+
+        newLeft += (newWidth - popupWidth)/2;
+        newLeft = Math.max(0, newLeft);
+        console.log("X. scale: " + getElementScale(window.frameElement));
+        console.log("X. playerScale: " + getElementScale(playerElement));
+        console.log("X. newWidthAndLeft.width: " + newWidthAndLeft.width);
+        console.log("X. newWidthAndLeft.left: " + newWidthAndLeft.left);
+        console.log("X. newWidth: " + newWidth);
+        console.log("X. popupWidth: " + popupWidth);
+        console.log("X. newLeft: " + newLeft);
+        return newLeft;
     };
 
-    PositioningUtils.calculateLeftForCentredPopup = function PositioningUtils_calculateLeftForCentredPopup(popupWidth) {
-        console.log("V10.1")
+    function getVisiblePlayerIframeWidthAndLeft() {
         var scale = getElementScale(window.frameElement);
-        var offsets = getVisibleViewportOffset();
-        // var playerElement = findPlayerElement();
-        // var playerScale = getElementScale(playerElement);
-        // var playerElementWidth = playerElement.getBoundingClientRect().width;
-        // console.log("playerElementWidth", playerElementWidth);
-        // console.log("window.top.innerWidth", window.top.innerWidth);
+        var offsets = getRelativeOffset();
         var visibleViewportWidth = window.top.innerWidth/scale;
-        // if (playerElementWidth < visibleViewportWidth) {
-        //     visibleViewportWidth = playerElementWidth;
-        //     leftRelativeToVisibleContent +=
-        // }
-        // var visibleViewportWidth = window.top.innerWidth/scale;
-        console.log("visibleViewportWidth", visibleViewportWidth);
-        console.log("offsets", offsets);
         var leftRelativeToVisibleContent = 0;
         if (offsets.left < 0) {
             visibleViewportWidth += offsets.left;
         } else {
             leftRelativeToVisibleContent = offsets.left;
         }
-        if (offsets.right < 0) {
-            visibleViewportWidth += offsets.right;
-        }
-        console.log("X. scale: " + getElementScale(window.frameElement));
-        console.log("X. newLeft: " + leftRelativeToVisibleContent);
-        console.log("X. visibleViewportWidth: " + visibleViewportWidth);
-        console.log("X. popupWidth: " + popupWidth);
-        // console.log("playerElement.offsetLeft", playerElement.offsetLeft);
-        //var newLeft = leftRelativeToVisibleContent + playerElement.offsetLeft + (visibleViewportWidth - popupWidth)/2;
-        var newLeft = leftRelativeToVisibleContent + (visibleViewportWidth - popupWidth)/2;
-        newLeft = newLeft < 0 ? 0 : newLeft;
-        return newLeft;
-    };
-
-    function findPlayerElement() {
-        return $(window.document.documentElement).find("#_icplayer")[0];
+        visibleViewportWidth += Math.min(0, offsets.right);
+        visibleViewportWidth = Math.min(visibleViewportWidth, window.innerWidth);
+        return {width: visibleViewportWidth, left: leftRelativeToVisibleContent};
     }
 
-    function getVisibleViewportOffset() {
+    function getElementScale(element){
+        if (!element) {
+            return 1;
+        }
+        return element.getBoundingClientRect().width / element.offsetWidth;
+    }
+
+    function findPlayerElement() {
+        return $(window.document.documentElement).find("#_icplayer").find(".ic_player")[0];
+    }
+
+    function getRelativeOffset() {
         var currentWindow = window;
-		var parentOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
+		var relativeOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
 
 		while (currentWindow !== currentWindow.parent) {
             var scale = getElementScale(currentWindow.frameElement);
@@ -90,21 +135,15 @@
             var iframeLeftOffset = Math.round(frameRect.left - parentRect.left);
             var iframeBottomOffset = frameRect.bottom - parentRect.height;
             var iframeRightOffset = frameRect.right - parentRect.width;
-			parentOffset.top += (currentWindow.parent.pageYOffset - iframeTopOffset)/scale;
-            parentOffset.left += (currentWindow.parent.pageXOffset - iframeLeftOffset)/scale;
-            parentOffset.bottom += (iframeBottomOffset)/scale;
-            parentOffset.right += (iframeRightOffset)/scale;
+			relativeOffset.top += (currentWindow.parent.pageYOffset - iframeTopOffset)/scale;
+            relativeOffset.left += (currentWindow.parent.pageXOffset - iframeLeftOffset)/scale;
+            relativeOffset.bottom += (iframeBottomOffset)/scale;
+            relativeOffset.right += (iframeRightOffset)/scale;
 			currentWindow = currentWindow.parent;
 		}
 
-		return parentOffset;
-    }
-
-    function getElementScale(element){
-        if (!element) {
-            return 1;
-        }
-        return element.getBoundingClientRect().width / element.offsetWidth;
+        console.log("relativeOffset", relativeOffset);
+		return relativeOffset;
     }
 
     function getScrollOffset() {

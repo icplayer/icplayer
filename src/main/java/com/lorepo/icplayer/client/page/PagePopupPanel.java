@@ -167,15 +167,11 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
 
-		center(page.getHeight());
+		center();
 	}
 
 	private native int getWindowHeight() /*-{
 		return $wnd.$($wnd.document).height();
-	}-*/;
-
-	private native int getAbsoluteWindowHeight() /*-{
-		return $wnd.$($wnd).height();
 	}-*/;
 
 	// This method makes the device use hardware acceleration on the provided element, increasing performance
@@ -184,97 +180,47 @@ public class PagePopupPanel extends DialogBox {
 		e.getStyle().setProperty("-webkit-transform", "translate3d(0,0,0)");
 	}
 
-	public static native int getParentWindowOffset() /*-{
-		var current_window = $wnd;
-		var global_offset = 0;
-
-		while (current_window != current_window.parent) {
-			var iframe_offset = 0,
-				iframes = current_window.parent.document.getElementsByTagName("iframe");
-
-			for (var i=0; i < iframes.length; i++) {
-				var current_iframe = iframes[i];
-
-				if (current_window.location.href == current_iframe.src){
-					var iframe_placement = current_iframe.getBoundingClientRect().top,
-						body_placement = current_window.parent.document.body.getBoundingClientRect().top;
-
-					iframe_offset = Math.round(iframe_placement - body_placement);
-				}
-			}
-
-			global_offset += current_window.parent.pageYOffset - iframe_offset;
-			current_window = current_window.parent;
-		}
-
-		global_offset = Math.max(0, global_offset);
-		return global_offset;
-
-	}-*/;
-
 	/**
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center(int popupHeight) {
-		if(parentWidget != null){
-			int left = parentWidget.getAbsoluteLeft();
-			int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
-			left = left+offsetX/2;
-			if (left<0) {
-				left = 0;
-			}
-
-			int top;
-			if(Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
-				top = Math.abs(parentWidget.getAbsoluteTop());
-			}
-			else{
-				top = Window.getScrollTop();
-			}
-
-			try{
-				top += getParentWindowOffset();
-			}catch(Exception e) {
-				top += 0;
-			}
-
-			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
-				setPopupPosition(propertyLeft, updatedTop);
-			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
-				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
-				setPopupPosition(left, updatedTop);
-			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
-				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
-				int updatedTop = getMobileMcourserTop(top, popupHeight);
-				setPopupPosition(propertyLeft, updatedTop);
-			} else {
-				int updatedTop = getMobileMcourserTop(top, popupHeight);
-				setPopupPosition(left, updatedTop);
-			}
-		}
+	public void center() {
+		JavaScriptUtils.log("v0.11");
+		if (parentWidget == null) {
+		    return;
+        }
+        ScaleInformation scaleInformation = this.openingPageController.getPlayerServices().getScaleInformation();
+        int top = calculateNewTop(this.getElement());
+        JavaScriptUtils.log("NEW TOP: " + top);
+        int left = calculateNewLeft(this.getElement());
+        JavaScriptUtils.log("NEW LEFT: " + left);
+        if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
+            JavaScriptUtils.log("LEFT AND TOP");
+            int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+            int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+            setPopupPosition(propertyLeft, propertyTop);
+        } else if (this.top != null && this.top != "" && isInteger(this.top)) {
+            JavaScriptUtils.log("ONLY TOP");
+            int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+            setPopupPosition(left, propertyTop);
+        } else if (this.left != null && this.left != "" && isInteger(this.left)) {
+            JavaScriptUtils.log("ONLY LEFT");
+            int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
+            setPopupPosition(propertyLeft, top);
+        } else {
+            JavaScriptUtils.log("NONE");
+            setPopupPosition(left, top);
+        }
 	}
 
-	// return popup top value for mobile mCourser instances
-	private int getMobileMcourserTop(int top, int popupHeight) {
-		if (DevicesUtils.isMobile() && !isMAuthor()) {
-			int windowHeight = getAbsoluteWindowHeight();
-	
-			return (windowHeight - popupHeight) / 2;
-		}
-		
-		return top;
-	}
+	private static native int calculateNewTop(Element popupElement) /*-{
+		var elementHeight = popupElement.getBoundingClientRect().height;
+		return $wnd.PositioningUtils.calculateTopForPopupCentredToVisiblePlayerArea(elementHeight);
+	}-*/;
 
-	private static native boolean isMAuthor() /*-{
-		var names = ["lorepo", "mauthor"];
-        var origin = window.origin;
-
-        return origin.includes(names[0]) || origin.includes(names[1]);
+	private static native int calculateNewLeft(Element popupElement) /*-{
+		var elementWidth = popupElement.getBoundingClientRect().width;
+		return $wnd.PositioningUtils.calculateLeftForPopupCentredToVisiblePlayerArea(elementWidth);
 	}-*/;
 
 	public boolean isInteger(String s) {
