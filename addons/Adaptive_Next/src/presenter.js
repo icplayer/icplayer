@@ -1,6 +1,5 @@
 function AddonAdaptive_Next_create() {
     var presenter = function() {};
-    var observer = null;
 
     presenter.isAdaptivePreviewMode = false;
 
@@ -108,7 +107,7 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.destroy = function (event) {
-        if (event.target !== this) {
+        if (event.target !== presenter.$view.get(0)) {
             return;
         }
 
@@ -132,8 +131,8 @@ function AddonAdaptive_Next_create() {
         presenter.initView();
 
         if (!isPreview) {
-            MutationObserverSingleton.createObserver(presenter.destroy, this);
-            MutationObserverSingleton.setObserver();
+            MutationObserverService.createObserver(presenter.destroy, presenter.$view.get(0));
+            MutationObserverService.setObserver();
             handleMouseActions();
         }
     }

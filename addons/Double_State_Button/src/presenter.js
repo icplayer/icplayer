@@ -409,7 +409,8 @@ function AddonDouble_State_Button_create(){
             handleTouchActions();
             handleMouseActions();
             presenter.addKeyboardListeners();
-            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+            MutationObserverService.createObserver(presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
         }
     }
 
@@ -905,8 +906,7 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.destroy = function(event) {
-        if (event.target === this) {
-            presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        if (event.target === presenter.view) {
             presenter.wrapper.removeEventListener("keydown", presenter.handleKeyboardEvents);
 
             var element = presenter.$view.find('div[class*=doublestate-button-element]:first');

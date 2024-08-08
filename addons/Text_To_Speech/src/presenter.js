@@ -16,7 +16,6 @@ function AddonText_To_Speech_create() {
     }
 
     var presenter = function () {};
-    var observer = null;
 
     presenter.savedSentences = [];
     presenter.savedSentencesIndex = -1;
@@ -115,8 +114,8 @@ function AddonText_To_Speech_create() {
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (!isPreview) {
-            MutationObserverSingleton.createObserver(presenter.destroy);
-            MutationObserverSingleton.setObserver();
+            MutationObserverService.createObserver(presenter.destroy);
+            MutationObserverService.setObserver();
         }
 
         if (!presenter.configuration.isValid) {

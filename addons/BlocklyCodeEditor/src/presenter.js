@@ -9,8 +9,6 @@
  */
 function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
-    var observer = null;
-
 
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
@@ -173,8 +171,8 @@ function AddonBlocklyCodeEditor_create () {
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
         if (!isPreview) {
-            MutationObserverSingleton.createObserver(presenter.destroy, this);
-            MutationObserverSingleton.setObserver();
+            MutationObserverService.createObserver(presenter.destroy);
+            MutationObserverService.setObserver();
         }
 
         if (isPreview) {

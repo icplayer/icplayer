@@ -200,14 +200,15 @@ function AddonDice_create() {
         presenter.enableIfIsLoaded();
         presenter.initializeStartItem();
 
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        MutationObserverService.createObserver(presenter.destroy, presenter.state.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.destroy = function (event) {
-        if (event.target !== this) {
+        if (event.target !== presenter.state.view) {
             return;
         }
-        presenter.state.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        console.log('destroy dice')
 
         presenter.state.elements.forEach(function (element) {
             element.removeEventListener('click', presenter.onDiceClick);

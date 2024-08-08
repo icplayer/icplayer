@@ -92,7 +92,8 @@ function AddonAutomatic_Feedback_create() {
                 presenter.activityHandler.createTooltips();
             }
 
-            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+            MutationObserverService.createObserver(presenter.destroy);
+            MutationObserverService.setObserver();
         }
 
         presenter.isLoaded = true;
