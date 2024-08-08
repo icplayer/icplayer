@@ -292,7 +292,6 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
-                console.log("Execute open");
                 opacity = $('.ui-widget-overlay').css("opacity");
                 backgroundColorStyle = $('.ui-widget-overlay').css("background");
                 $('.ui-widget-overlay').css("background", "black");
