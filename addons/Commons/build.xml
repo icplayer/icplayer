@@ -36,6 +36,7 @@
             <arg line="--js src/DeferredSyncQueue.js" />
             <arg line="--js src/srt-parser.js" />
             <arg line="--js src/AudioContextSingleton.js" />
+            <arg line="--js src/mutation-observer.js" />
             <arg line="--js src/blocklyCustomBlocks/sceneGrid.js" />
             <arg line="--js src/blocklyCustomBlocks/visualFeedbackCreatorBlocks.js" />
             <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />

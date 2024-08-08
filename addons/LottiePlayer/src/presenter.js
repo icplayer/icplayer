@@ -529,7 +529,9 @@ function AddonLottiePlayer_create() {
         });
         presenter.view.addEventListener("touchend", presenter.clickHandler);
         presenter.view.addEventListener("click", presenter.clickHandler);
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+
+        MutationObserverService.createObserver(presenter.destroy);
+        MutationObserverService.setObserver();
     }
 
     presenter.clickHandler = function (event) {
@@ -1034,7 +1036,8 @@ function AddonLottiePlayer_create() {
         return null;
     };
 
-    presenter.destroy = function (event) {
+    presenter.destroy = function () {
+        console.log('destroy Lottie')
         presenter.removeEventListeners(presenter.isPreview);
 
         if (presenter.playerController && !presenter.playerController.isPlayerInCrossDomain()) {
@@ -1058,7 +1061,6 @@ function AddonLottiePlayer_create() {
         }, false);
         presenter.view.removeEventListener("touchend", presenter.clickHandler, false);
         presenter.view.removeEventListener("click", presenter.clickHandler, false);
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy, false);
     }
 
     function removeRunEventListenersToAnimationElement (animation, index, isPreview) {

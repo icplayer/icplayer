@@ -86,11 +86,6 @@ function AddonPage_Progress_Panel_create(){
 			var score = presenter.playerController.getScore().getPageScoreById(pageId);
 			presenter.lastScores.sumOfMaxScore = score.maxScore;
 			presenter.displayScores(presenter.lastScores);
-			presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
-				if (event.target === this) {
-					presenter.destroy();
-				}
-			});
 			presenter.view.addEventListener('ShowAnswers', this);
 		}
 
@@ -110,10 +105,6 @@ function AddonPage_Progress_Panel_create(){
 		presenter.lastScores.sumOfChecks = score.checkCount;
 		presenter.displayScores(presenter.lastScores);
 	};
-
-    presenter.destroy = function (event) {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-    };
 
     function removeHidden(shouldRemove, $element) {
         if (shouldRemove) {
