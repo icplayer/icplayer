@@ -84,7 +84,6 @@
         if (!playerElementBoundingClientRect) {
             return visiblePlayerAreaWidthAndLeft;
         }
-
         if (playerElementBoundingClientRect.width < visiblePlayerAreaWidthAndLeft.width) {
             visiblePlayerAreaWidthAndLeft.width = playerElementBoundingClientRect.width;
             visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
