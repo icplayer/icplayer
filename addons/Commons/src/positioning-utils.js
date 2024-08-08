@@ -17,8 +17,7 @@
         if (visiblePlayerAreaSize.height > popupHeight) {
             newTop += (visiblePlayerAreaSize.height - popupHeight)/2;
         }
-        newTop = Math.max(0, newTop);
-        return newTop;
+        return Math.max(0, newTop);
     };
 
     function getVisibleIframeWithPlayerHeightAndTop() {
@@ -40,14 +39,15 @@
             top: visibleIframeWithPlayerHeightAndTop.top
         };
         var playerElementBoundingClientRect = getPlayerBoundingClientRect();
-        if (playerElementBoundingClientRect) {
-            if (playerElementBoundingClientRect.height < visiblePlayerAreaHeightAndTop.height) {
-                visiblePlayerAreaHeightAndTop.height = playerElementBoundingClientRect.height;
-                visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
-            } else if (playerElementBoundingClientRect.top > 0) {
-                visiblePlayerAreaHeightAndTop.height -= playerElementBoundingClientRect.top;
-                visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
-            }
+        if (!playerElementBoundingClientRect) {
+            return visiblePlayerAreaHeightAndTop;
+        }
+        if (playerElementBoundingClientRect.height < visiblePlayerAreaHeightAndTop.height) {
+            visiblePlayerAreaHeightAndTop.height = playerElementBoundingClientRect.height;
+            visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
+        } else if (playerElementBoundingClientRect.top > 0) {
+            visiblePlayerAreaHeightAndTop.height -= playerElementBoundingClientRect.top;
+            visiblePlayerAreaHeightAndTop.top += playerElementBoundingClientRect.top;
         }
         return visiblePlayerAreaHeightAndTop;
     }
@@ -59,8 +59,7 @@
         // Do not use if like in calculateTopForPopupCentredToVisiblePlayerArea to get values below 0
         var newLeft = visiblePlayerAreaSize.left;
         newLeft += (visiblePlayerAreaSize.width - popupWidth)/2;
-        newLeft = Math.max(0, newLeft);
-        return newLeft;
+        return Math.max(0, newLeft);
     };
 
     function getVisibleIframeWithPlayerWidthAndLeft() {
@@ -82,14 +81,16 @@
             left: visibleIframeWithPlayerWidthAndLeft.left
         };
         var playerElementBoundingClientRect = getPlayerBoundingClientRect();
-        if (playerElementBoundingClientRect) {
-            if (playerElementBoundingClientRect.width < visiblePlayerAreaWidthAndLeft.width) {
-                visiblePlayerAreaWidthAndLeft.width = playerElementBoundingClientRect.width;
-                visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
-            } else if (playerElementBoundingClientRect.left > 0) {
-                visiblePlayerAreaWidthAndLeft.width -= playerElementBoundingClientRect.left;
-                visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
-            }
+        if (!playerElementBoundingClientRect) {
+            return visiblePlayerAreaWidthAndLeft;
+        }
+
+        if (playerElementBoundingClientRect.width < visiblePlayerAreaWidthAndLeft.width) {
+            visiblePlayerAreaWidthAndLeft.width = playerElementBoundingClientRect.width;
+            visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
+        } else if (playerElementBoundingClientRect.left > 0) {
+            visiblePlayerAreaWidthAndLeft.width -= playerElementBoundingClientRect.left;
+            visiblePlayerAreaWidthAndLeft.left += playerElementBoundingClientRect.left;
         }
         return visiblePlayerAreaWidthAndLeft;
     }
@@ -116,9 +117,9 @@
      */
     function getRelativeOffset() {
         var currentWindow = window;
-		var relativeOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
+        var relativeOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
 
-		while (currentWindow !== currentWindow.parent) {
+        while (currentWindow !== currentWindow.parent) {
             var scale = getElementScale(currentWindow.frameElement);
             var frameRect = currentWindow.frameElement.getBoundingClientRect();
             var parentRect = currentWindow.parent.document.documentElement.getBoundingClientRect();
@@ -126,61 +127,58 @@
             var iframeLeftOffset = Math.round(frameRect.left - parentRect.left);
             var iframeBottomOffset = frameRect.bottom - parentRect.height;
             var iframeRightOffset = frameRect.right - parentRect.width;
-			relativeOffset.top += (currentWindow.parent.pageYOffset - iframeTopOffset)/scale;
+            relativeOffset.top += (currentWindow.parent.pageYOffset - iframeTopOffset)/scale;
             relativeOffset.left += (currentWindow.parent.pageXOffset - iframeLeftOffset)/scale;
             relativeOffset.bottom += (iframeBottomOffset)/scale;
             relativeOffset.right += (iframeRightOffset)/scale;
-			currentWindow = currentWindow.parent;
-		}
-
-		return relativeOffset;
+            currentWindow = currentWindow.parent;
+        }
+        return relativeOffset;
     }
 
     function getElementScale(element){
-        if (!element) {
-            return 1;
-        }
-        return element.getBoundingClientRect().width / element.offsetWidth;
+        return !!element ? element.getBoundingClientRect().width / element.offsetWidth : 1;
     }
 
     function getPlayerBoundingClientRect() {
         // On mobile devices, the element with #_icplayer does not have its width (only width) calculated correctly
         // using the getBoundingClientRect method. Use its child to get the correct values.
-        var playerElement = $(window.document.documentElement).find("#_icplayer").find(".ic_player")[0];
+        var playerElement = window.document.getElementById("_icplayer");
         if (!playerElement) {
             return;
         }
-        return playerElement.getBoundingClientRect();
+        var playerTableElement = window.document.getElementsByClassName("ic_player")[0];
+        return !!playerTableElement ? playerTableElement.getBoundingClientRect() : undefined;
     }
 
     function getScrollOffset() {
         var currentWindow = window;
-		var parentOffset = {top: 0, left: 0};
+        var parentOffset = {top: 0, left: 0};
 
-		while (currentWindow !== currentWindow.parent) {
-			var iframeOffset = {top: 0, left: 0};
+        while (currentWindow !== currentWindow.parent) {
+            var iframeOffset = {top: 0, left: 0};
             var iframes = currentWindow.parent.document.getElementsByTagName("iframe");
 
-			for (var i=0; i < iframes.length; i++) {
-				var currentIframe = iframes[i];
+            for (var i=0; i < iframes.length; i++) {
+                var currentIframe = iframes[i];
 
-				if (currentWindow.location.href === currentIframe.src){
+                if (currentWindow.location.href === currentIframe.src){
                     var iframePlacementRect = currentIframe.getBoundingClientRect();
                     var bodyPlacementRect = currentWindow.parent.document.body.getBoundingClientRect();
 
-					iframeOffset.top = Math.round(iframePlacementRect.top - bodyPlacementRect.top);
+                    iframeOffset.top = Math.round(iframePlacementRect.top - bodyPlacementRect.top);
                     iframeOffset.left = Math.round(iframePlacementRect.left - bodyPlacementRect.left);
-				}
-			}
+                }
+            }
 
-			parentOffset.top += currentWindow.parent.pageYOffset - iframeOffset.top;
+            parentOffset.top += currentWindow.parent.pageYOffset - iframeOffset.top;
             parentOffset.left += currentWindow.parent.pageXOffset - iframeOffset.left;
-			currentWindow = currentWindow.parent;
-		}
+            currentWindow = currentWindow.parent;
+        }
 
-		parentOffset.top = Math.max(0, parentOffset.top);
+        parentOffset.top = Math.max(0, parentOffset.top);
         parentOffset.left = Math.max(0, parentOffset.left);
-		return parentOffset;
+        return parentOffset;
     }
 
     window.PositioningUtils = PositioningUtils;

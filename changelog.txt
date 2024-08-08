@@ -1,3 +1,4 @@
+2024-08-06 Changed the positioning of Zoom Image addon to be in a center of player area
 2024-08-06 Changed the positioning of commons popups to be in a center of player area
 2024-07-29 Added protection against negative total time
 2024-07-19 Added hide x/y axis property to the Geometric Construct addon
