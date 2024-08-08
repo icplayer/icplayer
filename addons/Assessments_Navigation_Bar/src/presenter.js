@@ -1798,6 +1798,9 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.getState = function(){
+        if (presenter.sections.allPages == null
+        || presenter.sections.allPages.length ==0
+        || presenter.navigationManager.actualPages.length == 0) return "";
         var pages = presenter.sections.allPages.map(function (page) {
             return {
                 page: page.page,
