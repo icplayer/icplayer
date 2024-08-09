@@ -379,21 +379,34 @@ function AddonHierarchical_Lesson_Report_create() {
 
     presenter.isPageVisited = function (pageId) {
         if (isInPrintableStateMode()) {
-            if (printableController.isPreview()) {
-                return false;
-            }
-
-            if (isInPrintableEmptyStateMode()) {
-                return false;
-            }
-            return printableController.getContentInformation().find(x => x.id === pageId).isVisited === "true";
+            return presenter.isVisitedInPrintableMode();
         }
 
-        if (!presenter.configuration.excludeUnvisitedPages) { //mocked value
+        if (!presenter.configuration.excludeUnvisitedPages) {
             return true;
         }
 
-        return presenter.isVisited(pageId);
+        return presentationController.getPresentation().getPageById(pageId).isVisited();
+    };
+
+    presenter.isVisited = function (pageId) {
+        if (isInPrintableStateMode()) {
+            return presenter.isVisitedInPrintableMode();
+        }
+
+        return presentationController.getPresentation().getPageById(pageId).isVisited();
+    };
+
+    presenter.isVisitedInPrintableMode = function (pageId) {
+        if (printableController.isPreview()) {
+            return false;
+        }
+
+        if (isInPrintableEmptyStateMode()) {
+            return false;
+        }
+
+        return printableController.getContentInformation().find(x => x.id === pageId).isVisited === "true";
     };
 
     presenter.getPageScaledScore = function(maxScore, score, isChapter, pageID) {
@@ -791,10 +804,6 @@ function AddonHierarchical_Lesson_Report_create() {
         } else {
             score.scaledScore = 0;
         }
-    }
-
-    presenter.isVisited = function (pageId) {
-        return presentationController.getPresentation().getPageById(pageId).isVisited();
     }
 
     presenter.createPreviewTree = function() {
