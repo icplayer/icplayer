@@ -33,8 +33,8 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Specified whether the labels of geometric figures in the workspace will be visible by default.</td>
     </tr>
     <tr>
-        <td>Angle labels visibility</td>
-        <td>Specified whether the labels of angles in the workspace will be visible by default.</td>
+        <td>Angle measures visibility</td>
+        <td>Specified whether the values of angles in the workspace will be visible by default.</td>
     </tr>
     <tr>
         <td>Disable undo/redo buttons</td>
@@ -127,14 +127,14 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Hides the labels of geometric figures in the workspace.</td>
     </tr>
     <tr>
-        <td>showAngleLabels</td>
+        <td>showAngleMeasures</td>
         <td>---</td>
-        <td>Displays the labels of angles in the workspace if they were hidden.</td>
+        <td>Displays the values of angles in the workspace if they were hidden.</td>
     </tr>
     <tr>
-        <td>hideAngleLabels</td>
+        <td>hideAngleMeasures</td>
         <td>---</td>
-        <td>Hides the labels of angles in the workspace.</td>
+        <td>Hides the values of angles in the workspace.</td>
     </tr>
 </tbody>
 </table>
