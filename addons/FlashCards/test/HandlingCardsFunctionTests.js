@@ -51,17 +51,22 @@ TestCase('[FlashCards] handling Flash Cards function', {
         this.view.html(getMockedView());
 
         this.stubs = {
-            renderMathJax: sinon.stub()
+            renderMathJax: sinon.stub(),
+            parseAltTexts: sinon.stub()
         };
         this.presenter.renderMathJax = this.stubs.renderMathJax;
         this.presenter.eventBus = {sendEvent: sinon.mock()};
+        this.presenter.textParser = {
+            parseAltTexts: this.stubs.parseAltTexts
+        };
+        this.presenter.textParser.parseAltTexts.returnsArg(0);
 
         this.spies = {
             'validateModelSpy': sinon.spy(this.presenter, 'validateModel'),
             'showCardSpy': sinon.spy(this.presenter, 'showCard'),
             'addClickHandlersSpy': sinon.spy(this.presenter, 'addClickHandlers'),
             'updateVisibilitySpy': sinon.spy(this.presenter, 'updateVisibility')
-        }
+        };
     },
 
     'test given model and view when init was called should prepare values': function () {
