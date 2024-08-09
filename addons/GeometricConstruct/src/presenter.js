@@ -2508,6 +2508,7 @@ function AddonGeometricConstruct_create() {
             var position = this.getAngleLabelPosition();
             this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
             this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
+            if (!presenter.labelsVisibility) this.hideLabel();
         };
 
         updateAngleLabel() {
