@@ -7,11 +7,24 @@
     <property name="build.temp.folder" location="${build.folder}/temp"/>
     <property name="build.temp.addons.folder" location="${build.folder}/temp/addons"/>
     <property name="build.dist.folder" location="${build.folder}/dist"/>
-    <property name="libs.destination.file" location="${build.dist.folder}/libs.min.js"/>
     <property name="addons.folder" location="${public}/addons"/>
     <property name="addons.temp.file" location="${build.temp.addons.folder}/addons.temp.xml"/>
     <property name="addons.temp.header.file" location="${build.temp.addons.folder}/addons.header.temp.xml"/>
     <property name="addons.destination.file" location="${build.dist.folder}/addons.min.xml"/>
+
+    <property name="libs.ace.destination.file" location="${build.dist.folder}/libs.ace.min.js"/>
+    <property name="libs.blockly.destination.file" location="${build.dist.folder}/libs.blockly.min.js"/>
+    <property name="libs.commons.destination.file" location="${build.dist.folder}/libs.commons.min.js"/>
+    <property name="libs.createjs.destination.file" location="${build.dist.folder}/libs.createjs.min.js"/>
+    <property name="libs.dictionaries.destination.file" location="${build.dist.folder}/libs.dictionaries.min.js"/>
+    <property name="libs.jqplot.destination.file" location="${build.dist.folder}/libs.jqplot.min.js"/>
+    <property name="libs.jquery.destination.file" location="${build.dist.folder}/libs.jquery.min.js"/>
+    <property name="libs.math.destination.file" location="${build.dist.folder}/libs.math.min.js"/>
+    <property name="libs.RecordRTC.destination.file" location="${build.dist.folder}/libs.RecordRTC.min.js"/>
+    <property name="libs.lame.destination.file" location="${build.dist.folder}/libs.lame.min.js"/>
+    <property name="libs.google-swiffy-7.4.destination.file" location="${build.dist.folder}/libs.google-swiffy-7.4.min.js"/>
+    <property name="libs.jison.destination.file" location="${build.dist.folder}/libs.jison.min.js"/>
+    <property name="libs.other.destination.file" location="${build.dist.folder}/libs.other.min.js"/>
 
     <target name="init" description="Creating folder structure for compressing process">
         <mkdir dir="${build.temp.folder}"/>
@@ -75,88 +88,176 @@
         <echo>Compressing success</echo>
     </target>
 
-
     <!--Concatenate JS files-->
-    <target name="js.concatenate" depends="init, js.compress" description="Concatenates specified JavaScript files">
-        <echo>Concanetate js files into single one</echo>
-        <concat destfile="${libs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
-            <filelist>
-                <!--Polyfills-->
-                <file name="${build.temp.folder}/polyfills/startswith.js"/>
+    <target name="js.concatenate" depends="init, js.compress" description="Concatenates JavaScript libs">
+        <echo>Concatenate libs</echo>
+        <antcall target="js.concatenate.ace"/>
+        <antcall target="js.concatenate.blockly"/>
+        <antcall target="js.concatenate.commons"/>
+        <antcall target="js.concatenate.createjs"/>
+        <antcall target="js.concatenate.dictionaries"/>
+        <antcall target="js.concatenate.jqplot"/>
+        <antcall target="js.concatenate.jquery"/>
+        <antcall target="js.concatenate.math"/>
+        <antcall target="js.concatenate.RecordRTC"/>
+        <antcall target="js.concatenate.lame"/>
+        <antcall target="js.concatenate.google-swiffy-7.4"/>
+        <antcall target="js.concatenate.jison"/>
+        <antcall target="js.concatenate.other"/>
+        <echo>Concatenating ended with: SUCCESS</echo>
+    </target>
 
-                <file name="${build.temp.folder}/player-utils.js"/>
-                <file name="${build.temp.folder}/buzz.min.js"/>
-                <file name="${build.temp.folder}/jcanvas.min.js"/>
-                <file name="${build.temp.folder}/jquery-ui.js"/>
-                <file name="${build.temp.folder}/jquery-csv.js"/>
-                <file name="${build.temp.folder}/jquery.dotimeout.js"/>
-                <file name="${build.temp.folder}/jquery.imgpreload.js"/>
-                <file name="${build.temp.folder}/jquery.mousewheel.js"/>
-                <file name="${build.temp.folder}/js-expression-eval.js"/>
-                <file name="${build.temp.folder}/raphael-min.js"/>
-                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
-                <file name="${build.temp.folder}/jquery.svg.min.js"/>
-                <file name="${build.temp.folder}/jquery.svganim.min.js"/>
-                <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
-                <file name="${build.temp.folder}/expression-evaluator.js"/>
-                <file name="${build.temp.folder}/commons.js"/>
-                <file name="${build.temp.folder}/dictionaries/com/dictionary.js"/>
-                <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
-                <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
-                <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
-                <file name="${build.temp.folder}/dictionaries/bl/dictionary.js"/>
-                <file name="${build.temp.folder}/aop.min.js"/>
-                <file name="${build.temp.folder}/math.js"/>
-                <file name="${build.temp.folder}/scorm.js"/>
-                <file name="${build.temp.folder}/scorm_1_2.js"/>
-                <file name="${build.temp.folder}/tinymce.min.js"/>
-                <file name="${build.temp.folder}/jsc3d.min.js"/>
-                <file name="${build.temp.folder}/htmlparser.min.js"/>
-                <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
-                <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
-                <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
-                <file name="${build.temp.folder}/google-swiffy-7.4.js"/>
-                <file name="${build.temp.folder}/sonic.js"/>
-                <file name="${build.temp.folder}/zoom.js"/>
-                <file name="${build.temp.folder}/FileSaver.js"/>
-                <file name="${build.temp.folder}/blob.js"/>
-                <file name="${build.temp.folder}/ace/ace.min.js"/>
+    <target name="js.concatenate.ace" description="Adds ace JavaScript lib">
+        <echo>Copy ace js file</echo>
+        <copy file="${build.temp.folder}/ace/ace.min.js" tofile="${libs.ace.destination.file}"/>
+        <echo>Copying ace js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.blockly" description="Concatenates blockly's JavaScript libs">
+        <echo>Concatenate blockly's js files into single one</echo>
+        <concat destfile="${libs.blockly.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
                 <file name="${build.temp.folder}/blockly/blockly_compressed.min.js"/>
                 <file name="${build.temp.folder}/blockly/blocks_compressed.min.js"/>
                 <file name="${build.temp.folder}/blockly/en.js"/>
                 <file name="${build.temp.folder}/blockly/javascript_compressed.min.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
-                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
-                <file name="${build.temp.folder}/lame.min.js"/>
-                <file name="${build.temp.folder}/purify.js"/>
+            </filelist>
+        </concat>
+        <echo>Concatenating blockly's js files ended with: SUCCESS</echo>
+    </target>
 
-                <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
-                <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
-                <file name="${build.temp.folder}/jqplot/jqplot.categoryAxisRenderer.min.js"/>
-                <file name="${build.temp.folder}/jqplot/jqplot.cursor.min.js"/>
-                <file name="${build.temp.folder}/jqplot/jqplot.pointLabels.min.js"/>
+    <target name="js.concatenate.commons" description="Adds commons JavaScript lib">
+        <echo>Copy commons js file</echo>
+        <copy file="${build.temp.folder}/commons.js" tofile="${libs.commons.destination.file}"/>
+        <echo>Copying commons js file ended with: SUCCESS</echo>
+    </target>
 
-                <file name="${build.temp.folder}/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
-
+    <target name="js.concatenate.createjs" description="Concatenates createjs' JavaScript libs">
+        <echo>Concatenate createjs' js files into single one</echo>
+        <concat destfile="${libs.createjs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
                 <file name="${build.temp.folder}/createjs/easeljs-0.4.1.min.js"/>
                 <file name="${build.temp.folder}/createjs/tweenjs-0.2.0.min.js"/>
                 <file name="${build.temp.folder}/createjs/movieclip-0.4.1.min.js"/>
                 <file name="${build.temp.folder}/createjs/ypreloadjs1.3.0.min.js"/>
                 <file name="${build.temp.folder}/createjs/ysoundjs1.3.0.min.js"/>
+            </filelist>
+        </concat>
+        <echo>Concatenating createjs' js files ended with: SUCCESS</echo>
+    </target>
 
+    <target name="js.concatenate.dictionaries" description="Concatenates dictionaries' JavaScript libs">
+        <echo>Concatenate dictionaries' js files into single one</echo>
+        <concat destfile="${libs.dictionaries.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
+                <file name="${build.temp.folder}/dictionaries/com/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/bl/dictionary.js"/>
+            </filelist>
+        </concat>
+        <echo>Concatenating dictionaries' js files ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.jqplot" description="Concatenates jqplot's JavaScript libs">
+        <echo>Concatenate jqplot's js files into single one</echo>
+        <concat destfile="${libs.jqplot.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
+                <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.categoryAxisRenderer.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.cursor.min.js"/>
+                <file name="${build.temp.folder}/jqplot/jqplot.pointLabels.min.js"/>
+            </filelist>
+        </concat>
+        <echo>Concatenating jqplot's js files ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.jquery" description="Concatenates jquery's JavaScript libs">
+        <echo>Concatenate jquery's js files into single one</echo>
+        <concat destfile="${libs.jquery.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
+                <file name="${build.temp.folder}/jquery-ui.js"/>
+                <file name="${build.temp.folder}/jquery-csv.js"/>
+                <file name="${build.temp.folder}/jquery.dotimeout.js"/>
+                <file name="${build.temp.folder}/jquery.imgpreload.js"/>
+                <file name="${build.temp.folder}/jquery.mousewheel.js"/>
+                <file name="${build.temp.folder}/jquery.svg.min.js"/>
+                <file name="${build.temp.folder}/jquery.svganim.min.js"/>
+                <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
+                <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
+                <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/polish.js"/>
+                <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
+            </filelist>
+        </concat>
+        <echo>Concatenating jquery's js files ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.math" description="Adds math JavaScript lib">
+        <echo>Copy math js file</echo>
+        <copy file="${build.temp.folder}/math.js" tofile="${libs.math.destination.file}"/>
+        <echo>Copying math js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.RecordRTC" description="Adds RecordRTC JavaScript lib">
+        <echo>Copy RecordRTC js file</echo>
+        <copy file="${build.temp.folder}/recorder/RecordRTC.js" tofile="${libs.RecordRTC.destination.file}"/>
+        <echo>Copying RecordRTC js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.lame" description="Adds lame JavaScript lib">
+        <echo>Copy lame js file</echo>
+        <copy file="${build.temp.folder}/lame.min.js" tofile="${libs.lame.destination.file}"/>
+        <echo>Copying lame js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.google-swiffy-7.4" description="Adds google-swiffy-7.4 JavaScript lib">
+        <echo>Copy google-swiffy-7.4 js file</echo>
+        <copy file="${build.temp.folder}/google-swiffy-7.4.js" tofile="${libs.google-swiffy-7.4.destination.file}"/>
+        <echo>Copying google-swiffy-7.4 js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.jison" description="Adds jison JavaScript lib">
+        <echo>Copy jison js file</echo>
+        <copy file="${build.temp.folder}/jison.min.js" tofile="${libs.jison.destination.file}"/>
+        <echo>Copying jison js file ended with: SUCCESS</echo>
+    </target>
+
+    <target name="js.concatenate.other" description="Concatenates other's JavaScript libs">
+        <echo>Concatenate other's js files into single one</echo>
+        <concat destfile="${libs.other.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
+            <filelist>
+                <file name="${build.temp.folder}/raphael-min.js"/>
+                <file name="${build.temp.folder}/raphael.free_transform.min.js"/>
+                <file name="${build.temp.folder}/jsc3d.min.js"/>
+                <file name="${build.temp.folder}/js-expression-eval.js"/>
+                <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
+                <file name="${build.temp.folder}/player-utils.js"/>
+                <file name="${build.temp.folder}/polyfills/startswith.js"/>
+                <file name="${build.temp.folder}/purify.js"/>
+                <file name="${build.temp.folder}/scorm.js"/>
+                <file name="${build.temp.folder}/scorm_1_2.js"/>
+                <file name="${build.temp.folder}/sonic.js"/>
+                <file name="${build.temp.folder}/TreeGrid/js/jquery.treegrid0.2.0.min.js"/>
+                <file name="${build.temp.folder}/webtoolkit.js"/>
                 <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
                 <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
                 <file name="${build.temp.folder}/ydp/Slider.min.js"/>
-
-                <file name="${build.temp.folder}/webtoolkit.js"/>
-                <file name="${build.temp.folder}/jison.min.js"/>
-
-                <file name="${build.temp.folder}/recorder/RecordRTC.js"/>
+                <file name="${build.temp.folder}/zoom.js"/>
+                <file name="${build.temp.folder}/aop.min.js"/>
+                <file name="${build.temp.folder}/blob.js"/>
+                <file name="${build.temp.folder}/buzz.min.js"/>
+                <file name="${build.temp.folder}/expression-evaluator.js"/>
+                <file name="${build.temp.folder}/FileSaver.js"/>
+                <file name="${build.temp.folder}/htmlparser.min.js"/>
+                <file name="${build.temp.folder}/jcanvas.min.js"/>
             </filelist>
         </concat>
-        <echo>Concanetating success</echo>
+        <echo>Concatenating other's js files ended with: SUCCESS</echo>
     </target>
 
     <target name="addons.compress" description="Concatenates all addons to build/dist/folder"

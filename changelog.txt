@@ -1,4 +1,6 @@
-2024-07-31 Added show/hideAngleLabels to the Geometric Construct addon
+2024-07-31 Added show/hideAngleMeasures to the Geometric Construct addon
+2024-07-30 Added displaying default page order in test generator preview
+2024-07-29 Chunked libs.min.js
 2024-07-29 Added protection against negative total time
 2024-07-19 Added hide x/y axis property to the Geometric Construct addon
 2024-07-12 Fixed displaying popups in mobile mCourser
