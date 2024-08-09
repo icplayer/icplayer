@@ -1657,6 +1657,7 @@ var ice_dictionary_bl = {
 	"Hierarchical_Lesson_Report_property_out_of_speech_text": "от общо",
 	"Hierarchical_Lesson_Report_property_total_speech_text": "Общо",
 	"Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean": "Use weighted arithmetic mean",
+	"Hierarchical_Lesson_Report_property_exclude_unvisited_pages": "Exclude unvisited pages in the total",
 	"ConnectingDots_info": "Позволява създаването на пъзел с множество номерирани точки, които при маркиране в правилната последователност се свързват с линии. Плъгинът може да се използва като интерактивно упражнение или симулация, с или без изображение за фон.",
 	"ConnectingDots_name": "Свързване на точки",
 	"ConnectingDots_property_dots": "Координати на точките",

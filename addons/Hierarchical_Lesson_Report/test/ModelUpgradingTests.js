@@ -90,4 +90,18 @@ TestCase("[Hierarchical Lesson Report] Upgrade model - isWeightedArithmeticMean"
         assertNotUndefined(upgradedModel["isWeightedArithmeticMean"]);
         assertEquals("True", upgradedModel["isWeightedArithmeticMean"]);
     },
+
+    "test given model without set excludeUnvisitedPages when upgradeModel is called then excludeUnvisitedPages is added with default value": function () {
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["excludeUnvisitedPages"]);
+        assertEquals("False", upgradedModel["excludeUnvisitedPages"]);
+    },
+
+    "test given model with set excludeUnvisitedPages when upgradeModel is called then excludeUnvisitedPages value remains unchanged": function () {
+        this.model["excludeUnvisitedPages"] = "True";
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("True", upgradedModel["excludeUnvisitedPages"]);
+    },
 });

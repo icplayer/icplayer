@@ -258,4 +258,22 @@ TestCase("[Hierarchical Lesson Report] Model validation", {
         assertTrue(validationResult.isValid);
         assertEquals(false, validationResult.isWeightedArithmeticMean);
     },
+
+    'test is excludeUnvisitedPages not checked': function () {
+        this.model["excludeUnvisitedPages"] = "False";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(false, validationResult.isWeightedArithmeticMean);
+    },
+
+    'test is excludeUnvisitedPages checked': function () {
+        this.model["excludeUnvisitedPages"] = "True";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isValid);
+        assertEquals(false, validationResult.isWeightedArithmeticMean);
+    },
 });
