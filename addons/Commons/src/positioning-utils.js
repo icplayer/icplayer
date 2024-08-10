@@ -22,14 +22,14 @@
 
     function getVisibleIframeWithPlayerHeightAndTop() {
         var scale = getElementScale(window.frameElement);
-        var visibleViewportHeight = window.top.innerHeight/scale;
+        var visibleViewportHeight = window.top.document.documentElement.offsetHeight / scale;
         var offsets = getRelativeOffset();
         var topRelativeToVisibleContent = Math.max(0, offsets.top);
         if (offsets.top < 0) {
             visibleViewportHeight += offsets.top;
         }
         visibleViewportHeight += Math.min(0, offsets.bottom);
-        visibleViewportHeight = Math.min(visibleViewportHeight, window.innerHeight);
+        visibleViewportHeight = Math.min(visibleViewportHeight, window.document.documentElement.offsetHeight);
         return {height: visibleViewportHeight, top: topRelativeToVisibleContent};
     }
 
@@ -64,14 +64,14 @@
 
     function getVisibleIframeWithPlayerWidthAndLeft() {
         var scale = getElementScale(window.frameElement);
-        var visibleViewportWidth = window.top.innerWidth/scale;
+        var visibleViewportWidth = window.top.document.documentElement.offsetWidth / scale;
         var offsets = getRelativeOffset();
         var leftRelativeToVisibleContent = Math.max(0, offsets.left);
         if (offsets.left < 0) {
             visibleViewportWidth += offsets.left;
         }
         visibleViewportWidth += Math.min(0, offsets.right);
-        visibleViewportWidth = Math.min(visibleViewportWidth, window.innerWidth);
+        visibleViewportWidth = Math.min(visibleViewportWidth, window.document.documentElement.offsetWidth);
         return {width: visibleViewportWidth, left: leftRelativeToVisibleContent};
     }
 
@@ -135,19 +135,23 @@
         return relativeOffset;
     }
 
-    function getElementScale(element){
-        return !!element ? element.getBoundingClientRect().width / element.offsetWidth : 1;
+    function getPlayerBoundingClientRect() {
+        var playerTableElement = findPlayerElement();
+        return !!playerTableElement ? playerTableElement.getBoundingClientRect() : undefined;
     }
 
-    function getPlayerBoundingClientRect() {
+    function findPlayerElement() {
         // On mobile devices, the element with #_icplayer does not have its width (only width) calculated correctly
         // using the getBoundingClientRect method. Use its child to get the correct values.
         var playerElement = window.document.getElementById("_icplayer");
         if (!playerElement) {
             return;
         }
-        var playerTableElement = window.document.getElementsByClassName("ic_player")[0];
-        return !!playerTableElement ? playerTableElement.getBoundingClientRect() : undefined;
+        return window.document.getElementsByClassName("ic_player")[0];
+    }
+
+    function getElementScale(element){
+        return !!element ? element.getBoundingClientRect().width / element.offsetWidth : 1;
     }
 
     function getScrollOffset() {

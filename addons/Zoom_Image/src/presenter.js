@@ -291,12 +291,19 @@ function AddonZoom_Image_create() {
                 duration: 1000
             },
             create: presenter.bigImageCreated,
-            open: function() {
+            open: function(event, ui) {
                 opacity = $('.ui-widget-overlay').css("opacity");
                 backgroundColorStyle = $('.ui-widget-overlay').css("background");
                 $('.ui-widget-overlay').css("background", "black");
                 $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
+
+                const dialogElement = $(event.target).closest('.ui-dialog')[0];
+                const dialogElementBoundingClientRect = dialogElement.getBoundingClientRect();
+                const newWidth = dialogElementBoundingClientRect.width;
+                const newHeight = dialogElementBoundingClientRect.height;
+                dialogElement.style.left = window.PositioningUtils.calculateLeftForPopupToBeCentred(newWidth) + "px";
+                dialogElement.style.top = window.PositioningUtils.calculateTopForPopupToBeCentred(newHeight) + "px";
             }
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
