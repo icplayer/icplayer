@@ -683,7 +683,8 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function createInnerHTMLForScoreCell (score, pageId) {
         const $separator = generateSeparator();
-        if (score.maxScore === 0 && !presenter.configuration.excludeUnvisitedPages && pageId && presentationController) {
+        const useUnvisitedPages = presenter.configuration && !presenter.configuration?.excludeUnvisitedPages;
+        if (score.maxScore === 0 && useUnvisitedPages && pageId && presentationController) {
             const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
             presenter.totalScore += maxScore;
 
