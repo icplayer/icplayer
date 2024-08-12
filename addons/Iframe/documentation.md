@@ -22,7 +22,8 @@ Please make sure that your html and javascript code meet the HTML5 standards and
 Wrong usage of DOM operations or event listeners in scripts may cause memory leaks or browser crash. The script authors are responsible for memory leaks and browser stability.<br />
 
 ## Fixing memory leaks
-The best way to detect page changes and free the memory is to add event
+The best way to detect page changes and free the memory is to use Mutation Observer
+
 ## Properties
 
 <table border='1'>
