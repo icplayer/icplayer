@@ -569,7 +569,7 @@ function AddonParagraph_Keyboard_create() {
         }
 
         if (!isPreview) {
-            MutationObserverService.createObserver(presenter.destroy, presenter.view);
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 

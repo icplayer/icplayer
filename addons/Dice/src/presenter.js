@@ -200,7 +200,7 @@ function AddonDice_create() {
         presenter.enableIfIsLoaded();
         presenter.initializeStartItem();
 
-        MutationObserverService.createObserver(presenter.destroy, presenter.state.view);
+        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.state.view);
         MutationObserverService.setObserver();
     };
 
@@ -208,7 +208,6 @@ function AddonDice_create() {
         if (event.target !== presenter.state.view) {
             return;
         }
-        console.log('destroy dice')
 
         presenter.state.elements.forEach(function (element) {
             element.removeEventListener('click', presenter.onDiceClick);

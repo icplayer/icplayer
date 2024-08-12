@@ -409,7 +409,7 @@ function AddonDouble_State_Button_create(){
             handleTouchActions();
             handleMouseActions();
             presenter.addKeyboardListeners();
-            MutationObserverService.createObserver(presenter.destroy, presenter.view);
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
     }

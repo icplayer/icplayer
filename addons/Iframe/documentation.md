@@ -22,16 +22,7 @@ Please make sure that your html and javascript code meet the HTML5 standards and
 Wrong usage of DOM operations or event listeners in scripts may cause memory leaks or browser crash. The script authors are responsible for memory leaks and browser stability.<br />
 
 ## Fixing memory leaks
-The best way to detect page changes and free the memory is to add event listener onDomNodeRemved and release the memory.
-
-	view.addEventListener('DOMNodeRemoved', destroy);
-    destroy = function () {
-        if (event.target !== this) {
-            return;
-        }
-        view.removeEventListener('DOMNodeRemoved', destroy);
-        window.removeEventListener("message",getMessage);
-    };	
+The best way to detect page changes and free the memory is to add event
 ## Properties
 
 <table border='1'>

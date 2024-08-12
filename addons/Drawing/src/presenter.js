@@ -743,7 +743,7 @@ function AddonDrawing_create() {
 
         if (!isPreview) {
             presenter.turnOnEventListeners();
-            MutationObserverService.createObserver(presenter.destroy, presenter.view);
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 
@@ -1398,7 +1398,6 @@ function AddonDrawing_create() {
         if (event.target !== presenter.view) {
             return;
         }
-        console.log('destroy drawing')
 
         presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
         document.removeEventListener("keydown", presenter.removeImage, false);

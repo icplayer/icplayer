@@ -476,7 +476,7 @@ function AddonBoard_Game_create(){
 
         if (validatedModel.isValid) {
             presenter.init(view, validatedModel.value);
-            MutationObserverService.createObserver(presenter.destroy, presenter.$view.get(0));
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.$view.get(0));
             MutationObserverService.setObserver();
 
             presenter.eventBus.addEventListener('ShowAnswers', this);

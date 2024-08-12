@@ -8,7 +8,7 @@
         observer: null,
         callbacks: [],
 
-        createObserver: function createObserver(destroyCallback, callbackParam) {
+        createDestroyObserver: function createDestroyObserver(destroyCallback, callbackParam) {
             var _this = this;
             if (this.observer) {
                 this.callbacks.push({callback: destroyCallback, param: callbackParam});

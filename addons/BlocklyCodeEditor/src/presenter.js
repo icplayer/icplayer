@@ -171,7 +171,7 @@ function AddonBlocklyCodeEditor_create () {
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
         if (!isPreview) {
-            MutationObserverService.createObserver(presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.destroy);
             MutationObserverService.setObserver();
         }
 

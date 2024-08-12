@@ -1340,7 +1340,6 @@ function Addongamememo_create(){
     };
 
     presenter.destroy = function () {
-        console.log('destroy gamememo')
         removeTimers();
     };
 
@@ -1352,7 +1351,7 @@ function Addongamememo_create(){
             eventBus.addEventListener(events[i], this);
         }
         presenter.setVisibility(presenter.configuration.isVisible);
-        MutationObserverService.createObserver(presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.destroy);
         MutationObserverService.setObserver();
     };
 

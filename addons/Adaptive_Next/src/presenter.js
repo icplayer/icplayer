@@ -131,7 +131,7 @@ function AddonAdaptive_Next_create() {
         presenter.initView();
 
         if (!isPreview) {
-            MutationObserverService.createObserver(presenter.destroy, presenter.$view.get(0));
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.$view.get(0));
             MutationObserverService.setObserver();
             handleMouseActions();
         }

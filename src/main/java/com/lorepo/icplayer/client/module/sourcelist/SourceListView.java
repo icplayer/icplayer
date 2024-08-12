@@ -299,7 +299,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
-		function onDOMNodeRemoved (event) {
+		function destroy (event) {
 			var $draggableElements;
 
 			if (event.target.getAttribute && event.target.getAttribute("class") && event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
@@ -310,8 +310,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 				return;
 			}
 
-			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
-
 			$draggableElements = $addon.find(".ui-draggable");
 
 			$draggableElements.draggable("destroy");
@@ -321,12 +319,21 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			$addon = null;
 		}
 
-	    if (addon && addon.addEventListener) {
-		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
-	    } else {
-	        $addon = null;
-	        addon = null;
-	    }
+		var mockedEvent = {target: addon};
+	    var observer = new MutationObserver(function (records) {
+			records.forEach(function (record) {
+				if (record.removedNodes.length) {
+					destroy(mockedEvent);
+				}
+
+				if (record.target.childNodes.length === 0) {
+					observer.disconnect();
+				}
+			});
+		});
+
+		var config = {childList: true};
+		observer.observe($wnd.$('.ic_page').get(0), config);
 	}-*/;
 
 	@Override

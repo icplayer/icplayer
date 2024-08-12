@@ -114,7 +114,7 @@ function AddonText_To_Speech_create() {
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (!isPreview) {
-            MutationObserverService.createObserver(presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.destroy);
             MutationObserverService.setObserver();
         }
 

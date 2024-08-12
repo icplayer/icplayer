@@ -103,7 +103,8 @@ function AddonZoom_Image_create() {
             presenter.setVisibility(presenter.configuration.isVisible);
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
 
         return false;
     };
@@ -168,7 +169,6 @@ function AddonZoom_Image_create() {
     };
 
     presenter.unbindEvents = function () {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$view.find(".icon").off(presenter.eventType, presenter.createPopUp);
         if (presenter.$image !== null) {
             if (presenter.isOpened) {

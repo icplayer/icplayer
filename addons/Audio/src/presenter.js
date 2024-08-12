@@ -649,7 +649,7 @@ function AddonAudio_create(){
             presenter.$view.bind('click', function (event) {
                 event.stopPropagation();
             });
-            MutationObserverService.createObserver(presenter.destroy, presenter.view);
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 
@@ -659,7 +659,6 @@ function AddonAudio_create(){
         if (event.target != presenter.view) {
             return;
         }
-        console.log('destroy audio')
 
         presenter.audio.pause();
 
