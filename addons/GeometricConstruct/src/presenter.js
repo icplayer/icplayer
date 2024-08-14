@@ -555,7 +555,6 @@ function AddonGeometricConstruct_create() {
     function labelsButtonHandler (e) {
         var newLabelsVisibilityValue = !presenter.labelsVisibility
         presenter.setLabelsVisibility(newLabelsVisibilityValue);
-        presenter.setAngleMeasuresVisibility(newLabelsVisibilityValue);
     }
 
     presenter.updateLabels = function() {
@@ -2539,31 +2538,43 @@ function AddonGeometricConstruct_create() {
             return {x:x, y:y};
         }
 
-        hideAngleMeasure() {
-            if (this.$angleLabel) {
-                this.$angleLabel.html(this.angleLabelValue);
+        setAngleLabelAndMeasureVisibility(isLabelVisible, isMeasureVisible) {
+            if (!this.$angleLabel) return;
+            if (!isLabelVisible && !isMeasureVisible) {
+                this.$angleLabel.css('display', 'none');
+            } else {
+                this.$angleLabel.css('display', '');
+                var text = "";
+                if (isLabelVisible) {
+                    text = this.angleLabelValue;
+                }
+                if (isMeasureVisible) {
+                    if (text.length > 0) {
+                        text += " = ";
+                    }
+                    var angleLabelMultiplier = Math.pow(10, presenter.configuration.angleDecimalPoint) * 1.0;
+                    text += Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°';
+                }
+                this.$angleLabel.html(text);
             }
         }
 
+        hideAngleMeasure() {
+            this.setAngleLabelAndMeasureVisibility(presenter.labelsVisibility, false);
+        }
+
         showAngleMeasure() {
-            var angleLabelMultiplier = Math.pow(10, presenter.configuration.angleDecimalPoint) * 1.0;
-            if (this.$angleLabel) {
-                this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°');
-            }
+            this.setAngleLabelAndMeasureVisibility(presenter.labelsVisibility, true);
         }
         
         hideLabel() {
             super.hideLabel();
-            if (this.$angleLabel) {
-                this.$angleLabel.css('display', 'none');
-            }
+            this.setAngleLabelAndMeasureVisibility(false, presenter.angleMeasuresVisibility);
         }
         
         showLabel() {
             super.showLabel();
-            if (this.$angleLabel) {
-                this.$angleLabel.css('display', '');
-            }
+            this.setAngleLabelAndMeasureVisibility(true, presenter.angleMeasuresVisibility);
         }
 
         isArcClicked(event) {
