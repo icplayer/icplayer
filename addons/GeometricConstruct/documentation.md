@@ -30,7 +30,7 @@ In order to add a new geometric figure to a workspace, you should select it from
     </tr>
     <tr>
         <td>Labels visibility</td>
-        <td>Specified whether the labels of geometric figures in the workspace will be visible by defualt.</td>
+        <td>Specifies whether the labels of geometric figures in the workspace will be visible by default.</td>
     </tr>
     <tr>
         <td>Disable undo/redo buttons</td>
@@ -66,6 +66,14 @@ In order to add a new geometric figure to a workspace, you should select it from
     <tr>
         <td>Angle's decimal point</td>
         <td>This property specifies how many digits past the decimal point of an angle's value should be displayed. Default is 0.</td>
+    </tr>
+    <tr>
+        <td>Length's decimal point</td>
+        <td>This property specifies how many digits past the decimal point of a length measure's value should be displayed. Default is 0.</td>
+    </tr>
+    <tr>
+        <td>Labels visibility</td>
+        <td>Specifies whether the length measures in the workspace will be visible by default.</td>
     </tr>
 </tbody>
 </table>
