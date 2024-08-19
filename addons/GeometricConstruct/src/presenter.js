@@ -318,7 +318,7 @@ function AddonGeometricConstruct_create() {
             }
             angleDecimalPoint = angleDecimalPointResult.value;
         }
-        lengthDecimalPoint
+        
         var lengthDecimalPoint = 0;
         if (model["lengthDecimalPoint"].trim().length > 0) {
             var lengthDecimalPointResult = ModelValidationUtils.validateInteger(model["lengthDecimalPoint"]);
