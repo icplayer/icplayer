@@ -114,9 +114,8 @@ The list starts with the common properties, learn more about them by visiting th
         </td>
 	</tr>
     <tr>
-		<td>Exclude unvisited pages in the total</td>
-		<td>When checked calculating total score only from visited pages
-        </td>
+		<td>Include unvisited pages in the total</td>
+		<td>When checked total score is calculating from all pages.</td>
 	</tr>
 </tbody>
 </table>
