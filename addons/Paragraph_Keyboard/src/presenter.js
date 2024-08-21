@@ -568,7 +568,11 @@ function AddonParagraph_Keyboard_create() {
             return;
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        if (!isPreview) {
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
+        }
+
         presenter.$view.on('click', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -686,10 +690,9 @@ function AddonParagraph_Keyboard_create() {
     // Removing the addon before loading the library causes a problem with second loading.
     // You must separate each method of destroy, or improve the mechanism of loading lessons.
     presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {
-        if (event.target !== presenter.view) {
+        if (event.target != presenter.view) {
             return;
         }
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         try {
             presenter.$view.off();

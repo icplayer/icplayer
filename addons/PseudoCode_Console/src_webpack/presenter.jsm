@@ -256,9 +256,10 @@ function AddonPseudoCode_Console_create() {
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
             presenter.completeObjectsMethods();
+            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.state.view);
+            MutationObserverService.setObserver();
         }
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.initializeExceptions = function () {
@@ -303,11 +304,10 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.destroy = function presenter_destroy (event) {
-        if (event.target !== this) {
+        if (event.target !== presenter.state.view) {
             return;
         }
-
-        presenter.state.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        console.log('destroy pseudocode');
         if (presenter.state.console) {
             presenter.state.console.destroy();
         }

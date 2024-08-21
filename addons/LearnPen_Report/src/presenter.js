@@ -429,12 +429,8 @@ function AddonLearnPen_Report_create() {
             presenter.record();
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        MutationObserverService.createDestroyObserver(presenter.destroy);
+        MutationObserverService.setObserver();
     };
 
     function presenterLogic(view, model, isPreview) {

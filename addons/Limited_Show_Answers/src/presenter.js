@@ -213,15 +213,14 @@ function AddonLimited_Show_Answers_create() {
         presenter.view = view;
         presenter.presenterLogic(view, model, false);
 
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.destroy = function (event) {
         if (event.target !== presenter.view) {
             return;
         }
-
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$button.off();
         presenter.$view.off();
 
