@@ -30,7 +30,11 @@ In order to add a new geometric figure to a workspace, you should select it from
     </tr>
     <tr>
         <td>Labels visibility</td>
-        <td>Specifies whether the labels of geometric figures in the workspace will be visible by default.</td>
+        <td>Specified whether the labels of geometric figures in the workspace will be visible by default.</td>
+    </tr>
+    <tr>
+        <td>Angle measures visibility</td>
+        <td>Specified whether the values of angles in the workspace will be visible by default.</td>
     </tr>
     <tr>
         <td>Disable undo/redo buttons</td>
@@ -59,6 +63,14 @@ In order to add a new geometric figure to a workspace, you should select it from
     <tr>
         <td>Y-axis position</td>
         <td>The default position of the y axis, starting from the left edge of the workspace, measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
+    </tr>
+    <tr>
+        <td>Hide x-axis</td>
+        <td>When selected, the x-axis will not be displayed in the workspace.</td>
+    </tr>
+    <tr>
+        <td>Hide y-axis</td>
+        <td>When selected, the y-axis will not be displayed in the workspace.</td>
     </tr>
     <tr>
         <td>Grid color</td>
@@ -126,6 +138,16 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>hideLabels</td>
         <td>---</td>
         <td>Hides the labels of geometric figures in the workspace.</td>
+    </tr>
+    <tr>
+        <td>showAngleMeasures</td>
+        <td>---</td>
+        <td>Displays the values of angles in the workspace if they were hidden.</td>
+    </tr>
+    <tr>
+        <td>hideAngleMeasures</td>
+        <td>---</td>
+        <td>Hides the values of angles in the workspace.</td>
     </tr>
 </tbody>
 </table>

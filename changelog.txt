@@ -1,3 +1,4 @@
+2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
 2024-08-21 Added length measures visibility and length decimal point properties to Gemoetric Construct
 2024-08-21 Added grid to Geometric Construct addon
 2024-08-21 Changed the moment a page is set as visited to the moment after it is loaded
