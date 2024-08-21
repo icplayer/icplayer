@@ -85,9 +85,12 @@
 		<property name="axisIncrement" nameLabel="GeometricConstruct_property_axis_increment" type="string"/>
 		<property name="unitLength" nameLabel="GeometricConstruct_property_unit_length" type="string"/>
 		<property name="axisColor" nameLabel="GeometricConstruct_property_axis_color" type="string"/>
+		<property name="gridColor" nameLabel="GeometricConstruct_property_grid_color" type="string"/>
 		<property name="hideXAxis" nameLabel="GeometricConstruct_property_hide_x_axis" type="boolean"/>
 		<property name="hideYAxis" nameLabel="GeometricConstruct_property_hide_y_axis" type="boolean"/>
 		<property name="angleDecimalPoint" nameLabel="GeometricConstruct_property_angle_decimal_point" type="string"/>
+		<property name="lengthDecimalPoint" nameLabel="GeometricConstruct_property_length_decimal_point" type="string"/>
+		<property name="lengthMeasuresVisibility" nameLabel="GeometricConstruct_property_length_visibility" type="boolean"/>
 
 	</model>
 </addon>
