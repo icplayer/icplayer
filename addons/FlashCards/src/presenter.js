@@ -25,6 +25,8 @@ function AddonFlashCards_create(){
     presenter.cardMap = [];
 
     presenter.isLoaded = false;
+    presenter.isPreview = false;
+    presenter.textParser = null;
 
     let isWCAGOn = false;
     presenter.speechTexts = {};
@@ -54,6 +56,8 @@ function AddonFlashCards_create(){
         presenter.eventBus = presenter.playerController.getEventBus();
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -202,6 +206,7 @@ function AddonFlashCards_create(){
         var validatedModel = presenter.validateModel(model);
         presenter.configuration = validatedModel;
         presenter.isErrorMode = false;
+        presenter.isPreview = isPreview;
         presenter.Cards = model.Cards;
         presenter.generateCardMap();
         presenter.state.isVisible = presenter.configuration.isVisible;
@@ -253,7 +258,7 @@ function AddonFlashCards_create(){
         presenter.isFrontPlaying = false;
         presenter.isBackPlaying = false;
         presenter.isHiddenPlaying = false;
-        if (!isPreview) {
+        if (!presenter.isPreview) {
             presenter.addAudioEventHandlers();
             MutationObserverService.createDestroyObserver(presenter.destroy);
             MutationObserverService.setObserver();
@@ -513,8 +518,8 @@ function AddonFlashCards_create(){
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").css('visibility', 'hidden');
         presenter.$card.removeClass("flashcards-card-reversed");
 
-        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.getCard(cardNumber - 1).Front;
-        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.getCard(cardNumber - 1).Back;
+        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = parseAltText(presenter.getCard(cardNumber - 1).Front);
+        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = parseAltText(presenter.getCard(cardNumber - 1).Back);
 
         //SCORE BUTTONS
         $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
@@ -1108,5 +1113,9 @@ function AddonFlashCards_create(){
         });
     }
 
+    function parseAltText(text) {
+        return presenter.isPreview ? window.TTSUtils.parsePreviewAltText(text) : presenter.textParser.parseAltTexts(text);
+    }
+
     return presenter;
-};
+}

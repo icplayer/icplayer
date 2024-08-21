@@ -32,11 +32,13 @@ public class LocalAddonsLoader implements IAddonLoader {
 	}
 	
 	private final String ADDONS_DISTRIBUTION_XML = "addons.min.xml";
-	private boolean requestSend = false;
+	private boolean requestToLoadAddonsXMLSent = false;
 	private boolean addonsXMLFetched = false;
+	private boolean firstAddonRequestSent = false;
+	private boolean firstAddonXMLFetched = false;
 	private AddonDescriptor currentAddonDescriptor;
 	private HashMap<String, Element> addonsXMLs = new HashMap<String, Element>();
-	private String fetchURL = URLUtils.resolveURL(GWT.getModuleBaseURL() + "build/dist/", ADDONS_DISTRIBUTION_XML);
+	private String addonsXMLFetchURL = URLUtils.resolveURL(GWT.getModuleBaseURL() + "build/dist/", ADDONS_DISTRIBUTION_XML);
 	private List<WaitingDescriptor> queue = new LinkedList<WaitingDescriptor>();
 	private String errorString;
 
@@ -44,22 +46,30 @@ public class LocalAddonsLoader implements IAddonLoader {
 
 	@Override
 	public void load(ILoadListener callbacks) {
-		if (this.requestSend) {
-			if(this.addonsXMLFetched) {
-				this.flushAddon(this.currentAddonDescriptor, callbacks);
+		if (this.firstAddonRequestSent) {
+			if (this.firstAddonXMLFetched) {
+				if (this.requestToLoadAddonsXMLSent) {
+					if (this.addonsXMLFetched) {
+						this.flushAddon(this.currentAddonDescriptor, callbacks);
+					} else {
+						this.addToWaitingQue(this.currentAddonDescriptor, callbacks);
+					}
+				} else {
+					this.loadSingleAddon(this.currentAddonDescriptor, callbacks);
+				}
 			} else {
 				this.addToWaitingQue(this.currentAddonDescriptor, callbacks);
 			}
 		} else {
-			this.requestLoad(callbacks);
+			this.loadFirstAddon(this.currentAddonDescriptor, callbacks);
 		}
 	}
 	
-	private void requestLoad(ILoadListener callbacks) {
+	private void loadAddonsXML(ILoadListener callbacks) {
 		try {
 			this.addToWaitingQue(this.currentAddonDescriptor, callbacks);
-			this.sendRequest(this.fetchURL);
-			this.requestSend = true;
+			this.sendRequestToLoadAddonsXML(this.addonsXMLFetchURL);
+			this.requestToLoadAddonsXMLSent = true;
 		} catch (RequestException e) {
 			errorString = "Request failure in LocalAddonsLoader: " + e.toString();
 			JavaScriptUtils.log(errorString);
@@ -75,11 +85,11 @@ public class LocalAddonsLoader implements IAddonLoader {
 		this.currentAddonDescriptor = descriptor;
 	}
 
-	public void setFetchUrl(String fetchURL) {
-		this.fetchURL = fetchURL;
+	public void setFetchUrl(String addonsXMLFetchURL) {
+		this.addonsXMLFetchURL = addonsXMLFetchURL;
 	};
 	
-	private void sendRequest(String url) throws RequestException {
+	private void sendRequestToLoadAddonsXML(String url) throws RequestException {
 		final String resolvedURL = this.getResolvedURL(url);
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, resolvedURL);
 		builder.sendRequest(null, new RequestCallback() {
@@ -90,12 +100,12 @@ public class LocalAddonsLoader implements IAddonLoader {
 
 			public void onResponseReceived(Request request, Response response){
 				// StatusCode == 0 when loading from local file
-				responseHandler(response);
+				addonsXMLResponseHandler(response);
 			}
 		});
 	}
 	
-	private void responseHandler(Response response) {
+	private void addonsXMLResponseHandler(Response response) {
 		if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
 			this.parseAddonsXML(response.getText());
 			this.flushWaitingAddons();
@@ -132,6 +142,15 @@ public class LocalAddonsLoader implements IAddonLoader {
 			this.addonsXMLs.put(addonID, addonXML);
 		}
 	}
+	
+	private void parseAddonXML(String text) {
+		Document dom = XMLParser.parse(text);
+		Element addonXML = dom.getDocumentElement();
+		String addonID = XMLUtils.getAttributeAsString(addonXML, "id");
+		if (addonID != null) {
+			this.addonsXMLs.put(addonID, addonXML);
+		}
+	}
 
 	private String getResolvedURL(String url) {
 		String resolvedURL;
@@ -150,6 +169,69 @@ public class LocalAddonsLoader implements IAddonLoader {
 		for(WaitingDescriptor descriptor : this.queue){
 			descriptor.listener.onError(errorString);
 		}	
+		this.queue.clear();
+	}
+
+	private String getLocalAddonURL(String addonID) {
+		return URLUtils.resolveURL(GWT.getModuleBaseURL() + "addons/",addonID+".xml");
+	}
+
+	private void loadSingleAddon(AddonDescriptor descriptor, ILoadListener callbacks) {
+		if (addonsXMLs.containsKey(descriptor.getAddonId())) {
+			this.flushAddon(descriptor, callbacks);
+		} else {
+			String fetchURL = getLocalAddonURL(descriptor.getAddonId());
+			final LocalAddonsLoader self = this;
+			final ILoadListener finalCallbacks = callbacks;
+			final PrivateAddonLoader addonLoader = new PrivateAddonLoader(descriptor, fetchURL);
+			ILoadListener addonListener = new ILoadListener() {
+				@Override
+				public void onFinishedLoading(Object obj) {
+					String addonXML = addonLoader.getXML();
+					if (addonXML != null) {
+						self.parseAddonXML(addonXML);
+					}
+					finalCallbacks.onFinishedLoading(obj);
+				}
+				
+				@Override
+				public void onError(String error) {
+					finalCallbacks.onError(error);
+				}
+			};
+			addonLoader.load(addonListener);
+		}
+	}
+
+	private void loadFirstAddon(AddonDescriptor descriptor, ILoadListener callbacks) {
+		this.firstAddonRequestSent = true;
+		final LocalAddonsLoader self = this;
+		final ILoadListener finalCallbacks = callbacks;
+		final AddonDescriptor finalDescriptor = descriptor;
+		ILoadListener firstListener = new ILoadListener() {
+			@Override
+			public void onFinishedLoading(Object obj) {
+				self.firstAddonXMLFetched = true;
+				self.loadWaitingAddons();
+				finalCallbacks.onFinishedLoading(obj);
+			}
+
+			@Override
+			public void onError(String error) {
+				JavaScriptUtils.log("Error loading addon: " + finalDescriptor.getAddonId());
+				JavaScriptUtils.log("Fallback: attempt to load addons.min.xml");
+				self.firstAddonXMLFetched = true;
+				self.currentAddonDescriptor = finalDescriptor;
+				self.loadAddonsXML(finalCallbacks);
+			}
+		};
+		this.loadSingleAddon(descriptor, firstListener);
+	}
+
+	private void loadWaitingAddons() {
+		for (WaitingDescriptor descriptor : this.queue){
+			this.loadSingleAddon(descriptor.descriptor, descriptor.listener);
+		}
 		this.queue.clear();
 	}
 }
