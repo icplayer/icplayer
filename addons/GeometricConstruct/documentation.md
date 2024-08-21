@@ -48,6 +48,7 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Axis color</td>
         <td>Specifies the color of the axis. The default value is #444444.</td>
     </tr>
+    <tr>
         <td>Axis increment</td>
         <td>The increment used when labeling ticks on the axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
     </tr>
@@ -58,6 +59,10 @@ In order to add a new geometric figure to a workspace, you should select it from
     <tr>
         <td>Y-axis position</td>
         <td>The default position of the y axis, starting from the left edge of the workspace, measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
+    </tr>
+    <tr>
+        <td>Grid color</td>
+        <td>Specifies the color of the grid in the workspace. If left empty, the grid will not be displayed.</td>
     </tr>
     <tr>
         <td>Unit length</td>
