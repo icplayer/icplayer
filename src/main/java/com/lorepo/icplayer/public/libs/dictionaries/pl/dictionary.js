@@ -2519,6 +2519,7 @@ var ice_dictionary_pl = {
     "GeometricConstruct_property_axis_increment": "Axis increment",
     "GeometricConstruct_property_unit_length": "Unit length",
     "GeometricConstruct_property_axis_color": "Axis color",
+    "GeometricConstruct_property_grid_color": "Grid color",
     "GeometricConstruct_property_angle_decimal_point": "Angle's decimal point",
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis"

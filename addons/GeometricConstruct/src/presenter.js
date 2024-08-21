@@ -166,7 +166,8 @@ function AddonGeometricConstruct_create() {
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeAxisConfig(model);
         upgradedModel = presenter.upgradeAngle(upgradedModel);
-        return presenter.upgradeHideAxes(upgradedModel);
+        upgradedModel = presenter.upgradeHideAxes(upgradedModel);
+        return presenter.upgradeGridColor(upgradedModel);
     }
 
     presenter.upgradeAngle = function(model) {
@@ -217,6 +218,17 @@ function AddonGeometricConstruct_create() {
         }
         if (upgradedModel["hideYAxis"] == undefined) {
             upgradedModel["hideYAxis"] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeGridColor = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["gridColor"] == undefined) {
+            upgradedModel["gridColor"] = "";
         }
 
         return upgradedModel;
@@ -294,7 +306,8 @@ function AddonGeometricConstruct_create() {
             yAxisPosition: yAxisPosition,
             angleDecimalPoint: angleDecimalPoint,
             hideXAxis: ModelValidationUtils.validateBoolean(model["hideXAxis"]),
-            hideYAxis: ModelValidationUtils.validateBoolean(model["hideYAxis"])
+            hideYAxis: ModelValidationUtils.validateBoolean(model["hideYAxis"]),
+            gridColor: model["gridColor"]
         };
     }
     
@@ -770,6 +783,7 @@ function AddonGeometricConstruct_create() {
         var spacing = presenter.configuration.axisIncrement * presenter.getActualUnitLength();
         var yPosition = presenter.configuration.yAxisPosition != 0 ? presenter.configuration.yAxisPosition : Math.round(presenter.canvasWidth/2);
         var xPosition = presenter.configuration.xAxisPosition != 0 ? presenter.configuration.xAxisPosition : Math.round(presenter.canvasHeight/2);
+        presenter.drawGrid(yPosition, xPosition, spacing);
         presenter.drawAxis(yPosition, xPosition, spacing, presenter.configuration.axisIncrement);
     }
 
@@ -871,6 +885,33 @@ function AddonGeometricConstruct_create() {
             presenter.context.stroke();
             presenter.context.closePath();
         }
+    }
+
+    presenter.drawGrid = function(centerX, centerY, spacing) {
+        var color = presenter.configuration.gridColor;
+        if (color.trim().length == 0) return;
+        presenter.context.strokeStyle = color;
+        presenter.context.beginPath();
+        var tmpX = centerX % spacing;
+        if (centerX < 0) tmpX = spacing + tmpX;
+        var iter = 0;
+        while (tmpX < presenter.canvasWidth && iter < 100) {
+            presenter.context.moveTo(tmpX, 0);
+            presenter.context.lineTo(tmpX, presenter.canvasHeight);
+            tmpX += spacing;
+            iter += 1;
+        }
+        var tmpY = centerY % spacing;
+        if (centerY < 0) tmpY = spacing + tmpY;
+        iter = 0;
+        while (tmpY < presenter.canvasHeight && iter < 100) {
+            presenter.context.moveTo(0, tmpY);
+            presenter.context.lineTo(presenter.canvasWidth, tmpY);
+            tmpY += spacing;
+            iter += 1;
+        }
+        presenter.context.stroke();
+        presenter.context.closePath();
     }
 
     class GeometricElement {

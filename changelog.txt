@@ -1,3 +1,4 @@
+2024-08-21 Added grid to Geometric Construct addon
 2024-08-21 Changed the moment a page is set as visited to the moment after it is loaded
 2024-08-08 Fixed added fallback for Assessment Navigation Bar getState in case it was called to early
 2024-08-08 Added alternative texts support for FlashCards
