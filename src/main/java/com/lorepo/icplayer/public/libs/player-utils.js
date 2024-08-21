@@ -44,7 +44,7 @@
      */
     window.PlayerUtils.prototype.getPresentationScore = function(presentation) {
         return this.getPresentationScoreBase(presentation, false);
-    }
+    };
 
 /**
      Returns Presentation score object, including non reportable pages
@@ -58,7 +58,7 @@
      */
     window.PlayerUtils.prototype.getFullPresentationScore = function(presentation) {
         return this.getPresentationScoreBase(presentation, true);
-    }
+    };
 
     window.PlayerUtils.prototype.getPresentationScoreBase = function(presentation, includeNonReportable) {
         if (this.hasOwnProperty('scoreService')) {
@@ -155,7 +155,7 @@
                 mistakeCount: sumOfMistakes,
                 paginatedResult: paginatedResults,
                 totalTime: totalTime
-            }
+            };
         }
     };
 
