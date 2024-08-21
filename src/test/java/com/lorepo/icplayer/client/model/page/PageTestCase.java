@@ -465,7 +465,6 @@ public class PageTestCase {
 		page1.setPlayerServices(mockedServices);
 		page2.setPlayerServices(mockedServices);
 		
-		
 		boolean resultForPage1 = page1.isVisited(true);
 		boolean resultForPage2 = page2.isVisited(true);
 		
@@ -485,9 +484,32 @@ public class PageTestCase {
 		assertTrue(resultForPage1);
 		Mockito.verify(page1, Mockito.times(1)).isVisited(false);
 	}
+
+	@Test
+	public void testGivenCurrentlyDisplayedAndNotFullyLoadedPageWhenTestingIfPageIsVisitedThenReturnFalse(){
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 2", "");
+
+		Content mockedModel = Mockito.mock(Content.class);
+		Mockito.doReturn(2).when(mockedModel).getPageCount();
+		Mockito.doReturn(page1).when(mockedModel).getPage(0);
+		Mockito.doReturn(page2).when(mockedModel).getPage(1);
+
+		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
+		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
+		Mockito.doReturn(1).when(mockedServices).getCurrentPageIndex();
+		Mockito.doReturn(false).when(mockedServices).isPageVisited(page1);
+		Mockito.doReturn(false).when(mockedServices).isPageVisited(page2);
+		page1.setPlayerServices(mockedServices);
+		page2.setPlayerServices(mockedServices);
+
+		boolean result = page2.isVisited(false);
+
+		assertFalse(result);
+	}
 	
 	@Test
-	public void testGivenCurrentlyDisplayedPageWhenTestingIfPageIsVisitedThenReturnTrue(){
+	public void testGivenCurrentlyDisplayedAndFullyLoadedPageWhenTestingIfPageIsVisitedThenReturnTrue(){
 		Page page1 = new Page("Page 1", "");
 		Page page2 = new Page("Page 2", "");
 		
@@ -499,7 +521,10 @@ public class PageTestCase {
 		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
 		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
 		Mockito.doReturn(1).when(mockedServices).getCurrentPageIndex();
+		Mockito.doReturn(false).when(mockedServices).isPageVisited(page1);
+		Mockito.doReturn(true).when(mockedServices).isPageVisited(page2);
 		
+		page1.setPlayerServices(mockedServices);
 		page2.setPlayerServices(mockedServices);
 		
 		boolean result = page2.isVisited(false);
