@@ -1,4 +1,11 @@
-2024-08-06 Fixed remove DOMNodeRemoved event from addons
+2024-08-21 Fixed remove DOMNodeRemoved event from addons
+2024-08-21 Changed contentDataLoader to download addons individually by default
+2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
+2024-08-21 Added length measures visibility and length decimal point properties to Gemoetric Construct
+2024-08-21 Added grid to Geometric Construct addon
+2024-08-21 Changed the moment a page is set as visited to the moment after it is loaded
+2024-08-08 Fixed added fallback for Assessment Navigation Bar getState in case it was called to early
+2024-08-08 Added alternative texts support for FlashCards
 2024-07-30 Added displaying default page order in test generator preview
 2024-07-29 Chunked libs.min.js
 2024-07-29 Added protection against negative total time

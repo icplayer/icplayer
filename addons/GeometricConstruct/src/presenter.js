@@ -3,11 +3,14 @@ function AddonGeometricConstruct_create() {
 
     presenter.labelsList = [];
     presenter.greekLabelsList = [];
+    presenter.lowerLabelsList = [];
     presenter.figuresList = [];
     presenter.pointsList = [];
     presenter.maxPointIndex = 0;
     presenter.toolbarButtonsDict = {};
     presenter.labelsVisibility = true;
+    presenter.angleMeasuresVisibility = true;
+    presenter.lengthMeasuresVisibility = true;
     presenter.axisLabels = {
         x: {},
         y: {}
@@ -80,7 +83,8 @@ function AddonGeometricConstruct_create() {
         'IV_01': "Axis increment must be a positive number or left empty",
         'IV_02': "Unit length must be a positive number or left empty",
         'IV_03': "X and Y axis position must be a positive number or left empty",
-        'IV_04': "Angle's decimal point must be an non-negative integer or left empty"
+        'IV_04': "Angle's decimal point must be an non-negative integer or left empty",
+        'IV_05': "Length's decimal point must be an non-negative integer or left empty"
     }
 
     presenter.enabledFigures = {
@@ -96,6 +100,7 @@ function AddonGeometricConstruct_create() {
     }
 
     var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var LOWER_ALPHABET = ALPHABET.toLowerCase();
     var GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω";
 
     presenter.createPreview = function (view, model) {
@@ -117,6 +122,8 @@ function AddonGeometricConstruct_create() {
         presenter.createView(isPreview);
         if (!presenter.configuration.defaultVisibility) presenter.hide();
         presenter.setLabelsVisibility(presenter.configuration.labelsDefaultVisibility);
+        presenter.setAngleMeasuresVisibility(presenter.configuration.angleMeasuresDefaultVisibility);
+        presenter.setLengthMeasuresVisibility(presenter.configuration.lengthMeasuresDefaultVisibility);
         presenter.pushState();
     }
 
@@ -163,10 +170,57 @@ function AddonGeometricConstruct_create() {
         }
     }
 
+    presenter.showAngleMeasures = function() {
+        presenter.setAngleMeasuresVisibility(true);
+    }
+
+    presenter.hideAngleMeasures = function() {
+        presenter.setAngleMeasuresVisibility(false);
+    }
+
+    presenter.setAngleMeasuresVisibility = function(visible) {
+        presenter.angleMeasuresVisibility = visible;
+        for (var i = 0; i < presenter.figuresList.length; i++) {
+            var figure = presenter.figuresList[i];
+            if (figure.showAngleMeasure !== undefined) {
+                if (presenter.angleMeasuresVisibility) {
+                    figure.showAngleMeasure();
+                } else {
+                    figure.hideAngleMeasure();
+                }
+            }
+        }
+    }
+
+    presenter.showLengthMeasures = function() {
+        presenter.setLengthMeasuresVisibility(true);
+    }
+
+    presenter.hideLengthMeasures = function() {
+        presenter.setLengthMeasuresVisibility(false);
+    }
+
+    presenter.setLengthMeasuresVisibility = function(visible) {
+        presenter.lengthMeasuresVisibility = visible;
+        for (var i = 0; i < presenter.figuresList.length; i++) {
+            var figure = presenter.figuresList[i];
+            if (figure.showLengthMeasure !== undefined) {
+                if (presenter.lengthMeasuresVisibility) {
+                    figure.showLengthMeasure();
+                } else {
+                    figure.hideLengthMeasure();
+                }
+            }
+        }
+    }
+
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeAxisConfig(model);
         upgradedModel = presenter.upgradeAngle(upgradedModel);
-        return presenter.upgradeHideAxes(upgradedModel);
+        upgradedModel = presenter.upgradeHideAxes(upgradedModel);
+        upgradedModel = presenter.upgradeAngleMeasuresVisibility(upgradedModel);
+        upgradedModel = presenter.upgradeLengthMeasure(upgradedModel);
+        return presenter.upgradeGridColor(upgradedModel);
     }
 
     presenter.upgradeAngle = function(model) {
@@ -217,6 +271,43 @@ function AddonGeometricConstruct_create() {
         }
         if (upgradedModel["hideYAxis"] == undefined) {
             upgradedModel["hideYAxis"] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeAngleMeasuresVisibility = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["angleMeasuresVisibility"] == undefined) {
+            upgradedModel["angleMeasuresVisibility"] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeLengthMeasure = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["lengthDecimalPoint"] == undefined) {
+            upgradedModel["lengthDecimalPoint"] = "";
+        }
+
+        if (upgradedModel["lengthMeasuresVisibility"] == undefined) {
+            upgradedModel["lengthMeasuresVisibility"] = "";
+        }
+
+        return upgradedModel;
+    }
+          
+    presenter.upgradeGridColor = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel["gridColor"] == undefined) {
+            upgradedModel["gridColor"] = "";
         }
 
         return upgradedModel;
@@ -275,6 +366,15 @@ function AddonGeometricConstruct_create() {
             }
             angleDecimalPoint = angleDecimalPointResult.value;
         }
+        
+        var lengthDecimalPoint = 0;
+        if (model["lengthDecimalPoint"].trim().length > 0) {
+            var lengthDecimalPointResult = ModelValidationUtils.validateInteger(model["lengthDecimalPoint"]);
+            if (!lengthDecimalPointResult.isValid || lengthDecimalPointResult.value < 0) {
+                return {isValid: false, errorCode: "IV_05"};
+            }
+            lengthDecimalPoint = lengthDecimalPointResult.value;
+        }
 
         return {
             isValid: true,
@@ -284,6 +384,7 @@ function AddonGeometricConstruct_create() {
             height: parseInt(model["Height"]),
             defaultVisibility: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             labelsDefaultVisibility: ModelValidationUtils.validateBoolean(model["labelsVisibility"]),
+            angleMeasuresDefaultVisibility: ModelValidationUtils.validateBoolean(model["angleMeasuresVisibility"]),
             disableUndoRedoButton: ModelValidationUtils.validateBoolean(model["DisableUndoRedoButton"]),
             disableResetButton: ModelValidationUtils.validateBoolean(model["DisableResetButton"]),
             disableLabelToggle: ModelValidationUtils.validateBoolean(model["DisableLabelToggle"]),
@@ -294,7 +395,10 @@ function AddonGeometricConstruct_create() {
             yAxisPosition: yAxisPosition,
             angleDecimalPoint: angleDecimalPoint,
             hideXAxis: ModelValidationUtils.validateBoolean(model["hideXAxis"]),
-            hideYAxis: ModelValidationUtils.validateBoolean(model["hideYAxis"])
+            hideYAxis: ModelValidationUtils.validateBoolean(model["hideYAxis"]),
+            lengthDecimalPoint: lengthDecimalPoint,
+            lengthMeasuresDefaultVisibility: ModelValidationUtils.validateBoolean(model["lengthMeasuresVisibility"]),
+            gridColor: model["gridColor"]
         };
     }
     
@@ -516,7 +620,8 @@ function AddonGeometricConstruct_create() {
     }
 
     function labelsButtonHandler (e) {
-        presenter.setLabelsVisibility(!presenter.labelsVisibility);
+        var newLabelsVisibilityValue = !presenter.labelsVisibility
+        presenter.setLabelsVisibility(newLabelsVisibilityValue);
     }
 
     presenter.updateLabels = function() {
@@ -770,6 +875,7 @@ function AddonGeometricConstruct_create() {
         var spacing = presenter.configuration.axisIncrement * presenter.getActualUnitLength();
         var yPosition = presenter.configuration.yAxisPosition != 0 ? presenter.configuration.yAxisPosition : Math.round(presenter.canvasWidth/2);
         var xPosition = presenter.configuration.xAxisPosition != 0 ? presenter.configuration.xAxisPosition : Math.round(presenter.canvasHeight/2);
+        presenter.drawGrid(yPosition, xPosition, spacing);
         presenter.drawAxis(yPosition, xPosition, spacing, presenter.configuration.axisIncrement);
     }
 
@@ -871,6 +977,33 @@ function AddonGeometricConstruct_create() {
             presenter.context.stroke();
             presenter.context.closePath();
         }
+    }
+
+    presenter.drawGrid = function(centerX, centerY, spacing) {
+        var color = presenter.configuration.gridColor;
+        if (color.trim().length == 0) return;
+        presenter.context.strokeStyle = color;
+        presenter.context.beginPath();
+        var tmpX = centerX % spacing;
+        if (centerX < 0) tmpX = spacing + tmpX;
+        var iter = 0;
+        while (tmpX < presenter.canvasWidth && iter < 100) {
+            presenter.context.moveTo(tmpX, 0);
+            presenter.context.lineTo(tmpX, presenter.canvasHeight);
+            tmpX += spacing;
+            iter += 1;
+        }
+        var tmpY = centerY % spacing;
+        if (centerY < 0) tmpY = spacing + tmpY;
+        iter = 0;
+        while (tmpY < presenter.canvasHeight && iter < 100) {
+            presenter.context.moveTo(0, tmpY);
+            presenter.context.lineTo(presenter.canvasWidth, tmpY);
+            tmpY += spacing;
+            iter += 1;
+        }
+        presenter.context.stroke();
+        presenter.context.closePath();
     }
 
     class GeometricElement {
@@ -1151,6 +1284,8 @@ function AddonGeometricConstruct_create() {
         selectedPoint;
         creationLineLocation;
         draggingDiff;
+        $lengthLabel;
+        lengthLabelValue;
 
         constructor(){
             super();
@@ -1167,6 +1302,7 @@ function AddonGeometricConstruct_create() {
             }
             this.drawLines();
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].draw();
+            this.updateLengthLabel();
         };
 
         drawLines() {
@@ -1182,6 +1318,9 @@ function AddonGeometricConstruct_create() {
 
         append() {
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].append();
+            if (!this.lengthLabelValue) {
+                this.lengthLabelValue = presenter.createLabel(presenter.lowerLabelsList, LOWER_ALPHABET);
+            }
             if (presenter.figuresList.indexOf(this) == -1) {
                 presenter.figuresList.push(this);
             }
@@ -1203,6 +1342,9 @@ function AddonGeometricConstruct_create() {
             if (figuresIndex != -1) {
                 presenter.figuresList.splice(figuresIndex, 1);
             }
+
+            presenter.destroyLabel(this.lengthLabelValue, presenter.lowerLabelsList);
+            this.removeLengthLabel();
         }
 
         insertClickHandler(event) {
@@ -1210,6 +1352,7 @@ function AddonGeometricConstruct_create() {
                 this.insertEndpoint(event);
             }
             if (this.endpoints.length == 2) {
+                this.addLengthLabel();
                 this.creationLineLocation = null;
                 presenter.pushState();
                 presenter.newFigure = new LineSegment();
@@ -1315,20 +1458,113 @@ function AddonGeometricConstruct_create() {
 
         hideLabel() {
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].hideLabel();
+            this.setLengthLabelAndMeasureVisibility(false, presenter.lengthMeasuresVisibility);
         }
 
         showLabel() {
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].showLabel();
+            this.setLengthLabelAndMeasureVisibility(true, presenter.lengthMeasuresVisibility);
+        }
+
+        hideLengthMeasure() {
+            this.setLengthLabelAndMeasureVisibility(presenter.labelsVisibility, false);
+        }
+
+        showLengthMeasure() {
+            this.setLengthLabelAndMeasureVisibility(presenter.labelsVisibility, true);
+        }
+
+        setLengthLabelAndMeasureVisibility(isLabelVisible, isMeasureVisible) {
+            if (!this.$lengthLabel) return;
+            if (!isLabelVisible && !isMeasureVisible) {
+                this.$lengthLabel.css('display', 'none');
+            } else {
+                this.$lengthLabel.css('display', '');
+                var text = "";
+                if (isLabelVisible) {
+                    text = this.lengthLabelValue;
+                }
+                if (isMeasureVisible) {
+                    var length = this.getUnitLength();
+                    if (length != null) {
+                        if (text.length > 0) {
+                            text += " = ";
+                        }
+                        var lengthLabelMultiplier = Math.pow(10, presenter.configuration.lengthDecimalPoint) * 1.0;
+                        text += Math.round(lengthLabelMultiplier * length)/lengthLabelMultiplier;
+                    }
+                }
+                if (text.length > 0) {
+                    this.$lengthLabel.html(text);
+                } else {
+                    this.$lengthLabel.css('display', 'none');
+                }
+            }
         }
 
         removeLabel() {
             for (var i = 0; i < this.endpoints.length; i++) this.endpoints[i].removeLabel();
         }
 
+        removeLengthLabel() {
+            if (this.$lengthLabel) {
+                this.$lengthLabel.remove();
+                this.$lengthLabel = null;
+            }
+        }
+
         getLabelValues() {
             var values = [];
             for (var i = 0; i < this.endpoints.length; i++) values = values.concat(this.endpoints[i].getLabelValues());
             return values;
+        }
+
+        getLowerLabelValues() {
+            var values = [];
+            if (!!this.lengthLabelValue) values.push(this.lengthLabelValue);
+            return values;
+        }
+
+        getLengthLabelPosition() {
+            if (this.endpoints.length < 2) return null;
+            return {
+                x: (this.endpoints[0].x + this.endpoints[1].x)/2.0,
+                y: (this.endpoints[0].y + this.endpoints[1].y)/2.0
+            };
+        }
+
+        getLength() {
+            if (this.endpoints.length < 2 || this.getClassType() != "LineSegment") return null;
+            return Math.sqrt(Math.pow(this.endpoints[0].x - this.endpoints[1].x, 2) + Math.pow(this.endpoints[0].y - this.endpoints[1].y, 2));
+        }
+
+        getUnitLength() {
+            var length = this.getLength();
+            if (length == null) return null;
+            return presenter.convertToUnit(length);
+        }
+
+        addLengthLabel() {
+            if (this.endpoints.length < 2) return;
+            if (!this.$lengthLabel) {
+                this.$lengthLabel = $('<div></div>');
+                this.$lengthLabel.addClass(presenter.CSS_CLASSES.LABEL);
+                this.$lengthLabel.addClass(LineSegment.LABEL_CLASS);
+                this.$lengthLabel.css('position', 'absolute');
+                this.$lengthLabel.insertBefore(presenter.$canvasOverlay);
+            }
+            this.setLengthLabelAndMeasureVisibility(presenter.labelsVisibility, presenter.lengthMeasuresVisibility);
+            var position = this.getLengthLabelPosition();
+            this.$lengthLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
+            this.$lengthLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
+        }
+
+        updateLengthLabel() {
+            if (this.endpoints.length < 2 || !this.$lengthLabel) return;
+            this.setLengthLabelAndMeasureVisibility(presenter.labelsVisibility, presenter.lengthMeasuresVisibility);
+            var position = this.getLengthLabelPosition();
+            this.$lengthLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
+            this.$lengthLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
         }
 
         setSelected(isSelected, event) {
@@ -1374,13 +1610,15 @@ function AddonGeometricConstruct_create() {
             return {
                 type: this.getClassType(),
                 state: {
-                    endpointStates: endpointStates
+                    endpointStates: endpointStates,
+                    lengthLabelValue: !!this.lengthLabelValue ? this.lengthLabelValue : ""
                 }
             }
         }
 
         loadJSON(json) {
             if (json.type != this.getClassType()) return;
+            if (!!json.state.lengthLabelValue) this.lengthLabelValue = json.state.lengthLabelValue;
             for (var i = 0; i < 2; i++) {
                 if (i < this.endpoints.length) {
                     this.endpoints[i].loadJSON(json.state.endpointStates[i]);
@@ -1398,6 +1636,7 @@ function AddonGeometricConstruct_create() {
                     point.loadJSON(json.state.endpointStates[i]);
                 }
             }
+            this.addLengthLabel();
         }
     }
 
@@ -1470,6 +1709,7 @@ function AddonGeometricConstruct_create() {
                 this.insertEndpoint(event);
             }
             if (this.endpoints.length == 2) {
+                this.addLengthLabel();
                 presenter.pushState();
                 presenter.newFigure = new HalfOpenLineSegment();
             }
@@ -1507,6 +1747,7 @@ function AddonGeometricConstruct_create() {
                 this.insertEndpoint(event);
             }
             if (this.endpoints.length == 2) {
+                this.addLengthLabel();
                 presenter.pushState();
                 presenter.newFigure = new OpenLineSegment();
             }
@@ -2461,17 +2702,24 @@ function AddonGeometricConstruct_create() {
                 this.$angleLabel.css('position', 'absolute');
                 this.$angleLabel.insertBefore(presenter.$canvasOverlay);
             }
-            var angleLabelMultiplier = Math.pow(10,presenter.configuration.angleDecimalPoint) * 1.0;
-            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°');
+            if (presenter.angleMeasuresVisibility) {
+                this.showAngleMeasure();
+            } else {
+                this.hideAngleMeasure();
+            }
             var position = this.getAngleLabelPosition();
             this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
             this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
+            if (!presenter.labelsVisibility) this.hideLabel();
         };
 
         updateAngleLabel() {
             if (!this.centerPoint || !this.arcStartPoint || !this.arcEndPoint || !this.$angleLabel) return null;
-            var angleLabelMultiplier = Math.pow(10,presenter.configuration.angleDecimalPoint) * 1.0;
-            this.$angleLabel.html(this.angleLabelValue + " = " + Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°');
+            if (presenter.angleMeasuresVisibility) {
+                this.showAngleMeasure();
+            } else {
+                this.hideAngleMeasure();
+            }
             var position = this.getAngleLabelPosition();
             this.$angleLabel.css('top', 'calc(' + position.y + 'px - 0.5em)');
             this.$angleLabel.css('left', 'calc(' + position.x + 'px - 0.5em)');
@@ -2493,23 +2741,43 @@ function AddonGeometricConstruct_create() {
             return {x:x, y:y};
         }
 
-        hideAngleLabel() {
-            if (this.$angleLabel) {
+        setAngleLabelAndMeasureVisibility(isLabelVisible, isMeasureVisible) {
+            if (!this.$angleLabel) return;
+            if (!isLabelVisible && !isMeasureVisible) {
                 this.$angleLabel.css('display', 'none');
-            }
-        }
-
-        showAngleLabel() {
-            if (this.$angleLabel) {
+            } else {
                 this.$angleLabel.css('display', '');
+                var text = "";
+                if (isLabelVisible) {
+                    text = this.angleLabelValue;
+                }
+                if (isMeasureVisible) {
+                    if (text.length > 0) {
+                        text += " = ";
+                    }
+                    var angleLabelMultiplier = Math.pow(10, presenter.configuration.angleDecimalPoint) * 1.0;
+                    text += Math.round(angleLabelMultiplier * this.getAngleDegreeValue())/angleLabelMultiplier + '°';
+                }
+                this.$angleLabel.html(text);
             }
         }
 
-        removeAngleLabel() {
-           if (this.$angleLabel) {
-                this.$angleLabel.remove();
-                this.$angleLabel = null;
-            }
+        hideAngleMeasure() {
+            this.setAngleLabelAndMeasureVisibility(presenter.labelsVisibility, false);
+        }
+
+        showAngleMeasure() {
+            this.setAngleLabelAndMeasureVisibility(presenter.labelsVisibility, true);
+        }
+        
+        hideLabel() {
+            super.hideLabel();
+            this.setAngleLabelAndMeasureVisibility(false, presenter.angleMeasuresVisibility);
+        }
+        
+        showLabel() {
+            super.showLabel();
+            this.setAngleLabelAndMeasureVisibility(true, presenter.angleMeasuresVisibility);
         }
 
         isArcClicked(event) {
@@ -2570,7 +2838,10 @@ function AddonGeometricConstruct_create() {
 
         remove() {
             super.remove();
-            this.removeAngleLabel();
+            if (this.$angleLabel) {
+                this.$angleLabel.remove();
+                this.$angleLabel = null;
+            }
             presenter.destroyLabel(this.angleLabelValue, presenter.greekLabelsList);
         }
 
@@ -2675,7 +2946,9 @@ function AddonGeometricConstruct_create() {
         presenter.previousStates = [];
         presenter.pushState();
         presenter.updateStateButtonsVisibility();
-        presenter.setLabelsVisibility(presenter.labelsDefaultVisibility);
+        presenter.setLabelsVisibility(presenter.configuration.labelsDefaultVisibility);
+        presenter.setAngleMeasuresVisibility(presenter.configuration.angleMeasuresDefaultVisibility);
+        presenter.setLengthMeasuresVisibility(presenter.configuration.lengthMeasuresDefaultVisibility);
     }
 
     presenter.getSelectedButtonType = function() {
@@ -2692,23 +2965,29 @@ function AddonGeometricConstruct_create() {
             figures: [],
             labelsList: [...presenter.labelsList],
             greekLabelsList: [...presenter.greekLabelsList],
+            lowerLabelsList: [...presenter.lowerLabelsList],
             selectedButton: presenter.getSelectedButtonType(),
             visibility: presenter.isVisible(),
             maxPointIndex: presenter.maxPointIndex,
-            labelsVisibility: presenter.labelsVisibility
+            labelsVisibility: presenter.labelsVisibility,
+            angleMeasuresVisibility: presenter.angleMeasuresVisibility,
+            lengthMeasuresVisibility: presenter.lengthMeasuresVisibility
         };
 
         var validFiguresLabels = [];
         var validFiguresGreekLabels = [];
+        var validFiguresLowerLabels = [];
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figure = presenter.figuresList[i];
             var figureState = figure.toJSON();
             var labels = figure.getLabelValues();
             var greekLabels = !!(figure["getGreekLabelValues"]) ? figure.getGreekLabelValues() : [];
+            var lowerLabels = !!(figure["getLowerLabelValues"]) ? figure.getLowerLabelValues() : [];
             if (figureState != null) {
                 state.figures.push(figureState);
                 validFiguresLabels = validFiguresLabels.concat(labels);
                 validFiguresGreekLabels = validFiguresGreekLabels.concat(greekLabels);
+                validFiguresLowerLabels = validFiguresLowerLabels.concat(lowerLabels);
             } else {
                 // labels of invalid figures need to be removed from the state's labels list,
                 // unless they are also a part of a valid figure
@@ -2724,6 +3003,12 @@ function AddonGeometricConstruct_create() {
                         presenter.destroyLabel(label, state.greekLabelsList);
                     }
                 }
+                for (var j = 0; j < lowerLabels.length; j++) {
+                    var label = lowerLabels[j];
+                    if (validFiguresLowerLabels.indexOf(label) == -1) {
+                        presenter.destroyLabel(label, state.lowerLabelsList);
+                    }
+                }
             }
         }
 
@@ -2733,6 +3018,14 @@ function AddonGeometricConstruct_create() {
     presenter.upgradeState = function(state) {
         if (state["greekLabelsList"] == undefined) {
             state["greekLabelsList"] = [];
+        }
+
+        if (state["angleMeasuresVisibility"] == undefined) {
+            state["angleMeasuresVisibility"] = true;
+        }
+
+        if (state["lowerLabelsList"] == undefined) {
+            state["lowerLabelsList"] = [];
         }
     }
 
@@ -2746,9 +3039,12 @@ function AddonGeometricConstruct_create() {
             presenter.hide();
         }
         presenter.setLabelsVisibility(parsedState.labelsVisibility);
+        presenter.setAngleMeasuresVisibility(parsedState.angleMeasuresVisibility);
+        presenter.setLengthMeasuresVisibility(parsedState.lengthMeasuresVisibility);
         presenter.loadFiguresFromState(parsedState.figures);
         presenter.labelsList = [...parsedState.labelsList];
         presenter.greekLabelsList = [...parsedState.greekLabelsList];
+        presenter.lowerLabelsList = [...parsedState.lowerLabelsList];
         presenter.redrawCanvas();
         var $button = presenter.toolbarButtonsDict[parsedState.selectedButton];
         if ($button && !$button.hasClass(presenter.CSS_CLASSES.SELECTED)) {
@@ -2804,6 +3100,7 @@ function AddonGeometricConstruct_create() {
             figures: [],
             labelsList: [...presenter.labelsList],
             greekLabelsList: [...presenter.greekLabelsList],
+            lowerLabelsList: [...presenter.lowerLabelsList],
         };
         for (var i = 0 ; i < presenter.figuresList.length; i++) {
             var figureState = presenter.figuresList[i].toJSON();
@@ -2846,6 +3143,7 @@ function AddonGeometricConstruct_create() {
         presenter.loadFiguresFromState(state.figures);
         presenter.labelsList = [...state.labelsList];
         presenter.greekLabelsList = [...state.greekLabelsList];
+        presenter.lowerLabelsList = [...state.lowerLabelsList];
         presenter.maxPointIndex = state.maxPointIndex;
         presenter.redrawCanvas();
     }
@@ -2888,8 +3186,11 @@ function AddonGeometricConstruct_create() {
             'prevState': presenter.prevState,
             'nextState': presenter.nextState,
             'showLabels': presenter.showLabels,
-            'hideLabels': presenter.hideLabels
-
+            'hideLabels': presenter.hideLabels,
+            'showAngleMeasures': presenter.showAngleMeasures,
+            'hideAngleMeasures': presenter.hideAngleMeasures,
+            'showLengthMeasures': presenter.showLengthMeasures,
+            'hideLengthMeasures': presenter.hideLengthMeasures
         };
         Commands.dispatch(commands, name, params, presenter);
     };
