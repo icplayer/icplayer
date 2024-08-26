@@ -189,20 +189,22 @@ public class PagePopupPanel extends DialogBox {
 			return;
 		}
 		
-		int top = calculateNewTop(this.getElement());
-		int left = calculateNewLeft(this.getElement());
+		int parentAbsoluteLeft = Math.max(0, parentWidget.getAbsoluteLeft());
+		int parentAbsoluteTop = Math.max(0, parentWidget.getAbsoluteTop());
+		int calculatedTop = calculateNewTop(this.getElement());
+		int calculatedLeft = calculateNewLeft(this.getElement());
 		if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-			int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-			int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
+			int propertyLeft = parentAbsoluteLeft + scaleInt(Integer.parseInt(this.left), scale.scaleX);
+			int propertyTop = parentAbsoluteTop + scaleInt(Integer.parseInt(this.top), scale.scaleY);
 			setPopupPosition(propertyLeft, propertyTop);
 		} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-			int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-			setPopupPosition(left, propertyTop);
+			int propertyTop = parentAbsoluteTop + scaleInt(Integer.parseInt(this.top), scale.scaleY);
+			setPopupPosition(calculatedLeft, propertyTop);
 		} else if (this.left != null && this.left != "" && isInteger(this.left)) {
-			int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-			setPopupPosition(propertyLeft, top);
+			int propertyLeft = parentAbsoluteLeft + scaleInt(Integer.parseInt(this.left), scale.scaleX);
+			setPopupPosition(propertyLeft, calculatedTop);
 		} else {
-			setPopupPosition(left, top);
+			setPopupPosition(calculatedLeft, calculatedTop);
 		}
 	}
 
