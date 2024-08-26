@@ -14,7 +14,20 @@
     <stylesheet src="theme/player.css"/>
     <stylesheet src="libs/jquery-ui.css"/>
     <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
-    <script src="build/dist/libs.min.js"/>
+    <script src="build/dist/libs.other.min.js"/>
+    <script src="build/dist/libs.ace.min.js"/>
+    <script src="build/dist/libs.blockly.min.js"/>
+    <script src="build/dist/libs.commons.min.js"/>
+    <script src="build/dist/libs.createjs.min.js"/>
+    <script src="build/dist/libs.dictionaries.min.js"/>
+    <script src="build/dist/libs.jqplot.min.js"/>
+    <script src="build/dist/libs.jquery.min.js"/>
+    <script src="build/dist/libs.math.min.js"/>
+    <script src="build/dist/libs.RecordRTC.min.js"/>
+    <script src="build/dist/libs.lame.min.js"/>
+    <script src="build/dist/libs.google-swiffy-7.4.min.js"/>
+    <script src="build/dist/libs.jison.min.js"/>
+
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
     <!--<script src="https://code.responsivevoice.org/responsivevoice.js"></script>-->
