@@ -60,13 +60,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */,
-/* 1 */,
-/* 2 */
+/* 1 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -103,28 +102,25 @@ function generateJumpInstruction(code, toLabel) {
 }
 
 /***/ }),
-/* 3 */,
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _languageDefinition = __webpack_require__(8);
+var _languageDefinition = __webpack_require__(4);
 
-var _definedObjects = __webpack_require__(9);
+var _definedObjects = __webpack_require__(5);
 
-var _definedExceptions = __webpack_require__(10);
+var _definedExceptions = __webpack_require__(6);
 
-var _languageCodeGenerators = __webpack_require__(11);
+var _languageCodeGenerators = __webpack_require__(7);
 
-var _console = __webpack_require__(12);
+var _console = __webpack_require__(8);
 
-var _machine = __webpack_require__(13);
+var _machine = __webpack_require__(9);
 
-var _validation = __webpack_require__(14);
+var _validation = __webpack_require__(10);
 
-var _utils = __webpack_require__(15);
+var _utils = __webpack_require__(11);
 
 /**
  * Teoria:
@@ -378,10 +374,9 @@ function AddonPseudoCode_Console_create() {
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
             presenter.completeObjectsMethods();
-            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.state.view);
-            MutationObserverService.setObserver();
         }
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.initializeExceptions = function () {
@@ -426,10 +421,11 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.destroy = function presenter_destroy(event) {
-        if (event.target !== presenter.state.view) {
+        if (event.target !== this) {
             return;
         }
-        console.log('destroy pseudocode');
+
+        presenter.state.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         if (presenter.state.console) {
             presenter.state.console.destroy();
         }
@@ -735,7 +731,7 @@ function AddonPseudoCode_Console_create() {
 window.AddonPseudoCode_Console_create = AddonPseudoCode_Console_create;
 
 /***/ }),
-/* 8 */
+/* 4 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -957,7 +953,7 @@ function getLanguageParser(config) {
 }
 
 /***/ }),
-/* 9 */
+/* 5 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1260,7 +1256,7 @@ function getDefinedObjects(config) {
 }
 
 /***/ }),
-/* 10 */
+/* 6 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1348,7 +1344,7 @@ var EXCEPTIONS = exports.EXCEPTIONS = function () {
 }();
 
 /***/ }),
-/* 11 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1356,7 +1352,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CODE_GENERATORS = undefined;
 
-var _languageUtils = __webpack_require__(2);
+var _languageUtils = __webpack_require__(1);
 
 function uidDecorator(fn) {
     return function () {
@@ -1929,7 +1925,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
 };
 
 /***/ }),
-/* 12 */
+/* 8 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2278,7 +2274,7 @@ UserConsole.prototype = {
 };
 
 /***/ }),
-/* 13 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2286,7 +2282,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.codeExecutor = codeExecutor;
 
-var _languageUtils = __webpack_require__(2);
+var _languageUtils = __webpack_require__(1);
 
 /**
  * @param  {Object} parsedData parsed code by jison
@@ -2416,7 +2412,7 @@ function codeExecutor(parsedData, getScore, machineManager) {
 }
 
 /***/ }),
-/* 14 */
+/* 10 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2800,7 +2796,7 @@ function validateModel(model, aliases) {
 }
 
 /***/ }),
-/* 15 */
+/* 11 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {

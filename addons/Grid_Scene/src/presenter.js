@@ -350,8 +350,13 @@ function AddonGrid_Scene_create(){
         initGrid(model);
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
+
+
 
         if (!isPreview) {
             presenter.setQueLoopTimer();
@@ -414,6 +419,7 @@ function AddonGrid_Scene_create(){
         }
     };
     presenter.destroy = function () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         clearInterval(presenter.configuration.queLoopTimer);
         presenter.$view = null;
         presenter.view = null;
@@ -833,6 +839,8 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.reset = function(){
+        console.log("Reset");
+        console.log(this);
         presenter.$view.find('.grid-scene-cell-element').each(function () {
             $(this).removeClass('grid-scene-wrong').removeClass('grid-scene-cell-element-wrapper');
             if($(this).attr('colored') == 'true'){
@@ -1075,7 +1083,9 @@ function AddonGrid_Scene_create(){
             try {
                 eval(customCommands);
                 eval(code);
-            } catch (e) { }
+            } catch (e) {
+                //console.log(e);
+            }
 
         }
         sendRunEvent();

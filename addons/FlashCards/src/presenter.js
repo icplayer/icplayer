@@ -260,8 +260,6 @@ function AddonFlashCards_create(){
         presenter.isHiddenPlaying = false;
         if (!presenter.isPreview) {
             presenter.addAudioEventHandlers();
-            MutationObserverService.createDestroyObserver(presenter.destroy);
-            MutationObserverService.setObserver();
         }
 
         presenter.isLoaded = true;
@@ -731,7 +729,9 @@ function AddonFlashCards_create(){
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
         $(presenter.$view.find(".flashcards-card-contents")).unbind();
         $(presenter.flashcardsButtonWrong).unbind();
         $(presenter.flashcardsButtonCorrect).unbind();

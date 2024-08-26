@@ -106,8 +106,7 @@ function AddonSwiffyAnimation_create(){
             e.stopPropagation();
         });
 
-        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-        MutationObserverService.setObserver();
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.checkIfAllAnimationsAreLoaded = function(){
@@ -325,6 +324,7 @@ function AddonSwiffyAnimation_create(){
 
     presenter.destroy = function(event) {
         if (event.target === presenter.view) {
+            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
             if (presenter.loaded === true) {
                 presenter.loaded = false;
                 $(presenter.swiffyContainer).html("");

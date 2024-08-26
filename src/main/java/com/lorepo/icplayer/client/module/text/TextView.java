@@ -643,7 +643,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
-		function destroy (event) {
+		function onDOMNodeRemoved (event) {
 			var $droppableElements, $draggableElements;
 			if (event.target !== addon) {
 				return;
@@ -653,6 +653,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				mathJaxElement.Detach();
 				mathJaxElement.Remove();
 			});
+
+			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
 
 			$droppableElements = $addon.find(".ui-droppable");
 			$draggableElements = $addon.find(".ui-draggable");
@@ -666,21 +668,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			$addon = null;
 		}
 
-		var mockedEvent = {target: addon};
-		var observer = new MutationObserver(function (records) {
-			records.forEach(function (record) {
-				if (record.removedNodes.length) {
-					destroy(mockedEvent);
-				}
-
-				if (record.target.childNodes.length === 0) {
-					observer.disconnect();
-				}
-			});
-		});
-
-		var config = {childList: true};
-		observer.observe($wnd.$('.ic_page').get(0), config);
+		if (addon && addon.addEventListener) {
+		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
+		} else {
+            $addon = null;
+            addon = null;
+        }
 	}-*/;
 
 	@Override

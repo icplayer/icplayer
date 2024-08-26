@@ -346,13 +346,17 @@ function AddonTimer_create(){
 		if (!isPreview && presenter.state.nowStart) {
 			presenter.countDown();
 		}
-		MutationObserverService.createDestroyObserver(presenter.destroy);
-		MutationObserverService.setObserver();
+		presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
+            if (event.target === this) {
+                presenter.destroy();
+            }
+        });
 		presenter.setSpeechTexts(upgradedModel);
 		presenter.buildKeyboardController();
 	};
 
-	presenter.destroy = function () {
+	presenter.destroy = function (event) {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         clearInterval(presenter.state.interval);
     };
 
