@@ -144,7 +144,8 @@ public class PlayerEntryPoint implements EntryPoint {
 
 			player.getScoreWithMetadata = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getScoreWithMetadata()();
-			}
+			};
+
 			player.setScoreWithMetadata = function (state) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(state);
 			};
@@ -155,6 +156,10 @@ public class PlayerEntryPoint implements EntryPoint {
 
 			player.setOpenActivitiesScores = function(scores) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setOpenActivitiesScores(Lcom/google/gwt/core/client/JavaScriptObject;)(scores);
+			};
+			
+			player.cleanBeforeClose = function () {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::cleanBeforeClose()();
 			};
 		}
 
@@ -392,6 +397,16 @@ public class PlayerEntryPoint implements EntryPoint {
 	private void setScoreWithMetadata(String state) {
 		this.theApplication.setScoreWithMetadata(state);
 	}
+	
+	private void cleanBeforeClose() {
+		clearBeforeReload();
+		resetGWTLoadedStatues();
+	}
+	
+	private native void resetGWTLoadedStatues() /*-{
+		$wnd.__gwt_stylesLoaded = undefined;
+		$wnd.__gwt_scriptsLoaded = undefined;
+	}-*/;
 
 	private void clearBeforeReload() {
 		if (theApplication != null && theApplication.isContentModelLoaded()) {
