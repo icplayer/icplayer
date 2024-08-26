@@ -34,6 +34,7 @@ function AddonProgrammingCommandPrompt_create () {
     };
 
     presenter.destroy = function () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.sceneModule = null;
         presenter.configuration = null;
         presenter.editor.destroy();
@@ -57,10 +58,11 @@ function AddonProgrammingCommandPrompt_create () {
             height: presenter.$view.height()
         });
         presenter.editor = ace.edit(editor[0]);
-
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
-
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
         presenter.setRunButton();
 
         if (!isPreview) {

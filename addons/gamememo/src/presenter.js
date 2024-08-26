@@ -1351,8 +1351,11 @@ function Addongamememo_create(){
             eventBus.addEventListener(events[i], this);
         }
         presenter.setVisibility(presenter.configuration.isVisible);
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
+        view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
     };
 
     presenter.createPreview = function(view, model) {

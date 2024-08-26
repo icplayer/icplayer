@@ -10,6 +10,7 @@
 function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
 
+
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
         "SI02": "You must add scene id if you want to add scene toolbox",
@@ -170,10 +171,11 @@ function AddonBlocklyCodeEditor_create () {
 
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
-        if (!isPreview) {
-            MutationObserverService.createDestroyObserver(presenter.destroy);
-            MutationObserverService.setObserver();
-        }
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
 
         if (isPreview) {
             presenter.$view.css('z-index','0');
@@ -234,6 +236,7 @@ function AddonBlocklyCodeEditor_create () {
             $("#content").off("scroll", presenter.scrollFixHandler);
         }
 
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.workspace.dispose();
 
         presenter.configuration.workspace = null;

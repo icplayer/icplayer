@@ -135,6 +135,7 @@ function AddonMaze_create () {
     };
 
     presenter.destroy = function () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         if (presenter.getActualGame()) {
             presenter.getActualGame().destroy();
         }
@@ -237,11 +238,16 @@ function AddonMaze_create () {
                 presenter.state.elements.menu.style.display = 'none';
                 presenter.state.elements.gameContainer.style.width = '100%';
             }
+
+            presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+                if (ev.target === this) {
+                    presenter.destroy();
+                }
+            });
+
             presenter.connectHandlers();
             presenter.initializeMaze();
 
-            MutationObserverService.createDestroyObserver(presenter.destroy);
-            MutationObserverService.setObserver();
         }
 
         presenter.setVisibility(presenter.configuration.isVisible);

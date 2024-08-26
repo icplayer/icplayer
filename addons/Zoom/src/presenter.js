@@ -193,6 +193,7 @@ function AddonZoom_create() {
     };
 
     presenter.addHandlers = function () {
+        presenter.view.addEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (isTargetedAreaModeActive()) {
             if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
                 addMouseOverZoomButtonListener();
@@ -201,11 +202,10 @@ function AddonZoom_create() {
             findPage().addEventListener("click", presenter.pageCallback);
         }
         findInView(presenter.CSS_CLASSES.ZOOM_BUTTON).addEventListener("click", presenter.zoomButtonCallback);
-        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-        MutationObserverService.setObserver();
     };
 
     presenter.removeHandlers = function () {
+        presenter.view.removeEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (!isTargetedAreaModeActive()) {
             findPage().removeEventListener("click", presenter.pageCallback);
         }

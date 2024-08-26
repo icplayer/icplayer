@@ -696,8 +696,11 @@ function AddonQuiz_create() {
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-		MutationObserverService.setObserver();
+        presenter.$view[0].addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
 
         presenter.isLoaded = true;
     };
@@ -848,6 +851,7 @@ function AddonQuiz_create() {
     };
 
     presenter.destroy = function () {
+        presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
         unbindEvents();
         presenter.$view.off();
         presenter.eventBus = null;

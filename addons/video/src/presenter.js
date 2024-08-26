@@ -484,6 +484,7 @@ function Addonvideo_create() {
 
         presenter.stop();
 
+        presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.videoObject.removeEventListener('click', presenter.stopPropagationOnClickEvent);
         presenter.videoObject.removeEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
         presenter.videoObject.removeEventListener('play', setVideoStateOnPlayEvent);
@@ -1100,8 +1101,11 @@ function Addonvideo_create() {
 
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-		MutationObserverService.setObserver();
+        presenter.videoView.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
 
         presenter.addClickListener();
     };

@@ -640,6 +640,7 @@ function AddonAudio_create(){
 
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration = presenter.validateModel(upgradedModel);
 
         AddonAudio_createView(view, upgradedModel, isPreview);
@@ -649,18 +650,18 @@ function AddonAudio_create(){
             presenter.$view.bind('click', function (event) {
                 event.stopPropagation();
             });
-            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
         }
 
     };
 
     presenter.destroy = function AddonAudio_destroy (event) {
-        if (event.target != presenter.view) {
+        if (event.target !== presenter.view) {
             return;
         }
 
         presenter.audio.pause();
+
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         presenter.playerController = null;
 

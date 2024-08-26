@@ -606,11 +606,12 @@ function AddonMultiAudio_create(){
 
         presenter.view = view;
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.destroy = function AddonMultiAudio_destroy() {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
         presenter.audio.pause();
     };
 

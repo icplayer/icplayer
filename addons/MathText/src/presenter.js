@@ -219,8 +219,7 @@ function AddonMathText_create() {
 
         // added in preview too, so it won't slow editor down
         if (presenter.configuration.showEditor) {
-            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
+            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
         }
     };
 
@@ -284,7 +283,7 @@ function AddonMathText_create() {
     };
 
     presenter.destroy = function AddonMathText_removeHandler (event) {
-        if (event.target !== presenter.view) {
+        if (event.target !== this) {
             return;
         }
 
@@ -292,6 +291,7 @@ function AddonMathText_create() {
             presenter.editor.getEditorModel().removeEditorListener(presenter.editorListener);
             presenter.removeWIRISEditor();
         }
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
     };
 
     presenter.removeWIRISEditor = function () {
