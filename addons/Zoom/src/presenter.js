@@ -201,6 +201,8 @@ function AddonZoom_create() {
             findPage().addEventListener("click", presenter.pageCallback);
         }
         findInView(presenter.CSS_CLASSES.ZOOM_BUTTON).addEventListener("click", presenter.zoomButtonCallback);
+        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.removeHandlers = function () {
