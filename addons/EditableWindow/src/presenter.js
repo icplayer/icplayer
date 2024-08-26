@@ -96,8 +96,7 @@ function AddonEditableWindow_create() {
         presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
         presenter.initJQueryCache($(view));
 
-        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.configuration.view);
-        MutationObserverService.setObserver();
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration.model = presenter.validModel(upgradedModel);
@@ -1154,6 +1153,8 @@ function AddonEditableWindow_create() {
     // Removing the addon before loading the library causes a problem with second loading.
     presenter.destroy = function (event) {
         if (event.target === presenter.configuration.view) {
+            presenter.configuration.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
             presenter.removeCallbacks();
 
             var timeouts = presenter.configuration.timeouts;

@@ -99,8 +99,7 @@ function AddonShooting_Range_create() {
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.connectHandlers = function () {
@@ -346,6 +345,10 @@ function AddonShooting_Range_create() {
     };
 
     presenter.destroy = function () {
+        if (event.target !== this) {
+            return;
+        }
+
         presenter.state.destoyed = true;
 
         for (var i = 0; i < presenter.state.levels.length; i++) {
@@ -353,6 +356,7 @@ function AddonShooting_Range_create() {
         }
 
         presenter.state.$playButton.off();
+        presenter.state.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.validateModel = function (model) {

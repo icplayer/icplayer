@@ -505,8 +505,7 @@ function AddonSlider_create () {
         loadImageElement(preview);
 
         presenter.$view.disableSelection();
-        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-        MutationObserverService.setObserver();
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     }
 
     function drawBurret() {
@@ -1093,7 +1092,7 @@ function AddonSlider_create () {
     };
 
     presenter.destroy = function (event) {
-        if (event.target !== presenter.view) {
+        if (event.target !== this) {
             return;
         }
 
@@ -1101,6 +1100,8 @@ function AddonSlider_create () {
         $icplayer.off("mousemove", mouseMoveCallback);
         $icplayer.off("mouseup", presenter.mouseUpEventDispatcher);
         $(document).off('mouseup', presenter.mouseUpEventDispatcher);
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
     };
 
     return presenter;

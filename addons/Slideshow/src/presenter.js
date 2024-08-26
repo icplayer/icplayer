@@ -1321,9 +1321,11 @@ function AddonSlideshow_create() {
 	            isMouseDragged : false
 	        };
 
-            MutationObserverService.createDestroyObserver(presenter.stopPresentation);
-            MutationObserverService.setObserver();
-
+            view.addEventListener('DOMNodeRemoved',function(ev) {
+                if (ev.target === this) {
+                    presenter.stopPresentation();
+                }
+            });
             presenter.hideInactiveControls();
         } else {
         	if (presenter.configuration.groupNextAndPrevious) {

@@ -328,10 +328,12 @@ function AddonBoard_Game_create(){
                 containment: "parent"
             });
         }
+
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.destroy = function (event) {
-        if (event.target != presenter.$view.get(0)) {
+        if (event.target !== this) {
             return;
         }
 
@@ -343,6 +345,7 @@ function AddonBoard_Game_create(){
     presenter.removeHandlers = function () {
         presenter.boardCounters.off();
         presenter.$view.find('.board-game-field').off();
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.getElementToNavigation = function () {
@@ -476,8 +479,6 @@ function AddonBoard_Game_create(){
 
         if (validatedModel.isValid) {
             presenter.init(view, validatedModel.value);
-            MutationObserverService.createDestroyObserver(presenter.destroy, presenter.$view.get(0));
-            MutationObserverService.setObserver();
 
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);

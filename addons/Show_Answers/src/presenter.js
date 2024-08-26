@@ -199,8 +199,7 @@ function AddonShow_Answers_create(){
         presenter.view = view;
         presenter.presenterLogic(view, model, false);
 
-        MutationObserverService.createDestroyObserver(presenter.destroy, presenter.view);
-        MutationObserverService.setObserver();
+        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
     };
 
     presenter.destroy = function (event) {
@@ -208,6 +207,7 @@ function AddonShow_Answers_create(){
             return;
         }
 
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$button.off();
         presenter.$view.off();
 

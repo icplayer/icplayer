@@ -39,6 +39,7 @@ TestCase("[Video] Free Up Memory Tests", {
         assertEquals('canplay', this.stubs.unbind.args[2][0]);
         assertEquals('timeupdate', this.stubs.unbind.args[3][0]);
 
+        assertEquals('DOMNodeRemoved', this.stubs.removeEventListener.args[0][0]);
         assertEquals('click', this.stubs.removeEventListener.args[1][0]);
         assertEquals('loadedmetadata', this.stubs.removeEventListener.args[2][0]);
         assertEquals('play', this.stubs.removeEventListener.args[3][0]);

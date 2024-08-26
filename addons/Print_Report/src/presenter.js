@@ -634,11 +634,11 @@ function AddonPrint_Report_create(){
 
         presenter.view = view;
 
-        MutationObserverService.createDestroyObserver(presenter.destroy);
-        MutationObserverService.setObserver();
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.destroy = function addonPrint_Report_destroy () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$wrapper.off();
         presenter.$exportButton.off();
         presenter.unbindPopupEvents();
