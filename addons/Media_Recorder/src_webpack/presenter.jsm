@@ -6,6 +6,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.mediaRecorder = new MediaRecorder();
+    presenter.addonID = null;
 
     presenter.setPlayerController = function (controller) {
         presenter.mediaRecorder.setPlayerController(controller)
@@ -14,14 +15,22 @@ function AddonMedia_Recorder_create() {
     presenter.run = function run(view, model) {
         presenter.view = view;
         presenter.mediaRecorder.run(view, model);
+        presenter.updateAddonID(model);
         handleDestroyEvent();
     };
 
     presenter.createPreview = function createPreview(view, model) {
         presenter.view = view;
         presenter.mediaRecorder.createPreview(view, model);
+        presenter.updateAddonID(model);
         handleDestroyEvent();
     };
+
+    presenter.updateAddonID = function(model) {
+        if (model.hasOwnProperty('ID')) {
+            presenter.addonID = model['ID'];
+        }
+    }
 
     presenter.isEmpty = function isEmpty() {
         return presenter.mediaRecorder.isEmpty();
@@ -145,7 +154,7 @@ function AddonMedia_Recorder_create() {
     }
 
     function handleDestroyEvent() {
-        MutationObserverService.createDestroyObserver(presenter.mediaRecorder.getAddonID(), presenter.destroy, presenter.view);
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
     }
 
