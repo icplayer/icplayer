@@ -494,8 +494,7 @@ function AddonText_Coloring_create() {
         presenter.runLogic(view, model, true);
     };
 
-    presenter.destroy = function (event) {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+    presenter.destroy = function () {
         presenter.disconnectWordTokensHandlers();
         presenter.disconnectHandlers();
     };
@@ -511,11 +510,8 @@ function AddonText_Coloring_create() {
             return;
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
-            if (event.target === this) {
-                presenter.destroy();
-            }
-        });
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+        MutationObserverService.setObserver();
 
         presenter.createStateMachine();
         presenter.setFilteredTokensData();

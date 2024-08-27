@@ -59,6 +59,10 @@ export class MediaRecorder {
         this.recordButton.setKeyboardController(this.keyboardControllerObject);
     }
 
+    getAddonID() {
+        return this.model.ID;
+    }
+
     createPreview(view, model) {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);

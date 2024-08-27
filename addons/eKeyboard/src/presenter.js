@@ -287,11 +287,8 @@ function AddoneKeyboard_create(){
         initializeOpenButton();
         presenter.initializeCloseButton();
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_eKeyboard (ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+        MutationObserverService.setObserver();
 
         var mathJaxDeferred = new jQuery.Deferred(),
             mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -979,7 +976,6 @@ function AddoneKeyboard_create(){
         });
 
         document.removeEventListener('mousedown', presenter.clickedOutsideCallback);
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         $(presenter.keyboardWrapper).remove();
         $(openButtonElement).remove();
     };
