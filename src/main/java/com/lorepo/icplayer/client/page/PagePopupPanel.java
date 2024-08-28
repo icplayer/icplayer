@@ -219,15 +219,18 @@ public class PagePopupPanel extends DialogBox {
 	}-*/;
 	
 	private int adjustTopFromProperty() {
-		return parentWidget.getAbsoluteTop() + getRelativeTopOffset() + scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
+		return getTopOffset(parentWidget.getAbsoluteTop()) + scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
 	}
 	
 	private int adjustLeftFromProperty() {
 		return parentWidget.getAbsoluteLeft() + scaleInt(Integer.parseInt(this.left), scale.baseScaleX);
 	}
 	
-	private static native int getRelativeTopOffset() /*-{
-		return $wnd.pageYOffset;
+	private static native int getTopOffset(int absoluteTop) /*-{
+		if ($wnd.DevicesUtils.isFirefox()) {
+			return 0;
+		}
+		return absoluteTop + $wnd.pageYOffset;
 	}-*/;
 
 	public boolean isInteger(String s) {
