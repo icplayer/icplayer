@@ -1,3 +1,4 @@
+2024-08-28 Fixed not displaying gaps in MathML render option.
 2024-08-08 Fixed added fallback for Assessment Navigation Bar getState in case it was called to early
 2024-08-08 Added alternative texts support for FlashCards
 2024-07-30 Added displaying default page order in test generator preview
