@@ -189,33 +189,45 @@ public class PagePopupPanel extends DialogBox {
 			return;
 		}
 		
-		int parentAbsoluteLeft = Math.max(0, parentWidget.getAbsoluteLeft());
-		int parentAbsoluteTop = Math.max(0, parentWidget.getAbsoluteTop());
-		int calculatedTop = calculateNewTop(this.getElement());
-		int calculatedLeft = calculateNewLeft(this.getElement());
 		if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-			int propertyLeft = parentAbsoluteLeft + scaleInt(Integer.parseInt(this.left), scale.scaleX);
-			int propertyTop = parentAbsoluteTop + scaleInt(Integer.parseInt(this.top), scale.scaleY);
+			int propertyLeft = adjustLeftFromProperty();
+			int propertyTop = adjustTopFromProperty();
 			setPopupPosition(propertyLeft, propertyTop);
 		} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-			int propertyTop = parentAbsoluteTop + scaleInt(Integer.parseInt(this.top), scale.scaleY);
+			int propertyTop = adjustTopFromProperty();
+			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
 			setPopupPosition(calculatedLeft, propertyTop);
 		} else if (this.left != null && this.left != "" && isInteger(this.left)) {
-			int propertyLeft = parentAbsoluteLeft + scaleInt(Integer.parseInt(this.left), scale.scaleX);
+			int propertyLeft = adjustLeftFromProperty();
+			int calculatedTop = calculateTopWhenCentred(this.getElement());
 			setPopupPosition(propertyLeft, calculatedTop);
 		} else {
+			int calculatedTop = calculateTopWhenCentred(this.getElement());
+			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
 			setPopupPosition(calculatedLeft, calculatedTop);
 		}
 	}
-
-	private static native int calculateNewTop(Element popupElement) /*-{
+	
+	private static native int calculateTopWhenCentred(Element popupElement) /*-{
 		var elementHeight = popupElement.getBoundingClientRect().height;
 		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
 	}-*/;
-
-	private static native int calculateNewLeft(Element popupElement) /*-{
+	
+	private static native int calculateLeftWhenCentred(Element popupElement) /*-{
 		var elementWidth = popupElement.getBoundingClientRect().width;
 		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
+	}-*/;
+	
+	private int adjustTopFromProperty() {
+		return parentWidget.getAbsoluteTop() + getRelativeTopOffset() + scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
+	}
+	
+	private int adjustLeftFromProperty() {
+		return parentWidget.getAbsoluteLeft() + scaleInt(Integer.parseInt(this.left), scale.baseScaleX);
+	}
+	
+	private static native int getRelativeTopOffset() /*-{
+		return $wnd.pageYOffset;
 	}-*/;
 
 	public boolean isInteger(String s) {

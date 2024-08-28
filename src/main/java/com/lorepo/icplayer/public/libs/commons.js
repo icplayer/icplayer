@@ -173,7 +173,7 @@ value:d.Visual_Feedback_Creator_new_index,score:d.Visual_Feedback_Creator_score}
 f="";b>0&&c>0&&(f=f+("Item:"+b+"-"+c+"\n"));d>-1&&(f=f+("Value:"+d+"\n"));e>-1&&(f=f+("Score:"+e+"\n"));return[f+"SCRIPTSTART\n"+a+"SCRIPTEND\n",Blockly.JavaScript.ORDER_ATOMIC]}};g.BlocklyCustomBlocks=g.BlocklyCustomBlocks||{};g.BlocklyCustomBlocks.AGC=g.BlocklyCustomBlocks.AGC||d})(window);
 /**
  * Player Addons Commons library
- * @version 4.4.0
+ * @version 4.4.1
  * Components:
  * - Model Validation Utils
  * - DOM Operations

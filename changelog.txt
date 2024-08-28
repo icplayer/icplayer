@@ -1,4 +1,4 @@
-2024-08-26 Changed the positioning of commons popups to be in a center of player area
+2024-08-28 Changed the positioning of commons popups to be in a center of player area
 2024-08-21 Changed contentDataLoader to download addons individually by default
 2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
 2024-08-21 Added length measures visibility and length decimal point properties to Gemoetric Construct
