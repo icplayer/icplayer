@@ -1,8 +1,10 @@
-###Description
+### Description
 
-In Flash Cards module, you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode.
+In the Flash Cards module, you can create cards with varied content such as text, images, and audio, which are different at the front and back of the card. Each card can be marked as a favourite and graded by the student as correct or wrong in the activity mode.
 
-##Properties
+## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
 <tbody>
@@ -12,19 +14,39 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>Cards</td>
-        <td>A list of card items in which you define the front and back of each card.<br/>
-- Front: The content displayed on the front side of the card.<br/>
-- Back: The content displayed on the back side of the card. It is shown when the user clicks on the front side of the card.<br/>
-- Audio Front: The audio file in mp3 format to be displayed on the front side of the card.<br/>
-- Audio Back: The audio file in mp3 format to be displayed on the back side of the card.<br/>
-</td>
+        <td>A list of card items in which you define the front and back of each card.<br> 
+        <table border='1'>
+            <tbody>
+                <tr>
+                    <th>Property name</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>Front</td>
+                    <td>The content displayed on the front side of the card.</td>
+                </tr>
+                <tr>
+                    <td>Back</td>
+                    <td>The content displayed on the back side of the card. It is shown when the user clicks the front side of the card.</td>
+                </tr>
+                <tr>
+                    <td>Audio Front</td>
+                    <td>The audio file in MP3 format to be displayed on the front side of the card.</td>
+                </tr>
+                <tr>
+                    <td>Audio Back</td>
+                    <td>The audio file in MP3 format to be displayed on the back side of the card.</td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
     </tr>
     <tr>
         <td>Disable Loop</td>
         <td>Disables the loop mode, so that the "previous" button won't turn to the first card and the "next" button won't turn to the last one.</td>
     </tr>
     <tr>
-        <td>Favourites</td>
+        <td>Enable Favourites</td>
         <td>Enables marking cards as favourite. When enabled, the button is displayed on each card.</td>
     </tr>
     <tr>
@@ -37,29 +59,29 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>Is Activity</td>
-        <td>When enabled, the module sends the score data depending on how many cards are marked as correct and wrong by Activity Buttons.</td>
-    </tr>
-    <tr>
-        <td>Lang attribute</td>
-        <td>Allows you to set the langauge used to read the contents of the card via the TTS module.</td>
-    </tr>
-    <tr>
-        <td>Speech texts</td>
-        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the TTS mode. Speech texts are always read using the content's default language.</td>
-    </tr>  
-    <tr>
-        <td>Randomize order</td>
-        <td>When enabled, the order of cards will be randomized every time the addon is loaded.</td>
+        <td>When enabled, the module sends the score data depending on how many cards are marked as correct and wrong by using the Activity Buttons.</td>
     </tr>
     <tr>
         <td>Send event only on card changed</td>
         <td>When checked, only the card change event will be sent.</td>
     </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property allows defining the language for this module (different than the language of the lesson).</td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>List of speech texts: Card, Out of, Favourite, Audio, Correct, Wrong, Reset, Selected, Deselected, Card has been reset, Turned. This text will be read by the Text to Speech module after the user performs a certain action.</td>
+    </tr>
+    <tr>
+        <td>Randomize order</td>
+        <td>When enabled, the order of cards will be randomized every time the module is loaded.</td>
+    </tr>
 </tbody>
 </table>
 
 
-##Supported commands
+## Supported commands
 <table border='1'>
 <tbody>
     <tr>
@@ -70,22 +92,22 @@ In Flash Cards module, you can create cards with varied content such as text, im
     <tr>
         <td>show</td>
         <td>-</td>
-        <td>Displays the module.</td>
+        <td>Shows the module if it is hidden.</td>
     </tr>
     <tr>
         <td>hide</td>
         <td>-</td>
-        <td>Hides the module.</td>
+        <td>Hides the module if it is visible.</td>
     </tr>
     <tr>
         <td>nextCard</td>
         <td>-</td>
-        <td>Turns to the next card. If "disable loop property" is enabled, it stops at the last card.</td>
+        <td>Turns to the next card. If the "Disable Loop" property is enabled, it stops at the last card.</td>
     </tr>
     <tr>
         <td>prevCard</td>
         <td>-</td>
-        <td>Turns to the previous card. If "disable loop property" is enabled, it stops at the fisrt card.</td>
+        <td>Turns to the previous card. If the "Disable Loop" property is enabled, it stops at the first card.</td>
     </tr>
     <tr>
         <td>reset</td>
@@ -98,12 +120,12 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <td>Resets favourite cards' selection.</td>
     </tr>
     <tr>
-        <td>ShowOnlyFavourites</td>
+        <td>showOnlyFavourites</td>
         <td>-</td>
         <td>Displays only the cards marked as favourite.</td>
     </tr>
     <tr>
-        <td>ShowAllCards</td>
+        <td>showAllCards</td>
         <td>-</td>
         <td>Displays all cards, favourite or not.</td>
     </tr>
@@ -130,7 +152,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
 </tbody>
 </table>
 
-##Events
+## Events
 
 <table border='1'>
 <tbody>
@@ -139,17 +161,18 @@ In Flash Cards module, you can create cards with varied content such as text, im
         <th>Description</th>
     </tr>
     <tr>
-        <td>item</td>
-        <td>card number</td>
+        <td>Item</td>
+        <td>card number.</td>
     </tr>
     <tr>
-        <td>value</td>
-        <td>favourite/unfavourite/playing/pause/ended/front/back</td>
+        <td>Value</td>
+        <td>favourite/unfavourite/playing/pause/ended/front/back.</td>
     </tr>
+    
 </tbody>
 </table>
 
-##CSS classes
+## CSS classes
 
 <table border='1'>
 <tbody>
@@ -159,7 +182,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>.flashcards-wrapper</td>
-        <td>Main addon container.</td>
+        <td>Main module container.</td>
     </tr>
     <tr>
         <td>.flashcards-main</td>
@@ -175,7 +198,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>.flashcards-card</td>
-        <td>Main card container</td>
+        <td>Main card container.</td>
     </tr>
     <tr>
         <td>.flashcards-card-audio-wrapper</td>
@@ -183,7 +206,7 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>.flashcards-card-audio-button</td>
-        <td>Audio button</td>
+        <td>Audio button.</td>
     </tr>
     <tr>
         <td>.flashcards-card-audio-button.playing</td>
@@ -203,23 +226,23 @@ In Flash Cards module, you can create cards with varied content such as text, im
     </tr>
     <tr>
         <td>.flashcards-button-favourite</td>
-        <td>Favourite button</td>
+        <td>Favourite button.</td>
     </tr>
     <tr>
         <td>.flashcards-button-favourite.flashcards-button-selected</td>
-        <td>Favourite button selected state</td>
+        <td>Favourite button selected state.</td>
     </tr>
     <tr>
         <td>.flashcards-buttons</td>
-        <td>Activity mode grading buttons wrapper</td>
+        <td>Activity mode grading buttons wrapper.</td>
     </tr>
     <tr>
         <td>.flashcards-button </td>
-        <td>Activity mode grading button</td>
+        <td>Activity mode grading button.</td>
     </tr>
     <tr>
         <td>.flashcards-button.flashcards-button-selected</td>
-        <td>Activity mode grading button selected state</td>
+        <td>Activity mode grading button selected state.</td>
     </tr>
 </tbody>
-</table>    
+</table>
