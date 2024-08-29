@@ -22,7 +22,7 @@
 
     function getVisibleIframeWithPlayerHeightAndTop() {
         var scale = getElementScale(window.frameElement);
-        var visibleViewportHeight = window.top.document.documentElement.offsetHeight / scale;
+        var visibleViewportHeight = window.top.innerHeight/scale;
         var offsets = getRelativeOffset();
         var topRelativeToVisibleContent = Math.max(0, offsets.top);
         if (offsets.top < 0) {
@@ -64,7 +64,7 @@
 
     function getVisibleIframeWithPlayerWidthAndLeft() {
         var scale = getElementScale(window.frameElement);
-        var visibleViewportWidth = window.top.document.documentElement.offsetWidth / scale;
+        var visibleViewportWidth = window.top.innerWidth/scale;
         var offsets = getRelativeOffset();
         var leftRelativeToVisibleContent = Math.max(0, offsets.left);
         if (offsets.left < 0) {
