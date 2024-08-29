@@ -99,7 +99,7 @@ function AddonShooting_Range_create() {
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.state.view);
         MutationObserverService.setObserver();
     };
 

@@ -1351,7 +1351,7 @@ function Addongamememo_create(){
             eventBus.addEventListener(events[i], this);
         }
         presenter.setVisibility(presenter.configuration.isVisible);
-        MutationObserverService.createDestroyObserver(presenter.ID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.ID, presenter.destroy, presenter.viewContainer.get(0));
         MutationObserverService.setObserver();
     };
 

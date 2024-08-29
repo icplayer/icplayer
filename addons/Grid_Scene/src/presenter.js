@@ -350,7 +350,7 @@ function AddonGrid_Scene_create(){
         initGrid(model);
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
 
         if (!isPreview) {

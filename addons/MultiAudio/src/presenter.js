@@ -606,7 +606,7 @@ function AddonMultiAudio_create(){
 
         presenter.view = view;
 
-        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
     };
 

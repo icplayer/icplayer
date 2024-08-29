@@ -260,7 +260,7 @@ function AddonFlashCards_create(){
         presenter.isHiddenPlaying = false;
         if (!presenter.isPreview) {
             presenter.addAudioEventHandlers();
-            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 

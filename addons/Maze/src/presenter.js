@@ -134,7 +134,9 @@ function AddonMaze_create () {
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) { return; }
+
         if (presenter.getActualGame()) {
             presenter.getActualGame().destroy();
         }
@@ -240,7 +242,7 @@ function AddonMaze_create () {
             presenter.connectHandlers();
             presenter.initializeMaze();
 
-            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 

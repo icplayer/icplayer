@@ -1321,7 +1321,7 @@ function AddonSlideshow_create() {
 	            isMouseDragged : false
 	        };
 
-            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.stopPresentation);
+            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.stopPresentation, presenter.$view.get(0));
             MutationObserverService.setObserver();
 
             presenter.hideInactiveControls();

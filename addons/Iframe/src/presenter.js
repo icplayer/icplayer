@@ -123,7 +123,7 @@ function AddonIframe_create() {
 
         presenter.iframeContent = iframe.get(0).contentWindow;
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
 
         presenter.$view.attr('alt', presenter.configuration.altText);

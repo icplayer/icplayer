@@ -162,7 +162,7 @@ function AddonScoreboard_create() {
     presenter.initView = function (view, model) {
         presenter.view = view;
         presenter.$view = $(view);
-        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
         presenter.scoreboard = presenter.createScoreboard(presenter.$view);
         for (var i = 0; i < presenter.configuration.initialTeamsCount; i++) {
@@ -737,7 +737,9 @@ function AddonScoreboard_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
-    presenter.destroy = function Scoreboard_destroy () {
+    presenter.destroy = function Scoreboard_destroy (event) {
+        if (event.target !== presenter.view) { return; }
+
         if(presenter.teamsObjects) {
             presenter.removeAllTeams();
         }

@@ -510,7 +510,7 @@ function AddonText_Coloring_create() {
             return;
         }
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
 
         presenter.createStateMachine();

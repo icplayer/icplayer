@@ -92,7 +92,7 @@ function AddonAutomatic_Feedback_create() {
                 presenter.activityHandler.createTooltips();
             }
 
-            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.$view.get(0));
             MutationObserverService.setObserver();
         }
 

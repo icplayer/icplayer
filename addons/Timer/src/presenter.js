@@ -346,7 +346,7 @@ function AddonTimer_create(){
 		if (!isPreview && presenter.state.nowStart) {
 			presenter.countDown();
 		}
-		MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+		MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
 		MutationObserverService.setObserver();
 		presenter.setSpeechTexts(upgradedModel);
 		presenter.buildKeyboardController();

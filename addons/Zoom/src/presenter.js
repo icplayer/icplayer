@@ -728,7 +728,7 @@ function AddonZoom_create() {
         }
         zoom.out();
         removeHandlersNeededWhenZoomed();
-        findPage().classList.remove(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
+        findPage()?.classList.remove(presenter.CSS_CLASSES.ZOOM_ZOOMED_IN);
         showZoomButtonContainer();
     };
 

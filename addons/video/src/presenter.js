@@ -1100,7 +1100,7 @@ function Addonvideo_create() {
 
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.$view.get(0));
 		MutationObserverService.setObserver();
 
         presenter.addClickListener();

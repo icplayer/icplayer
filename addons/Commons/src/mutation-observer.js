@@ -9,6 +9,7 @@
         callbacks: [],
 
         createDestroyObserver: function createDestroyObserver(moduleId, destroyCallback, callbackParam) {
+            console.log('MO #5');
             var _this = this;
             if (this.observer) {
                 this.addCallback(moduleId, destroyCallback, callbackParam);
@@ -36,8 +37,23 @@
         },
 
         setObserver: function setObserver() {
+            var parentClassName = this.getClassName();
             var config = {attributes: true, childList: true};
-            this.observer.observe($('.ic_page').get(0), config);
+            if (parentClassName.includes('ic_header')) {
+                this.observer.observe($('.ic_header').get(0), config);
+            } else if (parentClassName.includes('ic_footer')) {
+                this.observer.observe($('.ic_footer').get(0), config);
+            } else {
+                this.observer.observe($('.ic_page').get(0), config);
+            }
+        },
+
+        getClassName: function getClassName() {
+            return $(this.getLastAddedView()).parent().attr('class');
+        },
+
+        getLastAddedView: function getLastAddedView() {
+            return this.callbacks[this.callbacks.length - 1]['param'];
         },
 
         disconnectObserver: function disconnectObserver() {
@@ -53,9 +69,7 @@
             var callbackObject = this.callbacks.splice(objectIndex, 1)[0];
             var event = this.getMockedEvent(callbackObject['param']);
             var callbackFunction = callbackObject['callback'];
-            try {
-                callbackFunction(event);
-            } catch (e) { }
+            callbackFunction(event);
         },
 
         getElementIndex: function getElementIndex(id) {

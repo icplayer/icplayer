@@ -634,7 +634,7 @@ function AddonPrint_Report_create(){
 
         presenter.view = view;
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
     };
 

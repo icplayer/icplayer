@@ -171,7 +171,7 @@ function AddonBlocklyCodeEditor_create () {
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
         if (!isPreview) {
-            MutationObserverService.createDestroyObserver(presenter.configuration.sceneID, presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
 
@@ -228,7 +228,9 @@ function AddonBlocklyCodeEditor_create () {
         }
     };
 
-    presenter.destroy = function Blockly_destroy_function () {
+    presenter.destroy = function Blockly_destroy_function (event) {
+        if (event.target !== presenter.view) { return; }
+
         var key, i;
         if (presenter.configuration.isPreview) {
             $("#content").off("scroll", presenter.scrollFixHandler);
@@ -390,6 +392,7 @@ function AddonBlocklyCodeEditor_create () {
 
         return {
             isValid: true,
+            addonID: model['ID'],
             visibleByDefault: validatedIsVisible,
             haveSceneID: haveSceneID,
             hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),

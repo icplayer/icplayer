@@ -530,7 +530,7 @@ function AddonLottiePlayer_create() {
         presenter.view.addEventListener("touchend", presenter.clickHandler);
         presenter.view.addEventListener("click", presenter.clickHandler);
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
     }
 

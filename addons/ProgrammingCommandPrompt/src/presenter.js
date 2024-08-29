@@ -33,7 +33,9 @@ function AddonProgrammingCommandPrompt_create () {
         presenter.eventBus.addEventListener('PageLoaded', this, true);
     };
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) { return; }
+
         presenter.configuration.sceneModule = null;
         presenter.configuration = null;
         presenter.editor.destroy();
@@ -58,7 +60,7 @@ function AddonProgrammingCommandPrompt_create () {
         });
         presenter.editor = ace.edit(editor[0]);
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.sceneID, presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
 
         presenter.setRunButton();
@@ -116,6 +118,7 @@ function AddonProgrammingCommandPrompt_create () {
         }
 
         return {
+            addonID: model['ID'],
             isValid: true,
             sceneID: sceneID,
             sceneModule: null,

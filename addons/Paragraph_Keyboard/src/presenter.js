@@ -690,7 +690,7 @@ function AddonParagraph_Keyboard_create() {
     // Removing the addon before loading the library causes a problem with second loading.
     // You must separate each method of destroy, or improve the mechanism of loading lessons.
     presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {
-        if (event.target != presenter.view) {
+        if (event.target !== presenter.view) {
             return;
         }
 
