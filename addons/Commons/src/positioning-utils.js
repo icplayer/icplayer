@@ -147,7 +147,7 @@
         if (!playerElement) {
             return;
         }
-        return window.document.getElementsByClassName("ic_player")[0];
+        return playerElement.getElementsByClassName("ic_player")[0];
     }
 
     function getElementScale(element){
