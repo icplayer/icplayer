@@ -9,7 +9,6 @@
         callbacks: [],
 
         createDestroyObserver: function createDestroyObserver(moduleId, destroyCallback, callbackParam) {
-            console.log('MO #5');
             var _this = this;
             if (this.observer) {
                 this.addCallback(moduleId, destroyCallback, callbackParam);
