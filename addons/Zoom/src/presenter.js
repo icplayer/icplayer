@@ -193,7 +193,6 @@ function AddonZoom_create() {
     };
 
     presenter.addHandlers = function () {
-        presenter.view.addEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (isTargetedAreaModeActive()) {
             if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
                 addMouseOverZoomButtonListener();
@@ -208,7 +207,6 @@ function AddonZoom_create() {
     };
 
     presenter.removeHandlers = function () {
-        presenter.view.removeEventListener("DOMNodeRemovedFromDocument", presenter.destroy);
         if (!isTargetedAreaModeActive()) {
             findPage().removeEventListener("click", presenter.pageCallback);
         }
