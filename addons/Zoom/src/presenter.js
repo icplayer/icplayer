@@ -208,7 +208,7 @@ function AddonZoom_create() {
 
     presenter.removeHandlers = function () {
         if (!isTargetedAreaModeActive()) {
-            findPage().removeEventListener("click", presenter.pageCallback);
+            findPage()?.removeEventListener("click", presenter.pageCallback);
         }
         findInView(presenter.CSS_CLASSES.ZOOM_BUTTON).removeEventListener("click", presenter.zoomButtonCallback);
     };
