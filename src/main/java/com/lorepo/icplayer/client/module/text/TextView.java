@@ -581,6 +581,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
+		this.addDisplayStyleToMathJaxElements();
 	}
 
 	@Override
@@ -592,13 +593,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				break;
 			}
 		}
+		this.addDisplayStyleToMathJaxElements();
 	}
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
 		this.reconnectHandlers();
+		this.addDisplayStyleToMathJaxElements();
 	}
+
+	public native void addDisplayStyleToMathJaxElements () /*-{
+		$wnd.$("annotation-xml").css({display: "flex"});
+	}-*/;
 
 	@Override
 	public void hide() {
