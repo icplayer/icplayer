@@ -122,16 +122,14 @@ function AddonIframe_create() {
         }
 
         presenter.iframeContent = iframe.get(0).contentWindow;
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
 
         presenter.$view.attr('alt', presenter.configuration.altText);
     };
 
     presenter.destroy = function () {
-        if (event.target !== this) {
-            return;
-        }
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         window.removeEventListener("message",presenter.getMessage);
     };
 

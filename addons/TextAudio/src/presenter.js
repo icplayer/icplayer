@@ -1287,8 +1287,6 @@ function AddonTextAudio_create() {
             return;
         }
 
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-
         if (presenter.$customPlayer) {
             presenter.$customPlayer[0].ontouchend = null;
             presenter.$customPlayer = null;
@@ -1405,7 +1403,6 @@ function AddonTextAudio_create() {
     presenter.initialize = function AddonTextAudio_initialize (view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.isPreview = isPreview;
 
         buzz.defaults.preload = 'auto';
@@ -1444,6 +1441,9 @@ function AddonTextAudio_create() {
 
             presenter.buildKeyboardController();
         }
+
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.roundTimeEntry = function addonTextAudio_roundTimeEntry (time_entry) {

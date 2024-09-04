@@ -30,7 +30,11 @@ In order to add a new geometric figure to a workspace, you should select it from
     </tr>
     <tr>
         <td>Labels visibility</td>
-        <td>Specified whether the labels of geometric figures in the workspace will be visible by defualt.</td>
+        <td>Specified whether the labels of geometric figures in the workspace will be visible by default.</td>
+    </tr>
+    <tr>
+        <td>Angle measures visibility</td>
+        <td>Specified whether the values of angles in the workspace will be visible by default.</td>
     </tr>
     <tr>
         <td>Disable undo/redo buttons</td>
@@ -48,6 +52,7 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>Axis color</td>
         <td>Specifies the color of the axis. The default value is #444444.</td>
     </tr>
+    <tr>
         <td>Axis increment</td>
         <td>The increment used when labeling ticks on the axis. For instance, if set to 3, the ticks will be labeled 3, 6, 9, 12 etc. The default value is 1.</td>
     </tr>
@@ -60,12 +65,32 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>The default position of the y axis, starting from the left edge of the workspace, measured in pixels. If left empty, the Y axis will be displayed in the middle of the workspace.</td>
     </tr>
     <tr>
+        <td>Hide x-axis</td>
+        <td>When selected, the x-axis will not be displayed in the workspace.</td>
+    </tr>
+    <tr>
+        <td>Hide y-axis</td>
+        <td>When selected, the y-axis will not be displayed in the workspace.</td>
+    </tr>
+    <tr>
+        <td>Grid color</td>
+        <td>Specifies the color of the grid in the workspace. If left empty, the grid will not be displayed.</td>
+    </tr>
+    <tr>
         <td>Unit length</td>
         <td>The default length of a single unit of measure in pixels. The default value is 25.</td>
     </tr>
     <tr>
         <td>Angle's decimal point</td>
         <td>This property specifies how many digits past the decimal point of an angle's value should be displayed. Default is 0.</td>
+    </tr>
+    <tr>
+        <td>Length's decimal point</td>
+        <td>This property specifies how many digits past the decimal point of a length measure's value should be displayed. Default is 0.</td>
+    </tr>
+    <tr>
+        <td>Labels visibility</td>
+        <td>Specifies whether the length measures in the workspace will be visible by default.</td>
     </tr>
 </tbody>
 </table>
@@ -113,6 +138,16 @@ In order to add a new geometric figure to a workspace, you should select it from
         <td>hideLabels</td>
         <td>---</td>
         <td>Hides the labels of geometric figures in the workspace.</td>
+    </tr>
+    <tr>
+        <td>showAngleMeasures</td>
+        <td>---</td>
+        <td>Displays the values of angles in the workspace if they were hidden.</td>
+    </tr>
+    <tr>
+        <td>hideAngleMeasures</td>
+        <td>---</td>
+        <td>Hides the values of angles in the workspace.</td>
     </tr>
 </tbody>
 </table>

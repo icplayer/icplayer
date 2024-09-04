@@ -52,7 +52,8 @@ function AddonGap_Binder_create() {
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model, false);
 
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -706,8 +707,6 @@ function AddonGap_Binder_create() {
         if (event.target !== presenter.view) {
             return;
         }
-
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.hideAnswers();
         presenter.setWorkMode();
     };
