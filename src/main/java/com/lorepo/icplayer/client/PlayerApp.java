@@ -903,8 +903,8 @@ public class PlayerApp {
 		playerController.disableKeyboardNavigation();
 		playerController.setTextReading(false);
 		playerController.clearKeyboardNavigationListeners();
+		playerController.getView().hideNavigationPanels();
 		clearIframeHandlers();
-
 	}
 
 	public void setNVDAAvailability(boolean shouldUseNVDA) {

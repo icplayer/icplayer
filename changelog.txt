@@ -1,4 +1,5 @@
 2024-08-27 Added Mutation Observer instead DOMNodeRemoved
+2024-08-26 Added cleaning after player for mLibro
 2024-08-21 Changed contentDataLoader to download addons individually by default
 2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
 2024-08-21 Added length measures visibility and length decimal point properties to Gemoetric Construct
