@@ -299,8 +299,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
-		function onDOMNodeRemoved (event) {
+		function destroy (event, id) {
 			var $draggableElements;
+			var addonID = $wnd.$(addon).attr("id");
+			
+			if (addonID != id) { return; }
 
 			if (event.target.getAttribute && event.target.getAttribute("class") && event.target.getAttribute("class").split(" ").indexOf("ui-draggable") !== -1) {
 				$wnd.$(event.target).draggable("destroy");
@@ -309,8 +312,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			else if (event.target !== addon) {
 				return;
 			}
-
-			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
 
 			$draggableElements = $addon.find(".ui-draggable");
 
@@ -321,12 +322,22 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			$addon = null;
 		}
 
-	    if (addon && addon.addEventListener) {
-		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
-	    } else {
-	        $addon = null;
-	        addon = null;
-	    }
+		var mockedEvent = {target: addon};
+	    var observer = new MutationObserver(function (records) {
+			records.forEach(function (record) {
+				if (record.removedNodes.length) {
+					var id = $wnd.$(record.removedNodes[0]).attr("id");
+					destroy(mockedEvent, id);
+				}
+
+				if (record.target.childNodes.length === 0) {
+					observer.disconnect();
+				}
+			});
+		});
+
+		var config = {childList: true};
+		observer.observe($wnd.$('.ic_page').get(0), config);
 	}-*/;
 
 	@Override

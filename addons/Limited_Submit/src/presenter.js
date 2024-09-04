@@ -188,7 +188,8 @@ function AddonLimited_Submit_create() {
         presenter.view = view;
         presenter.presenterLogic(view, model, false);
 
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.destroy = function (event) {
@@ -196,7 +197,6 @@ function AddonLimited_Submit_create() {
             return;
         }
 
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$button.off();
         presenter.$view.off();
 
