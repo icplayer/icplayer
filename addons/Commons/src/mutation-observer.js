@@ -37,6 +37,7 @@
 
         setObserver: function setObserver() {
             var parentClassName = this.getClassName();
+            if (parentClassName == null) return;
             var config = {attributes: true, childList: true};
             if (parentClassName.includes('ic_header')) {
                 this.observer.observe($('.ic_header').get(0), config);
@@ -48,10 +49,13 @@
         },
 
         getClassName: function getClassName() {
+            var view = this.getLastAddedView();
+            if (view == null) return null;
             return $(this.getLastAddedView()).parent().attr('class');
         },
 
         getLastAddedView: function getLastAddedView() {
+            if (this.callbacks.length == 0) return null;
             return this.callbacks[this.callbacks.length - 1]['param'];
         },
 
