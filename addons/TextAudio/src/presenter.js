@@ -1266,6 +1266,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.run = function AddonTextAudio_run (view, model) {
+        presenter.addonID = model.ID;
         presenter.initialize(view, model, false);
 
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -1273,7 +1274,6 @@ function AddonTextAudio_create() {
         if (presenter.configuration.isValid) {
             presenter.audio.addEventListener("loadeddata", presenter.onAudioLoadedData);
         }
-        presenter.addonID = model.ID;
 
         presenter.eventBus.addEventListener('ValueChanged', this);
     };
@@ -1442,8 +1442,10 @@ function AddonTextAudio_create() {
             presenter.buildKeyboardController();
         }
 
-        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
-        MutationObserverService.setObserver();
+        if (presenter.addonID != null) {
+            MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
+        }
     };
 
     presenter.roundTimeEntry = function addonTextAudio_roundTimeEntry (time_entry) {
