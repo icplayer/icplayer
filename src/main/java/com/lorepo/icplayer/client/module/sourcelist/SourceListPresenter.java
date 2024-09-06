@@ -218,7 +218,11 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			String itemVisibleText = itemsWrapper.get(id).getVisibleText();
 
 			items.add(id);
-			view.addItem(id, itemVisibleText, callMathJax);
+			view.addItem(id, itemVisibleText, false);
+			if (callMathJax) {
+				//((SourceListView)view).refreshMath();
+				view.rerenderMath();
+			}
 		}
 	}
 
