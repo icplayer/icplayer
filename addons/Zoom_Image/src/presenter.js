@@ -176,7 +176,7 @@ function AddonZoom_Image_create() {
             }
             presenter.$image.off();
         }
-    };
+    }
 
     presenter.run = function(view, model) {
         presenter.$view = $(view);
@@ -192,11 +192,11 @@ function AddonZoom_Image_create() {
         presenter.configuration.isVisible = isVisible;
     };
 
-    function calculateImageSizeAndPosition(image) {
+    function calculateImageSize(image) {
         var $player;
-        if (document.getElementById('_icplayer') != null){
+        if(document.getElementById('_icplayer') != null){
             $player = $('#_icplayer');
-        } else{
+        }else{
             $player = $('.ic_page_panel');
         }
 
@@ -218,9 +218,6 @@ function AddonZoom_Image_create() {
             dialog.height = playerHeight;
             dialog.width = x / yProportion;
         }
-
-        dialog.left = window.PositioningUtils.calculateLeftForPopupToBeCentred(dialog.width);
-        dialog.top = window.PositioningUtils.calculateTopForPopupToBeCentred(dialog.height);
 
         return dialog;
     }
@@ -265,7 +262,8 @@ function AddonZoom_Image_create() {
     };
 
     presenter.bigImageLoaded = function(){
-        var dialogSizeAndPosition = calculateImageSizeAndPosition(this);
+        var scrollInformation = getScrollInformation();
+        var dialogSize = calculateImageSize(this);
 
         presenter.$image.appendTo(presenter.$view);
 
@@ -280,15 +278,19 @@ function AddonZoom_Image_create() {
             };
         }
         presenter.$image.dialog({
-            height: dialogSizeAndPosition.height,
-            width: dialogSizeAndPosition.width,
-            position: [dialogSizeAndPosition.left, dialogSizeAndPosition.top],
+            height: dialogSize.height,
+            width: dialogSize.width,
             modal: true,
             resizable: false,
             draggable: false,
             show: {
                 effect: "fade",
                 duration: 1000
+            },
+            position: {
+                my: "center",
+                at: "center",
+                of: playerController.isPlayerInCrossDomain() ? window : window.top
             },
             create: presenter.bigImageCreated,
             open: function(event, ui) {
@@ -299,11 +301,9 @@ function AddonZoom_Image_create() {
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
 
                 const dialogElement = $(event.target).closest('.ui-dialog')[0];
-                const dialogElementBoundingClientRect = dialogElement.getBoundingClientRect();
-                const newWidth = dialogElementBoundingClientRect.width;
-                const newHeight = dialogElementBoundingClientRect.height;
-                dialogElement.style.left = window.PositioningUtils.calculateLeftForPopupToBeCentred(newWidth) + "px";
-                dialogElement.style.top = window.PositioningUtils.calculateTopForPopupToBeCentred(newHeight) + "px";
+                if (!!scrollInformation) {
+                    adjustDialogPosition(dialogElement, scrollInformation);
+                }
             }
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
@@ -315,6 +315,99 @@ function AddonZoom_Image_create() {
             oldFocus = null;
         }
     };
+
+    function getScrollInformation() {
+        const isIOS = MobileUtils.isSafariMobile(window.navigator.userAgent);
+        const isMAuthorOnIOS = isIOS && isMAuthor();
+        if (playerController.isPlayerInCrossDomain() || (window.frameElement === null && !isMAuthorOnIOS)) {
+            return null;
+        }
+
+        const $defaultScrollElement = $(window.parent.document.documentElement);
+        const $mAuthorFullScreenScrollElement = $defaultScrollElement.find('#content-view');
+        const $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+        const $scrollElements = [$defaultScrollElement, $mAuthorFullScreenScrollElement, $mCourserScrollElement];
+        if (isMAuthorOnIOS) {
+            const $mAuthorMobileScrollElement = $(window.document.documentElement);
+            $scrollElements.push($mAuthorMobileScrollElement);
+        }
+
+        let maxScrollTop = 0;
+        let $scrollElement = null;
+        try {
+            for (let i = 0; i < $scrollElements.length; i++) {
+                let elementScrollTop = $scrollElements[i].scrollTop();
+                if (elementScrollTop !== null && elementScrollTop >= maxScrollTop) {
+                    maxScrollTop = elementScrollTop;
+                    $scrollElement = $scrollElements[i];
+                }
+            }
+        } catch(e) {}
+        if ($scrollElement === null) {
+            return null;
+        }
+
+        return {
+            scrollTop: maxScrollTop,
+            scrollElement: $scrollElement[0]
+        };
+    }
+
+    function isMAuthor() {
+        const names = ["lorepo", "mauthor"];
+        const origin = window.origin;
+        return names.some((name) => origin.includes(name));
+    }
+
+    function adjustDialogPosition(dialogElement, scrollInformation) {
+        if (!!window.frameElement) {
+            dialogElement.style.left = calculatePopupLeft(dialogElement) + "px";
+        }
+        dialogElement.style.top = calculatePopupTop(dialogElement, scrollInformation) + "px";
+        scrollInformation.scrollElement.scrollTo({top: scrollInformation.scrollTop});
+    }
+
+    function calculatePopupTop(dialogElement, scrollInformation) {
+        let availableHeight = window.top.innerHeight;
+        let offsetTop = scrollInformation.scrollTop;
+        if (!!window.frameElement) {
+            const frameScale = getFrameScale();
+            if (frameScale !== 1) {
+                availableHeight /= frameScale;
+                offsetTop = offsetTop/frameScale - window.iframeSize.frameOffset;
+            }
+        }
+
+        const dialogHeight = dialogElement.getBoundingClientRect().height;
+        const halfOfEmptySpace = (availableHeight - dialogHeight)/2;
+        return halfOfEmptySpace + offsetTop;
+    }
+
+    function calculatePopupLeft(dialogElement) {
+        const availableWidth = window.top.innerWidth < window.frameElement.offsetWidth
+            ? window.top.innerWidth
+            : window.frameElement.offsetWidth;
+        const dialogWidth = dialogElement.offsetWidth;
+        const scaleInfo = playerController.getScaleInformation();
+        return (availableWidth - dialogWidth) / 2 * scaleInfo.baseScaleX;
+    }
+
+    /**
+     * The mAuthor's and mCourser's methods (e.g. Full screen) do not set a scale information in a player, despite
+     * setting CSS's transform scale on iframe with player. Gets iframe' scale.
+     *
+     * @method getFrameScale
+     * @return {number} Scale on iframe with player
+     */
+    function getFrameScale(){
+        const matrixScale = getComputedStyle(window.frameElement).transform;
+        if (!matrixScale || !matrixScale.includes('matrix')) {
+            return 1;
+        }
+
+        const matrix = matrixScale.replace('matrix(', '').split(',');
+        return +matrix[0];
+    }
 
     presenter.createPopUp = function createPopUp(e) {
         if(e) {
@@ -448,7 +541,7 @@ function AddonZoom_Image_create() {
         $img.attr('src', model['Full Screen image']);
         $root.append($img);
         return $root[0].outerHTML;
-    };
+    }
 
     return presenter;
 }

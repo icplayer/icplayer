@@ -1,4 +1,3 @@
-2024-08-28 Changed the positioning of Zoom Image addon to be in a center of player area
 2024-08-28 Changed the positioning of commons popups to be in a center of player area
 2024-08-21 Changed contentDataLoader to download addons individually by default
 2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
