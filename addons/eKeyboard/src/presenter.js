@@ -287,7 +287,7 @@ function AddoneKeyboard_create(){
         initializeOpenButton();
         presenter.initializeCloseButton();
 
-        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
+        MutationObserverService.createDestroyObserver(model["ID"], presenter.destroy, presenter.view);
         MutationObserverService.setObserver();
 
         var mathJaxDeferred = new jQuery.Deferred(),
