@@ -107,11 +107,10 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.destroy = function (event) {
-         if (event.target !== this) {
+        if (event.target !== presenter.$view.get(0)) {
             return;
         }
 
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS).off("click", presenter.clickHandler);
     };
 
@@ -132,6 +131,8 @@ function AddonAdaptive_Next_create() {
         presenter.initView();
 
         if (!isPreview) {
+            MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.$view.get(0));
+            MutationObserverService.setObserver();
             handleMouseActions();
         }
     }

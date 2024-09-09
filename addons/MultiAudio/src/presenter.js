@@ -598,20 +598,17 @@ function AddonMultiAudio_create(){
         this.speechTexts = presenter.getSpeechTexts(upgradedModel['speechTexts']);
         this.globalView = $(view);
         this.createView(view, upgradedModel);
+        presenter.view = view;
         if (!isPreview) {
         	this.loadFiles(this.audio, upgradedModel);
+            MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
         }
         this.visible = !!(upgradedModel['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
-
-        presenter.view = view;
-
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.destroy = function AddonMultiAudio_destroy() {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-
         presenter.audio.pause();
     };
 

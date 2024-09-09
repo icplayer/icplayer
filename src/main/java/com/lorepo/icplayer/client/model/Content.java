@@ -91,12 +91,13 @@ public class Content implements IContentBuilder, IContent {
 		return pages;
 	}
 
-	public boolean addonIsLoaded(String addonName) {
-		if(this.addonDescriptors.containsKey(addonName)) {
+	public boolean addonIsLoaded(String addonId) {
+		if (this.addonDescriptors.containsKey(addonId)) {
 			return true;
 		}
 		return false;
 	}
+
 	public int getMaxPagesCount() {
 		return maxPagesCount;
 	}

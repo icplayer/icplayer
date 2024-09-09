@@ -2097,13 +2097,21 @@ function AddonTable_create() {
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
         });
+
+        addDisplayStyleToMathJaxElements();
     };
 
     presenter.rerenderMathJax = function () {
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Rerender(presenter.$view.find(".table-addon-wrapper")[0]);
         });
+
+        addDisplayStyleToMathJaxElements();
     };
+
+    function addDisplayStyleToMathJaxElements() {
+        $('annotation-xml').css({display: 'flex'});
+    }
 
     function TableKeyboardController (elements, columnsCount, rowsCount) {
         var newElements = accountForMergedCells(elements, columnsCount, rowsCount);

@@ -689,6 +689,7 @@ function AddonQuiz_create() {
     presenter.run = function AddonQuiz_run(view, model) {
         eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
+        presenter.view = view
         var upgradedModel = presenter.upgradeModel(model);
         initializeLogic(view, upgradedModel, false);
         presenter.setVisibility(presenter.config.isVisible);
@@ -696,11 +697,8 @@ function AddonQuiz_create() {
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
 
-        presenter.$view[0].addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
 
         presenter.isLoaded = true;
     };
@@ -850,8 +848,9 @@ function AddonQuiz_create() {
         bindEvents();
     };
 
-    presenter.destroy = function () {
-        presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) { return; }
+
         unbindEvents();
         presenter.$view.off();
         presenter.eventBus = null;

@@ -581,6 +581,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
+		this.addDisplayStyleToMathJaxElements();
 	}
 
 	@Override
@@ -592,13 +593,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				break;
 			}
 		}
+		this.addDisplayStyleToMathJaxElements();
 	}
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
 		this.reconnectHandlers();
+		this.addDisplayStyleToMathJaxElements();
 	}
+
+	public native void addDisplayStyleToMathJaxElements () /*-{
+		$wnd.$("annotation-xml").css({display: "flex"});
+	}-*/;
 
 	@Override
 	public void hide() {
@@ -643,9 +650,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
-		function onDOMNodeRemoved (event) {
+		function destroy (event, id) {
 			var $droppableElements, $draggableElements;
-			if (event.target !== addon) {
+			var addonID = $wnd.$(addon).attr("id");
+
+			if (addonID != id || event.target !== addon) {
 				return;
 			}
 
@@ -653,8 +662,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				mathJaxElement.Detach();
 				mathJaxElement.Remove();
 			});
-
-			addon.removeEventListener("DOMNodeRemoved", onDOMNodeRemoved);
 
 			$droppableElements = $addon.find(".ui-droppable");
 			$draggableElements = $addon.find(".ui-draggable");
@@ -668,12 +675,22 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			$addon = null;
 		}
 
-		if (addon && addon.addEventListener) {
-		    addon.addEventListener("DOMNodeRemoved", onDOMNodeRemoved);
-		} else {
-            $addon = null;
-            addon = null;
-        }
+		var mockedEvent = {target: addon};
+		var observer = new MutationObserver(function (records) {
+			records.forEach(function (record) {
+				if (record.removedNodes.length) {
+					var id = $wnd.$(record.removedNodes[0]).attr("id");
+					destroy(mockedEvent, id);
+				}
+
+				if (record.target.childNodes.length === 0) {
+					observer.disconnect();
+				}
+			});
+		});
+
+		var config = {childList: true};
+		observer.observe($wnd.$('.ic_page').get(0), config);
 	}-*/;
 
 	@Override
