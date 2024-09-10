@@ -6,6 +6,7 @@ function AddonSwiffyAnimation_create(){
         presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
+        presenter.addonID = model['ID'];
         presenter.Animations = model.Animations;
         presenter.swiffyContainer = $(view).find('.swiffyContainer')[0];
         presenter.stage = [];
@@ -106,7 +107,8 @@ function AddonSwiffyAnimation_create(){
             e.stopPropagation();
         });
 
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.checkIfAllAnimationsAreLoaded = function(){
@@ -324,7 +326,6 @@ function AddonSwiffyAnimation_create(){
 
     presenter.destroy = function(event) {
         if (event.target === presenter.view) {
-            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
             if (presenter.loaded === true) {
                 presenter.loaded = false;
                 $(presenter.swiffyContainer).html("");

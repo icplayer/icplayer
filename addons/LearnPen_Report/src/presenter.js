@@ -429,12 +429,8 @@ function AddonLearnPen_Report_create() {
             presenter.record();
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     function presenterLogic(view, model, isPreview) {
@@ -458,7 +454,9 @@ function AddonLearnPen_Report_create() {
         presenter.data.isPreview = isPreview;
     }
 
-    presenter.destroy = function () {
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) { return; }
+
         if (presenter.data.isIntervalOn) {
             clearInterval(presenter.data.intervalId);
             presenter.data.isIntervalOn = false;

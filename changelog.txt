@@ -1,5 +1,10 @@
-2024-08-28 Changed the positioning of Zoom Image addon to be in a center of player area
-2024-08-28 Changed the positioning of commons popups to be in a center of player area
+2024-09-10 Changed the positioning of Zoom Image addon to be in a center of player area
+2024-09-10 Changed the positioning of commons popups to be in a center of player area
+2024-09-06 Fixed undefined ID in eKeyboard addon
+2024-09-05 Fixed Mutation Observer error in TextAudio addon
+2024-08-28 Fixed not displaying gaps in MathML render option.
+2024-08-27 Added Mutation Observer instead DOMNodeRemoved
+2024-08-26 Added cleaning after player for mLibro
 2024-08-21 Changed contentDataLoader to download addons individually by default
 2024-08-21 Added show/hideAngleMeasures to the Geometric Construct addon
 2024-08-21 Added length measures visibility and length decimal point properties to Gemoetric Construct

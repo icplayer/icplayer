@@ -634,11 +634,11 @@ function AddonPrint_Report_create(){
 
         presenter.view = view;
 
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.destroy = function addonPrint_Report_destroy () {
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$wrapper.off();
         presenter.$exportButton.off();
         presenter.unbindPopupEvents();
@@ -759,7 +759,8 @@ function AddonPrint_Report_create(){
             'styles': model.Styles,
             'text': model.Text,
             'isVisible': ModelValidationUtils.validateBoolean(model['Is Visible']),
-            'isVisibleByDefault': ModelValidationUtils.validateBoolean(model['Is Visible'])
+            'isVisibleByDefault': ModelValidationUtils.validateBoolean(model['Is Visible']),
+            'ID': model['ID']
         };
     };
 
