@@ -69,6 +69,6 @@
         </property>
         <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
         <property name='isWeightedArithmeticMean' displayName="Use weighted arithmetic mean" nameLabel="Hierarchical_Lesson_Report_property_is_weighted_arithmetic_mean" type="boolean" />
-        <property name='includeUnvisitedPages' displayName="Include unvisited pages in the total" nameLabel="Hierarchical_Lesson_Report_property_include_unvisited_pages" type="boolean" />
+        <property name='excludeUnvisitedPages' displayName="Exclude unvisited pages in the total" nameLabel="Hierarchical_Lesson_Report_property_exclude_unvisited_pages" type="boolean" />
     </model>
 </addon>

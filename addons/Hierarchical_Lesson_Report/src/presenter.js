@@ -112,6 +112,7 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.run = function (view, model) {
+        console.log("run 12")
         presenter.initialize(view, model, false);
     };
 
@@ -120,6 +121,7 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     function addHeader(configuration, $view) {
+        console.log('addHeader')
         var labels = configuration.labels;
         var $row = generateHeaderRow();
 
@@ -226,6 +228,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     function addPageScoreCell($row, pageScore) {
+        console.log('addPageScoreCell')
         const className = isInPrintableStateMode()
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
             : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
@@ -382,7 +385,7 @@ function AddonHierarchical_Lesson_Report_create() {
             return presenter.isVisitedInPrintableMode();
         }
 
-        if (presenter.configuration.includeUnvisitedPages) {
+        if (presenter.configuration.excludeUnvisitedPages) {
             return true;
         }
 
@@ -490,6 +493,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     function addPageScoreRowCell($view, score, pageId) {
+        console.log('addPageScoreRowCell')
         var innerHTML = createInnerHTMLForScoreCell(score, pageId);
         addPageScoreCell($view, innerHTML);
     }
@@ -674,6 +678,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     function updateChapterRowScoreCell($row, score, hasChildren, pageId) {
+        console.log('updateChapterRowScoreCell')
         const className = isInPrintableStateMode()
             ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
             : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
@@ -683,7 +688,17 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function createInnerHTMLForScoreCell (score, pageId) {
         const $separator = generateSeparator();
-        if (score.maxScore === 0 && getConfiguration().includeUnvisitedPages && pageId && presentationController) {
+
+        if (presentationController) {
+            console.log('createInnerHTMLForScoreCell', presentationController.getPresentation().getPageById(pageId).getModulesMaxScore())
+        }
+
+        if (!getConfiguration().excludeUnvisitedPages && isInPrintableStateMode()) {
+            const _score = printableController.getScore()
+            console.log('isInPrintableStateMode ', _score)
+        }
+
+        if (score.maxScore === 0 && !getConfiguration().excludeUnvisitedPages && pageId && presentationController) {
             const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
             presenter.totalScore += maxScore;
 
@@ -747,6 +762,10 @@ function AddonHierarchical_Lesson_Report_create() {
             mainScore.pageCount += 1;
         }
 
+        if (isInPrintableEmptyStateMode() && !getConfiguration().excludeUnvisitedPages) {
+            mainScore.maxScore += score.maxScore;
+        }
+
         if (isInPrintableEmptyStateMode() || isPreviewConsideringPrintableState()) {
             return;
         }
@@ -768,20 +787,22 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         let weight = 1;
-        if (getConfiguration().isWeightedArithmeticMean) {
+        if (!getConfiguration().excludeUnvisitedPages && getConfiguration().isWeightedArithmeticMean) {
+            weight = presentationController.getPresentation().getPageById(pageId).getPageWeight();
+        } else if (getConfiguration().isWeightedArithmeticMean) {
             weight = score.weight;
         }
 
         if (score.maxScore) {
             mainScore.weightedScaledScoreNumerator += score.score * weight / score.maxScore;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (presenter.isPageVisited(pageId) && !getConfiguration().includeUnvisitedPages) {
+        } else if (presenter.isPageVisited(pageId) && getConfiguration().excludeUnvisitedPages) {
             mainScore.weightedScaledScoreNumerator += weight;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (presenter.isVisited(pageId) && getConfiguration().includeUnvisitedPages) {
+        } else if (presenter.isVisited(pageId) && !getConfiguration().excludeUnvisitedPages) {
             mainScore.weightedScaledScoreNumerator += weight;
             mainScore.weightedScaledScoreDenominator += weight;
-        } else if (getConfiguration().includeUnvisitedPages) {
+        } else if (!getConfiguration().excludeUnvisitedPages) {
             mainScore.weightedScaledScoreDenominator += weight;
         }
     }
@@ -792,7 +813,7 @@ function AddonHierarchical_Lesson_Report_create() {
             return;
         }
 
-        if (!presentationController.getPresentation().getPageById(pageId).isVisited() && getConfiguration().includeUnvisitedPages) {
+        if (!presentationController.getPresentation().getPageById(pageId).isVisited() && !getConfiguration().excludeUnvisitedPages) {
             score.scaledScore = 0;
             return;
         }
@@ -1122,12 +1143,12 @@ function AddonHierarchical_Lesson_Report_create() {
         return upgradedModel;
     }
 
-    presenter.upgradeIncludeUnvisitedPages = function(model) {
+    presenter.upgradeExcludeUnvisitedPages = function(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (upgradedModel["includeUnvisitedPages"] === undefined) {
-            upgradedModel["includeUnvisitedPages"] = "False";
+        if (upgradedModel["excludeUnvisitedPages"] === undefined) {
+            upgradedModel["excludeUnvisitedPages"] = "False";
         }
 
         return upgradedModel;
@@ -1137,7 +1158,7 @@ function AddonHierarchical_Lesson_Report_create() {
         var upgradedModel = presenter.upgradeAlternativePageNamesProperty(model);
         upgradedModel = presenter.upgradeTextToSpeechSupport(upgradedModel);
         upgradedModel = presenter.upgradeIsWeightedArithmeticMean(upgradedModel);
-        upgradedModel = presenter.upgradeIncludeUnvisitedPages(upgradedModel);
+        upgradedModel = presenter.upgradeExcludeUnvisitedPages(upgradedModel);
 
         return upgradedModel;
     };
@@ -1244,7 +1265,7 @@ function AddonHierarchical_Lesson_Report_create() {
             alternativePageTitles: validatedAlternativePageTitles.value,
             langTag: model['langAttribute'],
             isWeightedArithmeticMean: ModelValidationUtils.validateBoolean(model["isWeightedArithmeticMean"]),
-            includeUnvisitedPages: ModelValidationUtils.validateBoolean(model["includeUnvisitedPages"])
+            excludeUnvisitedPages: ModelValidationUtils.validateBoolean(model["excludeUnvisitedPages"])
         };
     };
 
@@ -1337,7 +1358,7 @@ function AddonHierarchical_Lesson_Report_create() {
         if (isInPrintableStateMode())
             return presenter.printableLessonScore;
 
-        if (getConfiguration().includeUnvisitedPages) {
+        if (!getConfiguration().excludeUnvisitedPages) {
             presenter.lessonScore.maxScore = presenter.totalScore;
             return presenter.lessonScore;
         }
