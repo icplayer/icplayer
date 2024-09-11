@@ -1,3 +1,4 @@
+2024-09-11 Fixed improved the Source List with 2.7.9 MathJax issues
 2024-08-28 Fixed not displaying gaps in MathML render option.
 2024-08-27 Added Mutation Observer instead DOMNodeRemoved
 2024-08-26 Added cleaning after player for mLibro
