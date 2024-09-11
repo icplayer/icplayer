@@ -49,7 +49,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		this.module = module;
 		createUI(isPreview);
 		mathJaxLoaded();
-		JavaScriptUtils.log("SourceList 2");
 	}
 
 	private void createUI(boolean isPreview) {

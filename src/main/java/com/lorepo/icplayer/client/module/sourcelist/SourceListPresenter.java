@@ -220,7 +220,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			items.add(id);
 			view.addItem(id, itemVisibleText, false);
 			if (callMathJax) {
-				//((SourceListView)view).refreshMath();
 				view.rerenderMath();
 			}
 		}
