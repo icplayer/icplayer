@@ -26,6 +26,8 @@ import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.text.TextPrintable;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableContentParser.ParsedListener;
+import com.lorepo.icplayer.client.printable.PrintableContentParser.PrintableHtmlTemplates;
 
 
 public class PrintableContentParser {
@@ -722,6 +724,7 @@ public class PrintableContentParser {
 				nodeInformation.put("isReportable", Boolean.toString(((Page) node).isReportable()));
 				nodeInformation.put("isVisited", Boolean.toString(((Page) node).isVisited()));
 				nodeInformation.put("type", ((Page) node).getClassNamePrefix());
+				nodeInformation.put("maxScore", Integer.toString(((Page) node).getModulesMaxScore()));
 				this.contentInformation.add(nodeInformation);
 			} else if (node instanceof PageList) {
 				nodeInformation.put("isReportable", Boolean.toString(false));
