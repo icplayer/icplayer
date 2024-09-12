@@ -725,6 +725,7 @@ public class PrintableContentParser {
 				nodeInformation.put("isVisited", Boolean.toString(((Page) node).isVisited()));
 				nodeInformation.put("type", ((Page) node).getClassNamePrefix());
 				nodeInformation.put("maxScore", Integer.toString(((Page) node).getModulesMaxScore()));
+				nodeInformation.put("pageWeight", Integer.toString(((Page) node).getPageWeight()));
 				this.contentInformation.add(nodeInformation);
 			} else if (node instanceof PageList) {
 				nodeInformation.put("isReportable", Boolean.toString(false));
