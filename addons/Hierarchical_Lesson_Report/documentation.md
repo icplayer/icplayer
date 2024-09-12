@@ -113,6 +113,10 @@ The list starts with the common properties, learn more about them by visiting th
         Learn more about weights by visiting the <a href="https://mauthor.com/doc/page/Activity-scoring">Activity scoring</a> section.
         </td>
 	</tr>
+    <tr>
+		<td>Include unvisited pages in the total</td>
+		<td>When checked total score is calculating from all pages.</td>
+	</tr>
 </tbody>
 </table>
 
