@@ -1,3 +1,4 @@
+2024-09-11 Added method returning current page id to parent window
 2024-09-11 Changed the positioning of Zoom Image addon to be in a center of player area
 2024-09-11 Changed the positioning of commons popups to be in a center of player area
 2024-09-11 Fixed improved the Source List with 2.7.9 MathJax issues
