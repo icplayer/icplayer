@@ -1,3 +1,5 @@
+2024-09-11 Changed the positioning of Zoom Image addon to be in a center of player area
+2024-09-11 Changed the positioning of commons popups to be in a center of player area
 2024-09-11 Fixed improved the Source List with 2.7.9 MathJax issues
 2024-09-09 Added calculating total score from all pages in Hierarchical_Lesson_Report
 2024-09-06 Fixed undefined ID in eKeyboard addon
