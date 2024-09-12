@@ -47,7 +47,7 @@ public class PagePopupPanel extends DialogBox {
 		this.scale = new ScaleInformation();
 		this.icplayer = null;
 	}
-	
+
 	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses, IPlayerServices icplayer) {
 		this.pageController = pageController;
 		this.parentWidget = parent;
@@ -57,11 +57,11 @@ public class PagePopupPanel extends DialogBox {
 		scale = new ScaleInformation();
 		this.icplayer = icplayer;
 	}
-	
+
 	public void setLayoutID(String id){
 		this.layoutID = id;
 	}
-	
+
 	public void showPage(PopupPage page, String baseUrl) {
 		if(page.isLoaded()){
 			initPanel(page);
@@ -77,7 +77,7 @@ public class PagePopupPanel extends DialogBox {
 	private void loadPage(PopupPage page, String baseUrl) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		PageFactory factory = new PageFactory((PopupPage) page);
-		
+
 		factory.load(url, new IProducingLoadingListener () {
 
 			@Override
@@ -100,19 +100,19 @@ public class PagePopupPanel extends DialogBox {
 		if(this.layoutID.length()>0 && page.getSizes().containsKey(this.layoutID)) {
 			page.setSemiResponsiveLayoutID(this.layoutID);
 		}
-		
+
 		setStyleName(classes);
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
 		setModal(false);
 		setWidget(pageWidget);
-		
+
 		if (this.icplayer!=null) {
 			scale = this.icplayer.getScaleInformation();
 		}
 		this.getElement().getStyle().setProperty("transform", scale.transform);
 		this.getElement().getStyle().setProperty("transform-origin", scale.transformOrigin);
-				
+
 		int windowWidth = Window.getClientWidth();
 		int windowHeight = Window.getClientHeight();
 
@@ -133,9 +133,9 @@ public class PagePopupPanel extends DialogBox {
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
-				
+
 		Style glassStyle = getGlassElement().getStyle();
-		
+
 		if (scaleInt(popupWidth, scale.scaleX) >= windowWidth){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 			this.forceHardwareAcceleration(this.pageWidget.getWidget().getElement());
@@ -147,134 +147,90 @@ public class PagePopupPanel extends DialogBox {
 			this.forceHardwareAcceleration(this.pageWidget.getWidget().getElement());
 			this.compensateHeightBorder();
 		}
-		
+
 		int top;
 		if (Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()) {
 			top = Math.abs(parentWidget.getAbsoluteTop());
 		} else {
 			top = Window.getScrollTop();
 		}
-		
+
 		int maxHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
-		
+
 		int height = getElement().getClientHeight();
 		if (height < maxHeight) {
 			height = maxHeight;
 		}
-			
+
 		height += top;
-		
+
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
-		
-		center(page.getHeight());
+
+		center();
 	}
-	
+
 	private native int getWindowHeight() /*-{
 		return $wnd.$($wnd.document).height();
 	}-*/;
 
-	private native int getAbsoluteWindowHeight() /*-{
-		return $wnd.$($wnd).height();
-	}-*/;
-	
 	// This method makes the device use hardware acceleration on the provided element, increasing performance
 	private void forceHardwareAcceleration(Element e){
 		e.getStyle().setProperty("transform", "translate3d(0,0,0)");
 		e.getStyle().setProperty("-webkit-transform", "translate3d(0,0,0)");
 	}
-	
-	public static native int getParentWindowOffset() /*-{
-		var current_window = $wnd;
-		var global_offset = 0;
-		
-		while (current_window != current_window.parent) {
-			var iframe_offset = 0,
-				iframes = current_window.parent.document.getElementsByTagName("iframe");
-	
-			for (var i=0; i < iframes.length; i++) {
-				var current_iframe = iframes[i];
-	
-				if (current_window.location.href == current_iframe.src){
-					var iframe_placement = current_iframe.getBoundingClientRect().top,
-						body_placement = current_window.parent.document.body.getBoundingClientRect().top;
-	
-					iframe_offset = Math.round(iframe_placement - body_placement);
-				}
-			}
-		
-			global_offset += current_window.parent.pageYOffset - iframe_offset;
-			current_window = current_window.parent;
-		}
-		
-		global_offset = Math.max(0, global_offset);
-		return global_offset;
-		
-	}-*/;
 
 	/**
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center(int popupHeight) {	
-		if(parentWidget != null){
-			int left = parentWidget.getAbsoluteLeft();
-			int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
-			left = left+offsetX/2;
-			if (left<0) {
-				left = 0;
-			}
-			
-			int top;
-			if(Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
-				top = Math.abs(parentWidget.getAbsoluteTop());
-			}
-			else{
-				top = Window.getScrollTop();
-			}
-
-			try{
-				top += getParentWindowOffset();
-			}catch(Exception e) {
-				top += 0;
-			}
-
-			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
-				int propertyLeft = scaleInt(Integer.parseInt(this.left) + parentWidget.getAbsoluteLeft(), scale.scaleX);
-				int propertyTop = scaleInt(Integer.parseInt(this.top) + parentWidget.getAbsoluteTop(), scale.scaleY);
-				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
-				setPopupPosition(propertyLeft, updatedTop);
-			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
-				int updatedTop = getMobileMcourserTop(propertyTop, popupHeight);
-				setPopupPosition(left, updatedTop);
-			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
-				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
-				int updatedTop = getMobileMcourserTop(top, popupHeight);
-				setPopupPosition(propertyLeft, updatedTop);
-			} else {
-				int updatedTop = getMobileMcourserTop(top, popupHeight);
-				setPopupPosition(left, updatedTop);
-			}
-		}
-	}
-
-	// return popup top value for mobile mCourser instances
-	private int getMobileMcourserTop(int top, int popupHeight) {
-		if (DevicesUtils.isMobile() && !isMAuthor()) {
-			int windowHeight = getAbsoluteWindowHeight();
-	
-			return (windowHeight - popupHeight) / 2;
+	public void center() {
+		if (parentWidget == null) {
+			return;
 		}
 		
-		return top;
+		if (this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
+			int propertyLeft = adjustLeftFromProperty();
+			int propertyTop = adjustTopFromProperty();
+			setPopupPosition(propertyLeft, propertyTop);
+		} else if (this.top != null && this.top != "" && isInteger(this.top)) {
+			int propertyTop = adjustTopFromProperty();
+			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
+			setPopupPosition(calculatedLeft, propertyTop);
+		} else if (this.left != null && this.left != "" && isInteger(this.left)) {
+			int propertyLeft = adjustLeftFromProperty();
+			int calculatedTop = calculateTopWhenCentred(this.getElement());
+			setPopupPosition(propertyLeft, calculatedTop);
+		} else {
+			int calculatedTop = calculateTopWhenCentred(this.getElement());
+			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
+			setPopupPosition(calculatedLeft, calculatedTop);
+		}
 	}
-
-	private static native boolean isMAuthor() /*-{
-		var names = ["lorepo", "mauthor"];
-        var origin = window.origin;
-
-        return origin.includes(names[0]) || origin.includes(names[1]);
+	
+	private static native int calculateTopWhenCentred(Element popupElement) /*-{
+		var elementHeight = popupElement.getBoundingClientRect().height;
+		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
+	}-*/;
+	
+	private static native int calculateLeftWhenCentred(Element popupElement) /*-{
+		var elementWidth = popupElement.getBoundingClientRect().width;
+		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
+	}-*/;
+	
+	private int adjustTopFromProperty() {
+		return getTopOffset(parentWidget.getAbsoluteTop()) + scaleInt(Integer.parseInt(this.top), scale.baseScaleY);
+	}
+	
+	private int adjustLeftFromProperty() {
+		return parentWidget.getAbsoluteLeft() + scaleInt(Integer.parseInt(this.left), scale.baseScaleX);
+	}
+	
+	private static native int getTopOffset(int absoluteTop) /*-{
+		if ($wnd.DevicesUtils.isFirefox()) {
+			return 0;
+		}
+		return absoluteTop + $wnd.pageYOffset;
 	}-*/;
 
 	public boolean isInteger(String s) {

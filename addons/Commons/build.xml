@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir=".">
     <property file="build.properties" />
-    <property name="commons.version" value="4.3.1" />
+    <property name="commons.version" value="4.4.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
 
@@ -33,6 +33,7 @@
             <arg line="--js src/controls-bar.js" />
             <arg line="--js src/xss-utils.js" />
             <arg line="--js src/open-activities-utils.js" />
+            <arg line="--js src/positioning-utils.js" />
             <arg line="--js src/DeferredSyncQueue.js" />
             <arg line="--js src/srt-parser.js" />
             <arg line="--js src/AudioContextSingleton.js" />
@@ -67,6 +68,7 @@
  * - SRT Parser
  * - Audio Context Singleton
  * - Open Activities Utils
+ * - Positioning Utils
  */</concat>
 
     </target>
