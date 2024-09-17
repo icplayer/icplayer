@@ -1266,3 +1266,13 @@ semantics > annotation-xml {
     visibility: inherit!important;
 }
 
+@font-face {
+    font-family: "STIX Two Math - player";
+    src:
+		local("STIX Two Math"),
+		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf);
+}
+
+.ic_player .MathJax_MathML math {
+	font-family: "STIX Two Math - player", math;
+}
