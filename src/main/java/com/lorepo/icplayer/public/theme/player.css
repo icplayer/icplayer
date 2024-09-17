@@ -1267,8 +1267,8 @@ semantics > annotation-xml {
 }
 
 @font-face {
-    font-family: "STIX Two Math - player";
-    src:
+	font-family: "STIX Two Math - player";
+	src:
 		local("STIX Two Math"),
 		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf);
 }
