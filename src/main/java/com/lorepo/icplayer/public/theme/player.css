@@ -1273,6 +1273,7 @@ semantics > annotation-xml {
 		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf);
 }
 
-.ic_player .MathJax_MathML math {
+.ic_player .MathJax_MathML math,
+.ic_player .MathJax_Preview math {
 	font-family: "STIX Two Math - player", math;
 }
