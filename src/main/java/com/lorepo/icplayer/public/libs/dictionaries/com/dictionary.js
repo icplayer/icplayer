@@ -188,6 +188,7 @@ var ice_dictionary_en = {
 	"rulers": "Rulers",
 	"use_rulers": "Use rulers: ",
 	"use_rulers_snapping": "Use Rulers Snapping: ",
+	"disable_navigation_panels": "Disable navigation panels: ",
 	"lang": "Language attribute: ",
 	"rulers_visibility": "Rulers Visibility",
 	"rulers_snapping": "Module to Rulers Snapping",

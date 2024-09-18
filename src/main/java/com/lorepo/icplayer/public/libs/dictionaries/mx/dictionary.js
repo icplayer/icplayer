@@ -187,6 +187,7 @@ var ice_dictionary_mx = {
 	"rulers": "Reglas",
 	"use_rulers": "Uso de reglas: ",
 	"use_rulers_snapping": "Atraer a las reglas: ",
+	"disable_navigation_panels": "Disable navigation panels: ",
 	"lang": "Language attribute: ",
 	"rulers_visibility": "Ver Reglas",
 	"rulers_snapping": "Atraer módulo a las reglas",
