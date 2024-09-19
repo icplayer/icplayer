@@ -18,6 +18,24 @@ function AddonFractions_create(){
     presenter.wasDisable = false;
     presenter.imageBackgroundTable = ["0"];
 
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
+    presenter.markedItemColor = '#00ff44';
+    presenter.markedItemBorderData = '8,4';
+    presenter.markedItemIndex = -1;
+    presenter.orderItemIndex = -1;
+    presenter.isWCAGOn = false;
+    presenter.isFirstEnter = true;
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        SELECTED: "selected",
+        DESELECTED: "deselected",
+        ITEM: "item",
+        CORRECT: "correct",
+        WRONG: "wrong",
+        OF: "of",
+    };
+
     presenter.ERROR_CODES = {
         "Z01": "None",
         "C01": "Incorrect selectionColor.",
@@ -444,7 +462,7 @@ function AddonFractions_create(){
         }
 
         displayText();
-
+        presenter.buildKeyboardController();
     };
 
     presenter.buildSquare = function (model, view) {
@@ -663,6 +681,7 @@ function AddonFractions_create(){
         var $counter = undefined;
 
         $.extend(presenter.configuration, presenter.validateModel(model, false));
+        presenter.setSpeechTexts(model['speechTexts']);
         if (!presenter.configuration.isValid) {
             $counter = $(view).find('.FractionsCommandsViewer');
             $counter.text(presenter.ERROR_CODES[presenter.configuration.errorCode]);
@@ -1301,6 +1320,366 @@ function AddonFractions_create(){
         presenter.hideAnswers();
     };
 
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        event.preventDefault();
+
+        const keys = {
+            ENTER: 13,
+            ESCAPE: 27,
+            SPACE: 32,
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40,
+            TAB: 9
+        };
+
+        switch (keycode) {
+            case keys.ENTER:
+                presenter.enter();
+                break;
+            case keys.ESCAPE:
+                presenter.escape();
+                break;
+            case keys.SPACE:
+                presenter.select();
+                break;
+            case keys.ARROW_LEFT:
+                presenter.leftArrowHandler();
+                break;
+            case keys.ARROW_UP:
+                presenter.previousRow();
+                break;
+            case keys.ARROW_RIGHT:
+                presenter.rightArrowHandler();
+                break;
+            case keys.ARROW_DOWN:
+                presenter.nextRow();
+                break;
+            case keys.TAB:
+                presenter.tabHandler(isShiftDown);
+                break;
+        }
+    };
+
+    presenter.tabHandler = function (isShiftDown) {
+        if (isShiftDown) {
+            presenter.previousElement();
+        } else {
+            presenter.nextElement();
+        }
+    }
+
+    presenter.leftArrowHandler = function () {
+        if (presenter.isSquareSelected() || presenter.isCircleSelected()) {
+            presenter.nextElement();
+        } else {
+            presenter.previousElement();
+        }
+    }
+
+    presenter.rightArrowHandler = function () {
+        if (presenter.isSquareSelected() || presenter.isCircleSelected()) {
+            presenter.previousElement();
+        } else {
+            presenter.nextElement();
+        }
+    }
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject
+            = new FractionsKeyboardController(
+                presenter.$view,
+                presenter.getNumberOfElements()
+        );
+    };
+
+    presenter.getNumberOfElements = function () {
+        switch (presenter.configuration.figure) {
+            case presenter.FIGURES.CIRCLE:
+                return presenter.configuration.circleParts;
+
+            case presenter.FIGURES.RECTANGULAR:
+                return presenter.configuration.rectHorizontal * presenter.configuration.rectVertical;
+
+            case presenter.FIGURES.SQUARE:
+                return presenter.configuration.squareParts;
+        }
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    function FractionsKeyboardController (elements, elementsCount) {
+        KeyboardController.call(this, elements, elementsCount);
+    }
+
+    FractionsKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    FractionsKeyboardController.prototype.constructor = FractionsKeyboardController;
+
+    FractionsKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    }
+
+    presenter.select = function () {
+        const element = $(`#${presenter.configuration.addonId}${presenter.markedItemIndex}`);
+
+        presenter.markElementAsClicked(element.get(0));
+
+        presenter.readOnSelect();
+    }
+
+    presenter.enter = function () {
+        if (presenter.isFirstEnter) {
+            presenter.markedItemIndex = 1;
+            presenter.orderItemIndex = 1;
+            presenter.markItem(1);
+        }
+
+        presenter.readOnEnter();
+        presenter.isFirstEnter = false;
+    }
+
+    presenter.nextElement = function () {
+        presenter.increaseIndex();
+        presenter.markItem(presenter.markedItemIndex);
+
+        presenter.readMarkedElement();
+    };
+
+    presenter.previousElement = function () {
+        presenter.decreaseIndex();
+        presenter.markItem(presenter.markedItemIndex);
+
+        presenter.readMarkedElement();
+    };
+
+    presenter.previousRow = function () {
+        if (presenter.isSquareSelected() || presenter.isCircleSelected()) {
+            presenter.increaseIndex();
+            presenter.markItem(presenter.markedItemIndex);
+        } else {
+            const offset = presenter.markedItemIndex - presenter.configuration.rectHorizontal < 1 ? presenter.markedItemIndex : presenter.markedItemIndex - presenter.configuration.rectHorizontal;
+            presenter.markedItemIndex = offset;
+            presenter.orderItemIndex = offset;
+            presenter.markItem(presenter.markedItemIndex);
+        }
+
+        presenter.readMarkedElement();
+    };
+
+    presenter.nextRow = function () {
+        if (presenter.isSquareSelected() || presenter.isCircleSelected()) {
+            presenter.decreaseIndex();
+            presenter.markItem(presenter.markedItemIndex);
+        } else {
+            const totalElements = presenter.configuration.rectHorizontal * presenter.configuration.rectVertical
+            const offset = presenter.markedItemIndex + presenter.configuration.rectHorizontal > totalElements ? presenter.markedItemIndex : presenter.markedItemIndex + presenter.configuration.rectHorizontal;
+            presenter.markedItemIndex = offset;
+            presenter.orderItemIndex = offset;
+            presenter.markItem(presenter.markedItemIndex);
+        }
+
+        presenter.readMarkedElement();
+    };
+
+    presenter.escape = function () {
+        presenter.removeMarkedElement();
+        presenter.isFirstEnter = true;
+    }
+
+    presenter.isSquareSelected = function () {
+        return presenter.configuration.figure === presenter.FIGURES.SQUARE;
+    }
+
+    presenter.isCircleSelected = function () {
+        return presenter.configuration.figure === presenter.FIGURES.CIRCLE;
+    }
+
+    presenter.increaseIndex = function () {
+        presenter.orderItemIndex += 1;
+        presenter.updateMarkedItemIndex();
+        if (presenter.configuration.figure === presenter.FIGURES.SQUARE) {
+            presenter.markedItemIndex = getIndexesInOrder(presenter.configuration.squareParts)[presenter.orderItemIndex - 1];
+        } else {
+            presenter.markedItemIndex = presenter.orderItemIndex;
+        }
+    }
+
+    presenter.decreaseIndex = function () {
+        presenter.orderItemIndex -= 1;
+        presenter.updateMarkedItemIndex();
+        if (presenter.configuration.figure === presenter.FIGURES.SQUARE) {
+            presenter.markedItemIndex = getIndexesInOrder(presenter.configuration.squareParts)[presenter.orderItemIndex - 1];
+        } else {
+            presenter.markedItemIndex = presenter.orderItemIndex;
+        }
+    }
+
+    presenter.markItem = function (itemIndex) {
+        const dItemValue = $(`#${presenter.configuration.addonId}${itemIndex}`).attr('d')
+        presenter.removeMarkedElement();
+
+        const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'path'); //Create a path in SVG's namespace
+        newElement.setAttribute("d",dItemValue);
+        newElement.setAttribute('id', 'Fractions-keyboard-nav')
+        newElement.style.stroke = presenter.markedItemColor;
+        newElement.style.strokeWidth = presenter.configuration.strokeWidth;
+        newElement.style.strokeDasharray = presenter.markedItemBorderData;
+        newElement.style.fill = 'transparent';
+        newElement.style.strokeLinejoin = 'round';
+        newElement.classList.add(presenter.configuration.addonId);
+
+        const svg = $('.FractionsWrapper').get(0).children[0];
+        svg.appendChild(newElement);
+    }
+
+    presenter.removeMarkedElement = function () {
+        const element = document.getElementById('Fractions-keyboard-nav');
+        if (element?.parentNode) {
+            element.parentNode.removeChild(element);
+        }
+    }
+
+    presenter.updateMarkedItemIndex = function () {
+        const elementsCount = presenter.getNumberOfElements();
+        if (presenter.orderItemIndex > elementsCount) {
+            presenter.orderItemIndex = 1;
+        } else if (presenter.orderItemIndex < 1) {
+            presenter.orderItemIndex = elementsCount;
+        }
+    }
+
+    presenter.isMarkedElementSelected = function () {
+        const element$ = $(`#${presenter.configuration.addonId}${presenter.markedItemIndex}`);
+
+        return element$.hasClass('selected');
+    }
+
+    presenter.getTextToSpeechOrNull = function () {
+        if (presenter.playerController) {
+            return presenter.playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        const tts = presenter.getTextToSpeechOrNull();
+
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Selected: presenter.DEFAULT_TTS_PHRASES.SELECTED,
+            Deselected: presenter.DEFAULT_TTS_PHRASES.DESELECTED,
+            Item: presenter.DEFAULT_TTS_PHRASES.ITEM,
+            Correct: presenter.DEFAULT_TTS_PHRASES.CORRECT,
+            Wrong: presenter.DEFAULT_TTS_PHRASES.WRONG,
+            of: presenter.DEFAULT_TTS_PHRASES.OF,
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.Selected),
+            Deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.Deselected),
+            Item: TTSUtils.getSpeechTextProperty(
+                speechTexts.Item.Item,
+                presenter.speechTexts.Item),
+            Correct: TTSUtils.getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.Correct),
+            Wrong: TTSUtils.getSpeechTextProperty(
+                speechTexts.Wrong.Wrong,
+                presenter.speechTexts.Wrong),
+            of: TTSUtils.getSpeechTextProperty(
+                speechTexts.of.of,
+                presenter.speechTexts.of),
+        };
+    };
+    
+    presenter.readOnEnter = function () {
+        const textVoiceObject = [];
+        const numberOfSelectedItems = presenter.getNumberOfSelectedItems().toString();
+        const numberOfAllItems = (presenter.currentSelected.item.length - 1).toString();
+        let text = [presenter.speechTexts.Selected, numberOfSelectedItems, presenter.speechTexts.of, numberOfAllItems].join(' ');
+
+        if (presenter.isErrorCheckingMode) {
+            text += ` ${presenter.getSelectionMark(+numberOfSelectedItems)}`;
+        }
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, text);
+
+        if (presenter.isFirstEnter && !presenter.isErrorCheckingMode && !presenter.isShowAnswersActive) {
+            const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
+            const selectionText = [presenter.speechTexts.Item, "1", option].join(' ');
+            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, selectionText);
+        }
+
+        presenter.speak(textVoiceObject);
+    }
+
+    presenter.getNumberOfSelectedItems = function () {
+        if (presenter.isShowAnswersActive) {
+            return presenter.configuration.correctAnswer;
+        }
+        return presenter.currentSelected.item.filter(_item => _item === true).length;
+    }
+
+    presenter.getSelectionMark = function (userSelectedItems) {
+        if (userSelectedItems === presenter.configuration.correctAnswer) {
+            return presenter.speechTexts.Correct;
+        }
+        return presenter.speechTexts.Wrong;
+    }
+
+    presenter.readMarkedElement = function () {
+        const textVoiceObject = [];
+        const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
+        const text = [presenter.speechTexts.Item, presenter.orderItemIndex, option].join(' ');
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, text);
+
+        presenter.speak(textVoiceObject);
+    }
+
+    presenter.readOnSelect = function () {
+        const textVoiceObject = [];
+        const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
+        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, option);
+
+        presenter.speak(textVoiceObject);
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, false);
+    }
+
+    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
+        pushMessageToTextVoiceObject(textVoiceObject, message, true);
+    }
+
+    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag)
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
+        else
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    }
+
     var SquareShapeElement = function (width, height, x, y, currentCutIndex, id) {
         this.width = Math.min(width, height);
         this.height = Math.min(width, height);
@@ -1480,6 +1859,17 @@ function AddonFractions_create(){
         }
         return elements;
     };
+
+    function getIndexesInOrder(numberOfElements) {
+        switch (numberOfElements) {
+            case 4:
+                return [1, 2, 4, 3];
+            case 8:
+                return [1, 2, 4, 3, 7, 8, 6, 5];
+            case 16:
+                return [1, 3, 4, 8, 7, 5, 6, 14, 13, 15, 16, 12, 11, 9, 10, 2];
+        }
+    }
 
     return presenter;
 }
