@@ -186,7 +186,7 @@ var ice_dictionary_pl = {
 	"rulers": "Prowadnice",
 	"use_rulers": "Użyj prowadnic: ",
 	"use_rulers_snapping": "Użyj przyciągania do prowadnic: ",
-	"disable_navigation_panels": "Disable navigation panels: ",
+	"disable_navigation_panels": "Disable navigation panels automatic appearance: ",
 	"rulers_visibility": "Widoczność prowadnic",
 	"lang": "Atrybut języka:",
 	"rulers_snapping": "Przyciąganie modułu do prowadnic",

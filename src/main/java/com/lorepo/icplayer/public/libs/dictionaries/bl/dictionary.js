@@ -188,7 +188,7 @@ var ice_dictionary_bl = {
 	"rulers": "Линийки",
 	"use_rulers": "Използвай линийки: ",
 	"use_rulers_snapping": "Използвай залепяне за линийката: ",
-	"disable_navigation_panels": "Disable navigation panels: ",
+	"disable_navigation_panels": "Disable navigation panels automatic appearance: ",
 	"lang": "Език: ",
 	"rulers_visibility": "Видимост на линийките",
 	"rulers_snapping": "Залепяне на модул за линийките",

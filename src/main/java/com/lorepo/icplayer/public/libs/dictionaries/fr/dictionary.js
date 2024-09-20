@@ -188,7 +188,7 @@ var ice_dictionary_fr = {
     "rulers": "Règles",
     "use_rulers": "Utiliser la règle : ",
     "use_rulers_snapping": "Utiliser l'apparition de la règle : ",
-    "disable_navigation_panels": "Disable navigation panels: ",
+    "disable_navigation_panels": "Disable navigation panels automatic appearance: ",
     "lang": "Language attribute: ",
     "rulers_visibility": "Visibilité de la règle",
     "rulers_snapping": "Module pour l'apparition des règles",
