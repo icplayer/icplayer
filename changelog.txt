@@ -1,5 +1,5 @@
 2024-09-24 Added support to the IWB Toolbar addon on interactive whiteboards
-2024-09-18 Added support to drag & drop on interactive whiteboards
+2024-09-18 Added disable navigation panels lesson property
 2024-09-11 Added method returning current page id to parent window
 2024-09-11 Changed the positioning of Zoom Image addon to be in a center of player area
 2024-09-11 Changed the positioning of commons popups to be in a center of player area
