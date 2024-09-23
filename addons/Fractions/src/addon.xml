@@ -16,7 +16,6 @@
 		<property name="isDisable" nameLabel="Fractions_property_is_disable" type="boolean"/>
         <property name="imageDeselect" displayName="Image for deselected parts" nameLabel="Fractions_property_is_deselect" type="image"/>
         <property name="imageSelect" displayName="Image for selected parts" nameLabel="Fractions_property_is_select" type="image"/>
-		<property name="langAttribute" displayName="Lang attribute" nameLabel="Fractions_property_lang_attribute" type="string"/>
         <property name="speechTexts" displayName="Speech texts" nameLabel="Fractions_property_speech_texts" type="staticlist">
 			<property name="Selected" nameLabel="Fractions_speech_text_selected" type="staticrow">
                 <property name="Selected" nameLabel="Fractions_speech_text_selected" type="string"/>

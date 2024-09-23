@@ -1336,7 +1336,7 @@ function AddonFractions_create(){
 
         switch (keycode) {
             case keys.ENTER:
-                presenter.enter();
+                presenter.enter(event);
                 break;
             case keys.ESCAPE:
                 presenter.escape();
@@ -1418,9 +1418,10 @@ function AddonFractions_create(){
     FractionsKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     FractionsKeyboardController.prototype.constructor = FractionsKeyboardController;
 
-    FractionsKeyboardController.prototype.exitWCAGMode = function () {
-        KeyboardController.prototype.exitWCAGMode.call(this);
+    presenter.exitWCAGMode = function () {
         presenter.setWCAGStatus(false);
+        presenter.removeMarkedElement();
+        presenter.isFirstEnter = true;
     }
 
     presenter.select = function () {
@@ -1431,7 +1432,12 @@ function AddonFractions_create(){
         presenter.readOnSelect();
     }
 
-    presenter.enter = function () {
+    presenter.enter = function (event) {
+        if (event.ctrlKey || event.shiftKey) {
+            presenter.exitWCAGMode();
+            return;
+        }
+
         if (presenter.isFirstEnter) {
             presenter.markedItemIndex = 1;
             presenter.orderItemIndex = 1;
@@ -1623,12 +1629,12 @@ function AddonFractions_create(){
         if (presenter.isErrorCheckingMode) {
             text += ` ${presenter.getSelectionMark(+numberOfSelectedItems)}`;
         }
-        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, text);
+        pushMessageToTextVoiceObject(textVoiceObject, text);
 
         if (presenter.isFirstEnter && !presenter.isErrorCheckingMode && !presenter.isShowAnswersActive) {
             const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
             const selectionText = [presenter.speechTexts.Item, "1", option].join(' ');
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, selectionText);
+            pushMessageToTextVoiceObject(textVoiceObject, selectionText);
         }
 
         presenter.speak(textVoiceObject);
@@ -1652,7 +1658,7 @@ function AddonFractions_create(){
         const textVoiceObject = [];
         const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
         const text = [presenter.speechTexts.Item, presenter.orderItemIndex, option].join(' ');
-        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, text);
+        pushMessageToTextVoiceObject(textVoiceObject, text);
 
         presenter.speak(textVoiceObject);
     }
@@ -1660,24 +1666,13 @@ function AddonFractions_create(){
     presenter.readOnSelect = function () {
         const textVoiceObject = [];
         const option = presenter.isMarkedElementSelected() ? presenter.speechTexts.Selected : presenter.speechTexts.Deselected;
-        pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, option);
+        pushMessageToTextVoiceObject(textVoiceObject, option);
 
         presenter.speak(textVoiceObject);
     }
 
-    function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
-        pushMessageToTextVoiceObject(textVoiceObject, message, false);
-    }
-
-    function pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, message) {
-        pushMessageToTextVoiceObject(textVoiceObject, message, true);
-    }
-
-    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
-        if (usePresenterLangTag)
-            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.configuration.langTag));
-        else
-            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
+    function pushMessageToTextVoiceObject(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
     }
 
     var SquareShapeElement = function (width, height, x, y, currentCutIndex, id) {
