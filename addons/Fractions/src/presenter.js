@@ -1538,7 +1538,8 @@ function AddonFractions_create(){
         newElement.style.strokeLinejoin = 'round';
         newElement.classList.add(presenter.configuration.addonId);
 
-        const svg = $('.FractionsWrapper').get(0).children[0];
+        const $addonElement = $(`#${presenter.configuration.addonId}`);
+        const svg = $addonElement.find('.FractionsWrapper').get(0).children[0];
         svg.appendChild(newElement);
     }
 
