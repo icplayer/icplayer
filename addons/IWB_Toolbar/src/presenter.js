@@ -3044,7 +3044,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.isSupportCSSPointerEvents = function IWB_Toolbar_isSupportCSSPointerEvents() {
         var myNav = navigator.userAgent.toLowerCase();
-        var version = (myNav.indexOf('gmsie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+        var version = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
         return !(version == 9 || version == 10);
     };
 
