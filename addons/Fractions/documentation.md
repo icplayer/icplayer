@@ -74,10 +74,6 @@ This addon allows users to create activities that include parts of two geometric
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p></td>
     </tr>
     <tr>
-        <td>Lang attribute</td>
-        <td>This property allows to define the language for this addon (different than the language of the lesson).</td>
-    </tr>
-    <tr>
         <td>Speech texts</td>
         <td>
             This texts will be read by Text to Speech addon after a user performs an action.
