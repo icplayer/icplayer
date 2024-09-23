@@ -1224,6 +1224,7 @@ function AddonAssessments_Navigation_Bar_create(){
         upgradedModel = presenter.upgradeDefaultOrder(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeUseDynamicPagination(upgradedModel);
+        upgradedModel = presenter.upgradeEnableDropdownPagesList(upgradedModel);
 
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
@@ -1289,6 +1290,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         if (!model.hasOwnProperty('useDynamicPagination')) {
             upgradedModel['useDynamicPagination'] = 'False';
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeEnableDropdownPagesList = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model.hasOwnProperty('enableDropdownPagesList')) {
+            upgradedModel['enableDropdownPagesList'] = 'False';
         }
 
         return upgradedModel;
@@ -1491,7 +1503,8 @@ function AddonAssessments_Navigation_Bar_create(){
             userButtonsWidth: validateButtonsWidth.value,
             numberOfPages: numberOfPages,
             numberOfStaticPages: numberOfStaticPages,
-            useDynamicPagination: ModelValidationUtils.validateBoolean(model["useDynamicPagination"])
+            useDynamicPagination: ModelValidationUtils.validateBoolean(model["useDynamicPagination"]),
+            enableDropdownPagesList: ModelValidationUtils.validateBoolean(model["enableDropdownPagesList"])
         };
     };
 
