@@ -676,6 +676,7 @@ function AddonFractions_create(){
     };
 
     presenter.run = function(view, model) {
+        console.log('run 6')
         presenter.$view = $(view);
         presenter.model = model;
         var $counter = undefined;
@@ -1507,7 +1508,7 @@ function AddonFractions_create(){
     presenter.increaseIndex = function () {
         presenter.orderItemIndex += 1;
         presenter.updateMarkedItemIndex();
-        if (presenter.configuration.figure === presenter.FIGURES.SQUARE) {
+        if (presenter.isSquareSelected()) {
             presenter.markedItemIndex = getIndexesInOrder(presenter.configuration.squareParts)[presenter.orderItemIndex - 1];
         } else {
             presenter.markedItemIndex = presenter.orderItemIndex;
@@ -1517,7 +1518,7 @@ function AddonFractions_create(){
     presenter.decreaseIndex = function () {
         presenter.orderItemIndex -= 1;
         presenter.updateMarkedItemIndex();
-        if (presenter.configuration.figure === presenter.FIGURES.SQUARE) {
+        if (presenter.isSquareSelected()) {
             presenter.markedItemIndex = getIndexesInOrder(presenter.configuration.squareParts)[presenter.orderItemIndex - 1];
         } else {
             presenter.markedItemIndex = presenter.orderItemIndex;
@@ -1858,13 +1859,38 @@ function AddonFractions_create(){
 
     function getIndexesInOrder(numberOfElements) {
         switch (numberOfElements) {
+            case 1:
+                return [1];
             case 4:
                 return [1, 2, 4, 3];
             case 8:
                 return [1, 2, 4, 3, 7, 8, 6, 5];
-            case 16:
-                return [1, 3, 4, 8, 7, 5, 6, 14, 13, 15, 16, 12, 11, 9, 10, 2];
+            default:
+                return calculateIndexesInOrder(numberOfElements);
         }
+    }
+
+    function calculateIndexesInOrder(numberOfElements) {
+        const offset = (numberOfElements / 8) // 8 come from 4 side each divided on 2
+
+        return [1,
+            ...getIncrementIndexes(1+offset, offset),
+            ...getDecrementIndexes(4*offset, offset),
+            ...getIncrementIndexes(1+2*offset, offset),
+            ...getDecrementIndexes(7*offset, offset),
+            ...getIncrementIndexes(1+7*offset, offset),
+            ...getDecrementIndexes(6*offset, offset),
+            ...getIncrementIndexes(1+4*offset, offset),
+            ...getDecrementIndexes(offset, offset-1),
+        ]
+    }
+
+    function getIncrementIndexes(startIndex, offset) {
+        return Array.from({length: offset}, (_, i) => startIndex + i);
+    }
+
+    function getDecrementIndexes(endIndex, offset) {
+        return Array.from({length: offset}, (_, i) => endIndex - i);
     }
 
     return presenter;
