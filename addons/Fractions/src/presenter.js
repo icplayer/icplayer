@@ -676,7 +676,6 @@ function AddonFractions_create(){
     };
 
     presenter.run = function(view, model) {
-        console.log('run 6')
         presenter.$view = $(view);
         presenter.model = model;
         var $counter = undefined;
