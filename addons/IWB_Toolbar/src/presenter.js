@@ -497,7 +497,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.onMobilePaint = function(e) {
         var iwb_tmp_canvas;
-        iwb_tmp_canvas = presenter.marker_tmp_canvas;
+        iwb_tmp_canvas = presenter.markerTmpCanvas;
 
         e.preventDefault();
         e.stopPropagation();
@@ -512,8 +512,8 @@ function AddonIWB_Toolbar_create() {
 
     presenter.onPaint = function(e) {
         var iwb_tmp_canvas, tmp_ctx;
-        iwb_tmp_canvas = presenter.marker_tmp_canvas;
-        tmp_ctx = presenter.marker_tmp_ctx;
+        iwb_tmp_canvas = presenter.markerTmpCanvas;
+        tmp_ctx = presenter.markerTmpCtx;
         tmp_ctx.globalAlpha = 0.4;
 
         tmp_ctx.lineWidth = presenter.currentMarkerThickness;
@@ -560,7 +560,7 @@ function AddonIWB_Toolbar_create() {
         setOverflowWorkAround(true);
 
         presenter.onMobilePaint(event);
-        presenter.marker_tmp_canvas.addEventListener('touchmove', presenter.onMobilePaint);
+        presenter.markerTmpCanvas.addEventListener('touchmove', presenter.onMobilePaint);
     };
 
     function saveMarkerDataUrl() {
@@ -574,9 +574,9 @@ function AddonIWB_Toolbar_create() {
 
         presenter.markerUsed = true;
 
-        presenter.marker_tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
-        presenter.markerCtx.drawImage(presenter.marker_tmp_canvas, 0, 0);
-        presenter.marker_tmp_ctx.clearRect(0, 0, presenter.marker_tmp_canvas.width, presenter.marker_tmp_canvas.height);
+        presenter.markerTmpCanvas.removeEventListener('touchmove', presenter.onMobilePaint, false);
+        presenter.markerCtx.drawImage(presenter.markerTmpCanvas, 0, 0);
+        presenter.markerTmpCtx.clearRect(0, 0, presenter.markerTmpCanvas.width, presenter.markerTmpCanvas.height);
 
         presenter.points = [];
         saveMarkerDataUrl();
@@ -591,7 +591,7 @@ function AddonIWB_Toolbar_create() {
         presenter.isPointerDown = true;
         setOverflowWorkAround(true);
 
-        presenter.marker_tmp_canvas.addEventListener(getPointingMoveEventName(), presenter.onPaint, false);
+        presenter.markerTmpCanvas.addEventListener(getPointingMoveEventName(), presenter.onPaint, false);
 
         presenter.points.push({
             x: typeof event.offsetX !== 'undefined' ? event.offsetX : event.layerX,
@@ -627,9 +627,9 @@ function AddonIWB_Toolbar_create() {
         presenter.isPointerDown = false;
         setOverflowWorkAround(false);
 
-        presenter.marker_tmp_canvas.removeEventListener(getPointingMoveEventName(), presenter.onPaint, false);
-        presenter.markerCtx.drawImage(presenter.marker_tmp_canvas, 0, 0);
-        presenter.marker_tmp_ctx.clearRect(0, 0, presenter.marker_tmp_canvas.width, presenter.marker_tmp_canvas.height);
+        presenter.markerTmpCanvas.removeEventListener(getPointingMoveEventName(), presenter.onPaint, false);
+        presenter.markerCtx.drawImage(presenter.markerTmpCanvas, 0, 0);
+        presenter.markerTmpCtx.clearRect(0, 0, presenter.markerTmpCanvas.width, presenter.markerTmpCanvas.height);
 
         presenter.points = [];
         saveMarkerDataUrl();
@@ -638,16 +638,16 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.markerDrawingLogic = function IWB_Toolbar_markerDrawingLogic() {
-        $(presenter.marker_tmp_canvas).off();
+        $(presenter.markerTmpCanvas).off();
 
         if (presenter.isPointerEventSupported || !MobileUtils.isEventSupported('touchstart')) {
-            presenter.marker_tmp_canvas.addEventListener(getPointingMoveEventName(), presenter.markerPointerMoveHandler, false);
-            presenter.marker_tmp_canvas.addEventListener(getPointingDownEventName(), presenter.markerPointerDownHandler, false);
-            presenter.marker_tmp_canvas.addEventListener(getPointingUpEventName(), presenter.markerPointerUpHandler, false);
-            $(presenter.marker_tmp_canvas).on(getPointingEventName("leave"), presenter.markerPointerUpHandler);
+            presenter.markerTmpCanvas.addEventListener(getPointingDownEventName(), presenter.markerPointerDownHandler, false);
+            presenter.markerTmpCanvas.addEventListener(getPointingMoveEventName(), presenter.markerPointerMoveHandler, false);
+            presenter.markerTmpCanvas.addEventListener(getPointingUpEventName(), presenter.markerPointerUpHandler, false);
+            presenter.markerTmpCanvas.addEventListener(getPointingEventName("leave"), presenter.markerPointerUpHandler, false);
         } else {
-            presenter.marker_tmp_canvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
-            presenter.marker_tmp_canvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
+            presenter.markerTmpCanvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
+            presenter.markerTmpCanvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
         }
     };
 
@@ -711,7 +711,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.drawingLogic = function IWB_Toolbar_drawingLogic() {
-        $(presenter.marker_tmp_canvas).off();
+        $(presenter.markerTmpCanvas).off();
 
         let downEventName, moveEventName, upEventName;
         if (presenter.isPointerEventSupported || !MobileUtils.isEventSupported('touchstart')) {
@@ -3213,9 +3213,9 @@ function AddonIWB_Toolbar_create() {
 
         presenter.createCanvases();
 
-        presenter.marker_tmp_canvas = document.createElement('canvas');
-        presenter.marker_tmp_ctx = presenter.marker_tmp_canvas.getContext('2d');
-        presenter.marker_tmp_canvas.classList.add('iwb_tmp_canvas');
+        presenter.markerTmpCanvas = document.createElement('canvas');
+        presenter.markerTmpCtx = presenter.markerTmpCanvas.getContext('2d');
+        presenter.markerTmpCanvas.classList.add('iwb_tmp_canvas');
 
         presenter.$panel.draggable({
             containment: 'parent',
@@ -3320,9 +3320,9 @@ function AddonIWB_Toolbar_create() {
         var width = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].width;
         var height = presenter.$pagePanel.find('.marker-mask').find('canvas')[0].height;
 
-        presenter.marker_tmp_canvas.width = width;
-        presenter.marker_tmp_canvas.height = height;
-        presenter.$pagePanel.find('.marker-mask').append(presenter.marker_tmp_canvas);
+        presenter.markerTmpCanvas.width = width;
+        presenter.markerTmpCanvas.height = height;
+        presenter.$pagePanel.find('.marker-mask').append(presenter.markerTmpCanvas);
 
         /**
          * We're adding addon class to its panel as a way of ensuring custom class styling applies.
@@ -3470,7 +3470,7 @@ function AddonIWB_Toolbar_create() {
         presenter.buttonsLogic = null;
         presenter.recklick = null;
 
-        $(presenter.marker_tmp_canvas).off();
+        $(presenter.markerTmpCanvas).off();
         presenter.$canvas.off(`${getPointingDownEventName()} ${getPointingMoveEventName()} ${getPointingUpEventName()} touchstart touchmove touchend`);
         presenter.$markerCanvas.off(`${getPointingDownEventName()} ${getPointingMoveEventName()} ${getPointingUpEventName()} touchstart touchmove touchend`);
 
@@ -3499,7 +3499,7 @@ function AddonIWB_Toolbar_create() {
         presenter.markerThicknessBackground = null;
         presenter.markerCtx = null;
         presenter.markerClicked = null;
-        presenter.marker_tmp_canvas = null;
+        presenter.markerTmpCanvas = null;
 
         //markerCloseHandler
         presenter.markerLineColor = null;
