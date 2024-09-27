@@ -1,3 +1,4 @@
+2024-09-27 Fixed issue with reset causing math gaps to throw erros when mathjax 2.7 is enabled
 2024-09-18 Added support to drag & drop on interactive whiteboards
 2024-09-18 Added disable navigation panels lesson property
 2024-09-11 Added method returning current page id to parent window
