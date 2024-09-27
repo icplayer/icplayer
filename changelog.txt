@@ -1,3 +1,4 @@
+2024-09-19 Added keyboard navigation and TTS to Fractions addon
 2024-09-18 Added support to drag & drop on interactive whiteboards
 2024-09-18 Added disable navigation panels lesson property
 2024-09-11 Added method returning current page id to parent window
