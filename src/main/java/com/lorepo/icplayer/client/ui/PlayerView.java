@@ -33,6 +33,7 @@ public class PlayerView extends VerticalPanel{
 	private NavigationButton prevPageButton = new NavigationButton("ic_navi_panel_prev");
 	private NavigationBar navigationBar;
 	private boolean navigationPanelsAutomaticAppearance = true;
+	private boolean disableNavigationPanels = false;
 	
 	public PlayerView(){
 		initUI();
@@ -40,7 +41,7 @@ public class PlayerView extends VerticalPanel{
 	}
 
 	private void initUI() {
-		
+
 		setStyleName("ic_player");
 		getElement().setAttribute("role", "presentation");
 		
@@ -101,12 +102,12 @@ public class PlayerView extends VerticalPanel{
 
 	@Override
 	public void onBrowserEvent(Event event) {
-
+		if (this.disableNavigationPanels) return;
 		final int eventType = DOM.eventGetType(event);
 		// Can use prevent default because video stops working then
 //		event.preventDefault();
 		event.stopPropagation();
-		
+
 		if (Event.ONCLICK == eventType) {
 			toggleNavigationPanels();
 			event.stopPropagation();
@@ -306,5 +307,9 @@ public class PlayerView extends VerticalPanel{
 
 	public void setPlayerController(IPlayerController playerController) {
 		this.playerController = playerController;
+	}
+
+	public void setDisableNavigationPanels(boolean disableNavigationPanels) {
+		this.disableNavigationPanels = disableNavigationPanels;
 	}
 }
