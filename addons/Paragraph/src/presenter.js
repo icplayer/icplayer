@@ -363,13 +363,15 @@ function AddonParagraph_create() {
         const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
         const pageID = parsedData.page_id;
         const activityID = parsedData.activity_id;
-        const grade = parsedData.ai_grade;
+        const aiGrade = parsedData.ai_grade;
+        const aiRelevance = parsedData.how_relevant_answer_is;
 
         OpenActivitiesUtils.updateOpenActivityScore(
             presenter.playerController,
             pageID,
             activityID,
-            grade
+            aiGrade,
+            aiRelevance
         );
     };
 
