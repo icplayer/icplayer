@@ -235,7 +235,7 @@ function AddonParagraph_Keyboard_create() {
         const pageID = parsedData.page_id;
         const activityID = parsedData.activity_id;
         const aiGrade = parsedData.ai_grade;
-        const aiRelevance = parsedData.how_relevant_answer_is;
+        const aiRelevance = parsedData.ai_relevance;
 
         OpenActivitiesUtils.updateOpenActivityScore(
             presenter.playerController,
