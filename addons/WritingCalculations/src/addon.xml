@@ -21,5 +21,58 @@
         <property displayName="Enable more digits in gap" name="Multisigns" nameLabel="WritingCalculations_property_is_not_activity" type="boolean"/>
         <property displayName="Use numeric keyboard" name="useNumericKeyboard" nameLabel="WritingCalculations_use_numeric_keyboard" type="boolean" />
         <property name="showAllAnswersInGSA" nameLabel="WritingCalculations_show_all_answers_in_GSA" type="boolean" />
+        <property name="DescriptionOfOperation" displayName="Description of operation" nameLabel="WritingCalculations_description_of_operation" type="string" />
+        <property name="LangTag" displayName="Lang attribute" nameLabel="WritingCalculations_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="WritingCalculations_speech_texts" type="staticlist">
+
+            <property name="Gap" nameLabel="WritingCalculations_gap" type="staticrow">
+                <property name="Gap" nameLabel="WritingCalculations_gap" type="string"/>
+            </property>
+
+            <property name="AdditionalGap" nameLabel="WritingCalculations_additional_gap" type="staticrow">
+                <property name="AdditionalGap" nameLabel="WritingCalculations_additional_gap" type="string"/>
+            </property>
+
+            <property name="Empty" nameLabel="WritingCalculations_empty" type="staticrow">
+                <property name="Empty" nameLabel="WritingCalculations_empty" type="string"/>
+            </property>
+
+            <property name="AdditionSign" nameLabel="WritingCalculations_addition_sign" type="staticrow">
+                <property name="AdditionSign" nameLabel="WritingCalculations_addition_sign" type="string"/>
+            </property>
+
+            <property name="SubtractionSign" nameLabel="WritingCalculations_subtraction_sign" type="staticrow">
+                <property name="SubtractionSign" nameLabel="WritingCalculations_subtraction_sign" type="string"/>
+            </property>
+
+            <property name="DivisionSign" nameLabel="WritingCalculations_division_sign" type="staticrow">
+                <property name="DivisionSign" nameLabel="WritingCalculations_division_sign" type="string"/>
+            </property>
+
+            <property name="MultiplicationSign" nameLabel="WritingCalculations_multiplication_sign" type="staticrow">
+                <property name="MultiplicationSign" nameLabel="WritingCalculations_multiplication_sign" type="string"/>
+            </property>
+
+            <property name="EqualsSign" nameLabel="WritingCalculations_equals_sign" type="staticrow">
+                <property name="EqualsSign" nameLabel="WritingCalculations_equals_sign" type="string"/>
+            </property>
+
+            <property name="DecimalSeparator" nameLabel="WritingCalculations_decimal_separator" type="staticrow">
+                <property name="DecimalSeparator" nameLabel="WritingCalculations_decimal_separator" type="string"/>
+            </property>
+
+            <property name="Line" nameLabel="WritingCalculations_line" type="staticrow">
+                <property name="Line" nameLabel="WritingCalculations_line" type="string"/>
+            </property>
+
+            <property name="Correct" nameLabel="WritingCalculations_correct" type="staticrow">
+                <property name="Correct" nameLabel="WritingCalculations_correct" type="string"/>
+            </property>
+
+            <property name="Wrong" nameLabel="WritingCalculations_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="WritingCalculations_wrong" type="string"/>
+            </property>
+
+        </property>
     </model>
 </addon>
