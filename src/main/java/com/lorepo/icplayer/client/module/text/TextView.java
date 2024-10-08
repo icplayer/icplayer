@@ -626,12 +626,16 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	public void reconnectHandlersCallback () {
+		boolean allGapsLoaded = true;
 		for (GapWidget element: this.gapsWidgets) {
 			Element gapElement = DOM.getElementById(element.gapInfo.getId());
 			if (gapElement != null) {
 				element.reconnectHandlers(this.listener);
+			} else {
+				allGapsLoaded = false;
 			}
 		}
+		if (!allGapsLoaded) reconnectHandlersAfterTimeout(this, 500);
 	}
 
 	public void reconnectHandlers () {
@@ -665,6 +669,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			x.@com.lorepo.icplayer.client.module.text.TextView::reconnectHandlersCallback()();
 			$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(reconnectState.hook);
 		}, 1000);
+	}-*/;
+
+	public native void reconnectHandlersAfterTimeout (TextView x, int timeoutTime) /*-{
+		setTimeout(function(){
+			x.@com.lorepo.icplayer.client.module.text.TextView::reconnectHandlersCallback()();
+		}, timeoutTime);
 	}-*/;
 
 	private int getTextElementsSize() {
