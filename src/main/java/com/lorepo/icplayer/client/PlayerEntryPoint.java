@@ -166,7 +166,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getRequestsConfig = function () {
 			    var commands = function() {};
 
-			    commands.setIncludeCredentialsByDefault = function(withCredentials) {
+			    commands.setIncludeCredentials = function(withCredentials) {
                     entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setIncludeCredentials(Z)(withCredentials);
                 };
 
