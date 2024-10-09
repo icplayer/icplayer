@@ -562,6 +562,7 @@ public class PlayerApp {
 		playerController.getPlayerServices().setApplication(this);
 		EnableTabindex.getInstance().create(contentModel.getMetadataValue("enableTabindex").compareTo("true") == 0);
 
+		final PlayerView finalPlayerView = playerView;
 		playerController.addPageLoadListener(new ILoadListener() {
 			@Override
 			public void onFinishedLoading(Object obj) {
@@ -576,6 +577,10 @@ public class PlayerApp {
 				}
 
 				setLangAttribute(contentModel.getMetadataValue("lang"));
+
+				if (contentModel.getMetadataValue("disableNavigationPanels").compareTo("true") == 0) {
+					finalPlayerView.setDisableNavigationPanels(true);
+				}
 
 				entryPoint.onPageLoaded();
 			}
@@ -902,8 +907,8 @@ public class PlayerApp {
 		playerController.disableKeyboardNavigation();
 		playerController.setTextReading(false);
 		playerController.clearKeyboardNavigationListeners();
+		playerController.getView().hideNavigationPanels();
 		clearIframeHandlers();
-
 	}
 
 	public void setNVDAAvailability(boolean shouldUseNVDA) {

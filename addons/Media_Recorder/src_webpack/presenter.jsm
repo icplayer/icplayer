@@ -6,6 +6,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.mediaRecorder = new MediaRecorder();
+    presenter.addonID = null;
 
     presenter.setPlayerController = function (controller) {
         presenter.mediaRecorder.setPlayerController(controller)
@@ -14,14 +15,22 @@ function AddonMedia_Recorder_create() {
     presenter.run = function run(view, model) {
         presenter.view = view;
         presenter.mediaRecorder.run(view, model);
-        handleDestroyEvent(view);
+        presenter.updateAddonID(model);
+        handleDestroyEvent();
     };
 
     presenter.createPreview = function createPreview(view, model) {
         presenter.view = view;
         presenter.mediaRecorder.createPreview(view, model);
-        handleDestroyEvent(view);
+        presenter.updateAddonID(model);
+        handleDestroyEvent();
     };
+
+    presenter.updateAddonID = function(model) {
+        if (model.hasOwnProperty('ID')) {
+            presenter.addonID = model['ID'];
+        }
+    }
 
     presenter.isEmpty = function isEmpty() {
         return presenter.mediaRecorder.isEmpty();
@@ -129,7 +138,6 @@ function AddonMedia_Recorder_create() {
 
     presenter.destroy = function destroy(event) {
         if (event.target === presenter.view) {
-            event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
             presenter.mediaRecorder.destroy();
             event.target = null;
             presenter.mediaRecorder = null;
@@ -145,8 +153,9 @@ function AddonMedia_Recorder_create() {
         return this.mediaRecorder._upgradeModel(model);
     }
 
-    function handleDestroyEvent(view) {
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    function handleDestroyEvent() {
+        MutationObserverService.createDestroyObserver(presenter.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     }
 
     return presenter;

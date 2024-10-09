@@ -10,7 +10,6 @@
 function AddonBlocklyCodeEditor_create () {
     var presenter = function () {};
 
-
     presenter.ERROR_CODES = {
         "SI01": "Scene id must have value",
         "SI02": "You must add scene id if you want to add scene toolbox",
@@ -171,11 +170,10 @@ function AddonBlocklyCodeEditor_create () {
 
         isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
 
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        if (!isPreview) {
+            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
+        }
 
         if (isPreview) {
             presenter.$view.css('z-index','0');
@@ -230,13 +228,14 @@ function AddonBlocklyCodeEditor_create () {
         }
     };
 
-    presenter.destroy = function Blockly_destroy_function () {
+    presenter.destroy = function Blockly_destroy_function (event) {
+        if (event.target !== presenter.view) { return; }
+
         var key, i;
         if (presenter.configuration.isPreview) {
             $("#content").off("scroll", presenter.scrollFixHandler);
         }
 
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.configuration.workspace.dispose();
 
         presenter.configuration.workspace = null;
@@ -393,6 +392,7 @@ function AddonBlocklyCodeEditor_create () {
 
         return {
             isValid: true,
+            addonID: model['ID'],
             visibleByDefault: validatedIsVisible,
             haveSceneID: haveSceneID,
             hideRun: ModelValidationUtils.validateBoolean(model["hideRun"]),

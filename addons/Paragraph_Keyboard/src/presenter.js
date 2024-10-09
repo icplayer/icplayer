@@ -568,7 +568,11 @@ function AddonParagraph_Keyboard_create() {
             return;
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        if (!isPreview) {
+            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
+        }
+
         presenter.$view.on('click', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -689,7 +693,6 @@ function AddonParagraph_Keyboard_create() {
         if (event.target !== presenter.view) {
             return;
         }
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         try {
             presenter.$view.off();

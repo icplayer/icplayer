@@ -743,7 +743,8 @@ function AddonDrawing_create() {
 
         if (!isPreview) {
             presenter.turnOnEventListeners();
-            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+            MutationObserverService.setObserver();
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
@@ -872,6 +873,7 @@ function AddonDrawing_create() {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         return {
+            addonID: model.ID,
             color: parsedColor.color,
             thickness: parsedThickness.thickness,
             border: parsedBorder.border,
@@ -1394,11 +1396,10 @@ function AddonDrawing_create() {
     }
 
     presenter.destroy = function (event) {
-        if (event.target !== this) {
+        if (event.target !== presenter.view) {
             return;
         }
 
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.configuration.tmp_canvas.removeEventListener("click", presenter.onTmpCanvasClick, false);
         document.removeEventListener("keydown", presenter.removeImage, false);
 

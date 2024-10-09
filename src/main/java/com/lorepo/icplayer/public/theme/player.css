@@ -790,6 +790,10 @@ hr, table, fieldset {
 	background-image: url("images/text-audio-stop.png");
 }
 
+semantics > annotation-xml {
+	display: flex;
+}
+
 /**
  * Source image
  */

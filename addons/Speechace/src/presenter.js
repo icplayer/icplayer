@@ -210,7 +210,8 @@ function AddonSpeechace_create() {
 
     presenter.registerEvents = function AddonSpeechace_registerEvents () {
         window.addEventListener("message", presenter.handleMessageReceived, false);
-        presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
+        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+        MutationObserverService.setObserver();
     };
 
     presenter.handleMessageReceived = function AddonSpeechace_handleMessageReceived (event) {
@@ -220,10 +221,10 @@ function AddonSpeechace_create() {
     };
 
     presenter.destroy = function AddonSpeechace_destroy (event) {
-        if (event.target !== this) {
+        if (event.target !== presenter.view) {
             return;
         }
-        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+
         window.removeEventListener("message", presenter.handleMessageReceived);
     };
 

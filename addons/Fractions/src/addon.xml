@@ -16,5 +16,26 @@
 		<property name="isDisable" nameLabel="Fractions_property_is_disable" type="boolean"/>
         <property name="imageDeselect" displayName="Image for deselected parts" nameLabel="Fractions_property_is_deselect" type="image"/>
         <property name="imageSelect" displayName="Image for selected parts" nameLabel="Fractions_property_is_select" type="image"/>
+		<property name="speechTexts" displayName="Speech texts" nameLabel="Fractions_property_speech_texts"
+				  type="staticlist">
+			<property name="Selected" nameLabel="Fractions_speech_text_selected" type="staticrow">
+				<property name="Selected" nameLabel="Fractions_speech_text_selected" type="string"/>
+			</property>
+			<property name="Deselected" nameLabel="Fractions_speech_text_deselected" type="staticrow">
+				<property name="Deselected" nameLabel="Fractions_speech_text_deselected" type="string"/>
+			</property>
+			<property name="Item" nameLabel="Fractions_speech_text_item" type="staticrow">
+				<property name="Item" nameLabel="Fractions_speech_text_item" type="string"/>
+			</property>
+			<property name="Correct" nameLabel="Fractions_speech_text_correct" type="staticrow">
+				<property name="Correct" nameLabel="Fractions_speech_text_correct" type="string"/>
+			</property>
+			<property name="Wrong" nameLabel="Fractions_speech_text_wrong" type="staticrow">
+				<property name="Wrong" nameLabel="Fractions_speech_text_wrong" type="string"/>
+			</property>
+			<property name="of" nameLabel="Fractions_speech_text_of" type="staticrow">
+				<property name="of" nameLabel="Fractions_speech_text_of" type="string"/>
+			</property>
+		</property>
 	</model>
 </addon>

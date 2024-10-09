@@ -186,7 +186,7 @@
                 <file name="${build.temp.folder}/jquery.svg.min.js"/>
                 <file name="${build.temp.folder}/jquery.svganim.min.js"/>
                 <file name="${build.temp.folder}/jquery.svgdom.min.js"/>
-                <file name="${build.temp.folder}/jquery.ui.touch-punch.min.js"/>
+                <file name="${build.temp.folder}/jquery.ui.touch-punch.js"/>
                 <file name="${build.temp.folder}/jquery.keyboard.min.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/french.js"/>
                 <file name="${build.temp.folder}/eKeyboard_layouts/german.js"/>
