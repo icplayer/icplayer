@@ -31,7 +31,6 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PlayerApp {
 

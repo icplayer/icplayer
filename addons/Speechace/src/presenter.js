@@ -19,6 +19,7 @@ function AddonSpeechace_create() {
     presenter.JWTSessionTokenURL = "";
     presenter.speechaceCourseURL = "";
     presenter.isFetchingScore = false;
+    var credentialsConfig = "same-origin";
 
     presenter.presenterLogic = function AddonSpeechace_presenterLogic (view, model, isPreview) {
         presenter.$view = $(view);
@@ -150,6 +151,9 @@ function AddonSpeechace_create() {
     presenter.setPlayerController = function AddonSpeechace_setPlayerController (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
+            credentialsConfig = "include";
+        }
     };
 
     presenter.setIframe = function AddonSpeechace_setIframe (view) {
@@ -181,7 +185,7 @@ function AddonSpeechace_create() {
     };
 
     presenter.fetchSessionJWTToken = function() {
-        return fetch(presenter.JWTSessionTokenURL, {method: 'GET'});
+        return fetch(presenter.JWTSessionTokenURL, {method: 'GET', credentials: credentialsConfig});
     };
 
     presenter.getCourseURL = function AddonSpeechace_getCourseURL (token) {
@@ -191,7 +195,8 @@ function AddonSpeechace_create() {
         }
         const config = {
             method: 'GET',
-            headers: { 'Authorization': `JWT ${token}` }
+            headers: { 'Authorization': `JWT ${token}` },
+            credentials: credentialsConfig
         };
 
         return fetch(url, config);

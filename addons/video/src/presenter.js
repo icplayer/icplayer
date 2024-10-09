@@ -11,6 +11,7 @@ function Addonvideo_create() {
     var currentTime;
 
     var escapedSeparator = '&&separator&&';
+    var credentialsConfig = "same-origin";
 
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
@@ -330,6 +331,9 @@ function Addonvideo_create() {
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
         presenter.playerController = controller;
+        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
+            credentialsConfig = "include";
+        }
         presenter.registerHook();
 
         presenter.eventBus = controller.getEventBus();
@@ -1585,7 +1589,7 @@ function Addonvideo_create() {
             // method: "Head" - used to check if addon have a connection to video (not for download video)
             // method: "no-cache" - mLibro has a cache. Added to avoid the situation that once there is video and
             //      once there is not, when user is offline. Such behavior would be inconsistent with the documentation.
-            return fetch(fetchURL, {method: "Head", cache: "no-cache"});
+            return fetch(fetchURL, {method: "Head", cache: "no-cache", credentials: credentialsConfig});
         }));
     }
 

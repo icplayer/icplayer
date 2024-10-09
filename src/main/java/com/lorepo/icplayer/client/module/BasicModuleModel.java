@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
 	private String moduleTypeName;
@@ -75,7 +76,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 
 	@Override
 	public void setInlineStyle(String style) {
+		JavaScriptUtils.log("Execute setInlineStyle for: " + id);
 		String css = URLUtils.resolveCSSURL(this.baseURL, style, this.contentBaseURL);
+		JavaScriptUtils.log("New css: " + css);
 		super.setInlineStyle(css);
 	}
 	

@@ -10,6 +10,7 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
@@ -567,6 +568,24 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getResponsiveLayouts()();
 		}
 
+        playerServices.getRequestsConfig = function () {
+            var commands = function() {};
+
+            commands.shouldIncludeCredentials = function() {
+                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::shouldIncludeCredentials()();
+            };
+
+            commands.getSigningPrefix = function() {
+                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getSigningPrefix()();
+            };
+
+            commands.signURL = function(url) {
+                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::signURL(Ljava/lang/String;)(url);
+            };
+
+            return commands;
+        };
+
 		return playerServices;
 	}-*/;
 
@@ -1100,5 +1119,20 @@ public class JavaScriptPlayerServices {
 
 	private String parseAnswer(String rawAnswer) {
 		return TextParser.parseAnswer(rawAnswer);
+	}
+
+	private boolean shouldIncludeCredentials() {
+		JavaScriptUtils.log("Execute shouldIncludeCredentials");
+		return ExtendedRequestBuilder.shouldIncludeCredentials();
+	}
+
+	private String getSigningPrefix() {
+		JavaScriptUtils.log("Execute getSigningPrefix");
+		return ExtendedRequestBuilder.getSigningPrefix();
+	}
+
+	private String signURL(String url) {
+		JavaScriptUtils.log("Execute signURL");
+		return ExtendedRequestBuilder.signURL(url);
 	}
 }

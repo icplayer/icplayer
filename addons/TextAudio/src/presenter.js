@@ -1746,6 +1746,9 @@ function AddonTextAudio_create() {
 
         const req = new XMLHttpRequest();
         req.open("GET", src, false);
+        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
+            req.withCredentials = true;
+        }
         req.send();
 
         if (req.status === 200) {
