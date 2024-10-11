@@ -195,25 +195,59 @@ public class PagePopupPanel extends DialogBox {
 			setPopupPosition(propertyLeft, propertyTop);
 		} else if (this.top != null && this.top != "" && isInteger(this.top)) {
 			int propertyTop = adjustTopFromProperty();
-			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
+			int calculatedLeft = calculateLeftWhenCentred();
 			setPopupPosition(calculatedLeft, propertyTop);
 		} else if (this.left != null && this.left != "" && isInteger(this.left)) {
 			int propertyLeft = adjustLeftFromProperty();
-			int calculatedTop = calculateTopWhenCentred(this.getElement());
+			int calculatedTop = calculateTopWhenCentred();
 			setPopupPosition(propertyLeft, calculatedTop);
 		} else {
-			int calculatedTop = calculateTopWhenCentred(this.getElement());
-			int calculatedLeft = calculateLeftWhenCentred(this.getElement());
+			int calculatedTop = calculateTopWhenCentred();
+			int calculatedLeft = calculateLeftWhenCentred();
 			setPopupPosition(calculatedLeft, calculatedTop);
 		}
 	}
 	
-	private static native int calculateTopWhenCentred(Element popupElement) /*-{
+	private int calculateTopWhenCentred() {
+		if (pageController.getPlayerServices().isPlayerInCrossDomain()) {
+			return calculateTopWhenInDifferentDomain();
+		}
+		return _calculateTopWhenCentred(this.getElement());
+	}
+	
+	private int calculateLeftWhenCentred() {
+		if (pageController.getPlayerServices().isPlayerInCrossDomain()) {
+			return calculateLeftWhenInDifferentDomain();
+		}
+		return _calculateLeftWhenCentred(this.getElement());
+	}
+	
+	private int calculateTopWhenInDifferentDomain() {
+		int top;
+		if (Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
+			top = Math.abs(parentWidget.getAbsoluteTop());
+		} else {
+			top = Window.getScrollTop();
+		}
+		return top;
+	}
+	
+	private int calculateLeftWhenInDifferentDomain() {
+		int left = parentWidget.getAbsoluteLeft();
+		int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
+		left = left + offsetX/2;
+		if (left < 0) {
+			left = 0;
+		}
+		return left;
+	}
+	
+	private static native int _calculateTopWhenCentred(Element popupElement) /*-{
 		var elementHeight = popupElement.getBoundingClientRect().height;
 		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
 	}-*/;
 	
-	private static native int calculateLeftWhenCentred(Element popupElement) /*-{
+	private static native int _calculateLeftWhenCentred(Element popupElement) /*-{
 		var elementWidth = popupElement.getBoundingClientRect().width;
 		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
 	}-*/;
