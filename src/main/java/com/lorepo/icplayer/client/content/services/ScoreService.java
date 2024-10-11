@@ -218,34 +218,37 @@ public class ScoreService implements IScoreService {
 	}
 
 	@Override
-	public void updateOpenActivityScore(String pageID, String moduleID, String grade) {
+	public void updateOpenActivityScore(String pageID, String moduleID, String aiGrade, String aiRelevance) {
+		int parsedAIGradedScore = Integer.parseInt(aiGrade);
+		float parsedAIRelevance = Float.parseFloat(aiRelevance);
+		
 		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
 		if (pageScore == null) {
 			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
-
-			newPageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
+			
+			newPageScore.addScore(moduleID, parsedAIGradedScore, null, null, parsedAIRelevance);
 			pagesOpenActivitiesScores.put(pageID, newPageScore);
 			sendValueChangedEvent(moduleID);
-
+			
 			return;
 		}
-
+		
 		ScoreInfo scoreInfo = pageScore.get(moduleID);
 		if (scoreInfo == null) {
-			pageScore.addScore(moduleID, Integer.parseInt(grade), -1, -1);
+			pageScore.addScore(moduleID, parsedAIGradedScore, null, null, parsedAIRelevance);
 			sendValueChangedEvent(moduleID);
-
+			
 			return;
 		}
-
-		pageScore.setAIGradedScore(moduleID, Integer.parseInt(grade));
+		
+		pageScore.setAIData(moduleID, parsedAIGradedScore, parsedAIRelevance);
 		sendValueChangedEvent(moduleID);
 	}
-
+	
 	private void sendValueChangedEvent(String moduleID) {
 		playerServices.getEventBusService().sendValueChangedEvent("", moduleID, "", "updateScore", "");
 	}
-
+	
 	private PageScore updatePageScoreWithOpenActivitiesScore(PageScore pageScore, String pageID) {
 		PageOpenActivitiesScore pageActivityScore = pagesOpenActivitiesScores.get(pageID);
 		IPage page = playerServices.getModel().getPageById(pageID);
