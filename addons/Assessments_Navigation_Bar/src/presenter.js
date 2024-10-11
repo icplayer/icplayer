@@ -5,6 +5,9 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.isWCAGOn = false;
     presenter.SECTION_NAME_HEIGHT = 20;
     presenter.isFirstEnter = true;
+    presenter.isPageListNavigationActive = false;
+    presenter.currentSelectedChapterIndex = -1;
+    presenter.currentSelectedChapterName = '';
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -44,7 +47,8 @@ function AddonAssessments_Navigation_Bar_create(){
         TURN_FORWARD: "turn_forward",
         CURRENT_PAGE: "current_page",
         BOOKMARK: "bookmark",
-        INACTIVE: "inactive"
+        INACTIVE: "inactive",
+        ENABLED_PAGE_LIST: "enabled-page-list",
     };
 
     presenter.attemptedButtons = [];
@@ -225,12 +229,12 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.Button = function (viewDescription, customCssClassNames, isPageButton) {
         this.description = viewDescription;
         this.customCssClassNames = customCssClassNames;
+        this.isPageButton = isPageButton;
         this.$view = this.createView();
         this.$view_text;
         this.actualCommand;
         this.navigateToPage;
         this.isActualButton = false;
-        this.isPageButton = isPageButton;
 
         this.connectEvents();
     };
@@ -310,6 +314,10 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$view_text = $('<div></div>');
         this.$view_text.text(this.description);
         this.$view_text.addClass(presenter.CSS_CLASSES.BUTTON_TEXT);
+
+        if (presenter.configuration.enableDropdownPagesList && this.isPageButton) {
+            this.$view_text.css({width: elementWidth});
+        }
 
         $view.append(this.$view_text);
         $view.addClass(presenter.CSS_CLASSES.BUTTON);
@@ -655,7 +663,6 @@ function AddonAssessments_Navigation_Bar_create(){
         this.shiftCount = 0;
         this.leftOffset = 0;
         this.nextPrevBtnWasClicked = false;
-        this.visibleSectionName = '';
 
         this.initView();
     };
@@ -1095,7 +1102,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         var len = this.actualPages.length;
         for (var i = 0; i < len; i++) {
-            var button = this.getPageButton(this.actualPages[i]);
+            var button = this.getPageButton(this.actualPages[i], true);
             this.setButtonProperties(button, this.actualPages[i]);
             this.buttons.push(button);
 
@@ -1227,33 +1234,59 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.addClickListener = function ($section, sectionClassName) {
         $section.on('click', function (event) {
+            const isPageListVisible = presenter.isPageListOpen(sectionClassName);
             presenter.hideVisiblePageList();
-            presenter.changePageListVisibility(sectionClassName);
+
+            if (!isPageListVisible) {
+                presenter.changePageListVisibility(sectionClassName);
+            }
             event.preventDefault();
             event.stopPropagation();
         });
     };
 
     presenter.changePageListVisibility = function (sectionClassName) {
-        presenter.navigationManager.visibleSectionName = sectionClassName;
         const $parentElement = $(`.${sectionClassName}`);
-        const buttonsContainer = $parentElement.find('.buttons');
-        const isNotVisible = buttonsContainer.css('display') === 'none';
+        const $buttonsContainer = $parentElement.find('.buttons');
+        const isNotVisible = $buttonsContainer.css('display') === 'none';
 
         if (isNotVisible) {
-            buttonsContainer.css('display', 'flex');
-            buttonsContainer.addClass('visible-page-list');
-            $parentElement.addClass('selected');
+            presenter.showPageListContainer($buttonsContainer, $parentElement);
+            presenter.currentSelectedChapterName = sectionClassName;
         } else {
-            buttonsContainer.css('display', 'none');
-            buttonsContainer.removeClass('visible-page-list');
-            $parentElement.removeClass('selected');
+            presenter.hidePageListContainer($parentElement);
         }
     };
 
+    presenter.isPageListOpen = function (sectionClassName) {
+        return $(`.${sectionClassName}`).hasClass('selected');
+    }
+
+    presenter.showPageListContainer = function ($buttonsContainer, $parentElement) {
+        $buttonsContainer.css('display', 'flex');
+        $buttonsContainer.addClass('visible-page-list');
+        $parentElement.addClass('selected');
+    }
+
+    presenter.hidePageListContainer = function ($parentElement) {
+        const buttonsContainer = $('.visible-page-list');
+
+        buttonsContainer.removeClass('visible-page-list');
+        buttonsContainer.css('display', 'none');
+        $parentElement.removeClass('selected');
+    }
+
     presenter.hideVisiblePageList = function () {
+        if (!presenter.currentSelectedChapterName) {
+            return;
+        }
+
         const pageListContainer = $('.visible-page-list');
+        const $parentElement = $(`.${presenter.currentSelectedChapterName}`);
+
         if (pageListContainer) {
+            $parentElement.removeClass('selected');
+            pageListContainer.removeClass('visible-page-list');
             pageListContainer.css('display', 'none');
         }
     }
@@ -1411,7 +1444,6 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.runLogic = function (view, model) {
-        console.log('run 35');
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.assessments-navigation-bar-wrapper');
 
@@ -1441,7 +1473,8 @@ function AddonAssessments_Navigation_Bar_create(){
         }
 
         presenter.buildKeyboardController();
-        presenter.addPageListListener();
+        presenter.addHidingPageListListener();
+        presenter.addEnabledPageListClass();
     };
 
     function removeMockupDOM () {
@@ -2124,12 +2157,17 @@ function AddonAssessments_Navigation_Bar_create(){
             KeyboardController.prototype.markCurrentElement.call(this, new_position_index);
         }
         this.readCurrentElement();
+
+        if (!presenter.isPageListNavigationActive) {
+            presenter.currentSelectedChapterIndex = this.keyboardNavigationCurrentElementIndex;
+        }
     };
 
     AssesmentsNavigationKeyboardController.prototype.enter = function (event) {
         if (presenter.isTTS() && presenter.isFirstEnter) {
             KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
             presenter.isFirstEnter = false;
+            presenter.currentSelectedChapterIndex = 0;
         }
         KeyboardController.prototype.enter.call(this, event);
         this.readCurrentElement();
@@ -2139,6 +2177,7 @@ function AddonAssessments_Navigation_Bar_create(){
         const isSectionSelected = $(this.keyboardNavigationCurrentElement).hasClass('section_name');
 
         if (presenter.configuration.enableDropdownPagesList && isSectionSelected) {
+            presenter.isPageListNavigationActive = true;
             const selectedSectionClassName = $('.keyboard_navigation_active_element').parent().get(0).classList[0];
             presenter.changePageListVisibility(selectedSectionClassName);
             KeyboardController.prototype.setElements.call(this, presenter.getPageListElementsForTTS());
@@ -2147,14 +2186,27 @@ function AddonAssessments_Navigation_Bar_create(){
         }
     }
 
+    presenter.changePageListVisibilityStatus = function () {
+        setTimeout(function() {
+            presenter.isPageListNavigationActive = false;
+        }, 1000);
+    }
+
     AssesmentsNavigationKeyboardController.prototype.escape = function (event) {
-        if (presenter.configuration.enableDropdownPagesList) {
-            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+        if (presenter.configuration.enableDropdownPagesList && presenter.isPageListNavigationActive) {
             const selectedSectionClassName = $('.keyboard_navigation_active_element').parent().get(0).classList[0];
             presenter.changePageListVisibility(selectedSectionClassName);
-            KeyboardController.prototype.escape.call(this, event, true);
+            KeyboardController.prototype.setElements.call(this, presenter.getElementsForTTS());
+            presenter.changePageListVisibilityStatus();
+            presenter.keyboardControllerObject.switchElement(presenter.currentSelectedChapterIndex);
         } else {
             KeyboardController.prototype.escape.call(this, event);
+        }
+    }
+
+    AssesmentsNavigationKeyboardController.prototype.markSelectedChapter = function (currentSelectedChapterIndex) {
+        if (presenter.enableDropdownPagesList) {
+            presenter.keyboardControllerObject.switchElement(currentSelectedChapterIndex);
         }
     }
 
@@ -2164,11 +2216,15 @@ function AddonAssessments_Navigation_Bar_create(){
         KeyboardController.prototype.exitWCAGMode.call(this);
     };
 
+    presenter.isDeactivationBlocked = function() {
+        return presenter.isPageListNavigationActive;
+    };
+
     presenter.buildKeyboardController = function () {
         presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
 
-    presenter.addPageListListener = function () {
+    presenter.addHidingPageListListener = function () {
         const $header = $('.ic_header');
         const $body = $('.ic_page');
 
@@ -2179,6 +2235,12 @@ function AddonAssessments_Navigation_Bar_create(){
         $body.on('click', function () {
             presenter.hideVisiblePageList();
         })
+    }
+
+    presenter.addEnabledPageListClass = function () {
+        if (presenter.configuration.enableDropdownPagesList) {
+            this.$view.addClass(presenter.CSS_CLASSES.ENABLED_PAGE_LIST);
+        }
     }
 
     presenter.getElementsForTTS = function () {
