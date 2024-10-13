@@ -1959,6 +1959,7 @@ var ice_dictionary_pl = {
 	"Model_Viewer_attributes": "Additional Attributes",
 	"Model_Viewer_copyInfo": "Copyright Info",
 	"Model_Viewer_interactionPrompt": "Interaction Prompt",
+	"Model_Viewer_enableFullscreen": "Enable fullscreen",
     "SelectableAddonsBinder_name" : "Łącznik addonów wybieralnych",
     "SelectableAddonsBinder_info" : "Pozwala sterować pracą grup addonów wybieralnych.",
     "SelectableAddonsBinder_property_addons" : "Addony",
