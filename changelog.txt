@@ -1,3 +1,4 @@
+2024-10-14 Added fullscreen functionality to Model Viewer 3D
 2024-10-11 Added TTS support to Writing Calculations
 2024-10-08 Fixed Assessments Navigation Bar and openPopup to work with iframe with src not from this same origin
 2024-10-03 Added support to AI relevance
