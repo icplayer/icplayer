@@ -216,7 +216,7 @@ The full list of attributes is available at [https://modelviewer.dev/docs/](http
 
 In order for an addon to start supporting fullscreen functionality, it must:
 <ul>
-    <li>Support <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API">Fullscreen API »</a>.</li>
+    <li>Support <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API">Fullscreen API</a>. At this point, iphones do not support the Fullscreen API.</li>
     <li>The `Enable fullscreen` property must be selected.</li>
 </ul>
 
@@ -227,3 +227,4 @@ When these conditions are met, the addon will:
 </ul>
 
 When `Enable fullscreen` property is selected the content of the addon will be wrapped with an element with CSS class `.modelViewerWrapper`, regardless of whether the device supports Fullscreen API
+ 

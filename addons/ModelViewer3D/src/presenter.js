@@ -45,7 +45,7 @@ function AddonModelViewer3D_create() {
 
         presenter.extendView(isPreview);
         checkFullscreenSupport();
-        !isPreview && presenter.handleHandlers();
+        !isPreview && presenter.addHandlers();
         presenter.setAnnotations();
         presenter.setAutoRotation();
         presenter.setInteractionPrompt();
@@ -452,7 +452,7 @@ function AddonModelViewer3D_create() {
         presenter.$view.html("Additional Attributes must be in JSON format.");
     }
 
-    presenter.handleHandlers = function () {
+    presenter.addHandlers = function () {
         $(document).on(
             'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange',
             presenter.fullscreenChangedEventReceived
@@ -462,7 +462,7 @@ function AddonModelViewer3D_create() {
             presenter.destroy,
             presenter.view
         );
-		MutationObserverService.setObserver();
+        MutationObserverService.setObserver();
     };
 
     presenter.requestFullscreen = function () {
