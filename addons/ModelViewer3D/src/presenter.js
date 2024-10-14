@@ -6,23 +6,36 @@ function AddonModelViewer3D_create() {
     presenter.annotationsVisibility = "visible";
     presenter.isVisibleOnStart = true;
     presenter.areAnnotationsVisibleOnStart = true;
+    presenter.fullscreen = {
+        isOn: false,
+        hasSupport: false,
+        requestFullscreenMethod: null,
+        exitFullscreenMethod: null,
+    };
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
+    };
 
     presenter.run = function(view, model){
         if(!presenter.wasInitiated) {
-            presenter.init(view, model);
+            presenter.init(view, model, false);
         }
     };
 
     presenter.createPreview = function(view, model){
         if(!presenter.wasInitiated) {
-            presenter.init(view, model);
+            presenter.init(view, model, true);
             presenter.disableEvents();
         }
     };
 
-    presenter.init = function(view, model) {
+    presenter.init = function(view, model, isPreview) {
+        presenter.view = view;
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
+
+        const upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.isVisibleOnStart = presenter.configuration.isVisible;
 
         if (!presenter.configuration.isValid) {
@@ -30,20 +43,36 @@ function AddonModelViewer3D_create() {
             return;
         }
 
-        presenter.modelViewer = presenter.$view.find("model-viewer").get(0);
-
-        presenter.handleAttributes();
+        presenter.extendView(isPreview);
+        checkFullscreenSupport();
+        !isPreview && presenter.addHandlers();
         presenter.setAnnotations();
         presenter.setAutoRotation();
         presenter.setInteractionPrompt();
         presenter.handleButtons();
         presenter.handleCopyright();
+        presenter.handleFullscreenButton();
 
         $(presenter.modelViewer).on('load', function(){
             if(presenter.configuration.scale !== undefined && presenter.configuration.scale !== "") presenter.setScale(presenter.configuration.scale);
         });
 
         presenter.wasInitiated = true;
+    };
+
+    presenter.upgradeModel = function(model) {
+        return presenter.upgradeModelWithEnableFullscreen(model);
+    };
+
+    presenter.upgradeModelWithEnableFullscreen = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["enableFullscreen"]) {
+            upgradedModel["enableFullscreen"] = "False";
+        }
+
+        return upgradedModel;
     };
 
     presenter.validateModel = function (model) {
@@ -79,18 +108,57 @@ function AddonModelViewer3D_create() {
             altText: model["altText"],
             additionalAttributes: additionalAttributes,
             copyInfo: model["copyInfo"],
-            interactionPrompt: isInteractionPrompt
+            interactionPrompt: isInteractionPrompt,
+            enableFullscreen: ModelValidationUtils.validateBoolean(model["enableFullscreen"]),
         };
     };
 
-    presenter.handleAttributes = function () {
-        $(presenter.modelViewer).attr("src", presenter.configuration.model);
-        $(presenter.modelViewer).attr("poster", presenter.configuration.poster);
-        $(presenter.modelViewer).attr("skybox-image", presenter.configuration.skyboxImage);
-        $(presenter.modelViewer).attr("environment-image", presenter.configuration.environmentImage);
-        $(presenter.modelViewer).attr("shadow-intensity", presenter.configuration.shadowIntensity);
-        $(presenter.modelViewer).attr("shadow-softness", presenter.configuration.shadowSoftness);
-        $(presenter.modelViewer).attr("alt", presenter.configuration.altText);
+    presenter.extendView = function (isPreview) {
+        presenter.modelViewer = document.createElement("model-viewer");
+        presenter.handleAttributes(isPreview);
+
+        let parent = presenter.view;
+        if (presenter.configuration.enableFullscreen) {
+            parent = document.createElement("div");
+            parent.classList.add("modelViewerWrapper");
+            presenter.wrapper = parent;
+            presenter.view.append(parent);
+        }
+        parent.append(presenter.modelViewer);
+
+        presenter.copyMessage = document.createElement("div");
+        presenter.copyMessage.classList.add("copyMessage");
+        parent.append(presenter.copyMessage);
+
+        const buttonsContainer = document.createElement("div");
+        buttonsContainer.classList.add("buttonsContainer");
+        parent.append(buttonsContainer);
+
+        presenter.labelsButton = document.createElement("div");
+        presenter.labelsButton.classList.add("labelsButton");
+        buttonsContainer.append(presenter.labelsButton);
+
+        presenter.copyButton = document.createElement("div");
+        presenter.copyButton.classList.add("copyButton");
+        buttonsContainer.append(presenter.copyButton);
+
+        presenter.fullscreenButton = document.createElement("div");
+        presenter.fullscreenButton.classList.add("fullscreenButton");
+        buttonsContainer.append(presenter.fullscreenButton);
+    };
+
+    presenter.handleAttributes = function (isPreview) {
+        presenter.modelViewer.setAttribute("src", presenter.configuration.model);
+        presenter.modelViewer.setAttribute("poster", presenter.configuration.poster);
+        presenter.modelViewer.setAttribute("skybox-image", presenter.configuration.skyboxImage);
+        presenter.modelViewer.setAttribute("environment-image", presenter.configuration.environmentImage);
+        presenter.modelViewer.setAttribute("shadow-intensity", presenter.configuration.shadowIntensity);
+        presenter.modelViewer.setAttribute("shadow-softness", presenter.configuration.shadowSoftness);
+        presenter.modelViewer.setAttribute("alt", presenter.configuration.altText);
+        presenter.modelViewer.setAttribute("ar", "");
+        presenter.modelViewer.setAttribute("camera-controls", "");
+        presenter.modelViewer.setAttribute("touch-action", "pan-y");
+        !isPreview && presenter.modelViewer.setAttribute("vr", "");
 
         presenter.addAttributesFromModel();
     };
@@ -124,10 +192,6 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.handleButtons = function () {
-        presenter.labelsButton = presenter.$view.find(".labelsButton").get(0);
-        presenter.copyButton = presenter.$view.find(".copyButton").get(0);
-        presenter.copyMessage = presenter.$view.find(".copyMessage").get(0);
-
         presenter.handleDisplayingButtons();
 
         presenter.configuration.labelsEnabledOnStart ? $(presenter.labelsButton).addClass("labelsButton-selected") : $(presenter.labelsButton).removeClass("labelsButton-selected");
@@ -157,13 +221,27 @@ function AddonModelViewer3D_create() {
         });
     };
 
+    presenter.handleFullscreenButton = function () {
+        $(presenter.fullscreenButton).on("click", function (e) {
+            if (presenter.fullscreen.isOn) {
+                presenter.exitFullscreen();
+            } else {
+                presenter.requestFullscreen();
+            }
+        });
+    };
+
     presenter.handleDisplayingButtons = function () {
-        if(presenter.configuration.annotations === "") {
+        if (presenter.configuration.annotations === "") {
             $( presenter.labelsButton ).addClass("hidden");
         }
 
-        if( presenter.configuration.copyInfo === "") {
+        if (presenter.configuration.copyInfo === "") {
             $( presenter.copyButton ).addClass("hidden");
+        }
+
+        if (!isFullscreenEnabled()) {
+            $( presenter.fullscreenButton ).addClass("hidden");
         }
     };
     
@@ -202,7 +280,9 @@ function AddonModelViewer3D_create() {
             'showAnnotations': presenter.showAnnotations,
             'hideAnnotations': presenter.hideAnnotations,
             'getAnnotationsVisibility': presenter.getAnnotationsVisibility,
-            'setScale': presenter.setScale
+            'setScale': presenter.setScale,
+            'requestFullscreen': presenter.requestFullscreen,
+            'exitFullscreen': presenter.exitFullscreen,
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -371,6 +451,119 @@ function AddonModelViewer3D_create() {
         presenter.$view.addClass('error');
         presenter.$view.html("Additional Attributes must be in JSON format.");
     }
+
+    presenter.addHandlers = function () {
+        $(document).on(
+            'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange',
+            presenter.fullscreenChangedEventReceived
+        );
+        MutationObserverService.createDestroyObserver(
+            presenter.configuration.addonID,
+            presenter.destroy,
+            presenter.view
+        );
+        MutationObserverService.setObserver();
+    };
+
+    presenter.requestFullscreen = function () {
+        if (!isFullscreenEnabled() || presenter.fullscreen.isOn) {
+            return;
+        }
+        presenter.fullscreen.requestMethod.call(presenter.wrapper);
+        setUpToFullscreenMode();
+    };
+
+    function setUpToFullscreenMode() {
+        presenter.fullscreen.isOn = true;
+        presenter.playerController.setAbleChangeLayout(false);
+        presenter.wrapper.classList.add("modelViewerFullscreen");
+    }
+
+    presenter.exitFullscreen = function () {
+        if (!isFullscreenEnabled() || !presenter.fullscreen.isOn) {
+            return;
+        }
+        presenter.fullscreen.exitMethod.call(document);
+        cleanAfterFullscreenMode();
+    };
+
+    presenter.fullscreenChangedEventReceived = function (event) {
+        if (!isFullscreenInDocument() && presenter.fullscreen.isOn) {
+            cleanAfterFullscreenMode();
+        }
+    };
+
+    function cleanAfterFullscreenMode() {
+        presenter.fullscreen.isOn = false;
+        presenter.playerController.setAbleChangeLayout(true);
+        presenter.wrapper.classList.remove("modelViewerFullscreen");
+    }
+
+    function isFullscreenEnabled() {
+        return presenter.configuration.enableFullscreen && presenter.fullscreen.hasSupport;
+    }
+
+    function checkFullscreenSupport() {
+        presenter.fullscreen = {
+            isOn: false,
+            hasSupport: false,
+            requestMethod: null,
+            exitMethod: null,
+        };
+
+        presenter.fullscreen.hasSupport = !!(
+            document.fullscreenEnabled ||
+            document.webkitFullscreenEnabled ||
+            document.mozFullScreenEnabled ||
+            document.msFullscreenEnabled
+        );
+
+        if (!isFullscreenEnabled()) {
+            return;
+        }
+
+        presenter.fullscreen.requestMethod = (
+            presenter.wrapper.requestFullscreen ||
+            presenter.wrapper.mozRequestFullScreen ||
+            presenter.wrapper.msRequestFullscreen ||
+            presenter.wrapper.webkitRequestFullScreen ||
+            presenter.wrapper.webkitEnterFullscreen ||
+            null
+        );
+
+        presenter.fullscreen.exitMethod = (
+            document.exitFullscreen ||
+            document.mozCancelFullScreen ||
+            document.msExitFullscreen ||
+            document.webkitExitFullscreen ||
+            null
+        );
+    }
+
+    function isFullscreenInDocument() {
+        return !!(
+            document.fullscreenElement ||
+            document.mozFullScreenElement ||
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement ||
+            document.webkitCurrentFullScreenElement ||
+            document.fullscreen ||
+            document.webkitIsFullScreen ||
+            document.mozFullScreen
+        );
+    }
+
+    presenter.destroy = function (event) {
+        if (event.target !== presenter.view) {
+            return;
+        }
+
+        presenter.exitFullscreen();
+        $(document).off(
+            'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange',
+            presenter.fullscreenChangedEventReceived
+        );
+    };
 
     return presenter;
 }
