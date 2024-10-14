@@ -81,9 +81,9 @@
         var ua = userAgent || DoubleTap._internals.getUserAgent(),
             isChrome = /chrome/i.exec(ua),
             isAndroid = /android/i.exec(ua),
-            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid);
-
-        return hasTouch ? 'touchstart' : 'mousedown';
+            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid),
+            isPointerEventSupported = !!window.PointerEvent;
+        return isPointerEventSupported ? "pointerdown" : (hasTouch ? 'touchstart' : 'mousedown');
     };
 
     DoubleTap.on = function doubleTap_on ($element, callback) {
