@@ -641,7 +641,7 @@ function AddonFile_Sender_create() {
                 }
             }
 
-            if (!presenter.isMauthor()) {
+            if (presenter.isPlayerInCrossDomain() && !presenter.isMauthor()) {
                 const _scrollTop = $(window.parent.document.getElementsByClassName('mdl-layout'))?.scrollTop();
                 scrollTop = _scrollTop !== undefined ? _scrollTop : scrollTop;
             }
@@ -672,6 +672,10 @@ function AddonFile_Sender_create() {
             }
         }catch(e){console.log(e)}
     };
+
+    presenter.isPlayerInCrossDomain = function () {
+        return presenter.playerController && !presenter.playerController.isPlayerInCrossDomain();
+    }
 
     presenter.isMauthor = function () {
         const names = ["lorepo", "mauthor"];
