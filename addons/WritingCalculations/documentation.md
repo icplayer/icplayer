@@ -144,6 +144,18 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Show all answers in gradual show answers mode</td>
         <td>Show all answers at once using gradual show answers functionality. Without checking this option, the gradual show answers functionality reveals the answers one by one.</td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>The speech texts will be read by the TTS addon during the operation of the Writing Calculations module.</td>
+    </tr>
+    <tr>
+        <td>Description of operation</td>
+        <td>The value of this property will be read by the TTS when no cell within the addon is selected, such as after the addon was initially activated.</td>
+    </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property is used to set the language used by TTS for this module. If left empty, the default lesson's language will be used.</td>
+    </tr>
 </table>
 
 ## Example value

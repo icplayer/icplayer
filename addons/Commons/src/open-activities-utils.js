@@ -89,14 +89,15 @@
      @param {object} playerController player controller
      @param {String} pageID page ID
      @param {String} moduleID module ID
-     @param {Integer} gradeAI grade
+     @param {Integer} aiGrade grade/score from AI
+     @param {Integer} aiRelevance how relevant answer is
     */
-    OpenActivitiesUtils.updateOpenActivityScore = function OpenActivitiesUtils_updateOpenActivityScore(playerController, pageID, moduleID, gradeAI) {
+    OpenActivitiesUtils.updateOpenActivityScore = function OpenActivitiesUtils_updateOpenActivityScore(playerController, pageID, moduleID, aiGrade, aiRelevance) {
         if (!this.isEnabled(playerController)) {
             return;
         }
 
-        playerController.getScore().updateOpenActivityScore(pageID, moduleID, gradeAI);
+        playerController.getScore().updateOpenActivityScore(pageID, moduleID, aiGrade, aiRelevance);
     };
 
     window.OpenActivitiesUtils = OpenActivitiesUtils;
