@@ -8,6 +8,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.isPageListNavigationActive = false;
     presenter.currentSelectedChapterIndex = -1;
     presenter.currentSelectedChapterName = '';
+    presenter.previousSectionsBarHeight = 0;
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -49,6 +50,9 @@ function AddonAssessments_Navigation_Bar_create(){
         BOOKMARK: "bookmark",
         INACTIVE: "inactive",
         ENABLED_PAGE_LIST: "enabled-page-list",
+        CURRENT_SECTION: "current-section",
+        SELECTED: "selected",
+        VISIBLE_PAGE_LIST: "visible-page-list",
     };
 
     presenter.attemptedButtons = [];
@@ -1234,6 +1238,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.addClickListener = function ($section, sectionClassName) {
         $section.on('click', function (event) {
+            if (presenter.shouldRedirectToPage(sectionClassName)) {
+                presenter.handleRedirectToPage(sectionClassName);
+                return;
+            }
             const isPageListVisible = presenter.isPageListOpen(sectionClassName);
             presenter.hideVisiblePageList();
 
@@ -1242,8 +1250,27 @@ function AddonAssessments_Navigation_Bar_create(){
             }
             event.preventDefault();
             event.stopPropagation();
+            
+            presenter.scrollToSelectedChapter();
         });
     };
+
+    presenter.shouldRedirectToPage = function (sectionClassName) {
+        const pageNumberInSection = $(`.${sectionClassName}`).find('.buttons.dropdown-list').children().length;
+
+        return presenter.configuration.enableRedirectToPage && pageNumberInSection === 1;
+    }
+
+    presenter.handleRedirectToPage = function (sectionClassName) {
+        const selectedSection = presenter.getSelectedSection(sectionClassName);
+        const pageIndex = selectedSection[0].pages[0].page;
+
+        presenter.changeToPage(pageIndex);
+    }
+
+    presenter.getSelectedSection = function (sectionClassName) {
+        return presenter.sections.sections.filter(section => section.cssClassName === sectionClassName);
+    }
 
     presenter.changePageListVisibility = function (sectionClassName) {
         const $parentElement = $(`.${sectionClassName}`);
@@ -1253,27 +1280,31 @@ function AddonAssessments_Navigation_Bar_create(){
         if (isNotVisible) {
             presenter.showPageListContainer($buttonsContainer, $parentElement);
             presenter.currentSelectedChapterName = sectionClassName;
+            presenter.changeSectionsBarHeight(false);
         } else {
             presenter.hidePageListContainer($parentElement);
+            presenter.changeSectionsBarHeight(true);
         }
+
+        presenter.handleSettingCurrentSectionClass();
     };
 
     presenter.isPageListOpen = function (sectionClassName) {
-        return $(`.${sectionClassName}`).hasClass('selected');
+        return $(`.${sectionClassName}`).hasClass(presenter.CSS_CLASSES.SELECTED);
     }
 
     presenter.showPageListContainer = function ($buttonsContainer, $parentElement) {
         $buttonsContainer.css('display', 'flex');
-        $buttonsContainer.addClass('visible-page-list');
-        $parentElement.addClass('selected');
+        $buttonsContainer.addClass(presenter.CSS_CLASSES.VISIBLE_PAGE_LIST);
+        $parentElement.addClass(presenter.CSS_CLASSES.SELECTED);
     }
 
     presenter.hidePageListContainer = function ($parentElement) {
-        const buttonsContainer = $('.visible-page-list');
+        const buttonsContainer = $(`.${presenter.CSS_CLASSES.VISIBLE_PAGE_LIST}`);
 
-        buttonsContainer.removeClass('visible-page-list');
+        buttonsContainer.removeClass(presenter.CSS_CLASSES.VISIBLE_PAGE_LIST);
         buttonsContainer.css('display', 'none');
-        $parentElement.removeClass('selected');
+        $parentElement.removeClass(presenter.CSS_CLASSES.SELECTED);
     }
 
     presenter.hideVisiblePageList = function () {
@@ -1281,13 +1312,79 @@ function AddonAssessments_Navigation_Bar_create(){
             return;
         }
 
-        const pageListContainer = $('.visible-page-list');
+        const pageListContainer = $(`.${presenter.CSS_CLASSES.VISIBLE_PAGE_LIST}`);
         const $parentElement = $(`.${presenter.currentSelectedChapterName}`);
 
         if (pageListContainer) {
-            $parentElement.removeClass('selected');
-            pageListContainer.removeClass('visible-page-list');
+            $parentElement.removeClass(presenter.CSS_CLASSES.SELECTED);
+            pageListContainer.removeClass(presenter.CSS_CLASSES.VISIBLE_PAGE_LIST);
             pageListContainer.css('display', 'none');
+        }
+
+        presenter.changeSectionsBarHeight(true);
+    }
+    
+    presenter.scrollToSelectedChapter = function () {
+        if (!presenter.isMobile()) {
+            return;
+        }
+
+        $('.addon_Assessments_Navigation_Bar').get(0).scrollLeft = presenter.getLeftScroll();
+    }
+    
+    presenter.isMobile = function () {
+        return MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
+    }
+
+    presenter.getScale = function () {
+        const boundingWidth = $('#content').get(0).getBoundingClientRect().width;
+        const elementWidth = +$('#content').css('width').replace('px', '');
+
+        return boundingWidth / elementWidth;
+    }
+
+    presenter.getLeftScroll = function () {
+        const selectedChapterPosition = $('.expandable-section.selected').offset();
+        const currentScrollXBarPosition = $('.addon_Assessments_Navigation_Bar').get(0).scrollLeft;
+        const scale = presenter.getScale();
+        const offset = 20;
+        const scrollLeft = (selectedChapterPosition.left / scale) + currentScrollXBarPosition - offset;
+
+        return scrollLeft < 0 ? 0 : scrollLeft;
+    }
+
+    presenter.changeSectionsBarHeight = function (setDefaultValue) {
+        if (!presenter.isMobile()) {
+            return;
+        }
+
+        const $addonElement = $('.addon_Assessments_Navigation_Bar');
+
+        if (setDefaultValue) {
+            $addonElement.css('height', presenter.previousSectionsBarHeight)
+        } else {
+            presenter.previousSectionsBarHeight = +$addonElement.css('height').replace('px', '');
+            const pagesListHeight = +$(`.${presenter.CSS_CLASSES.VISIBLE_PAGE_LIST}`).css('height').replace('px', '');
+            const totalHeight = presenter.previousSectionsBarHeight + pagesListHeight;
+            $addonElement.css('height', totalHeight)
+        }
+    }
+
+    presenter.handleSettingCurrentSectionClass = function () {
+        const $element = $(`.${presenter.CSS_CLASSES.CURRENT_SECTION}`);
+        if ($element) {
+            $element.removeClass(presenter.CSS_CLASSES.CURRENT_SECTION);
+        }
+
+        presenter.addClassToCurrentSection();
+    }
+
+    presenter.addClassToCurrentSection = function () {
+        const $element = $('.button.element.current_page');
+        const $sectionElement = $element?.parent().parent();
+
+        if ($sectionElement) {
+            $sectionElement.addClass(presenter.CSS_CLASSES.CURRENT_SECTION);
         }
     }
 
@@ -1313,6 +1410,7 @@ function AddonAssessments_Navigation_Bar_create(){
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
         upgradedModel = presenter.upgradeUseDynamicPagination(upgradedModel);
         upgradedModel = presenter.upgradeEnableDropdownPagesList(upgradedModel);
+        upgradedModel = presenter.upgradeEnableRedirectToPage(upgradedModel);
 
         return presenter.upgradeSpeechTexts(upgradedModel);
     };
@@ -1389,6 +1487,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         if (!model.hasOwnProperty('enableDropdownPagesList')) {
             upgradedModel['enableDropdownPagesList'] = 'False';
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeEnableRedirectToPage = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!model.hasOwnProperty('enableRedirectToPage')) {
+            upgradedModel['enableRedirectToPage'] = 'False';
         }
 
         return upgradedModel;
@@ -1475,6 +1584,7 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.buildKeyboardController();
         presenter.addHidingPageListListener();
         presenter.addEnabledPageListClass();
+        presenter.handleSettingCurrentSectionClass();
     };
 
     function removeMockupDOM () {
@@ -1594,7 +1704,8 @@ function AddonAssessments_Navigation_Bar_create(){
             numberOfPages: numberOfPages,
             numberOfStaticPages: numberOfStaticPages,
             useDynamicPagination: ModelValidationUtils.validateBoolean(model["useDynamicPagination"]),
-            enableDropdownPagesList: ModelValidationUtils.validateBoolean(model["enableDropdownPagesList"])
+            enableDropdownPagesList: ModelValidationUtils.validateBoolean(model["enableDropdownPagesList"]),
+            enableRedirectToPage: ModelValidationUtils.validateBoolean(model["enableRedirectToPage"]),
         };
     };
 
@@ -1990,6 +2101,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         presenter.sections.attemptedPages = upgradedState.attemptedPages;
         presenter.navigationManager.markButtonsWithAttempted(presenter.sections.attemptedPages);
+        presenter.handleSettingCurrentSectionClass();
     };
 
     presenter.upgradeState = function (state) {
@@ -2174,11 +2286,14 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     AssesmentsNavigationKeyboardController.prototype.select = function (event) {
+        const selectedSectionClassName = $('.keyboard_navigation_active_element').parent().get(0).classList[0];
         const isSectionSelected = $(this.keyboardNavigationCurrentElement).hasClass('section_name');
+        const isExpendable = presenter.configuration.enableDropdownPagesList && isSectionSelected;
 
-        if (presenter.configuration.enableDropdownPagesList && isSectionSelected) {
+        if (isExpendable && presenter.shouldRedirectToPage(selectedSectionClassName)) {
+            presenter.handleRedirectToPage(selectedSectionClassName);
+        } else if (isExpendable) {
             presenter.isPageListNavigationActive = true;
-            const selectedSectionClassName = $('.keyboard_navigation_active_element').parent().get(0).classList[0];
             presenter.changePageListVisibility(selectedSectionClassName);
             KeyboardController.prototype.setElements.call(this, presenter.getPageListElementsForTTS());
         } else {

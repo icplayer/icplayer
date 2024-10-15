@@ -264,3 +264,24 @@ TestCase("[Assessments_Navigation_Bar] Upgrade model with Enable dropdown pages 
         assertEquals(upgradedModel.enableDropdownPagesList, value);
     },
 });
+
+TestCase("[Assessments_Navigation_Bar] Upgrade model with Enable redirect to page", {
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+   },
+
+    "test given empty model when upgrading model then sets false to enableRedirectToPage property": function () {
+        const upgradedModel = this.presenter.upgradeModel({});
+
+        assertNotUndefined(upgradedModel.enableRedirectToPage);
+        assertEquals(upgradedModel.enableRedirectToPage, "False");
+    },
+
+    "test given model with enableRedirectToPage when upgrading model then model should not be changed": function () {
+        const value = "True";
+        const upgradedModel = this.presenter.upgradeModel({enableRedirectToPage: value});
+
+        assertNotUndefined(upgradedModel.enableRedirectToPage);
+        assertEquals(upgradedModel.enableRedirectToPage, value);
+    },
+});
