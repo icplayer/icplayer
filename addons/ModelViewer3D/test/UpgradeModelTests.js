@@ -19,4 +19,18 @@ TestCase("[ModelViewer3D] Upgrade model tests", {
 
         assertEquals("True", upgradedModel["enableFullscreen"]);
     },
+
+    'test given model without "modelIOS" when upgrading model then add "modelIOS" with ""': function () {
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("", upgradedModel["modelIOS"]);
+    },
+
+    'test given model with value in "modelIOS" when upgrading model then keep provided value': function () {
+        this.model["modelIOS"] = "/path/to/modelIOS/usdz";
+
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("/path/to/modelIOS/usdz", upgradedModel["modelIOS"]);
+    },
 });

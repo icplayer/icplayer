@@ -61,7 +61,9 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeModelWithEnableFullscreen(model);
+        const upgradedModel = presenter.upgradeModelWithEnableFullscreen(model);
+
+        return presenter.upgradeModelWithModelIOS(upgradedModel);
     };
 
     presenter.upgradeModelWithEnableFullscreen = function(model) {
@@ -70,6 +72,17 @@ function AddonModelViewer3D_create() {
 
         if (!upgradedModel["enableFullscreen"]) {
             upgradedModel["enableFullscreen"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModelWithModelIOS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model.hasOwnProperty('modelIOS')) {
+            upgradedModel['modelIOS'] = "";
         }
 
         return upgradedModel;
@@ -96,6 +109,7 @@ function AddonModelViewer3D_create() {
             isVisible: isVisible,
             addonID: model["ID"],
             model: model["model"],
+            modelIOS: model["modelIOS"],
             poster: model["poster"],
             annotations: model["annotations"].trim(),
             environmentImage: environmentImage,
@@ -158,6 +172,7 @@ function AddonModelViewer3D_create() {
         presenter.modelViewer.setAttribute("ar", "");
         presenter.modelViewer.setAttribute("camera-controls", "");
         presenter.modelViewer.setAttribute("touch-action", "pan-y");
+        presenter.isMobileIOS() && presenter.modelViewer.setAttribute("xr-environment", "");
         !isPreview && presenter.modelViewer.setAttribute("vr", "");
 
         presenter.addAttributesFromModel();
@@ -551,6 +566,10 @@ function AddonModelViewer3D_create() {
             document.webkitIsFullScreen ||
             document.mozFullScreen
         );
+    }
+
+    presenter.isMobileIOS = function () {
+        return window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     presenter.destroy = function (event) {
