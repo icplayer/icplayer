@@ -11,7 +11,6 @@ function Addonvideo_create() {
     var currentTime;
 
     var escapedSeparator = '&&separator&&';
-    var credentialsConfig = "same-origin";
 
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
@@ -331,9 +330,6 @@ function Addonvideo_create() {
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
         presenter.playerController = controller;
-        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
-            credentialsConfig = "include";
-        }
         presenter.registerHook();
 
         presenter.eventBus = controller.getEventBus();

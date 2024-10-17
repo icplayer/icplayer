@@ -11,13 +11,6 @@ TestCase('[Audio] ForceLoadingAudio', {
         };
 
         this.URLMock = sinon.stub(URL, "createObjectURL");
-        this.presenter.playerController = {
-            getRequestsConfig: function () {
-                return {
-                    shouldIncludeCredentials: function () {return false;}
-                };
-            }
-        };
     },
 
     tearDown: function () {

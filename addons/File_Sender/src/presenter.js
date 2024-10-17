@@ -361,8 +361,7 @@ function AddonFile_Sender_create() {
 
     presenter.fetchSessionJWTToken = function() {
         return fetch('/api/v2/jwt/session_token', {
-            method: 'GET',
-            credentials: credentialsConfig
+            method: 'GET'
         });
     }
 

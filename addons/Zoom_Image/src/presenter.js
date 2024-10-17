@@ -28,9 +28,6 @@ function AddonZoom_Image_create() {
         $image.attr("height", presenter.configuration.height);
         $image.attr("width", presenter.configuration.width);
         $image.attr("alt", presenter.configuration.alt);
-        if (playerController?.getRequestsConfig().shouldIncludeCredentials()) {
-            $image.attr("crossorigin", "use-credentials");
-        }
         presenter.$view.find("div.content").append($image);
         if ( presenter.configuration.isTabindexEnabled) {$image.attr('tabindex', '0');}
     }

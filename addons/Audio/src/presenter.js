@@ -581,9 +581,6 @@ function AddonAudio_create(){
         req.open('GET', src, true);
         req.responseType = 'blob';
         req.addEventListener("load", presenter.loadAudioDataFromRequest);
-        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
-            req.withCredentials = true;
-        }
 
         req.send();
     };
