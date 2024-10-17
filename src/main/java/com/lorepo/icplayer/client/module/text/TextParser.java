@@ -13,7 +13,6 @@ import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.NestedAddonUtils;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 import java.util.*;
 
@@ -959,7 +958,7 @@ public class TextParser {
 				if (contentBaseURL != null) {
 					filePath = URLUtils.resolveURL(contentBaseURL, filePath, true);
 				} else if (ExtendedRequestBuilder.getSigningPrefix() != null) {
-				    filePath = URLUtils.resolveURL(baseURL, filePath, false);
+					filePath = URLUtils.resolveURL(baseURL, filePath, false);
 				}
 				filePath = ExtendedRequestBuilder.signURL(filePath);
 				int lastIndex = matchResult.getIndex();

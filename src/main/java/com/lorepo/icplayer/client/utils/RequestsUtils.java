@@ -35,6 +35,6 @@ public class RequestsUtils {
 		if (url.contains("://") || url.startsWith("/")){
 			return url;
 		}
-        return GWT.getHostPageBaseURL() + url;
+		return GWT.getHostPageBaseURL() + url;
 	}
 }

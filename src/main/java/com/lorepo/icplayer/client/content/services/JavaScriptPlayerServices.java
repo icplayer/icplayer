@@ -567,25 +567,25 @@ public class JavaScriptPlayerServices {
 		playerServices.getResponsiveLayouts = function () {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getResponsiveLayouts()();
 		}
-
-        playerServices.getRequestsConfig = function () {
-            var commands = function() {};
-
-            commands.shouldIncludeCredentials = function() {
-                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::shouldIncludeCredentials()();
-            };
-
-            commands.getSigningPrefix = function() {
-                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getSigningPrefix()();
-            };
-
-            commands.signURL = function(url) {
-                return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::signURL(Ljava/lang/String;)(url);
-            };
-
-            return commands;
-        };
-
+			
+		playerServices.getRequestsConfig = function () {
+			var commands = function() {};
+			
+			commands.shouldIncludeCredentials = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::shouldIncludeCredentials()();
+			};
+			
+			commands.getSigningPrefix = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getSigningPrefix()();
+			};
+			
+			commands.signURL = function(url) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::signURL(Ljava/lang/String;)(url);
+			};
+			
+			return commands;
+		};
+		
 		return playerServices;
 	}-*/;
 
@@ -1122,17 +1122,14 @@ public class JavaScriptPlayerServices {
 	}
 
 	private boolean shouldIncludeCredentials() {
-		JavaScriptUtils.log("Execute shouldIncludeCredentials");
 		return ExtendedRequestBuilder.shouldIncludeCredentials();
 	}
 
 	private String getSigningPrefix() {
-		JavaScriptUtils.log("Execute getSigningPrefix");
 		return ExtendedRequestBuilder.getSigningPrefix();
 	}
 
 	private String signURL(String url) {
-		JavaScriptUtils.log("Execute signURL");
 		return ExtendedRequestBuilder.signURL(url);
 	}
 }

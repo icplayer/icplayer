@@ -384,7 +384,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			property instanceof IFileProperty)
 		{
 			value = URLUtils.resolveURL(this.getBaseURL(), value, this.getContentBaseURL());
-            value = ExtendedRequestBuilder.signURL(value);
+			value = ExtendedRequestBuilder.signURL(value);
 		} else if (property instanceof IHtmlProperty){
 			value = StringUtils.updateLinks(value, this.getBaseURL(), this.getContentBaseURL());
 		}

@@ -162,20 +162,20 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.cleanBeforeClose = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::cleanBeforeClose()();
 			};
-
+			
 			player.getRequestsConfig = function () {
-			    var commands = function() {};
-
-			    commands.setIncludeCredentials = function(withCredentials) {
-                    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setIncludeCredentials(Z)(withCredentials);
-                };
-
-                commands.setSigningPrefix = function(signingPrefix) {
-                    entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setSigningPrefix(Ljava/lang/String;)(signingPrefix);
-                };
-
-                return commands;
-            };
+				var commands = function() {};
+				
+				commands.setIncludeCredentials = function(withCredentials) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setIncludeCredentials(Z)(withCredentials);
+				};
+				
+				commands.setSigningPrefix = function(signingPrefix) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setSigningPrefix(Ljava/lang/String;)(signingPrefix);
+				};
+				
+				return commands;
+			};
 		}
 
 		// CreatePlayer
@@ -447,11 +447,11 @@ public class PlayerEntryPoint implements EntryPoint {
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
 		this.theApplication.setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
 	}
-
+	
 	private void setIncludeCredentials(boolean withCredentials) {
 		ExtendedRequestBuilder.setGlobalIncludeCredentials(withCredentials);
 	}
-
+	
 	private void setSigningPrefix(String signingPrefix) {
 		ExtendedRequestBuilder.setSigningPrefix(signingPrefix);
 	}
