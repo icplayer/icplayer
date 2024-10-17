@@ -3,7 +3,6 @@ function AddonZoom_Image_create() {
     var presenter = function() {};
     var eventBus;
     var playerController = null;
-    var printableController = null;
     var isWCAGOn = false;
     var oldFocus = null;
     var backgroundColorStyle;
