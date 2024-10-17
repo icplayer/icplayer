@@ -258,6 +258,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 			for (LinkInfo link: linkInfos) {
 				link.setBaseUrl(getBaseURL());
 			}
+		} else if (ExtendedRequestBuilder.getSigningPrefix() != null) {
+		    parsedText = StringUtils.updateLinks(parsedText, null);
 		}
 	}
 
