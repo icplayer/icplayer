@@ -7,6 +7,7 @@ import com.google.gwt.user.client.DOM;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
@@ -55,7 +56,7 @@ public class OrderingItem extends BasicPropertyProvider {
 	}
 
 	public String getText() {
-		return (baseURL == null && contentBaseURL == null) ? html : StringUtils.updateLinks(html, baseURL, contentBaseURL);
+		return (baseURL == null && contentBaseURL == null && ExtendedRequestBuilder.getSigningPrefix() == null) ? html : StringUtils.updateLinks(html, baseURL, contentBaseURL);
 	}
 
 	private void addPropertyText() {

@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
@@ -14,6 +13,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
@@ -91,7 +91,7 @@ public class LocalAddonsLoader implements IAddonLoader {
 	
 	private void sendRequestToLoadAddonsXML(String url) throws RequestException {
 		final String resolvedURL = this.getResolvedURL(url);
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, resolvedURL);
+		ExtendedRequestBuilder builder = new ExtendedRequestBuilder(ExtendedRequestBuilder.GET, resolvedURL);
 		builder.sendRequest(null, new RequestCallback() {
 			public void onError(Request request, Throwable exception) {
 				// Couldn't connect to server (could be timeout, SOP violation, etc.)   
