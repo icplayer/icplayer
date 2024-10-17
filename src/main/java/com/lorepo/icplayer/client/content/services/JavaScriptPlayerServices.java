@@ -691,6 +691,7 @@ public class JavaScriptPlayerServices {
 	private String parseText(String text){
 		TextParser parser = new TextParser();
 		parser.skipGaps();
+		parser.setBaseURL(playerServices.getModel().getBaseUrl());
 		ParserResult result = parser.parse(text);
 		return result.parsedText;
 	}

@@ -224,6 +224,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		parser.setLangTag(this.getLangAttribute());
 		parser.setIsNumericOnly(useNumericKeyboard);
+		parser.setBaseURL(getBaseURL());
 
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
