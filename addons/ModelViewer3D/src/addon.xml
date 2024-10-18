@@ -17,5 +17,6 @@
         <property name="copyInfo" nameLabel="Model_Viewer_copyInfo" type="html"/>
         <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="boolean" value="True"/>
         <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/5059308589809664"/>
+        <property name="enableFullscreen" nameLabel="Model_Viewer_enableFullscreen" type="boolean" value="False"/>
     </model>
 </addon>
