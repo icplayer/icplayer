@@ -14,7 +14,18 @@ function AddonWritingCalculations_create() {
     presenter.helpBoxesDefaultValues = [];
     presenter.helpBoxesUserAnswers = [];
     presenter.isDisabled = false;
+    presenter.isWCAGOn = false;
+    presenter.elementsTable = [];
+    presenter.gapElements = [];
+    presenter.isGapFocused = false;
     var eventBus;
+
+    presenter.keyboardState = {
+        x: 0,
+        y: -1,
+        gapIndex: -1
+    }
+    presenter.KEYBOARD_SELECTED_CLASS = 'keyboard_navigation_active_element';
 
     presenter.ELEMENT_TYPE = {
         "NUMBER" : 1,        // Non box numbers
@@ -29,8 +40,8 @@ function AddonWritingCalculations_create() {
     presenter.upgradeModel = function (model) {
         let upgradedModel = presenter.upgradeSigns(model);
         upgradedModel = presenter.upgradeNumericKeyboard(upgradedModel);
-
-        return presenter.upgradeModelAddShowAllAnswersInGSA(upgradedModel);
+        upgradedModel =  presenter.upgradeModelAddShowAllAnswersInGSA(upgradedModel);
+        return presenter.upgradeTTS(upgradedModel);
     };
 
     presenter.upgradeModelAddShowAllAnswersInGSA = function (model) {
@@ -56,6 +67,63 @@ function AddonWritingCalculations_create() {
             'Multiplication' : '',
             'Equals' : ''
         }];
+        return upgradedModel;
+    };
+
+    presenter.upgradeTTS = function (model) {
+        if ('speechTexts' in model) return model;
+
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Gap"]) {
+            upgradedModel["speechTexts"]["Gap"] = {Gap: ""};
+        }
+        if (!upgradedModel["speechTexts"]["AdditionalGap"]) {
+            upgradedModel["speechTexts"]["AdditionalGap"] = {AdditionalGap: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Empty"]) {
+            upgradedModel["speechTexts"]["Empty"] = {Empty: ""};
+        }
+        if (!upgradedModel["speechTexts"]["AdditionSign"]) {
+            upgradedModel["speechTexts"]["AdditionSign"] = {AdditionSign: ""};
+        }
+        if (!upgradedModel["speechTexts"]["SubtractionSign"]) {
+            upgradedModel["speechTexts"]["SubtractionSign"] = {SubtractionSign: ""};
+        }
+        if (!upgradedModel["speechTexts"]["DivisionSign"]) {
+            upgradedModel["speechTexts"]["DivisionSign"] = {DivisionSign: ""};
+        }
+        if (!upgradedModel["speechTexts"]["MultiplicationSign"]) {
+            upgradedModel["speechTexts"]["MultiplicationSign"] = {MultiplicationSign: ""};
+        }
+        if (!upgradedModel["speechTexts"]["EqualsSign"]) {
+            upgradedModel["speechTexts"]["EqualsSign"] = {EqualsSign: ""};
+        }
+        if (!upgradedModel["speechTexts"]["DecimalSeparator"]) {
+            upgradedModel["speechTexts"]["DecimalSeparator"] = {DecimalSeparator: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Line"]) {
+            upgradedModel["speechTexts"]["Line"] = {Line: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Correct"]) {
+            upgradedModel["speechTexts"]["Correct"] = {Correct: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Wrong"]) {
+            upgradedModel["speechTexts"]["Wrong"] = {Wrong: ""};
+        }
+
+        if (!upgradedModel["DescriptionOfOperation"]) {
+            upgradedModel["DescriptionOfOperation"] = "";
+        }
+
+        if (!upgradedModel["LangTag"]) {
+            upgradedModel["LangTag"] = "";
+        }
+
         return upgradedModel;
     };
 
@@ -109,7 +177,9 @@ function AddonWritingCalculations_create() {
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.ID = model["ID"];
         presenter.showAllAnswersInGSA = ModelValidationUtils.validateBoolean(model['showAllAnswersInGSA']);
-
+        presenter.langTag = model["LangTag"];
+        presenter.descriptionOfOperation = model["DescriptionOfOperation"];
+        presenter.setSpeechTexts(model["speechTexts"]);
         let validatedElementsData = presenter.validateModelValue(model['Value']);
         if (!validatedElementsData.isValid) {
             presenter.showErrorMessage(
@@ -122,6 +192,43 @@ function AddonWritingCalculations_create() {
 
         presenter.setContainerWidth();
         presenter.addAdditionalStyles();
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            gap: 'gap',
+            additionalGap: 'additional gap',
+            empty: 'empty',
+            additionSign: 'addition sign',
+            subtractionSign: 'subtraction sign',
+            divisionSign: 'division sign',
+            multiplicationSign: 'multiplication sign',
+            equalsSign: 'equals sign',
+            decimalSeparator: 'decimal separator',
+            line: 'line',
+            correct: 'correct',
+            wrong: 'wrong',
+
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            gap: TTSUtils.getSpeechTextProperty(speechTexts['Gap']['Gap'], presenter.speechTexts.gap),
+            additionalGap: TTSUtils.getSpeechTextProperty(speechTexts['AdditionalGap']['AdditionalGap'], presenter.speechTexts.additionalGap),
+            empty: TTSUtils.getSpeechTextProperty(speechTexts['Empty']['Empty'], presenter.speechTexts.empty),
+            additionSign: TTSUtils.getSpeechTextProperty(speechTexts['AdditionSign']['AdditionSign'], presenter.speechTexts.additionSign),
+            subtractionSign: TTSUtils.getSpeechTextProperty(speechTexts['SubtractionSign']['SubtractionSign'], presenter.speechTexts.subtractionSign),
+            divisionSign: TTSUtils.getSpeechTextProperty(speechTexts['DivisionSign']['DivisionSign'], presenter.speechTexts.divisionSign),
+            multiplicationSign: TTSUtils.getSpeechTextProperty(speechTexts['MultiplicationSign']['MultiplicationSign'], presenter.speechTexts.multiplicationSign),
+            equalsSign: TTSUtils.getSpeechTextProperty(speechTexts['EqualsSign']['EqualsSign'], presenter.speechTexts.equalsSign),
+            decimalSeparator: TTSUtils.getSpeechTextProperty(speechTexts['DecimalSeparator']['DecimalSeparator'], presenter.speechTexts.decimalSeparator),
+            line: TTSUtils.getSpeechTextProperty(speechTexts['Line']['Line'], presenter.speechTexts.line),
+            correct: TTSUtils.getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong: TTSUtils.getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
+        };
     }
 
     presenter.readSigns = function( signs ) {
@@ -276,8 +383,11 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.createView = function (elementsData) {
+        presenter.elementsTable = [];
+        presenter.gapElements = [];
         const $viewWrapper = this.$view.find("#writing-calculations-wrapper");
         elementsData.forEach((elementsRow, rowIndex) => {
+            var createdElementsRow = [];
             const $rowWrapper = presenter.createRowWrapper(rowIndex);
             let cellIndex = 0;
             elementsRow.forEach((elementData) => {
@@ -303,9 +413,19 @@ function AddonWritingCalculations_create() {
 
                 if (elementData.type !== presenter.ELEMENT_TYPE.DOT) {
                     cellIndex++;
+                    createdElementsRow.push(createdElement);
+                }
+
+                if (elementData.type == presenter.ELEMENT_TYPE.EMPTY_BOX || elementData.type == presenter.ELEMENT_TYPE.HELP_BOX) {
+                    presenter.gapElements.push({
+                        x: createdElementsRow.length - 1,
+                        y: presenter.elementsTable.length,
+                        el: createdElement
+                    });
                 }
             });
             $viewWrapper.append($rowWrapper);
+            presenter.elementsTable.push(createdElementsRow);
         });
     };
 
@@ -378,6 +498,17 @@ function AddonWritingCalculations_create() {
         return createdElement;
     };
 
+    presenter.getContainerType = function ($el) {
+        if ($el.hasClass("container-number")) return presenter.ELEMENT_TYPE.NUMBER;
+        if ($el.hasClass("container-symbol")) return presenter.ELEMENT_TYPE.SYMBOL;
+        if ($el.hasClass("container-emptySpace")) return presenter.ELEMENT_TYPE.EMPTY_SPACE;
+        if ($el.hasClass("container-emptyBox")) return presenter.ELEMENT_TYPE.EMPTY_BOX;
+        if ($el.hasClass("container-line")) return presenter.ELEMENT_TYPE.LINE;
+        if ($el.hasClass("container-dot")) return presenter.ELEMENT_TYPE.DOT;
+        if ($el.hasClass("container-helpBox")) return presenter.ELEMENT_TYPE.HELP_BOX;
+        return -1;
+    }
+
     presenter.createWrapperAndContainer = function(cssClass, wrapperClass) {
         if (!wrapperClass || wrapperClass === undefined) {
             wrapperClass = "wrapper-cell";
@@ -412,6 +543,7 @@ function AddonWritingCalculations_create() {
                 break;
             case this.ELEMENT_TYPE.SYMBOL:
                 $container.html(this.convertLaTeX(value));
+                $container.data('value',value);
                 break;
             case this.ELEMENT_TYPE.DOT:
                 $container.html(value);
@@ -1472,6 +1604,289 @@ function AddonWritingCalculations_create() {
             value: value
         };
     }
+
+    presenter.setWCAGStatus = function(isOn) {
+        presenter.isWCAGOn = isOn;
+    }
+
+     presenter.keyboardController = function(keycode, isShift, event) {
+        if (!presenter.isGapFocused) event.preventDefault();
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    prevGap();
+                    if (!presenter.isGapFocused) readCurrentCell();
+                } else {
+                    nextGap();
+                    if (!presenter.isGapFocused) readCurrentCell();
+                }
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    exitModuleInTTS();
+                } else {
+                    enter();
+                    readCurrentCell();
+                }
+                break;
+            case 32: // SPACE
+                break;
+            case 38: // UP
+                prevRow();
+                if (!presenter.isGapFocused) readCurrentCell();
+                break;
+            case 40: // DOWN
+                nextRow();
+                if (!presenter.isGapFocused) readCurrentCell();
+                break;
+            case 37: // LEFT
+                prevColumn();
+                if (!presenter.isGapFocused) readCurrentCell();
+                break;
+            case 39: // RIGHT
+                nextColumn();
+                if (!presenter.isGapFocused) readCurrentCell();
+                break;
+            case 27: // ESC
+                escape(event);
+                break;
+        }
+    }
+
+    function nextRow() {
+        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (presenter.keyboardState.y + 1 < presenter.elementsTable.length) {
+            presenter.keyboardState.y += 1;
+            if (presenter.keyboardState.y != -1 && presenter.keyboardState.x >= presenter.elementsTable[presenter.keyboardState.y].length) {
+                presenter.keyboardState.x = presenter.elementsTable[presenter.keyboardState.y].length - 1;
+            }
+        }
+        updateGapIndex();
+        updateKeyboardNavigationSelectionClass();
+    }
+
+    function prevRow() {
+        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (presenter.keyboardState.y - 1 > -2) {
+            presenter.keyboardState.y -= 1;
+            if (presenter.keyboardState.y == -1) {
+                presenter.keyboardState.x = 0;
+            } else if (presenter.keyboardState.x >= presenter.elementsTable[presenter.keyboardState.y].length) {
+                presenter.keyboardState.x = presenter.elementsTable[presenter.keyboardState.y].length - 1;
+            }
+        }
+        updateGapIndex();
+        updateKeyboardNavigationSelectionClass();
+    }
+
+    function nextColumn() {
+        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (presenter.keyboardState.y != -1  && presenter.keyboardState.x + 1 < presenter.elementsTable[presenter.keyboardState.y].length) {
+            presenter.keyboardState.x += 1;
+        }
+        updateGapIndex();
+        updateKeyboardNavigationSelectionClass();
+    }
+
+    function prevColumn() {
+        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (presenter.keyboardState.y != -1  && presenter.keyboardState.x > 0) {
+            presenter.keyboardState.x -= 1;
+        }
+        updateGapIndex();
+        updateKeyboardNavigationSelectionClass();
+    }
+
+    function nextGap() {
+        if (presenter.isGapFocused) return;
+        if (presenter.keyboardState.gapIndex + 1 < presenter.gapElements.length) {
+            presenter.keyboardState.gapIndex += 1;
+            var gap = presenter.gapElements[presenter.keyboardState.gapIndex];
+            presenter.keyboardState.x = gap.x;
+            presenter.keyboardState.y = gap.y;
+            updateKeyboardNavigationSelectionClass();
+        }
+    }
+
+    function prevGap() {
+        if (presenter.isGapFocused) return;
+        if (presenter.keyboardState.gapIndex - 1 > -1 && presenter.gapElements.length > 0) {
+            presenter.keyboardState.gapIndex -= 1;
+            var gap = presenter.gapElements[presenter.keyboardState.gapIndex];
+            presenter.keyboardState.x = gap.x;
+            presenter.keyboardState.y = gap.y;
+            updateKeyboardNavigationSelectionClass();
+        }
+    }
+
+    function updateGapIndex() {
+        presenter.keyboardState.gapIndex = -1;
+        for (var i = 0; i < presenter.gapElements.length; i++) {
+            if (presenter.keyboardState.x == presenter.gapElements[i].x && presenter.keyboardState.y == presenter.gapElements[i].y) {
+                presenter.keyboardState.gapIndex = i;
+                break;
+            }
+        }
+    }
+
+        function enter() {
+            if (presenter.keyboardState.y != -1) {
+                var $gap = presenter.elementsTable[presenter.keyboardState.y][presenter.keyboardState.x].find('input.writing-calculations-input');
+                if ($gap.length > 0) {
+                    presenter.isGapFocused = true;
+                    $gap.addClass('keyboard_navigation_active_element');
+                    $gap.focus();
+                }
+            }
+        }
+
+        function escape(event) {
+            if (presenter.isGapFocused) {
+                if (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+                var $gap = presenter.elementsTable[presenter.keyboardState.y][presenter.keyboardState.x].find('input.writing-calculations-input');
+                if ($gap.length > 0) {
+                    setTimeout(()=>{
+                        presenter.isGapFocused = false;
+                    }, 0);
+                    $gap.removeClass('keyboard_navigation_active_element');
+                    $gap.blur();
+                }
+            } else {
+                exitModuleInTTS();
+            }
+        }
+
+        function exitModuleInTTS() {
+            presenter.isGapFocused = false;
+            presenter.keyboardState.x = 0;
+            presenter.keyboardState.y = -1;
+            presenter.keyboardState.gapIndex = -1;
+            updateKeyboardNavigationSelectionClass();
+        }
+
+    function updateKeyboardNavigationSelectionClass() {
+        presenter.$view.find('.'+presenter.KEYBOARD_SELECTED_CLASS).removeClass(presenter.KEYBOARD_SELECTED_CLASS);
+        if (presenter.keyboardState.y >= 0) {
+            presenter.elementsTable[presenter.keyboardState.y][presenter.keyboardState.x].children().first().addClass(presenter.KEYBOARD_SELECTED_CLASS);
+        }
+    }
+
+    function readCurrentCell() {
+        presenter.readCell(presenter.keyboardState.x, presenter.keyboardState.y);
+    }
+
+    presenter.getCellTitle = function (x, y) {
+        var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var title = "";
+        do {
+            var mod = x % 26;
+            title = alphabet[mod] + " " + title;
+            x -= mod;
+            x = x / 26 - 1;
+        } while (x >= 0);
+        title += (y+1);
+        return title;
+    }
+
+    presenter.readCell = function(x, y) {
+        if (!presenter.isWCAGOn) return;
+        var data = [];
+        if (y < 0) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.descriptionOfOperation, presenter.langTag)); //TODO
+        } else {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.getCellTitle(x,y)));
+
+            var container = presenter.elementsTable[y][x].children().first();
+            var containerType = presenter.getContainerType(container);
+
+            switch(containerType) {
+                case presenter.ELEMENT_TYPE.NUMBER:
+                    data.push(window.TTSUtils.getTextVoiceObject(container.html(), presenter.langTag));
+                    break;
+                case presenter.ELEMENT_TYPE.SYMBOL:
+                    var value = container.data('value');
+                    if (value === "*") {
+                        data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.multiplicationSign));
+                    } else if (value === ":" || value === ")") {
+                        data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.divisionSign));
+                    } else if (value === "+") {
+                        data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.additionSign));
+                    } else if (value === "-") {
+                        data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.subtractionSign));
+                    } else if (value === "#") {
+                        data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.equalsSign));
+                    }
+                    break;
+                case presenter.ELEMENT_TYPE.EMPTY_BOX:
+                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.gap));
+                    var input = container.find('input');
+                    if (input.length > 0) {
+                        var inputVoices = presenter.getTextVoicesFromInput(input);
+                        data = data.concat(inputVoices);
+                    }
+                    break;
+                case presenter.ELEMENT_TYPE.LINE:
+                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.line));
+                    break;
+                case presenter.ELEMENT_TYPE.HELP_BOX:
+                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.additionalGap));
+                    var input = container.find('input');
+                    if (input.length > 0) {
+                        var inputVoices = presenter.getTextVoicesFromInput(input);
+                        data = data.concat(inputVoices);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            var nextSibling = presenter.elementsTable[y][x].next();
+            if (nextSibling.length > 0 && presenter.getContainerType(nextSibling.children().first()) == presenter.ELEMENT_TYPE.DOT) {
+                data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.decimalSeparator));
+            }
+        }
+        presenter.speak(data);
+    }
+
+    presenter.getTextVoicesFromInput = function(inputElement) {
+        var data =[];
+        var value = inputElement.val();
+        if (value.length == 0) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.empty));
+        } else {
+            data.push(window.TTSUtils.getTextVoiceObject(value, presenter.langTag));
+        }
+        if (inputElement.hasClass('correct')) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+        } else if (inputElement.hasClass('incorrect')) {
+            data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+        }
+        return data;
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        if (data.length == 0) return;
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.isDeactivationBlocked = function() {
+        return presenter.isGapFocused;
+    };
 
     return presenter;
 }
