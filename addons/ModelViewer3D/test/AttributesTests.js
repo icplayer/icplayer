@@ -1,26 +1,24 @@
 TestCase('[ModelViewer3D] Attributes tests', {
     setUp: function () {
         this.presenter = AddonModelViewer3D_create();
-        this.presenter.modelViewer = $('<model-viewer></model-viewer>');
+        this.presenter.modelViewer = document.createElement("model-viewer");
         this.presenter.configuration = getModel();
     },
 
     'test given model with attributes when handleAttributes was called should sets it on element': function () {
         this.presenter.handleAttributes();
-        const element = this.presenter.modelViewer.get(0);
 
-        assertTrue(element.hasAttribute("src"));
-        assertTrue(element.hasAttribute("environment-image"));
-        assertTrue(element.hasAttribute("shadow-softness"));
+        assertTrue(this.presenter.modelViewer.hasAttribute("src"));
+        assertTrue(this.presenter.modelViewer.hasAttribute("environment-image"));
+        assertTrue(this.presenter.modelViewer.hasAttribute("shadow-softness"));
     },
 
     'test given additional attributes when handleAttributes was called should append attributes to element': function () {
         this.presenter.configuration.additionalAttributes = getAdditionalAttributes();
 
         this.presenter.handleAttributes();
-        const element = this.presenter.modelViewer.get(0);
 
-        assertTrue(element.hasAttribute("scale"));
+        assertTrue(this.presenter.modelViewer.hasAttribute("scale"));
     },
 });
 

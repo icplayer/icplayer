@@ -1975,6 +1975,7 @@ var ice_dictionary_mx = {
 	"Model_Viewer_attributes": "Additional Attributes",
 	"Model_Viewer_copyInfo": "Copyright Info",
 	"Model_Viewer_interactionPrompt": "Interaction Prompt",
+	"Model_Viewer_enableFullscreen": "Enable fullscreen",
 	"SelectableAddonsBinder_name": "Conector de addons seleccionables",
 	"SelectableAddonsBinder_info": "Permite a controlar un grupo de addons seleccionables",
 	"SelectableAddonsBinder_property_addons": "Addons",

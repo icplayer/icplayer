@@ -1976,6 +1976,7 @@ var ice_dictionary_fr = {
 	"Model_Viewer_attributes": "Additional Attributes",
 	"Model_Viewer_copyInfo": "Copyright Info",
     "Model_Viewer_interactionPrompt": "Interaction Prompt",
+	"Model_Viewer_enableFullscreen": "Enable fullscreen",
     "SelectableAddonsBinder_name" : "Classeur d'addons sélectionnables",
     "SelectableAddonsBinder_info" : "Permet de contrôler des groupes d'addons sélectionnables",
     "SelectableAddonsBinder_property_addons" : "Addons",
