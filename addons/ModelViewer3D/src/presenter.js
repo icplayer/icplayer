@@ -18,7 +18,6 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.run = function(view, model){
-        console.log('run 11');
         if(!presenter.wasInitiated) {
             presenter.init(view, model, false);
         }
@@ -62,7 +61,7 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        return  presenter.upgradeModelWithEnableFullscreen(model);
+        return presenter.upgradeModelWithEnableFullscreen(model);
     };
 
     presenter.upgradeModelWithEnableFullscreen = function(model) {
