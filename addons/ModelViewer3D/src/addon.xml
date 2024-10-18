@@ -3,7 +3,6 @@
 <addon id="ModelViewer3D" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="model" nameLabel="Model_Viewer_model" type="file"/>
-        <property name="modelIOS" nameLabel="Model_Viewer_model_iOS" type="file"/>
         <property name="poster" nameLabel="Model_Viewer_poster" type="file"/>
         <property name="annotations" nameLabel="Model_Viewer_annotations" type="text"/>
         <property name="environmentImage" nameLabel="Model_Viewer_environmentImage" type="image"/>

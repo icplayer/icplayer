@@ -23,20 +23,4 @@ TestCase("[ModelViewer3D] Validate model tests", {
 
         assertEquals(true, configuration["enableFullscreen"]);
     },
-
-    'test given model with "modelIOS" as "False" when validating model then save value as false': function () {
-        this.model["modelIOS"] = "";
-
-        const configuration = this.presenter.validateModel(this.model);
-
-        assertEquals("", configuration["modelIOS"]);
-    },
-
-    'test given model with "modelIOS" as "True" when validating model then save value as true': function () {
-        this.model["modelIOS"] = "/path/to/modelIOS/usdz";
-
-        const configuration = this.presenter.validateModel(this.model);
-
-        assertEquals("/path/to/modelIOS/usdz", configuration["modelIOS"]);
-    }
 });

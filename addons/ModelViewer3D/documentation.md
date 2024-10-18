@@ -1,6 +1,6 @@
 ## Description
 
-##### Model Viewer 3D allows for displaying 3D models. <br> Please note that when using a mobile device, an additional <img src="/file/serve/6093598547116032" style="border: 0; display:inline; margin: 0 2px; box-shadow: none" alt="AR"> icon will be visible in the vicinity of the 3D model. Interacting with the icon allows switching the preview to the Augmented Reality mode ([https://modelviewer.dev/examples/augmentedreality](https://modelviewer.dev/examples/augmentedreality "https://modelviewer.dev/examples/augmentedreality")) <br>Works on iPhones from iOS version 14, further notes about the model in Properties - Model iOS.
+##### Model Viewer 3D allows for displaying 3D models. <br> Please note that when using a mobile device, an additional <img src="/file/serve/6093598547116032" style="border: 0; display:inline; margin: 0 2px; box-shadow: none" alt="AR"> icon will be visible in the vicinity of the 3D model. Interacting with the icon allows switching the preview to the Augmented Reality mode ([https://modelviewer.dev/examples/augmentedreality](https://modelviewer.dev/examples/augmentedreality "https://modelviewer.dev/examples/augmentedreality")) <br>Works on iPhones from iOS version 15.
 
 ## Properties
 
@@ -15,10 +15,6 @@ The list starts with the common properties, learn more about them by visiting th
     <tr>
         <td>Model</td>
         <td>Path to the file containing the 3D model. Supports only the glTF/GLB 3D models.</td>
-    </tr>
-    <tr>
-        <td>Model iOS</td>
-        <td>Path to the file containing the 3D model. Requires only for iPhone 12 and earlier models.</td>
     </tr>
     <tr>
         <td>Poster</td>
