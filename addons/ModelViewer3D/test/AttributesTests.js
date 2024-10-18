@@ -20,6 +20,16 @@ TestCase('[ModelViewer3D] Attributes tests', {
 
         assertTrue(this.presenter.modelViewer.hasAttribute("scale"));
     },
+
+    'test given mocked iOS device when handleAttributes was called should append xr-environment attribute to element': function () {
+        const isMobileIOSStub = sinon.stub();
+        isMobileIOSStub.returns(true);
+        this.presenter.isMobileIOS = isMobileIOSStub;
+
+        this.presenter.handleAttributes();
+
+        assertTrue(this.presenter.modelViewer.hasAttribute("xr-environment"));
+    }
 });
 
 function getModel() {

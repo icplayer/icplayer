@@ -158,6 +158,11 @@ function AddonModelViewer3D_create() {
         presenter.modelViewer.setAttribute("ar", "");
         presenter.modelViewer.setAttribute("camera-controls", "");
         presenter.modelViewer.setAttribute("touch-action", "pan-y");
+
+        if (presenter.isMobileIOS()) {
+            presenter.modelViewer.setAttribute("xr-environment", "");
+        }
+
         !isPreview && presenter.modelViewer.setAttribute("vr", "");
 
         presenter.addAttributesFromModel();
@@ -551,6 +556,10 @@ function AddonModelViewer3D_create() {
             document.webkitIsFullScreen ||
             document.mozFullScreen
         );
+    }
+
+    presenter.isMobileIOS = function () {
+        return window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     presenter.destroy = function (event) {
