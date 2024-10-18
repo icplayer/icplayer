@@ -498,6 +498,7 @@ var ice_dictionary_mx = {
 	"page_edit": "Editar",
 	"score_type": "Tipo de Puntuación",
 	"Preview": "Previsualizar",
+	"PreviewLarge": "Large Preview",
 	"layout_editor": "Editor de Fondo",
 	"relative_to": "En relación con",
 	"side": "Lado",

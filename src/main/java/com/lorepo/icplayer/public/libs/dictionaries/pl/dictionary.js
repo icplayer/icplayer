@@ -499,6 +499,7 @@ var ice_dictionary_pl = {
 	"page_edit": "Edycja",
 	"score_type" : "Rodzaj wyniku",
 	"Preview" : "Podgląd",
+	"PreviewLarge" : "Large Preview",
 	"layout_editor" : "Edytor układu strony",
 	"relative_to" : "W stosunku do",
 	"side" : "Strona",

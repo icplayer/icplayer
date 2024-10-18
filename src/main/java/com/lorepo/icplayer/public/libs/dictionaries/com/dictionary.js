@@ -499,6 +499,7 @@ var ice_dictionary_en = {
 	"page_edit": "Edit",
 	"score_type": "Score Type",
 	"Preview": "Preview",
+	"PreviewLarge": "Large Preview",
 	"layout_editor": "Layout Editor",
 	"relative_to": "Relative to",
 	"side": "Side",
