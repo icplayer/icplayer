@@ -10,6 +10,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
@@ -31,7 +32,6 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PlayerApp {
 
@@ -635,8 +635,9 @@ public class PlayerApp {
 		String baseUrl = contentModel.getBaseUrl();
 		String contentBaseURL = getContentBaseURL();
 		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
+			String href = ExtendedRequestBuilder.signURL(libraryAsset.getHref());
 			DOMInjector.injectLibrary(
-				URLUtils.resolveURL(baseUrl, libraryAsset.getHref(), contentBaseURL),
+				URLUtils.resolveURL(baseUrl, href, contentBaseURL),
 				libraryAsset.getFileName(),
 				libraryAsset.isModule()
 			);

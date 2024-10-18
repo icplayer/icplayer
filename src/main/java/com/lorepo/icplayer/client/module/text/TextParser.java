@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.URLUtils;
@@ -44,6 +45,7 @@ public class TextParser {
 	private boolean hasSyntaxError = false;
 	private String langTag = "";
 	private boolean isNumericOnly = false;
+	private String baseURL;
 	private String contentBaseURL;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
@@ -955,7 +957,10 @@ public class TextParser {
 				String filePath = matchResult.getGroup(1);
 				if (contentBaseURL != null) {
 					filePath = URLUtils.resolveURL(contentBaseURL, filePath, true);
+				} else if (ExtendedRequestBuilder.getSigningPrefix() != null) {
+					filePath = URLUtils.resolveURL(baseURL, filePath, false);
 				}
+				filePath = ExtendedRequestBuilder.signURL(filePath);
 				int lastIndex = matchResult.getIndex();
 				int groupLength = group.length();
 
@@ -1183,6 +1188,10 @@ public class TextParser {
 			answer = answer.replaceAll(quotationMarks.substring(i,i+1),"\"");
 		}
 		return answer;
+	}
+
+	public void setBaseURL(String baseURL) {
+		this.baseURL = baseURL;
 	}
 
 	public void setContentBaseURL(String baseURL) {
