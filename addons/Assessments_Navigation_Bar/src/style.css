@@ -37,6 +37,7 @@
 .assessments-navigation-bar-wrapper .section.expandable-section {
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .assessments-navigation-bar-wrapper .section_name {
