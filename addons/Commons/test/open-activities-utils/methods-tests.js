@@ -39,7 +39,8 @@ TestCase("[Commons - Open activities utils] Methods tests", {
                 return {
                     getOpenActivityScores: function (pageID, moduleID) {
                         return openActivityScore;
-                    }
+                    },
+                    updateOpenActivityScore: function (pageID, moduleID, aiGrade, aiRelevance) {}
                 };
             }
         };

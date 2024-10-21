@@ -22,5 +22,5 @@ public interface IScoreService {
 	void lessonScoreReset(boolean resetChecks, boolean resetMistakes);
 	void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores);
 	ScoreInfo getOpenActivityScores(String pageID, String moduleID);
-	void updateOpenActivityScore(String pageID, String moduleID, String grade);
+	void updateOpenActivityScore(String pageID, String moduleID, String aiGrade, String aiRelevance);
 }

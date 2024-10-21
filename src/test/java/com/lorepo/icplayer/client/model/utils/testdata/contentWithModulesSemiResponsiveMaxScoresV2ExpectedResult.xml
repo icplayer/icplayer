@@ -85,11 +85,11 @@
         </layout>
     </layouts>
     <pages>
-        <page href="4589705131720704" id="Sw8NvN" modulesMaxScore="3" name="Page 2" pageWeight="1" preview="" reportable="true"/>
-        <page href="5715605038563328" id="aecOAT" modulesMaxScore="5" name="Page 1" pageWeight="1" preview="/file/serve/6722757689606144" reportable="false"/>
+        <page href="4589705131720704" id="Sw8NvN" modulesMaxScore="3" name="Page 2" pageWeight="1" preview="" previewLarge="" reportable="true"/>
+        <page href="5715605038563328" id="aecOAT" modulesMaxScore="5" name="Page 1" pageWeight="1" preview="/file/serve/6722757689606144" previewLarge="" reportable="false"/>
         <folder name="commons">
-            <page href="5152655085142016" id="ZF2Wg1" modulesMaxScore="2" name="header" pageWeight="1" preview="" reportable="true"/>
-            <page href="6278554991984640" id="8LJBze" modulesMaxScore="0" name="footer" pageWeight="1" preview="" reportable="true"/>
+            <page href="5152655085142016" id="ZF2Wg1" modulesMaxScore="2" name="header" pageWeight="1" preview="" previewLarge="" reportable="true"/>
+            <page href="6278554991984640" id="8LJBze" modulesMaxScore="0" name="footer" pageWeight="1" preview="" previewLarge="" reportable="true"/>
         </folder>
         <header ref="commons/header"/>
         <footer ref="commons/footer"/>

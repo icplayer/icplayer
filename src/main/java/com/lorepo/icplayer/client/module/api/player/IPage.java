@@ -9,6 +9,7 @@ public interface IPage extends IContentNode{
 	public boolean isReportable();
 	public String getBaseURL();
 	public String getPreview();
+	public String getPreviewLarge();
 	public String getURL();
 	public String getHref();
 	public List<String> getModulesList();

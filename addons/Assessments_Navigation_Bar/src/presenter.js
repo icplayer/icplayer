@@ -462,8 +462,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     // keep default page order in test generator preview
     function isTestGeneratorPreview() {
+        if (!presenter.playerController || presenter.playerController.isPlayerInCrossDomain()) {
+            return false;
+        }
         const parentUrl = window.parent?.location.href;
-
         return parentUrl.includes('lesson/view/assessment') && parentUrl.includes('preview');
     }
 
