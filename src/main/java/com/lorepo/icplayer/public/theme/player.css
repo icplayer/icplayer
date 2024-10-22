@@ -1283,7 +1283,6 @@ Ensures MathML form MathJax uses "STIX Two Math" as primary font.
 		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf) format('otf');
 }
 
-.ic_player .MathJax_MathML math,
-.ic_player .MathJax_Preview math {
+.ic_player .MathJax_MathML math {
 	font-family: "STIX Two Math", math;
 }
