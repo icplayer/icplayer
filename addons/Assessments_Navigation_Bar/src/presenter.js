@@ -2097,7 +2097,6 @@ function AddonAssessments_Navigation_Bar_create(){
         if (presenter.keyboardControllerObject != null) {
             if (presenter.configuration.enableDropdownPagesList) {
                 presenter.keyboardControllerObject.setElements(presenter.getElementsForTTS());
-                presenter.markCurrentSection(keyboardNavigationIndex);
             } else {
                 presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
                 presenter.markCurrentObject();
@@ -2117,12 +2116,6 @@ function AddonAssessments_Navigation_Bar_create(){
                 break;
             }
         }
-    }
-
-    presenter.markCurrentSection = function (keyboardNavigationIndex) {
-        presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = keyboardNavigationIndex;
-        const currentElement = presenter.keyboardControllerObject.keyboardNavigationElements[keyboardNavigationIndex];
-        $(currentElement).addClass('keyboard_navigation_active_element');
     }
 
     presenter.upgradeState = function (state) {
