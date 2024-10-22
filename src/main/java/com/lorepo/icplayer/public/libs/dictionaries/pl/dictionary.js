@@ -1468,7 +1468,6 @@ var ice_dictionary_pl = {
 	"video_property_subtitles": "Napisy",
 	"video_property_poster": "Zwiastun",
 	"video_property_id": "ID",
-	"video_property_show_video": "Pokaż wideo",
 	"video_property_narration": "Narracja",
 	"video_property_hide_default_controls": "Ukryj kontrolki domyślne",
     "video_property_hide_subtitles" : "Ukryj napisy",

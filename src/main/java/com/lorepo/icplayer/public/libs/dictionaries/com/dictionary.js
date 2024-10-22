@@ -1469,7 +1469,6 @@ var ice_dictionary_en = {
 	"video_property_subtitles": "Subtitles",
 	"video_property_poster": "Poster",
 	"video_property_id": "ID",
-	"video_property_show_video": "Show video",
 	"video_property_narration": "Narration",
 	"video_property_hide_default_controls": "Hide default controls",
     "video_property_hide_subtitles" : "Hide subtitles",
