@@ -9,7 +9,6 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.currentSelectedChapterIndex = -1;
     presenter.currentSelectedChapterName = '';
     presenter.previousSectionsBarHeight = 0;
-    presenter.keyboardNavigationIndex = -1;
 
     presenter.ERROR_MESSAGES = {
         S_00: "Section property cant be empty string",
@@ -840,6 +839,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$sections = $('<div></div>');
 
         this.$sections.addClass("sections");
+        presenter.configuration.enableDropdownPagesList && this.$sections.addClass("enable-dropdown");
 
         presenter.$wrapper.append(this.$sections);
     };
@@ -1392,6 +1392,7 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.run = function(view, model){
+        console.log('run 21')
         presenter.isPreview = false;
         presenter.runLogic(view, model);
     };
@@ -2035,8 +2036,7 @@ function AddonAssessments_Navigation_Bar_create(){
             attemptedPages: presenter.sections.attemptedPages,
             leftSideIndex: presenter.navigationManager.getLeftSideIndex(),
             leftSideValue: presenter.navigationManager.actualPages[0].page,
-            nextPrevBtnWasClicked: presenter.navigationManager.nextPrevBtnWasClicked,
-            keyboardNavigationIndex: presenter.keyboardNavigationIndex
+            nextPrevBtnWasClicked: presenter.navigationManager.nextPrevBtnWasClicked
         };
         return JSON.stringify(state);
     };
@@ -2082,7 +2082,6 @@ function AddonAssessments_Navigation_Bar_create(){
         const previousLeftSideIndex = parsedState.leftSideIndex;
         const previousLeftSideValue = parsedState.leftSideValue;
         const nextPrevBtnWasClicked = parsedState.nextPrevBtnWasClicked;
-        const keyboardNavigationIndex = parsedState.keyboardNavigationIndex;
 
         var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
         // This if fix on wrong state when filter of sections worked wrong
@@ -2094,17 +2093,18 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.navigationManager.moveToCurrentPage();
         presenter.handleSettingCurrentSectionClass();
 
+        presenter.sections.attemptedPages = upgradedState.attemptedPages;
+        presenter.navigationManager.markButtonsWithAttempted(presenter.sections.attemptedPages);
+
         if (presenter.keyboardControllerObject != null) {
             if (presenter.configuration.enableDropdownPagesList) {
                 presenter.keyboardControllerObject.setElements(presenter.getElementsForTTS());
+                presenter.markCurrentSection();
             } else {
                 presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
                 presenter.markCurrentObject();
             }
         }
-
-        presenter.sections.attemptedPages = upgradedState.attemptedPages;
-        presenter.navigationManager.markButtonsWithAttempted(presenter.sections.attemptedPages);
     };
 
     presenter.markCurrentObject = function () {
@@ -2113,7 +2113,17 @@ function AddonAssessments_Navigation_Bar_create(){
         for (var i = 0; i < keyboardElements.length; i++) {
             if ($(keyboardElements[i]).hasClass(presenter.CSS_CLASSES.CURRENT_PAGE)) {
                 presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = i;
-                break;
+            }
+        }
+    }
+
+    presenter.markCurrentSection = function () {
+        const keyboardElements = presenter.keyboardControllerObject.keyboardNavigationElements;
+
+        for (var i = 0; i < keyboardElements.length; i++) {
+            const parentElement = $(keyboardElements[i]).parent();
+            if ((parentElement).hasClass(presenter.CSS_CLASSES.CURRENT_SECTION)) {
+                presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = i;
             }
         }
     }
@@ -2304,19 +2314,24 @@ function AddonAssessments_Navigation_Bar_create(){
         const isSectionSelected = $(this.keyboardNavigationCurrentElement).hasClass('section_name');
         const isExpendable = presenter.configuration.enableDropdownPagesList && isSectionSelected;
 
-        if (isSectionSelected) {
-            presenter.keyboardNavigationIndex = presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex;
-        }
-
         if (isExpendable && presenter.shouldRedirectToPage(selectedSectionClassName)) {
             presenter.handleRedirectToPage(selectedSectionClassName);
         } else if (isExpendable) {
             presenter.isPageListNavigationActive = true;
             presenter.changePageListVisibility(selectedSectionClassName);
             KeyboardController.prototype.setElements.call(this, presenter.getPageListElementsForTTS());
+            presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+            KeyboardController.prototype.markCurrentElement.call(this, 0);
         } else {
             KeyboardController.prototype.select.call(this, event);
         }
+    }
+
+    presenter.getButtonElement = function (sectionClassName) {
+        const $parentElement = $(`.${sectionClassName}`);
+        const $buttonsContainer = $parentElement.find('.buttons');
+
+        return $buttonsContainer.get(0).firstChild;
     }
 
     presenter.changePageListVisibilityStatus = function () {
@@ -2337,13 +2352,11 @@ function AddonAssessments_Navigation_Bar_create(){
         }
     }
 
-    AssesmentsNavigationKeyboardController.prototype.markSelectedChapter = function (currentSelectedChapterIndex) {
-        if (presenter.enableDropdownPagesList) {
-            presenter.keyboardControllerObject.switchElement(currentSelectedChapterIndex);
-        }
-    }
-
     AssesmentsNavigationKeyboardController.prototype.exitWCAGMode = function () {
+        if (presenter.isPageListNavigationActive) {
+            const selectedSectionClassName = $('.keyboard_navigation_active_element').parent().get(0).classList[0];
+            presenter.changePageListVisibility(selectedSectionClassName);
+        }
         presenter.isFirstEnter = true;
         KeyboardController.prototype.setElements.call(this, presenter.getElementsForKeyboardNavigation());
         KeyboardController.prototype.exitWCAGMode.call(this);

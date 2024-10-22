@@ -22,6 +22,11 @@
 }
 
 .assessments-navigation-bar-wrapper .sections {
+    display: inline-block;
+    height: 100%;
+}
+
+.assessments-navigation-bar-wrapper .sections.enable-dropdown {
     display: flex;
     flex-direction: row;
     height: 100%;
@@ -29,12 +34,12 @@
 }
 
 .assessments-navigation-bar-wrapper .section {
-    position: relative;
     display: inline-block;
     height: 100%;
 }
 
 .assessments-navigation-bar-wrapper .section.expandable-section {
+    position: relative;
     display: flex;
     align-items: center;
     cursor: pointer;

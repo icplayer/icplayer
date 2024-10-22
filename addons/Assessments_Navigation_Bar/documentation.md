@@ -36,6 +36,10 @@ are randomly assigned to a button. The random sequence is chosen only once when 
         <td>Allows user to set the width of buttons in Assessments Navigation Bar.
     </tr>
     <tr>
+        <td>Use dynamic pagination</td>
+        <td>The property activates pagination extending by sliding to previous or next element for the first or last visible and selected page index.
+    </tr>
+    <tr>
         <td>Expandable ANB sections</td>
         <td>Enable expandable sections contain list of pages.
     </tr>
