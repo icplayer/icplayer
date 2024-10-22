@@ -1456,7 +1456,6 @@ var ice_dictionary_bl = {
 	"video_property_subtitles": "Субтитри",
 	"video_property_poster": "Плакат",
 	"video_property_id": "ID",
-	"video_property_show_video": "Покажи видео",
 	"video_property_narration": "Разказване",
 	"video_property_hide_default_controls": "Скрий настройките по подразбиране",
     "video_property_hide_subtitles" : "Скрий субтитрите",

@@ -82,7 +82,6 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "time_labels": "",
             "Audio Description": ""
         }],
-        "Show video": "",
         'Show play button': 'False',
         "speechTexts": {
             AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
@@ -137,4 +136,31 @@ UpgradeModelTests.prototype.testDoNotChangePropertyEnableVideoSpeedController = 
     var result = this.presenter.upgradeModel(this.model);
 
     assertEquals(result['enableVideoSpeedController'], 'True');
+};
+
+UpgradeModelTests.prototype.testGivenShowVideoWhenUpgradeModelCalledThenRemoveThisProperty = function () {
+    assertTrue(
+        "Test preparation failed. Model does not have 'Show video' property on start.",
+        this.model.hasOwnProperty("Show video")
+    );
+
+    const result = this.presenter.upgradeModel(this.model);
+
+    assertFalse(result.hasOwnProperty("Show video"));
+};
+
+UpgradeModelTests.prototype.testGivenModelWithoutShowVideoWhenUpgradeModelCalledThenDoNothing = function () {
+    this.model = {
+        "Files": [{
+            "Ogg video": "",
+            "MP4 video": "",
+            "WebM video": "",
+            "Subtitles": "",
+            ID : ""
+        }],
+    };
+
+    const result = this.presenter.upgradeModel(this.model);
+
+    assertFalse(result.hasOwnProperty("Show video"));
 };

@@ -141,7 +141,8 @@ function Addonvideo_create() {
         upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
         upgradedModel = presenter.upgradeVideoSpeedController(upgradedModel);
         upgradedModel = presenter.upgradeShowPlayButton(upgradedModel);
-        return presenter.upgradeBaseDimensions(upgradedModel);
+        upgradedModel = presenter.upgradeBaseDimensions(upgradedModel);
+        return presenter.removeShowVideoFromModel(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -213,6 +214,17 @@ function Addonvideo_create() {
 
         return upgradedModel;
     }
+
+    presenter.removeShowVideoFromModel = function(model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel.hasOwnProperty("Show video")) {
+            delete upgradedModel["Show video"];
+        }
+
+        return upgradedModel;
+    };
 
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
