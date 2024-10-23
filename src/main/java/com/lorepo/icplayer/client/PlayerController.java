@@ -76,7 +76,6 @@ public class PlayerController implements IPlayerController {
 	private String responsiveVoice = "";
 	private String lang = "en";
 	private int iframeScroll = 0;
-	private boolean isIframeInCrossDomain = false;
 	private Set<IPage> visitedPages = new HashSet<IPage>();
 
 	private String pageStamp = "0";
@@ -100,7 +99,6 @@ public class PlayerController implements IPlayerController {
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
-		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.handleCurrentPageIdRequest(this);
 		this.lang = content.getMetadataValue("lang");
@@ -678,7 +676,7 @@ public class PlayerController implements IPlayerController {
 	@Override
 	public int getIframeScroll() {
 		// when true, iframeScroll set by parsing message
-		if (isIframeInCrossDomain) {
+		if (isPlayerInCrossDomain()) {
 			return this.iframeScroll;
 		}
 		return this.getScrollTop();
@@ -709,7 +707,7 @@ public class PlayerController implements IPlayerController {
 
 	@Override
 	public boolean isPlayerInCrossDomain() {
-		return this.isIframeInCrossDomain;
+		return this.checkIsPlayerInCrossDomain();
 	}
 	
 	private native boolean checkIsPlayerInCrossDomain () /*-{		
