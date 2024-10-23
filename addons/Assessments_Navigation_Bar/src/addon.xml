@@ -7,6 +7,8 @@
         <property name='userButtonsWidth' type='string' displayName='Width of buttons' nameLabel="Assessments_Navigation_Bar_property_width_of_buttons"/>
         <property name='defaultOrder' type='boolean' displayName='Default order' nameLabel="Assessments_Navigation_Bar_property_default_order"/>
         <property name='useDynamicPagination' type='boolean' displayName='Use dynamic pagination' nameLabel="Assessments_Navigation_Bar_property_use_dynamic_pagination"/>
+        <property name='enableDropdownPagesList' type='boolean' displayName='Expandable ANB sections' nameLabel="Assessments_Navigation_Bar_property_enable_dropdown_pages_list"/>
+        <property name='enableRedirectToPage' type='boolean' displayName='Enable redirect to page' nameLabel="Assessments_Navigation_Bar_property_enable_redirect_to_page"/>
         <property name="speechTexts" displayName="Speech texts" nameLabel="Assessments_Navigation_Bar_property_speech_texts" type="staticlist">
             <property name="PreviousPage" nameLabel="Assessments_Navigation_Bar_speech_text_previous_page" type="staticrow">
                 <property name="PreviousPage" nameLabel="Assessments_Navigation_Bar_speech_text_previous_page" type="string"/>

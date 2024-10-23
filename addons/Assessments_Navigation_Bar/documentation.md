@@ -15,20 +15,15 @@ are randomly assigned to a button. The random sequence is chosen only once when 
         <td>
             Allows user to specify the sections to be shown by the module. Every section is new line separated and looks as follows:
             <p>"sectionStart-SectionEnd; SectionName; page1Name, page2Name, page3Name; pagesCSSClassName1, pagesCSSClassName2; staticPosition" </p>
-
             <p>for e.g "1-5;; 1, 1, 1, 1, 1; customCSSClassName1, customCSSClassName2" will create one section of
             5 pages with no section name; 
 			every button of the section will have description 1; 
 			every button of the section will have `customCSSClassName1` and `customCSSClassName2` CSS classes.
             </p>
-
             <p>staticPosition should be either "left" or "right". If provided, the section with this value will always be displayed on either left or right side of the addon, regardless of what pages are being displayed at the moment.</p>
-
             <br>Section start and section end may also be comma separated indexes.
-
             Only section start and end are required. Section name, page descriptions and pages CSS class names are optional.
             Remember to put only valid section start and section end to the section property. Providing numbers larger than the number of presentation pages may cause improper working of the addon.
-
             By default, the section descriptions are page numbers provided in section start and section end.
         </td>
     </tr>
@@ -40,10 +35,18 @@ are randomly assigned to a button. The random sequence is chosen only once when 
         <td>Width of buttons</td>
         <td>Allows user to set the width of buttons in Assessments Navigation Bar.
     </tr>
-<tr>
-    <td>Use dynamic pagination</td>
-    <td>The property activates pagination extending by sliding to previous or next element for the first or last visible and selected page index.
-</tr>
+    <tr>
+        <td>Use dynamic pagination</td>
+        <td>The property activates pagination extending by sliding to previous or next element for the first or last visible and selected page index.
+    </tr>
+    <tr>
+        <td>Expandable ANB sections</td>
+        <td>Enable expandable sections contain list of pages.
+    </tr>
+    <tr>
+        <td>Enable redirect to page</td>
+        <td>Enable direct navigation to the page if section has only one page and Expandable ANB sections is checked.
+    </tr>
 </table>
 
 
@@ -60,13 +63,11 @@ are randomly assigned to a button. The random sequence is chosen only once when 
         <td>---</td>
         <td>Bookmarks a current page. Adds the "bookmark" class to a button.</td>
     </tr>
-
     <tr>
         <td>removeBookmark</td>
         <td>---</td>
         <td>Removes bookmark from a current page.</td>
     </tr>
-
     <tr>
         <td>moveToPage</td>
         <td>page index (1-based)</td>
@@ -96,87 +97,82 @@ are randomly assigned to a button. The random sequence is chosen only once when 
         <td>.assessments-navigation-bar-wrapper</td>
         <td>Wrapper container for the module.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .navigation-buttons-first</td>
         <td>Container for the navigation button 'previous' and the rewind button 'left'.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .previous</td>
         <td>Class for the navigation button 'previous'.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .turn_back</td>
         <td>Class for the rewind button 'back'. (hellip description)</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .sections</td>
         <td>Container for all visible sections</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .section</td>
         <td>Class for all section containers.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .section_(index 0-based)</td>
         <td>Class for the section container. Index is 0-based, for example ".section_0" will be added to the first section from the Section property</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .section_name</td>
         <td>Class for the section_name container</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .buttons</td>
         <td>Class for the buttons container in a section.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .button</td>
         <td>Class for the button with a page description in a section.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .current_page</td>
         <td>Class for the button with a currently shown page.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .bookmark</td>
         <td>Class for a bookmarked button</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .navigation-buttons-last</td>
         <td>Container for the navigation button 'next' and the rewind button 'forward'.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .next</td>
         <td>Class for the navigation button 'next'.</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .turn_forward</td>
         <td>Class for the rewind button 'next' (hellip description).</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .element</td>
         <td>Class for clickable elements in the module - buttons in sections, navigation buttons</td>
     </tr>
-
     <tr>
         <td>.assessments-navigation-bar-wrapper .mouse-over</td>
         <td>Class for the button with mouse on hover.</td>
     </tr>
-
+    <tr>
+        <td>.current-section</td>
+        <td>Class for the section contains currently opened page.</td>
+    </tr>
+    <tr>
+        <td>.selected</td>
+        <td>Class for the section with currently opened dropdown pages list.</td>
+    </tr>
+    <tr>
+        <td>.visible-page-list</td>
+        <td>Class for the dropdown wrapper.</td>
+    </tr>
 </table>
 
 ## Demo presentation
