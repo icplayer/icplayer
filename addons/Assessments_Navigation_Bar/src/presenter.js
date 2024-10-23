@@ -1392,7 +1392,6 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.run = function(view, model){
-        console.log('run 21')
         presenter.isPreview = false;
         presenter.runLogic(view, model);
     };
