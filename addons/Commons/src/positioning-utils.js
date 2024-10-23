@@ -143,13 +143,13 @@
         }
         return relativeOffset;
     }
-
+    
     function isPlayerInCrossDomain() {
         try {
-	        return !window.top.document;
-		} catch (e) {
-		    return true;
-		}
+            return !window.top.document;
+        } catch (e) {
+            return true;
+        }
     }
 
     function getPlayerBoundingClientRect() {
