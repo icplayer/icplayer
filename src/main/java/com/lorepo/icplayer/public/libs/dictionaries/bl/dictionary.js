@@ -499,6 +499,7 @@ var ice_dictionary_bl = {
 	"page_edit": "Редактиране",
 	"score_type": "Тип резултат",
 	"Preview": "Предварителен изглед",
+	"PreviewLarge": "Large Preview",
 	"layout_editor": "Редактор на оформление",
 	"relative_to": "Спрямо",
 	"side": "Страна",

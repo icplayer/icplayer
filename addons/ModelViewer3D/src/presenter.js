@@ -158,13 +158,11 @@ function AddonModelViewer3D_create() {
         presenter.modelViewer.setAttribute("ar", "");
         presenter.modelViewer.setAttribute("camera-controls", "");
         presenter.modelViewer.setAttribute("touch-action", "pan-y");
+        !isPreview && presenter.modelViewer.setAttribute("vr", "");
 
         if (presenter.isMobileIOS()) {
             presenter.modelViewer.setAttribute("xr-environment", "");
         }
-
-        !isPreview && presenter.modelViewer.setAttribute("vr", "");
-
         presenter.addAttributesFromModel();
     };
 

@@ -22,5 +22,5 @@ TestCase("[ModelViewer3D] Validate model tests", {
         const configuration = this.presenter.validateModel(this.model);
 
         assertEquals(true, configuration["enableFullscreen"]);
-    },
+    }
 });

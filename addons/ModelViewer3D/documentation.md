@@ -1,6 +1,7 @@
 ## Description
 
 ##### Model Viewer 3D allows for displaying 3D models. <br> Please note that when using a mobile device, an additional <img src="/file/serve/6093598547116032" style="border: 0; display:inline; margin: 0 2px; box-shadow: none" alt="AR"> icon will be visible in the vicinity of the 3D model. Interacting with the icon allows switching the preview to the Augmented Reality mode ([https://modelviewer.dev/examples/augmentedreality](https://modelviewer.dev/examples/augmentedreality "https://modelviewer.dev/examples/augmentedreality")) <br>Works on iPhones from iOS version 15.
+##### Model Viewer 3D allows for displaying 3D models. <br> Please note that when using a mobile device, an additional <img src="/file/serve/6093598547116032" style="border: 0; display:inline; margin: 0 2px; box-shadow: none" alt="AR"> icon will be visible in the vicinity of the 3D model. Interacting with the icon allows switching the preview to the Augmented Reality mode ([https://modelviewer.dev/examples/augmentedreality](https://modelviewer.dev/examples/augmentedreality "https://modelviewer.dev/examples/augmentedreality")).
 
 ## Properties
 
