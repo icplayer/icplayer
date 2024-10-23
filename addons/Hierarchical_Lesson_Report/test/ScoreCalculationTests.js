@@ -290,7 +290,28 @@ TestCase("[Hierarchical Lesson Report] Checking conditions to calculate Page Sca
         assertEquals(1, scaledScore);
         assertTrue(this.presenter.isPageVisited.calledOnce);
         assertTrue(this.printableController.isPreview.calledOnce);
+    },
+
+    'test given empty chapter score when calling createInnerHTMLForScoreCell return unvisited page score label': function () {
+        this.presenter.setPlayerController({
+            getPresentation: () => {
+                return {
+                    getPageById: () => {
+                    }
+                }
+            }
+        });
+        this.presenter.configuration = {
+            excludeUnvisitedPages: false,
+            labels: {unvisitedPageScore: "-"}
+        };
+
+        var result = this.presenter.createInnerHTMLForScoreCell({maxScore: 0, score: 0, scaledScore: 0}, "chapter");
+
+        assertEquals("-", result);
     }
+
+
 });
 
 function setPrintableShowResultsStateMode(presenter) {

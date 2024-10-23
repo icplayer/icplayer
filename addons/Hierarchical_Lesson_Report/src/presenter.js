@@ -682,14 +682,22 @@ function AddonHierarchical_Lesson_Report_create() {
         updateCell($row, innerHTML, hasChildren, className);
     }
 
+    presenter.createInnerHTMLForScoreCell = function (score, pageId) {
+        return createInnerHTMLForScoreCell(score, pageId);
+    }
+
     function createInnerHTMLForScoreCell (score, pageId) {
         const $separator = generateSeparator();
+
+        if (isNaN(score.maxScore)) {
+            return getConfiguration().labels.unvisitedPageScore;
+        }
 
         if (isInPrintableStateMode() && !getConfiguration().excludeUnvisitedPages && score.maxScore === 0) {
             return score.score + '/' + score.maxScore;
         }
 
-        if (score.maxScore === 0 && !getConfiguration().excludeUnvisitedPages && pageId && presentationController) {
+        if (score.maxScore === 0 && !getConfiguration().excludeUnvisitedPages && pageId && pageId != "chapter" && presentationController) {
             const maxScore = presentationController.getPresentation().getPageById(pageId).getModulesMaxScore();
             presenter.totalScore += maxScore;
 
@@ -699,7 +707,10 @@ function AddonHierarchical_Lesson_Report_create() {
         if (score.score === 0 && score.maxScore === 0 && score.scaledScore === 0) {
             return getConfiguration().labels.unvisitedPageScore;
         }
-        presenter.totalScore += score.maxScore;
+
+        if (pageId != "chapter") {
+            presenter.totalScore += score.maxScore;
+        }
 
         return score.score + $separator[0].outerHTML + score.maxScore;
     }
