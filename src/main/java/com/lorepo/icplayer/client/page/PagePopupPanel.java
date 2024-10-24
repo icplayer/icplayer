@@ -209,45 +209,19 @@ public class PagePopupPanel extends DialogBox {
 	}
 	
 	private int calculateTopWhenCentred() {
-		if (pageController.getPlayerServices().isPlayerInCrossDomain()) {
-			return calculateTopWhenInDifferentDomain();
-		}
-		return _calculateTopWhenCentred(this.getElement());
+		return calculateTopWhenCentred(this.getElement());
 	}
 	
-	private int calculateLeftWhenCentred() {
-		if (pageController.getPlayerServices().isPlayerInCrossDomain()) {
-			return calculateLeftWhenInDifferentDomain();
-		}
-		return _calculateLeftWhenCentred(this.getElement());
-	}
-	
-	private int calculateTopWhenInDifferentDomain() {
-		int top;
-		if (Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
-			top = Math.abs(parentWidget.getAbsoluteTop());
-		} else {
-			top = Window.getScrollTop();
-		}
-		return top;
-	}
-	
-	private int calculateLeftWhenInDifferentDomain() {
-		int left = parentWidget.getAbsoluteLeft();
-		int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
-		left = left + offsetX/2;
-		if (left < 0) {
-			left = 0;
-		}
-		return left;
-	}
-	
-	private static native int _calculateTopWhenCentred(Element popupElement) /*-{
+	private static native int calculateTopWhenCentred(Element popupElement) /*-{
 		var elementHeight = popupElement.getBoundingClientRect().height;
 		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
 	}-*/;
 	
-	private static native int _calculateLeftWhenCentred(Element popupElement) /*-{
+	private int calculateLeftWhenCentred() {
+		return calculateLeftWhenCentred(this.getElement());
+	}
+	
+	private static native int calculateLeftWhenCentred(Element popupElement) /*-{
 		var elementWidth = popupElement.getBoundingClientRect().width;
 		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
 	}-*/;
