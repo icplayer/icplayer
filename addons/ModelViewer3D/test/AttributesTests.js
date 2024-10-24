@@ -29,6 +29,18 @@ TestCase('[ModelViewer3D] Attributes tests', {
         this.presenter.handleAttributes();
 
         assertTrue(this.presenter.modelViewer.hasAttribute("xr-environment"));
+    },
+
+    'test given mocked iOS device and modelIOS when handleAttributes was called should append ios-src attribute to element': function () {
+        const isMobileIOSStub = sinon.stub();
+        isMobileIOSStub.returns(true);
+        this.presenter.isMobileIOS = isMobileIOSStub;
+        this.presenter.configuration.modelIOS = 'example/path';
+
+        this.presenter.handleAttributes();
+
+        assertTrue(this.presenter.modelViewer.hasAttribute("ios-src"));
+        assertEquals('example/path', this.presenter.modelViewer.getAttribute("ios-src"));
     }
 });
 

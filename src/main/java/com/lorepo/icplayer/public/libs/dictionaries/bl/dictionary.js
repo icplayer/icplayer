@@ -1958,6 +1958,7 @@ var ice_dictionary_bl = {
 	"MenuPanel_property_disable": "Изключи",
 	"ModelViewer3D_name": "Model Viewer 3D",
 	"Model_Viewer_model": "Model",
+	"Model_Viewer_model_iOS": "Model iOS",
 	"Model_Viewer_poster": "Poster",
 	"Model_Viewer_annotations": "Annotations",
 	"Model_Viewer_environmentImage": "Environment Image",

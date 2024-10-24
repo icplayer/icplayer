@@ -61,7 +61,9 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeModelWithEnableFullscreen(model);
+        const upgradedModel = presenter.upgradeModelWithEnableFullscreen(model);
+
+        return presenter.upgradeModelWithModelIOS(upgradedModel);
     };
 
     presenter.upgradeModelWithEnableFullscreen = function(model) {
@@ -70,6 +72,17 @@ function AddonModelViewer3D_create() {
 
         if (!upgradedModel["enableFullscreen"]) {
             upgradedModel["enableFullscreen"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModelWithModelIOS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model.hasOwnProperty('modelIOS')) {
+            upgradedModel['modelIOS'] = "";
         }
 
         return upgradedModel;
@@ -96,6 +109,7 @@ function AddonModelViewer3D_create() {
             isVisible: isVisible,
             addonID: model["ID"],
             model: model["model"],
+            modelIOS: model["modelIOS"],
             poster: model["poster"],
             annotations: model["annotations"].trim(),
             environmentImage: environmentImage,
@@ -162,6 +176,9 @@ function AddonModelViewer3D_create() {
 
         if (presenter.isMobileIOS()) {
             presenter.modelViewer.setAttribute("xr-environment", "");
+            presenter.modelViewer.setAttribute("ar-mode", "webxr scene-viewer quick-look fallback");
+            presenter.configuration.modelIOS &&
+                presenter.modelViewer.setAttribute("ios-src", presenter.configuration.modelIOS);
         }
         presenter.addAttributesFromModel();
     };
