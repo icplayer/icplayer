@@ -15,6 +15,8 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
+import com.lorepo.icplayer.client.PlayerApp.PlayerConfigOverlay;
+import com.lorepo.icplayer.client.PlayerApp.PlayerEventsConfigOverlay;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
@@ -810,7 +812,13 @@ public class PlayerApp {
 				this.playerController.switchToPage(pageIndex);
 			}
 		}
+		updateMathJax();
+
 		return isLayoutChanged;
+	}
+
+	public void updateMathJax() {
+		this.playerController.updateMathJaxInCurrentPage();
 	}
 
 	public void updateLayout() {

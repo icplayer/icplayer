@@ -115,6 +115,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			};
 
 			player.setContextMetadata = function(contextData){
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::updateMathJax()();
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
 			};
 
@@ -431,5 +432,9 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
 		this.theApplication.setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
+	}
+
+	private void updateMathJax() {
+		this.theApplication.updateMathJax();
 	}
 }
