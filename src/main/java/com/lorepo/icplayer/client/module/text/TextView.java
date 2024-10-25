@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -624,11 +625,57 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	public void reconnectHandlers () {
+	public void reconnectHandlersCallback () {
+		boolean allGapsLoaded = true;
 		for (GapWidget element: this.gapsWidgets) {
-			element.reconnectHandlers(this.listener);
+			Element gapElement = DOM.getElementById(element.gapInfo.getId());
+			if (gapElement != null) {
+				element.reconnectHandlers(this.listener);
+			} else {
+				allGapsLoaded = false;
+			}
+		}
+		if (!allGapsLoaded) reconnectHandlersAfterTimeout(this, 500);
+	}
+
+	public void reconnectHandlers () {
+		boolean allGapsLoaded = true;
+		for (GapWidget element: this.gapsWidgets) {
+			Element gapElement = DOM.getElementById(element.gapInfo.getId());
+			if (gapElement == null) {
+				allGapsLoaded = false;
+				break;
+			}
+		}
+		if (allGapsLoaded) {
+			reconnectHandlersCallback();
+		} else {
+			reconnectHandlersAfterEndProcess(this);
 		}
 	}
+
+	public native void reconnectHandlersAfterEndProcess (TextView x) /*-{
+		var reconnectState = { endProcessCalled: false, hook: null};
+
+		reconnectState.hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
+			reconnectState.endProcessCalled = true;
+			x.@com.lorepo.icplayer.client.module.text.TextView::reconnectHandlersCallback()();
+			$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(reconnectState.hook);
+		});
+
+		//Fallback
+		setTimeout(function(){
+			if (reconnectState.endProcessCalled) return;
+			x.@com.lorepo.icplayer.client.module.text.TextView::reconnectHandlersCallback()();
+			$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(reconnectState.hook);
+		}, 1000);
+	}-*/;
+
+	public native void reconnectHandlersAfterTimeout (TextView x, int timeoutTime) /*-{
+		setTimeout(function(){
+			x.@com.lorepo.icplayer.client.module.text.TextView::reconnectHandlersCallback()();
+		}, timeoutTime);
+	}-*/;
 
 	private int getTextElementsSize() {
 		return textElements.size();
