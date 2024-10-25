@@ -1468,7 +1468,6 @@ var ice_dictionary_mx = {
 	"video_property_subtitles": "Subtítulos",
 	"video_property_poster": "Cartel",
 	"video_property_id": "ID",
-	"video_property_show_video": "Mostrar vídeo",
 	"video_property_narration": "Narración",
 	"video_property_hide_default_controls": "Ocultar los controles",
     "video_property_hide_subtitles" : "Ocultar subtítulos",
