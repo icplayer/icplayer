@@ -7,6 +7,7 @@ import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -18,6 +19,7 @@ public class ChoiceOption extends BasicPropertyProvider{
 	private String feedback = "";
 	private String id;
 	private String parentId = "";
+	private String baseURL;
 	private String contentBaseURL;
 	
 	public ChoiceOption(String id){
@@ -173,32 +175,31 @@ public class ChoiceOption extends BasicPropertyProvider{
 
 
 	public void load(Element element, String baseUrl) {
-		
+		this.baseURL = baseUrl;
 		value = XMLUtils.getAttributeAsInt(element, "value");
 		String rawFeedback = "";
 		
 		NodeList textNodes = element.getElementsByTagName("text"); 
-		if(textNodes.getLength() > 0){
+		if (textNodes.getLength() > 0){
 			Element textElement = (Element) textNodes.item(0);
 			text = XMLUtils.getCharacterDataFromElement(textElement);
-			if(text == null){
+			if (text == null){
 				text = XMLUtils.getText(textElement);
 				text = StringUtils.unescapeXML(text);
 			}
-			if (baseUrl != null || contentBaseURL != null){
+			if (baseUrl != null || contentBaseURL != null || ExtendedRequestBuilder.getSigningPrefix() != null){
 				text = StringUtils.updateLinks(text, baseUrl, contentBaseURL);
 			}
 
 			NodeList feedbackNodes = element.getElementsByTagName("feedback");
-			if(feedbackNodes.getLength() > 0){
+			if (feedbackNodes.getLength() > 0){
 				rawFeedback = XMLUtils.getText((Element) feedbackNodes.item(0));
 			}
-		}
-		else{
+		} else {
 			text = XMLUtils.getText((Element) element);
 		}
 		
-		if(!rawFeedback.isEmpty()){
+		if (!rawFeedback.isEmpty()){
 			feedback = StringUtils.unescapeXML(rawFeedback);
 		}
 
@@ -223,6 +224,10 @@ public class ChoiceOption extends BasicPropertyProvider{
 		return optionElement;
 	}
 
+	public String getBaseURL() {
+		return this.baseURL;
+	}
+
 	public void setContentBaseURL(String baseURL) {
 		this.contentBaseURL = baseURL;
 	}
@@ -230,5 +235,5 @@ public class ChoiceOption extends BasicPropertyProvider{
 	public String getContentBaseURL() {
 		return this.contentBaseURL;
 	}
-	
+
 }
