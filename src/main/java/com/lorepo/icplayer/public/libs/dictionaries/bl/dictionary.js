@@ -1984,6 +1984,8 @@ var ice_dictionary_bl = {
 	"Assessments_Navigation_Bar_property_lang_attribute": "Lang attribute",
 	"Assessments_Navigation_Bar_property_speech_texts": "Speech texts",
 	"Assessments_Navigation_Bar_property_use_dynamic_pagination": "Use dynamic pagination",
+	"Assessments_Navigation_Bar_property_enable_dropdown_pages_list": "Expandable ANB sections",
+	"Assessments_Navigation_Bar_property_enable_redirect_to_page": "Enable redirect to page",
 	"Assessments_Navigation_Bar_speech_text_previous_page": "Go to previous page",
 	"Assessments_Navigation_Bar_speech_text_title": "Title",
 	"Assessments_Navigation_Bar_speech_text_go_to_page": "Go to page",
