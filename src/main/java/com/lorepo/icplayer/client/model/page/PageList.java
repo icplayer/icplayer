@@ -310,6 +310,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		final String href = node.getAttribute("href");
 		final String pageId = node.getAttribute("id");
 		final String preview = XMLUtils.getAttributeAsString(node, "preview");
+		final String previewLarge = XMLUtils.getAttributeAsString(node, "previewLarge", "");
 		final String pageWeightAttribute = node.getAttribute("pageWeight");
 		final int moduleMaxScore = XMLUtils.getAttributeAsInt(node, "modulesMaxScore", 0);
 		final boolean isEmpty = pageWeightAttribute == null || pageWeightAttribute.isEmpty();
@@ -328,6 +329,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		page.setReportable(reportable);
 		page.setNotAssignable(notAssignable);
 		page.setPreview(preview);
+		page.setPreviewLarge(previewLarge);
 		page.setModulesMaxScore(moduleMaxScore);
 		page.setRandomizeInPrint(randomizeInPrint);
 		page.setSplitInPrintBlocked(isSplitInPrintBlocked);
@@ -356,9 +358,11 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		String name = StringUtils.escapeXML(page.getName());
 		String href = StringUtils.escapeXML(page.getHref());
 		String preview = StringUtils.escapeXML(page.getPreview());
+		String previewLarge = StringUtils.escapeXML(page.getPreviewLarge());
 		String xml = "<page id='" + page.getId() + "' name='" + name + "'" + " href='" + href + "' preview='" + preview + "'";
 		xml += " modulesMaxScore='[s]'".replace("[s]", page.getModulesMaxScore() + "");
 		xml += " pageWeight='[w]'".replace("[w]", page.getPageWeight() + "");
+		xml += " previewLarge='" + previewLarge + "'";
 
 		if (page.isReportable()) {
 			xml += " reportable='true'/>";

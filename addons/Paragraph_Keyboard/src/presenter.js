@@ -234,13 +234,15 @@ function AddonParagraph_Keyboard_create() {
         const parsedData = JSON.parse(data.replace(`EXTERNAL_${userAnswerAIReviewResponse}:`, '').trim());
         const pageID = parsedData.page_id;
         const activityID = parsedData.activity_id;
-        const grade = parsedData.ai_grade;
+        const aiGrade = parsedData.ai_grade;
+        const aiRelevance = parsedData.ai_relevance;
 
         OpenActivitiesUtils.updateOpenActivityScore(
             presenter.playerController,
             pageID,
             activityID,
-            grade
+            aiGrade,
+            aiRelevance
         );
     };
 

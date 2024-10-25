@@ -73,6 +73,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private boolean reportable = true;
 	private String previewURL = "";
+	private String previewLargeURL = "";
 	// Properties
 	IProperty propertyName;
 	private int index;
@@ -115,6 +116,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyReportable();
 		addPropertyNotAssignable();
 		addPropertyPreview();
+		addPropertyPreviewLarge();
 		addPropertyScoreType();
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
@@ -706,6 +708,40 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addProperty(propertyName);
 	}
 
+	private void addPropertyPreviewLarge() {
+
+		propertyName = new IImageProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				previewLargeURL = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return previewLargeURL;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("PreviewLarge");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("PreviewLarge");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(propertyName);
+	}
+
 	@Override
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
@@ -870,6 +906,15 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public void setPreview(String preview) {
 		this.previewURL = preview;
+	}
+
+	@Override
+	public String getPreviewLarge() {
+		return URLUtils.resolveURL(baseURL, previewLargeURL);
+	}
+
+	public void setPreviewLarge(String preview) {
+		this.previewLargeURL = preview;
 	}
 
 	@Override

@@ -494,6 +494,15 @@ public class GWTContentTestCase extends GwtTest {
 		
         XMLAssert.assertXMLEqual(diff, true);
 	}
+
+	@Test
+	public void givenContentWithLargePreviewWhenCallingGetPreviewLargeThenGetCorrectValue() throws SAXException, IOException {
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentWithLargePreview.xml");
+		content.getPage(0).getPreviewLarge();
+
+		assertEquals("/file/serve/123", content.getPageById("aecOAT").getPreviewLarge());
+		assertEquals("/file/serve/456", content.getPageById("Sw8NvN").getPreviewLarge());
+	}
 	
 	@Test
 	public void loadToXMLHaveToPreserverModulesMaxScoresSemiResponsiveVersion2() throws SAXException, IOException {

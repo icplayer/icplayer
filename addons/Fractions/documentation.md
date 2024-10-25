@@ -73,6 +73,13 @@ This addon allows users to create activities that include parts of two geometric
         <td>An image displayed when a part is deselected.
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p></td>
     </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>
+            This texts will be read by Text to Speech addon after a user performs an action.
+            List of speech texts: Selected, Deselected, Item, Correct, Wrong, Of.
+        </td>
+    </tr>
 </tbody>
 </table>
 

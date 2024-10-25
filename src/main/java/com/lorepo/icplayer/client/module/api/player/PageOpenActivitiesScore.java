@@ -11,51 +11,58 @@ import com.google.gwt.core.client.JavaScriptObject;
 public class PageOpenActivitiesScore {
 	
 	public static class ScoreInfo {
-		int aiGradedScore = -1;
-		int manualGradedScore = -1;
-		int maxScore = -1;
+		Integer manualGradedScore;
+		Integer maxScore;
+		Integer aiGradedScore;
+		Float aiRelevance;
 		
-		public ScoreInfo(int aiGradedScore, int manualGradedScore, int maxScore) {
+		public ScoreInfo(Integer aiGradedScore, Integer manualGradedScore, Integer maxScore, Float aiRelevance) {
 			this.manualGradedScore = manualGradedScore;
 			this.aiGradedScore = aiGradedScore;
+			this.aiRelevance = aiRelevance;
 			this.maxScore = maxScore;
-		}
-		
-		public ScoreInfo(int aiGradedScore) {
-			this.aiGradedScore = aiGradedScore;
 		}
 
 		public ScoreInfo() {}
 		
-		public void setAIGradedScore(int aiGradedScore) {
+		public void setAIData(Integer aiGradedScore, Float aiRelevance) {
 			this.aiGradedScore = aiGradedScore;
+			this.aiRelevance = aiRelevance;
 		}
 		
 		public int getScore() {
-			if (manualGradedScore != -1) {
-				return manualGradedScore;
+			if (manualGradedScore != null) {
+				return manualGradedScore.intValue();
 			}
-			if (aiGradedScore != -1) {
-				return aiGradedScore;
+			if (aiGradedScore != null) {
+				return aiGradedScore.intValue();
 			}
 			return 0;
 		}
 		
 		public int getMaxScore() {
-			if (maxScore != -1) {
-				return maxScore;
+			if (maxScore != null) {
+				return maxScore.intValue();
 			}
 			return 0;
 		}
 		
-		public JavaScriptObject getAsJSObject() {
-			return createJSObject(aiGradedScore, manualGradedScore);
+		public Float getAIRelevance() {
+			return aiRelevance;
 		}
 		
-		private native JavaScriptObject createJSObject(int aiGradedScore, int manualGradedScore) /*-{
+		public JavaScriptObject getAsJSObject() {
+			int _aiGradedScore = (aiGradedScore != null) ? aiGradedScore.intValue() : -999;
+			int _manualGradedScore = (manualGradedScore != null) ? manualGradedScore.intValue() : -999;
+			float _aiRelevance = (aiRelevance != null) ? aiRelevance.floatValue() : -999.0f;
+			return createJSObject(_aiGradedScore, _manualGradedScore, _aiRelevance);
+		}
+		
+		private native JavaScriptObject createJSObject(int aiGradedScore, int manualGradedScore, float aiRelevance) /*-{
 			return {
-				"aiGradedScore": aiGradedScore === -1 ? null : aiGradedScore,
-				"manualGradedScore": manualGradedScore === -1 ? null : manualGradedScore
+				"manualGradedScore": manualGradedScore === -999 ? null : manualGradedScore,
+				"aiGradedScore": aiGradedScore === -999 ? null : aiGradedScore,
+				"aiRelevance": aiRelevance === -999 ? null : aiRelevance
 			}
 		}-*/;
 	}
@@ -69,18 +76,14 @@ public class PageOpenActivitiesScore {
 	public ScoreInfo get(String moduleID) {
 		return scores.get(moduleID);
 	}
-	
-	public void addScore(String moduleID, int aiGradedScore, int manualGradedScore, int maxScore) {
-		scores.put(moduleID, new ScoreInfo(aiGradedScore, manualGradedScore, maxScore));
-	}
 
-	public void setAIGradedScore(String moduleID, int aiGradedScore) {
-		ScoreInfo score = get(moduleID);
-		score.aiGradedScore = aiGradedScore;
+	public void addScore(String moduleID, Integer aiGradedScore, Integer manualGradedScore, Integer maxScore, Float aiRelevance) {
+		scores.put(moduleID, new ScoreInfo(aiGradedScore, manualGradedScore, maxScore, aiRelevance));
 	}
 	
-	public boolean hasScore(String moduleID) {
-		return scores.containsKey(moduleID);
+	public void setAIData(String moduleID, Integer aiGradedScore, Float aiRelevance) {
+		ScoreInfo score = get(moduleID);
+		score.setAIData(aiGradedScore, aiRelevance);
 	}
 	
 	public int getScore(){
@@ -97,14 +100,5 @@ public class PageOpenActivitiesScore {
 			result += scoreInfo.getMaxScore();
 		}
 		return result;
-	}
-	
-	public void setModuleAIGradedScore(String moduleID, int aiGradedScore, int maxScore) {
-		ScoreInfo scoreInfo = scores.get(moduleID);
-		if (scoreInfo != null) {
-			scoreInfo.setAIGradedScore(aiGradedScore);
-		} else {
-			addScore(moduleID, aiGradedScore, -1, maxScore);
-		}
 	}
 }
