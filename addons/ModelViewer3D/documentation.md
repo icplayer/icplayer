@@ -1,7 +1,7 @@
 ## Description
 
 ##### Model Viewer 3D allows for displaying 3D models. <br> Please note that when using a mobile device, an additional <img src="/file/serve/6093598547116032" style="border: 0; display:inline; margin: 0 2px; box-shadow: none" alt="AR"> icon will be visible in the vicinity of the 3D model. Interacting with the icon allows switching the preview to the Augmented Reality mode ([https://modelviewer.dev/examples/augmentedreality](https://modelviewer.dev/examples/augmentedreality "https://modelviewer.dev/examples/augmentedreality"))
-##### Model Viewer 3D works on iPhones from iOS version 14. Supports Augmented Reality (AR) session in mobile device, in iOS it is necessary to check "Disable navigation panels automatic appearance" in Lesson editor for the AR function to work properly.
+##### Model Viewer 3D works on iPhones from iOS version 14.
 ## Properties
 
 The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
@@ -18,7 +18,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Model iOS</td>
-        <td>Path to the file containing the 3D model necessary to run the AR functionality in iOS. Supports only the usdz 3D models.</td>
+        <td>Path to the file containing the 3D model necessary to run the AR functionality in iOS. Supports only the usdz 3D models. Check chapter Augmented Reality (AR) for more information.</td>
     </tr>
     <tr>
         <td>Poster</td>
@@ -232,3 +232,5 @@ When these conditions are met, the addon will:
 
 When `Enable fullscreen` property is selected the content of the addon will be wrapped with an element with CSS class `.modelViewerWrapper`, regardless of whether the device supports Fullscreen API
  
+## Augmented Reality (AR)
+The addon supports Augmented Reality (AR) session in mobile device, in iOS it is necessary to check "Disable navigation panels automatic appearance" in Lesson editor for the AR function to work properly.
