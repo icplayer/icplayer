@@ -1,3 +1,4 @@
+2024-10-25 Added dropdown pages list in Assessments_Navigation_Bar
 2024-10-25 Fixed displaying FileSender popups in mCourser
 2024-10-25 Fixed issue with reset causing math gaps to throw erros when mathjax 2.7 is enabled
 2024-10-18 Added fullscreen functionality to Model Viewer 3D
