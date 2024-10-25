@@ -1,4 +1,4 @@
-<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="5">
+<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last">
     <metadata>
         <entry key="useGrid" value="true"/>
         <entry key="snapToGrid" value="true"/>
@@ -58,35 +58,26 @@
         <addon-descriptor addonId="SVG2" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/SVG2.xml"/>
         <addon-descriptor addonId="Text_Coloring" href="//www.mauthor.com/media/iceditor/addons/Text_Coloring.xml"/>
     </addons>
-    <styles>
-        <style id="default" isDefault="true" name="default">
-            .ic_page{
-            background-color: #efefef;
-            font-size:18px;
-            width:	800px;
-            height:	600px;
-            }
+    <style>
+        .ic_page{
+        background-color: #efefef;
+        font-size:18px;
+        width:	800px;
+        height:	600px;
+        }
 
-            .myText{
-            background-color:yellow;
-            border:1px solid blue;
-            }
+        .myText{
+        background-color:yellow;
+        border:1px solid blue;
+        }
 
-            .silver{
-            background-color:silver;
-            }
-        </style>
-    </styles>
-    <layouts>
-        <layout id="default" isDefault="true" name="default">
-            <style id="default"/>
-            <threshold width="800"/>
-            <gridSize value="0"/>
-        </layout>
-    </layouts>
+        .silver{
+        background-color:silver;
+        }
+    </style>
     <pages>
-        <page href="4589705131720704" id="Sw8NvN" modulesMaxScore="3" name="Page 2" pageWeight="1" preview="" previewLarge="" reportable="true"/>
-        <page href="5715605038563328" id="aecOAT" modulesMaxScore="5" name="Page 1" pageWeight="1" preview="/file/serve/6722757689606144" previewLarge="" reportable="false"/>
+        <page href="4589705131720704" id="Sw8NvN" modulesMaxScore="3" name="Page 2" pageWeight="1" preview="" previewLarge="/file/serve/456" reportable="true"/>
+        <page href="5715605038563328" id="aecOAT" modulesMaxScore="5" name="Page 1" pageWeight="1" preview="/file/serve/6722757689606144" previewLarge="/file/serve/123" reportable="false"/>
         <folder name="commons">
             <page href="5152655085142016" id="ZF2Wg1" modulesMaxScore="2" name="header" pageWeight="1" preview="" previewLarge="" reportable="true"/>
             <page href="6278554991984640" id="8LJBze" modulesMaxScore="0" name="footer" pageWeight="1" preview="" previewLarge="" reportable="true"/>
@@ -135,7 +126,4 @@
         <asset contentType="image/svg+xml" fileName="ic_arrow_forward_white_48px.svg" href="/file/serve/6617204573339648" title="" type="image"/>
         <asset contentType="image/png" fileName="" href="http://0x0800.github.io/2048-STARWARS/style/img/8.svg" title="" type="image"/>
     </assets>
-    <adaptive><![CDATA[]]></adaptive>
-    <dictionary></dictionary>
-    <defaultTTSTitlesDictionary></defaultTTSTitlesDictionary>
 </interactiveContent>
