@@ -592,7 +592,7 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
             generateExpectedPageRow(1, null, "Page 2", true,  0, "40%", 0, 2, 3, 2, 5),
             generateExpectedPageRow(2, null, "Page 3", false, 0, "0%", 2, 3, 2, 0, 2),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "29%", 3, 6, 7, 3, 10);
+        const expectedHTML = generateExpectedHTML(rows, "24%", 3, 6, 7, 3, 10);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -605,12 +605,12 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         this.model["isWeightedArithmeticMean"] = "True";
 
         const rows = [
-            generateExpectedChapterRow(0, null, "Chapter 1", 0, "35%", 2, 9, 6, 3, 9),
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "30%", 2, 9, 6, 3, 9),
             generateExpectedPageRow(1,  0, "Page 1.1", true,  1, "40%", 0, 2, 3, 2, 5),
             generateExpectedPageRow(2,  0, "Page 1.2", false, 1,  "0%", 2, 3, 2, 0, 2),
             generateExpectedPageRow(3,  0, "Page 1.3", true,  1, "50%", 0, 4, 1, 1, 2),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "35%", 2, 9, 6, 3, 9);
+        const expectedHTML = generateExpectedHTML(rows, "30%", 2, 9, 6, 3, 9);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -624,12 +624,12 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         this.model["scoredisabled"] = "3";
 
         const rows = [
-            generateExpectedChapterRow(0, null, "Chapter 1", 0, "44%", 0, 6, 4, 3, 7),
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "45%", 0, 6, 4, 3, 7),
             generateExpectedPageRow(1,  0, "Page 1.1", true,  1, "40%", 0, 2, 3, 2, 5),
             generateExpectedDisabledPageRow(2,  0, "Page 1.2", false, 1),
             generateExpectedPageRow(3,  0, "Page 1.3", true,  1, "50%", 0, 4, 1, 1, 2),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "44%", 0, 6, 4, 3, 7);
+        const expectedHTML = generateExpectedHTML(rows, "45%", 0, 6, 4, 3, 7);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -642,11 +642,11 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         this.model["isWeightedArithmeticMean"] = "True";
 
         const rows = [
-            generateExpectedChapterRow(0, null, "Chapter 1", 0, "44%", 0, 6, 4, 3, 7),
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "45%", 0, 6, 4, 3, 7),
             generateExpectedPageRow(1,  0, "Page 1.1", true,   1, "40%", 0, 2, 3, 2, 5),
             generateExpectedPageRow(2,  0, "Page 1.3", false,  1, "50%", 0, 4, 1, 1, 2),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "44%", 0, 6, 4, 3, 7);
+        const expectedHTML = generateExpectedHTML(rows, "45%", 0, 6, 4, 3, 7);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -660,13 +660,13 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         this.model["scoredisabled"] = "5";
 
         const rows = [
-            generateExpectedChapterRow(0, null, "Chapter 1", 0, "30%", 2, 7, 3, 1, 4),
-            generateExpectedChapterRow(1, 0, "Chapter 1.1", 1, "30%", 2, 7, 3, 1, 4),
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "25%", 2, 7, 3, 1, 4),
+            generateExpectedChapterRow(1, 0, "Chapter 1.1", 1, "25%", 2, 7, 3, 1, 4),
             generateExpectedPageRow(2,  1, "Page 1.1.1", false,  2, "0%", 2, 3, 2, 0, 2),
             generateExpectedPageRow(3,  1, "Page 1.1.2", true, 2, "50%", 0, 4, 1, 1, 2),
             generateExpectedDisabledPageRow(4,  1, "Page 1.1.3", false,  2),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "30%", 2, 7, 3, 1, 4);
+        const expectedHTML = generateExpectedHTML(rows, "25%", 2, 7, 3, 1, 4);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
@@ -680,13 +680,13 @@ TestCase("[Hierarchical Lesson Report] GetPrintableHTML - show results state", {
         this.model["scoredisabled"] = "2";
 
         const rows = [
-            generateExpectedChapterRow(0, null, "Chapter 1", 0, "21%", 5, 12, 6, 1, 7),
+            generateExpectedChapterRow(0, null, "Chapter 1", 0, "17%", 5, 12, 6, 1, 7),
             generateExpectedDisabledChapterRow(1, 0, "Chapter 1.1", true, 1),
             generateExpectedPageRow(2,  1, "Page 1.1.1", false,  2, "0%", 2, 3, 2, 0, 2),
             generateExpectedPageRow(3,  1, "Page 1.1.2", true, 2, "50%", 0, 4, 1, 1, 2),
             generateExpectedPageRow(4,  1, "Page 1.1.3", false,  2, "0%", 3, 5, 3, 0, 3),
         ]
-        const expectedHTML = generateExpectedHTML(rows, "21%", 5, 12, 6, 1, 7);
+        const expectedHTML = generateExpectedHTML(rows, "17%", 5, 12, 6, 1, 7);
 
         this.printableHTML = this.presenter.getPrintableHTML(this.model, false);
 
