@@ -1,3 +1,4 @@
+2024-10-28 Fixed hide section in ANB
 2024-10-25 Fixed issue with chapters in Hierarchical Lesson Report
 2024-10-25 Removed "Show video" property from Video addon
 2024-10-25 Added partial support of signing URL and include signed cookies
