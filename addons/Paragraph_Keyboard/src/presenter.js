@@ -266,6 +266,10 @@ function AddonParagraph_Keyboard_create() {
         return body.find("p");
     };
 
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -560,19 +564,17 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
+        let randomNumber = getRandomInt(10000);
+        console.log("Execute run in Paragraph eKeyboard: " + model.ID, randomNumber);
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.parseModel(upgradedModel, isPreview);
+        presenter.configuration.randomNumber = randomNumber;
 
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
-        }
-
-        if (!isPreview) {
-            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
         }
 
         presenter.$view.on('click', function(e){
@@ -688,13 +690,8 @@ function AddonParagraph_Keyboard_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    // On the mCourser, each addon is called twice on the first page.
-    // Removing the addon before loading the library causes a problem with second loading.
-    // You must separate each method of destroy, or improve the mechanism of loading lessons.
-    presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {
-        if (event.target !== presenter.view) {
-            return;
-        }
+    presenter.onDestroy = function () {
+        console.log("Execute onDestroy for target in Paragraph", presenter.configuration.randomNumber);
 
         try {
             presenter.$view.off();
@@ -747,7 +744,6 @@ function AddonParagraph_Keyboard_create() {
         presenter.onFocus = null;
         presenter.onInit = null;
         presenter.setIframeHeight = null;
-        presenter.destroy = null;
         presenter.setStyles = null;
         transposeLayout = null;
         pasteHtmlAtCaret = null;
@@ -1342,3 +1338,7 @@ function AddonParagraph_Keyboard_create() {
 
     return presenter;
 }
+
+AddonParagraph_Keyboard_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
