@@ -37,6 +37,7 @@ function AddonFile_Sender_create() {
     var inactiveClass = "file-sender-inactive";
 
     var sendFileEventType = "sendFile";
+    var credentialsConfig = "same-origin";
 
 
     function presenterLogic(view, model, isPreview) {
@@ -109,6 +110,9 @@ function AddonFile_Sender_create() {
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.pageIndex = presenter.playerController.getCurrentPageIndex();
+        if (presenter.playerController.getRequestsConfig().shouldIncludeCredentials()) {
+            credentialsConfig = "include";
+        }
 
         presenter.loadContext(10);
     };
@@ -356,10 +360,9 @@ function AddonFile_Sender_create() {
     }
 
     presenter.fetchSessionJWTToken = function() {
-        var result = fetch('/api/v2/jwt/session_token', {
+        return fetch('/api/v2/jwt/session_token', {
             method: 'GET'
         });
-        return result;
     }
 
     presenter.showTargetDialog = function() {
@@ -461,14 +464,16 @@ function AddonFile_Sender_create() {
                     method: 'GET',
                     headers: {
                         'Authorization': 'JWT ' + json.token,
-                    }
+                    },
+                    credentials: credentialsConfig
                 }).then(result => result.json()).then(
                     success => fetch(success["upload_url"], {
-                       method: 'POST',
-                       headers: {
-                           'Authorization': 'JWT ' + json.token
-                       },
-                       body: formData
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'JWT ' + json.token
+                        },
+                        body: formData,
+                        credentials: credentialsConfig
                     })
                ).then(result => result.json()).then(
                     success => {
@@ -641,6 +646,10 @@ function AddonFile_Sender_create() {
                 }
             }
 
+            if (presenter.isPlayerInCrossDomain() && !presenter.isMauthor()) {
+                const _scrollTop = $(window.parent.document.getElementsByClassName('mdl-layout'))?.scrollTop();
+                scrollTop = _scrollTop !== undefined ? _scrollTop : scrollTop;
+            }
 
             if ($(window).scrollTop() > popupTop && isPopup) {
                 topPosition += ($(window).scrollTop() - popupTop);
@@ -667,6 +676,16 @@ function AddonFile_Sender_create() {
                 }
             }
         }catch(e){console.log(e)}
+    };
+
+    presenter.isPlayerInCrossDomain = function () {
+        return presenter.playerController && !presenter.playerController.isPlayerInCrossDomain();
+    }
+
+    presenter.isMauthor = function () {
+        const names = ["lorepo", "mauthor"];
+        const origin = window.origin;
+        return names.some((name) => origin.includes(name));
     };
 
     presenter.closeDialogEventHandler = function() {
