@@ -458,6 +458,15 @@ public class PlayerEntryPoint implements EntryPoint {
 	}
 
 	private void updateMathJax() {
-		this.theApplication.updateMathJax();
+		this.theApplication.handleUpdatingMathJax();
+	}
+
+	public String getMathJaxRendererOption() {
+		JavaScriptObject contextMetadata = getContextMetadata();
+		if (contextMetadata != null) {
+			return JavaScriptUtils.getArrayItemByKey(contextMetadata, "mathJaxRenderer");
+		}
+
+		return "";
 	}
 }
