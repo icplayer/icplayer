@@ -483,7 +483,9 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
             numberOfPages: 4,
             defaultOrder: true,
             numberOfStaticPages: 0,
-            useDynamicPagination: false
+            useDynamicPagination: false,
+            enableDropdownPagesList: false,
+            enableRedirectToPage: false
         };
     },
 
