@@ -16,19 +16,15 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.PlayerApp.PlayerConfigOverlay;
-import com.lorepo.icplayer.client.PlayerApp.PlayerEventsConfigOverlay;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.asset.ScriptAsset;
 import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
-import com.lorepo.icplayer.client.module.limitedreset.LimitedResetView;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableParams;
 import com.lorepo.icplayer.client.ui.PlayerView;
@@ -831,9 +827,9 @@ public class PlayerApp {
 
 	//It is necessery to run updateMathJax with timeout to properly display element for HTML & CSS rendering
 	public static native void updateMathJaxWithTimeout(PlayerApp x) /*-{
-	    setTimeout(function() {
-            x.@com.lorepo.icplayer.client.PlayerApp::updateMathJax()();
-        }, 200);
+		setTimeout(function() {
+			x.@com.lorepo.icplayer.client.PlayerApp::updateMathJax()();
+		}, 200);
 	}-*/;
 
 	public void updateMathJax() {
