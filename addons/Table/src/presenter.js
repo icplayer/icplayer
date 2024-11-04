@@ -1721,6 +1721,9 @@ function AddonTable_create() {
 
     presenter.DraggableDroppableGap.prototype.fillGap = function (selectedItem) {
         DraggableDroppableObject.prototype.fillGap.call(this, selectedItem);
+        if (this.$view) {
+            this.$view.html(presenter.textParser.parseAltTexts(this.$view.html()));
+        }
         this.addCssClass("gapFilled");
         this.notify();
 
