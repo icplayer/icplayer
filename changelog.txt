@@ -1,3 +1,4 @@
+2024-11-04 Added support for lameScriptURL metadata in Media Recorder
 2024-10-29 Added property to model iOS in Model Viewer 3D
 2024-10-28 Fixed hide section in ANB
 2024-10-25 Fixed issue with chapters in Hierarchical Lesson Report
