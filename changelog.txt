@@ -1,4 +1,13 @@
-2024-10-21 Added "STIX Two Math" font as default font for MathML
+2024-11-04 Added "STIX Two Math" font as default font for MathML
+2024-11-04 Added support for lameScriptURL metadata in Media Recorder
+2024-10-29 Added property to model iOS in Model Viewer 3D
+2024-10-28 Fixed hide section in ANB
+2024-10-25 Fixed issue with chapters in Hierarchical Lesson Report
+2024-10-25 Removed "Show video" property from Video addon
+2024-10-25 Added partial support of signing URL and include signed cookies
+2024-10-25 Added dropdown pages list in Assessments_Navigation_Bar
+2024-10-25 Fixed displaying FileSender popups in mCourser
+2024-10-25 Fixed issue with reset causing math gaps to throw erros when mathjax 2.7 is enabled
 2024-10-18 Added fullscreen functionality to Model Viewer 3D
 2024-10-18 Added Large preview to page
 2024-10-11 Added TTS support to Writing Calculations
