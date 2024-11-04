@@ -429,6 +429,7 @@ var ice_dictionary_pl = {
 	"image_source_alt_text": "Tekst alternatywny",
 	"image_source_selected": "Zaznaczony",
 	"image_source_deselected": "Odznaczony",
+	"image_source_speech_text_disabled": "Disabled",
 	"ordering_module" : "Porządkowanie",
 	"ordering_is_vertical" : "Pionowo",
 	"ordering_new_item" : "Nowy element",

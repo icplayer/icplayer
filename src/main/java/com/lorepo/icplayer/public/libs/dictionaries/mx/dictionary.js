@@ -429,6 +429,7 @@ var ice_dictionary_mx = {
 	"image_source_alt_text": "Alternative text",
 	"image_source_selected": "Selected",
 	"image_source_deselected": "Deselected",
+	"image_source_speech_text_disabled": "Zablokowane 4",
 	"ordering_module": "Ordenar",
 	"ordering_is_vertical": "Vertical",
 	"ordering_new_item": "Nuevo ítem",

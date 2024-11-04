@@ -233,6 +233,9 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 		if (isSelected()) {
 			voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.SELECTED_INDEX)));
 		}
+		if (disabled) {
+			voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.DISABLED_INDEX)));
+		}
 		speak(voicesArray);
 	}
 
@@ -241,6 +244,9 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 		event.getNativeEvent().preventDefault();
 		if (listener != null && !disabled) {
 			this.listener.onClicked();
+		}
+		if (disabled) {
+			speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.DISABLED_INDEX)));
 		}
 	}
 

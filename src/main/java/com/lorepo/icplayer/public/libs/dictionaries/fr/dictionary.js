@@ -429,6 +429,7 @@ var ice_dictionary_fr = {
     "image_source_alt_text": "Alternative text",
     "image_source_selected": "Selected",
     "image_source_deselected": "Deselected",
+	"image_source_speech_text_disabled": "Zablokowane 3",
     "ordering_module" : "Remettre dans l'ordre",
     "ordering_is_vertical" : "Est vertical",
     "ordering_new_item" : "Nouvel élément",

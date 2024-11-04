@@ -429,6 +429,7 @@ var ice_dictionary_bl = {
 	"image_source_alt_text": "Алтернативен текст",
 	"image_source_selected": "Маркирано",
 	"image_source_deselected": "Размаркирано",
+	"image_source_speech_text_disabled": "Disabled",
 	"ordering_module" : "Разположение",
 	"ordering_is_vertical" : "Вертикално",
 	"ordering_new_item" : "Нов елемент",
