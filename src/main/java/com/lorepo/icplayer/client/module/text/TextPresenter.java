@@ -1503,8 +1503,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 					// promise can be executed after page change, check if page wasn't changed
 					var currentPageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
 					if (pageStamp === currentPageStamp) {
-						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
-						x.@com.lorepo.icplayer.client.module.text.TextPresenter::restoreGapMode()();
+						setTimeout(function() {
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::restoreGapMode()();
+						}, 200);
 					}
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});
