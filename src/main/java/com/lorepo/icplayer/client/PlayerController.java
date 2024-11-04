@@ -9,12 +9,12 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
@@ -566,7 +566,7 @@ public class PlayerController implements IPlayerController {
 			}
 		}
 		String encodedUrl = URL.encode(url);
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, encodedUrl);
+		ExtendedRequestBuilder builder = new ExtendedRequestBuilder(ExtendedRequestBuilder.GET, encodedUrl);
 		try {
 			builder.sendRequest(null, new RequestCallback() {
 				@Override
