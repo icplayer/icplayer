@@ -6,14 +6,20 @@ export class MP3ConvertHandler {
         this.isValid = false;
         this.validationTimoutID = null;
         this.origin = document.location.origin;
+        this.lameScriptURL = "";
 
         if (!this.isSupported()) {
             console.log('Your browser doesn\'t support web workers.');
             return;
         }
         let context = playerController.getContextMetadata();
-        if (context != null && "rootDirectory" in context) {
-            this.origin = context["rootDirectory"];
+        if (context != null) {
+            if ("rootDirectory" in context) {
+                this.origin = context["rootDirectory"];
+            }
+            if ("lameScriptURL" in context) {
+                this.lameScriptURL = context["lameScriptURL"];
+            }
         }
 
         let scriptBlob = this.createBlobWithScript();
@@ -45,7 +51,8 @@ export class MP3ConvertHandler {
             }
             this.worker.postMessage({
                 cmd: "validate",
-                origin: self.origin
+                origin: self.origin,
+                lameScriptURL: self.lameScriptURL
             });
             this.validationTimoutID = setTimeout(() => {
                 if (!self.isValid) {
@@ -79,7 +86,8 @@ export class MP3ConvertHandler {
                     leftChannelData: leftChannelData,
                     rightChannelData: rightChannelData
                 },
-                origin: this.origin
+                origin: this.origin,
+                lameScriptURL: this.lameScriptURL
             });
         })
     }
@@ -92,8 +100,7 @@ export class MP3ConvertHandler {
                     postMessage("Unknown origin");
                     return;
                 }
-
-                const lameScriptURL = data.origin + "/media/icplayer/libs/lame.min.js";
+                const lameScriptURL = data.lameScriptURL.length > 0 ? data.lameScriptURL : data.origin + "/media/icplayer/libs/lame.min.js";
                 try {
                     importScripts(lameScriptURL);
                 } catch (e) {

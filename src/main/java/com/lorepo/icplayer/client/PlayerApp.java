@@ -811,7 +811,29 @@ public class PlayerApp {
 				this.playerController.switchToPage(pageIndex);
 			}
 		}
+		handleUpdatingMathJax();
+
 		return isLayoutChanged;
+	}
+
+	public void handleUpdatingMathJax() {
+		String mathJaxRenderer = this.entryPoint.getMathJaxRendererOption();
+		if (mathJaxRenderer.equals("MathML")) {
+			this.updateMathJax();
+		} else {
+			this.updateMathJaxWithTimeout(this);
+		}
+	}
+
+	//It is necessery to run updateMathJax with timeout to properly display element for HTML & CSS rendering
+	public static native void updateMathJaxWithTimeout(PlayerApp x) /*-{
+		setTimeout(function() {
+			x.@com.lorepo.icplayer.client.PlayerApp::updateMathJax()();
+		}, 200);
+	}-*/;
+
+	public void updateMathJax() {
+		this.playerController.updateMathJaxInCurrentPage();
 	}
 
 	public void updateLayout() {
