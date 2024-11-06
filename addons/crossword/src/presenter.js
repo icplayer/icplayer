@@ -644,21 +644,44 @@ function Addoncrossword_create(){
 
     function getPreviousTabIndexEditableCellPositionOfCellInput(cellInput) {
         const newTabIndex = cellInput.tabIndex - 1;
-        return getPositionOfCellInputElementWithTabIndex(newTabIndex);
+        return getPositionOfCellInputElementWithTabIndex(newTabIndex, true);
     }
 
-    function getPositionOfCellInputElementWithTabIndex(tabIndex) {
+    function getPositionOfCellInputElementWithTabIndex(tabIndex, isShiftDown = false) {
         if (tabIndex < presenter.tabIndexBase || tabIndex >= presenter.maxTabIndex) {
             return;
         }
 
-        var newCellInputElement = findCellInputElement(tabIndex);
+        let newCellInputElement;
+        if (!presenter.isWCAGOn) {
+            newCellInputElement = presenter.getNewCellInputElement(tabIndex, isShiftDown);
+        } else {
+            newCellInputElement = findCellInputElement(tabIndex);
+        }
+
+        if (!newCellInputElement.length) {
+            return;
+        }
+
         var newPosition = getPositionOfCellInputElement($(newCellInputElement));
         if (!isPositionValid(newPosition)) {
             return;
         }
 
         return newPosition;
+    }
+
+    presenter.getNewCellInputElement = function (tabIndex, isShiftDown) {
+        let newCellInputElement = findCellInputElement(tabIndex);
+        let isDisabled = $(newCellInputElement).prop('disabled')
+        let newTabIndex = tabIndex;
+        while (newTabIndex >= presenter.tabIndexBase && isDisabled && newTabIndex < presenter.maxTabIndex) {
+            newTabIndex = isShiftDown ? newTabIndex - 1 : newTabIndex + 1
+            newCellInputElement = findCellInputElement(newTabIndex);
+            isDisabled = $(newCellInputElement).prop('disabled');
+        }
+
+        return newCellInputElement;
     }
 
     function findCellInputElement(tabIndex) {
@@ -900,6 +923,8 @@ function Addoncrossword_create(){
 
                     if (presenter.crossword[i][j][0] === '!') {
                         input
+                            .attr('tabIndex', presenter.tabIndexBase + tabIndexOffset++)
+                            .focus(presenter.onCellInputFocus)
                             .val(presenter.crossword[i][j][1])
                             .prop('disabled', true);
 
@@ -2057,12 +2082,11 @@ function Addoncrossword_create(){
     };
 
     CrosswordKeyboardController.prototype.moveToFirstElement = function () {
-        var cellPosition;
+        let cellPosition;
         if (presenter.isWCAGOn) {
             cellPosition = presenter.correctAnswers[0]["position"];
         } else {
-            var firstElement = findCellInputElement(presenter.tabIndexBase);
-            cellPosition = getPositionOfCellInputElement($(firstElement));
+            cellPosition = getPositionOfCellInputElement($(presenter.getFirstEditableCell()));
         }
         if (!isPositionValid(cellPosition)) {
             return;
@@ -2086,6 +2110,20 @@ function Addoncrossword_create(){
         }
         moveToNextEditableTabIndexCellInput(event);
     };
+
+    presenter.getFirstEditableCell = function () {
+        let firstElement = findCellInputElement(presenter.tabIndexBase);
+        let isDisabled = $(firstElement).prop('disabled');
+        if (isDisabled) {
+            let tabIndex = presenter.tabIndexBase
+            while (isDisabled && tabIndex < presenter.maxTabIndex) {
+                firstElement = findCellInputElement(++tabIndex);
+                isDisabled = $(firstElement).prop('disabled');
+            }
+        }
+
+        return firstElement
+    }
 
     function moveToNextEditableTabIndexCellInput(event, blurCurrentOnAbsenceOfNext = false) {
         _moveToCellInputWithGivenPosition(
@@ -2236,7 +2274,11 @@ function Addoncrossword_create(){
         var currentCellInput = presenter.keyboardControllerObject.keyboardNavigationActive
             ? presenter.keyboardControllerObject.getCurrentInputElement()
             : event.target;
-        if (!$(currentCellInput).val()) {
+
+        const hasValue = $(currentCellInput).val();
+        const isDisabled = $(currentCellInput).prop('disabled');
+
+        if (hasValue && isDisabled || !hasValue) {
             var nextCellPosition = getNextCellPositionForBackspaceAction(currentCellInput);
             if (!nextCellPosition) {
                 return;
@@ -2259,7 +2301,7 @@ function Addoncrossword_create(){
     function getNextCellPositionForBackspaceAction(currentCellInput) {
         if (presenter.isTabIndexDirection() || presenter.isDirectionNotSet()) {
             const previousTabIndex = currentCellInput.tabIndex - 1;
-            return getPositionOfCellInputElementWithTabIndex(previousTabIndex);
+            return getPositionOfCellInputElementWithTabIndex(previousTabIndex, true);
         }
 
         const currentCellPosition = getPositionOfCellInputElement($(currentCellInput));

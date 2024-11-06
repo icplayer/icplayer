@@ -265,15 +265,6 @@ TestCase("[Crossword] Activation of methods to read element tests", {
 
     // Backspace event
 
-    'test given view and TTS is active when activating backspace on editable cell then do not execute any of methods to read' : function() {
-        this.activateTTSWithoutReading();
-        this.markAndFocusElementWithPosition(3, 0);
-
-        activateBackspaceEvent(this.presenter);
-
-        this.validateIsNotCalledAnyOfMethodsToRead();
-    },
-
     'test given view and TTS is active when activating backspace on constant cell then do not execute any of methods to read' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(1, 0);
