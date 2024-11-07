@@ -60,6 +60,7 @@ public interface IPlayerController {
 	String getCurrentPageId();
 	void setExternalVariable(String key, String value);
 	String getExternalVariable(String key);
+	void updateMathJaxInCurrentPage();
 
 	String getPageStamp();
 }

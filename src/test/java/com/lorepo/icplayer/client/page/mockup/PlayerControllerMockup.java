@@ -326,4 +326,7 @@ public class PlayerControllerMockup implements IPlayerController {
 	public void setAllPagesAsVisited() {
 
 	}
+
+	@Override
+	public void updateMathJaxInCurrentPage() { }
 }
