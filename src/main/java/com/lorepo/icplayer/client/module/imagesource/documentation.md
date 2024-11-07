@@ -1,12 +1,15 @@
 ## Description
-An Image source module is a draggable image that should be placed in the corresponding Image gap module. Each image and each gap constitute separate modules – Image source and Image gap respectively. In order to insert a correct answer, it is required to put the image source module ID in the Answer ID section.
+The Image Source module is a draggable image that should be placed in the corresponding Image Gap module. Each image and each gap constitute separate modules – Image Source and Image Gap respectively. In order to indicate the correct answer, it is required to put the ID of the appropriate Image Source module in the "Answer ID" section of the Image Gap module.
 
 <div style="border:1px solid Tomato; padding:5px; margin-bottom:21px;">
-Note: To display .svg files in Internet Explorer browsers correctly, you have to add to &ltsvg&gt tag the following parameter: viewBox="0 0 WIDTH HEIGHT". 
+Note: To correctly display .svg files in Internet Explorer browser, you have to add to &ltsvg&gt tag the following parameter: viewBox="0 0 WIDTH HEIGHT". 
 <br>For example: &ltsvg width="800" height="400" viewBox="0 0 800 400" ...
 <br>You can edit .svg files in any text editor.
 </div>
+
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
 <tbody>
@@ -14,48 +17,42 @@ Note: To display .svg files in Internet Explorer browsers correctly, you have to
         <th>Property name</th>
         <th>Description</th> 
     </tr>
-<tr>
-        <td>Is visible</td>
-        <td>This property allows to hide or show the module depending on the activity requirements.</td> 
-    </tr>
     <tr>
         <td>Image</td>
-        <td>This property serves for inserting images to be displayed in the module.
-<p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
-</td> 
+        <td>This property serves for inserting the image to be displayed in the module.
+            <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
+        </td> 
     </tr>
     <tr>
         <td>Is Disabled</td>
         <td>
-           This property allows you to disable the module so that the element cannot be selected and dragged & dropped.
+            Allows disabling the module so that the user is not able to interact with it.
         </td> 
     </tr>
     <tr>
         <td>Removable</td>
         <td>
-           This property indicates whether the images are to be removed from a source list after being inserted into the module.
+            This property indicates whether the image is to be removed from its location after being inserted into the module.
         </td> 
     </tr>
     <tr>
         <td>Alternative text</td>
         <td>
-           This property enables to define a text description that will be added to an image's HTML tag
+            This text will be added to the module's HTML tag. It will be read by the Text To Speech module (if used) after the user performs a certain action.
         </td> 
     </tr>
     <tr>
         <td>Lang attribute</td>
         <td>
-           This property allows to define the language for this addon (different than the language of the lesson).
+            This property allows defining the language for this module (different than the language of the lesson).
         </td> 
     </tr>
     <tr>
         <td>Speech texts</td>
         <td>
-          List of speech texts: Selected, Deselected. <br />
-This texts will be read by Text to Speech addon after a user performs an action.
+            Sets the values of speech texts - predefined phrases providing additional context while using the module in the Text To Speech mode. Speech texts are always read using the content's default language.
         </td> 
     </tr>
-    
 </tbody>
 </table>
 
@@ -71,38 +68,38 @@ This texts will be read by Text to Speech addon after a user performs an action.
     <tr>
         <td>reset</td>
         <td>---</td>
-        <td>Reset module to its original state</td> 
+        <td>Resets the module to its original state.</td> 
     </tr>
 	<tr>
         <td>getImageUrl</td>
         <td>---</td>
-        <td>Returns image URL</td> 
+        <td>Returns the image's URL.</td> 
     </tr>
 	<tr>
         <td>disable</td>
         <td>---</td>
-        <td>Disables module</td> 
+        <td>Disables the module.</td> 
     </tr>
 	<tr>
         <td>enable</td>
         <td>---</td>
-        <td>Enables module</td> 
-    </tr>
-	<tr>
-        <td>show</td>
-        <td>---</td>
-        <td>Shows module</td> 
+        <td>Enables the module.</td> 
     </tr>
 	<tr>
         <td>hide</td>
         <td>---</td>
-        <td>Hides module</td> 
+        <td>Hides the module if it is visible.</td> 
+    </tr>
+	<tr>
+        <td>show</td>
+        <td>---</td>
+        <td>Shows the module if it is hidden.</td> 
     </tr>
 </table>
 
 ##Events
 
-The Image Source addon sends ItemSelected type of events to Event Bus when a user selects an image.
+The Image Source module sends ItemSelected type of events to the Event Bus when the user selects the image.
 
 <table border='1'>
     <tr>
@@ -111,7 +108,7 @@ The Image Source addon sends ItemSelected type of events to Event Bus when a use
     </tr>
     <tr>
         <td>Type</td>
-        <td>It's a string representation of a selected object type.</td>
+        <td>It's a string representation of the selected object type.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -122,12 +119,12 @@ The Image Source addon sends ItemSelected type of events to Event Bus when a use
     <tr>
         <td>Item</td>
         <td>
-           It's a name of a selected image.
+           It is the name of the selected image.
         </td>
     </tr>
 </table>
 
-The Image Source addon sends ItemConsumed type of events to Event Bus when a user consumes the image.
+The Image Source module sends ItemConsumed type of events to the Event Bus when the user uses the image.
 
 <table border='1'>
     <tr>
@@ -136,7 +133,7 @@ The Image Source addon sends ItemConsumed type of events to Event Bus when a use
     </tr>
     <tr>
         <td>Type</td>
-        <td>It's a string representation of a consumed object type.</td>
+        <td>It's a string representation of the consumed object type.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -147,12 +144,12 @@ The Image Source addon sends ItemConsumed type of events to Event Bus when a use
     <tr>
         <td>Item</td>
         <td>
-           It's a name of a consumed image.
+           It is the name of the consumed image.
         </td>
     </tr>
 </table>
 
-The Image Source addon sends ItemReturned type of events to Event Bus when a user returns the image.
+The Image Source module sends ItemReturned type of events to the Event Bus when the user returns the image.
 
 <table border='1'>
     <tr>
@@ -161,7 +158,7 @@ The Image Source addon sends ItemReturned type of events to Event Bus when a use
     </tr>
     <tr>
         <td>Type</td>
-        <td>It's a string representation of a returned object type</td>
+        <td>It is a string representation of the returned object type.</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -172,7 +169,7 @@ The Image Source addon sends ItemReturned type of events to Event Bus when a use
     <tr>
         <td>Item</td>
         <td>
-           It's a name of a returned image.
+           It is the name of the returned image.
         </td>
     </tr>
 </table>
@@ -188,15 +185,15 @@ The Image Source addon sends ItemReturned type of events to Event Bus when a use
     </tr>
     <tr>
         <td>.ic_sourceImage</td>
-        <td>Indicates a draggable source image.</td> 
+        <td>Indicates the draggable source image.</td> 
     </tr>
     <tr>
         <td>.ic_sourceImage-selected</td>
-        <td>Indicates a selected source image.</td> 
+        <td>Indicates the selected source image.</td> 
     </tr>
     <tr>
         <td>.ic_sourceImage-disabled</td>
-        <td>Indicates a disabled source image.</td> 
+        <td>Indicates the disabled source image.</td> 
     </tr>
 </tbody>
 </table>
