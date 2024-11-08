@@ -1,5 +1,6 @@
 (function (window) {
     var DoubleTap = function () {};
+
     DoubleTap._internals = {};
 
     DoubleTap._internals.clicks = [];
@@ -105,6 +106,50 @@
         DoubleTap._internals.removeTargetClicks(target);
     };
 
+    var PointingEvents = function () {};
+    PointingEvents._internals = {};
+    PointingEvents._internals.POINTER_EVENTS_SUPPORTED = !!window.PointerEvent;
+
+    PointingEvents._internals.getPointingEventName = function (type) {
+        return (PointingEvents._internals.POINTER_EVENTS_SUPPORTED ? "pointer" : "mouse") + type;
+    };
+
+    PointingEvents._internals.createTypesDictionary = function () {
+        return {
+            DOWN: PointingEvents._internals.getPointingEventName("down"),
+            UP: PointingEvents._internals.getPointingEventName("up"),
+            MOVE: PointingEvents._internals.getPointingEventName("move"),
+            LEAVE: PointingEvents._internals.getPointingEventName("leave")
+        };
+    };
+    PointingEvents.TYPES = PointingEvents._internals.createTypesDictionary();
+
+    PointingEvents._internals.refresh = function (hasSupport) {
+        PointingEvents._internals.POINTER_EVENTS_SUPPORTED = (hasSupport === undefined) ? !!window.PointerEvent : hasSupport;
+        PointingEvents.TYPES = PointingEvents._internals.createTypesDictionary();
+    };
+
+    /**
+     * Checks if provided PointerEvent isPrimary
+     * @method isPrimaryEvent
+     *
+     * The method is designed for boundary conditions:
+     * > Addon uses PointerEvent instead of MouseEvent and TouchEvent if PointerEvent is available.
+     *
+     * @returns {boolean} true if PointerEvents not supported or is primary Pointer event, otherwise false
+     */
+    PointingEvents.isPrimaryEvent = function (event) {
+        if (!PointingEvents._internals.POINTER_EVENTS_SUPPORTED) {
+            return true;
+        }
+        return !!(event.originalEvent ? event.originalEvent.isPrimary : event.isPrimary);
+    };
+
+    PointingEvents.hasPointerEventSupport = function () {
+        return PointingEvents._internals.POINTER_EVENTS_SUPPORTED;
+    };
+
     window.EventsUtils = {};
     window.EventsUtils.DoubleTap = DoubleTap;
+    window.EventsUtils.PointingEvents = PointingEvents;
 })(window);

@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir=".">
     <property file="build.properties" />
-    <property name="commons.version" value="4.4.2" />
+    <property name="commons.version" value="4.4.3" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
 

@@ -366,7 +366,7 @@ function AddonShape_Tracing_create() {
         presenter.stageBG.add(presenter.layerBG);
     }
 
-    function drawBoxMouseData(box_width, box_height) {
+    function drawBoxPointerData(box_width, box_height) {
         var position = -4;
         presenter.box = new Kinetic.Rect({
             x: position, y: position,
@@ -407,11 +407,11 @@ function AddonShape_Tracing_create() {
     }
 
     function cursorCoordinates() {
-        drawBoxMouseData(52, 37);
+        drawBoxPointerData(52, 37);
 
         presenter.data.shapeImageLoaded.then(function() {
             var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.ID+'"]');
-            moduleSelector.on('mousemove', function(e) {
+            moduleSelector.on(Events.PointingEvents.TYPES.MOVE, function(e) {
                 var x = e.offsetX, y = e.offsetY;
 
                 presenter.text.setText(prepearText(x, y));
@@ -419,7 +419,7 @@ function AddonShape_Tracing_create() {
             });
         });
 
-        presenter.$view.find(".drawing").on('mousemove', function(e) {
+        presenter.$view.find(".drawing").on(Events.PointingEvents.TYPES.MOVE, function(e) {
             e.stopPropagation();
 
             var x = e.offsetX, y = e.offsetY;
@@ -539,19 +539,21 @@ function AddonShape_Tracing_create() {
         correctImage.src = presenter.configuration.correctAnswerImage;
     }
 
-    function updateCursorPosition(e) {
+    function updateCursorPosition(event) {
         presenter.cursorPosition.pre_x = presenter.cursorPosition.x;
         presenter.cursorPosition.pre_y = presenter.cursorPosition.y;
 
         var canvas = canvasData.temp.canvas;
         var rect = canvas.getBoundingClientRect();
 
-        if (e.clientX === undefined) {
+        const clientX = event.originalEvent ? event.originalEvent.clientX : event.clientX;
+        if (clientX !== undefined) {
+            const clientY = event.originalEvent ? event.originalEvent.clientY : event.clientY;
+            presenter.cursorPosition.x = parseInt((clientX - rect.left) / presenter.data.zoom, 10);
+            presenter.cursorPosition.y = parseInt((clientY - rect.top) / presenter.data.zoom, 10);
+        } else {
             presenter.cursorPosition.x = parseInt((event.targetTouches[0].pageX - $(canvas).offset().left) / presenter.data.zoom, 10);
             presenter.cursorPosition.y = parseInt((event.targetTouches[0].pageY - $(canvas).offset().top) / presenter.data.zoom, 10);
-        } else {
-            presenter.cursorPosition.x = parseInt((e.clientX - rect.left) / presenter.data.zoom, 10);
-            presenter.cursorPosition.y = parseInt((e.clientY - rect.top) / presenter.data.zoom, 10);
         }
 
         directionPoints.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
@@ -715,19 +717,16 @@ function AddonShape_Tracing_create() {
     }
 
     function turnOnEventListeners() {
-        var $canvas = $(canvasData.temp.canvas);
-
+        const $canvas = $(canvasData.temp.canvas);
         $canvas.on('click', function(e) {
             e.stopPropagation();
         });
 
-        // TOUCH
-        if (MobileUtils.isEventSupported('touchstart')) {
+        if (Events.PointingEvents.hasPointerEventSupport() || MobileUtils.isEventSupported('touchstart')) {
+            connectPointerEvents($canvas);
+        } else {
             connectTouchEvents($canvas);
         }
-
-        // MOUSE
-        connectMouseEvents($canvas);
     }
 
     function connectTouchEvents($canvas) {
@@ -778,13 +777,16 @@ function AddonShape_Tracing_create() {
         draw(e, true);
     }
 
-    function connectMouseEvents($canvas) {
+    function connectPointerEvents($canvas) {
         var isDown = false;
 
-        $canvas.on('mousedown', function(e) {
+        $canvas.on(Events.PointingEvents.TYPES.DOWN, function(event) {
+            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
             isDown = true;
-            draw(e, false);
-            $canvas.on('mousemove', drawWithoutPropagation);
+            draw(event, false);
+            $canvas.on(Events.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
 
             if (presenter.data.isPencilActive) {
                 presenter.data.isStarted = true;
@@ -794,8 +796,11 @@ function AddonShape_Tracing_create() {
             }
         });
 
-        $canvas.on('mouseup mouseleave', function() {
-            $canvas.off('mousemove', drawWithoutPropagation);
+        $canvas.on(`${Events.PointingEvents.TYPES.UP} ${Events.PointingEvents.TYPES.LEAVE}`, function(event) {
+            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+            $canvas.off(Events.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
             if (isDown && presenter.data.isPencilActive) {
                 eventCreator();
                 isDown = false;
@@ -807,15 +812,18 @@ function AddonShape_Tracing_create() {
             points = [];
         });
 
-        $canvas.on('mouseup', function() {
+        $canvas.on(Events.PointingEvents.TYPES.UP, function(event) {
+            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
             directionPoints.push('Up');
         });
     }
 
     function turnOffEventListeners() {
-        var $canvas = $(canvasData.temp.canvas);
+        const $canvas = $(canvasData.temp.canvas);
         $canvas.off("touchstart touchend touchmove");
-        $canvas.off("mousedown mouseup mouseleave mousemove");
+        $canvas.off(`${Events.PointingEvents.TYPES.DOWN} ${Events.PointingEvents.TYPES.UP} ${Events.PointingEvents.TYPES.MOVE} ${Events.PointingEvents.TYPES.LEAVE}`);
     }
 
     presenter.ERROR_CODES = {
