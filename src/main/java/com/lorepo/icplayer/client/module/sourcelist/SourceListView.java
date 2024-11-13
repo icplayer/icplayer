@@ -272,6 +272,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	public void rerenderMath() {
 		MathJax.rerenderMathJax(getElement());
 	}
+
+	public void refreshMathJax() {
+		MathJax.refreshMathJax(getElement());
+	}
 	
 	@Override
 	public void mathJaxIsLoadedCallback() {

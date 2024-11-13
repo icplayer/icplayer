@@ -1,3 +1,4 @@
+2024-11-13 Fixed mathJax malfunction in SourceList
 2024-11-07 Fixed Positioning Utils to work when player is in cross domain
 2024-11-07 Fixed impact of enable and disable commands on Image Source when active TTS
 2024-11-06 Fixed tab and tab&shift navigation in crossword
