@@ -22,5 +22,14 @@ TestCase("[ModelViewer3D] Validate model tests", {
         const configuration = this.presenter.validateModel(this.model);
 
         assertEquals(true, configuration["enableFullscreen"]);
+    },
+
+    'test given model with "modelIOS" as "example/path" when validating model then save value as string': function () {
+        const EXAMPLE_PATH = "example/path";
+        this.model["modelIOS"] = EXAMPLE_PATH;
+
+        const configuration = this.presenter.validateModel(this.model);
+
+        assertEquals(EXAMPLE_PATH, configuration["modelIOS"]);
     }
 });

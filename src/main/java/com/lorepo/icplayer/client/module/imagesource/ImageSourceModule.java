@@ -29,6 +29,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 
 	public static final int SELECTED_INDEX = 0;
 	public static final int DESELECTED_INDEX = 1;
+	public static final int DISABLED_INDEX = 2;
 	
 	public ImageSourceModule() {
 		super("Image source", DictionaryWrapper.get("image_source_module"));
@@ -78,6 +79,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 					langAttribute = XMLUtils.getAttributeAsString(childElement, "langAttribute");
 					this.speechTextItems.get(SELECTED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "selectedWCAG"));
 					this.speechTextItems.get(DESELECTED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "deselectedWCAG"));
+					this.speechTextItems.get(DISABLED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "disabledWCAG"));
 				}
 			}
 		}
@@ -102,6 +104,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 		image.setAttribute("langAttribute", this.langAttribute);
 		image.setAttribute("selectedWCAG", speechTextItems.get(SELECTED_INDEX).getText());
 		image.setAttribute("deselectedWCAG", speechTextItems.get(DESELECTED_INDEX).getText());
+		image.setAttribute("disabledWCAG", speechTextItems.get(DISABLED_INDEX).getText());
 		imageSourceModule.appendChild(image);
 
 		return imageSourceModule.toString();
@@ -336,6 +339,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 			public void addChildren(int count) {
 				speechTextItems.add(new SpeechTextsStaticListItem("selected","image_source"));
 				speechTextItems.add(new SpeechTextsStaticListItem("deselected","image_source"));
+				speechTextItems.add(new SpeechTextsStaticListItem("speech_text_disabled","image_source"));
 			}
 
 			@Override
@@ -366,11 +370,14 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 			if (index == SELECTED_INDEX) {
 				return "selected";
 			}
-			
+
 			if (index == DESELECTED_INDEX) {
 				return "deselected";
 			}
 			
+			if (index == DISABLED_INDEX) {
+				return "disabled";
+			}
 			
 			return "";
 		}
