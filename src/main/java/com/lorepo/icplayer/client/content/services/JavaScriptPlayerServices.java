@@ -296,6 +296,10 @@ public class JavaScriptPlayerServices {
 					options.isKeepOriginalOrder = false;
 				}
 
+				if (!('useDraggableGaps' in options)) {
+					options.useDraggableGaps = false;
+				}
+
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(text, options);
 			};
 
@@ -702,6 +706,8 @@ public class JavaScriptPlayerServices {
 		parser.setCaseSensitiveGaps(isCaseSensitive);
 		Boolean isKeepOriginalOrder = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "isKeepOriginalOrder"));
 		parser.setKeepOriginalOrder(isKeepOriginalOrder);
+		Boolean useDraggableGaps = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "useDraggableGaps"));
+		parser.setUseDraggableGaps(useDraggableGaps);
 		ParserResult result = parser.parse(text);
 
 		JavaScriptObject inlineGaps = inLineChoiceToJs(result.choiceInfos);
