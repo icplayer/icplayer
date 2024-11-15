@@ -16,9 +16,12 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverJSService;
+import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -46,6 +49,8 @@ import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore;
 import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
 
 public class JavaScriptPlayerServices {
 	private final IPlayerServices playerServices;
@@ -96,6 +101,18 @@ public class JavaScriptPlayerServices {
 
 			return model;
 		};
+
+		playerServices.getRenderedModuleOrderForPrint = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getRenderedModuleOrderForPrint()();
+		}
+
+		playerServices.getRenderedDefaultHeaderModuleOrderForPrint = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getRenderedDefaultHeaderModuleOrderForPrint()();
+		}
+
+		playerServices.getRenderedDefaultFooterModuleOrderForPrint = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getRenderedDefaultFooterModuleOrderForPrint()();
+		}
 
 		playerServices.getCurrentPageIndex = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
@@ -1139,4 +1156,71 @@ public class JavaScriptPlayerServices {
 	private String signURL(String url) {
 		return ExtendedRequestBuilder.signURL(url);
 	}
+
+	private JavaScriptObject getRenderedModuleOrderForPrint() {
+		IPage page = this.playerServices.getModel().getPage(this.getCurrentPageIndex());
+		return getRenderedModuleOrderForPrint(page, false, false);
+	}
+
+	private JavaScriptObject getRenderedDefaultHeaderModuleOrderForPrint() {
+		Page page = (Page) this.playerServices.getModel().getPage(this.getCurrentPageIndex());
+		Content content = (Content) this.playerServices.getModel();
+		Page header = content.getHeader(page);
+		Page defHeader = content.getDefaultHeader();
+		if (header == null || defHeader == null || header.getId() != defHeader.getId()) return null;
+		return getRenderedModuleOrderForPrint(header, true, false);
+	}
+
+	private JavaScriptObject getRenderedDefaultFooterModuleOrderForPrint() {
+		Page page = (Page) this.playerServices.getModel().getPage(this.getCurrentPageIndex());
+		Content content = (Content) this.playerServices.getModel();
+		Page footer = content.getFooter(page);
+		Page defFooter = content.getDefaultFooter();
+		if (footer == null || defFooter == null || footer.getId() != defFooter.getId()) return null;
+		return getRenderedModuleOrderForPrint(footer, false, true);
+	}
+
+	private JavaScriptObject getRenderedModuleOrderForPrint(IPage page, boolean isHeader, boolean isFooter) {
+		List<String> modules = page.getModulesList();
+		JavaScriptObject jsModules = JavaScriptUtils.createEmptyJsArray();
+		for (String id: modules) {
+			IPresenter presenter = null;
+			if (isHeader) {
+				presenter = this.playerServices.getHeaderModule(id);
+			} else if (isFooter) {
+				presenter = this.playerServices.getFooterModule(id);
+			} else {
+				presenter = this.playerServices.getModule(id);
+			}
+			if (presenter != null) {
+				IModuleModel model = presenter.getModel();
+				if (model instanceof IPrintableModuleModel
+						&& ((IPrintableModuleModel) model).getPrintableMode() != Printable.PrintableMode.NO) {
+					JavaScriptUtils.addElementToJSArray(jsModules, id);
+				}
+			}
+		}
+		return getRenderedModuleOrderForPrint(jsModules, page.getId());
+	}
+
+	private native JavaScriptObject getRenderedModuleOrderForPrint(JavaScriptObject moduleIDs, String pageID) /*-{
+		var modules = [];
+		for (var i = 0; i < moduleIDs.length; i++) {
+			var $view = $wnd.$("#"+pageID+" [id='"+moduleIDs[i]+"']");
+			if ($view.length > 0) {
+				var rect = $view[0].getBoundingClientRect();
+				modules.push({id: moduleIDs[i], x: rect.x, y: rect.y});
+			}
+		}
+		modules.sort(function(a,b){
+			if (a.y < b.y) return -1;
+			if (a.y > b.y) return 1;
+			if (a.x < b.x) return -1;
+			if (a.x > b.x) return 1;
+			return 0;
+		});
+		var result = [];
+		for (var i = 0; i < modules.length; i++) result.push(modules[i].id);
+		return result;
+	}-*/;
 }
