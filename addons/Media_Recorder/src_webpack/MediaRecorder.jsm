@@ -527,7 +527,6 @@ export class MediaRecorder {
                 }
             }
             this.resetDialog.onConfirm = () => {
-                this.timer.startCountdown();
                 this.resetRecording();
                 if (this.model.extendedMode) {
                     this.setEMDefaultStateView();
