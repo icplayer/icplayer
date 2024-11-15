@@ -21,8 +21,11 @@
     };
 
     function getVisibleIframeWithPlayerHeightAndTop() {
-        var scale = getElementScale(window.frameElement);
-        var visibleViewportHeight = window.top.innerHeight/scale;
+        var visibleViewportHeight = window.innerHeight;
+        if (!isPlayerInCrossDomain()) {
+            var scale = getElementScale(window.frameElement);
+            visibleViewportHeight = window.top.innerHeight/scale;
+        }
         var offsets = getRelativeOffset();
         var topRelativeToVisibleContent = Math.max(0, offsets.top);
         if (offsets.top < 0) {
@@ -63,8 +66,11 @@
     };
 
     function getVisibleIframeWithPlayerWidthAndLeft() {
-        var scale = getElementScale(window.frameElement);
-        var visibleViewportWidth = window.top.innerWidth/scale;
+        var visibleViewportWidth = window.innerWidth;
+        if (!isPlayerInCrossDomain()) {
+            var scale = getElementScale(window.frameElement);
+            visibleViewportWidth = window.top.innerWidth/scale;
+        }
         var offsets = getRelativeOffset();
         var leftRelativeToVisibleContent = Math.max(0, offsets.left);
         if (offsets.left < 0) {
@@ -117,6 +123,9 @@
     function getRelativeOffset() {
         var currentWindow = window;
         var relativeOffset = {top: currentWindow.pageYOffset, left: currentWindow.pageXOffset, right: 0, bottom: 0};
+        if (isPlayerInCrossDomain()) {
+            return relativeOffset;
+        }
 
         while (currentWindow !== currentWindow.parent) {
             var scale = getElementScale(currentWindow.frameElement);
@@ -133,6 +142,14 @@
             currentWindow = currentWindow.parent;
         }
         return relativeOffset;
+    }
+    
+    function isPlayerInCrossDomain() {
+        try {
+            return !window.top.document;
+        } catch (e) {
+            return true;
+        }
     }
 
     function getPlayerBoundingClientRect() {
@@ -155,6 +172,7 @@
     }
 
     function getScrollOffset() {
+        // function will cause error when html with player from different origin was placed as src in iframe
         var currentWindow = window;
         var parentOffset = {top: 0, left: 0};
 

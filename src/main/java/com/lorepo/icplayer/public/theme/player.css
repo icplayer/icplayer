@@ -1266,3 +1266,23 @@ semantics > annotation-xml {
     visibility: inherit!important;
 }
 
+/*
+Ensures MathML form MathJax uses "STIX Two Math" as primary font.
+	The license and copyright for this font can be found under the relative links relative to where the player is placed:
+	> Licence: <icplayer>/theme/fonts/STIXTwoMath/LICENSE.txt
+	> Copyright: <icplayer>/theme/fonts/STIXTwoMath/COPYRIGHT.txt
+	Or online under followed links:
+	> Copyright and License: https://github.com/stipub/stixfonts/tree/master?tab=OFL-1.1-1-ov-file
+ */
+@font-face {
+	font-family: "STIX Two Math";
+	src:
+		local("STIX Two Math"),
+		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf) format('ttf'),
+		url(fonts/STIXTwoMath/STIXTwoMath-Regular.woff2) format('woff2'),
+		url(fonts/STIXTwoMath/STIXTwoMath-Regular.ttf) format('otf');
+}
+
+.ic_player .MathJax_MathML math {
+	font-family: "STIX Two Math", math;
+}
