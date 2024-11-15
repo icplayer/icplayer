@@ -1,4 +1,7 @@
-2024-11-06 Fixed issue with reset button before user's recording was ready
+2024-11-15 Fixed issue with reset button before user's recording was ready
+2024-11-07 Fixed Positioning Utils to work when player is in cross domain
+2024-11-07 Fixed impact of enable and disable commands on Image Source when active TTS
+2024-11-06 Fixed tab and tab&shift navigation in crossword
 2024-11-04 Fixed not rendering MathJax formulas after changing layout or lesson metadata context
 2024-11-04 Added "STIX Two Math" font as default font for MathML
 2024-11-04 Added support for lameScriptURL metadata in Media Recorder
