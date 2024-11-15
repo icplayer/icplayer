@@ -63,7 +63,8 @@ function AddonTable_create() {
         return presenter.textParser.parseGaps(presenter.$view.html(),
             {
                 isCaseSensitive: presenter.configuration.isCaseSensitive,
-                isKeepOriginalOrder: presenter.configuration.keepOriginalOrder
+                isKeepOriginalOrder: presenter.configuration.keepOriginalOrder,
+                useDraggableGaps: presenter.configuration.gapType === "draggable"
             }
         );
     }
@@ -1341,6 +1342,10 @@ function AddonTable_create() {
             this.setViewValue(this.showAnswersValue[0]);
         }
 
+        if (presenter.configuration.gapType === "draggable" && this.$view) {
+            this.$view.html(presenter.textParser.parseAltTexts(this.$view.html()));
+        }
+
         if (isConnectedWithMath) {
             this.onBlock();
             this.setViewValue(this.mathShowAnswersValue);
@@ -1351,6 +1356,9 @@ function AddonTable_create() {
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             this.setViewValue(this.value);
             this.onUnblock();
+        }
+        if (presenter.configuration.gapType === "draggable" && this.$view) {
+            this.$view.html(presenter.textParser.parseAltTexts(this.$view.html()));
         }
     };
 
@@ -1452,6 +1460,9 @@ function AddonTable_create() {
 
         if (presenter.configuration.gapType === "draggable") {
             DraggableDroppableObject.prototype.setState.call(this, value, source, droppedElement);
+            if (this.$view) {
+                this.$view.html(presenter.textParser.parseAltTexts(this.$view.html()));
+            }
         } else {
             this.value = value;
             this.source = source;
@@ -1721,6 +1732,9 @@ function AddonTable_create() {
 
     presenter.DraggableDroppableGap.prototype.fillGap = function (selectedItem) {
         DraggableDroppableObject.prototype.fillGap.call(this, selectedItem);
+        if (this.$view) {
+            this.$view.html(presenter.textParser.parseAltTexts(this.$view.html()));
+        }
         this.addCssClass("gapFilled");
         this.notify();
 
