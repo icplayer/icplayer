@@ -30,11 +30,17 @@ TestCase("[Events Utils - Double Tap] getStartEvent desktop tests", {
     'setUp': function () {
         this.stubs = {
             getUserAgent: sinon.stub(window.EventsUtils.DoubleTap._internals, 'getUserAgent')
-        }
+        };
+        this.setPointerEventSupport(false);
     },
 
     tearDown: function () {
         window.EventsUtils.DoubleTap._internals.getUserAgent.restore();
+        this.setPointerEventSupport(true);
+    },
+
+    setPointerEventSupport: function (hasSupport) {
+        window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
     },
 
     'test should return mosuedown event for desktop browser - Chrome': function () {
@@ -85,6 +91,7 @@ TestCase("[Events Utils - Double Tap] getStartEvent mobile tests", {
         if (!this.hasOnTouchStart) {
             window.ontouchstart = function () {};
         }
+        this.setPointerEventSupport(false);
     },
 
     tearDown: function () {
@@ -93,6 +100,11 @@ TestCase("[Events Utils - Double Tap] getStartEvent mobile tests", {
         if (!this.hasOnTouchStart) {
             delete window.ontouchstart;
         }
+        this.setPointerEventSupport(true);
+    },
+
+    setPointerEventSupport: function (hasSupport) {
+        window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
     },
 
     'test should return touchstart event for mobile browser - Chrome on Android': function () {
@@ -109,7 +121,7 @@ TestCase("[Events Utils - Double Tap] getStartEvent mobile tests", {
     'test should return touchstart event for mobile browser - Native Browser on Android': function () {
         this.stubs.getUserAgent.returns("Mozilla/5.0 (Linux; U; Android 5.0; pl-pl; LG-D855 Build/LRX21R.A1445306351) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/34.0.1847.118 Mobile Safari/537.36"); // Chrome on Android 5.0
 
-        var startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
+        const startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
 
         assertTrue(this.stubs.getUserAgent.calledOnce);
         assertEquals('touchstart', startEvent);
@@ -118,11 +130,41 @@ TestCase("[Events Utils - Double Tap] getStartEvent mobile tests", {
     'test should return touchstart event for mobile browser - Safari on iOS': function () {
         this.stubs.getUserAgent.returns("Mozilla/5.0 (iPad; CPU OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13D15 Safari/601.1"); // Safari on iPad with iOS 9.2.1
 
-        var startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
+        const startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
 
         assertTrue(this.stubs.getUserAgent.calledOnce);
         assertEquals('touchstart', startEvent);
-    }
+    },
+
+    'test should return pointerdown event for mobile browser when PointerEvent is supported - Chrome on Android': function () {
+        this.setPointerEventSupport(true);
+        this.stubs.getUserAgent.returns("Mozilla/5.0 (Linux; Android 5.0; LG-D855 Build/LRX21R.A1445306351) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.95 Mobile Safari/537.36"); // Chrome on Android 5.0
+
+        const startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
+
+        assertTrue(this.stubs.getUserAgent.calledOnce);
+        assertEquals("pointerdown", startEvent);
+    },
+
+    'test should return pointerdown event for mobile browser when PointerEvent is supported - Native Browser on Android': function () {
+        this.setPointerEventSupport(true);
+        this.stubs.getUserAgent.returns("Mozilla/5.0 (Linux; U; Android 5.0; pl-pl; LG-D855 Build/LRX21R.A1445306351) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/34.0.1847.118 Mobile Safari/537.36"); // Chrome on Android 5.0
+
+        const startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
+
+        assertTrue(this.stubs.getUserAgent.calledOnce);
+        assertEquals("pointerdown", startEvent);
+    },
+
+    'test should return touchstart event for mobile browser when PointerEvent is supported - Safari on iOS': function () {
+        this.setPointerEventSupport(true);
+        this.stubs.getUserAgent.returns("Mozilla/5.0 (iPad; CPU OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13D15 Safari/601.1"); // Safari on iPad with iOS 9.2.1
+
+        const startEvent = window.EventsUtils.DoubleTap._internals.getStartEvent();
+
+        assertTrue(this.stubs.getUserAgent.calledOnce);
+        assertEquals("pointerdown", startEvent);
+    },
 });
 
 TestCase("[Events Utils - Double Tap] addClick test", {

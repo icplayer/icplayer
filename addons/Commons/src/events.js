@@ -82,9 +82,8 @@
         var ua = userAgent || DoubleTap._internals.getUserAgent(),
             isChrome = /chrome/i.exec(ua),
             isAndroid = /android/i.exec(ua),
-            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid),
-            isPointerEventSupported = !!window.PointerEvent;
-        return isPointerEventSupported ? "pointerdown" : (hasTouch ? 'touchstart' : 'mousedown');
+            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid);
+        return PointingEvents.hasPointerEventSupport() ? "pointerdown" : (hasTouch ? 'touchstart' : 'mousedown');
     };
 
     DoubleTap.on = function doubleTap_on ($element, callback) {
@@ -133,7 +132,7 @@
      * Checks if provided PointerEvent isPrimary
      * @method isPrimaryEvent
      *
-     * The method is designed for boundary conditions:
+     * This method is created for use when the condition is met:
      * > Addon uses PointerEvent instead of MouseEvent and TouchEvent if PointerEvent is available.
      *
      * @returns {boolean} true if PointerEvents not supported or is primary Pointer event, otherwise false
