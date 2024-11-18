@@ -199,7 +199,7 @@ TestCase("[Events Utils - Double Tap] getStartEvent mobile tests", {
         assertEquals("pointerdown", startEvent);
     },
 
-    'test should return touchstart event for mobile browser when PointerEvent is supported - Safari on iOS': function () {
+    'test should return pointerdown event for mobile browser when PointerEvent is supported - Safari on iOS': function () {
         this.setPointerEventSupport(true);
         this.stubs.getUserAgent.returns("Mozilla/5.0 (iPad; CPU OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13D15 Safari/601.1"); // Safari on iPad with iOS 9.2.1
 

@@ -1,4 +1,4 @@
-TestCase("[Shape_Tracing] turnOnEventListeners method tests", {
+TestCase("[Shape_Tracing] Events listeners tests", {
     setUp: function () {
         this.presenter = AddonShape_Tracing_create();
 

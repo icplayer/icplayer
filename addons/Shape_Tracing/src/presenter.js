@@ -153,7 +153,7 @@ function AddonShape_Tracing_create() {
     }
 
     function resetCanvas() {
-        turnOffEventListeners();
+        presenter._turnOffEventListeners();
         $(canvasData.main.canvas).remove();
         $(canvasData.temp.canvas).remove();
 
@@ -166,12 +166,12 @@ function AddonShape_Tracing_create() {
         initCanvasData();
         resizeCanvas(canvasData.main.canvas);
         resizeCanvas(canvasData.temp.canvas);
-        turnOnEventListeners();
+        presenter._turnOnEventListeners();
     }
 
     function resetAddon(isPencilActive) {
-        turnOffEventListeners();
-        turnOnEventListeners();
+        presenter._turnOffEventListeners();
+        presenter._turnOnEventListeners();
 
         canvasData.temp.context.clearRect(0, 0, presenter.data.width, presenter.data.height);
         canvasData.main.context.clearRect(0, 0, presenter.data.width, presenter.data.height);
@@ -727,7 +727,7 @@ function AddonShape_Tracing_create() {
         } else {
             presenter._connectTouchEvents($canvas);
         }
-    }
+    };
 
     presenter._connectTouchEvents = function ($canvas) {
         var isWorkaroundOn = false;
@@ -771,7 +771,7 @@ function AddonShape_Tracing_create() {
             setOverflowWorkAround(false);
             isWorkaroundOn = false;
         });
-    }
+    };
     
     function drawWithoutPropagation (e) {
         draw(e, true);
@@ -818,13 +818,13 @@ function AddonShape_Tracing_create() {
             }
             directionPoints.push('Up');
         });
-    }
+    };
 
-    function turnOffEventListeners() {
+    presenter._turnOffEventListeners = function () {
         const $canvas = $(canvasData.temp.canvas);
         $canvas.off("touchstart touchend touchmove");
         $canvas.off(`${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP} ${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.LEAVE}`);
-    }
+    };
 
     presenter.ERROR_CODES = {
         SI01: "Property Shape image cannot be empty",
@@ -1326,7 +1326,7 @@ function AddonShape_Tracing_create() {
             presenter.hideAnswers();
         }
 
-        turnOffEventListeners();
+        presenter._turnOffEventListeners();
 
         if (presenter.data.isStarted) {
             $(canvasData.temp.canvas).addClass(countScore() === 1 ? "correct" : "wrong");
@@ -1337,7 +1337,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.setWorkMode = function() {
-        turnOffEventListeners();
+        presenter._turnOffEventListeners();
         presenter._turnOnEventListeners();
 
         if (!presenter.configuration.isShowShapeImage) {
@@ -1474,7 +1474,7 @@ function AddonShape_Tracing_create() {
     presenter.showAnswers = function() {
         presenter.isShowAnswersActive = true;
         presenter.setWorkMode();
-        turnOffEventListeners();
+        presenter._turnOffEventListeners();
 
         if (presenter.configuration.correctAnswerImage) {
             presenter.layer.hide();
@@ -1501,7 +1501,7 @@ function AddonShape_Tracing_create() {
         } else {
             presenter.layer.hide();
         }
-        turnOffEventListeners();
+        presenter._turnOffEventListeners();
         presenter._turnOnEventListeners();
         presenter.isShowAnswersActive = false;
     };
