@@ -552,8 +552,9 @@ function AddonShape_Tracing_create() {
             presenter.cursorPosition.x = parseInt((clientX - rect.left) / presenter.data.zoom, 10);
             presenter.cursorPosition.y = parseInt((clientY - rect.top) / presenter.data.zoom, 10);
         } else {
-            presenter.cursorPosition.x = parseInt((event.targetTouches[0].pageX - $(canvas).offset().left) / presenter.data.zoom, 10);
-            presenter.cursorPosition.y = parseInt((event.targetTouches[0].pageY - $(canvas).offset().top) / presenter.data.zoom, 10);
+            const targetTouches = event.originalEvent ? event.originalEvent.targetTouches : event.targetTouches;
+            presenter.cursorPosition.x = parseInt((targetTouches[0].pageX - $(canvas).offset().left) / presenter.data.zoom, 10);
+            presenter.cursorPosition.y = parseInt((targetTouches[0].pageY - $(canvas).offset().top) / presenter.data.zoom, 10);
         }
 
         directionPoints.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
