@@ -57,6 +57,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void showItem(String id);
 		void connectDOMNodeRemovedEvent(String id);
 		public void rerenderMath();
+		public void refreshMathJax();
 	}
 
 	private final int stateVersion = 1;
@@ -175,6 +176,18 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		} else {
 			view.hide();
 		}
+
+		refreshMathJaxWithTimeout(this);
+	}
+
+	public native int refreshMathJaxWithTimeout(SourceListPresenter x) /*-{
+		setTimeout(function() {
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::refreshMathJax()();
+		}, 200);
+	}-*/;
+
+	public void refreshMathJax() {
+		view.refreshMathJax();
 	}
 
 	protected void removeItem(String id) {
