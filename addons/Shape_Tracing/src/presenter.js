@@ -411,7 +411,7 @@ function AddonShape_Tracing_create() {
 
         presenter.data.shapeImageLoaded.then(function() {
             var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.ID+'"]');
-            moduleSelector.on(Events.PointingEvents.TYPES.MOVE, function(e) {
+            moduleSelector.on(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
                 var x = e.offsetX, y = e.offsetY;
 
                 presenter.text.setText(prepearText(x, y));
@@ -419,7 +419,7 @@ function AddonShape_Tracing_create() {
             });
         });
 
-        presenter.$view.find(".drawing").on(Events.PointingEvents.TYPES.MOVE, function(e) {
+        presenter.$view.find(".drawing").on(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
             e.stopPropagation();
 
             var x = e.offsetX, y = e.offsetY;
@@ -716,20 +716,20 @@ function AddonShape_Tracing_create() {
         }
     }
 
-    function turnOnEventListeners() {
+    presenter._turnOnEventListeners = function () {
         const $canvas = $(canvasData.temp.canvas);
         $canvas.on('click', function(e) {
             e.stopPropagation();
         });
 
-        if (Events.PointingEvents.hasPointerEventSupport() || MobileUtils.isEventSupported('touchstart')) {
-            connectPointerEvents($canvas);
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported('touchstart')) {
+            presenter._connectPointerEvents($canvas);
         } else {
-            connectTouchEvents($canvas);
+            presenter._connectTouchEvents($canvas);
         }
     }
 
-    function connectTouchEvents($canvas) {
+    presenter._connectTouchEvents = function ($canvas) {
         var isWorkaroundOn = false;
 
         $canvas.on('touchstart', function(e) {
@@ -777,16 +777,16 @@ function AddonShape_Tracing_create() {
         draw(e, true);
     }
 
-    function connectPointerEvents($canvas) {
+    presenter._connectPointerEvents = function ($canvas) {
         var isDown = false;
 
-        $canvas.on(Events.PointingEvents.TYPES.DOWN, function(event) {
-            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+        $canvas.on(EventsUtils.PointingEvents.TYPES.DOWN, function(event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
                 return;
             }
             isDown = true;
             draw(event, false);
-            $canvas.on(Events.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
+            $canvas.on(EventsUtils.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
 
             if (presenter.data.isPencilActive) {
                 presenter.data.isStarted = true;
@@ -796,11 +796,11 @@ function AddonShape_Tracing_create() {
             }
         });
 
-        $canvas.on(`${Events.PointingEvents.TYPES.UP} ${Events.PointingEvents.TYPES.LEAVE}`, function(event) {
-            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+        $canvas.on(`${EventsUtils.PointingEvents.TYPES.UP} ${EventsUtils.PointingEvents.TYPES.LEAVE}`, function(event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
                 return;
             }
-            $canvas.off(Events.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
+            $canvas.off(EventsUtils.PointingEvents.TYPES.MOVE, drawWithoutPropagation);
             if (isDown && presenter.data.isPencilActive) {
                 eventCreator();
                 isDown = false;
@@ -812,8 +812,8 @@ function AddonShape_Tracing_create() {
             points = [];
         });
 
-        $canvas.on(Events.PointingEvents.TYPES.UP, function(event) {
-            if (!Events.PointingEvents.isPrimaryEvent(event)) {
+        $canvas.on(EventsUtils.PointingEvents.TYPES.UP, function(event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
                 return;
             }
             directionPoints.push('Up');
@@ -823,7 +823,7 @@ function AddonShape_Tracing_create() {
     function turnOffEventListeners() {
         const $canvas = $(canvasData.temp.canvas);
         $canvas.off("touchstart touchend touchmove");
-        $canvas.off(`${Events.PointingEvents.TYPES.DOWN} ${Events.PointingEvents.TYPES.UP} ${Events.PointingEvents.TYPES.MOVE} ${Events.PointingEvents.TYPES.LEAVE}`);
+        $canvas.off(`${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP} ${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.LEAVE}`);
     }
 
     presenter.ERROR_CODES = {
@@ -1033,7 +1033,7 @@ function AddonShape_Tracing_create() {
         presenter.initializeCanvas(isPreview);
 
         if (!isPreview) {
-            turnOnEventListeners();
+            presenter._turnOnEventListeners();
         }
 
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
@@ -1338,7 +1338,7 @@ function AddonShape_Tracing_create() {
 
     presenter.setWorkMode = function() {
         turnOffEventListeners();
-        turnOnEventListeners();
+        presenter._turnOnEventListeners();
 
         if (!presenter.configuration.isShowShapeImage) {
             presenter.layer.hide();
@@ -1502,7 +1502,7 @@ function AddonShape_Tracing_create() {
             presenter.layer.hide();
         }
         turnOffEventListeners();
-        turnOnEventListeners();
+        presenter._turnOnEventListeners();
         presenter.isShowAnswersActive = false;
     };
 
