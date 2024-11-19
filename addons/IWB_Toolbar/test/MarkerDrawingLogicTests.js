@@ -45,7 +45,7 @@ TestCase("[IWB Toolbar] MarkerDrawingLogic method tests", {
     },
 
     'test given mouse supported window when drawingLogic is called then attach mouse listeners to temp marker canvas': function () {
-        this.setPointerEventSupport(true);
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(false);
 
         this.presenter.markerDrawingLogic();
@@ -60,7 +60,7 @@ TestCase("[IWB Toolbar] MarkerDrawingLogic method tests", {
     },
 
     'test given touch supported window when drawingLogic is called then attach touch listeners to temp marker canvas': function () {
-        this.setPointerEventSupport(true);
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(true);
 
         this.presenter.markerDrawingLogic();

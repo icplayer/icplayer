@@ -54,7 +54,7 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
     },
 
     'test given touch supported window when drawingLogic is called then attach touch listeners to both canvases': function () {
-        this.setPointerEventSupport(true);
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(true);
 
         this.presenter.drawingLogic();
@@ -68,7 +68,7 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
     },
 
     'test given mouse supported window when drawingLogic is called then attach mouse listeners to both canvases': function () {
-        this.setPointerEventSupport(true);
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(false);
 
         this.presenter.drawingLogic();
