@@ -80,7 +80,7 @@ function AddonDrawing_create() {
     }
 
     presenter.points = [];
-    presenter.mouse = {x: 0, y: 0};
+    presenter.pointerPosition = {x: 0, y: 0};
     presenter.isStarted = false;
 
     presenter.addedImage = {};
@@ -175,8 +175,8 @@ function AddonDrawing_create() {
             y = y/scale.Y;
         }
 
-        presenter.mouse.x = x;
-        presenter.mouse.y = y;
+        presenter.pointerPosition.x = x;
+        presenter.pointerPosition.y = y;
         presenter.onPaint(e);
     };
 
@@ -199,8 +199,8 @@ function AddonDrawing_create() {
             y = y/scale.Y;
         }
 
-        presenter.mouse.x = x;
-        presenter.mouse.y = y;
+        presenter.pointerPosition.x = x;
+        presenter.pointerPosition.y = y;
         presenter.onImageEdition(e);
     };
 
@@ -271,7 +271,7 @@ function AddonDrawing_create() {
             tmp_ctx.closePath();
             tmp_ctx.stroke();
         }
-    }
+    };
 
     presenter.addImage = function (img) {
         presenter.setEraserOff();
@@ -311,7 +311,7 @@ function AddonDrawing_create() {
         drawDragAnchor(image.left + image.width, image.top);
         drawDragAnchor(image.left + image.width, image.top + image.height);
         drawDragAnchor(image.left, image.top + image.height);
-    }
+    };
 
     presenter.embedText = function(textArray, x, y, lineHeight) {
         if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
@@ -322,7 +322,7 @@ function AddonDrawing_create() {
         }
         presenter.configuration.context.drawImage(presenter.configuration.tmp_canvas, 0, 0);
         presenter.configuration.tmp_ctx.clearRect(0, 0, presenter.configuration.tmp_canvas.width, presenter.configuration.tmp_canvas.height);
-    }
+    };
 
     presenter.onPaint = function(e) {
         e.stopPropagation();
@@ -344,7 +344,7 @@ function AddonDrawing_create() {
         tmp_ctx.strokeStyle = presenter.configuration.color;
         tmp_ctx.fillStyle = presenter.configuration.color;
 
-        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+        presenter.points.push({x: presenter.pointerPosition.x, y: presenter.pointerPosition.y});
         if (presenter.points.length < 3) {
             var b = presenter.points[0];
             tmp_ctx.beginPath();
@@ -356,6 +356,7 @@ function AddonDrawing_create() {
 
             tmp_ctx.beginPath();
             tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
+
             for (var i = 1; i < presenter.points.length - 2; i++) {
                 var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
                 var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
@@ -381,7 +382,7 @@ function AddonDrawing_create() {
         tmp_canvas = presenter.configuration.tmp_canvas;
         tmp_ctx = presenter.configuration.tmp_ctx;
         tmp_ctx.globalAlpha = presenter.configuration.opacity;
-        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+        presenter.points.push({x: presenter.pointerPosition.x, y: presenter.pointerPosition.y});
         if (presenter.points.length < 4) {
             presenter.draggingAnchor = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             presenter.draggingImage = presenter.draggingAnchor < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
@@ -390,32 +391,32 @@ function AddonDrawing_create() {
             }
         } else {
             if (presenter.draggingAnchor > -1) {
-                mouseX = presenter.points[presenter.points.length - 1].x;
-                mouseY = presenter.points[presenter.points.length - 1].y;
+                let positionX = presenter.points[presenter.points.length - 1].x;
+                let positionY = presenter.points[presenter.points.length - 1].y;
                 switch (presenter.draggingAnchor) {                    
                     case AnchorEnum.topLeft:
                         //top-left
-                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
-                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
-                        presenter.addedImage.left = mouseX;
-                        presenter.addedImage.top = mouseY;
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - positionX;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - positionY;
+                        presenter.addedImage.left = positionX;
+                        presenter.addedImage.top = positionY;
                         break;
                     case AnchorEnum.topRight:
                         //top-right
-                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
-                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
-                        presenter.addedImage.top = mouseY;
+                        presenter.addedImage.width = positionX - presenter.addedImage.left;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - positionY;
+                        presenter.addedImage.top = positionY;
                         break;
                     case AnchorEnum.bottomRight:
                         //bottom-right
-                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
-                        presenter.addedImage.height = mouseY - presenter.addedImage.top;
+                        presenter.addedImage.width = positionX - presenter.addedImage.left;
+                        presenter.addedImage.height = positionY - presenter.addedImage.top;
                         break;
                     case AnchorEnum.bottomLeft:
                         //bottom-left
-                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
-                        presenter.addedImage.height = mouseY - presenter.addedImage.top;;
-                        presenter.addedImage.left = mouseX;
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - positionX;
+                        presenter.addedImage.height = positionY - presenter.addedImage.top;
+                        presenter.addedImage.left = positionX;
                         break;
                 }
 
@@ -435,30 +436,28 @@ function AddonDrawing_create() {
         }
     };
 
-    presenter.removeImage = function (e) {
-        var tmp_canvas, tmp_ctx;
-        tmp_canvas = presenter.configuration.tmp_canvas;
-        tmp_ctx = presenter.configuration.tmp_ctx;
-        
-        const key = e.key;
-        if (key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
-            presenter.finishEditImageMode(tmp_ctx, tmp_canvas, true);
+    presenter.removeImage = function (event) {
+        if (event.key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
+            presenter.finishEditImageMode(
+                presenter.configuration.tmp_ctx,
+                presenter.configuration.tmp_canvas,
+                true
+            );
         }
-        e.stopPropagation();
-    }
+        event.stopPropagation();
+    };
 
-    presenter.turnOnEventListeners = function() {
-        var tmp_canvas = presenter.configuration.tmp_canvas,
+    presenter._turnOnEventListeners = function() {
+        const tmp_canvas = presenter.configuration.tmp_canvas,
             tmp_ctx = presenter.configuration.tmp_ctx,
             ctx = presenter.configuration.context;
 
-        // TOUCH
-        if (MobileUtils.isEventSupported('touchstart')) {
-            connectTouchEvents(tmp_canvas, tmp_ctx, ctx);
-        }
 
-        // MOUSE
-        connectMouseEvents(tmp_canvas, tmp_ctx, ctx);
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported('touchstart')) {
+            presenter._connectPointerEvents(tmp_canvas, tmp_ctx, ctx);
+        } else {
+            presenter._connectTouchEvents(tmp_canvas, tmp_ctx, ctx);
+        }
 
         tmp_canvas.addEventListener("click", presenter.onTmpCanvasClick, false);
 
@@ -485,7 +484,7 @@ function AddonDrawing_create() {
     presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas, rejectAdding) {
         setDefaultAddonMode();
         setOverflowWorkAround(false);
-        tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+        tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onImageEdition, false);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         if(!rejectAdding){
             presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
@@ -495,8 +494,8 @@ function AddonDrawing_create() {
         presenter.points = [];
     };
 
-    function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
-        tmp_canvas.addEventListener('touchstart', function (e) {
+    presenter._connectTouchEvents = function (tmp_canvas, tmp_ctx, ctx) {
+        tmp_canvas.addEventListener('touchstart', function (event) {
             setOverflowWorkAround(true);
 
             if (isOnEraserMode()) {
@@ -506,17 +505,17 @@ function AddonDrawing_create() {
             presenter.zoom = getZoom();
             presenter.isStarted = true;
             if (isOnPencilMode() || isOnEraserMode()) {
-                presenter.onMobilePaint(e);
+                presenter.onMobilePaint(event);
                 tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
             } else if (isOnImageEditionMode()) {
-                presenter.onMobileImageEdition(e);
+                presenter.onMobileImageEdition(event);
                 tmp_canvas.addEventListener('touchmove', presenter.onMobileImageEdition);
             } else if (isOnTextEditionMode()) {
                 presenter.finishEditTextMode();
             }
         }, false);
 
-        tmp_canvas.addEventListener('touchend', function (e) {
+        tmp_canvas.addEventListener('touchend', function (event) {
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
@@ -531,30 +530,25 @@ function AddonDrawing_create() {
             }
             presenter.points = [];
         }, false);
-    }
+    };
 
-    function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
-        tmp_canvas.addEventListener('mousemove', function (e) {
-            if (isOnTextEditionMode()) return;
-            e.stopPropagation();
-
-            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-            if (presenter.zoom !== 1) {
-                x = x * (1 / parseInt(presenter.zoom, 10));
-                y = y * (1 / parseInt(presenter.zoom, 10));
+    presenter._connectPointerEvents = function (tmp_canvas, tmp_ctx, ctx) {
+        tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event) || isOnTextEditionMode()) {
+                return;
             }
 
-            presenter.mouse.x = x;
-            presenter.mouse.y = y;
+            event.stopPropagation();
+            const position = getPosition(event);
+            presenter.pointerPosition.x = position.x;
+            presenter.pointerPosition.y = position.y;
 
             presenter.configuration.tmp_canvas.style.cursor = 'crosshair';
             if (isOnImageEditionMode() && presenter.addedImage.image !== undefined) {
-                if (hitImage(x, y, presenter.addedImage)) {
+                if (hitImage(position.x, position.y, presenter.addedImage)) {
                     presenter.configuration.tmp_canvas.style.cursor = 'pointer';
                 } else {
-                    var anchorIndex = anchorHitTest(x, y, presenter.addedImage);
+                    const anchorIndex = anchorHitTest(position.x, position.y, presenter.addedImage);
                     if (anchorIndex == 0 || anchorIndex == 2) {
                         presenter.configuration.tmp_canvas.style.cursor = 'nwse-resize';
                     } else if (anchorIndex == 1 || anchorIndex == 3) {
@@ -563,24 +557,32 @@ function AddonDrawing_create() {
 
                 }
             }
-
         }, false);
-        $(tmp_canvas).on('mouseleave', function (e) {
+
+        tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.LEAVE, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
             setOverflowWorkAround(false);
             if (isOnPencilMode() || isOnEraserMode()) {
-                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
             } else if (isOnImageEditionMode()) {
-                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             }
             presenter.points = [];
         });
-        tmp_canvas.addEventListener('mousedown', function (e) {
-            setOverflowWorkAround(true);
 
+        tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
+            setOverflowWorkAround(true);
             if (isOnEraserMode()) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
@@ -591,44 +593,55 @@ function AddonDrawing_create() {
             }
 
             if (isOnPencilMode() || isOnEraserMode()) {
-                tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
+                tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onPaint, false);
             } else if (isOnImageEditionMode()) {
-                tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onImageEdition, false);
             }
             presenter.isStarted = true;
 
-            var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-            var y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-            if (presenter.zoom !== 1) {
-                x = x * (1 / presenter.zoom);
-                y = y * (1 / presenter.zoom);
-            }
-
-            presenter.points.push({x: x, y: y});
+            const position = getPosition(event);
+            presenter.pointerPosition.x = position.x;
+            presenter.pointerPosition.y = position.y;
+            presenter.points.push(position);
 
             if (isOnPencilMode() || isOnEraserMode()) {
-                presenter.onPaint(e);
+                presenter.onPaint(event);
             } else if (isOnImageEditionMode()) {
-                presenter.onImageEdition(e);
+                presenter.onImageEdition(event);
             } else if (isOnTextEditionMode()) {
                 presenter.finishEditTextMode();
             }
         }, false);
 
-        tmp_canvas.addEventListener('mouseup', function (e) {
+        tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.UP, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
             setOverflowWorkAround(false);
             if (isOnPencilMode() || isOnEraserMode()) {
-                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
             } else if (isOnImageEditionMode()) {
-                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             }
             presenter.points = [];
         }, false);
+    };
+
+    function getPosition(event) {
+        let x = typeof event.offsetX !== 'undefined' ? event.offsetX : event.layerX;
+        let y = typeof event.offsetY !== 'undefined' ? event.offsetY : event.layerY;
+
+        if (presenter.zoom !== 1) {
+            x = x * (1 / parseInt(presenter.zoom, 10));
+            y = y * (1 / parseInt(presenter.zoom, 10));
+        }
+
+        return {x: x, y: y};
     }
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -742,7 +755,7 @@ function AddonDrawing_create() {
         }
 
         if (!isPreview) {
-            presenter.turnOnEventListeners();
+            presenter._turnOnEventListeners();
             MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
