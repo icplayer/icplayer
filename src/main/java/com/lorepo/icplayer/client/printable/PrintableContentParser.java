@@ -58,6 +58,7 @@ public class PrintableContentParser {
 	int asyncModuleIDCounter = 0;
 	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
 	ArrayList<HashMap<String, String>> contentInformation = new ArrayList<HashMap<String, String>>();
+	HashMap<String, List<String>> printableOrder = new HashMap<String, List<String>>();
 
 	private static class SplitResult extends JavaScriptObject {
 		
@@ -335,6 +336,8 @@ public class PrintableContentParser {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
+		boolean isPrintableOrderSet = this.printableOrder.size() > 0;
+
 		pagePrintableController.setSeededRandom(random);
 		pagePrintableController.setPreview(this.preview);
 		String printableLessonTemplate = createTemplateOfPrintableLesson();
@@ -347,8 +350,9 @@ public class PrintableContentParser {
 		}
 
 		ModuleList modules = page.getModules();
-		for (int i = 0; i < modules.size(); i++) {
-			IModuleModel model = modules.get(i);
+		int modulesNumber = getModulesNumber(modules, page.getId());
+		for (int i = 0; i < modulesNumber; i++) {
+			IModuleModel model = getModuleModel(page, page.getId(), i);
 			Group modelGroup = null;
 			if (model.hasGroup()) {
 				for (Group group: page.getGroupedModules()) {
@@ -368,7 +372,7 @@ public class PrintableContentParser {
 				}
 			}
 		}
-		if (randomizeModules) {
+		if (!isPrintableOrderSet && randomizeModules) {
 			randomizePrintables(pagePrintables);
 		}
 		String result = "";
@@ -376,6 +380,29 @@ public class PrintableContentParser {
 			result += getPrintableModuleHTML(printable, showAnswers, pagePrintableController);
 		}
 		return result;
+	}
+
+	private int getModulesNumber(ModuleList modules, String pageID){
+		boolean hasKey = this.printableOrder.containsKey(pageID);
+		if (hasKey && this.printableOrder.size() > 0) {
+			List<String>addonsID = this.printableOrder.get(pageID);
+			return addonsID.size();
+		}
+		return modules.size();
+	}
+
+	private IModuleModel getModuleModel(Page page, String pageID, int i) {
+		ModuleList modules = page.getModules();
+		boolean isPrintableOrderSet = this.printableOrder.size() > 0;
+		boolean hasKey = this.printableOrder.containsKey(pageID);
+
+		if (isPrintableOrderSet && hasKey) {
+			List<String>addonsID = this.printableOrder.get(pageID);
+			String moduleID = addonsID.get(i);
+			return page.getModules().getModuleById(moduleID);
+		} else {
+			return modules.get(i);
+		}
 	}
 	
 	private String wrapPrintablePage(String content, int pageWidth, int pageHeight) {
@@ -495,7 +522,8 @@ public class PrintableContentParser {
 
 	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
-		if (randomizePages && sourcePages.size() > 1) {
+		boolean isPrintableOrderSet = this.printableOrder.size() > 0;
+		if (!isPrintableOrderSet && randomizePages && sourcePages.size() > 1) {
 			List<Page> randomizablePages = new ArrayList<Page>();
 			List<Page> nonRandomizablePages = new ArrayList<Page>();
 			for (Page page: sourcePages) {
@@ -515,14 +543,38 @@ public class PrintableContentParser {
 			pages = sourcePages;
 		}
 		List<String> parsedPages = new ArrayList<String>();
-		for (Page page: pages) {
-			String result = "<div class='page";
-			result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
-			result += parsePage(page, randomizeModules, showAnswers);
-			result += "</div>";
-			parsedPages.add(result);
+
+		if (isPrintableOrderSet) {
+			for (int i=0; i<pages.size(); i++) {
+				Page page = this.getPageInPrintableOrder(pages, i);
+				String result = "<div class='page";
+				result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
+				result += parsePage(page, randomizeModules, showAnswers);
+				result += "</div>";
+				parsedPages.add(result);
+			}
+		} else {
+			for (Page page: pages) {
+				String result = "<div class='page";
+				result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
+				result += parsePage(page, randomizeModules, showAnswers);
+				result += "</div>";
+				parsedPages.add(result);
+			}
 		}
+
 		return parsedPages;
+	}
+
+	private Page getPageInPrintableOrder(List<Page> pages, int index) {
+		String pageIDInOrder = (String)this.printableOrder.keySet().toArray()[index];
+		for (Page page: pages) {
+			if (page.getId().equals(pageIDInOrder)) {
+				return page;
+			}
+		}
+
+		return pages.get(index);
 	}
 
 	private boolean isStartOfPage(String html) {
@@ -1035,4 +1087,7 @@ public class PrintableContentParser {
 		return "<div class='printable_lesson'>" + printablePage + "</div>";
 	};
 
+	public void setPrintableOrder(HashMap<String, List<String>> printableOrder) {
+		this.printableOrder = printableOrder;
+	}
 }
