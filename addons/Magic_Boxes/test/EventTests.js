@@ -1,4 +1,4 @@
-TestCase("[Magic_Boxes] Events tests", {
+TestCase("[Magic Boxes] Events tests", {
     setUp: function() {
         this.presenter = AddonMagic_Boxes_create();
         this.presenter.addonID = 'Magic_Boxes1';
