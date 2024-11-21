@@ -293,9 +293,6 @@ function AddonMagic_Boxes_create() {
     function addPointingListenersToSelectableElement(element, row, column) {
         element.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function (event) {
             event.preventDefault();
-            if (EventsUtils.PointingEvents.hasPointerEventSupport()) {
-                element.releasePointerCapture(event.pointerId);
-            }
             if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
                 return;
             }
@@ -319,6 +316,9 @@ function AddonMagic_Boxes_create() {
         element.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, function (event) {
             event.stopPropagation();
             event.preventDefault();
+            if (EventsUtils.PointingEvents.hasPointerEventSupport()) {
+                element.releasePointerCapture(event.pointerId);
+            }
             if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
                 return;
             }
