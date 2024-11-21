@@ -8,7 +8,7 @@ TestCase("[Magic_Boxes] Events tests", {
             hideAnswers: sinon.stub(this.presenter, 'hideAnswers'),
             gradualShowAnswers: sinon.stub(this.presenter, 'gradualShowAnswers'),
             gradualHideAnswers: sinon.stub(this.presenter, 'gradualHideAnswers')
-        }
+        };
     },
 
     tearDown: function () {

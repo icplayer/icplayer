@@ -115,9 +115,11 @@
 
     PointingEvents._internals.createTypesDictionary = function () {
         return {
+            OVER: PointingEvents._internals.getPointingEventName("over"),
             DOWN: PointingEvents._internals.getPointingEventName("down"),
-            UP: PointingEvents._internals.getPointingEventName("up"),
             MOVE: PointingEvents._internals.getPointingEventName("move"),
+            UP: PointingEvents._internals.getPointingEventName("up"),
+            OUT: PointingEvents._internals.getPointingEventName("out"),
             LEAVE: PointingEvents._internals.getPointingEventName("leave")
         };
     };
