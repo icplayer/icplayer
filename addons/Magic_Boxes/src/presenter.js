@@ -270,7 +270,7 @@ function AddonMagic_Boxes_create() {
             event.stopPropagation();
             event.preventDefault();
 
-            const clientPosition = fixTouch(event.originalEvent.touches[0] || event.originalEvent.changedTouches[0]);
+            const clientPosition = fixTouch(event.touches[0] || event.changedTouches[0]);
             const element = document.elementFromPoint(clientPosition.x, clientPosition.y);
             const index = $(element).parent().index();
             const selectedRow = parseInt(index / presenter.configuration.columns, 10);
