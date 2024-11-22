@@ -76,8 +76,8 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Cell A 1",
-            "O",
-        ]
+            "O.",
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -88,9 +88,9 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Cell A 1",
-            "O",
+            "O.",
             "Selected"
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -101,9 +101,9 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Cell A 1",
-            "O",
+            "O.",
             "Selected"
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -115,10 +115,10 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Cell A 1",
-            "O",
+            "O.",
             "Selected",
             "Correct",
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -130,10 +130,10 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Cell A 1",
-            "O",
+            "O.",
             "Selected",
             "Wrong",
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -152,7 +152,7 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Selected",
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 
@@ -164,7 +164,7 @@ TestCase("[Magic Boxes] TTS tests", {
 
         const expectedTexts = [
             "Deselected",
-        ]
+        ];
         this.validateIsAllSpokenTextsEqualsToExpectedTexts(expectedTexts);
     },
 });

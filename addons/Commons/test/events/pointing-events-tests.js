@@ -42,6 +42,8 @@ TestCase("[Events Utils - Pointing Events] TYPES tests", {
         assertEquals("pointerdown", window.EventsUtils.PointingEvents.TYPES.DOWN);
         assertEquals("pointermove", window.EventsUtils.PointingEvents.TYPES.MOVE);
         assertEquals("pointerleave", window.EventsUtils.PointingEvents.TYPES.LEAVE);
+        assertEquals("pointerover", window.EventsUtils.PointingEvents.TYPES.OVER);
+        assertEquals("pointerout", window.EventsUtils.PointingEvents.TYPES.OUT);
     },
 
     'test when not supported Primary Events ': function() {
@@ -51,6 +53,8 @@ TestCase("[Events Utils - Pointing Events] TYPES tests", {
         assertEquals("mousedown", window.EventsUtils.PointingEvents.TYPES.DOWN);
         assertEquals("mousemove", window.EventsUtils.PointingEvents.TYPES.MOVE);
         assertEquals("mouseleave", window.EventsUtils.PointingEvents.TYPES.LEAVE);
+        assertEquals("mouseover", window.EventsUtils.PointingEvents.TYPES.OVER);
+        assertEquals("mouseout", window.EventsUtils.PointingEvents.TYPES.OUT);
     },
 });
 
