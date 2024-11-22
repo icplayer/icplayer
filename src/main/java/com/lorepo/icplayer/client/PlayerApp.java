@@ -32,7 +32,7 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icplayer.client.module.api.player.PrintableOrderParser;
+import com.lorepo.icplayer.client.printable.PrintableOrderParser;
 
 public class PlayerApp {
 

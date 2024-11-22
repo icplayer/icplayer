@@ -353,6 +353,7 @@ public class PrintableContentParser {
 		int modulesNumber = getModulesNumber(modules, page.getId());
 		for (int i = 0; i < modulesNumber; i++) {
 			IModuleModel model = getModuleModel(page, page.getId(), i);
+			if (model == null) { continue; }
 			Group modelGroup = null;
 			if (model.hasGroup()) {
 				for (Group group: page.getGroupedModules()) {
@@ -400,9 +401,9 @@ public class PrintableContentParser {
 			List<String>addonsID = this.printableOrder.get(pageID);
 			String moduleID = addonsID.get(i);
 			return page.getModules().getModuleById(moduleID);
-		} else {
-			return modules.get(i);
 		}
+		
+		return modules.get(i);
 	}
 	
 	private String wrapPrintablePage(String content, int pageWidth, int pageHeight) {
@@ -522,8 +523,7 @@ public class PrintableContentParser {
 
 	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
-		boolean isPrintableOrderSet = this.printableOrder.size() > 0;
-		if (!isPrintableOrderSet && randomizePages && sourcePages.size() > 1) {
+		if (randomizePages && sourcePages.size() > 1) {
 			List<Page> randomizablePages = new ArrayList<Page>();
 			List<Page> nonRandomizablePages = new ArrayList<Page>();
 			for (Page page: sourcePages) {
@@ -544,23 +544,12 @@ public class PrintableContentParser {
 		}
 		List<String> parsedPages = new ArrayList<String>();
 
-		if (isPrintableOrderSet) {
-			for (int i=0; i<pages.size(); i++) {
-				Page page = this.getPageInPrintableOrder(pages, i);
-				String result = "<div class='page";
-				result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
-				result += parsePage(page, randomizeModules, showAnswers);
-				result += "</div>";
-				parsedPages.add(result);
-			}
-		} else {
-			for (Page page: pages) {
-				String result = "<div class='page";
-				result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
-				result += parsePage(page, randomizeModules, showAnswers);
-				result += "</div>";
-				parsedPages.add(result);
-			}
+		for (Page page: pages) {
+			String result = "<div class='page";
+			result += page.isSplitInPrintBlocked() ? "'>" : " splittable'>";
+			result += parsePage(page, randomizeModules, showAnswers);
+			result += "</div>";
+			parsedPages.add(result);
 		}
 
 		return parsedPages;

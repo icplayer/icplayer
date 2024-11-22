@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.module.api.player;
+package com.lorepo.icplayer.client.printable;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PrintableOrderParser extends JavaScriptObject {
     protected PrintableOrderParser(){}
@@ -39,10 +38,10 @@ public class PrintableOrderParser extends JavaScriptObject {
     }
 
     public final native String[] getPagesID() /*-{
-		return Object.keys(this);
+        return Object.keys(this);
 	}-*/;
 
     public final native String[] getOrderedAddonsID(String pageID) /*-{
-		return this[pageID];
+        return this[pageID];
 	}-*/;
 }
