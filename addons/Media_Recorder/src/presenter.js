@@ -1803,7 +1803,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     }
                 };
                 this.resetDialog.onConfirm = function () {
-                    _this2.timer.startCountdown();
                     _this2.resetRecording();
                     if (_this2.model.extendedMode) {
                         _this2.setEMDefaultStateView();
