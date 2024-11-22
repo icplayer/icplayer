@@ -906,4 +906,8 @@ public class PlayerController implements IPlayerController {
 	    }
 	    return null;
 	}
+
+	public void updateMathJaxInCurrentPage() {
+		this.pageController1.refreshMathJax();
+	}
 }

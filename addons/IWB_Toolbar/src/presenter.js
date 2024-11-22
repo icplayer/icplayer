@@ -492,7 +492,7 @@ function AddonIWB_Toolbar_create() {
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             return 'touchstart';
         }
-        return getPointingDownEventName();
+        return EventsUtils.PointingEvents.TYPES.DOWN;
     }
 
     presenter.onMobilePaint = function(e) {
@@ -585,13 +585,13 @@ function AddonIWB_Toolbar_create() {
     presenter.markerPointerDownHandler = function IWB_Toolbar_markerPointerDownHandler(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event)) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
             return;
         }
         presenter.isPointerDown = true;
         setOverflowWorkAround(true);
 
-        presenter.markerTmpCanvas.addEventListener(getPointingMoveEventName(), presenter.onPaint, false);
+        presenter.markerTmpCanvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onPaint, false);
 
         presenter.points.push({
             x: typeof event.offsetX !== 'undefined' ? event.offsetX : event.layerX,
@@ -606,7 +606,7 @@ function AddonIWB_Toolbar_create() {
 
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event) || presenter.drawMode !== presenter.DRAW_MODE.MARKER) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event) || presenter.drawMode !== presenter.DRAW_MODE.MARKER) {
             return;
         }
 
@@ -617,7 +617,7 @@ function AddonIWB_Toolbar_create() {
     presenter.markerPointerUpHandler = function IWB_Toolbar_markerPointerUpHandler(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event)) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
             return;
         }
 
@@ -627,7 +627,7 @@ function AddonIWB_Toolbar_create() {
         presenter.isPointerDown = false;
         setOverflowWorkAround(false);
 
-        presenter.markerTmpCanvas.removeEventListener(getPointingMoveEventName(), presenter.onPaint, false);
+        presenter.markerTmpCanvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onPaint, false);
         presenter.markerCtx.drawImage(presenter.markerTmpCanvas, 0, 0);
         presenter.markerTmpCtx.clearRect(0, 0, presenter.markerTmpCanvas.width, presenter.markerTmpCanvas.height);
 
@@ -640,11 +640,11 @@ function AddonIWB_Toolbar_create() {
     presenter.markerDrawingLogic = function IWB_Toolbar_markerDrawingLogic() {
         $(presenter.markerTmpCanvas).off();
 
-        if (presenter.isPointerEventSupported || !MobileUtils.isEventSupported('touchstart')) {
-            presenter.markerTmpCanvas.addEventListener(getPointingDownEventName(), presenter.markerPointerDownHandler, false);
-            presenter.markerTmpCanvas.addEventListener(getPointingMoveEventName(), presenter.markerPointerMoveHandler, false);
-            presenter.markerTmpCanvas.addEventListener(getPointingUpEventName(), presenter.markerPointerUpHandler, false);
-            presenter.markerTmpCanvas.addEventListener(getPointingEventName("leave"), presenter.markerPointerUpHandler, false);
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported('touchstart')) {
+            presenter.markerTmpCanvas.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, presenter.markerPointerDownHandler, false);
+            presenter.markerTmpCanvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.markerPointerMoveHandler, false);
+            presenter.markerTmpCanvas.addEventListener(EventsUtils.PointingEvents.TYPES.UP, presenter.markerPointerUpHandler, false);
+            presenter.markerTmpCanvas.addEventListener(EventsUtils.PointingEvents.TYPES.LEAVE, presenter.markerPointerUpHandler, false);
         } else {
             presenter.markerTmpCanvas.addEventListener('touchstart', presenter.onTouchStartCallback, false);
             presenter.markerTmpCanvas.addEventListener('touchend', presenter.onTouchEndEventCallback, false);
@@ -654,7 +654,7 @@ function AddonIWB_Toolbar_create() {
     presenter.penPointerDownHandler = function IWB_Toolbar_penPointerDownHandler(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event)) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
             return;
         }
         presenter.lastMousePosition = getCursorPosition(event);
@@ -669,7 +669,7 @@ function AddonIWB_Toolbar_create() {
 
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event)) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
             return;
         }
 
@@ -694,7 +694,7 @@ function AddonIWB_Toolbar_create() {
     presenter.penPointerUpHandler = function IWB_Toolbar_penPointerUpHandler(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (!isPrimaryEvent(event)) {
+        if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
             return;
         }
         if (presenter.isPointerDown) {
@@ -714,10 +714,10 @@ function AddonIWB_Toolbar_create() {
         $(presenter.markerTmpCanvas).off();
 
         let downEventName, moveEventName, upEventName;
-        if (presenter.isPointerEventSupported || !MobileUtils.isEventSupported('touchstart')) {
-            downEventName = getPointingDownEventName();
-            moveEventName = getPointingMoveEventName();
-            upEventName = getPointingUpEventName();
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported('touchstart')) {
+            downEventName = EventsUtils.PointingEvents.TYPES.DOWN;
+            moveEventName = EventsUtils.PointingEvents.TYPES.MOVE;
+            upEventName = EventsUtils.PointingEvents.TYPES.UP;
         } else {
             downEventName = "touchstart";
             moveEventName = "touchmove";
@@ -1122,14 +1122,14 @@ function AddonIWB_Toolbar_create() {
 
             var iwbCoverElements = $(".iwb-zoom-cover");
 
-            iwbCoverElements.on(`click ${getPointingDownEventName()} ${getPointingUpEventName()}`, function(e) {
+            iwbCoverElements.on(`click ${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP}`, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
 
             presenter.modules.find('a').on('click', presenter.preventClickAction_zoomClickHandler);
 
-            iwbCoverElements.on(getPointingDownEventName(), function(e) {
+            iwbCoverElements.on(EventsUtils.PointingEvents.TYPES.DOWN, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 lastEvent = e;
@@ -1138,12 +1138,12 @@ function AddonIWB_Toolbar_create() {
                 presenter.mouse.y = e.clientY;
             });
 
-            iwbCoverElements.on(getPointingUpEventName(), function(e) {
+            iwbCoverElements.on(EventsUtils.PointingEvents.TYPES.UP, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.isPointerDown = false;
 
-                if ((lastEvent.type == getPointingDownEventName()|| lastEvent.type == getPointingMoveEventName()) &&
+                if ((lastEvent.type == EventsUtils.PointingEvents.TYPES.DOWN|| lastEvent.type == EventsUtils.PointingEvents.TYPES.MOVE) &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
                     !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
@@ -1157,7 +1157,7 @@ function AddonIWB_Toolbar_create() {
                 lastEvent = e;
             });
 
-            iwbCoverElements.on(getPointingMoveEventName(), function(e) {
+            iwbCoverElements.on(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
                 if (presenter.isPointerDown) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -1308,10 +1308,10 @@ function AddonIWB_Toolbar_create() {
         presenter.$pagePanel.find('.iwb-toolbar-note').click(function(e) {
             e.stopPropagation();
         });
-        presenter.$pagePanel.find('.note').on(getPointingDownEventName(), function() {
+        presenter.$pagePanel.find('.note').on(EventsUtils.PointingEvents.TYPES.DOWN, function() {
             presenter.$pagePanel.find('.note').addClass('clicked');
         });
-        presenter.$pagePanel.find('.note').on(getPointingUpEventName(), function() {
+        presenter.$pagePanel.find('.note').on(EventsUtils.PointingEvents.TYPES.UP, function() {
             presenter.$pagePanel.find('.note').removeClass('clicked');
         });
 
@@ -1384,10 +1384,10 @@ function AddonIWB_Toolbar_create() {
         presenter.restoreTextAudioEventHandlers();
 
         presenter.panelView(button);
-        presenter.$pagePanel.find('.clock').on(getPointingDownEventName(), function() {
+        presenter.$pagePanel.find('.clock').on(EventsUtils.PointingEvents.TYPES.DOWN, function() {
             presenter.$pagePanel.find('.clock').addClass('clicked');
         });
-        presenter.$pagePanel.find('.clock').on(getPointingUpEventName(), function() {
+        presenter.$pagePanel.find('.clock').on(EventsUtils.PointingEvents.TYPES.UP, function() {
             presenter.$pagePanel.find('.clock').removeClass('clicked');
         });
         presenter.createClock();
@@ -1399,10 +1399,10 @@ function AddonIWB_Toolbar_create() {
         presenter.restoreTextAudioEventHandlers();
 
         presenter.panelView(button);
-        presenter.$pagePanel.find('.stopwatch').on(getPointingDownEventName(), function() {
+        presenter.$pagePanel.find('.stopwatch').on(EventsUtils.PointingEvents.TYPES.DOWN, function() {
             presenter.$pagePanel.find('.stopwatch').addClass('clicked');
         });
-        presenter.$pagePanel.find('.stopwatch').on(getPointingUpEventName(), function() {
+        presenter.$pagePanel.find('.stopwatch').on(EventsUtils.PointingEvents.TYPES.UP, function() {
             presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
         });
         presenter.createStopwatch();
@@ -1865,8 +1865,8 @@ function AddonIWB_Toolbar_create() {
                 }
             }
 
-            presenter.$floatingImageMask.off(`${getPointingDownEventName()} touchstart ${getPointingUpEventName()} touchend touchmove ${getPointingMoveEventName()}`);
-            presenter.$floatingImageMask.on(getPointingDownEventName(), rotateActionStartHandler);
+            presenter.$floatingImageMask.off(`${EventsUtils.PointingEvents.TYPES.DOWN} touchstart ${EventsUtils.PointingEvents.TYPES.UP} touchend touchmove ${EventsUtils.PointingEvents.TYPES.MOVE}`);
+            presenter.$floatingImageMask.on(EventsUtils.PointingEvents.TYPES.DOWN, rotateActionStartHandler);
             presenter.$floatingImageMask.on('touchstart', rotateActionStartHandler);
 
             function rotateActionEndHandler() {
@@ -1875,7 +1875,7 @@ function AddonIWB_Toolbar_create() {
                 }
             }
 
-            presenter.$floatingImageMask.on(getPointingUpEventName(), rotateActionEndHandler);
+            presenter.$floatingImageMask.on(EventsUtils.PointingEvents.TYPES.UP, rotateActionEndHandler);
             presenter.$floatingImageMask.on('touchend', rotateActionEndHandler);
 
             var previousPosition = null;
@@ -1905,7 +1905,7 @@ function AddonIWB_Toolbar_create() {
                 previousPosition = currentPosition;
             }
 
-            presenter.$floatingImageMask.on(getPointingMoveEventName(), rotateActionMoveHandler);
+            presenter.$floatingImageMask.on(EventsUtils.PointingEvents.TYPES.MOVE, rotateActionMoveHandler);
             presenter.$floatingImageMask.on('touchmove', rotateActionMoveHandler);
         });
     }
@@ -2143,17 +2143,17 @@ function AddonIWB_Toolbar_create() {
                 tmp_ctx.clearRect(0, 0, iwb_tmp_canvas.width, iwb_tmp_canvas.height);
             }, false);
         }else{
-            iwb_tmp_canvas.addEventListener(getPointingMoveEventName(), function(e) {
+            iwb_tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 mouse.x = typeof e.offsetX !== 'undefined' ?  e.offsetX : e.layerX;
                 mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
             }, false);
 
-            iwb_tmp_canvas.addEventListener(getPointingDownEventName(), function(e) {
+            iwb_tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                iwb_tmp_canvas.addEventListener(getPointingMoveEventName(), onPaint, false);
+                iwb_tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, onPaint, false);
 
                 mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
                 mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
@@ -2163,10 +2163,10 @@ function AddonIWB_Toolbar_create() {
                 onPaint();
             }, false);
 
-            iwb_tmp_canvas.addEventListener(getPointingUpEventName(), function(e) {
+            iwb_tmp_canvas.addEventListener(EventsUtils.PointingEvents.TYPES.UP, function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                iwb_tmp_canvas.removeEventListener(getPointingMoveEventName(), onPaint, false);
+                iwb_tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, onPaint, false);
                 // Writing down to real canvas now
                 // ctx.drawImage(iwb_tmp_canvas, 0, 0);
                 // Clearing tmp canvas
@@ -2240,8 +2240,8 @@ function AddonIWB_Toolbar_create() {
             $iwbTmpCanvas.on('touchstart', presenter.drawAreaLogic_touchStartCallback);
             $iwbTmpCanvas.on('touchend', presenter.drawAreaLogic_touchEndCallback);
         } else {
-            $iwbTmpCanvas.on(getPointingDownEventName(), presenter.drawAreaLogic_mouseDownCallback);
-            $iwbTmpCanvas.on(getPointingUpEventName(), presenter.drawAreaLogic_mouseUpCallback);
+            $iwbTmpCanvas.on(EventsUtils.PointingEvents.TYPES.DOWN, presenter.drawAreaLogic_mouseDownCallback);
+            $iwbTmpCanvas.on(EventsUtils.PointingEvents.TYPES.UP, presenter.drawAreaLogic_mouseUpCallback);
         }
     };
 
@@ -3471,8 +3471,8 @@ function AddonIWB_Toolbar_create() {
         presenter.recklick = null;
 
         $(presenter.markerTmpCanvas).off();
-        presenter.$canvas.off(`${getPointingDownEventName()} ${getPointingMoveEventName()} ${getPointingUpEventName()} touchstart touchmove touchend`);
-        presenter.$markerCanvas.off(`${getPointingDownEventName()} ${getPointingMoveEventName()} ${getPointingUpEventName()} touchstart touchmove touchend`);
+        presenter.$canvas.off(`${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.UP} touchstart touchmove touchend`);
+        presenter.$markerCanvas.off(`${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.UP} touchstart touchmove touchend`);
 
         presenter.isZoomActive = null;
         presenter.$defaultColorButton = null;
@@ -3928,20 +3928,20 @@ function AddonIWB_Toolbar_create() {
     function clearCanvases() {
         if (presenter.$canvas) {
             presenter.penUsed = false;
-            presenter.$canvas.off(`${getPointingMoveEventName()} ${getPointingDownEventName()} ${getPointingUpEventName()}`);
+            presenter.$canvas.off(`${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP}`);
             presenter.ctx.clearRect(0, 0, presenter.$canvas[0].width, presenter.$canvas[0].height);
         }
 
         if (presenter.$markerCanvas) {
             presenter.markerUsed = false;
-            presenter.$markerCanvas.off(`${getPointingMoveEventName()} ${getPointingDownEventName()} ${getPointingUpEventName()}`);
+            presenter.$markerCanvas.off(`${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP}`);
             presenter.markerCtx.clearRect(0, 0, presenter.$markerCanvas[0].width, presenter.$markerCanvas[0].height);
         }
     }
 
     function clearSelectingCanvas() {
         if (presenter.selectingCanvas) {
-            presenter.selectingCanvas.off(`${getPointingMoveEventName()} ${getPointingDownEventName()} ${getPointingUpEventName()}`);
+            presenter.selectingCanvas.off(`${EventsUtils.PointingEvents.TYPES.MOVE} ${EventsUtils.PointingEvents.TYPES.DOWN} ${EventsUtils.PointingEvents.TYPES.UP}`);
             presenter.selectingCtx.clearRect(0, 0, presenter.selectingCanvas[0].width, presenter.selectingCanvas[0].height);
         }
     }
@@ -4530,30 +4530,6 @@ function AddonIWB_Toolbar_create() {
             var pageIndex = this.iwbPresenter.playerController.getCurrentPageIndex();
             window.savedPanel.histories[pageIndex] = this.getState();
         }
-    }
-
-    function getPointingDownEventName() {
-        return getPointingEventName("down");
-    }
-
-    function getPointingUpEventName() {
-        return getPointingEventName("up");
-    }
-
-    function getPointingMoveEventName() {
-        return getPointingEventName("move");
-    }
-
-    function getPointingEventName(type) {
-        return (presenter.isPointerEventSupported ? "pointer" : "mouse") + type;
-    }
-
-    function isPrimaryEvent(event) {
-        if (!presenter.isPointerEventSupported) {
-            // Not pointer events treat as primary events
-            return true;
-        }
-        return !!(event.originalEvent ? event.originalEvent.isPrimary : event.isPrimary);
     }
 
     return presenter;

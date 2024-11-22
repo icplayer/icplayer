@@ -1251,7 +1251,7 @@ function AddonAssessments_Navigation_Bar_create(){
         $section.append($sectionName);
         $section.append($sectionButtons);
 
-        if (!sectionName) {
+        if (presenter.configuration.enableDropdownPagesList && !sectionName) {
             $section.css('display', 'none');
         }
 

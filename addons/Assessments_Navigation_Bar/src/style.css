@@ -47,6 +47,7 @@
 
 .assessments-navigation-bar-wrapper .section_name {
     text-align: center;
+    text-wrap: nowrap;
     height: 20%;
 }
 
