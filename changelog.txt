@@ -1,3 +1,6 @@
+2024-11-21 Added support to the Magic Boxes addon on interactive whiteboards
+2024-11-19 Added support to the Drawing addon on interactive whiteboards
+2024-11-18 Added support to the Shape Tracing addon on interactive whiteboards
 2024-11-15 Fixed mathJax malfunction in SourceList
 2024-11-15 Added getRenderedModuleOrderForPrint and related methods
 2024-11-15 Fixed Table not parsing alt text properly in draggable gaps
