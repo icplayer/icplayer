@@ -1265,12 +1265,14 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
         var buttonsWithoutNavigation = presenter.configuration.numberOfButtons - 2;
         var numberOfElements = presenter.configuration.enableDropdownPagesList ? getVisibleSectionsNumber() : presenter.configuration.numberOfPages;
+        var leftSideIndex = this.leftSideIndex;
+        if (leftSideIndex < 0) leftSideIndex = 0;
         if (presenter.configuration.userButtonsNumber) {
             if (presenter.configuration.userButtonsNumber == 1) {
-                return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements - 1;
+                return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements - 1;
             }
         }
-        return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements;
+        return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements;
     };
 
     presenter.addClickListener = function ($section, sectionClassName) {
