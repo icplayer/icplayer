@@ -866,7 +866,6 @@ public class PlayerApp {
 	public void setPrintableOrder(JavaScriptObject order) {
 		this.printableOrder = PrintableOrderParser.toHashMap(order);
 		printableParser.setPrintableOrder(this.printableOrder);
-		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	}
 
 	private String getCurrentUserStyles() {

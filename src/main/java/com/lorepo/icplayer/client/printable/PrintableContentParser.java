@@ -555,17 +555,6 @@ public class PrintableContentParser {
 		return parsedPages;
 	}
 
-	private Page getPageInPrintableOrder(List<Page> pages, int index) {
-		String pageIDInOrder = (String)this.printableOrder.keySet().toArray()[index];
-		for (Page page: pages) {
-			if (page.getId().equals(pageIDInOrder)) {
-				return page;
-			}
-		}
-
-		return pages.get(index);
-	}
-
 	private boolean isStartOfPage(String html) {
 		return html.contains("class=\"page");
 	}
