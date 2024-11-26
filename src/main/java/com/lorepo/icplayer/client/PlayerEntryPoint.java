@@ -175,6 +175,10 @@ public class PlayerEntryPoint implements EntryPoint {
 					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setSigningPrefix(Ljava/lang/String;)(signingPrefix);
 				};
 
+				commands.addPageToWhitelist = function(pageURL) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::addPageToWhitelist(Ljava/lang/String;)(pageURL);
+				};
+
 				return commands;
 			};
 		}
@@ -455,6 +459,10 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setSigningPrefix(String signingPrefix) {
 		ExtendedRequestBuilder.setSigningPrefix(signingPrefix);
+	}
+
+	private void addPageToWhitelist(String pageURL) {
+		ExtendedRequestBuilder.addPageToWhitelist(pageURL);
 	}
 
 	private void updateMathJax() {
