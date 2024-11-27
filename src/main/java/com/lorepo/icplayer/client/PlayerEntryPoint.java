@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
@@ -115,6 +116,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			};
 
 			player.setContextMetadata = function(contextData){
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::updateMathJax()();
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
 			};
 
@@ -157,9 +159,23 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.setOpenActivitiesScores = function(scores) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setOpenActivitiesScores(Lcom/google/gwt/core/client/JavaScriptObject;)(scores);
 			};
-			
+
 			player.cleanBeforeClose = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::cleanBeforeClose()();
+			};
+
+			player.getRequestsConfig = function () {
+				var commands = function() {};
+
+				commands.setIncludeCredentials = function(withCredentials) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setIncludeCredentials(Z)(withCredentials);
+				};
+
+				commands.setSigningPrefix = function(signingPrefix) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setSigningPrefix(Ljava/lang/String;)(signingPrefix);
+				};
+
+				return commands;
 			};
 		}
 
@@ -431,5 +447,26 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setOpenActivitiesScores(JavaScriptObject scores) {
 		this.theApplication.setOpenActivitiesScores(OpenActivitiesScoresParser.toHashMap(scores));
+	}
+
+	private void setIncludeCredentials(boolean withCredentials) {
+		ExtendedRequestBuilder.setGlobalIncludeCredentials(withCredentials);
+	}
+
+	private void setSigningPrefix(String signingPrefix) {
+		ExtendedRequestBuilder.setSigningPrefix(signingPrefix);
+	}
+
+	private void updateMathJax() {
+		this.theApplication.handleUpdatingMathJax();
+	}
+
+	public String getMathJaxRendererOption() {
+		JavaScriptObject contextMetadata = getContextMetadata();
+		if (contextMetadata != null) {
+			return JavaScriptUtils.getArrayItemByKey(contextMetadata, "mathJaxRenderer");
+		}
+
+		return "";
 	}
 }

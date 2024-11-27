@@ -151,4 +151,8 @@ public class SourceListViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 	}
 
+	public void refreshMathJax() {
+		// TODO Auto-generated method stub
+	}
+
 }

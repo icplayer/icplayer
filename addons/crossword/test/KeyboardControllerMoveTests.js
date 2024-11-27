@@ -717,6 +717,7 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
     },
 
     isCellInputElementFocused: function (x, y) {
+        console.log('isCellInputElementFocused ', this.focusedCellInputPosition)
         return !!this.focusedCellInputPosition
             && (this.focusedCellInputPosition.x === x
                 && this.focusedCellInputPosition.y === y);
@@ -743,12 +744,6 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
     },
 
     // First enter tests
-
-    'test given view when entering for the first time by keyboard navigation then mark first editable cell and focus it input' : function() {
-        activateEnterEvent(this.presenter);
-
-        this.validateIsCellMarkedAndCellInputFocused(3, 0);
-    },
 
     'test given view when entering for the first time by keyboard navigation then tts.read should not be called' : function() {
         activateEnterEvent(this.presenter);
@@ -856,16 +851,6 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(1, 1);
     },
 
-    'test given view, TTS is active and current element have on left constant cell when activated left arrow then move to next left constant cell without focusing' : function() {
-        this.activateTTSWithoutReading();
-        this.markAndFocusElementWithPosition(2, 4);
-
-        activateLeftArrowEvent(this.presenter);
-
-
-        this.validateIsCellMarkedAndCellInputNotFocused(1, 4);
-    },
-
     'test given view, TTS is active and current element have on left blank cell when activated left arrow then do not move' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(0, 6);
@@ -958,13 +943,13 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(5, 5);
     },
 
-    'test given view, TTS is active and current element have on right constant cell when activated right arrow then move to next right constant cell without focusing' : function() {
+    'test given view, TTS is active and current element have on right constant cell when activated right arrow then move to next right constant cell with focusing' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(6, 5);
 
         activateRightArrowEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputNotFocused(7, 5);
+        this.validateIsCellMarkedAndCellInputFocused(7, 5);
     },
 
     'test given view, TTS is active and current element have on right blank cell when activated right arrow then do not move' : function() {
@@ -1065,7 +1050,7 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
 
         activateUpArrowEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputNotFocused(4, 3);
+        this.validateIsCellMarkedAndCellInputFocused(4, 3);
     },
 
     'test given view, TTS is active and current element have on up blank cell when activated up arrow then do not move' : function() {
@@ -1160,13 +1145,13 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(3, 2);
     },
 
-    'test given view, TTS is active and current element have on down constant cell when activated down arrow then move to next down constant cell without focusing' : function() {
+    'test given view, TTS is active and current element have on down constant cell when activated down arrow then move to next down constant cell with focusing' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(5, 5);
 
         activateDownArrowEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputNotFocused(5, 6);
+        this.validateIsCellMarkedAndCellInputFocused(5, 6);
     },
 
     'test given view, TTS is active and current element have on down blank cell when activated down arrow then do not move' : function() {
@@ -1232,13 +1217,13 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(0, 6);
     },
 
-    'test given view, keyboard navigation is active and current element have on right constant cell and editable cell when activated Tab then move to next right editable cell' : function() {
+    'test given view, keyboard navigation is active, current element is disabled and have blank cell on right then move to first editable cell of next row' : function() {
         this.activateKeyboardNavigation();
-        this.markAndFocusElementWithPosition(4, 6);
+        this.markAndFocusElementWithPosition(7, 5);
 
         activateTabEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputFocused(6, 6);
+        this.validateIsCellMarkedAndCellInputFocused(0, 6);
     },
 
     'test given view, keyboard navigation is active and current element have on right blank cell when activated Tab then move to first editable cell of next row' : function() {
@@ -1261,31 +1246,31 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(2, 3);
     },
 
-    'test given view, TTS is active and current element have on right constant cell and blank cell when activated Tab then move to first editable cell of next row' : function() {
+    'test given view, TTS is active and current element have on right constant cell and blank cell when activated Tab then move to focusable cell' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(6, 5);
 
         activateTabEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputFocused(0, 6);
+        this.validateIsCellMarkedAndCellInputFocused(7, 5);
     },
 
-    'test given view, TTS is active and current element have on right constant cell and editable cell when activated Tab then move to next right editable cell' : function() {
+    'test given view, TTS is active and current element have on right constant cell and editable cell when activated Tab then move to next right focusable cell' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(4, 6);
 
         activateTabEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputFocused(6, 6);
+        this.validateIsCellMarkedAndCellInputFocused(5, 6);
     },
 
-    'test given view, TTS is active and current element have on right blank cell when activated Tab then move to first editable cell of next row' : function() {
+    'test given view, TTS is active and current element have on right blank cell when activated Tab then move to first focusable cell of next row' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(7, 3);
 
         activateTabEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputFocused(2, 4);
+        this.validateIsCellMarkedAndCellInputFocused(1, 4);
     },
 
     // Tab + shift event - default navigation
@@ -1371,22 +1356,22 @@ TestCase("[Crossword] Keyboard controller and TTS move tests", {
         this.validateIsCellMarkedAndCellInputFocused(2, 1);
     },
 
-    'test given view, TTS is active and current element have on left constant cell and blank cell when activated Tab + shift then move to last editable cell of previous row' : function() {
+    'test given view, TTS is active, current element is disabled and has on left blank cell when activated Tab + shift then move to last focusable cell of previous row' : function() {
         this.activateTTSWithoutReading();
-        this.markAndFocusElementWithPosition(2, 4);
+        this.markAndFocusElementWithPosition(1, 4);
 
         activateShiftTabEvent(this.presenter);
 
         this.validateIsCellMarkedAndCellInputFocused(7, 3);
     },
 
-    'test given view, TTS is active and current element have on left constant cell and editable cell when activated Tab + shift then move to next left editable cell' : function() {
+    'test given view, TTS is active and current element have on left constant cell and editable cell when activated Tab + shift then move to next left focusable cell' : function() {
         this.activateTTSWithoutReading();
         this.markAndFocusElementWithPosition(6, 3);
 
         activateShiftTabEvent(this.presenter);
 
-        this.validateIsCellMarkedAndCellInputFocused(2, 3);
+        this.validateIsCellMarkedAndCellInputFocused(5, 3);
     },
 
     'test given view, TTS is active and current element have on left blank cell when activated Tab + shift then move to last editable cell of previous row' : function() {

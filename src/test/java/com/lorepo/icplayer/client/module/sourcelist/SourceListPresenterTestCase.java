@@ -224,7 +224,7 @@ public class SourceListPresenterTestCase extends GwtTest {
 		assertEquals(4, display.getItems().size());
 		
 	}
-	
+
 	@Test
 	public void resetEvent() {
 

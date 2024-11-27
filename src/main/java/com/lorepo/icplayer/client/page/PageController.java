@@ -719,4 +719,9 @@ public class PageController implements ITextToSpeechController, IPageController 
 		this.playerService.getEventBus().fireEvent(scrollEvent);
 	}
 	
+	public void refreshMathJax() {
+		if (pageView != null) {
+			pageView.refreshMathJax();
+		}
+	}
 }

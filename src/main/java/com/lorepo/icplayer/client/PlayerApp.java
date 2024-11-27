@@ -10,6 +10,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.ExtendedRequestBuilder;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
@@ -31,7 +32,6 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PlayerApp {
 
@@ -635,8 +635,9 @@ public class PlayerApp {
 		String baseUrl = contentModel.getBaseUrl();
 		String contentBaseURL = getContentBaseURL();
 		for (ScriptAsset libraryAsset : attachedLibraries.values()) {
+			String href = ExtendedRequestBuilder.signURL(libraryAsset.getHref());
 			DOMInjector.injectLibrary(
-				URLUtils.resolveURL(baseUrl, libraryAsset.getHref(), contentBaseURL),
+				URLUtils.resolveURL(baseUrl, href, contentBaseURL),
 				libraryAsset.getFileName(),
 				libraryAsset.isModule()
 			);
@@ -810,7 +811,29 @@ public class PlayerApp {
 				this.playerController.switchToPage(pageIndex);
 			}
 		}
+		handleUpdatingMathJax();
+
 		return isLayoutChanged;
+	}
+
+	public void handleUpdatingMathJax() {
+		String mathJaxRenderer = this.entryPoint.getMathJaxRendererOption();
+		if (mathJaxRenderer.equals("MathML")) {
+			this.updateMathJax();
+		} else {
+			this.updateMathJaxWithTimeout(this);
+		}
+	}
+
+	//It is necessery to run updateMathJax with timeout to properly display element for HTML & CSS rendering
+	public static native void updateMathJaxWithTimeout(PlayerApp x) /*-{
+		setTimeout(function() {
+			x.@com.lorepo.icplayer.client.PlayerApp::updateMathJax()();
+		}, 200);
+	}-*/;
+
+	public void updateMathJax() {
+		this.playerController.updateMathJaxInCurrentPage();
 	}
 
 	public void updateLayout() {
