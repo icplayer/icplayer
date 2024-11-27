@@ -975,7 +975,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.addSections(this.calculateNumberOfPages(this.hellipsCount));
 
         if (presenter.configuration.enableDropdownPagesList) {
-            var navButtonWidth = (presenter.$wrapper.width() - this.$sections.width()) / (2 + this.hellipsCount);
+            var navButtonWidth = Math.floor((presenter.$wrapper.width() - this.$sections.width()) / (2 + this.hellipsCount));
             this.$navigationButtonsFirst.find('.element').css('width', navButtonWidth+'px');
             this.$navigationButtonsLast.find('.element').css('width', navButtonWidth+'px');
         }
