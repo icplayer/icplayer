@@ -405,10 +405,6 @@ function AddonParagraph_create() {
         return $iframeBody.children();
     };
 
-    function getRandomInt(max) {
-      return Math.floor(Math.random() * max);
-    }
-
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -417,15 +413,12 @@ function AddonParagraph_create() {
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model, isPreview) {
         if (presenter.loaded){ return;}
-        let randomNumber = getRandomInt(10000);
-        console.log("Execute run in Paragraph: " + model.ID, randomNumber);
         presenter.loaded = true;
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.model = upgradedModel;
         presenter.configuration = presenter.validateModel(upgradedModel, isPreview);
-        presenter.configuration.randomNumber = randomNumber;
 
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -846,7 +839,6 @@ function AddonParagraph_create() {
     presenter.onDestroy = function AddonParagraph_destroy() {
         // iOS fix to hide keyboard after page change
         // https://github.com/tinymce/tinymce/issues/3441
-        console.log("Execute onDestroy for target in Paragraph", presenter.configuration.randomNumber);
         try {
             if (isIOSSafari()) {
                 var iframe = presenter.$view.find('iframe');

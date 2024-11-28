@@ -95,10 +95,6 @@ function AddonEditableWindow_create() {
     }
 
     presenter.run = function (view, model) {
-        let randomNumber = getRandomInt(10000);
-        console.log("Execute run in Editable Window: " + model.ID, randomNumber);
-        presenter.configuration.randomNumber = randomNumber;
-
         presenter.configuration.view = view;
         // container is the div that will be draggable and resizable
         presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
@@ -1156,7 +1152,6 @@ function AddonEditableWindow_create() {
     };
 
     presenter.onDestroy = function () {
-        console.log("Execute destroy for target in Editable Window", presenter.configuration.randomNumber);
         presenter.removeCallbacks();
 
         var timeouts = presenter.configuration.timeouts;
