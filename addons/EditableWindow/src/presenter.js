@@ -90,10 +90,6 @@ function AddonEditableWindow_create() {
         presenter.jQueryElementsCache.$view = $view;
     };
 
-    function getRandomInt(max) {
-      return Math.floor(Math.random() * max);
-    }
-
     presenter.run = function (view, model) {
         presenter.configuration.view = view;
         // container is the div that will be draggable and resizable
@@ -1561,7 +1557,3 @@ function AddonEditableWindow_create() {
 
     return presenter;
 }
-
-AddonEditableWindow_create.__supported_player_options__ = {
-    interfaceVersion: 2
-};
