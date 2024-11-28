@@ -25,13 +25,11 @@ function AddonVimeo_create(){
 				$(view).children("img:first").attr("src", thumbnailUrl);
 			}).catch(error => {
 				showErrorMessage(view);
-		});
+			});
 	};
 	
 	function showErrorMessage (view) {
-		const errorContainer = '<p>' + ERROR_MESSAGES.INVALID_ID + '</p>';
-		
-		$(view).html(errorContainer);
+		$(view).html(`<p>${ERROR_MESSAGES.INVALID_ID}</p>`);
 	}
 	
 	return presenter;
