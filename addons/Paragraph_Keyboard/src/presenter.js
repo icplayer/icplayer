@@ -1329,3 +1329,7 @@ function AddonParagraph_Keyboard_create() {
 
     return presenter;
 }
+
+AddonParagraph_Keyboard_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

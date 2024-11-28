@@ -1557,3 +1557,7 @@ function AddonEditableWindow_create() {
 
     return presenter;
 }
+
+AddonEditableWindow_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
