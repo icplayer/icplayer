@@ -182,6 +182,74 @@ TestCase("[Assessments_Navigation_Bar] Get Pages", {
         var result = this.presenter.Sections.prototype.getPages.call(this.sections, 6, 6);
 
         assertEquals([5, 6, 7, 8, 9, 10], result);
+    },
+
+    'test given enableDropdownPagesList is true, when getPages is called return an appropriate amount of pages': function () {
+        function createPageStub(pageIndex, sectionName) {
+            var page = {};
+            page.getSectionName = function() {return sectionName};
+            page.page = pageIndex;
+            return page;
+        }
+        this.sections.allPages = [
+            createPageStub(1, ''),
+            createPageStub(2, ''),
+            createPageStub(3, 's1'),
+            createPageStub(4, 's1'),
+            createPageStub(5, 's1'),
+            createPageStub(6, 's2'),
+            createPageStub(7, 's2'),
+            createPageStub(8, 's3')
+        ];
+        this.presenter.configuration.enableDropdownPagesList = true;
+        this.presenter.configuration.sections = [
+            {sectionName: ''},
+            {sectionName: 's1'},
+            {sectionName: 's2'},
+            {sectionName: 's3'},
+        ];
+
+        var result = this.presenter.Sections.prototype.getPages.call(this.sections, 0, 2);
+
+        assertEquals(5, result.length);
+        assertEquals(3, result[0].page);
+        assertEquals(4, result[1].page);
+        assertEquals(5, result[2].page);
+        assertEquals(6, result[3].page);
+        assertEquals(7, result[4].page);
+    },
+
+    'test given enableDropdownPagesList is true, when getPages is called with leftIndex + numberOfPages > sections.length, return an appropriate amount of pages': function () {
+        function createPageStub(pageIndex, sectionName) {
+            var page = {};
+            page.getSectionName = function() {return sectionName};
+            page.page = pageIndex;
+            return page;
+        }
+        this.sections.allPages = [
+            createPageStub(1, ''),
+            createPageStub(2, ''),
+            createPageStub(3, 's1'),
+            createPageStub(4, 's1'),
+            createPageStub(5, 's1'),
+            createPageStub(6, 's2'),
+            createPageStub(7, 's2'),
+            createPageStub(8, 's3')
+        ];
+        this.presenter.configuration.enableDropdownPagesList = true;
+        this.presenter.configuration.sections = [
+            {sectionName: ''},
+            {sectionName: 's1'},
+            {sectionName: 's2'},
+            {sectionName: 's3'},
+        ];
+
+        var result = this.presenter.Sections.prototype.getPages.call(this.sections, 2, 2);
+
+        assertEquals(3, result.length);
+        assertEquals(6, result[0].page);
+        assertEquals(7, result[1].page);
+        assertEquals(8, result[2].page);
     }
 });
 

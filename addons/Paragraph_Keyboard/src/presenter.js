@@ -570,11 +570,6 @@ function AddonParagraph_Keyboard_create() {
             return;
         }
 
-        if (!isPreview) {
-            MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
-        }
-
         presenter.$view.on('click', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -688,14 +683,7 @@ function AddonParagraph_Keyboard_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    // On the mCourser, each addon is called twice on the first page.
-    // Removing the addon before loading the library causes a problem with second loading.
-    // You must separate each method of destroy, or improve the mechanism of loading lessons.
-    presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {
-        if (event.target !== presenter.view) {
-            return;
-        }
-
+    presenter.onDestroy = function () {
         try {
             presenter.$view.off();
         } catch (e) {
@@ -747,7 +735,6 @@ function AddonParagraph_Keyboard_create() {
         presenter.onFocus = null;
         presenter.onInit = null;
         presenter.setIframeHeight = null;
-        presenter.destroy = null;
         presenter.setStyles = null;
         transposeLayout = null;
         pasteHtmlAtCaret = null;
@@ -1342,3 +1329,7 @@ function AddonParagraph_Keyboard_create() {
 
     return presenter;
 }
+
+AddonParagraph_Keyboard_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

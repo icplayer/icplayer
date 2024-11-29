@@ -2030,7 +2030,8 @@ function AddonPlot_create(){
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeMarks(model);
+        let upgradedModel = presenter.upgradeMarks(model);
+        return presenter.upgradeYAxisValuesPosition(upgradedModel);
     };
 
     presenter.upgradeMarks = function (model) {
@@ -2058,7 +2059,18 @@ function AddonPlot_create(){
         }
 
         return upgradedModel;
-    }
+    };
+
+    presenter.upgradeYAxisValuesPosition = function (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (!upgradedModel.hasOwnProperty("Y axis values position")) {
+            upgradedModel["Y axis values position"] = "";
+        }
+
+        return upgradedModel;
+    };
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;

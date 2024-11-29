@@ -374,7 +374,8 @@ TestCase("[Table] [Gap Utils] SetState", {
         };
         this.stubs = {
             connectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
-            validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration')
+            validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration'),
+            parseAltTexts: sinon.stub()
         };
 
         this.expectedValue = 5;
@@ -387,6 +388,11 @@ TestCase("[Table] [Gap Utils] SetState", {
         this.stubs.setValue = sinon.stub(this.gap, 'setValue');
         this.stubs.setSource = sinon.stub(this.gap, 'setSource');
         this.stubs.setIsEnabled = sinon.stub(this.gap, 'setIsEnabled');
+
+        this.presenter.textParser = {
+            parseAltTexts: this.stubs.parseAltTexts
+        };
+        this.stubs.parseAltTexts.returnsArg(0);
     },
 
     tearDown: function () {
