@@ -1,4 +1,4 @@
-TestCase("Model validation", {
+TestCase("[Shape_Tracing] Model validation", {
     setUp: function () {
         this.presenter = AddonShape_Tracing_create();
 
@@ -32,7 +32,7 @@ TestCase("Model validation", {
             "Eraser Thickness": "10",
             "Opacity": "",
             "Border": "1"
-        }
+        };
     },
 
     'test proper model': function() {

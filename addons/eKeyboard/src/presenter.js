@@ -287,7 +287,7 @@ function AddoneKeyboard_create(){
         initializeOpenButton();
         presenter.initializeCloseButton();
 
-        MutationObserverService.createDestroyObserver(model["ID"], presenter.destroy, presenter.view);
+        MutationObserverService.createDestroyObserver(model["ID"], presenter.destroy, model["ID"]);
         MutationObserverService.setObserver();
 
         var mathJaxDeferred = new jQuery.Deferred(),
@@ -958,11 +958,8 @@ function AddoneKeyboard_create(){
         });
     };
 
-
-
-
-    presenter.destroy = function destroy_addon_eKeyboard_function () {
-        if (presenter.isPreview || !presenter.configuration) {
+    presenter.destroy = function destroy_addon_eKeyboard_function (event) {
+        if (presenter.isPreview || !presenter.configuration || presenter.configuration.ID !== event.target) {
             return;
         }
 

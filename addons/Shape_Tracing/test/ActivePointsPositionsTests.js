@@ -1,4 +1,4 @@
-TestCase("Active Points Positions", {
+TestCase("[Shape_Tracing] Active Points Positions", {
     setUp: function () {
         this.presenter = AddonShape_Tracing_create();
 
