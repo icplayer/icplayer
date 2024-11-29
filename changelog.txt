@@ -1,4 +1,15 @@
-2024-11-26 Added condition blocking attach of resource path on external services
+2024-11-29 Added condition blocking attach of resource path on external services
+2024-11-29 Fixed issue with html tags in source list
+2024-11-29 Fixed linking of default assets in Coloring, Shape Tracing, Vimeo, and YouTube addons
+2024-11-29 Added missing "Y axis values position" property in Plot addon
+2024-11-29 Added setPrintableOrder function to Player Entry Point
+2024-11-29 Added scroll to top
+2024-11-29 Fixed malfunction on destory in Paragraph, EditableWindow and eKeyboard
+2024-11-29 Fixed ANB button width and pagination in expandable sections
+2024-11-26 Fixed bug related to resizing of MathML elements in the Firefox browser
+2024-11-21 Added support to the Magic Boxes addon on interactive whiteboards
+2024-11-19 Added support to the Drawing addon on interactive whiteboards
+2024-11-18 Added support to the Shape Tracing addon on interactive whiteboards
 2024-11-15 Fixed mathJax malfunction in SourceList
 2024-11-15 Added getRenderedModuleOrderForPrint and related methods
 2024-11-15 Fixed Table not parsing alt text properly in draggable gaps

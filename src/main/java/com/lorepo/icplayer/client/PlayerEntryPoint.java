@@ -135,6 +135,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getPrintableHTMLWithSeed = function(callback, randomizePages, randomizeModules, showAnswers, dpi, seed) {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;ZZZII)(callback, randomizePages, randomizeModules, showAnswers, dpi, seed);
 			};
+
+			player.setPrintableOrder = function(order) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPrintableOrder(Lcom/google/gwt/core/client/JavaScriptObject;)(order);
+			};
 			
 			player.preloadAllPages = function(callback) {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::preloadAllPages(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
@@ -443,6 +447,10 @@ public class PlayerEntryPoint implements EntryPoint {
 		outstretchHeightListener = null;
 		contextMetadata = null;
 		externalVariables = null;
+	}
+
+	private void setPrintableOrder(JavaScriptObject order) {
+		this.theApplication.setPrintableOrder(order);
 	}
 
 	private void setNVDAAvailability(boolean shouldUseNVDA) {

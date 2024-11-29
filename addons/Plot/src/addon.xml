@@ -54,7 +54,7 @@
 		<property name='Broadcast' nameLabel="Plot_property_broadcast" type='string' isLocalized='false'/>
 		<property name="Decimal separator" nameLabel="Plot_property_decimal_separator" type="string" isLocalized='false'/>
 		<property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
-		<property name='X axis values position' nameLabel="Plot_property_x_axis_values_position" type='int' isLocalized='false'/>
+		<property name='Y axis values position' nameLabel="Plot_property_y_axis_values_position" type='int' isLocalized='false'/>
 		<property name='Check marks' nameLabel="Plot_property_check_marks" type="{No, One mark, Individual marks}" isLocalized='false'/>
 		<property name='Correct marks HTML' nameLabel="Plot_property_correct_marks_html" type="string" isLocalized='false'/>
 		<property name='Error marks HTML' nameLabel="Plot_property_error_marks_html" type="string" isLocalized='false'/>

@@ -115,7 +115,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 
 	@Override
 	public void addItem(final String id, String item, boolean callMathJax) {
-		String paresedFormula = item.replace("<", "< ");
+		String paresedFormula = item;
+		if (!item.matches("<[^ ].*>")) {
+			paresedFormula = paresedFormula.replace("<", "< ");
+		}
 		final HTML label = new HTML(StringUtils.markup2html(paresedFormula));
 		label.setStyleName("ic_sourceListItem");
 

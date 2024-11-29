@@ -1,4 +1,4 @@
-TestCase("[Magic_Boxes] Events tests", {
+TestCase("[Magic Boxes] Events tests", {
     setUp: function() {
         this.presenter = AddonMagic_Boxes_create();
         this.presenter.addonID = 'Magic_Boxes1';
@@ -8,7 +8,7 @@ TestCase("[Magic_Boxes] Events tests", {
             hideAnswers: sinon.stub(this.presenter, 'hideAnswers'),
             gradualShowAnswers: sinon.stub(this.presenter, 'gradualShowAnswers'),
             gradualHideAnswers: sinon.stub(this.presenter, 'gradualHideAnswers')
-        }
+        };
     },
 
     tearDown: function () {

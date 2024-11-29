@@ -2,12 +2,16 @@
     width: 100%;
     height: 100%;
     border: 1px solid black;
+    touch-action: none;
+    -ms-touch-action: none;
 }
 
 .magicGrid {
     margin: 0;
     padding: 0;
     border: none;
+    touch-action: none;
+    -ms-touch-action: none;
 }
 
 .selectable-element {
@@ -21,6 +25,8 @@
     border-width: 2px;
     text-align: center;
     color: black;
+    touch-action: none;
+    -ms-touch-action: none;
 }
 
 .selectable-element-wrapper {
@@ -32,6 +38,8 @@
     border-color: black;
     border-width: 1px;
     text-align: center;
+    touch-action: none;
+    -ms-touch-action: none;
 }
 
 .selectable-element-selected {

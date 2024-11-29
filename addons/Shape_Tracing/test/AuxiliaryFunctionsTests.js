@@ -1,4 +1,4 @@
-TestCase("Axuiliary Functions", {
+TestCase("[Shape_Tracing] Auxiliary Functions", {
     setUp: function () {
         this.presenter = AddonShape_Tracing_create();
 

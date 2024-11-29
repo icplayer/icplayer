@@ -20,7 +20,7 @@ TestCase("[Plot] Model upgrade", {
     },
 
     'test given model with empty "mark at length" in "Expressions" when upgrading model, "mark at length" will be added with default value': function () {
-        this.model["Expressions"][0]["mark at length"] = " ";
+        this.model["Expressions"][0]["mark at length"] = "";
 
         const validatedModel = this.presenter.upgradeModel(this.model);
 
@@ -91,5 +91,19 @@ TestCase("[Plot] Model upgrade", {
         const validatedModel = this.presenter.upgradeModel(this.model);
 
         assertEquals("AA", validatedModel["Error marks HTML"]);
+    },
+
+    'test given model without "Y axis values position" when upgrading model, "Y axis values position" will be added without value': function () {
+        const validatedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("", validatedModel["Y axis values position"]);
+    },
+
+    'test given model with "Y axis values position" when upgrading model, "Y axis values position" will not be changed': function () {
+        this.model["Y axis values position"] = "-2";
+
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("-2", upgradedModel["Y axis values position"]);
     },
 });
