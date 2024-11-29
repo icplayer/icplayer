@@ -581,24 +581,52 @@ function AddonAssessments_Navigation_Bar_create(){
                 standardPages.push(this.allPages[i]);
             }
         }
-
-        if (leftIndex + numberOfPages >= standardPages.length) {
-            leftIndex = ((standardPages.length) - numberOfPages);
-        }
-
-        if (leftIndex < 0) {
-            leftIndex = 0;
-        }
-
-        for (var i = leftIndex; i < standardPages.length; i++) {
-            if (numberOfPages == 0) {
-                break;
+        if (!presenter.configuration.enableDropdownPagesList) {
+            if (leftIndex + numberOfPages >= standardPages.length) {
+                leftIndex = ((standardPages.length) - numberOfPages);
             }
 
-            pages.push(standardPages[i]);
-            numberOfPages--;
-        }
+            if (leftIndex < 0) {
+                leftIndex = 0;
+            }
 
+            for (var i = leftIndex; i < standardPages.length; i++) {
+                if (numberOfPages == 0) {
+                    break;
+                }
+
+                pages.push(standardPages[i]);
+                numberOfPages--;
+            }
+        } else {
+            var actualSections = []
+            for (var i = 0; i < presenter.configuration.sections.length; i++) {
+                if (presenter.configuration.sections[i].sectionName.length > 0) {
+                    actualSections.push(presenter.configuration.sections[i]);
+                }
+            }
+            if (leftIndex + numberOfPages >= actualSections.length) {
+                leftIndex = actualSections.length - numberOfPages;
+            }
+
+            if (leftIndex < 0) {
+                leftIndex = 0;
+            }
+            var sectionNames = [];
+
+            for (var i = leftIndex; i < actualSections.length; i++) {
+                if (numberOfPages == 0) {
+                    break;
+                }
+                sectionNames.push(actualSections[i].sectionName);
+                numberOfPages--;
+            }
+            for (var i = 0; i < standardPages.length; i++) {
+                if (sectionNames.indexOf(standardPages[i].getSectionName()) != -1) {
+                    pages.push(standardPages[i]);
+                }
+            }
+        }
         return pages;
     };
 
@@ -916,7 +944,6 @@ function AddonAssessments_Navigation_Bar_create(){
             this.rightHellip = this.getHellip($.fn.prepend.bind(this.$navigationButtonsLast), this.shiftPagesToRight.bind(this), presenter.CSS_CLASSES.TURN_FORWARD);
             return 1;
         }
-
         return 0;
     };
 
@@ -946,6 +973,12 @@ function AddonAssessments_Navigation_Bar_create(){
         this.hellipsCount += this.addRightHellip();
 
         this.addSections(this.calculateNumberOfPages(this.hellipsCount));
+
+        if (presenter.configuration.enableDropdownPagesList) {
+            var navButtonWidth = Math.floor((presenter.$wrapper.width() - this.$sections.width()) / (2 + this.hellipsCount));
+            this.$navigationButtonsFirst.find('.element').css('width', navButtonWidth+'px');
+            this.$navigationButtonsLast.find('.element').css('width', navButtonWidth+'px');
+        }
     };
 
     presenter.NavigationManager.prototype.deactivateNavigationButtons = function () {
@@ -1231,12 +1264,15 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.NavigationManager.prototype.shouldAddRightHellip = function () {
         var buttonsWithoutNavigation = presenter.configuration.numberOfButtons - 2;
+        var numberOfElements = presenter.configuration.enableDropdownPagesList ? getVisibleSectionsNumber() : presenter.configuration.numberOfPages;
+        var leftSideIndex = this.leftSideIndex;
+        if (leftSideIndex < 0) leftSideIndex = 0;
         if (presenter.configuration.userButtonsNumber) {
             if (presenter.configuration.userButtonsNumber == 1) {
-                return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < presenter.configuration.numberOfPages - 1;
+                return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements - 1;
             }
         }
-        return this.leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < presenter.configuration.numberOfPages;
+        return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements;
     };
 
     presenter.addClickListener = function ($section, sectionClassName) {
@@ -1605,20 +1641,28 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.navigationManager.setSections();
     };
 
+    function getVisibleSectionsNumber() {
+        var hiddenSections = 0;
+        for (var i = 0; i < presenter.configuration.sections.length; i++) {
+            if (presenter.configuration.sections[i].sectionName.trim().length == 0) hiddenSections += 1;
+        }
+        return presenter.configuration.sections.length - hiddenSections;
+    }
+
     function calculateMaxNumberOfButtons () {
         var numberOfButtons;
+        var numberOfElements = presenter.configuration.enableDropdownPagesList ? getVisibleSectionsNumber() : presenter.configuration.numberOfPages;
         if (presenter.configuration.userButtonsNumber) {
             numberOfButtons = presenter.configuration.maxElementCount > (presenter.configuration.userButtonsNumber + 2) ?
                 (presenter.configuration.userButtonsNumber + 2) : presenter.configuration.maxElementCount;
 
-            if (numberOfButtons > presenter.configuration.numberOfPages + 2) {
-                numberOfButtons = (presenter.configuration.numberOfPages + 2);
+            if (numberOfButtons > numberOfElements + 2) {
+                numberOfButtons = (numberOfElements + 2);
             }
         } else {
-            numberOfButtons = presenter.configuration.maxElementCount > (presenter.configuration.numberOfPages + 2) ?
-                (presenter.configuration.numberOfPages + 2) : presenter.configuration.maxElementCount;
+            numberOfButtons = presenter.configuration.maxElementCount > (numberOfElements + 2) ?
+                (numberOfElements + 2) : presenter.configuration.maxElementCount;
         }
-
         presenter.configuration.numberOfButtons = numberOfButtons;
         presenter.configuration.navigationLeftIndex = 0;
         presenter.configuration.navigationRightIndex = numberOfButtons - 1;
