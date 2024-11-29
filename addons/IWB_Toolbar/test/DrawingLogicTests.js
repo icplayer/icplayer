@@ -17,6 +17,14 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
         MobileUtils.isEventSupported = this.stubs.isEventSupportedStub;
     },
 
+    tearDown: function () {
+        this.setPointerEventSupport(true);
+    },
+
+    setPointerEventSupport: function (hasSupport) {
+        window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
+    },
+
     validateAttachedListeners: function (expectedListeners) {
         for (let i = 0, call; i < 3; i++) {
             call = this.stubs.canvasAddEventListenerStub.getCall(i);
@@ -32,7 +40,7 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
     },
 
     'test given pointer and touch supported window when drawingLogic is called then attach pointer listeners to both canvases': function () {
-        this.presenter.isPointerEventSupported = true;
+        this.setPointerEventSupport(true);
         this.stubs.isEventSupportedStub.returns(true);
 
         this.presenter.drawingLogic();
@@ -46,7 +54,7 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
     },
 
     'test given touch supported window when drawingLogic is called then attach touch listeners to both canvases': function () {
-        this.presenter.isPointerEventSupported = false;
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(true);
 
         this.presenter.drawingLogic();
@@ -60,7 +68,7 @@ TestCase("[IWB Toolbar] DrawingLogic method tests", {
     },
 
     'test given mouse supported window when drawingLogic is called then attach mouse listeners to both canvases': function () {
-        this.presenter.isPointerEventSupported = false;
+        this.setPointerEventSupport(false);
         this.stubs.isEventSupportedStub.returns(false);
 
         this.presenter.drawingLogic();

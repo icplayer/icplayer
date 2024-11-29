@@ -22,6 +22,11 @@ function AddonMagic_Boxes_create() {
     presenter.isWCAGOn = false;
     presenter.keyboardControllerObject = null;
 
+    presenter.pointerStatus = {
+        isDown: false,
+        wasMoved: false
+    };
+
     presenter.configuration = {
         rows: 0,
         columns: 0,
@@ -46,6 +51,7 @@ function AddonMagic_Boxes_create() {
 
     presenter.CSS_CLASSES = {
         GRID_WRAPPER: "magicGridWrapper",
+        GRID: "magicGrid",
         ELEMENT_WRAPPER: "selectable-element-wrapper",
         ELEMENT: "selectable-element",
         SELECTED: "selectable-element-selected",
@@ -202,40 +208,7 @@ function AddonMagic_Boxes_create() {
         gridContainer.css('height', model.Height + 'px');
         gridContainer.css('width', model.Width + 'px');
 
-        presenter.isMouseDown = false;
-
-        if (MobileUtils.isEventSupported('touchstart')) {
-            var selectedIndex = null;
-
-            presenter.$view.find('.magicGrid').on('touchmove', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                var client = fixTouch(e.originalEvent.touches[0] || e.originalEvent.changedTouches[0]);
-
-                var element = document.elementFromPoint(client.x, client.y);
-                var index = $(element).parent().index();
-                var selectedRow = parseInt(index / columns, 10);
-                var selectedColumn = parseInt(index % columns, 10);
-                if(index != selectedIndex && $(element).parent().hasClass(presenter.CSS_CLASSES.ELEMENT_WRAPPER)){
-                    selectionHandler(selectedRow, selectedColumn);
-                    selectedIndex = index;
-                }
-            });
-        }else{
-            var $magicWrapper = presenter.$view.find(`.${presenter.CSS_CLASSES.GRID_WRAPPER}`);
-            $magicWrapper.on('mousedown', function () {
-                presenter.isMouseDown = true;
-            });
-
-            $magicWrapper.on('mouseup', function () {
-                presenter.isMouseDown = false;
-            });
-
-            $magicWrapper.on('mouseleave', function () {
-                presenter.isMouseDown = false;
-            });
-        }
+        presenter._addEventListenersToGrid();
 
         gridContainer.find(`.${presenter.CSS_CLASSES.ELEMENT_WRAPPER}`).each(function() {
             var index = $(this).index();
@@ -245,56 +218,139 @@ function AddonMagic_Boxes_create() {
             $(this).width(wrapperWidth + horizontalGap / columns);
             $(this).height(wrapperHeight + verticalGap / rows);
 
-            var selectableElement = $(this).find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
-            selectableElement.width(elementWidth + horizontalGap / columns);
-            selectableElement.height(elementHeight + verticalGap / rows);
+            var $selectableElement = $(this).find(`.${presenter.CSS_CLASSES.ELEMENT}:first`);
+            $selectableElement.width(elementWidth + horizontalGap / columns);
+            $selectableElement.height(elementHeight + verticalGap / rows);
             var lineHeight = selectedRow === rows -1 ? elementHeight + verticalGap : elementHeight;
-            selectableElement.css('line-height', lineHeight + "px");
+            $selectableElement.css('line-height', lineHeight + "px");
 
             applySelectionStyle(selectedRow, selectedColumn);
             if (!preview) {
-                if (MobileUtils.isEventSupported('touchstart')) {
-                    function handler(e){
-                        e.stopPropagation();
-                        e.preventDefault();
-                        selectionHandler(selectedRow, selectedColumn);
-                        $(this).unbind('click');
-                        setTimeout(function(){selectableElement.click(handler)}, 500);
-                    }
-
-                    selectableElement.click(handler);
-                }else{
-                    presenter.wasMoved = false;
-                    selectableElement.on('mousemove', function (e) {
-                        e.preventDefault();
-                        if(presenter.isMouseDown && !presenter.wasMoved){
-                            selectionHandler(selectedRow, selectedColumn);
-                            presenter.wasMoved = true;
-                        }
-                    });
-
-                    selectableElement.on('mouseout', function (e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        presenter.wasMoved = false;
-                    });
-
-                    selectableElement.on('mousedown', function (e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        presenter.isMouseDown = true;
-                        selectionHandler(selectedRow, selectedColumn);
-                        presenter.wasMoved = true;
-                    });
-
-                    selectableElement.on('mouseup', function (e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        presenter.isMouseDown = false;
-                    });
-                }
+                presenter._addEventListenersToSelectableElement($selectableElement[0], selectedRow, selectedColumn);
             }
         });
+    }
+
+    presenter._addEventListenersToGrid = function () {
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported("touchstart")) {
+            addPointingEventListenersToGrid();
+        } else {
+            addTouchEventListenersToGrid();
+        }
+    };
+
+    function addPointingEventListenersToGrid() {
+        const gridWrapper = presenter.view.getElementsByClassName(presenter.CSS_CLASSES.GRID_WRAPPER)[0];
+        gridWrapper.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+            presenter.pointerStatus.isDown = true;
+        }, false);
+
+        gridWrapper.addEventListener(EventsUtils.PointingEvents.TYPES.UP, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+            presenter.pointerStatus.isDown = false;
+        }, false);
+
+        gridWrapper.addEventListener(EventsUtils.PointingEvents.TYPES.LEAVE, function (event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+            presenter.pointerStatus.isDown = false;
+        }, false);
+    }
+
+    function addTouchEventListenersToGrid() {
+        let selectedIndex = null;
+        const grid = presenter.view.getElementsByClassName(presenter.CSS_CLASSES.GRID)[0];
+        grid.addEventListener("touchmove", function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const clientPosition = fixTouch(event.touches[0] || event.changedTouches[0]);
+            const element = document.elementFromPoint(clientPosition.x, clientPosition.y);
+            const index = $(element).parent().index();
+            const selectedRow = parseInt(index / presenter.configuration.columns, 10);
+            const selectedColumn = parseInt(index % presenter.configuration.columns, 10);
+            if (index !== selectedIndex && element.parentElement.classList.contains(presenter.CSS_CLASSES.ELEMENT_WRAPPER)){
+                selectionHandler(selectedRow, selectedColumn);
+                selectedIndex = index;
+            }
+        }, false);
+    }
+
+    presenter._addEventListenersToSelectableElement = function (element, row, column) {
+        if (EventsUtils.PointingEvents.hasPointerEventSupport() || !MobileUtils.isEventSupported("touchstart")) {
+            addPointingListenersToSelectableElement(element, row, column);
+        } else {
+            addTouchListenersToSelectableElement(element, row, column);
+        }
+    };
+
+    function addPointingListenersToSelectableElement(element, row, column) {
+        element.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function (event) {
+            event.preventDefault();
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
+            if (presenter.pointerStatus.isDown && !presenter.pointerStatus.wasMoved){
+                selectionHandler(row, column);
+                presenter.pointerStatus.wasMoved = true;
+            }
+        }, false);
+
+        element.addEventListener(EventsUtils.PointingEvents.TYPES.OUT, function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
+            presenter.pointerStatus.wasMoved = false;
+        }, false);
+
+        element.addEventListener(EventsUtils.PointingEvents.TYPES.DOWN, function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (EventsUtils.PointingEvents.hasPointerEventSupport()) {
+                element.releasePointerCapture(event.pointerId);
+            }
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
+            presenter.pointerStatus.isDown = true;
+            selectionHandler(row, column);
+            presenter.pointerStatus.wasMoved = true;
+        }, false);
+
+        element.addEventListener(EventsUtils.PointingEvents.TYPES.UP, function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+
+            presenter.pointerStatus.isDown = false;
+        }, false);
+    }
+
+    function addTouchListenersToSelectableElement(element, row, column) {
+        function handler(event){
+            event.stopPropagation();
+            event.preventDefault();
+            selectionHandler(row, column);
+            element.removeEventListener("click", handler);
+            setTimeout(function(){
+                element.addEventListener("click", handler, false);
+            }, 500);
+        }
+
+        element.addEventListener("click", handler, false);
     }
 
     function isCharacterToCapitalize (character) {
@@ -313,23 +369,26 @@ function AddonMagic_Boxes_create() {
     };
 
     function selectionHandler(row, column) {
-        var prevScore = presenter.getScore();
-        if(presenter.isSelectionPossible) {
-            gridSelection[row][column] = gridSelection[row][column] ? false : true;
-            applySelectionStyle(row, column);
+        if (!presenter.isSelectionPossible) {
+            return;
+        }
 
-            var item = (row+1) +"-"+ (column+1);
-            var index = row * presenter.configuration.columns + column;
-            var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
-            var currentScore = presenter.getScore();
+        const prevScore = presenter.getScore();
 
-            var eventData = presenter.createEventData(item, element.text(), presenter.calculateScoreForEvent(prevScore, currentScore));
-            eventBus.sendEvent('ValueChanged', eventData);
+        gridSelection[row][column] = !gridSelection[row][column];
+        applySelectionStyle(row, column);
 
-            if(presenter.isAllOK()){
-                var allOKEventData = presenter.createAllOKEventData();
-                eventBus.sendEvent('ValueChanged', allOKEventData);
-            }
+        const item = (row+1) +"-"+ (column+1);
+        const index = row * presenter.configuration.columns + column;
+        const element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
+        const currentScore = presenter.getScore();
+
+        const eventData = presenter.createEventData(item, element.text(), presenter.calculateScoreForEvent(prevScore, currentScore));
+        eventBus.sendEvent("ValueChanged", eventData);
+
+        if (presenter.isAllOK()){
+            const allOKEventData = presenter.createAllOKEventData();
+            eventBus.sendEvent("ValueChanged", allOKEventData);
         }
     }
 
