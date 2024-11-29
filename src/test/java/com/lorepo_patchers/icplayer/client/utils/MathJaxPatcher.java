@@ -9,10 +9,13 @@ import com.lorepo.icplayer.client.utils.MathJaxElement;
 
 @PatchClass(MathJax.class)
 public class MathJaxPatcher {
+	
 	@PatchMethod
 	public static void refreshMathJax(Element e) { }
 	
-	
+	@PatchMethod
+	private static void fixMathMLSizeBug(Element element) { }
+
 	@PatchMethod
 	public static JavaScriptObject setCallbackForMathJaxLoaded(MathJaxElement element) {
 		return JavaScriptObject.createObject();
