@@ -1,4 +1,4 @@
-TestCase("isShapeCoveredInCircle", {
+TestCase("[Shape_Tracing] Utils tests", {
     setUp: function () {
         this.presenter = AddonShape_Tracing_create();
 

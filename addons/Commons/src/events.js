@@ -1,5 +1,6 @@
 (function (window) {
     var DoubleTap = function () {};
+
     DoubleTap._internals = {};
 
     DoubleTap._internals.clicks = [];
@@ -81,9 +82,8 @@
         var ua = userAgent || DoubleTap._internals.getUserAgent(),
             isChrome = /chrome/i.exec(ua),
             isAndroid = /android/i.exec(ua),
-            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid),
-            isPointerEventSupported = !!window.PointerEvent;
-        return isPointerEventSupported ? "pointerdown" : (hasTouch ? 'touchstart' : 'mousedown');
+            hasTouch = 'ontouchstart' in window && !(isChrome && !isAndroid);
+        return PointingEvents.hasPointerEventSupport() ? "pointerdown" : (hasTouch ? 'touchstart' : 'mousedown');
     };
 
     DoubleTap.on = function doubleTap_on ($element, callback) {
@@ -105,6 +105,52 @@
         DoubleTap._internals.removeTargetClicks(target);
     };
 
+    var PointingEvents = function () {};
+    PointingEvents._internals = {};
+    PointingEvents._internals.POINTER_EVENTS_SUPPORTED = !!window.PointerEvent;
+
+    PointingEvents._internals.getPointingEventName = function (type) {
+        return (PointingEvents._internals.POINTER_EVENTS_SUPPORTED ? "pointer" : "mouse") + type;
+    };
+
+    PointingEvents._internals.createTypesDictionary = function () {
+        return {
+            OVER: PointingEvents._internals.getPointingEventName("over"),
+            DOWN: PointingEvents._internals.getPointingEventName("down"),
+            MOVE: PointingEvents._internals.getPointingEventName("move"),
+            UP: PointingEvents._internals.getPointingEventName("up"),
+            OUT: PointingEvents._internals.getPointingEventName("out"),
+            LEAVE: PointingEvents._internals.getPointingEventName("leave")
+        };
+    };
+    PointingEvents.TYPES = PointingEvents._internals.createTypesDictionary();
+
+    PointingEvents._internals.refresh = function (hasSupport) {
+        PointingEvents._internals.POINTER_EVENTS_SUPPORTED = (hasSupport === undefined) ? !!window.PointerEvent : hasSupport;
+        PointingEvents.TYPES = PointingEvents._internals.createTypesDictionary();
+    };
+
+    /**
+     * Checks if provided PointerEvent isPrimary
+     * @method isPrimaryEvent
+     *
+     * This method is created for use when the condition is met:
+     * > Addon uses PointerEvent instead of MouseEvent and TouchEvent if PointerEvent is available.
+     *
+     * @returns {boolean} true if PointerEvents not supported or is primary Pointer event, otherwise false
+     */
+    PointingEvents.isPrimaryEvent = function (event) {
+        if (!PointingEvents._internals.POINTER_EVENTS_SUPPORTED) {
+            return true;
+        }
+        return !!(event.originalEvent ? event.originalEvent.isPrimary : event.isPrimary);
+    };
+
+    PointingEvents.hasPointerEventSupport = function () {
+        return PointingEvents._internals.POINTER_EVENTS_SUPPORTED;
+    };
+
     window.EventsUtils = {};
     window.EventsUtils.DoubleTap = DoubleTap;
+    window.EventsUtils.PointingEvents = PointingEvents;
 })(window);

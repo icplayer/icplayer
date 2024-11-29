@@ -10,11 +10,17 @@ TestCase("[Events Utils - Double Tap] onDoubleTap", {
         };
 
         this.stubs.userAgent.returns("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36"); //Chrome 48
+        this.setPointerEventSupport(false);
     },
 
     tearDown: function () {
         this.$view.on.restore();
         window.EventsUtils.DoubleTap._internals.getUserAgent.restore();
+        this.setPointerEventSupport(true);
+    },
+
+    setPointerEventSupport: function (hasSupport) {
+        window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
     },
 
     'test should bind startEvent with doubleTapHandler callback': function () {
@@ -47,12 +53,18 @@ TestCase("[Events Utils - Double Tap] offDoubleTap", {
         };
 
         this.stubs.userAgent.returns("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36"); //Chrome 48
+        this.setPointerEventSupport(false);
     },
 
     tearDown: function () {
         this.$view.on.restore();
         this.$view.off.restore();
         window.EventsUtils.DoubleTap._internals.getUserAgent.restore();
+        this.setPointerEventSupport(true);
+    },
+
+    setPointerEventSupport: function (hasSupport) {
+        window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
     },
 
     'test should bind and unbind startEvent with doubleTapHandler callback': function () {
