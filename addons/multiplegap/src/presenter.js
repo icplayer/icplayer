@@ -745,7 +745,10 @@ function Addonmultiplegap_create(){
 
     presenter.createDraggableTextItem = function(item) {
         var child = $('<p class="contents"></p>');
-        const parsedValue = item.value.replace('<', '< ');
+        var parsedValue = item.value;
+        if (parsedValue.match(/<[^ ].*>/) == null) {
+            parsedValue = item.value.replace('<', '< ');
+        }
         child.html(presenter.parseItemValue(parsedValue));
 
         if (presenter.playerController) {
