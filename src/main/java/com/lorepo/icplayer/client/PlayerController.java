@@ -376,10 +376,16 @@ public class PlayerController implements IPlayerController {
 		if (timeStart == 0){
 			timeStart = System.currentTimeMillis();
 		}
+
 		if (!keyboardController.isModuleActivated()) {
 			scrollViewToBeggining();
+			scrollViewToTop();
 		}
 	}
+
+	public native void scrollViewToTop () /*-{
+		$wnd.parent.postMessage('SCROLL_VIEW_TOP', '*');
+	}-*/;
 
 	private void pageLoaded(Page page, PageController pageController) {
 		this.keyboardController.save();
