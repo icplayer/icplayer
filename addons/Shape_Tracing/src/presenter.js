@@ -507,10 +507,10 @@ function AddonShape_Tracing_create() {
         if (url === undefined) {
             return url;
         }
-        if(url.indexOf("/file/serve/") == 0){
-            return url + "?no_gcs=true";
+        if (url.indexOf("/file/serve/") > -1){
+            const separator = (url.indexOf("?") === -1) ? "?" : "&";
+            return url + separator + "no_gcs=True";
         }
-
         return url;
     }
 
