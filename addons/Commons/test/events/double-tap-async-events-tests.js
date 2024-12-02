@@ -1,5 +1,9 @@
 var AsyncEventsDesktopTests = AsyncTestCase('[Events Utils - Double Tap] Async Events Tests');
 
+AsyncEventsDesktopTests.prototype.setPointerEventSupport = function (hasSupport) {
+    window.EventsUtils.PointingEvents._internals.refresh(hasSupport);
+};
+
 AsyncEventsDesktopTests.prototype.setUp = function() {
     /*:DOC view = <div></div>*/
 
@@ -16,6 +20,7 @@ AsyncEventsDesktopTests.prototype.setUp = function() {
         doubleTapHandler: sinon.spy(window.EventsUtils.DoubleTap._internals, 'doubleTapHandler'),
         doubleTapCallback: sinon.spy(this, 'doubleTapCallback')
     };
+    this.setPointerEventSupport(false);
 
     this.stubs.userAgent.returns("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36"); //Chrome 48
 
@@ -29,6 +34,7 @@ AsyncEventsDesktopTests.prototype.tearDown = function() {
     window.EventsUtils.DoubleTap._internals.getCurrentTime.restore();
     window.EventsUtils.DoubleTap._internals.doubleTapHandler.restore();
     this.doubleTapCallback.restore();
+    this.setPointerEventSupport(true);
 };
 
 AsyncEventsDesktopTests.prototype.testDoubleTapWithTimeDifferenceLowerThan300ms = function(queue) {

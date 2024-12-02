@@ -114,9 +114,6 @@ function AddonEditableWindow_create() {
         } else {
             $(view).html(presenter.configuration.model.errorMessage);
         }
-
-        MutationObserverService.createDestroyObserver(presenter.configuration.model.id, presenter.destroy, presenter.configuration.view);
-        MutationObserverService.setObserver();
     };
 
     presenter.init = function () {
@@ -1150,34 +1147,30 @@ function AddonEditableWindow_create() {
         }
     };
 
-    // On the mCourser, each addon is called twice on the first page.
-    // Removing the addon before loading the library causes a problem with second loading.
-    presenter.destroy = function (event) {
-        if (event.target === presenter.configuration.view) {
-            presenter.removeCallbacks();
+    presenter.onDestroy = function () {
+        presenter.removeCallbacks();
 
-            var timeouts = presenter.configuration.timeouts;
-            for (var i = 0; i < timeouts.length; i++) {
-                clearTimeout(timeouts[i]);
-            }
-
-            try {
-                presenter.configuration.editor.destroy();
-            } catch (e) {
-                console.log(presenter.configuration.model.id + ": cannot to destroy editor.")
-            }
-
-            try {
-                tinymce.remove();
-            } catch (e) {
-                console.log(presenter.configuration.model.id + ": cannot to remove tinymce.")
-            }
-
-            $(presenter.configuration.view).off();
-            presenter.configuration.container = null;
-            presenter.configuration = null;
-            presenter.jQueryElementsCache = null;
+        var timeouts = presenter.configuration.timeouts;
+        for (var i = 0; i < timeouts.length; i++) {
+            clearTimeout(timeouts[i]);
         }
+
+        try {
+            presenter.configuration.editor.destroy();
+        } catch (e) {
+            console.log(presenter.configuration.model.id + ": cannot to destroy editor.")
+        }
+
+        try {
+            tinymce.remove();
+        } catch (e) {
+            console.log(presenter.configuration.model.id + ": cannot to remove tinymce.")
+        }
+
+        $(presenter.configuration.view).off();
+        presenter.configuration.container = null;
+        presenter.configuration = null;
+        presenter.jQueryElementsCache = null;
     };
 
     presenter.removeCallbacks = function () {
@@ -1564,3 +1557,7 @@ function AddonEditableWindow_create() {
 
     return presenter;
 }
+
+AddonEditableWindow_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

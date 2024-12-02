@@ -414,12 +414,17 @@ function AddonColoring_create(){
         const validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         const validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']);
 
+        let imageFile = model.Image;
+        if (imageFile.indexOf("/file/serve") > -1){
+            const separator = (imageFile.indexOf("?") === -1) ? "?" : "&";
+            imageFile += separator + "no_gcs=True";
+        }
+
         return {
             'isValid': true,
             'isError': false,
             'addonID' : model['ID'],
-
-            'imageFile': model.Image,
+            'imageFile': imageFile,
             'areas' : validatedAreas.value,
             'tolerance' : validatedTolerance.value,
             'currentFillingColor' : validatedDefaultFillingColor.value,
@@ -586,10 +591,6 @@ function AddonColoring_create(){
 
     presenter.setImageElement = function (isPreview) {
         const imageElement = $('<img>');
-
-        if(presenter.configuration.imageFile.indexOf("/file/serve") === 0){
-            presenter.configuration.imageFile = presenter.configuration.imageFile + "?no_gcs=true";
-        }
 
         imageElement.attr('src', presenter.configuration.imageFile);
 

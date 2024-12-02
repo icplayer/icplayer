@@ -1,4 +1,4 @@
-TestCase("Upgrade state", {
+TestCase("[Shape_Tracing] Upgrade state", {
 
     setUp: function() {
         this.presenter = AddonShape_Tracing_create();

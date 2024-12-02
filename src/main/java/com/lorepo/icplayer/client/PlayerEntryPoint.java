@@ -135,6 +135,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getPrintableHTMLWithSeed = function(callback, randomizePages, randomizeModules, showAnswers, dpi, seed) {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;ZZZII)(callback, randomizePages, randomizeModules, showAnswers, dpi, seed);
 			};
+
+			player.setPrintableOrder = function(order) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPrintableOrder(Lcom/google/gwt/core/client/JavaScriptObject;)(order);
+			};
 			
 			player.preloadAllPages = function(callback) {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::preloadAllPages(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
@@ -173,6 +177,10 @@ public class PlayerEntryPoint implements EntryPoint {
 
 				commands.setSigningPrefix = function(signingPrefix) {
 					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setSigningPrefix(Ljava/lang/String;)(signingPrefix);
+				};
+
+				commands.addPageToWhitelist = function(pageURL) {
+					entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::addPageToWhitelist(Ljava/lang/String;)(pageURL);
 				};
 
 				return commands;
@@ -441,6 +449,10 @@ public class PlayerEntryPoint implements EntryPoint {
 		externalVariables = null;
 	}
 
+	private void setPrintableOrder(JavaScriptObject order) {
+		this.theApplication.setPrintableOrder(order);
+	}
+
 	private void setNVDAAvailability(boolean shouldUseNVDA) {
 		this.theApplication.setNVDAAvailability(shouldUseNVDA);
 	}
@@ -455,6 +467,10 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void setSigningPrefix(String signingPrefix) {
 		ExtendedRequestBuilder.setSigningPrefix(signingPrefix);
+	}
+
+	private void addPageToWhitelist(String pageURL) {
+		ExtendedRequestBuilder.addPageToWhitelist(pageURL);
 	}
 
 	private void updateMathJax() {

@@ -32,6 +32,7 @@ import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
+import com.lorepo.icplayer.client.printable.PrintableOrderParser;
 
 public class PlayerApp {
 
@@ -53,6 +54,8 @@ public class PlayerApp {
 	private String lastSentLayoutID = "";
 	private boolean isContentModelLoaded = false;
 	private static JavaScriptObject iframeHandlers = null;
+	private HashMap<String, List<String>> printableOrder = new HashMap<String, List<String>>();
+	private PrintableContentParser printableParser;
 
 	public PlayerApp(String id, PlayerEntryPoint entryPoint) {
 		this.divId = id;
@@ -846,10 +849,11 @@ public class PlayerApp {
 	}
 	
 	public void generatePrintableHTML(PrintableParams params) {
-		PrintableContentParser printableParser = new PrintableContentParser();
+		printableParser = new PrintableContentParser();
 		if (params.seed != -1) {
 			printableParser.setRandomSeed(params.seed);
 		}
+		
 		printableParser.setDPI(params.dpi);
 		printableParser.setListener(params.listener);
 		printableParser.setRandomizePages(params.randomizePages);
@@ -858,6 +862,11 @@ public class PlayerApp {
 		printableParser.setState(loadedState);
 		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	};
+
+	public void setPrintableOrder(JavaScriptObject order) {
+		this.printableOrder = PrintableOrderParser.toHashMap(order);
+		printableParser.setPrintableOrder(this.printableOrder);
+	}
 
 	private String getCurrentUserStyles() {
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
