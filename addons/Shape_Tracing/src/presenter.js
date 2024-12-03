@@ -410,23 +410,33 @@ function AddonShape_Tracing_create() {
         drawBoxPointerData(52, 37);
 
         presenter.data.shapeImageLoaded.then(function() {
-            var moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.ID+'"]');
-            moduleSelector.on(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
-                var x = e.offsetX, y = e.offsetY;
+            const moduleSelector = $(`.moduleSelector[data-id="${presenter.configuration.ID}"]`)[0];
+            moduleSelector.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function(event) {
+                if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                    return;
+                }
+                if (EventsUtils.PointingEvents.hasPointerEventSupport()) {
+                    moduleSelector.releasePointerCapture(event.pointerId);
+                }
 
-                presenter.text.setText(prepearText(x, y));
+                presenter.text.setText(prepearText(event.offsetX, event.offsetY));
                 presenter.layerBG.draw();
-            });
+            }, false);
         });
 
-        presenter.$view.find(".drawing").on(EventsUtils.PointingEvents.TYPES.MOVE, function(e) {
-            e.stopPropagation();
+        const drawingElement = presenter.view.getElementsByClassName("drawing")[0];
+        drawingElement.addEventListener(EventsUtils.PointingEvents.TYPES.MOVE, function(event) {
+            if (!EventsUtils.PointingEvents.isPrimaryEvent(event)) {
+                return;
+            }
+            if (EventsUtils.PointingEvents.hasPointerEventSupport()) {
+                drawingElement.releasePointerCapture(event.pointerId);
+            }
+            event.stopPropagation();
 
-            var x = e.offsetX, y = e.offsetY;
-
-            presenter.text.setText(prepearText(x, y));
+            presenter.text.setText(prepearText(event.offsetX, event.offsetY));
             presenter.layerBG.draw();
-        });
+        }, false);
     }
 
     function drawBackGroundImage(isPreview) {
@@ -1017,6 +1027,7 @@ function AddonShape_Tracing_create() {
         presenter.data.shapeImageLoadedDeferred = new $.Deferred();
         presenter.data.shapeImageLoaded = presenter.data.shapeImageLoadedDeferred.promise();
 
+        presenter.view = view;
         presenter.$view = $(view);
 
         Kinetic.pixelRatio = 1;
