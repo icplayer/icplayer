@@ -991,9 +991,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
+		String value = getDraggableValue();
+		String parsedValue = getParsedValue();
 
-		view.setValue(gapId, draggableItem.getValue());
+		view.setValue(gapId, parsedValue);
 		view.refreshMath();
 		
 		consumedItems.put(gapId, draggableItem);
@@ -1024,6 +1025,34 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
+	}
+
+	private String getDraggableValue() {
+		String value = draggableItem.getValue();
+		if (hasTextStyle(value) || isMathFormula(value)) {
+			return value;
+		}
+		
+		return TextParser.removeHtmlFormatting(draggableItem.getValue());
+	}
+
+	private boolean hasTextStyle(String value) {
+		return value.contains("<b>") || value.contains("<i>") || value.contains("<s>");
+	}
+
+	private boolean isMathFormula(String value) {
+		String pattern = "[a-zA-Z0-9]+<[a-zA-Z0-9\\s]+.*";
+
+		return value.matches(pattern);
+	}
+
+	private String getParsedValue() {
+		String value = draggableItem.getValue();
+		if (!value.matches("<[^ ].*>")) {
+			value = value.replace("<", "< ");
+		}
+
+		return value;
 	}
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
