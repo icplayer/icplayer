@@ -506,6 +506,10 @@ function Addonvideo_create() {
     presenter.destroy = function () {
         var view = document.getElementsByClassName('ic_page');
 
+        if (presenter.hlsPlayer != null) {
+            presenter.hlsPlayer.dispose();
+        }
+
         if (presenter.configuration.defaultControls) {
             presenter.controlBar.destroy();
         }
