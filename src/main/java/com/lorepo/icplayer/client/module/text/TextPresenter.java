@@ -1037,11 +1037,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean hasTextStyle(String value) {
-		return value.contains("<b>") || value.contains("<i>") || value.contains("<s>");
+		String[] textFormatingTags = {"<b>", "<i>", "<s>", "<u>", "<mark>"};
+		for (String tag : textFormatingTags) {
+			if (value.contains(tag)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private boolean isMathFormula(String value) {
-		String pattern = "[a-zA-Z0-9]+<[a-zA-Z0-9\\s]+.*";
+		String pattern = "[a-zA-Z0-9\\s]+<[a-zA-Z0-9\\s]+.*";
 
 		return value.matches(pattern);
 	}
