@@ -238,3 +238,20 @@
 .CustomControlsBar-wrapper-controls-videoSpeedController .video-playback-rate select option{
     cursor: pointer;
 }
+
+.video-container .video-js {
+    height: 0;
+}
+
+.video-container .video-js :not(video) {
+    display: none;
+    visibility: hidden;
+}
+
+.video-container .video-js video {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
