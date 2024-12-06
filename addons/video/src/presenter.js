@@ -17,6 +17,7 @@ function Addonvideo_create() {
     presenter.$view = null;
     presenter.files = [];
     presenter.video = null;
+    presenter.hlsPlayer = null;
     presenter.controlBar = null;
     presenter.isVideoSpeedControllerAdded = false;
     presenter.isCurrentlyVisible = true;
@@ -134,6 +135,19 @@ function Addonvideo_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeHLS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i]['m3u8 video']) {
+                upgradedModel.Files[i]['m3u8 video'] = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePoster(model);
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
@@ -142,7 +156,8 @@ function Addonvideo_create() {
         upgradedModel = presenter.upgradeVideoSpeedController(upgradedModel);
         upgradedModel = presenter.upgradeShowPlayButton(upgradedModel);
         upgradedModel = presenter.upgradeBaseDimensions(upgradedModel);
-        return presenter.removeShowVideoFromModel(upgradedModel);
+        upgradedModel = presenter.removeShowVideoFromModel(upgradedModel);
+        return presenter.upgradeHLS(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -271,7 +286,8 @@ function Addonvideo_create() {
     presenter.videoTypes = [
         {name: 'MP4 video', type: 'video/mp4'},
         {name: 'Ogg video', type: 'video/ogg'},
-        {name: 'WebM video', type: 'video/webm'}
+        {name: 'WebM video', type: 'video/webm'},
+        {name: 'm3u8 video', type: 'application/x-mpegURL'}
     ];
 
     presenter.VIDEO_STATE = {
@@ -305,12 +321,12 @@ function Addonvideo_create() {
             $(presenter.videoContainer).css({
                 width: presenter.configuration.dimensions.container.width + 'px',
                 height: presenter.configuration.dimensions.container.height + 'px',
-                position: 'relative'
+                position: presenter.isHLS() ? 'absolute' : 'relative'
             });
             $(presenter.videoObject).css({
                 width: presenter.configuration.dimensions.video.width + 'px',
                 height: presenter.configuration.dimensions.video.height + 'px',
-                position: 'relative'
+                position: presenter.isHLS() ? 'absolute' : 'relative'
             });
 
             if (presenter.configuration.defaultControls) {
@@ -837,6 +853,7 @@ function Addonvideo_create() {
             "Ogg video": file['Ogg video'],
             "MP4 video": file['MP4 video'],
             "WebM video": file['WebM video'],
+            "m3u8 video": file['m3u8 video'],
             "Subtitles": file['Subtitles'],
             "Audiodescription": file['Audio Description'],
             "Poster": file['Poster'],
@@ -1098,6 +1115,7 @@ function Addonvideo_create() {
         presenter.videoObject.setAttribute('webkit-playsinline', 'webkit-playsinline');
         presenter.videoObject.setAttribute('playsinline', 'playsinline');
 
+        if (presenter.isHLS()) presenter.loadHLSPlayer();
     };
 
     presenter.connectHandlers = function () {
@@ -1137,6 +1155,27 @@ function Addonvideo_create() {
             event.preventDefault();
             event.stopPropagation();
         });
+    }
+
+    presenter.isHLS = function() {
+        if (window.videojs === undefined) return false;
+        for (var i = 0; i < presenter.configuration.files.length; i++) {
+            var videoFile = presenter.configuration.files[i];
+            if (videoFile["m3u8 video"].trim().length > 0) return true;
+        }
+        return false;
+    }
+
+    presenter.loadHLSPlayer = function() {
+        presenter.$videoObject.addClass('video-js vjs-theme-sea vjs-big-play-centered');
+        presenter.$videoObject.attr({
+            preload: "auto",
+            fluid: "true",
+            "data-setup": '{}'
+        });
+        var videoID = 'videojs-player-' + presenter.configuration.addonID;
+        presenter.$videoObject.attr('id', videoID);
+        presenter.hlsPlayer = window.videojs(videoID);
     }
 
     presenter.fullscreenChangedEventReceived = function () {
@@ -1622,17 +1661,25 @@ function Addonvideo_create() {
         presenter.videoContainer.find('source').remove();
         presenter.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
 
-        presenter.setAltText();
+        if (!presenter.isHLS()) presenter.setAltText();
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {
             $video.attr('preload', 'auto');
+            var isNewHLSSourceSet = false;
             for (var vtype in presenter.videoTypes) {
-                if (files[presenter.currentMovie][presenter.videoTypes[vtype].name] && presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type)) {
+                if (files[presenter.currentMovie][presenter.videoTypes[vtype].name] && (presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type) || presenter.videoTypes[vtype].type == "application/x-mpegURL")) {
                     var source = $('<source>');
                     source.attr('type', presenter.videoTypes[vtype].type);
                     source.attr('src', files[presenter.currentMovie][presenter.videoTypes[vtype].name]);
                     $video.append(source);
+                    if (presenter.hlsPlayer != null && !isNewHLSSourceSet) {
+                        isNewHLSSourceSet = true;
+                        presenter.hlsPlayer.src({
+                            'type': presenter.videoTypes[vtype].type,
+                            'src': files[presenter.currentMovie][presenter.videoTypes[vtype].name]
+                        });
+                    }
                 }
             }
 
