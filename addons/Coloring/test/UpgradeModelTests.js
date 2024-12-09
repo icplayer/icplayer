@@ -21,17 +21,20 @@ TestCase("[Coloring] Upgrade model", {
         assertEquals(expected, upgradedModel.colors);
     },
 
-    'test given model without speechTexts prop when upgrading then model is updated by it': function () {
+   'test given model without markTransparentAreas property when the model is upgrading then model is updated by it': function () {
         const upgradedModel = this.presenter.upgradeModel(this.model);
 
-        const expected = {
-            Area: { Area: "" },
-            Color: { Color: "" },
-            Selected: { Selected: "" },
-            Correct: { Correct: "" },
-            Incorrect: { Incorrect: "" }
-        };
+        const expected = "False";
 
-        assertEquals(expected, upgradedModel.speechTexts);
+        assertEquals(expected, upgradedModel.markTransparentAreas);
+    },
+
+    'test given model with markTransparentAreas property when the model is upgrading then model should not be changed': function () {
+        this.model['markTransparentAreas'] = 'True';
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        const expected = "True";
+
+        assertEquals(expected, upgradedModel.markTransparentAreas);
     }
 });
