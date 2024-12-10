@@ -392,7 +392,7 @@ function AddonColoring_create(){
         return upgradedModel;
     };
 
-    presenter.upgradeMarkTransparentAreas = function AddonColoring_upgradeLangTag (model) {
+    presenter.upgradeMarkTransparentAreas = function AddonColoring_upgradeMarkTransparentAreas (model) {
         const upgradedModel = {};
         jQuery.extend(true, upgradedModel, model);
         if (!model.hasOwnProperty('markTransparentAreas')) {

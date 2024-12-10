@@ -1885,6 +1885,7 @@ var ice_dictionary_fr = {
     "Coloring_property_is_disabled": "Est désactivé",
     "Coloring_property_color_correct" : "Color correct",
     "Coloring_property_show_all_answers_in_gradual_show_answers_mode" : "Show all answers in gradual show answers mode",
+    "Coloring_property_mark_transparent_areas": "Mark transparent areas",
     "IWB_Toolbar_info": "La barre d'outil TBI est un ensemble d'outils permettant aux enseignants de faire leurs leçons et leurs présentations. Elle a été spécialement conçue pour fonctionner avec les TBI (Tableaux blancs interactifs).",
     "IWB_Toolbar_name": "Barre d'outils TBI",
     "IWB_Toolbar_property_floating_images": "Images flottantes",
