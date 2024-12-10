@@ -278,7 +278,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			// show 1st answer
 			String answer = gi.getFirstCorrectAnswer();
-			gapsViewsElements.get(gi.getId()).setText(answer);
+			String parsedAnswer = getParsedAnswer(answer);
+
+			gapsViewsElements.get(gi.getId()).setText(parsedAnswer);
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
@@ -290,6 +292,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				sElem.setSelectedIndex(correctIndex + 1);
 			}
 		}
+	}
+
+	private String getParsedAnswer(String answer) {
+		if (isMathFormula(answer) && !answer.matches("<[^ ].*>")) {
+			return answer.replace("<", "< ");
+		}
+
+		return answer;
 	}
 
 	private void showAnswers() {
@@ -452,13 +462,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (String id : values.keySet()) {
 			String value = values.get(id);
+			String parsedValue = getParsedAnswer(value);
+
 			if (module.hasMathGaps() && !isShowAnswersActive) {
-				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", value);
+				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", parsedValue);
 			} else if (module.hasMathGaps()) {
 				InputElement elem = DOM.getElementById(id).cast();
-				elem.setValue(value);
+				elem.setValue(parsedValue);
 			} else {
-				view.setValue(id, value);
+				view.setValue(id, parsedValue);
 			}
 		}
 
@@ -1048,7 +1060,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean isMathFormula(String value) {
-		String pattern = "[a-zA-Z0-9\\s]+<[a-zA-Z0-9\\s]+.*";
+		String pattern = ".*[a-zA-Z0-9\\s]+<[a-zA-Z0-9\\s]+.*";
 
 		return value.matches(pattern);
 	}

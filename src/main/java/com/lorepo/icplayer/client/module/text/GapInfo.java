@@ -94,14 +94,37 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		boolean correct = false;
 		text = getCleanedText(text);
 		for (String answer : checkAnswers) {
-			String parsedAnswer = AlternativeTextService.getVisibleText(answer);
-			if (parsedAnswer.compareTo(text) == 0) {
+			String parsedAnswer = getCorrectAnswer(AlternativeTextService.getVisibleText(answer));
+			String parsedUserAnswer = getParsedUserAnswer(text);
+			if (parsedAnswer.compareTo(parsedUserAnswer) == 0) {
 				correct = true;
 				break;
 			}
 		}
 
 		return correct;
+	}
+
+	private String getCorrectAnswer(String answer) {
+		if (isMathFormula(answer)) {
+			return answer.replace("< ", "<").trim();
+		}
+
+		return answer.trim();
+	}
+
+	private String getParsedUserAnswer(String userAnswer) {
+		if (isMathFormula(userAnswer)) {
+			return userAnswer.replace("< ", "<").trim();
+		}
+
+		return userAnswer.trim();
+	}
+
+	private boolean isMathFormula(String value) {
+		String pattern = ".*[a-zA-Z0-9\\s]+<[a-zA-Z0-9\\s]+.*";
+
+		return value.matches(pattern);
 	}
 
     public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
