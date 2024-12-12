@@ -28,6 +28,7 @@ function AddonColoring_create(){
     presenter.isCanvasInitiated = false;
     presenter.defaultColorRGBA = [255, 100, 100, 255];
     presenter.whiteRGBA = [255, 255, 255, 255];
+    presenter.transparentAreaTTS = "transparent";
 
     presenter.AREA_TYPE = {
         NORMAL: 0,
@@ -1942,8 +1943,11 @@ function AddonColoring_create(){
 
         const colorText = this.getCurrentAreaColorSpeechText();
         if (colorText) {
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
-            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            if (colorText !== presenter.transparentAreaTTS) {
+                pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
+                pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            }
+
             if (presenter.isShowErrorsModeActive) {
                 if (isCorrect(this.keyboardNavigationCurrentElement)) {
                     pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.correct);
@@ -1956,12 +1960,18 @@ function AddonColoring_create(){
         return textVoiceObject;
     }
 
-    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function() {
+    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function () {
         const colorArray = presenter.getColorAtPoint(
             this.keyboardNavigationCurrentElement.x,
             this.keyboardNavigationCurrentElement.y
         );
         const colorString = presenter.getRGBAStringFromRGBAArray(colorArray);
+
+        if (presenter.configuration.markTransparentAreas
+            && presenter.isAttempted() && colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA)) {
+            return presenter.transparentAreaTTS;
+        }
+
         return presenter.colorSpeechTextMap[colorString];
     }
 
