@@ -1780,6 +1780,7 @@ function AddonColoring_create(){
             this.colorAreaWithSelectedColor();
             this.readSelectedColor();
             this.switchElementsToAreas();
+            presenter.isColored = true;
         } else {
             this.switchElementsToColors();
             this.readCurrentElement();
