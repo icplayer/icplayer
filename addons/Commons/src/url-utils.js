@@ -27,8 +27,7 @@
                 return response.text();
             })
             .then(function(oldCSSText){
-                var newCSSText = parseCustomCSSFileText(playerController, newBaseURL, oldCSSText, useFileServeFormat);
-                return newCSSText;
+                return parseCustomCSSFileText(playerController, newBaseURL, oldCSSText, useFileServeFormat);
             });
     };
 
