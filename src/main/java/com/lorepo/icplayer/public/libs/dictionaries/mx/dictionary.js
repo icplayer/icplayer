@@ -250,7 +250,6 @@ var ice_dictionary_mx = {
 	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
 	"can_not_upload_file": "Error occurred while uploading the file",
-	"error_updating_assets_base_on_custom_css_file": "Error occurred while updating assets base on 'Custom CSS' file",
 	"update_style": "Actualizar estilo",
 	"cant_load_document": "No se puede cargar el documento:",
 	"cant_add_page": "No se puede añadir la página:",

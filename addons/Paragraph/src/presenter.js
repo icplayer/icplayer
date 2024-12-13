@@ -516,7 +516,7 @@ function AddonParagraph_create() {
         return '#' + presenter.configuration.ID + '-wrapper .paragraph_field';
     };
 
-    presenter.getTinymceInitConfiguration = function AddonParagraph_getTinyMceConfiguration(selector, contentCSS) {
+    presenter.getTinymceInitConfiguration = function AddonParagraph_getTinyMceConfiguration(selector, contentCSSURL) {
         var layoutType = presenter.configuration.layoutType;
 
         var language = layoutType === "Default"
@@ -539,7 +539,7 @@ function AddonParagraph_create() {
             statusbar: false,
             menubar: false,
             toolbar: toolbar,
-            content_css: contentCSS,
+            content_css: contentCSSURL,
             setup: presenter.setup,
             language: language
         };

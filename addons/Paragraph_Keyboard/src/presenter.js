@@ -567,6 +567,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.isPreview = isPreview;
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.parseModel(upgradedModel, isPreview);
 
@@ -603,7 +604,7 @@ function AddonParagraph_Keyboard_create() {
             .then((contentCSSURL) => {
                 _initTinymce(contentCSSURL);
             }).catch(() => {
-                console.warn(`Failed to download assets provided in "Custom CSS" file for Paragraph ${presenter.configuration.ID} addon`);
+                console.warn(`Failed to download assets provided in "Custom CSS" file for Paragraph Keyboard ${presenter.configuration.ID} addon`);
             });
     };
 

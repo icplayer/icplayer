@@ -251,7 +251,6 @@ var ice_dictionary_en = {
 	"styles_sort_label" : "Sort A-Z",
 	"can_not_save_styles_sort_selected": "Can't save CSS class sort preference",
 	"can_not_upload_file": "Error occurred while uploading the file",
-	"error_updating_assets_base_on_custom_css_file": "Error occurred while updating assets base on 'Custom CSS' file",
 	"update_style" : "Update style",
 	"cant_load_document" : "Can't load document: ",
 	"cant_add_page" : "Can't add page: ",
