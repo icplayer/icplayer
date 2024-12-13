@@ -465,6 +465,7 @@ function AddonParagraph_Keyboard_create() {
             hasDefaultFontFamily: hasDefaultFontFamily,
             hasDefaultFontSize: hasDefaultFontSize,
             content_css: model['Custom CSS'],
+            useCustomCSSFiles: ModelValidationUtils.validateBoolean(model["useCustomCSSFiles"]),
             isPlaceholderSet: !ModelValidationUtils.isStringEmpty(model["Placeholder Text"]),
             placeholderText: model["Placeholder Text"],
             isPlaceholderEditable: isPlaceholderEditable,
@@ -532,7 +533,7 @@ function AddonParagraph_Keyboard_create() {
         upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         upgradedModel = presenter.upgradePlaceholderText(upgradedModel);
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
-        return upgradedModel;
+        return presenter.upgradeUseCustomCSSFiles(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -559,6 +560,10 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
+    presenter.upgradeUseCustomCSSFiles = function (model) {
+        return presenter.upgradeAttribute(model, "useCustomCSSFiles", "False");
+    };
+
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
@@ -577,6 +582,32 @@ function AddonParagraph_Keyboard_create() {
 
         presenter.setWrapperID();
 
+        presenter.initTinymce();
+    };
+
+    presenter.initTinymce = function () {
+        if (presenter.isPreview || !presenter.configuration.useCustomCSSFiles || !presenter.configuration.content_css) {
+            presenter.initTinymceWithoutParsingContentCSS();
+        } else {
+            presenter.initTinymceWithParsingContentCSS();
+        }
+    };
+
+    presenter.initTinymceWithoutParsingContentCSS = function () {
+        _initTinymce(presenter.configuration.content_css);
+    };
+
+    presenter.initTinymceWithParsingContentCSS = function () {
+        presenter.$view.css("visibility", "hidden");
+        URLUtils.parseCSSFile(presenter.playerController, presenter.configuration.content_css)
+            .then((contentCSSURL) => {
+                _initTinymce(contentCSSURL);
+            }).catch(() => {
+                console.warn(`Failed to download assets provided in "Custom CSS" file for Paragraph ${presenter.configuration.ID} addon`);
+            });
+    };
+
+    function _initTinymce(contentCSSURL) {
         presenter.placeholder = new presenter.placeholderElement();
         presenter.configuration.plugins = presenter.getPlugins();
         presenter.addPlugins();
@@ -585,13 +616,13 @@ function AddonParagraph_Keyboard_create() {
 
         presenter.calculateAndSetSizeForAddon();
 
-        tinymce.init(presenter.getTinyMceInitConfiguration()).then(function (editors) {
+        tinymce.init(presenter.getTinyMceInitConfiguration(contentCSSURL)).then(function (editors) {
             presenter.editor = editors[0];
             presenter.onInit();
             presenter.isEditorLoaded = true;
             presenter.setStyles();
         });
-    };
+    }
 
     /**
      * Calculate and set in configuration new size for addon.
@@ -649,7 +680,7 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
-    presenter.getTinyMceInitConfiguration = function AddonParagraph_Keyboard_getTinyMceConfiguration() {
+    presenter.getTinyMceInitConfiguration = function AddonParagraph_Keyboard_getTinyMceConfiguration(contentCSSURL) {
         return {
             plugins: presenter.configuration.plugins,
             selector : presenter.getTinyMCESelector(),
@@ -658,7 +689,7 @@ function AddonParagraph_Keyboard_create() {
             statusbar: false,
             menubar: false,
             toolbar: presenter.configuration.toolbar,
-            content_css: presenter.configuration.content_css,
+            content_css: contentCSSURL,
             setup: presenter.setup,
         };
     };
