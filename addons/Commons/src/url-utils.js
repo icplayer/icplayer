@@ -15,7 +15,7 @@
 
      @param {object} playerController player controller
      @param {String} fileURL CSS file URL
-     @return {Promise} Promise with url to new file with parsed content
+     @return {Promise} Promise with parsed text
     */
     URLUtils.parseCSSFile = function URLUtils_parseCSSFile(playerController, fileURL) {
         var newBaseURL;

@@ -601,7 +601,14 @@ function AddonParagraph_Keyboard_create() {
     presenter.initTinymceWithParsingContentCSS = function () {
         presenter.$view.css("visibility", "hidden");
         URLUtils.parseCSSFile(presenter.playerController, presenter.configuration.content_css)
-            .then((contentCSSURL) => {
+            .then((newCSSText) => {
+                const newCSS = new File(
+                    [newCSSText],
+                    `parsed ${presenter.configuration.content_css}.css`,
+                    {type: "text/css"}
+                );
+                return URL.createObjectURL(newCSS);
+            }).then((contentCSSURL) => {
                 _initTinymce(contentCSSURL);
             }).catch(() => {
                 console.warn(`Failed to download assets provided in "Custom CSS" file for Paragraph Keyboard ${presenter.configuration.ID} addon`);

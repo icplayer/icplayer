@@ -464,6 +464,14 @@ function AddonParagraph_create() {
     presenter.initTinymceWithParsingContentCSS = function () {
         presenter.$view.css("visibility", "hidden");
         URLUtils.parseCSSFile(presenter.playerController, presenter.configuration.content_css)
+            .then((newCSSText) => {
+                const newCSS = new File(
+                    [newCSSText],
+                    `parsed ${presenter.configuration.content_css}.css`,
+                    {type: "text/css"}
+                );
+                return URL.createObjectURL(newCSS);
+            })
             .then((contentCSSURL) => {
                 _initTinymce(contentCSSURL);
             }).catch(() => {
