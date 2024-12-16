@@ -1,3 +1,4 @@
+2024-12-16 Added scaling loader icon
 2024-12-06 Fixed displaying of mouse coordinates for Shape Tracing in editor
 2024-12-06 Added documentation to MathText
 2024-12-06 Added m3u8 support in video
