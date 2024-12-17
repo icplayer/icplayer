@@ -1969,11 +1969,24 @@ function AddonColoring_create(){
         const colorString = presenter.getRGBAStringFromRGBAArray(colorArray);
 
         if (presenter.configuration.markTransparentAreas
-            && presenter.isAttempted() && colorString === presenter.getRGBAStringFromRGBAArray(presenter.whiteRGBA)) {
+            && presenter.isAttempted() && presenter.isColorSimilar(colorArray, presenter.whiteRGBA, 2)) {
             return presenter.transparentAreaTTS;
         }
 
         return presenter.colorSpeechTextMap[colorString];
+    }
+
+    presenter.isColorSimilar = function (currentArea, defaultArea, tolerance = 0) {
+        if (currentArea.length !== defaultArea.length) {
+            return false;
+        }
+
+        const differences = [];
+        currentArea.forEach((colorValue, index) => {
+            differences.push(Math.abs(colorValue - defaultArea[index]));
+        })
+
+        return differences.every(differ => differ <= tolerance);
     }
 
     function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {
