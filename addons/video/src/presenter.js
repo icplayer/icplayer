@@ -18,6 +18,7 @@ function Addonvideo_create() {
     presenter.files = [];
     presenter.video = null;
     presenter.hlsPlayer = null;
+    presenter.isHLSValue = null;
     presenter.controlBar = null;
     presenter.isVideoSpeedControllerAdded = false;
     presenter.isCurrentlyVisible = true;
@@ -507,7 +508,16 @@ function Addonvideo_create() {
         var view = document.getElementsByClassName('ic_page');
 
         if (presenter.hlsPlayer != null) {
+            presenter.hlsPlayer.off('click');
+            presenter.hlsPlayer.off('error');
+            presenter.hlsPlayer.off('loadedmetadata');
+            presenter.hlsPlayer.off('play');
+            presenter.hlsPlayer.off('pause');
+            presenter.hlsPlayer.off('playing');
+
+            presenter.hlsPlayer.off('canplay');
             presenter.hlsPlayer.dispose();
+            presenter.hlsPlayer = null;
         }
 
         if (presenter.configuration.defaultControls) {
@@ -1091,6 +1101,7 @@ function Addonvideo_create() {
             presenter.buildControlsBars();
         } else {
             presenter.videoContainer.on("click", function () {
+                presenter.videoObject = presenter.videoContainer.find('video')[0];
                 if (presenter.videoObject.paused) {
                     presenter.play();
                 } else {
@@ -1100,6 +1111,8 @@ function Addonvideo_create() {
         }
 
         presenter.addTabindex(presenter.configuration.isTabindexEnabled);
+
+        if (presenter.isHLS()) presenter.loadHLSPlayer();
 
         presenter.connectHandlers();
         presenter.reload();
@@ -1118,20 +1131,19 @@ function Addonvideo_create() {
 
         presenter.videoObject.setAttribute('webkit-playsinline', 'webkit-playsinline');
         presenter.videoObject.setAttribute('playsinline', 'playsinline');
-
-        if (presenter.isHLS()) presenter.loadHLSPlayer();
     };
 
     presenter.connectHandlers = function () {
-        presenter.videoObject.addEventListener('click', presenter.stopPropagationOnClickEvent);
-        presenter.videoObject.addEventListener('error', function () {
-            presenter.handleErrorCode(this.error);
-        }, true);
-        presenter.videoObject.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
-        presenter.videoObject.addEventListener('play', setVideoStateOnPlayEvent);
-        presenter.videoObject.addEventListener('pause', setVideoStateOnPauseEvent);
-        presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
-
+        if (!presenter.isHLS()) {
+            presenter.videoObject.addEventListener('click', presenter.stopPropagationOnClickEvent);
+            presenter.videoObject.addEventListener('error', function () {
+                presenter.handleErrorCode(this.error);
+            }, true);
+            presenter.videoObject.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
+            presenter.videoObject.addEventListener('play', setVideoStateOnPlayEvent);
+            presenter.videoObject.addEventListener('pause', setVideoStateOnPauseEvent);
+            presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
+        }
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
 
         MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.$view.get(0));
@@ -1163,23 +1175,50 @@ function Addonvideo_create() {
 
     presenter.isHLS = function() {
         if (window.videojs === undefined) return false;
-        for (var i = 0; i < presenter.configuration.files.length; i++) {
-            var videoFile = presenter.configuration.files[i];
-            if (videoFile["m3u8 video"].trim().length > 0) return true;
+        if (presenter.isHLSValue == null) {
+            presenter.isHLSValue = false;
+            for (var i = 0; i < presenter.configuration.files.length; i++) {
+                var videoFile = presenter.configuration.files[i];
+                if (videoFile["m3u8 video"].trim().length > 0) presenter.isHLSValue = true;
+            }
         }
-        return false;
+        return presenter.isHLSValue;
     }
 
     presenter.loadHLSPlayer = function() {
         presenter.$videoObject.addClass('video-js vjs-theme-sea vjs-big-play-centered');
         presenter.$videoObject.attr({
-            preload: "auto",
+            preload: presenter.isHLS() ? 'metadata' : 'auto',
             fluid: "true",
             "data-setup": '{}'
         });
         var videoID = 'videojs-player-' + presenter.configuration.addonID;
         presenter.$videoObject.attr('id', videoID);
         presenter.hlsPlayer = window.videojs(videoID);
+        presenter.hlsPlayer.ready(() => {
+            presenter.hlsPlayer.on('click', presenter.stopPropagationOnClickEvent);
+            presenter.hlsPlayer.on('error', function () {
+                presenter.handleErrorCode(this.error);
+            });
+            presenter.hlsPlayer.on('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
+            presenter.hlsPlayer.on('play', setVideoStateOnPlayEvent);
+            presenter.hlsPlayer.on('pause', setVideoStateOnPauseEvent);
+            presenter.hlsPlayer.on('playing', presenter.onVideoPlaying);
+
+            presenter.hlsPlayer.on('loadedmetadata', function onLoadedMetadata() {
+                presenter.isVideoLoaded = true;
+                presenter.callTasksFromDeferredQueue();
+
+                $(presenter.videoObject).unbind("canplay");
+
+                if (presenter.areSubtitlesHidden) {
+                    presenter.hideSubtitles();
+                } else {
+                    presenter.showSubtitles();
+                }
+                }
+            );
+        });
     }
 
     presenter.fullscreenChangedEventReceived = function () {
@@ -1430,6 +1469,7 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
+        if (!presenter.videoObject) return;
         if (!presenter.videoObject.paused) {
             var isSpeaking = presenter.readAudioDescriptions(presenter.videoObject.currentTime);
             if (!isSpeaking) {
@@ -1528,7 +1568,7 @@ function Addonvideo_create() {
         presenter.currentMovie = state.currentMovie;
         presenter.reload();
 
-        $(presenter.videoObject).on('canplay', function onVideoCanPlay() {
+        $(presenter.videoObject).on('loadedmetadata', function onVideoCanPlay() {
             if (presenter.videoObject.currentTime < currentTime) {
                 presenter.currentTime = currentTime;
                 presenter.videoObject.currentTime = currentTime;
@@ -1650,6 +1690,10 @@ function Addonvideo_create() {
         }
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
+        if (!presenter.videoObject) return;
+        if (presenter.isHLS() && !!presenter.controlBar && !!presenter.controlBar.configuration) {
+            presenter.controlBar.configuration.videoObject = presenter.videoObject;
+        }
         if (!presenter.videoObject.hasOwnProperty('playing')) {
             Object.defineProperty(presenter.videoObject, 'playing', {
                get: function () {
@@ -1669,7 +1713,7 @@ function Addonvideo_create() {
         if (presenter.isPreview) {
             $video.attr('preload', 'none');
         } else {
-            $video.attr('preload', 'auto');
+            $video.attr('preload', presenter.isHLS() ? 'metadata' : 'auto');
             var isNewHLSSourceSet = false;
             for (var vtype in presenter.videoTypes) {
                 if (files[presenter.currentMovie][presenter.videoTypes[vtype].name] && (presenter.videoObject.canPlayType(presenter.videoTypes[vtype].type) || presenter.videoTypes[vtype].type == "application/x-mpegURL")) {
@@ -2134,7 +2178,7 @@ function Addonvideo_create() {
         presenter.removeWaterMark();
         presenter.hidePlayButton();
         presenter.loadVideoAtPlayOnMobiles();
-
+        presenter.videoObject = presenter.videoContainer.find('video')[0];
         if (presenter.videoObject.paused) {
             presenter.videoObject.play();
             presenter.addClassToView('playing');
