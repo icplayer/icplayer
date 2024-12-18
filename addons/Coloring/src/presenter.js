@@ -1967,9 +1967,10 @@ function AddonColoring_create(){
             this.keyboardNavigationCurrentElement.y
         );
         const colorString = presenter.getRGBAStringFromRGBAArray(colorArray);
+        const isAreaTransparent = this.keyboardNavigationCurrentElement.type === presenter.AREA_TYPE.TRANSPARENT &&
+            presenter.isColorSimilar(colorArray, presenter.whiteRGBA, 2)
 
-        if (presenter.configuration.markTransparentAreas
-            && presenter.isAttempted() && presenter.isColorSimilar(colorArray, presenter.whiteRGBA, 2)) {
+        if (presenter.configuration.markTransparentAreas && presenter.isAttempted() && isAreaTransparent) {
             return presenter.transparentAreaTTS;
         }
 
