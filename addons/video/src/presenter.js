@@ -1568,7 +1568,8 @@ function Addonvideo_create() {
         presenter.currentMovie = state.currentMovie;
         presenter.reload();
 
-        $(presenter.videoObject).on('loadedmetadata', function onVideoCanPlay() {
+        var eventType = presenter.isHLS() ? 'loadedmetadata' : 'canplay';
+        $(presenter.videoObject).on(eventType, function onVideoCanPlay() {
             if (presenter.videoObject.currentTime < currentTime) {
                 presenter.currentTime = currentTime;
                 presenter.videoObject.currentTime = currentTime;
