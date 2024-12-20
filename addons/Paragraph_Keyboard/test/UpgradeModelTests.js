@@ -8,6 +8,7 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
         this.upgradeModelAnswerStub = sinon.stub(this.presenter, 'upgradeModelAnswer');
         this.upgradePlaceholderTextStub = sinon.stub(this.presenter, 'upgradePlaceholderText');
         this.upgradeEditablePlaceholderStub = sinon.stub(this.presenter, 'upgradeEditablePlaceholder');
+        this.upgradeUseCustomCSSFilesStub = sinon.stub(this.presenter, 'upgradeUseCustomCSSFiles');
     },
 
     tearDown: function () {
@@ -17,6 +18,7 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
         this.presenter.upgradeModelAnswer.restore();
         this.presenter.upgradePlaceholderText.restore();
         this.presenter.upgradeEditablePlaceholder.restore();
+        this.presenter.upgradeUseCustomCSSFiles.restore();
     },
 
     'test upgrade model': function () {
@@ -28,6 +30,7 @@ TestCase("[Paragraph Keyboard] Upgrade model", {
         assertTrue(this.upgradeModelAnswerStub.calledOnce);
         assertTrue(this.upgradePlaceholderTextStub.calledOnce);
         assertTrue(this.upgradeEditablePlaceholderStub.calledOnce);
+        assertTrue(this.upgradeUseCustomCSSFilesStub.calledOnce);
     }
 });
 
@@ -105,5 +108,32 @@ TestCase("[Paragraph Keyboard] Upgrading weight property", {
         var upgradedModel = this.presenter.upgradeWeight(model);
 
         assertEquals("", upgradedModel["Weight"]);
+    }
+});
+
+TestCase("[Paragraph Keyboard] Upgrading Use Custom CSS files property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_Keyboard_create();
+    },
+
+    'test when model has "Use Custom CSS files" property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "useCustomCSSFiles": "True"
+        };
+
+        var upgradedModel = this.presenter.upgradeUseCustomCSSFiles(model);
+
+        assertEquals("True", upgradedModel["useCustomCSSFiles"]);
+    },
+
+    'test when model has no "Use Custom CSS files" property then "Use Custom CSS files" should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeUseCustomCSSFiles(model);
+
+        assertEquals("False", upgradedModel["useCustomCSSFiles"]);
     }
 });
