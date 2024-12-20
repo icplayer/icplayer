@@ -242,6 +242,48 @@ The below example shows how to show or hide the addon according to the Double St
     </tr>
 </table>
 
+## Documentation for editor
+
+The player uses WIRIS Quizzes version 3.77.2. 
+The following WIRIS documentation was used to provide documentation in the editor:
+<ul>
+    <li><a href="https://docs.wiris.com/quizzes/en/getting-started/wirisquizzes-user-interface.html">https://docs.wiris.com/quizzes/en/getting-started/wirisquizzes-user-interface.html</a></li>
+    <li><a href="https://www.wiris.net/demo/quizzes/assertions.xml">https://www.wiris.net/demo/quizzes/assertions.xml</a></li>
+</ul>
+
+<table border="1">
+    <tr>
+        <th colspan="2">Correct answer</th>
+    </tr>
+    <tr>
+        <td>Input method</td>
+        <td><a href="../page/WIRIS-Input-method" title="Input method">Documentation</a></td>
+    </tr>
+    <tr>
+        <th colspan="2">Validation</th>
+    </tr>
+    <tr>
+        <td>Allowed input</td>
+        <td><a href="../page/WIRIS-Allowed-input" title="Allowed input">Documentation</a></td>
+    </tr>
+    <tr>
+        <td>General input options</td>
+        <td><a href="../page/WIRIS-General-input-options" title="General input options">Documentation</a></td>
+    </tr>
+    <tr>
+        <td>Quantity input options</td>
+        <td><a href="../page/WIRIS-Quantity-input-options" title="Quantity input options">Documentation</a></td>
+    </tr>
+    <tr>
+        <td>Comparison with student answer</td>
+        <td><a href="../page/WIRIS-Comparison-with-student-answer" title="Comparison with student answer">Documentation</a></td>
+    </tr>
+    <tr>
+        <td>Additional properties</td>
+        <td><a href="../page/WIRIS-Additional-properties" title="Additional properties">Documentation</a></td>
+    </tr>
+</table>
+
 ## Demo presentation
 
 N/A

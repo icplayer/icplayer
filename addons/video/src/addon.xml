@@ -6,6 +6,7 @@
 			<property name="Ogg video" displayName="Ogv video" nameLabel="video_property_ogg_video" type="video" />
 			<property name="MP4 video" nameLabel="video_property_mp4_video" type="video" />
 			<property name="WebM video" nameLabel="video_property_webm_video" type="video" />
+			<property name="m3u8 video" nameLabel="video_property_m3u8_video" type="video" />
 			<property name="Subtitles" nameLabel="video_property_subtitles" type="text" isLocalized="true" />
 			<property name="Poster" nameLabel="video_property_poster" type="image" />
 			<property name="ID" nameLabel="video_property_id" type="string" />
@@ -30,5 +31,6 @@
 		<property name="enableVideoSpeedController" nameLabel="enable_video_speed_controller" type="boolean" />
 		<property name="Base width" nameLabel="video_property_base_width" type="string" />
 		<property name="Base height" nameLabel="video_property_base_height" type="string" />
+		<property name="{library}" nameLabel="video_property_hls_library" type="module-script" value="/file/serve/5350926942339072"/>
 	</model>
 </addon>

@@ -1,4 +1,8 @@
-2024-12-09 Added checking transparent area in Coloring
+2024-12-20 Added checking transparent area in Coloring
+2024-12-13 Fixed score counting in draggable gaps
+2024-12-06 Fixed displaying of mouse coordinates for Shape Tracing in editor
+2024-12-06 Added documentation to MathText
+2024-12-06 Added m3u8 support in video
 2024-11-29 Added condition blocking attach of resource path on external services
 2024-11-29 Fixed issue with html tags in source list
 2024-11-29 Fixed linking of default assets in Coloring, Shape Tracing, Vimeo, and YouTube addons
