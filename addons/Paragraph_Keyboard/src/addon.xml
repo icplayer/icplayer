@@ -8,6 +8,7 @@
 		<property name="Editable placeholder" nameLabel="Paragraph_Keyboard_property_editable_placeholder" type="boolean" />
 		<property name="Custom toolbar" nameLabel="Paragraph_Keyboard_property_custom_toolbar" type="string" />
 		<property name="Custom CSS" nameLabel="Paragraph_Keyboard_property_custom_css" type="file" />
+		<property name="useCustomCSSFiles" nameLabel="Paragraph_Keyboard_property_use_custom_css_files" type="boolean" />
 		<property name="Placeholder Text" nameLabel="Paragraph_Keyboard_property_placeholder_text" type="html"/>
 		<property name="layoutType" displayName="Keyboard Layout Type" nameLabel="Paragraph_Keyboard_property_layout_type"
 			type="{French (Special Characters), German (Special Characters), Spanish (Special Characters), Custom}" />

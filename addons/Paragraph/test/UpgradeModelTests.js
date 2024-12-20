@@ -11,6 +11,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.upgradeLangTagStub = sinon.stub(this.presenter, 'upgradeLangTag');
         this.upgradeSpeechTextsStub = sinon.stub(this.presenter, 'upgradeSpeechTexts');
         this.upgradeBlockInErrorCheckingModeStub = sinon.stub(this.presenter, 'upgradeBlockInErrorCheckingMode');
+        this.upgradeUseCustomCSSFilesStub = sinon.stub(this.presenter, 'upgradeUseCustomCSSFiles');
     },
 
     tearDown: function () {
@@ -22,6 +23,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter.upgradeLangTag.restore();
         this.presenter.upgradeSpeechTexts.restore();
         this.presenter.upgradeBlockInErrorCheckingMode.restore();
+        this.presenter.upgradeUseCustomCSSFiles.restore();
     },
 
     'test upgrade model': function () {
@@ -36,6 +38,7 @@ TestCase("[Paragraph] Upgrade model", {
         assertTrue(this.upgradeLangTagStub.calledOnce);
         assertTrue(this.upgradeSpeechTextsStub.calledOnce);
         assertTrue(this.upgradeBlockInErrorCheckingModeStub.calledOnce);
+        assertTrue(this.upgradeUseCustomCSSFilesStub.calledOnce);
     }
 });
 
@@ -258,4 +261,31 @@ TestCase("[Paragraph] Upgrade model with Block in error checking mode", {
 
         assertEquals("True", upgradedModel["Block in error checking mode"]);
     },
+});
+
+TestCase("[Paragraph] Upgrading Use Custom CSS files property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test when model has "Use Custom CSS files" property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "useCustomCSSFiles": "True"
+        };
+
+        var upgradedModel = this.presenter.upgradeUseCustomCSSFiles(model);
+
+        assertEquals("True", upgradedModel["useCustomCSSFiles"]);
+    },
+
+    'test when model has no "Use Custom CSS files" property then "Use Custom CSS files" should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeUseCustomCSSFiles(model);
+
+        assertEquals("False", upgradedModel["useCustomCSSFiles"]);
+    }
 });
