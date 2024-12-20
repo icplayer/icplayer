@@ -50,6 +50,10 @@ The list starts with the common properties, learn more about them by visiting th
                             <td>The video file in WebM format.</td>
                         </tr>
                         <tr>
+                            <td>m3u8 video</td>
+                            <td>The video file in m3u8 format.</td>
+                        </tr>
+                        <tr>
                             <td>Subtitles</td>
                             <td>Description of this property is available in the "Managing subtitles" section below.</td>
                         </tr>
