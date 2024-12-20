@@ -1897,6 +1897,7 @@ var ice_dictionary_en = {
 	"Coloring_property_is_disabled": "Is Disabled",
     "Coloring_property_color_correct" : "Color correct",
     "Coloring_property_show_all_answers_in_gradual_show_answers_mode" : "Show all answers in gradual show answers mode",
+	"Coloring_property_mark_transparent_areas": "Mark transparent areas",
 	"IWB_Toolbar_info": "IWB Toolbar is a set of tools to help teachers in conducting lessons and giving presentations. It has been specially designed to work with IWB (Interactive Whiteboard).",
 	"IWB_Toolbar_name": "IWB Toolbar",
 	"IWB_Toolbar_property_floating_images": "Floating Images",

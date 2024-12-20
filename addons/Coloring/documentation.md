@@ -62,6 +62,10 @@ The Coloring addon gives users the ability to upload an image which can be later
         <td>Lang attribute</td>
         <td>Allows you to set the langauge used to read the area names and color descriptions via the TTS module.</td>
     </tr>
+    <tr>
+        <td>Mark transparent areas</td>
+        <td>If selected and the addon is edited, then in the Check Answers mode, areas defined as a transparent would receive an icon for the correct answer. This does not affect the addon's score.</td>
+    </tr>
 
 </table>
 

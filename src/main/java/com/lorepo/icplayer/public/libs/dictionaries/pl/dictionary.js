@@ -1888,6 +1888,7 @@ var ice_dictionary_pl = {
 	"Coloring_property_is_disabled": "Jest wyłączony",
     "Coloring_property_color_correct" : "Color correct",
     "Coloring_property_show_all_answers_in_gradual_show_answers_mode" : "Show all answers in gradual show answers mode",
+	"Coloring_property_mark_transparent_areas": "Mark transparent areas",
 	"IWB_Toolbar_info" : "Zestaw narzędzi dla nauczycieli, wspierający prowadzenie lekcji i prezentacji. Addon świetnie współpracuje z tablicą interaktywną.",
 	"IWB_Toolbar_name" : "Pasek narzędzi tablicy interaktywnej",
 	"IWB_Toolbar_property_floating_images": "Pływające obrazy",
