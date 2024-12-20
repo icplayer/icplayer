@@ -1,4 +1,4 @@
-2024-12-13 Added new property "Use Custom CSS files" to paragraph addons
+2024-12-20 Added new property "Use Custom CSS files" to paragraph addons
 2024-12-13 Fixed score counting in draggable gaps
 2024-12-06 Fixed displaying of mouse coordinates for Shape Tracing in editor
 2024-12-06 Added documentation to MathText
