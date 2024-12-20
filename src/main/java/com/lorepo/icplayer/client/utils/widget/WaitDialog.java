@@ -35,6 +35,7 @@ public class WaitDialog extends DialogBox {
 	public native void updateWrapperPosition() /*-{
 		var width = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getWidth()();
 		var height = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getHeight()();
+		var scale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getScale()();
 
 		$wnd.$('.ic_waitdlg').width(width + 'px');
 		$wnd.$('.ic_waitdlg').height(height + 'px');
@@ -44,14 +45,13 @@ public class WaitDialog extends DialogBox {
 		$wnd.$('.ic_waitdlg').css('padding', '0');
 		$wnd.$('.ic_waitdlg').css('left', '0');
 		$wnd.$('.ic_waitdlg').css('top', '0');
+		$wnd.$('.ic_waitdlg').css('transform', 'scale(' + scale + ')');
 	}-*/;
 
 	public native int getWidth() /*-{
 		var windowHeight = $wnd.$($wnd).height();
 		var windowWidth = $wnd.$($wnd).width();
-		var documentWidth = $wnd.$($wnd.document).width();
 		var contentWidth = $wnd.$('#_icplayer').width();
-		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
 		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
 		var aspectRatio = windowHeight / windowWidth;
@@ -70,9 +70,10 @@ public class WaitDialog extends DialogBox {
 	public native int getHeight() /*-{
 		var windowHeight = $wnd.$($wnd).height();
 		var windowWidth = $wnd.$($wnd).width();
-		var documentHeight = $wnd.$($wnd.document).height();
 		var contentHeight = $wnd.$('#_icplayer').height();
 		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var isIOS = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isIOS()();
+		var isMCourserInstance = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMCourserInstance()();
 		var contentScale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
 		var isWindowFitToPage = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isWindowFitToPage()();
 		var heightMultiplier = 0.625;
@@ -80,6 +81,8 @@ public class WaitDialog extends DialogBox {
 
 		if (windowHeight < windowWidth && isMobileDevice) {
 			return windowHeight;
+		} else if (isIOS && isMCourserInstance) {
+		 	return heightMultiplier * windowWidth + 90;
 		} else if (isMobileDevice) {
 			return heightMultiplier * windowWidth;
 		}
@@ -99,6 +102,14 @@ public class WaitDialog extends DialogBox {
 
 	public native boolean isMobile() /*-{
 		return $wnd.MobileUtils.isMobileUserAgent($wnd.navigator.userAgent) || $wnd.MobileUtils.isSafariMobile($wnd.navigator.userAgent);
+	}-*/;
+
+	public native boolean isIOS() /*-{
+		return $wnd.MobileUtils.isSafariMobile($wnd.navigator.userAgent);
+	}-*/;
+
+	public native boolean isMCourserInstance() /*-{
+		return $wnd.location.href.includes("mcourser");
 	}-*/;
 
 	public native boolean isWindowFitToPage() /*-{
@@ -122,5 +133,16 @@ public class WaitDialog extends DialogBox {
 		var matrix = matrixScale.replace('matrix(', '').split(',')
 		
 		return +matrix[0];
+	}-*/;
+
+	public native double getScale() /*-{
+		var icPageElement = $wnd.$('.ic_page').get(0);
+		if (!icPageElement) {
+			var parentWidth = parent.innerWidth;
+
+			return parentWidth / 1200;
+		}
+
+		return this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
 	}-*/;
 }
