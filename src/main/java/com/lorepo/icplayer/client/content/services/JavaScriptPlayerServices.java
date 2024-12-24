@@ -1162,7 +1162,7 @@ public class JavaScriptPlayerServices {
 	}
 
 	private boolean isURLMatchesWhitelist(String url) {
-	    return ExtendedRequestBuilder.isURLMatchesWhitelist(url);
+		return ExtendedRequestBuilder.isURLMatchesWhitelist(url);
 	}
 
 	private JavaScriptObject getRenderedModuleOrderForPrint() {
