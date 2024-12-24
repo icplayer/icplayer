@@ -76,5 +76,40 @@
         return baseURL + assetID;
     }
 
+    /**
+     Prepare image to be used as data for canvas
+     @method prepareImageForCanvas
+
+     @param {object} playerController player controller
+     @param {Element} imageElement <img> element
+     @param {String} url URL for <img> element
+     @return {undefined} undefined
+    */
+    URLUtils.prepareImageForCanvas = function (playerController, imageElement, url) {
+        var urlToImage = url;
+        if (isURLValidForCrossOriginRequest(playerController, urlToImage)) {
+            imageElement.setAttribute("crossorigin", "anonymous");
+        } else if (isURLValidProxyRequest(urlToImage)) {
+            var separator = (urlToImage.indexOf("?") === -1) ? "?" : "&";
+            urlToImage += separator + "no_gcs=True";
+        }
+        imageElement.src = urlToImage;
+    };
+
+    function isURLValidForCrossOriginRequest(playerController, urlToImage) {
+        return !!playerController && playerController.getRequestsConfig().isURLMatchesWhitelist(urlToImage);
+    }
+
+    /**
+     * Check if URL is valid to use proxy.
+     *
+     * Resources on mAuthor and mCourser's courses (imported by old importer) can be available by the proxy.
+     * This proxy causes that the request is not redirected (available under this same domain) and therefore a resource
+     * from another domain is treated as if it were from the same domain. This prevents CORS problems.
+     */
+    function isURLValidProxyRequest(urlToImage) {
+        return urlToImage.indexOf("/file/serve/") > -1;
+    }
+
     window.URLUtils = URLUtils;
 })(window);

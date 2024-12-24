@@ -603,6 +603,10 @@ public class JavaScriptPlayerServices {
 			commands.signURL = function(url) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::signURL(Ljava/lang/String;)(url);
 			};
+
+			commands.isURLMatchesWhitelist = function(url) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isURLMatchesWhitelist(Ljava/lang/String;)(url);
+			};
 			
 			return commands;
 		};
@@ -1155,6 +1159,10 @@ public class JavaScriptPlayerServices {
 
 	private String signURL(String url) {
 		return ExtendedRequestBuilder.signURL(url);
+	}
+
+	private boolean isURLMatchesWhitelist(String url) {
+	    return ExtendedRequestBuilder.isURLMatchesWhitelist(url);
 	}
 
 	private JavaScriptObject getRenderedModuleOrderForPrint() {
