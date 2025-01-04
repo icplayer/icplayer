@@ -497,7 +497,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			var isImageLoaded = @com.lorepo.icplayer.client.PlayerEntryPoint::isImageLoaded()();
 			var areAddonsLoaded = isQueueEmpty && !isIconVisible && isImageLoaded;
 
-			if ((areAddonsLoaded && totalTime > minLoadingTime) || totalTime > 5000) {
+			if ((areAddonsLoaded && totalTime > minLoadingTime) || totalTime > 30000) {
 				@com.lorepo.icplayer.client.PlayerEntryPoint::sendAddonsLoadedEvent()();
 				clearInterval(sendEventInterval);
 			}
@@ -506,15 +506,15 @@ public class PlayerEntryPoint implements EntryPoint {
 	}-*/;
 
 	public static native boolean isLoadingIconVisible () /*-{
-		var element$ = $wnd.$(".image-viewer-loading-image");
+		var $element = $wnd.$(".image-viewer-loading-image");
 
-		return element$.get(0) ? element$.css('display') === 'block' : false;
+		return $element.get(0) ? $element.css('display') === 'block' : false;
 	}-*/;
 
 	public static native boolean isImageLoaded () /*-{
-		var element$ = $wnd.$(".addon_Image_Identification");
+		var $element = $wnd.$(".addon_Image_Identification");
 
-		return element$.get(0) ? element$.children('div').length > 0 : true;
+		return $element.get(0) ? $element.children('div').length > 0 : true;
 	}-*/;
 
 	public static native void sendAddonsLoadedEvent () /*-{
