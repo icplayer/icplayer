@@ -47,6 +47,13 @@ The list starts with the common properties, learn more about them by visiting th
         </td>
     </tr>
     <tr>
+        <td>Use Custom CSS files</td>
+        <td>This property allows the use of resources defined in the CSS file specified in the “Custom CSS” property.
+            <br>
+            <b>It is required that the files listed in the file in “Custom CSS” property are added as assets to the lesson.</b>
+        </td> 
+    </tr>
+    <tr>
         <td>Placeholder text</td>
         <td>This property enables you to specify free text content to be used as a placeholder in the Paragraph. Allows for HTML styling.
         </td>
@@ -77,7 +84,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Speech texts</td>
-        <td>List of speech texts: Selected, Deselected, Paragraph content, Bold, Italic, Underline, Align left, Align center, Align right, Justify. This text will be read by the Text to Speech module after the user performs a certain action.</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the Text To Speech mode. Speech texts are always read using the content's default language.</td>
     </tr>
     <tr>
         <td>Lang attribute</td>
@@ -98,14 +105,14 @@ The list starts with the common properties, learn more about them by visiting th
         <th>Description</th> 
     </tr>
     <tr>
-        <td>show</td>
-        <td>---</td>
-        <td>Shows the module if it is hidden.</td> 
-    </tr>
-    <tr>
         <td>hide</td>
         <td>---</td>
         <td>Hides the module if it is visible.</td> 
+    </tr>
+    <tr>
+        <td>show</td>
+        <td>---</td>
+        <td>Shows the module if it is hidden.</td> 
     </tr>
     <tr>
         <td>isVisible</td>

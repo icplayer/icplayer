@@ -14,6 +14,7 @@
         <property name="isDisabled" displayName="Is Disabled" nameLabel="Coloring_property_is_disabled" type="boolean" />
         <property name="disableFill" displayName="Disable fill on click" nameLabel="Coloring_property_disable_fill" type="boolean" />
         <property name="colorCorrect" displayName="Color correct" nameLabel="Coloring_property_color_correct" type="boolean" />
+        <property name="markTransparentAreas" displayName="Mark transparent areas" nameLabel="Coloring_property_mark_transparent_areas" type="boolean"/>
         <property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Coloring_property_speech_texts" type="staticlist">
             <property name="Area" nameLabel="Coloring_speech_text_area" type="staticrow">
