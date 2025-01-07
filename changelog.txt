@@ -1,3 +1,4 @@
+2024-12-23 Added Addons_Loaded event sending when addons are loaded
 2024-12-20 Fixed issues with m3u8 in video on ios devices
 2024-12-20 Added checking transparent area in Coloring
 2024-12-20 Added scaling loader icon
