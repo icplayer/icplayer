@@ -477,6 +477,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private void updateMathJax() {
 		this.theApplication.handleUpdatingMathJax();
+		this.sendEventOnEnd();
 	}
 
 	public String getMathJaxRendererOption() {
@@ -487,4 +488,38 @@ public class PlayerEntryPoint implements EntryPoint {
 
 		return "";
 	}
+
+	public static native void sendEventOnEnd () /*-{
+		var totalTime = 0;
+		
+		var sendEventInterval = setInterval(function () {
+			var minLoadingTime = 500;
+			var isQueueEmpty = $wnd.MathJax.Hub.queue.queue.length === 0;
+			var isIconVisible = @com.lorepo.icplayer.client.PlayerEntryPoint::isLoadingIconVisible()();
+			var isImageLoaded = @com.lorepo.icplayer.client.PlayerEntryPoint::isImageLoaded()();
+			var areAddonsLoaded = isQueueEmpty && !isIconVisible && isImageLoaded;
+
+			if ((areAddonsLoaded && totalTime > minLoadingTime) || totalTime > 30000) {
+				@com.lorepo.icplayer.client.PlayerEntryPoint::sendAddonsLoadedEvent()();
+				clearInterval(sendEventInterval);
+			}
+			totalTime += 200;
+		}, 200);
+	}-*/;
+
+	public static native boolean isLoadingIconVisible () /*-{
+		var $element = $wnd.$(".image-viewer-loading-image");
+
+		return $element.get(0) ? $element.css('display') === 'block' : false;
+	}-*/;
+
+	public static native boolean isImageLoaded () /*-{
+		var $element = $wnd.$(".addon_Image_Identification");
+
+		return $element.get(0) ? $element.children('div').length > 0 : true;
+	}-*/;
+
+	public static native void sendAddonsLoadedEvent () /*-{
+		$wnd.parent.postMessage('ADDONS_LOADED', '*');
+	}-*/;
 }

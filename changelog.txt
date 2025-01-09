@@ -1,4 +1,5 @@
-2024-12-24 Added support in Coloring and Shape Tracing addons to crossorigin files if domain is on whitelist
+2025-01-09 Added support in Coloring and Shape Tracing addons to crossorigin files if domain is on whitelist
+2024-12-23 Added Addons_Loaded event sending when addons are loaded
 2024-12-20 Fixed issues with m3u8 in video on ios devices
 2024-12-20 Added checking transparent area in Coloring
 2024-12-20 Added scaling loader icon
