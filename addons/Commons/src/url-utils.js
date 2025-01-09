@@ -89,7 +89,7 @@
         var urlToImage = url;
         if (isURLValidForCrossOriginRequest(playerController, urlToImage)) {
             imageElement.setAttribute("crossorigin", "anonymous");
-        } else if (isURLValidProxyRequest(urlToImage)) {
+        } else if (isURLValidForProxyRequest(urlToImage)) {
             var separator = (urlToImage.indexOf("?") === -1) ? "?" : "&";
             urlToImage += separator + "no_gcs=True";
         }
@@ -107,7 +107,7 @@
      * This proxy causes that the request is not redirected (available under this same domain) and therefore a resource
      * from another domain is treated as if it were from the same domain. This prevents CORS problems.
      */
-    function isURLValidProxyRequest(urlToImage) {
+    function isURLValidForProxyRequest(urlToImage) {
         return urlToImage.indexOf("/file/serve/") > -1;
     }
 
