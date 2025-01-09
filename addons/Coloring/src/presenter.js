@@ -28,6 +28,7 @@ function AddonColoring_create(){
     presenter.isCanvasInitiated = false;
     presenter.defaultColorRGBA = [255, 100, 100, 255];
     presenter.whiteRGBA = [255, 255, 255, 255];
+    presenter.transparentAreaTTS = "transparent";
 
     presenter.AREA_TYPE = {
         NORMAL: 0,
@@ -338,6 +339,7 @@ function AddonColoring_create(){
         upgradedModel = presenter.upgradeColors(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeMarkTransparentAreas(upgradedModel);
 
         return upgradedModel;
     };
@@ -391,6 +393,17 @@ function AddonColoring_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeMarkTransparentAreas = function AddonColoring_upgradeMarkTransparentAreas (model) {
+        const upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+        if (!model.hasOwnProperty('markTransparentAreas')) {
+            upgradedModel['markTransparentAreas'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+
     presenter.validateModel = function(model, isPreview) {
         const validatedAreas = model['Areas'].toString().length
             ? presenter.validateAreas(model['Areas'], isPreview, model['Width'], model['Height'])
@@ -440,7 +453,8 @@ function AddonColoring_create(){
             'disableFill' : ModelValidationUtils.validateBoolean(model['disableFill']),
             'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect),
             'showAllAnswersInGradualShowAnswersMode' : ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
-            'langTag': model.langAttribute
+            'langTag': model.langAttribute,
+            'markTransparentAreas': ModelValidationUtils.validateBoolean(model.markTransparentAreas)
         }
     };
 
@@ -1089,10 +1103,18 @@ function AddonColoring_create(){
     };
 
     function isCorrect(area) {
+        if (presenter.configuration.markTransparentAreas && presenter.isAttempted() && area.type === presenter.AREA_TYPE.TRANSPARENT) {
+            return presenter.compareArrays(presenter.getColorAtPoint(area.x, area.y), area.defaultColor);
+        }
+
         return presenter.compareArrays(presenter.getColorAtPoint(area.x, area.y), area.colorToFill);
     }
 
     presenter.shouldBeTakenIntoConsideration = function(area) {
+        if (presenter.configuration.markTransparentAreas && presenter.isAttempted() && area.type === presenter.AREA_TYPE.TRANSPARENT) {
+            return true;
+        }
+
         return !presenter.compareArrays(presenter.getColorAtPoint(area.x, area.y), area.defaultColor);
     };
 
@@ -1758,6 +1780,7 @@ function AddonColoring_create(){
             this.colorAreaWithSelectedColor();
             this.readSelectedColor();
             this.switchElementsToAreas();
+            presenter.isColored = true;
         } else {
             this.switchElementsToColors();
             this.readCurrentElement();
@@ -1921,8 +1944,11 @@ function AddonColoring_create(){
 
         const colorText = this.getCurrentAreaColorSpeechText();
         if (colorText) {
-            pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
-            pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            if (colorText !== presenter.transparentAreaTTS) {
+                pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.color);
+                pushMessageToTextVoiceObjectWithLanguageFromPresenter(textVoiceObject, colorText);
+            }
+
             if (presenter.isShowErrorsModeActive) {
                 if (isCorrect(this.keyboardNavigationCurrentElement)) {
                     pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, presenter.speechTexts.correct);
@@ -1935,13 +1961,33 @@ function AddonColoring_create(){
         return textVoiceObject;
     }
 
-    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function() {
+    ColoringKeyboardController.prototype.getCurrentAreaColorSpeechText = function () {
         const colorArray = presenter.getColorAtPoint(
             this.keyboardNavigationCurrentElement.x,
             this.keyboardNavigationCurrentElement.y
         );
         const colorString = presenter.getRGBAStringFromRGBAArray(colorArray);
+        const isAreaTransparent = this.keyboardNavigationCurrentElement.type === presenter.AREA_TYPE.TRANSPARENT &&
+            presenter.isColorSimilar(colorArray, presenter.whiteRGBA, 2)
+
+        if (presenter.configuration.markTransparentAreas && presenter.isAttempted() && isAreaTransparent) {
+            return presenter.transparentAreaTTS;
+        }
+
         return presenter.colorSpeechTextMap[colorString];
+    }
+
+    presenter.isColorSimilar = function (currentArea, defaultArea, tolerance = 0) {
+        if (currentArea.length !== defaultArea.length) {
+            return false;
+        }
+
+        const differences = [];
+        currentArea.forEach((colorValue, index) => {
+            differences.push(Math.abs(colorValue - defaultArea[index]));
+        })
+
+        return differences.every(differ => differ <= tolerance);
     }
 
     function pushMessageToTextVoiceObjectWithLanguageFromLesson(textVoiceObject, message) {

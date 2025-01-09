@@ -212,6 +212,8 @@ TestCase("[Coloring] Score for transparent area", {
 TestCase("[Coloring] Score for normal area", {
     setUp: function () {
         this.presenter = AddonColoring_create();
+        this.presenter.configuration = {};
+
         this.stubs = {
             getColorAtPoint: sinon.stub(this.presenter, 'getColorAtPoint')
         }

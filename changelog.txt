@@ -1,3 +1,8 @@
+2024-12-23 Added Addons_Loaded event sending when addons are loaded
+2024-12-20 Fixed issues with m3u8 in video on ios devices
+2024-12-20 Added checking transparent area in Coloring
+2024-12-20 Added scaling loader icon
+2024-12-20 Added new property "Use Custom CSS files" to paragraph addons
 2024-12-13 Fixed score counting in draggable gaps
 2024-12-06 Fixed displaying of mouse coordinates for Shape Tracing in editor
 2024-12-06 Added documentation to MathText
