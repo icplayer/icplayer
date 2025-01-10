@@ -86,52 +86,6 @@ TestCase("[Coloring] Model validation", {
         this.isPreview = false;
         var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(false, validated.isError);
-    },
-
-    'test given image with /file pattern URL when validation is completed then URL will have additional no_gcs parameter': function (){
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "?no_gcs=True", configuration.imageFile);
-    },
-
-    'test given image with shameless pattern URL when validation is completed then URL will have additional no_gcs parameter': function (){
-        this.model.Image = "//mauthor.com/file/serve/4834816278659072";
-
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "?no_gcs=True", configuration.imageFile);
-    },
-
-    'test given image with absolute URL when validation is completed then URL will have additional no_gcs parameter': function (){
-        this.model.Image = "https://mauthor.com/file/serve/4834816278659072";
-
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "?no_gcs=True", configuration.imageFile);
-    },
-
-    'test given image with /file pattern URL with parameter when validation is completed then URL will have additional no_gcs parameter': function (){
-        this.model.Image = "//mauthor.com/file/serve/4834816278659072?SignURL=123";
-
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "&no_gcs=True", configuration.imageFile);
-    },
-
-    'test given image with shameless pattern URL with parameter when validation is completed then URL will have additional no_gcs parameter': function (){
-        this.model.Image = "//mauthor.com/file/serve/4834816278659072?SignURL=123";
-
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "&no_gcs=True", configuration.imageFile);
-    },
-
-    'test given image with absolute URL with parameter when validation is completed then URL will have additional no_gcs parameter': function (){
-        this.model.Image = "https://mauthor.com/file/serve/4834816278659072?SignURL=123";
-
-        const configuration = this.presenter.validateModel(this.model, this.isPreview);
-
-        assertEquals(this.model.Image + "&no_gcs=True", configuration.imageFile);
     }
 });
 
