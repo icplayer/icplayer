@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 
@@ -176,7 +177,7 @@ public class ScoreServiceTestCase {
 	}
 	
 	@Test
-	public void givenScoreServiceWhenSetNoOpenActivitiesScoresThenOnGetShouldBeenReturnedEmptyScoreInfo() {
+	public void givenScoreServiceWhenSetNoOpenActivitiesScoresThenOnGetShouldBeenReturnedNull() {
 		// GIVEN
 		ScoreService scoreService = new ScoreService(ScoreType.last);
 		scoreService.setPlayerService(mockedPlayerServices);
@@ -188,9 +189,7 @@ public class ScoreServiceTestCase {
 		
 		// THEN
 		ScoreInfo scoreInfo = scoreService.getOpenActivityScores("xxx", "xxx1");
-		assertEquals("Test for max score failed:", 0, scoreInfo.getMaxScore());
-		assertEquals("Test for score failed:", 0, scoreInfo.getScore());
-		assertEquals("Test for AI reference failed:", null, scoreInfo.getAIRelevance());
+		assertNull(scoreInfo);
 	}
 	
 	@Test
