@@ -853,6 +853,9 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getOpenActivityScores(String pageID, String moduleID){
 		ScoreInfo scoreInfo = playerServices.getScoreService().getOpenActivityScores(pageID, moduleID);
+		if (scoreInfo == null) {
+			scoreInfo = new ScoreInfo();
+		}
 		return scoreInfo.getAsJSObject();
 	}
 

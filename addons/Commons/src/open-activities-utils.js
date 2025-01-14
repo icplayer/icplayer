@@ -57,32 +57,6 @@
     };
 
     /**
-     Get score base on score provided in Open Activities for module.
-     @method getOpenActivityScore
-
-     @param {object} playerController player controller
-     @param {String} pageID page ID
-     @param {String} moduleID module ID
-     @return {int} score for module
-    */
-    OpenActivitiesUtils.getOpenActivityScore = function OpenActivitiesUtils_getOpenActivityScore(playerController, pageID, moduleID) {
-        if (!this.isEnabled(playerController)) {
-            return 0;
-        }
-        var scores = playerController.getScore().getOpenActivityScores(pageID, moduleID);
-        if (!scores) {
-            return 0;
-        }
-        if (scores.manualGradedScore !== null) {
-            return scores.manualGradedScore;
-        }
-        if (scores.aiGradedScore !== null) {
-            return scores.aiGradedScore;
-        }
-        return 0;
-    };
-
-    /**
      Update addon score with AI grade.
      @method updateOpenActivityScore
 

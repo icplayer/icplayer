@@ -208,11 +208,11 @@ public class ScoreService implements IScoreService {
 	public ScoreInfo getOpenActivityScores(String pageID, String moduleID) {
 		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
 		if (pageScore == null) {
-			return new ScoreInfo();
+			return null;
 		}
 		ScoreInfo scoreInfo = pageScore.get(moduleID);
 		if (scoreInfo == null) {
-			return new ScoreInfo();
+			return null;
 		}
 		return scoreInfo;
 	}
@@ -256,6 +256,27 @@ public class ScoreService implements IScoreService {
 			return pageScore;
 		}
 		return pageScore.updateScoreWithOpenActivityScore(pageActivityScore.getScore());
+	}
+	
+	@Override
+	public void createOpenActivityScore(String pageID, String moduleID, int maxScore) {
+		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
+		if (pageScore == null) {
+			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
+			
+			newPageScore.addScore(moduleID, null, null, maxScore, null);
+			pagesOpenActivitiesScores.put(pageID, newPageScore);
+			
+			return;
+		}
+		
+		ScoreInfo scoreInfo = pageScore.get(moduleID);
+		if (scoreInfo == null) {
+			pageScore.addScore(moduleID, null, null, maxScore, null);
+			return;
+		}
+		
+		throw new IllegalArgumentException();
 	}
 
 }

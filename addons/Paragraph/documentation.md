@@ -155,6 +155,11 @@ The list starts with the common properties, learn more about them by visiting th
 
 Paragraph thanks to `Open Activity` functionality can be scored by AI and/or Teacher. 
 To activate scoring addon must have the `Manual grading` property selected.
+At this point, addon supports only the default way of <a href="https:/doc/page/Activity-scoring">Activity scoring</a>, that is, when:
+* <b>Score Type</b> in page is set to <b>percentage</b>.
+* If <a href="/doc/page/Grouping-modules">addon belongs to group</a> then <b>Group scoring</b> in group is set to <b>Default</b>.
+
+With other settings, the scoring will be miscalculated.
 
 <table border='1'>
 <tbody>
@@ -164,16 +169,16 @@ To activate scoring addon must have the `Manual grading` property selected.
     </tr>
     <tr>
         <td>maxScore</td>
-        <td>Equal to the value provided in `Weight` propety.<br>
-            If `Manual grading` property is not selected then returns 0.
+        <td>Equal to the value provided in <b>Weight</b> property.<br>
+            If <b>Manual grading</b> property is not selected then returns 0.
         </td>
     </tr>
     <tr>
         <td>score</td>
         <td>Content of addon can be scored by Teacher and AI.<br>
-            If `Manual grading` property is not selected then returns 0.<br>
+            If <b>Manual grading</b> property is not selected then returns 0.<br>
             If addon was scored by Teacher and AI, then use score provided by Teacher.<br>
-            If addon was neither scored by Teacher and AI, then score will be equal to 0.
+            If addon was neither scored by Teacher and AI, then score will be equal to <b>maxScore</b>.
         </td>
     </tr>
     <tr>

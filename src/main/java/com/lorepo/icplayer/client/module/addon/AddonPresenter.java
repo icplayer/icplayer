@@ -42,6 +42,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 
@@ -206,7 +207,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	@Override
 	public int getMaxScore() {
-		return getMaxScore(jsObject, addonDescriptor.getAddonId());
+		int maxScore = getMaxScore(jsObject, addonDescriptor.getAddonId());
+		
+		if (isOpenActivity(jsObject, addonDescriptor.getAddonId())) {
+			ensureOpenActivityScoreInfoExist(maxScore);
+		}
+		return maxScore;
 	}
 
 	private native int getMaxScore(JavaScriptObject obj, String addonId) /*-{
@@ -753,6 +759,32 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return true;
 	}
 	
+	private native boolean isOpenActivity(JavaScriptObject obj, String addonId) /*-{
+	
+		try{
+			if (obj.isOpenActivity != undefined){
+				var result = obj.isOpenActivity();
+				if (result === undefined) return false;
+				return result;
+			}
+		}
+		catch(err){
+			alert("[" + addonId + "] Exception in isOpenActivity(): \n" + err);
+		}
+			
+		return false;
+	}-*/;
+	
+	private void ensureOpenActivityScoreInfoExist(int maxScore) {
+		int currentPageIndex = services.getCurrentPageIndex();
+		String currentPageId = services.getModel().getPage(currentPageIndex).getId();
+		String addonId = this.model.getId();
+		ScoreInfo openActivityScoreInfo = services.getScoreService().getOpenActivityScores(currentPageId, addonId);
+		if (openActivityScoreInfo == null) {
+			services.getScoreService().createOpenActivityScore(currentPageId, addonId, new Integer(maxScore));
+		}
+	}
+
 	private String getCurrentLayoutName() {
 		return services.getModel().getActualSemiResponsiveLayoutName();
 	}

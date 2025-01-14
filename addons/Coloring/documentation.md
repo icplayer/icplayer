@@ -12,7 +12,7 @@ The Coloring addon gives users the ability to upload an image which can be later
     <tr>
         <td>Image</td>
         <td>An image to be colored.
-           <p>An image from an online resource different from mAuthor's origin is not supported.</p>
+           <p> An image from an online resource different from mAuthor's origin is not supported by default. A resource from an origin other than mAuthor can be supported, after adding such an origin to the <a href="/doc/page/Requests-Configuration">player's white list</a>. </p>
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
 </td>
     </tr>
