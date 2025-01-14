@@ -154,6 +154,8 @@ function AddonDouble_State_Button_create(){
             presenter.updateLaTeX();
             presenter.sendEventData();
         }
+
+        handleReplaceSVGIcon();
     };
 
     function handleTouchActions() {
@@ -244,6 +246,7 @@ function AddonDouble_State_Button_create(){
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
 
         if(!shouldDisplayImage) {
+            $(element).empty();
             hideImageElement(element);
         }
 
@@ -285,6 +288,59 @@ function AddonDouble_State_Button_create(){
                 }
             });
         }, 200);
+    }
+
+    function handleReplaceSVGIcon() {
+        if (!presenter.configuration.renderSVGAsHTML) {
+            return;
+        }
+
+        if (isAtLeastOneImageAvailable()) {
+            replaceSVGIcon();
+        } else {
+            replaceSVGIconFromCSS();
+        }
+    }
+
+    function replaceSVGIcon() {
+        const element = presenter.$wrapper.get(0).children[0];
+        const url = getSVGUrl();
+        const sanitizeUrl = window.xssUtils.sanitize(url);
+
+        $.ajax({
+            url: sanitizeUrl,
+            success: function (data) {
+                onLoadCompleted(data, element);
+            },
+            error: function () {
+                presenter.showErrorMessage();
+            },
+            dataType: 'xml'
+        });
+    }
+
+    function replaceSVGIconFromCSS() {
+        const element = document.createElement('div');
+        $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+
+        createImageElement(element, false);
+        createSVGElementFromCSSUrl(element);
+
+        presenter.$wrapper.empty();
+        presenter.$wrapper.append(element);
+
+        handleTouchActions();
+        handleMouseActions();
+        presenter.addKeyboardListeners();
+    }
+
+    function getSVGUrl() {
+        return presenter.isSelected() ?
+            presenter.configuration.selected.image : presenter.configuration.deselected.image;
+    }
+
+    function isAtLeastOneImageAvailable() {
+        return presenter.configuration.selected.image || presenter.configuration.deselected.image;
     }
 
     function getURLFromAbsolutePath(absolutePath) {
