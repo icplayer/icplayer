@@ -245,11 +245,6 @@ function AddonDouble_State_Button_create(){
         $(imageElement).addClass('doublestate-button-image');
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
 
-        if(!shouldDisplayImage) {
-            $(element).empty();
-            hideImageElement(element);
-        }
-
         $(element).append(imageElement);
     }
 
@@ -271,6 +266,7 @@ function AddonDouble_State_Button_create(){
 
     function createSVGElementFromCSSUrl(element) {
         setTimeout(() => {
+            hideImageElement(element);
             const _el = presenter.$view.find('div[class*=doublestate-button-element]:first');
             if (!_el) { return; }
 
@@ -320,18 +316,27 @@ function AddonDouble_State_Button_create(){
     }
 
     function replaceSVGIconFromCSS() {
-        const element = document.createElement('div');
-        $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+        const element = presenter.$wrapper.get(0).children[0];
 
-        createImageElement(element, false);
+        if (presenter.isSelected()) {
+            $(element).addClass(CSS_CLASSES.SELECTED);
+        } else {
+            $(element).removeClass(CSS_CLASSES.SELECTED);
+        }
+
+        updateWrapperStyle(element);
+        createImageElement(element);
         createSVGElementFromCSSUrl(element);
 
-        presenter.$wrapper.empty();
         presenter.$wrapper.append(element);
+    }
 
-        handleTouchActions();
-        handleMouseActions();
-        presenter.addKeyboardListeners();
+    function updateWrapperStyle(element) {
+        const color = $(element).css('background-color');
+        const height = $(element).height();
+
+        presenter.$wrapper.css('background-color', color);
+        presenter.$wrapper.height(`${height}px`);
     }
 
     function getSVGUrl() {
@@ -542,6 +547,7 @@ function AddonDouble_State_Button_create(){
             presenter.configuration.isSelected = true;
             presenter.setElementSelection();
             presenter.updateLaTeX();
+            handleReplaceSVGIcon();
         }
     };
 
@@ -550,6 +556,7 @@ function AddonDouble_State_Button_create(){
             presenter.configuration.isSelected = false;
             presenter.setElementSelection();
             presenter.updateLaTeX();
+            handleReplaceSVGIcon();
         }
     };
 
