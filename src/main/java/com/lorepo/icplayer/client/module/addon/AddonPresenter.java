@@ -777,12 +777,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	private void ensureOpenActivityScoreInfoExist(int maxScore) {
 		if (getOpenActivityScores() != null) {
-		    return;
+			return;
 		}
-        int currentPageIndex = services.getCurrentPageIndex();
-        String currentPageId = services.getModel().getPage(currentPageIndex).getId();
-        String addonId = this.model.getId();
-        services.getScoreService().createOpenActivityScore(currentPageId, addonId, new Integer(maxScore));
+		int currentPageIndex = services.getCurrentPageIndex();
+		String currentPageId = services.getModel().getPage(currentPageIndex).getId();
+		String addonId = this.model.getId();
+		services.getScoreService().createOpenActivityScore(currentPageId, addonId, new Integer(maxScore));
 	}
 
 	public ScoreInfo getOpenActivityScores() {
