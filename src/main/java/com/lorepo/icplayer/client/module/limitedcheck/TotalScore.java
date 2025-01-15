@@ -52,9 +52,7 @@ public class TotalScore {
 				totalScore.maxScore += activity.getMaxScore();
 				if (presenter instanceof AddonPresenter) {
 					AddonPresenter addonPresenter = (AddonPresenter) presenter;
-					IModuleModel model = addonPresenter.getModel();
-					boolean isOpenActivity = addonPresenter.isOpenActivity(addonPresenter.getAsJavaScript(), model.getId());
-					if (isOpenActivity) {
+					if (addonPresenter.isOpenActivity()) {
 						ScoreInfo scoreInfo = addonPresenter.getOpenActivityScores();
 						totalScore.score += scoreInfo.getScore();
 					} else {

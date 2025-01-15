@@ -209,8 +209,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public int getMaxScore() {
 		int maxScore = getMaxScore(jsObject, addonDescriptor.getAddonId());
 		
-		if (isOpenActivity(jsObject, addonDescriptor.getAddonId())) {
-			ensureOpenActivityScoreInfoExist(maxScore);
+		if (isOpenActivity()) {
+			ensureOpenActivityScoreExist(maxScore);
 		}
 		return maxScore;
 	}
@@ -758,8 +758,12 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return true;
 	}
+
+	public boolean isOpenActivity() {
+		return isOpenActivity(jsObject, this.model.getId());
+	}
 	
-	public native boolean isOpenActivity(JavaScriptObject obj, String addonId) /*-{
+	private native boolean isOpenActivity(JavaScriptObject obj, String addonId) /*-{
 	
 		try{
 			if (obj.isOpenActivity != undefined){
@@ -775,14 +779,14 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return false;
 	}-*/;
 	
-	private void ensureOpenActivityScoreInfoExist(int maxScore) {
+	private void ensureOpenActivityScoreExist(int maxScore) {
 		if (getOpenActivityScores() != null) {
 			return;
 		}
 		int currentPageIndex = services.getCurrentPageIndex();
 		String currentPageId = services.getModel().getPage(currentPageIndex).getId();
 		String addonId = this.model.getId();
-		services.getScoreService().createOpenActivityScore(currentPageId, addonId, new Integer(maxScore));
+		services.getScoreService().ensureOpenActivityScoreExist(currentPageId, addonId, new Integer(maxScore));
 	}
 
 	public ScoreInfo getOpenActivityScores() {

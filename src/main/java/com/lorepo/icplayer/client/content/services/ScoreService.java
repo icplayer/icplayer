@@ -259,7 +259,7 @@ public class ScoreService implements IScoreService {
 	}
 	
 	@Override
-	public void createOpenActivityScore(String pageID, String moduleID, int maxScore) {
+	public void ensureOpenActivityScoreExist(String pageID, String moduleID, Integer maxScore) {
 		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
 		if (pageScore == null) {
 			PageOpenActivitiesScore newPageScore = new PageOpenActivitiesScore();
@@ -275,8 +275,6 @@ public class ScoreService implements IScoreService {
 			pageScore.addScore(moduleID, null, null, maxScore, null);
 			return;
 		}
-		
-		throw new IllegalArgumentException();
 	}
 
 }
