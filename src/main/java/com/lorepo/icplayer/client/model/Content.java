@@ -109,20 +109,10 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public void addAsset(IAsset asset){
-		if (!isAssetHrefValid(asset)) return;
-		
-		boolean foundURL = false;
-
-		for(IAsset a : assets){
-			if(a.getHref().compareTo(asset.getHref()) == 0){
-				foundURL = true;
-				break;
-			}
-		}
-
-		if(!foundURL){
-			assets.add(asset);
-		}
+		if (!shouldPassAssetToContent(asset)) {
+		    return;
+        }
+        assets.add(asset);
 	}
 
 	public void addAsset(ScriptAsset asset){
@@ -149,7 +139,15 @@ public class Content implements IContentBuilder, IContent {
 			assets.add(asset);
 		}
 	}
-
+	
+	public boolean shouldPassAssetToContent(IAsset asset) {
+		return isAssetHrefValid(asset) && !containsAsset(asset);
+	}
+	
+	public boolean shouldPassAssetToContent(ScriptAsset asset) {
+		return isAssetHrefValid(asset);
+	}
+	
 	private boolean isAssetHrefValid(IAsset asset) {
 		String href = asset.getHref();
 		if(href == null) return false;
@@ -158,6 +156,15 @@ public class Content implements IContentBuilder, IContent {
 		if(escaped.compareTo(href) != 0) return false;
 		
 		return true;
+	}
+	
+	private boolean containsAsset(IAsset asset) {
+		for (IAsset a : assets){
+			if (a.getHref().compareTo(asset.getHref()) == 0){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void setPagesSubsetMap(ArrayList<Integer> mapping) {
