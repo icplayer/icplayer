@@ -110,9 +110,9 @@ public class Content implements IContentBuilder, IContent {
 
 	public void addAsset(IAsset asset){
 		if (!shouldPassAssetToContent(asset)) {
-		    return;
-        }
-        assets.add(asset);
+			return;
+		}
+		assets.add(asset);
 	}
 
 	public void addAsset(ScriptAsset asset){
