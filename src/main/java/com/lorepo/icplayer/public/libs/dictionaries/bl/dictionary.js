@@ -1205,6 +1205,7 @@ var ice_dictionary_bl = {
 	"Single_State_Button_property_disable": "Изключи",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+	"Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
 	"External_Link_Button_info": "Позволява ви да слагате линкове към външни ресурси.",
 	"External_Link_Button_name": "Бутон за външна връзка",
 	"External_Link_Button_property_title": "Заглавие",
