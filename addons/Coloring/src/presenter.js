@@ -427,17 +427,11 @@ function AddonColoring_create(){
         const validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         const validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']);
 
-        let imageFile = model.Image;
-        if (imageFile.indexOf("/file/serve") > -1){
-            const separator = (imageFile.indexOf("?") === -1) ? "?" : "&";
-            imageFile += separator + "no_gcs=True";
-        }
-
         return {
             'isValid': true,
             'isError': false,
             'addonID' : model['ID'],
-            'imageFile': imageFile,
+            'imageFile': model.Image,
             'areas' : validatedAreas.value,
             'tolerance' : validatedTolerance.value,
             'currentFillingColor' : validatedDefaultFillingColor.value,
@@ -604,24 +598,24 @@ function AddonColoring_create(){
     }
 
     presenter.setImageElement = function (isPreview) {
-        const imageElement = $('<img>');
+        const $imageElement = $('<img>');
 
-        imageElement.attr('src', presenter.configuration.imageFile);
+        URLUtils.prepareImageForCanvas(presenter.playerController, $imageElement[0], presenter.configuration.imageFile);
 
         const canvasElement = $('<canvas></canvas>');
         presenter.ctx = canvasElement[0].getContext('2d');
 
-        imageElement.load(function() {
-            canvasElement.attr('width', imageElement[0].width);
-            canvasElement.attr('height', imageElement[0].height);
-            presenter.canvasWidth = imageElement[0].width;
-            presenter.canvasHeight = imageElement[0].height;
+        $imageElement.load(function() {
+            canvasElement.attr('width', $imageElement[0].width);
+            canvasElement.attr('height', $imageElement[0].height);
+            presenter.canvasWidth = $imageElement[0].width;
+            presenter.canvasHeight = $imageElement[0].height;
             presenter.canvas = canvasElement[0];
 
-            presenter.ctx.drawImage(imageElement[0], 0, 0);
+            presenter.ctx.drawImage($imageElement[0], 0, 0);
             presenter.imageHasBeenLoaded = true;
-            presenter.imageData = presenter.ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
-            presenter.image = imageElement;
+            presenter.imageData = presenter.ctx.getImageData(0, 0, $imageElement[0].width, $imageElement[0].height);
+            presenter.image = $imageElement;
 
             const coloringContainer = presenter.$view.find('.coloring-container');
             coloringContainer.append(canvasElement);

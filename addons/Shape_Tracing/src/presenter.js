@@ -467,7 +467,7 @@ function AddonShape_Tracing_create() {
                 }
             };
 
-            backgroundImage.src = presenter.configuration.backgroundImage;
+            URLUtils.prepareImageForCanvas(presenter.playerController, backgroundImage, presenter.configuration.backgroundImage);
         } else {
             if (isPreview) {
                 cursorCoordinates();
@@ -510,18 +510,7 @@ function AddonShape_Tracing_create() {
             presenter.data.shapeImageLoadedDeferred.resolve();
         };
 
-        image.src = presenter.configuration.shapeImage;
-    }
-
-    function checkGCS(url) {
-        if (url === undefined) {
-            return url;
-        }
-        if (url.indexOf("/file/serve/") > -1){
-            const separator = (url.indexOf("?") === -1) ? "?" : "&";
-            return url + separator + "no_gcs=True";
-        }
-        return url;
+        URLUtils.prepareImageForCanvas(presenter.playerController, image, presenter.configuration.shapeImage);
     }
 
     function drawCorrectAnswerImage(isPreview) {
@@ -546,7 +535,7 @@ function AddonShape_Tracing_create() {
             calculateBorderCoordinates();
         };
 
-        correctImage.src = presenter.configuration.correctAnswerImage;
+        URLUtils.prepareImageForCanvas(presenter.playerController, correctImage, presenter.configuration.correctAnswerImage);
     }
 
     function updateCursorPosition(event) {
@@ -995,11 +984,11 @@ function AddonShape_Tracing_create() {
         }
 
         return {
-            shapeImage: checkGCS(validatedShapeImage.value),
+            shapeImage: validatedShapeImage.value,
             isShowShapeImage: ModelValidationUtils.validateBoolean(model["Show Shape image"]),
             isShowShapeImageOnCheck: !ModelValidationUtils.validateBoolean(model["Hide Shape image on check"]),
             isShowFoundBoundaries: ModelValidationUtils.validateBoolean(model["Show Boundaries (editor)"]),
-            backgroundImage: checkGCS(validatedBGImage.value),
+            backgroundImage: validatedBGImage.value,
             numberOfLines: validatedCorrectNumberOfLines.value,
             points: validatedPoints.value,
             isCheckPointsOrder: ModelValidationUtils.validateBoolean(model["isPointsOrder"]),
@@ -1007,7 +996,7 @@ function AddonShape_Tracing_create() {
             penThickness: validatedThickness_Pen.value,
             opacity: validatedOpacity.value,
             border: validatedBorder.value,
-            correctAnswerImage: checkGCS(model["Correct Answer Image"]),
+            correctAnswerImage: model["Correct Answer Image"],
             numberOfPoints: validatedPoints.value.length,
 
             ID: model.ID,
@@ -1464,7 +1453,7 @@ function AddonShape_Tracing_create() {
             setOverflowWorkAround(false);
         };
 
-        savedImg.src = checkGCS(JSON.parse(state).imgData);
+        savedImg.src = JSON.parse(state).imgData;
 
         presenter.setVisibility(presenter.configuration.isVisible);
     };
