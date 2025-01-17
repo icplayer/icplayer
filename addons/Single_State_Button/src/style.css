@@ -4,6 +4,10 @@
     margin: 0;
 }
 
+.singlestate-button-wrapper div.svg-element {
+    height: auto!important;
+}
+
 .singlestate-button-element {
     border: 0 solid black;
     padding: 0;
