@@ -1,3 +1,4 @@
+2025-01-17 Added functionality to automatically add assets from CSS file for paragraph addons
 2025-01-17 Added check to prevent execution of mathJax refresh when player is not ready
 2025-01-15 Added renderSVGAsHTML property to Single State Button
 2025-01-09 Added support in Coloring and Shape Tracing addons to crossorigin files if domain is on whitelist

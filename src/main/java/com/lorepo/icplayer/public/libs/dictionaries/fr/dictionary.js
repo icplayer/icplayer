@@ -2561,5 +2561,6 @@ var ice_dictionary_fr = {
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis",
     "GeometricConstruct_property_length_decimal_point": "Length's decimal point",
-    "GeometricConstruct_property_length_visibility": "Length measures visibility"
+    "GeometricConstruct_property_length_visibility": "Length measures visibility",
+    "error_updating_assets_base_on_custom_css_file": "Updating assets error. Please try again later"
 };
