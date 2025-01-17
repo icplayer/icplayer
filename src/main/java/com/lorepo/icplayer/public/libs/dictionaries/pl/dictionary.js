@@ -1331,6 +1331,7 @@ var ice_dictionary_pl = {
 	"Single_State_Button_property_disable": "Wyłącz",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+	"Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
 	"External_Link_Button_info" : "Umożliwia tworzenie w prezentacji hiperłączy odsyłających użytkownika do zasobów zewnętrznych.",
 	"External_Link_Button_name" : "Odsyłacz zewnętrzny",
 	"External_Link_Button_property_title": "Tytuł",
