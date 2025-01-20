@@ -25,6 +25,14 @@ If you want to connect Text to Speech addon to player you have to set it's ID to
         <td>Text played on entering the page while in WCAG navigation. The content of this property will be followed by the title of the page, for example "New page: Page 1". The default value is "New page". </td>
     </tr>
     <tr>
+        <td>Disable new page message</td>
+        <td>If checked, the title of the page will not be played on entering. </td>
+    </tr>
+    <tr>
+        <td>Verbose new page message</td>
+        <td>If checked, the title of the currently selected module will be played in addition to the other messages when entering WCAG navigation or a new page. </td>
+    </tr>
+    <tr>
         <td>Page title language</td>
         <td>Language tag used when playing the title of the page (but not the contents of the "New page" property) after entering it while in WCAG navigation. By default, the lesson's language tag will be used.</td>
     </tr>

@@ -2154,6 +2154,7 @@ var ice_dictionary_mx = {
 	"Text_To_Speech_property_page_lang_tag": "Page title language",
 	"Text_To_Speech_language": "Idioma",
 	"Text_To_Speech_property_disable_new_page_message": "Disable new page message",
+	"Text_To_Speech_property_verbose_new_page_message": "Verbose new page message",
 	"IFrame_property_alt_text": "Texto alternativo",
 	"Shooting_Range_info": "Este addon permite al usuario marcar los elementos que caen durante un tiempo definido.",
 	"Shooting_Range_name": "Campo de tiro",
