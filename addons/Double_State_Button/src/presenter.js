@@ -16,7 +16,9 @@ function AddonDouble_State_Button_create(){
         MOUSE_CLICK : "doublestate-button-element-mouse-click",
         SELECTED : "doublestate-button-element-selected",
         SELECTED_MOUSE_HOVER : "doublestate-button-element-selected-mouse-hover",
-        SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click"
+        SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click",
+        IMAGE_BUTTON : "doublestate-button-image",
+        MOCKED : 'mocked',
     };
 
     var DEFAULT_TTS_PHRASES = {
@@ -240,7 +242,39 @@ function AddonDouble_State_Button_create(){
         DOMOperationsUtils.setReducedSize(wrapper, element);
     }
 
-    function createImageElement(element, shouldDisplayImage = true) {
+    presenter.createMockedImages = function () {
+        const selectedMockedElement = document.createElement('div');
+        const deselectedMockedElement = document.createElement('div');
+
+        $(selectedMockedElement).addClass(CSS_CLASSES.SELECTED);
+        $(selectedMockedElement).addClass(CSS_CLASSES.MOCKED);
+        $(deselectedMockedElement).addClass(CSS_CLASSES.ELEMENT);
+        $(deselectedMockedElement).addClass(CSS_CLASSES.MOCKED);
+
+        createImageElement(selectedMockedElement);
+        createImageElement(deselectedMockedElement);
+
+        hideImageElement(selectedMockedElement);
+        hideImageElement(deselectedMockedElement);
+
+        presenter.$wrapper.append(selectedMockedElement);
+        presenter.$wrapper.append(deselectedMockedElement);
+    };
+
+    presenter.setIconURLFromMockedImage = function () {
+        const $selectedElement = $(presenter.$wrapper.find(`.${CSS_CLASSES.SELECTED}`));
+        const $deselectedElement = $(presenter.$wrapper.find(`.${CSS_CLASSES.ELEMENT}`));
+
+        let url = $selectedElement.css('background-image');
+        let sanitizeUrl = getURLFromAbsolutePath(url);
+        presenter.configuration.selected.image = sanitizeUrl;
+
+        url = $deselectedElement.css('background-image');
+        sanitizeUrl = getURLFromAbsolutePath(url);
+        presenter.configuration.deselected.image = sanitizeUrl;
+    };
+
+    function createImageElement(element) {
         var imageElement = document.createElement('img');
         $(imageElement).addClass('doublestate-button-image');
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
@@ -266,20 +300,19 @@ function AddonDouble_State_Button_create(){
 
     function createSVGElementFromCSSUrl(element) {
         setTimeout(() => {
-            hideImageElement(element);
-            const _el = presenter.$view.find('div[class*=doublestate-button-element]:first');
-            if (!_el) { return; }
-
-            const url = _el.css('background-image');
-            const sanitizeUrl = getURLFromAbsolutePath(url);
+            presenter.setIconURLFromMockedImage(element, true);
+            const url = presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image;
 
             $.ajax({
-                url: sanitizeUrl,
+                url: url,
                 success: function (data) {
-                    removeImageElement(element);
+                    removeMockedImages();
+                    removeBackgroundImage(element);
                     onLoadCompleted(data, element);
+                    presenter.addEvents();
                 },
                 error: function (err) {
+                    removeMockedImages();
                     presenter.showErrorMessage(err);
                 }
             });
@@ -291,11 +324,7 @@ function AddonDouble_State_Button_create(){
             return;
         }
 
-        if (isAtLeastOneImageAvailable()) {
-            replaceSVGIcon();
-        } else {
-            replaceSVGIconFromCSS();
-        }
+        replaceSVGIcon();
     }
 
     function replaceSVGIcon() {
@@ -313,30 +342,6 @@ function AddonDouble_State_Button_create(){
             },
             dataType: 'xml'
         });
-    }
-
-    function replaceSVGIconFromCSS() {
-        const element = presenter.$wrapper.get(0).children[0];
-
-        if (presenter.isSelected()) {
-            $(element).addClass(CSS_CLASSES.SELECTED);
-        } else {
-            $(element).removeClass(CSS_CLASSES.SELECTED);
-        }
-
-        updateWrapperStyle(element);
-        createImageElement(element);
-        createSVGElementFromCSSUrl(element);
-
-        presenter.$wrapper.append(element);
-    }
-
-    function updateWrapperStyle(element) {
-        const color = $(element).css('background-color');
-        const height = $(element).height();
-
-        presenter.$wrapper.css('background-color', color);
-        presenter.$wrapper.height(`${height}px`);
     }
 
     function getSVGUrl() {
@@ -357,7 +362,13 @@ function AddonDouble_State_Button_create(){
         return absolutePath.slice(startURLIndex, endURLIndex);
     }
 
-    function removeImageElement(element) {
+    function removeMockedImages() {
+        const images = presenter.$wrapper.find('.mocked');
+        $(images[0]).remove();
+        $(images[1]).remove();
+    }
+
+    function removeBackgroundImage(element) {
         const imageElement = $(element).find('doublestate-button-element');
         const $imageElement = $(imageElement.context);
         $imageElement.attr('style', 'background-image: none !important');
@@ -430,11 +441,11 @@ function AddonDouble_State_Button_create(){
 
     function createElements(wrapper) {
         const element = document.createElement('div');
-        const atLeastOneImgIsAvailable = presenter.configuration.selected.image || presenter.configuration.deselected.image;
+        const atLeastOneImgIsAvailable = isAtLeastOneImageAvailable();
         $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
         if (!atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
-            createImageElement(element, false);
+            presenter.createMockedImages();
             createSVGElementFromCSSUrl(element);
         } else if (atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
             createSVGElement(element);
@@ -467,12 +478,16 @@ function AddonDouble_State_Button_create(){
         presenter.setTabindex(presenter.$wrapper, presenter.configuration.isTabindexEnabled);
 
         if (!preview) {
-            handleTouchActions();
-            handleMouseActions();
-            presenter.addKeyboardListeners();
+            presenter.addEvents();
             MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
+    }
+
+    presenter.addEvents = function () {
+        handleTouchActions();
+        handleMouseActions();
+        presenter.addKeyboardListeners();
     }
 
     presenter.addKeyboardListeners = function () {
