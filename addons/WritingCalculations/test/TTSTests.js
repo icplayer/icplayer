@@ -1,4 +1,4 @@
-TestCase("[Writing Calculations] TTS Tests", {
+TestCase("[Writing Calculations] TTS getCellTitle tests", {
     'setUp' : function() {
         this.presenter = AddonWritingCalculations_create();
     },
