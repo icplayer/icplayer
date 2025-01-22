@@ -439,9 +439,10 @@ function AddonWritingCalculations_create() {
         presenter.gapElements = [];
         const $viewWrapper = this.$view.find("#writing-calculations-wrapper");
         elementsData.forEach((elementsRow, rowIndex) => {
-            var createdElementsRow = [];
+            const createdElementsRow = [];
             const $rowWrapper = presenter.createRowWrapper(rowIndex);
             let cellIndex = 0;
+            let gapInRowIndex = 0;
             elementsRow.forEach((elementData) => {
                 const createdElement = presenter.createElement(elementData.type);
 
@@ -468,11 +469,12 @@ function AddonWritingCalculations_create() {
                     createdElementsRow.push(createdElement);
                 }
 
-                if (elementData.type == presenter.ELEMENT_TYPE.EMPTY_BOX || elementData.type == presenter.ELEMENT_TYPE.HELP_BOX) {
+                if (elementData.type === presenter.ELEMENT_TYPE.EMPTY_BOX || elementData.type === presenter.ELEMENT_TYPE.HELP_BOX) {
                     presenter.gapElements.push({
                         x: createdElementsRow.length - 1,
                         y: presenter.tableElements.length,
-                        el: createdElement
+                        el: createdElement,
+                        gapInRowIndex: gapInRowIndex++
                     });
                 }
             });
@@ -1689,16 +1691,22 @@ function AddonWritingCalculations_create() {
     }
 
      presenter.keyboardController = function(keycode, isShift, event) {
-        if (!presenter.isGapFocused) event.preventDefault();
+        if (!presenter.isGapFocused ||
+            (isAlternativeKeyboardNavigationWithTTS()
+                && [window.KeyboardControllerKeys.ARROW_LEFT, window.KeyboardControllerKeys.ARROW_RIGHT].includes(keycode))
+        ) {
+            event.preventDefault();
+        }
+        const shouldReadAfterMove = !presenter.isGapFocused || isAlternativeKeyboardNavigationWithTTS();
 
         switch (keycode) {
             case window.KeyboardControllerKeys.TAB:
                 if (isShift) {
                     prevTabElement();
-                    if (!presenter.isGapFocused) readSelectedElement();
+                    if (shouldReadAfterMove) readSelectedElement();
                 } else {
                     nextTabElement()
-                    if (!presenter.isGapFocused) readSelectedElement();
+                    if (shouldReadAfterMove) readSelectedElement();
                 }
                 break;
             case window.KeyboardControllerKeys.ENTER:
@@ -1713,19 +1721,19 @@ function AddonWritingCalculations_create() {
                 break;
             case window.KeyboardControllerKeys.ARROW_UP:
                 prevRow();
-                if (!presenter.isGapFocused) readSelectedElement();
+                if (shouldReadAfterMove) readSelectedElement();
                 break;
             case window.KeyboardControllerKeys.ARROW_DOWN:
                 nextRow();
-                if (!presenter.isGapFocused) readSelectedElement();
+                if (shouldReadAfterMove) readSelectedElement();
                 break;
             case window.KeyboardControllerKeys.ARROW_LEFT:
                 prevColumn();
-                if (!presenter.isGapFocused) readSelectedElement();
+                if (shouldReadAfterMove) readSelectedElement();
                 break;
             case window.KeyboardControllerKeys.ARROW_RIGHT:
                 nextColumn();
-                if (!presenter.isGapFocused) readSelectedElement();
+                if (shouldReadAfterMove) readSelectedElement();
                 break;
             case window.KeyboardControllerKeys.ESCAPE:
                 escape(event);
@@ -1734,7 +1742,7 @@ function AddonWritingCalculations_create() {
     }
 
     function nextRow() {
-        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (!presenter.isWCAGOn || (presenter.isGapFocused && !presenter.useAlternativeTTSNavigation)) return;
         if (presenter.keyboardState.y + 1 < presenter.tableElements.length) {
             if (presenter.useAlternativeTTSNavigation) {
                 presenter.keyboardState.y = findNextNavigableRowIndexForAlternativeTTSNavigation(presenter.keyboardState.y);
@@ -1750,11 +1758,11 @@ function AddonWritingCalculations_create() {
             }
         }
         updateGapIndex();
-        updateKeyboardNavigationSelectionClass();
+        selectKeyboardNavigationElement();
     }
 
     function prevRow() {
-        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (!presenter.isWCAGOn || (presenter.isGapFocused && !presenter.useAlternativeTTSNavigation)) return;
         if (presenter.keyboardState.y - 1 >= DESCRIPTION_OF_OPERATION_ROW_INDEX) {
             if (presenter.useAlternativeTTSNavigation) {
                 presenter.keyboardState.y = findPrevNavigableRowIndexForAlternativeTTSNavigation(presenter.keyboardState.y);
@@ -1762,7 +1770,7 @@ function AddonWritingCalculations_create() {
                 presenter.keyboardState.y -= 1;
             }
             if (presenter.keyboardState.y === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
-                presenter.keyboardState.x = 0;
+                presenter.keyboardState.x = DESCRIPTION_OF_OPERATION_COLUMN_INDEX;
             } else if (presenter.useAlternativeTTSNavigation) {
                 presenter.keyboardState.x = ALT_TEXT_FOR_ROW_COLUMN_INDEX;
             } else if (presenter.keyboardState.x >= presenter.tableElements[presenter.keyboardState.y].length) {
@@ -1770,11 +1778,11 @@ function AddonWritingCalculations_create() {
             }
         }
         updateGapIndex();
-        updateKeyboardNavigationSelectionClass();
+        selectKeyboardNavigationElement();
     }
 
     function nextColumn() {
-        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (!presenter.isWCAGOn || (presenter.isGapFocused && !presenter.useAlternativeTTSNavigation)) return;
         if (presenter.keyboardState.y !== DESCRIPTION_OF_OPERATION_ROW_INDEX) {
             if (presenter.useAlternativeTTSNavigation) {
                 presenter.keyboardState.x = findNextGapColumnInRow(presenter.keyboardState.y, presenter.keyboardState.x);
@@ -1783,7 +1791,7 @@ function AddonWritingCalculations_create() {
             }
         }
         updateGapIndex();
-        updateKeyboardNavigationSelectionClass();
+        selectKeyboardNavigationElement();
     }
 
     function findNextGapColumnInRow(y, x) {
@@ -1800,7 +1808,7 @@ function AddonWritingCalculations_create() {
     }
 
     function prevColumn() {
-        if (!presenter.isWCAGOn || presenter.isGapFocused) return;
+        if (!presenter.isWCAGOn || (presenter.isGapFocused && !presenter.useAlternativeTTSNavigation)) return;
         if (presenter.keyboardState.y !== DESCRIPTION_OF_OPERATION_ROW_INDEX) {
             if (presenter.useAlternativeTTSNavigation) {
                 presenter.keyboardState.x = findPrevColumnInRow(presenter.keyboardState.y, presenter.keyboardState.x);
@@ -1809,7 +1817,7 @@ function AddonWritingCalculations_create() {
             }
         }
         updateGapIndex();
-        updateKeyboardNavigationSelectionClass();
+        selectKeyboardNavigationElement();
     }
 
     function findPrevColumnInRow(y, x) {
@@ -1828,7 +1836,7 @@ function AddonWritingCalculations_create() {
     }
 
     function nextTabElement() {
-        if (presenter.isWCAGOn && presenter.useAlternativeTTSNavigation) {
+        if (isAlternativeKeyboardNavigationWithTTS()) {
             nextGapOrRow();
         } else {
             nextGap();
@@ -1836,14 +1844,13 @@ function AddonWritingCalculations_create() {
     }
 
     function nextGapOrRow() {
-        if (presenter.isGapFocused) return;
         const nextX = findNextGapColumnInRow(presenter.keyboardState.y, presenter.keyboardState.x);
         if (nextX === presenter.keyboardState.x) {
             nextRow();
         } else {
             presenter.keyboardState.x = nextX;
             updateGapIndex();
-            updateKeyboardNavigationSelectionClass();
+            selectKeyboardNavigationElement();
         }
     }
 
@@ -1854,12 +1861,12 @@ function AddonWritingCalculations_create() {
             const gap = presenter.gapElements[presenter.keyboardState.gapIndex];
             presenter.keyboardState.x = gap.x;
             presenter.keyboardState.y = gap.y;
-            updateKeyboardNavigationSelectionClass();
+            selectKeyboardNavigationElement();
         }
     }
 
     function prevTabElement() {
-        if (presenter.isWCAGOn && presenter.useAlternativeTTSNavigation) {
+        if (isAlternativeKeyboardNavigationWithTTS()) {
             prevGapOrRow();
         } else {
             prevGap();
@@ -1867,29 +1874,27 @@ function AddonWritingCalculations_create() {
     }
 
     function prevGapOrRow() {
-        if (presenter.isGapFocused) return;
-
-        let foundRowOrGap = false;
+        let foundGapOrRow = false;
         let prevX = findPrevColumnInRow(presenter.keyboardState.y, presenter.keyboardState.x);
         if (prevX === presenter.keyboardState.x) {
             const prevNavigableRowIndex = findPrevNavigableRowIndexForAlternativeTTSNavigation(presenter.keyboardState.y)
-            if (prevNavigableRowIndex === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
-                foundRowOrGap = true;
-                prevX = DESCRIPTION_OF_OPERATION_COLUMN_INDEX;
+            if (prevNavigableRowIndex !== presenter.keyboardState.y) {
+                foundGapOrRow = true;
                 presenter.keyboardState.y = prevNavigableRowIndex;
-            } else if (prevNavigableRowIndex !== presenter.keyboardState.y) {
-                foundRowOrGap = true;
-                prevX = findPrevColumnInRow(prevNavigableRowIndex);
-                presenter.keyboardState.y = prevNavigableRowIndex;
+                if (prevNavigableRowIndex === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
+                    prevX = DESCRIPTION_OF_OPERATION_COLUMN_INDEX;
+                } else {
+                    prevX = findPrevColumnInRow(prevNavigableRowIndex);
+                }
             }
         } else {
-            foundRowOrGap = true;
+            foundGapOrRow = true;
         }
 
-        if (foundRowOrGap) {
+        if (foundGapOrRow) {
             presenter.keyboardState.x = prevX;
             updateGapIndex();
-            updateKeyboardNavigationSelectionClass();
+            selectKeyboardNavigationElement();
         }
     }
 
@@ -1927,12 +1932,12 @@ function AddonWritingCalculations_create() {
             const gap = presenter.gapElements[presenter.keyboardState.gapIndex];
             presenter.keyboardState.x = gap.x;
             presenter.keyboardState.y = gap.y;
-            updateKeyboardNavigationSelectionClass();
+            selectKeyboardNavigationElement();
         }
     }
 
     function updateGapIndex() {
-        presenter.keyboardState.gapIndex = -1;
+        presenter.keyboardState.gapIndex = NO_GAP_INDEX;
         for (let i = 0; i < presenter.gapElements.length; i++) {
             const gapElement = presenter.gapElements[i];
             if (presenter.keyboardState.x === gapElement.x && presenter.keyboardState.y === gapElement.y) {
@@ -1943,7 +1948,7 @@ function AddonWritingCalculations_create() {
     }
 
     function enter() {
-        if (presenter.keyboardState.y === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
+        if (isAlternativeKeyboardNavigationWithTTS() || presenter.keyboardState.y === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
             return;
         }
 
@@ -1956,7 +1961,7 @@ function AddonWritingCalculations_create() {
     }
 
     function escape(event) {
-        if (presenter.isGapFocused) {
+        if (!isAlternativeKeyboardNavigationWithTTS() && presenter.isGapFocused) {
             if (event) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -1976,21 +1981,39 @@ function AddonWritingCalculations_create() {
 
     function exitModuleInTTS() {
         presenter.isGapFocused = false;
-        presenter.keyboardState.x = 0;
+        presenter.keyboardState.x = DESCRIPTION_OF_OPERATION_COLUMN_INDEX;
         presenter.keyboardState.y = DESCRIPTION_OF_OPERATION_ROW_INDEX;
         presenter.keyboardState.gapIndex = NO_GAP_INDEX;
-        updateKeyboardNavigationSelectionClass();
+        selectKeyboardNavigationElement();
     }
 
-    function updateKeyboardNavigationSelectionClass() {
+    function selectKeyboardNavigationElement() {
+        if (isAlternativeKeyboardNavigationWithTTS()) {
+            document.activeElement.blur();
+        }
+
         presenter.$view.find('.'+presenter.KEYBOARD_SELECTED_CLASS).removeClass(presenter.KEYBOARD_SELECTED_CLASS);
-        if (presenter.keyboardState.y >= 0) {
+        if (presenter.keyboardState.y === DESCRIPTION_OF_OPERATION_ROW_INDEX) {
+            return;
+        }
+        if (isAlternativeKeyboardNavigationWithTTS()) {
             if (presenter.keyboardState.x === ALT_TEXT_FOR_ROW_COLUMN_INDEX) {
                 presenter.tableElements[presenter.keyboardState.y][0].parent().addClass(presenter.KEYBOARD_SELECTED_CLASS);
             } else {
-                presenter.tableElements[presenter.keyboardState.y][presenter.keyboardState.x].children().first().addClass(presenter.KEYBOARD_SELECTED_CLASS);
+                presenter.isGapFocused = true;
+                const $gap = presenter.gapElements[presenter.keyboardState.gapIndex].el.find('input.writing-calculations-input');
+                const gap = $gap[0];
+                gap.focus();
+                gap.setSelectionRange(gap.value.length, gap.value.length);
+                $gap.addClass(presenter.KEYBOARD_SELECTED_CLASS);
             }
+        } else {
+            presenter.tableElements[presenter.keyboardState.y][presenter.keyboardState.x].children().first().addClass(presenter.KEYBOARD_SELECTED_CLASS);
         }
+    }
+
+    function isAlternativeKeyboardNavigationWithTTS() {
+        return presenter.useAlternativeTTSNavigation && presenter.isWCAGOn;
     }
 
     function readSelectedElement() {
@@ -2012,7 +2035,7 @@ function AddonWritingCalculations_create() {
 
     presenter.readSelectedElement = function(x, y) {
         if (!presenter.isWCAGOn) return;
-        var data = [];
+        let data = [];
         if (y < 0) {
             data.push(window.TTSUtils.getTextVoiceObject(presenter.descriptionOfOperation, presenter.langTag));
         } else if (presenter.useAlternativeTTSNavigation && x === ALT_TEXT_FOR_ROW_COLUMN_INDEX) {
@@ -2024,17 +2047,20 @@ function AddonWritingCalculations_create() {
             }
             data.push(window.TTSUtils.getTextVoiceObject(presenter.rowsAltTexts[navigableRowsNumber-1], presenter.langTag));
         } else {
-            data.push(window.TTSUtils.getTextVoiceObject(presenter.getCellTitle(x,y)));
+            if (!presenter.useAlternativeTTSNavigation) {
+                data.push(window.TTSUtils.getTextVoiceObject(presenter.getCellTitle(x,y)));
+            }
 
-            var container = presenter.tableElements[y][x].children().first();
-            var containerType = presenter.getContainerType(container);
+            const $container = presenter.tableElements[y][x].children().first();
+            const containerType = presenter.getContainerType($container);
+            let input, inputVoices;
 
             switch(containerType) {
                 case presenter.ELEMENT_TYPE.NUMBER:
-                    data.push(window.TTSUtils.getTextVoiceObject(container.html(), presenter.langTag));
+                    data.push(window.TTSUtils.getTextVoiceObject($container.html(), presenter.langTag));
                     break;
                 case presenter.ELEMENT_TYPE.SYMBOL:
-                    var value = container.data('value');
+                    const value = $container.data('value');
                     if (value === "*") {
                         data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.multiplicationSign));
                     } else if (value === ":" || value === ")") {
@@ -2048,10 +2074,10 @@ function AddonWritingCalculations_create() {
                     }
                     break;
                 case presenter.ELEMENT_TYPE.EMPTY_BOX:
-                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.gap));
-                    var input = container.find('input');
+                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfo(x, y, false)));
+                    input = $container.find('input');
                     if (input.length > 0) {
-                        var inputVoices = presenter.getTextVoicesFromInput(input);
+                        inputVoices = presenter.getTextVoicesFromInput(input);
                         data = data.concat(inputVoices);
                     }
                     break;
@@ -2059,10 +2085,10 @@ function AddonWritingCalculations_create() {
                     data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.line));
                     break;
                 case presenter.ELEMENT_TYPE.HELP_BOX:
-                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.additionalGap));
-                    var input = container.find('input');
+                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfo(x, y, true)));
+                    input = $container.find('input');
                     if (input.length > 0) {
-                        var inputVoices = presenter.getTextVoicesFromInput(input);
+                        inputVoices = presenter.getTextVoicesFromInput(input);
                         data = data.concat(inputVoices);
                     }
                     break;
@@ -2070,12 +2096,27 @@ function AddonWritingCalculations_create() {
                     break;
             }
 
-            var nextSibling = presenter.tableElements[y][x].next();
+            const nextSibling = presenter.tableElements[y][x].next();
             if (nextSibling.length > 0 && presenter.getContainerType(nextSibling.children().first()) == presenter.ELEMENT_TYPE.DOT) {
                 data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.decimalSeparator));
             }
         }
         presenter.speak(data);
+    }
+
+    function createGapInfo(x, y, isHelpBox) {
+        let gapInfo = isHelpBox ? presenter.speechTexts.additionalGap : presenter.speechTexts.gap;
+        gapInfo += (getGapIndexInRow(x, y) + 1);
+        return gapInfo;
+    }
+
+    function getGapIndexInRow(x, y) {
+        for (let i = 0; i < presenter.gapElements.length; i++) {
+            const gapElement = presenter.gapElements[i];
+            if (x === gapElement.x && y === gapElement.y) {
+                return gapElement.gapInRowIndex;
+            }
+        }
     }
 
     presenter.getTextVoicesFromInput = function(inputElement) {
@@ -2112,7 +2153,7 @@ function AddonWritingCalculations_create() {
     }
 
     presenter.isDeactivationBlocked = function() {
-        return presenter.isGapFocused;
+        return presenter.isGapFocused && !isAlternativeKeyboardNavigationWithTTS();
     };
 
     return presenter;

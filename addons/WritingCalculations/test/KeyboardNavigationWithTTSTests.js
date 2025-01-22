@@ -153,17 +153,10 @@ TestCase("[Writing Calculations] Alternative keyboard navigation with TTS tests"
 
     setKeyboardNavigationOnGap : function (gapIndex) {
         var gapElement = this.presenter.gapElements[gapIndex];
-        gapElement.el.children().first().addClass(this.presenter.KEYBOARD_SELECTED_CLASS);
+        gapElement.el.find('input.writing-calculations-input').addClass(this.presenter.KEYBOARD_SELECTED_CLASS);
         this.presenter.keyboardState.x = gapElement.x;
         this.presenter.keyboardState.y = gapElement.y;
         this.presenter.keyboardState.gapIndex = gapIndex;
-        this.presenter.isGapFocused = false;
-    },
-
-    setKeyboardNavigationIntoGap : function (gapIndex) {
-        this.setKeyboardNavigationOnGap(gapIndex);
-        var gapElement = this.presenter.gapElements[gapIndex];
-        gapElement.el.find('input.writing-calculations-input').addClass(this.presenter.KEYBOARD_SELECTED_CLASS);
         this.presenter.isGapFocused = true;
     },
 
@@ -176,11 +169,6 @@ TestCase("[Writing Calculations] Alternative keyboard navigation with TTS tests"
     },
 
     validateIsNavigationOnGap : function (gapIndex) {
-        assertTrue(`Validation: Is navigation set on gap with index equal to ${gapIndex}.`, this.presenter.gapElements[gapIndex].el.children().first().hasClass(this.presenter.KEYBOARD_SELECTED_CLASS));
-    },
-
-    validateIsNavigationInsideGap : function (gapIndex) {
-        this.validateIsNavigationOnGap(gapIndex);
         assertTrue("Validation: Is gap class correct for focused gap.", this.presenter.gapElements[gapIndex].el.find('input.writing-calculations-input').hasClass(this.presenter.KEYBOARD_SELECTED_CLASS));
         assertTrue("Validation: Is gap focused.", this.presenter.isGapFocused);
     },
@@ -583,34 +571,5 @@ TestCase("[Writing Calculations] Alternative keyboard navigation with TTS tests"
         assertEquals("Validation: keyboardState.gapIndex .", -1, this.presenter.keyboardState.gapIndex);
         assertEquals("Validation: keyboardState.x .", 0, this.presenter.keyboardState.x);
         assertEquals("Validation: keyboardState.y .", -1, this.presenter.keyboardState.y);
-    },
-
-    'test given navigation on gap when pressed enter then enter into gap': function() {
-        var keycode = KeyboardControllerKeys.ENTER;
-        var isShift = false;
-        var event = createEvent(keycode);
-        this.setKeyboardNavigationOnGap(1);
-
-        this.presenter.keyboardController(keycode, isShift, event);
-
-        this.validateHowManyActiveElements(2);
-        this.validateIsNavigationInsideGap(1);
-        this.validateKeyboardStateIsOnGap(1);
-    },
-
-    'test given navigation in gap when pressed escape then escape from entered gap': function() {
-        var keycode = KeyboardControllerKeys.ESCAPE;
-        var isShift = false;
-        var event = createEvent(keycode);
-        this.setKeyboardNavigationIntoGap(1);
-
-        this.presenter.keyboardController(keycode, isShift, event);
-
-        this.validateHowManyActiveElements(1);
-        this.validateIsNavigationOnGap(1);
-        this.validateKeyboardStateIsOnGap(1);
-        setTimeout(()=>{
-            assertFalse(this.presenter.isGapFocused);
-        }, 0);
     }
 });
