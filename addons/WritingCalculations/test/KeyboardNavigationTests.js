@@ -103,8 +103,11 @@ function createViewForTests(presenter) {
         }
     ];
     gapElements[0].el = tableElements[gapElements[0].y][gapElements[0].x];
+    gapElements[0].gapInRowIndex = 0;
     gapElements[1].el = tableElements[gapElements[1].y][gapElements[1].x];
+    gapElements[1].gapInRowIndex = 0;
     gapElements[2].el = tableElements[gapElements[2].y][gapElements[2].x];
+    gapElements[2].gapInRowIndex = 1;
     presenter.gapElements = gapElements;
 }
 
