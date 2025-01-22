@@ -44,7 +44,9 @@ public class PageView extends SimplePanel implements IPageDisplay {
 
 	@Override
 	public void refreshMathJax() {
-		display.refreshMathJax();
+		if (display != null){
+			display.refreshMathJax();
+		}
 	}
 
 
