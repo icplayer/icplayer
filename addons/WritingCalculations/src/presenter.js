@@ -2074,7 +2074,7 @@ function AddonWritingCalculations_create() {
                     }
                     break;
                 case presenter.ELEMENT_TYPE.EMPTY_BOX:
-                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfo(x, y, false)));
+                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfoForTTS(x, y, false)));
                     input = $container.find('input');
                     if (input.length > 0) {
                         inputVoices = presenter.getTextVoicesFromInput(input);
@@ -2085,7 +2085,7 @@ function AddonWritingCalculations_create() {
                     data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.line));
                     break;
                 case presenter.ELEMENT_TYPE.HELP_BOX:
-                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfo(x, y, true)));
+                    data.push(window.TTSUtils.getTextVoiceObject(createGapInfoForTTS(x, y, true)));
                     input = $container.find('input');
                     if (input.length > 0) {
                         inputVoices = presenter.getTextVoicesFromInput(input);
@@ -2104,9 +2104,11 @@ function AddonWritingCalculations_create() {
         presenter.speak(data);
     }
 
-    function createGapInfo(x, y, isHelpBox) {
+    function createGapInfoForTTS(x, y, isHelpBox) {
         let gapInfo = isHelpBox ? presenter.speechTexts.additionalGap : presenter.speechTexts.gap;
-        gapInfo += (getGapIndexInRow(x, y) + 1);
+        if (presenter.useAlternativeTTSNavigation) {
+            gapInfo += (getGapIndexInRow(x, y) + 1);
+        }
         return gapInfo;
     }
 
