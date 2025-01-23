@@ -1,3 +1,4 @@
+2025-01-23 Fixed large formulas in Safari in MathML rendering
 2025-01-09 Added support in Coloring and Shape Tracing addons to crossorigin files if domain is on whitelist
 2024-12-23 Added Addons_Loaded event sending when addons are loaded
 2024-12-20 Fixed issues with m3u8 in video on ios devices
