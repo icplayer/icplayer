@@ -119,6 +119,7 @@ public class TextParser {
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
 				parserResult.parsedText = parseAddonGap(parserResult.parsedText, false);
+				parserResult.parsedText = parseMathParentheses(parserResult.parsedText);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -183,6 +184,7 @@ public class TextParser {
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
 		result.parsedText = parseAddonGap(result.parsedText, true);
+		result.parsedText = parseMathParentheses(result.parsedText);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -683,6 +685,17 @@ public class TextParser {
 				break;
 			}
 		}
+		return parsedText;
+	}
+
+	private String parseMathParentheses(String srcText) {
+        // MathJax 2.7.9 will occasionally incorrectly calculate the size of parentheses
+        // Such as when a nested parentheses contains integrals and gaps.
+        String parsedText = srcText;
+        if (useMathGaps && srcText.indexOf("\\int_{") > -1) {
+            parsedText = parsedText.replaceAll("\\\\left\\(", "\\\\left\\({");
+            parsedText = parsedText.replaceAll("\\\\right\\)", "}\\\\right\\)");
+        }
 		return parsedText;
 	}
 	
