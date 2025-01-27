@@ -9,6 +9,7 @@ function AddonDouble_State_Button_create(){
 
     presenter.lastEvent = null;
     presenter.speechTexts = {};
+    presenter.setURLIconFromCSS = false;
 
     var CSS_CLASSES = {
         ELEMENT : "doublestate-button-element",
@@ -254,11 +255,12 @@ function AddonDouble_State_Button_create(){
         createImageElement(selectedMockedElement);
         createImageElement(deselectedMockedElement);
 
-        hideImageElement(selectedMockedElement);
-        hideImageElement(deselectedMockedElement);
-
         presenter.$wrapper.append(selectedMockedElement);
         presenter.$wrapper.append(deselectedMockedElement);
+    };
+
+    presenter.hideButtonElement = function (element) {
+        $(element).attr('style', 'visibility: hidden !important');
     };
 
     presenter.setIconURLFromMockedImage = function () {
@@ -272,6 +274,7 @@ function AddonDouble_State_Button_create(){
         url = $deselectedElement.css('background-image');
         sanitizeUrl = getURLFromAbsolutePath(url);
         presenter.configuration.deselected.image = sanitizeUrl;
+        presenter.setURLIconFromCSS = true;
     };
 
     function createImageElement(element) {
@@ -310,6 +313,7 @@ function AddonDouble_State_Button_create(){
                     removeBackgroundImage(element);
                     onLoadCompleted(data, element);
                     presenter.addEvents();
+                    applySelectionStyle(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
                 },
                 error: function (err) {
                     removeMockedImages();
@@ -445,6 +449,7 @@ function AddonDouble_State_Button_create(){
         $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
         if (!atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
+            presenter.hideButtonElement(element);
             presenter.createMockedImages();
             createSVGElementFromCSSUrl(element);
         } else if (atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
@@ -542,7 +547,6 @@ function AddonDouble_State_Button_create(){
         }
 
         applySelectionStyle(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
-
     };
 
     presenter.getSanitizedButtonTextValue = function () {
@@ -705,13 +709,17 @@ function AddonDouble_State_Button_create(){
 
         presenter.toggleDisable(presenter.configuration.isDisabledByDefault);
         presenter.updateLaTeX();
+        handleReplaceSVGIcon();
     };
 
     presenter.getState = function() {
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
             isSelected: presenter.configuration.isSelected,
-            isDisabled: presenter.configuration.isDisabled
+            isDisabled: presenter.configuration.isDisabled,
+            selectedImage: presenter.configuration.selected.image,
+            deselectedImage: presenter.configuration.deselected.image,
+            setURLIconFromCSS: presenter.setURLIconFromCSS
         });
     };
 
@@ -731,7 +739,17 @@ function AddonDouble_State_Button_create(){
         presenter.toggleDisable(parsedState.isDisabled);
 
         presenter.configuration.isSelected = parsedState.isSelected;
+
+        if (parsedState.selectedImage || parsedState.deselectedImage) {
+            presenter.configuration.selected.image = parsedState.selectedImage;
+            presenter.configuration.deselected.image = parsedState.deselectedImage;
+        }
+
         presenter.setElementSelection();
+
+        if (!parsedState.setURLIconFromCSS) {
+            handleReplaceSVGIcon();
+        }
     };
 
     presenter.validateString = function (imageSrc) {
