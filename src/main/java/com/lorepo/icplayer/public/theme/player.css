@@ -1290,3 +1290,7 @@ Ensures MathML form MathJax uses "STIX Two Math" as primary font.
 .ios-mathml mfrac > mi {
 	font-size: 0.7em;
 }
+
+.ic_text:not(.ios-mathml) mfrac > msup > mfrac {
+	font-size: 1.2em;
+}
