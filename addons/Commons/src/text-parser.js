@@ -114,6 +114,18 @@
         return this.parser.parseAnswer(rawAnswer);
     };
 
+    /**
+
+
+     @method parseMathParentheses
+     @param {String} text the string which will be processed
+     @param {Boolean}  is the gap type math
+     @return {String} parsed text modified to fix math parentheses issues
+     */
+    window.TextParserProxy.prototype.parseMathParentheses = function (text, isMathGap) {
+        return this.parser.parseMathParentheses(text, isMathGap);
+    };
+
 
 
 

@@ -688,7 +688,7 @@ public class TextParser {
 		return parsedText;
 	}
 
-	private String parseMathParentheses(String srcText) {
+	public String parseMathParentheses(String srcText) {
         // MathJax 2.7.9 will occasionally incorrectly calculate the size of parentheses
         // Such as when a nested parentheses contains integrals and gaps.
         String parsedText = srcText;
