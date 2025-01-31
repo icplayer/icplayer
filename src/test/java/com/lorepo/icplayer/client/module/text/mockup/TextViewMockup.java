@@ -232,4 +232,7 @@ public class TextViewMockup implements IDisplay {
     public void setGapWidget(GapWidget gw) {
         gapWidget = gw;
     }
+
+	@Override
+	public void addIOSClass() {}
 }

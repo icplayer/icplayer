@@ -976,4 +976,8 @@ public class PlayerApp {
 			playerController.getPlayerServices().getScoreService().setOpenActivitiesScores(this.pagesOpenActivitiesScores);
 		}
 	}
+
+	public String getMathJaxRendererOption() {
+		return this.entryPoint.getMathJaxRendererOption();
+	}
 }
