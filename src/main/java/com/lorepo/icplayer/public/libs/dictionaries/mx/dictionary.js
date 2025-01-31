@@ -1331,6 +1331,7 @@ var ice_dictionary_mx = {
 	"Single_State_Button_property_disable": "Inhabilitar",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+	"Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
 	"External_Link_Button_info": "Permite a los usuarios a crear hiperenlaces a los recursos externos.",
 	"External_Link_Button_name": "Botón de enlace externo",
 	"External_Link_Button_property_title": "Titulo",
@@ -2559,5 +2560,6 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis",
     "GeometricConstruct_property_length_decimal_point": "Length's decimal point",
-    "GeometricConstruct_property_length_visibility": "Length measures visibility"
+    "GeometricConstruct_property_length_visibility": "Length measures visibility",
+	"error_updating_assets_base_on_custom_css_file": "Updating assets error. Please try again later"
 };

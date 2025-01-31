@@ -84,6 +84,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 
+	@Override
+	public void addIOSClass() {
+		getElement().addClassName("ios-mathml");
+	}
+
 	public void mathJaxIsLoadedCallback() {
         if (!this.mathJaxIsLoaded) {
             this.mathJaxIsLoaded = true;

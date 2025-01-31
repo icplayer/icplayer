@@ -51,6 +51,8 @@ The list starts with the common properties, learn more about them by visiting th
         <td>This property allows the use of resources defined in the CSS file specified in the “Custom CSS” property.
             <br>
             <b>It is required that the files listed in the file in “Custom CSS” property are added as assets to the lesson.</b>
+            <br>
+            <em>In case this property was selected first and then a CSS file was added to the “Custom CSS” property, the list of assets will be updated automatically. Functionality does not yet work with <a href="/doc/page/Updating-assets">Update assets »</a>.</em>
         </td> 
     </tr>
     <tr>
