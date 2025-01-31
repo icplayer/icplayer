@@ -836,7 +836,9 @@ public class PlayerApp {
 	}-*/;
 
 	public void updateMathJax() {
-		this.playerController.updateMathJaxInCurrentPage();
+		if (this.playerController != null) {
+			this.playerController.updateMathJaxInCurrentPage();
+		}
 	}
 
 	public void updateLayout() {

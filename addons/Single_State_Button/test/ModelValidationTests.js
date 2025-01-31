@@ -8,7 +8,8 @@ TestCase("[Single State Button] Model validation", {
             "Is Visible": "True",
             Title: "Some text",
             Image: "/file/server/123456",
-            onClick: "Empty script"
+            onClick: "Empty script",
+            renderSVGAsHTML: 'True'
         };
 
         var validationResult = this.presenter.validateModel(model);
@@ -23,6 +24,7 @@ TestCase("[Single State Button] Model validation", {
         assertTrue(validationResult.isVisible);
         assertTrue(validationResult.isVisibleByDefault);
         assertFalse(validationResult.isErrorMode);
+        assertTrue(validationResult.renderSVGAsHTML);
     },
 
     'test empty model': function () {
@@ -42,5 +44,6 @@ TestCase("[Single State Button] Model validation", {
         assertTrue(validationResult.isVisible);
         assertTrue(validationResult.isVisibleByDefault);
         assertFalse(validationResult.isErrorMode);
+        assertFalse(validationResult.renderSVGAsHTML);
     }
 });
