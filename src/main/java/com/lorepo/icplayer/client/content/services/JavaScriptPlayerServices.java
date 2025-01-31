@@ -343,6 +343,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAnswer(Ljava/lang/String;)(rawAnswer);
 			}
 
+			commands.parseMathParentheses = function(text, isMathGap) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseMathParentheses(Ljava/lang/String;Z)(text, isMathGap);
+			};
+
 			return commands;
 		};
 
@@ -603,6 +607,10 @@ public class JavaScriptPlayerServices {
 			commands.signURL = function(url) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::signURL(Ljava/lang/String;)(url);
 			};
+
+			commands.isURLMatchesWhitelist = function(url) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isURLMatchesWhitelist(Ljava/lang/String;)(url);
+			};
 			
 			return commands;
 		};
@@ -741,6 +749,12 @@ public class JavaScriptPlayerServices {
 	private String parseAltTexts(String text) {
 		TextParser parser = new TextParser();
 		return parser.parseAltText(text);
+	}
+
+	private String parseMathParentheses(String text, boolean isMathGap) {
+		TextParser parser = new TextParser();
+		parser.setUseMathGaps(isMathGap);
+		return parser.parseMathParentheses(text);
 	}
 	
 	private JavaScriptObject getHeaderModule(String id){
@@ -1155,6 +1169,10 @@ public class JavaScriptPlayerServices {
 
 	private String signURL(String url) {
 		return ExtendedRequestBuilder.signURL(url);
+	}
+
+	private boolean isURLMatchesWhitelist(String url) {
+		return ExtendedRequestBuilder.isURLMatchesWhitelist(url);
 	}
 
 	private JavaScriptObject getRenderedModuleOrderForPrint() {

@@ -54,7 +54,7 @@ TestCase("[Single State Button] Click handler", {
     },
 
     'test given addon in show answers mode and button enabled in show answers mode when calling click handler then calls code': function () {
-        this.presenter.setShowAnswersMode();
+        this.presenter.configuration.isShowAnswersMode = true;
         this.presenter.configuration.enableInShowAnswersMode = true;
 
         this.presenter.clickHandler(this.event);

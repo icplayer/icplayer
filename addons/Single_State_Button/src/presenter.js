@@ -8,6 +8,10 @@ function AddonSingle_State_Button_create() {
         BOTH: 3
     };
 
+    presenter.ERROR_MESSAGES = {
+        INVALID_FILE: 'Invalid SVG file',
+    };
+
     presenter.state = {
         isErrorMode: false
     };
@@ -51,10 +55,16 @@ function AddonSingle_State_Button_create() {
     }
 
     function createImageElement(element) {
-        var $imageElement = $(document.createElement('img'));
-        $imageElement.addClass('singlestate-button-image');
-        $imageElement.attr('src', presenter.configuration.image);
-        $(element).append($imageElement);
+        $(element).removeClass('svg-element');
+        if (presenter.configuration.renderSVGAsHTML) {
+            $(element).addClass('svg-element');
+            createSVGElement(element);
+        } else {
+            var $imageElement = $(document.createElement('img'));
+            $imageElement.addClass('singlestate-button-image');
+            $imageElement.attr('src', presenter.configuration.image);
+            $(element).append($imageElement);
+        }
     }
 
     function createTitleElement(element) {
@@ -88,6 +98,71 @@ function AddonSingle_State_Button_create() {
         wrapper.append($element);
 
         return $element;
+    }
+
+    function createSVGElement(element) {
+        const sanitizeUrl = window.xssUtils.sanitize(presenter.configuration.image);
+
+        $.ajax({
+            url: sanitizeUrl,
+            success: function (data) {
+                onSVGLoadCompleted(data, element);
+            },
+            error: function () {
+                onSVGLoadError();
+            },
+            dataType: 'xml'
+        });
+    }
+
+    function onSVGLoadError () {
+        const errorContainer = '<p>' + presenter.ERROR_MESSAGES.INVALID_FILE + '</p>';
+        presenter.$view.html(errorContainer);
+    }
+
+    function onSVGLoadCompleted(data, element) {
+        const svgElement = $(data).find('svg');
+        if (svgElement.length === 0) {
+            onSVGLoadError();
+            return;
+        }
+
+        const svgWidth = getElementWidth(svgElement);
+        const svgHeight = getElementHeight(svgElement);
+
+        svgElement.attr('viewBox', '0 0 ' + svgWidth + ' ' + svgHeight);
+        svgElement.attr('width', '100%');
+        svgElement.attr('height', '100%');
+
+        const svgData = data.childNodes;
+        $(element).html(svgData);
+        createTitleElement(element);
+    }
+
+    function getElementWidth(HTMLElement) {
+        const width = HTMLElement.attr('width');
+        const widthFromRectTag = HTMLElement.find('rect').attr('width');
+
+        if (width) {
+            return width.replace('px', '');
+        } else if (widthFromRectTag) {
+            return widthFromRectTag.replace('px', '');
+        } else {
+            return presenter.configuration.width;
+        }
+    }
+
+    function getElementHeight(HTMLElement) {
+        const height = HTMLElement.attr('width');
+        const heightFromRectTag = HTMLElement.find('rect').attr('width');
+
+        if (height) {
+            return height.replace('px', '');
+        } else if (heightFromRectTag) {
+            return heightFromRectTag.replace('px', '');
+        } else {
+            return presenter.configuration.height;
+        }
     }
 
     function presenterLogic(view, model, isPreview) {
@@ -129,7 +204,8 @@ function AddonSingle_State_Button_create() {
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeDisable(model);
         upgradedModel = presenter.upgradeEnableInErrorMode(upgradedModel);
-        return presenter.upgradeEnableInShowAnswersMode(upgradedModel);
+        upgradedModel =  presenter.upgradeEnableInShowAnswersMode(upgradedModel);
+        return presenter.addRenderSVGAsHTML(upgradedModel);
     };
 
     presenter.upgradeDisable = function (model) {
@@ -165,6 +241,17 @@ function AddonSingle_State_Button_create() {
         return upgradedModel;
     }
 
+    presenter.addRenderSVGAsHTML = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!model.hasOwnProperty('renderSVGAsHTML')) {
+            upgradedModel['renderSVGAsHTML'] = 'False';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateString = function (imageSrc) {
         var isEmpty = ModelValidationUtils.isStringEmpty(imageSrc);
 
@@ -197,6 +284,7 @@ function AddonSingle_State_Button_create() {
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
         var enableInErrorMode = ModelValidationUtils.validateBoolean(model['Enable in error mode']);
         var enableInShowAnswersMode = ModelValidationUtils.validateBoolean(model['Enable in show answers mode']);
+        var renderSVGAsHTML = ModelValidationUtils.validateBoolean(model.renderSVGAsHTML);
 
         return {
             displayContent: presenter.determineDisplayContent(title, image),
@@ -210,7 +298,8 @@ function AddonSingle_State_Button_create() {
             isErrorMode: false,
             isTabindexEnabled: isTabindexEnabled,
             enableInErrorMode: enableInErrorMode,
-            enableInShowAnswersMode: enableInShowAnswersMode
+            enableInShowAnswersMode: enableInShowAnswersMode,
+            renderSVGAsHTML: renderSVGAsHTML
         };
     };
 

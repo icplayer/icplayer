@@ -836,7 +836,9 @@ public class PlayerApp {
 	}-*/;
 
 	public void updateMathJax() {
-		this.playerController.updateMathJaxInCurrentPage();
+		if (this.playerController != null) {
+			this.playerController.updateMathJaxInCurrentPage();
+		}
 	}
 
 	public void updateLayout() {
@@ -973,5 +975,9 @@ public class PlayerApp {
 		if (playerController != null) {
 			playerController.getPlayerServices().getScoreService().setOpenActivitiesScores(this.pagesOpenActivitiesScores);
 		}
+	}
+
+	public String getMathJaxRendererOption() {
+		return this.entryPoint.getMathJaxRendererOption();
 	}
 }

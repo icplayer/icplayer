@@ -26,6 +26,10 @@ Single State Button allows users to perform different actions in presentations, 
         <td>Disable</td>
         <td>Disable button. No events will be triggered when selected.</td>
     </tr>
+    <tr>
+        <td>Render SVG as HTML</td>
+        <td>When checked, SVG images will be embeded as an SVG tag, rather than IMG.</td>
+    </tr>
 </table>
 
 ## Supported commands

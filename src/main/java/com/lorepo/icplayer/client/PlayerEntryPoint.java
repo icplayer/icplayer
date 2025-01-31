@@ -39,11 +39,13 @@ public class PlayerEntryPoint implements EntryPoint {
 		function createAPI(player) {
 			player.load = function(url, index) {
 				index = index || 0;
+
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::load(Ljava/lang/String;I)(url, index);
 			};
 
 			player.loadCommonPage = function(url, index) {
 				index = index || 0;
+				
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::loadCommonPage(Ljava/lang/String;I)(url, index);
 			};
 
