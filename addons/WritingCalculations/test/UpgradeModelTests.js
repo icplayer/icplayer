@@ -49,6 +49,7 @@ TestCase("[Writing Calculations] Upgrade Model Tests", {
 
     "test given model with showAllAnswersInGSA when upgradeModel is called then showAllAnswersInGSA value remains unchanged": function () {
         this.model["showAllAnswersInGSA"] = "True";
+
         const upgradedModel = this.presenter.upgradeModel(this.model);
 
         assertEquals("True", upgradedModel["showAllAnswersInGSA"]);
@@ -141,5 +142,35 @@ TestCase("[Writing Calculations] Upgrade Model Tests", {
         assertEquals("linia", upgradedModel["speechTexts"]["Line"]["Line"]);
         assertEquals("poprawne", upgradedModel["speechTexts"]["Correct"]["Correct"]);
         assertEquals("niepoprawne", upgradedModel["speechTexts"]["Wrong"]["Wrong"]);
-    }
+    },
+
+    "test given model without UseAlternativeTTSNavigation when upgradeModel is called then UseAlternativeTTSNavigation added with False value": function () {
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["UseAlternativeTTSNavigation"]);
+        assertEquals("False", upgradedModel["UseAlternativeTTSNavigation"]);
+    },
+
+    "test given model with UseAlternativeTTSNavigation when upgradeModel is called then UseAlternativeTTSNavigation value remains unchanged": function () {
+        this.model["UseAlternativeTTSNavigation"] = "True";
+
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals("True", upgradedModel["UseAlternativeTTSNavigation"]);
+    },
+
+    "test given model without RowsAltTexts when upgradeModel is called then RowsAltTexts added without item": function () {
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertNotUndefined(upgradedModel["RowsAltTexts"]);
+        assertEquals([{"AltText": ""}], upgradedModel["RowsAltTexts"]);
+    },
+
+    "test given model with RowsAltTexts when upgradeModel is called then RowsAltTexts items remains unchanged": function () {
+        this.model["RowsAltTexts"] = [{"AltText": "Row 1"}, {"AltText": "Row 2"}];
+
+        const upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertEquals([{"AltText": "Row 1"}, {"AltText": "Row 2"}], upgradedModel["RowsAltTexts"]);
+    },
 });

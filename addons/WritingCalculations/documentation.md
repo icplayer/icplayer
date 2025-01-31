@@ -1,5 +1,5 @@
 ## Description
-This addon allows you to create writing calculations. You can create multiplication, division, addition, or subtraction activities.
+The Writing Calculations module allows creating writing calculations. You can create multiplication, division, addition, or subtraction activities.
 
 ## Properties
 
@@ -33,8 +33,8 @@ The list starts with the common properties, learn more about them by visiting th
                 <tr>
                     <td>{x} (curly brackets)</td>
                     <td>input help box, x is the default number. 
-                        Help box can be defined without a default value. 
-                        Unlike input box with square brackets, these boxes are not scored.
+                        The help box can be defined without a default value. 
+                        Unlike input boxes with square brackets, these boxes are not scored.
                     </td>
                 </tr>
                 <tr>
@@ -99,7 +99,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Styles</td>
-        <td>Specifying custom CSS classes and inline styles for subset of cells:
+        <td>Specifying custom CSS classes and inline styles for the subset of cells:
             <table>
                 <tr>
                     <th>Name</th>
@@ -107,19 +107,19 @@ The list starts with the common properties, learn more about them by visiting th
                 </tr>
                 <tr>
                     <td>Column</td>
-                    <td>Coma-separated numbers of columns to be styled</td>
+                    <td>Coma-separated numbers of columns to be styled.</td>
                 </tr>
 				<tr>
                     <td>Row</td>
-                    <td>Coma-separated numbers of rows to be styled</td>
+                    <td>Coma-separated numbers of rows to be styled.</td>
                 </tr>
                 <tr>
                     <td>Class</td>
-                    <td>Additional CSS class for selected cells</td>
+                    <td>Additional CSS class for selected cells.</td>
                 </tr>
                 <tr>
                     <td>Style</td>
-                    <td>Inline CSS style for selected cells</td>
+                    <td>Inline CSS style for selected cells.</td>
                 </tr>
             </table>
         </td>
@@ -130,7 +130,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Is not activity</td>
-        <td>With this option checked, the module is not an activity, therefore it doesn't mark (in)correct answers nor returns score points (maximum score, score and error count). </td>
+        <td>With this option checked, the module is not an activity, therefore it doesn't mark (in)correct answers nor returns score points (maximum score, score, and error count). </td>
     </tr>
     <tr>
         <td>Enable more digits in gap</td>
@@ -138,23 +138,34 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
 	<tr>
         <td>Use numeric keyboard</td>
-        <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps to only accept numeric values.</td>
+        <td>When enabled, gaps will activate the virtual numeric keyboard on mobile devices when selected. This will also cause the gaps only to accept numeric values.</td>
     </tr>
     <tr>
         <td>Show all answers in gradual show answers mode</td>
-        <td>Show all answers at once using gradual show answers functionality. Without checking this option, the gradual show answers functionality reveals the answers one by one.</td>
-    </tr>
-    <tr>
-        <td>Speech texts</td>
-        <td>The speech texts will be read by the TTS addon during the operation of the Writing Calculations module.</td>
+        <td>If this property is marked, then the Gradual Show Answer module displays the complete solution after using this button only once.</td>
     </tr>
     <tr>
         <td>Description of operation</td>
-        <td>The value of this property will be read by the TTS when no cell within the addon is selected, such as after the addon was initially activated.</td>
+        <td>Text read by the Text To Speech (if included) before navigating inside of the module. </td>
     </tr>
     <tr>
         <td>Lang attribute</td>
-        <td>This property is used to set the language used by TTS for this module. If left empty, the default lesson's language will be used.</td>
+        <td>This property allows defining the language for this module (different than the language of the lesson). </td>
+    </tr>
+    <tr>
+        <td>Speech texts</td>
+        <td>Sets the values of speech texts - predefined phrases providing additional context while using the module in the Text To Speech mode. Speech texts are always read using the content's default language. </td>
+    </tr>
+	<tr>
+        <td>Use alternative TTS navigation</td>
+        <td>When enabled, addon will be navigable by alternative version of keyboard navigation with TTS. To use alternative TTS navigation it is required to fulfill <b>Rows' alt text</b> property. Enabling this property will not change keyboard navigation without TTS.</td>
+    </tr>
+	<tr>
+        <td>Rows' alt texts</td>
+        <td>Sets the rows' alternative texts. Rows receive alternative texts according to the order on this list.
+            <br>
+            <br>
+            It is required to create number of alternative texts equal to number of navigable rows (rows with at least one symbol other than <b>empty space</b> or <b>line</b>).</td>
     </tr>
 </table>
 
@@ -179,7 +190,7 @@ The list starts with the common properties, learn more about them by visiting th
 	======
 	_____0
 
-## eKeyboard integration
+## The eKeyboard integration
 It is possible to enter values using the eKeyboard module. 
 
 [See the documentation of eKeyboard module &raquo;](/doc/page/eKeyboard "eKeyboard")
@@ -198,23 +209,23 @@ It is possible to enter values using the eKeyboard module.
         <td>Returns true if all gaps are filled in correctly.</td>
     </tr>
     <tr>
-        <td>show</td>
-        <td>---</td>
-        <td>Shows the module.</td>
-    </tr>
-    <tr>
         <td>hide</td>
         <td>---</td>
-        <td>Hides the module.</td>
+        <td>Hides the module if it is visible.</td>
+    </tr>
+    <tr>
+        <td>show</td>
+        <td>---</td>
+        <td>Shows the module if it is hidden.</td>
     </tr>
 </table>
 
 ## Show Answers
 
-This module is fully compatible with [Show Answers module](/doc/page/Show-Answers "Show Answers module") and displays correct answers when an adequate event is sent.
+This module is fully compatible with the [Show Answers module](/doc/page/Show-Answers "Show Answers module") and displays correct answers when an adequate event is sent.
 
 ## Scoring
-Writing Calculations addon allows creating exercises as well as activities.
+The Writing Calculations module allows the creation of exercises as well as activities.
 
 <table border='1'>
     <tr>
@@ -223,20 +234,20 @@ Writing Calculations addon allows creating exercises as well as activities.
     </tr>
     <tr>
         <td>maxScore</td>
-        <td>number of defined input fields</td>
+        <td>Number of defined input fields.</td>
     </tr>
     <tr>
         <td>score</td>
-        <td>1 point for each properly filled input field</td>
+        <td>It's 1 point for each properly filled input field.</td>
     </tr>
     <tr>
         <td>errorCount</td>
-        <td>1 error point for each input field incorrectly filled</td>
+        <td>It's 1 error point for each input field filled incorrectly.</td>
     </tr>
 </table>
 
 ## Events
-The Writing Calculations addon sends ValueChanged type events to Event Bus when a user fills in either one of the fields.
+The Writing Calculations module sends the ValueChanged type events to the Event Bus when a user fills in either one of the fields.
 
 <table border='1'>
     <tr>
@@ -245,19 +256,19 @@ The Writing Calculations addon sends ValueChanged type events to Event Bus when 
     </tr>
     <tr>
         <td>Item</td>
-        <td>field identifier in &lt;row_number&gt;-&lt;gap_number&gt; format, i.e. 1-2 means input with row = 1 and gap = 2 (each gap is counted in a particular row, not from the beginning of the equation). Both row and gap numbers are counted from 1 to n</td>
+        <td>Field identifier in &lt;row_number&gt;-&lt;gap_number&gt; format, i.e. 1-2 means input with row = 1 and gap = 2 (each gap is counted in a particular row, not from the beginning of the equation). Both row and gap numbers are counted from 1 to n.</td>
     </tr>
     <tr>
         <td>Value</td>
-        <td>filled value</td>
+        <td>Filled value.</td>
     </tr>
     <tr>
         <td>Score</td>
-        <td>1 if filled value was correct, otherwise 0</td>
+        <td>It's 1 if the filled value was correct, otherwise 0.</td>
     </tr>
 </table>
 
-When a user fills in all fields properly, the addon sends the 'ALL OK' event. This event is different so its structure is shown below.
+When the user fills in all fields properly, the module sends the 'ALL OK' event. This event is different, so its structure is shown below.
 
 <table border='1'>
     <tr>
@@ -287,47 +298,47 @@ When a user fills in all fields properly, the addon sends the 'ALL OK' event. Th
     </tr>
     <tr>
         <td>.wrapper-cell</td>
-        <td>wrapper for a single cell</td>
+        <td>Wrapper for a single cell.</td>
     </tr>
     <tr>
         <td>.container-emptyBox</td>
-        <td>container with single input representing input box (square brackets)</td>
+        <td>Container with single input representing input box (square brackets).</td>
     </tr>
     <tr>
         <td>.container-helpBox</td>
-        <td>container with single input representing help box (curly brackets)</td>
+        <td>Container with single input representing help box (curly brackets).</td>
     </tr>
     <tr>
         <td>.writing-calculations-input</td>
-        <td>single input (defined by square and curly brackets)</td>
+        <td>Single input (defined by square and curly brackets).</td>
     </tr>
     <tr>
         <td>.wrapper-row</td>
-        <td>single row</td>
+        <td>Single row.</td>
     </tr>
     <tr>
         <td>.cell-#number</td>
-        <td>which one column</td>
+        <td>Which column.</td>
     </tr>
     <tr>
         <td>.row-#number</td>
-        <td>which one row</td>
+        <td>Which row.</td>
     </tr>
     <tr>
         <td>.incorrect</td>
-        <td>subclass for an incorrect answer input </td>
+        <td>Subclass for an incorrect answer input.</td>
     </tr>
     <tr>
         <td>.correct</td>
-        <td>subclass for a correct answer input </td>
+        <td>Subclass for a correct answer input.</td>
     </tr>
     <tr>
         <td>.empty</td>
-        <td>subclass for an empty input</td>
+        <td>Subclass for an empty input.</td>
     </tr>
     <tr>
         <td>.writing-calculations_show-answers</td>
-        <td>added in the show answers mode</td>
+        <td>Added in the show answers mode.</td>
     </tr>
 </table>
 
@@ -335,12 +346,12 @@ It's possible to give other columns and rows different styles.<br/>
 Columns and rows are numbered. Each of them has its own number.<br/><br/>
 For example:<br/>
 The first row has class: row-1, the second row has class: row-2<br/>
-The first column has class: cell-1, the second column has class: cell-2.<br/>
-An example css style for the third column:<br/>
+The first column has class: cell-1, and the second column has class: cell-2.<br/>
+An example CSS style for the third column:<br/>
 
     .addon_WritingCalculations .cell-3 {
           background: #a1f9ff;
      }
 
 ## Demo presentation
-[Demo presentation](/embed/6264148351516672 "Demo presentation") contains examples of how to use this addon.                              
+[Demo presentation](/embed/6264148351516672 "Demo presentation") contains examples of how to use the Writing Calculations module.                                   

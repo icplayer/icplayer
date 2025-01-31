@@ -1331,6 +1331,7 @@ var ice_dictionary_mx = {
 	"Single_State_Button_property_disable": "Inhabilitar",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+	"Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
 	"External_Link_Button_info": "Permite a los usuarios a crear hiperenlaces a los recursos externos.",
 	"External_Link_Button_name": "Botón de enlace externo",
 	"External_Link_Button_property_title": "Titulo",
@@ -1504,7 +1505,7 @@ var ice_dictionary_mx = {
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
 	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"WritingCalculations_description_of_operation": "Description of operation",
-    "WritingCalculations_lang_attribute": "lang attribute",
+    "WritingCalculations_lang_attribute": "Lang attribute",
     "WritingCalculations_speech_texts": "Speech texts",
     "WritingCalculations_gap": "Gap",
     "WritingCalculations_additional_gap": "Additional gap",
@@ -1518,6 +1519,9 @@ var ice_dictionary_mx = {
     "WritingCalculations_line": "Line",
     "WritingCalculations_correct": "Correct",
     "WritingCalculations_wrong": "Wrong",
+	"WritingCalculations_property_use_alternative_tts_navigation": "Use alternative TTS navigation",
+	"WritingCalculations_property_rows_alt_texts": "Rows' alt texts",
+	"WritingCalculations_property_rows_alt_texts_alt_text": "Alt text",
 	"Vimeo_info": "Permite cargar una película de Vimeo a la presentación. Para que funcione, solamente hay que introducir el ID de película de Vimeo a la sección Propiedades.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "ID de la película",
@@ -2154,6 +2158,7 @@ var ice_dictionary_mx = {
 	"Text_To_Speech_property_page_lang_tag": "Page title language",
 	"Text_To_Speech_language": "Idioma",
 	"Text_To_Speech_property_disable_new_page_message": "Disable new page message",
+	"Text_To_Speech_property_verbose_new_page_message": "Verbose new page message",
 	"IFrame_property_alt_text": "Texto alternativo",
 	"Shooting_Range_info": "Este addon permite al usuario marcar los elementos que caen durante un tiempo definido.",
 	"Shooting_Range_name": "Campo de tiro",
@@ -2559,5 +2564,6 @@ var ice_dictionary_mx = {
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis",
     "GeometricConstruct_property_length_decimal_point": "Length's decimal point",
-    "GeometricConstruct_property_length_visibility": "Length measures visibility"
+    "GeometricConstruct_property_length_visibility": "Length measures visibility",
+	"error_updating_assets_base_on_custom_css_file": "Updating assets error. Please try again later"
 };

@@ -21,9 +21,9 @@ public class MathJax {
 
 			var args = new $wnd.Array();
 			args.push("Typeset", $wnd.MathJax.Hub, e);
-			if ($wnd.MathJax.Hub.Browser.isFirefox && $wnd.MathJax.Hub.config.jax.includes("output/NativeMML")) {
+			if ($wnd.MathJax.Hub.config.jax.includes("output/NativeMML") && ($wnd.MathJax.Hub.Browser.isFirefox || $wnd.MathJax.Hub.Browser.isSafari)) {
 				args.push(function(){
-					@com.lorepo.icplayer.client.utils.MathJax::fixMathMLSizeBugOnFirefox(Lcom/google/gwt/dom/client/Element;)(e);
+					@com.lorepo.icplayer.client.utils.MathJax::fixMathMLSizeBug(Lcom/google/gwt/dom/client/Element;)(e);
 				});
 			}
 
@@ -34,22 +34,96 @@ public class MathJax {
 	  		console.log("Error : " + err);
 		}
 	}-*/;
-
-	private static native void fixMathMLSizeBugOnFirefox(Element element) /*-{
-		// On Firefox <math> element is not rendered correctly. It looks like some CSS styles are not affecting it.	
-		var mathElements = element.getElementsByClassName("MathJax_MathContainer");
+	
+	private static native void fixMathMLSizeBug(Element element) /*-{
+		if ($wnd.MathJax.Hub.Browser.isFirefox) {
+			@com.lorepo.icplayer.client.utils.MathJax::fixFirefoxMathMLSizeBug(Lcom/google/gwt/dom/client/Element;)(element);
+		} else if ($wnd.MathJax.Hub.Browser.isSafari) {
+		 	@com.lorepo.icplayer.client.utils.MathJax::fixSafariMathMLBracketsSizeBug(Lcom/google/gwt/dom/client/Element;)(element);
+		}
+	}-*/;
+	
+	private static native void fixFirefoxMathMLSizeBug(Element element) /*-{
+		// On Firefox <math> element is not rendered correctly. It looks like some CSS styles are not affecting it.
+		var mathElements = element.getElementsByClassName("MathJax_MathML");
 		var mathElementsStyles = [];
 		for (var i = 0; i < mathElements.length; i++) {
-			mathElementsStyles[i] = mathElements[i].style.fontFamily;
-			mathElements[i].style.fontFamily = "STIX TWO MATH";
+			mathElementsStyles[i] = mathElements[i].parentElement.style.fontFamily;
+			mathElements[i].parentElement.style.fontFamily = "STIX TWO MATH";
 		}
 		setTimeout(function (){
-			for (var i = 0; i < mathElementsStyles.length; i++) {
+			for (var i = 0; i < mathElements.length; i++) {
 				try {
-					mathElements[i].style.fontFamily = mathElementsStyles[i];
+					mathElements[i].parentElement.style.fontFamily = mathElementsStyles[i];
 				} catch(err) {}
 			}
 		}, 10);
+	}-*/;
+	
+	private static native void fixSafariMathMLBracketsSizeBug(Element element) /*-{
+		// On Safari <math> element is not rendered correctly.
+		// Some brackets are smaller (they don't match size of surrounding math).
+		var mathJaxElements = element.getElementsByClassName("MathJax_MathML");
+		
+		var mathJaxElementsToRerender = [];
+		for (var mathJaxElementIndex = 0; mathJaxElementIndex < mathJaxElements.length; mathJaxElementIndex++) {
+			var mathJaxElement = mathJaxElements[mathJaxElementIndex];
+			if (@com.lorepo.icplayer.client.utils.MathJax::areOuterBracketsBiggerThenInnerBrackets(Lcom/google/gwt/dom/client/Element;)(mathJaxElement)) {
+				mathJaxElementsToRerender.push(mathJaxElement.parentElement);
+			}
+		}
+		
+		setTimeout(function (){
+			for (var i = 0; i < mathJaxElementsToRerender.length; i++) {
+				try {
+					$wnd.MathJax.Hub.Rerender(mathJaxElementsToRerender[i]);
+				} catch(err) {
+					console.log("Error : " + err);
+				}
+			}
+		}, 10);
+	}-*/;
+	
+	private static native boolean areOuterBracketsBiggerThenInnerBrackets(Element element) /*-{
+		var openingBrackets = ["(", "[", "{"];
+		var closingBrackets = [")", "]", "}"];
+		
+		var moElements = element.getElementsByTagName("mo");
+		var openingBracketsNumber = 0;
+		var closingBracketsNumber = 0;
+		var mostOuterBracketIndex = -1;
+		var mostInnerBracketIndex = -1;
+		for (var moElementIndex = 0; moElementIndex < moElements.length; moElementIndex++) {
+			var moElement = moElements[moElementIndex];
+			var isOpeningBracket = openingBrackets.includes(moElement.innerHTML);
+			var isClosingBracket = closingBrackets.includes(moElement.innerHTML);
+			if (!isOpeningBracket && !isClosingBracket) {
+				continue;
+			}
+			if (isOpeningBracket) {
+				openingBracketsNumber++;
+				if (mostOuterBracketIndex === -1) {
+					mostOuterBracketIndex = moElementIndex;
+				}
+				mostInnerBracketIndex = moElementIndex;
+			}
+			if (isClosingBracket) closingBracketsNumber++;
+			
+			if (openingBracketsNumber === closingBracketsNumber) {
+				if (openingBracketsNumber !== 1 && closingBracketsNumber !== 1) {
+					var mostOuterElement = moElements[mostOuterBracketIndex];
+					var mostInnerElement = moElements[mostInnerBracketIndex];
+					if (mostOuterElement.getBoundingClientRect().height < mostInnerElement.getBoundingClientRect().height) {
+						return true;
+					}
+				}
+				openingBracketsNumber = 0;
+				closingBracketsNumber = 0;
+				mostOuterBracketIndex = -1;
+				mostInnerBracketIndex = -1;
+			}
+		}
+		return false;
 	}-*/;
 
 	public static native void rerenderMathJax (Element e) /*-{

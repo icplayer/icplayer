@@ -12,5 +12,6 @@
         <property name="NewPage" nameLabel="Text_To_Speech_property_new_page" type="string" isLocalized="true" />
         <property name="PageLangTag" nameLabel="Text_To_Speech_property_page_lang_tag" type="string" isLocalized="true" />
         <property name="disableNewPageMessage" nameLabel="Text_To_Speech_property_disable_new_page_message" type="boolean"/>
+        <property name="verboseNewPageMessage" displayName="Verbose new page message" nameLabel="Text_To_Speech_property_verbose_new_page_message" type="boolean"/>
     </model>
 </addon>

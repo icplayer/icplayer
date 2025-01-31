@@ -8,5 +8,6 @@
 		<property name="Disable" nameLabel="Single_State_Button_property_disable" type="boolean" />
 		<property name="Enable in error mode" nameLabel="Single_State_Button_property_enable_in_error_mode" type="boolean" />
 		<property name="Enable in show answers mode" nameLabel="Single_State_Button_property_enable_in_show_answers_mode" type="boolean" />
+		<property name="renderSVGAsHTML" displayName="Render SVG as HTML" nameLabel="Single_State_Button_property_render_SVG_as_HTML" type="boolean" />
 	</model>
 </addon>

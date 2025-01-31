@@ -72,4 +72,6 @@ public interface IPlayerServices {
 	IPlayerStateService getPlayerStateService();
 	IGradualShowAnswersService getGradualShowAnswersService();
 	IObserverService getObserverService();
+	public String getCurrentWCAGPresenterId();
+	public String getCurrentWCAGPresenterArea();
 }

@@ -343,6 +343,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAnswer(Ljava/lang/String;)(rawAnswer);
 			}
 
+			commands.parseMathParentheses = function(text, isMathGap) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseMathParentheses(Ljava/lang/String;Z)(text, isMathGap);
+			};
+
 			return commands;
 		};
 
@@ -494,6 +498,14 @@ public class JavaScriptPlayerServices {
 
 			keyboardController.moveActiveModule = function(reverseDirection) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
+			}
+
+			keyboardController.getCurrentWCAGPresenterId = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentWCAGPresenterId()();
+			}
+
+			keyboardController.getCurrentWCAGPresenterArea = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentWCAGPresenterArea()();
 			}
 
 			return keyboardController;
@@ -745,6 +757,12 @@ public class JavaScriptPlayerServices {
 	private String parseAltTexts(String text) {
 		TextParser parser = new TextParser();
 		return parser.parseAltText(text);
+	}
+
+	private String parseMathParentheses(String text, boolean isMathGap) {
+		TextParser parser = new TextParser();
+		parser.setUseMathGaps(isMathGap);
+		return parser.parseMathParentheses(text);
 	}
 	
 	private JavaScriptObject getHeaderModule(String id){
@@ -1234,4 +1252,12 @@ public class JavaScriptPlayerServices {
 		for (var i = 0; i < modules.length; i++) result.push(modules[i].id);
 		return result;
 	}-*/;
+
+	private String getCurrentWCAGPresenterId() {
+	    return this.playerServices.getCurrentWCAGPresenterId();
+	}
+
+	private String getCurrentWCAGPresenterArea() {
+	    return this.playerServices.getCurrentWCAGPresenterArea();
+	}
 }

@@ -1332,6 +1332,7 @@ var ice_dictionary_fr = {
     "Single_State_Button_property_disable": "Désactiver",
     "Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
     "Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+    "Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
     "External_Link_Button_info": "Permet aux utilisateurs de créer des liens hypertexte vers des ressources externes.",
     "External_Link_Button_name": "Bouton vers des liens externes",
     "External_Link_Button_property_title": "Titre",
@@ -1505,7 +1506,7 @@ var ice_dictionary_fr = {
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
     "WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
     "WritingCalculations_description_of_operation": "Description of operation",
-    "WritingCalculations_lang_attribute": "lang attribute",
+    "WritingCalculations_lang_attribute": "Lang attribute",
     "WritingCalculations_speech_texts": "Speech texts",
     "WritingCalculations_gap": "Gap",
     "WritingCalculations_additional_gap": "Additional gap",
@@ -1519,6 +1520,9 @@ var ice_dictionary_fr = {
     "WritingCalculations_line": "Line",
     "WritingCalculations_correct": "Correct",
     "WritingCalculations_wrong": "Wrong",
+	"WritingCalculations_property_use_alternative_tts_navigation": "Use alternative TTS navigation",
+	"WritingCalculations_property_rows_alt_texts": "Rows' alt texts",
+	"WritingCalculations_property_rows_alt_texts_alt_text": "Alt text",
     "Vimeo_info": "Permet de télécharger un film Vimeo dans une présentation. Pour le faire fonctionner, il suffit d'entrer l'ID du film Vimeo dans le menu Propriétés.",
     "Vimeo_name": "Vimeo",
     "Vimeo_property_movie_id": "ID du film",
@@ -2155,6 +2159,7 @@ var ice_dictionary_fr = {
     "Text_To_Speech_property_page_lang_tag": "Page title language",
     "Text_To_Speech_language": "Language",
 	"Text_To_Speech_property_disable_new_page_message": "Disable new page message",
+    "Text_To_Speech_property_verbose_new_page_message": "Verbose new page message",
     "IFrame_property_alt_text": "Alternative text",
     "Shooting_Range_info": "This addon allows users to click falling down values in defined time.",
     "Shooting_Range_name": "Shooting Range",
@@ -2560,5 +2565,6 @@ var ice_dictionary_fr = {
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis",
     "GeometricConstruct_property_length_decimal_point": "Length's decimal point",
-    "GeometricConstruct_property_length_visibility": "Length measures visibility"
+    "GeometricConstruct_property_length_visibility": "Length measures visibility",
+    "error_updating_assets_base_on_custom_css_file": "Updating assets error. Please try again later"
 };

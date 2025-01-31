@@ -9,6 +9,7 @@ function AddonDouble_State_Button_create(){
 
     presenter.lastEvent = null;
     presenter.speechTexts = {};
+    presenter.setURLIconFromCSS = false;
 
     var CSS_CLASSES = {
         ELEMENT : "doublestate-button-element",
@@ -16,7 +17,9 @@ function AddonDouble_State_Button_create(){
         MOUSE_CLICK : "doublestate-button-element-mouse-click",
         SELECTED : "doublestate-button-element-selected",
         SELECTED_MOUSE_HOVER : "doublestate-button-element-selected-mouse-hover",
-        SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click"
+        SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click",
+        IMAGE_BUTTON : "doublestate-button-image",
+        MOCKED : 'mocked',
     };
 
     var DEFAULT_TTS_PHRASES = {
@@ -154,6 +157,8 @@ function AddonDouble_State_Button_create(){
             presenter.updateLaTeX();
             presenter.sendEventData();
         }
+
+        handleReplaceSVGIcon();
     };
 
     function handleTouchActions() {
@@ -238,14 +243,44 @@ function AddonDouble_State_Button_create(){
         DOMOperationsUtils.setReducedSize(wrapper, element);
     }
 
-    function createImageElement(element, shouldDisplayImage = true) {
+    presenter.createMockedImages = function () {
+        const selectedMockedElement = document.createElement('div');
+        const deselectedMockedElement = document.createElement('div');
+
+        $(selectedMockedElement).addClass(CSS_CLASSES.SELECTED);
+        $(selectedMockedElement).addClass(CSS_CLASSES.MOCKED);
+        $(deselectedMockedElement).addClass(CSS_CLASSES.ELEMENT);
+        $(deselectedMockedElement).addClass(CSS_CLASSES.MOCKED);
+
+        createImageElement(selectedMockedElement);
+        createImageElement(deselectedMockedElement);
+
+        presenter.$wrapper.append(selectedMockedElement);
+        presenter.$wrapper.append(deselectedMockedElement);
+    };
+
+    presenter.hideButtonElement = function (element) {
+        $(element).attr('style', 'visibility: hidden !important');
+    };
+
+    presenter.setIconURLFromMockedImage = function () {
+        const $selectedElement = $(presenter.$wrapper.find(`.${CSS_CLASSES.SELECTED}`));
+        const $deselectedElement = $(presenter.$wrapper.find(`.${CSS_CLASSES.ELEMENT}`));
+
+        let url = $selectedElement.css('background-image');
+        let sanitizeUrl = getURLFromAbsolutePath(url);
+        presenter.configuration.selected.image = sanitizeUrl;
+
+        url = $deselectedElement.css('background-image');
+        sanitizeUrl = getURLFromAbsolutePath(url);
+        presenter.configuration.deselected.image = sanitizeUrl;
+        presenter.setURLIconFromCSS = true;
+    };
+
+    function createImageElement(element) {
         var imageElement = document.createElement('img');
         $(imageElement).addClass('doublestate-button-image');
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
-
-        if(!shouldDisplayImage) {
-            hideImageElement(element);
-        }
 
         $(element).append(imageElement);
     }
@@ -268,23 +303,58 @@ function AddonDouble_State_Button_create(){
 
     function createSVGElementFromCSSUrl(element) {
         setTimeout(() => {
-            const _el = presenter.$view.find('div[class*=doublestate-button-element]:first');
-            if (!_el) { return; }
-
-            const url = _el.css('background-image');
-            const sanitizeUrl = getURLFromAbsolutePath(url);
+            presenter.setIconURLFromMockedImage(element, true);
+            const url = presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image;
 
             $.ajax({
-                url: sanitizeUrl,
+                url: url,
                 success: function (data) {
-                    removeImageElement(element);
+                    removeMockedImages();
+                    removeBackgroundImage(element);
                     onLoadCompleted(data, element);
+                    presenter.addEvents();
+                    applySelectionStyle(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
                 },
                 error: function (err) {
+                    removeMockedImages();
                     presenter.showErrorMessage(err);
                 }
             });
         }, 200);
+    }
+
+    function handleReplaceSVGIcon() {
+        if (!presenter.configuration.renderSVGAsHTML) {
+            return;
+        }
+
+        replaceSVGIcon();
+    }
+
+    function replaceSVGIcon() {
+        const element = presenter.$wrapper.get(0).children[0];
+        const url = getSVGUrl();
+        const sanitizeUrl = window.xssUtils.sanitize(url);
+
+        $.ajax({
+            url: sanitizeUrl,
+            success: function (data) {
+                onLoadCompleted(data, element);
+            },
+            error: function () {
+                presenter.showErrorMessage();
+            },
+            dataType: 'xml'
+        });
+    }
+
+    function getSVGUrl() {
+        return presenter.isSelected() ?
+            presenter.configuration.selected.image : presenter.configuration.deselected.image;
+    }
+
+    function isAtLeastOneImageAvailable() {
+        return presenter.configuration.selected.image || presenter.configuration.deselected.image;
     }
 
     function getURLFromAbsolutePath(absolutePath) {
@@ -296,7 +366,13 @@ function AddonDouble_State_Button_create(){
         return absolutePath.slice(startURLIndex, endURLIndex);
     }
 
-    function removeImageElement(element) {
+    function removeMockedImages() {
+        const images = presenter.$wrapper.find('.mocked');
+        $(images[0]).remove();
+        $(images[1]).remove();
+    }
+
+    function removeBackgroundImage(element) {
         const imageElement = $(element).find('doublestate-button-element');
         const $imageElement = $(imageElement.context);
         $imageElement.attr('style', 'background-image: none !important');
@@ -369,11 +445,12 @@ function AddonDouble_State_Button_create(){
 
     function createElements(wrapper) {
         const element = document.createElement('div');
-        const atLeastOneImgIsAvailable = presenter.configuration.selected.image || presenter.configuration.deselected.image;
+        const atLeastOneImgIsAvailable = isAtLeastOneImageAvailable();
         $(element).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
 
         if (!atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
-            createImageElement(element, false);
+            presenter.hideButtonElement(element);
+            presenter.createMockedImages();
             createSVGElementFromCSSUrl(element);
         } else if (atLeastOneImgIsAvailable && presenter.configuration.renderSVGAsHTML) {
             createSVGElement(element);
@@ -406,12 +483,16 @@ function AddonDouble_State_Button_create(){
         presenter.setTabindex(presenter.$wrapper, presenter.configuration.isTabindexEnabled);
 
         if (!preview) {
-            handleTouchActions();
-            handleMouseActions();
-            presenter.addKeyboardListeners();
+            presenter.addEvents();
             MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
+    }
+
+    presenter.addEvents = function () {
+        handleTouchActions();
+        handleMouseActions();
+        presenter.addKeyboardListeners();
     }
 
     presenter.addKeyboardListeners = function () {
@@ -466,7 +547,6 @@ function AddonDouble_State_Button_create(){
         }
 
         applySelectionStyle(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
-
     };
 
     presenter.getSanitizedButtonTextValue = function () {
@@ -486,6 +566,7 @@ function AddonDouble_State_Button_create(){
             presenter.configuration.isSelected = true;
             presenter.setElementSelection();
             presenter.updateLaTeX();
+            handleReplaceSVGIcon();
         }
     };
 
@@ -494,6 +575,7 @@ function AddonDouble_State_Button_create(){
             presenter.configuration.isSelected = false;
             presenter.setElementSelection();
             presenter.updateLaTeX();
+            handleReplaceSVGIcon();
         }
     };
 
@@ -627,13 +709,17 @@ function AddonDouble_State_Button_create(){
 
         presenter.toggleDisable(presenter.configuration.isDisabledByDefault);
         presenter.updateLaTeX();
+        handleReplaceSVGIcon();
     };
 
     presenter.getState = function() {
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible,
             isSelected: presenter.configuration.isSelected,
-            isDisabled: presenter.configuration.isDisabled
+            isDisabled: presenter.configuration.isDisabled,
+            selectedImage: presenter.configuration.selected.image,
+            deselectedImage: presenter.configuration.deselected.image,
+            setURLIconFromCSS: presenter.setURLIconFromCSS
         });
     };
 
@@ -653,7 +739,17 @@ function AddonDouble_State_Button_create(){
         presenter.toggleDisable(parsedState.isDisabled);
 
         presenter.configuration.isSelected = parsedState.isSelected;
+
+        if (parsedState.selectedImage || parsedState.deselectedImage) {
+            presenter.configuration.selected.image = parsedState.selectedImage;
+            presenter.configuration.deselected.image = parsedState.deselectedImage;
+        }
+
         presenter.setElementSelection();
+
+        if (!parsedState.setURLIconFromCSS) {
+            handleReplaceSVGIcon();
+        }
     };
 
     presenter.validateString = function (imageSrc) {
