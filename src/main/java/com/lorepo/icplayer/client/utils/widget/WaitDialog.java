@@ -35,7 +35,6 @@ public class WaitDialog extends DialogBox {
 	public native void updateWrapperPosition() /*-{
 		var width = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getWidth()();
 		var height = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getHeight()();
-		var scale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getScale()();
 
 		$wnd.$('.ic_waitdlg').width(width + 'px');
 		$wnd.$('.ic_waitdlg').height(height + 'px');
@@ -45,7 +44,15 @@ public class WaitDialog extends DialogBox {
 		$wnd.$('.ic_waitdlg').css('padding', '0');
 		$wnd.$('.ic_waitdlg').css('left', '0');
 		$wnd.$('.ic_waitdlg').css('top', '0');
-		$wnd.$('.ic_waitdlg').css('transform', 'scale(' + scale + ')');
+
+		this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::addScale()();
+	}-*/;
+
+	public native void addScale() /*-{
+		var scale = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getScale()();
+		var childElement = $wnd.$('.ic_waitdlg').get(0).children[0];
+
+		$wnd.$(childElement).css('transform', 'scale(' + scale + ')');
 	}-*/;
 
 	public native int getWidth() /*-{

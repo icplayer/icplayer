@@ -463,4 +463,18 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertEquals(expected, parsed.parsedText);
 
 	}
+
+	@Test
+	public void testGivenMathIntegralInsideParenthesesWhenParseIsCalledThenAddCurlyBracesToEnsureCorrectParenthesesHeight() {
+
+		TextParser parser = new TextParser();
+		String srcText ="\\(\\left(\\int_{X}dx\\right)\\)";
+		String expected = "\\(\\left({\\int_{X}dx}\\right)\\)";
+
+		parser.setId("xcf");
+		parser.setUseMathGaps(true);
+		ParserResult parsed = parser.parse(srcText);
+
+		assertEquals(expected, parsed.parsedText);
+	}
 }

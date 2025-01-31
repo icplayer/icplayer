@@ -1218,6 +1218,7 @@ var ice_dictionary_en = {
 	"Single_State_Button_property_disable": "Disable",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
+	"Single_State_Button_property_render_SVG_as_HTML": "Render SVG as HTML",
 	"External_Link_Button_info": "Allows users to create hyperlinks to external resources.",
 	"External_Link_Button_name": "External Link Button",
 	"External_Link_Button_property_title": "Title",
@@ -1505,7 +1506,7 @@ var ice_dictionary_en = {
 	"WritingCalculations_use_numeric_keyboard": "Use numeric keyboard",
 	"WritingCalculations_show_all_answers_in_GSA": "Show all answers in gradual show answers mode",
 	"WritingCalculations_description_of_operation": "Description of operation",
-    "WritingCalculations_lang_attribute": "lang attribute",
+    "WritingCalculations_lang_attribute": "Lang attribute",
     "WritingCalculations_speech_texts": "Speech texts",
     "WritingCalculations_gap": "Gap",
     "WritingCalculations_additional_gap": "Additional gap",
@@ -1519,6 +1520,9 @@ var ice_dictionary_en = {
     "WritingCalculations_line": "Line",
     "WritingCalculations_correct": "Correct",
     "WritingCalculations_wrong": "Wrong",
+	"WritingCalculations_property_use_alternative_tts_navigation": "Use alternative TTS navigation",
+	"WritingCalculations_property_rows_alt_texts": "Rows' alt texts",
+	"WritingCalculations_property_rows_alt_texts_alt_text": "Alt text",
 	"Vimeo_info": "Enables to upload a Vimeo movie into a presentation. To make it work, it is enough to enter the Vimeo movie ID in the Properties section.",
 	"Vimeo_name": "Vimeo",
 	"Vimeo_property_movie_id": "Movie ID",
@@ -2583,5 +2587,6 @@ var ice_dictionary_en = {
     "GeometricConstruct_property_hide_x_axis": "Hide x-axis",
     "GeometricConstruct_property_hide_y_axis": "Hide y-axis",
     "GeometricConstruct_property_length_decimal_point": "Length's decimal point",
-    "GeometricConstruct_property_length_visibility": "Length measures visibility"
+    "GeometricConstruct_property_length_visibility": "Length measures visibility",
+	"error_updating_assets_base_on_custom_css_file": "Updating assets error. Please try again later"
 };

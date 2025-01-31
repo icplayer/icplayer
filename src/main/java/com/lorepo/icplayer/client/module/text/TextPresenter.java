@@ -28,6 +28,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 import java.util.*;
 
@@ -100,6 +101,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		boolean isBlockedDraggableGapsExtension();
 		void enableDraggableGapExtension(String gapId);
 		void disableDraggableGapExtension(String gapId);
+		void addIOSClass();
 	}
 
 	public interface NavigationTextElement {
@@ -755,6 +757,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		view.connectDOMNodeRemovedEvent(module.getId());
+		addiOSClassWithTimeout(this);
 	}
 
 	private void updateViewText() {
@@ -770,6 +773,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.connectAudios(module.getAudioInfos().iterator());
 		view.sortGapsOrder();
 	}
+
+	public native void addiOSClassWithTimeout(TextPresenter x) /*-{
+		setTimeout(function() {
+			 x.@com.lorepo.icplayer.client.module.text.TextPresenter::addiOSClass()();
+		}, 500);
+	}-*/;
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
@@ -1930,5 +1939,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return true;
 		}
 		return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	}
+
+	private void addiOSClass() {
+		String mathJaxRenderer = this.playerServices.getApplication().getMathJaxRendererOption();
+		boolean isIOS = DevicesUtils.isSafari();
+
+		if (isIOS && mathJaxRenderer.equals("MathML")) {
+			view.addIOSClass();
+		}
 	}
 }
