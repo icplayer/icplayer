@@ -84,7 +84,8 @@ function AddonText_To_Speech_create() {
             exitText: model['ExitText'],
             newPage: model['NewPage'] ? model['NewPage'] : "New page",
             pageLangTag: model['PageLangTag'],
-            disableNewPageMessage: ModelValidationUtils.validateBoolean(model['disableNewPageMessage'])
+            disableNewPageMessage: ModelValidationUtils.validateBoolean(model['disableNewPageMessage']),
+            verboseNewPageMessage: ModelValidationUtils.validateBoolean(model['verboseNewPageMessage'])
         }
     };
 
@@ -94,6 +95,7 @@ function AddonText_To_Speech_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeDisableNewPageMessage(model);
+        upgradedModel = presenter.upgradeVerboseNewPageMessage(model);
         return upgradedModel;
     }
 
@@ -103,6 +105,17 @@ function AddonText_To_Speech_create() {
 
         if (upgradedModel['disableNewPageMessage'] === undefined) {
             upgradedModel['disableNewPageMessage'] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeVerboseNewPageMessage = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['verboseNewPageMessage'] === undefined) {
+            upgradedModel['verboseNewPageMessage'] = "";
         }
 
         return upgradedModel;
@@ -734,11 +747,22 @@ function AddonText_To_Speech_create() {
         if (!presenter.configuration.disableNewPageMessage) {
             textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
         }
+        if (presenter.configuration.verboseNewPageMessage) {
+            var moduleId = presenter.playerController.getKeyboardController().getCurrentWCAGPresenterId();
+            var moduleArea = presenter.playerController.getKeyboardController().getCurrentWCAGPresenterArea();
+            textVoices.push(getTextVoiceObject(presenter.getAddOnConfiguration(moduleArea, moduleId).title, ''));
+        }
         presenter.speak(textVoices);
     };
 
     presenter.playEnterText = function () {
-        presenter.speak([getTextVoiceObject(presenter.configuration.enterText)]);
+        var textVoices = [getTextVoiceObject(presenter.configuration.enterText)];
+        if (presenter.configuration.verboseNewPageMessage) {
+            var moduleId = presenter.playerController.getKeyboardController().getCurrentWCAGPresenterId();
+            var moduleArea = presenter.playerController.getKeyboardController().getCurrentWCAGPresenterArea();
+            textVoices.push(getTextVoiceObject(presenter.getAddOnConfiguration(moduleArea, moduleId).title, ''));
+        }
+        presenter.speak(textVoices);
     };
 
     presenter.playExitText = function () {

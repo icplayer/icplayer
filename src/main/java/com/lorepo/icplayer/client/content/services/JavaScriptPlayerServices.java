@@ -500,6 +500,14 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
 			}
 
+			keyboardController.getCurrentWCAGPresenterId = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentWCAGPresenterId()();
+			}
+
+			keyboardController.getCurrentWCAGPresenterArea = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentWCAGPresenterArea()();
+			}
+
 			return keyboardController;
 		}
 		
@@ -1241,4 +1249,12 @@ public class JavaScriptPlayerServices {
 		for (var i = 0; i < modules.length; i++) result.push(modules[i].id);
 		return result;
 	}-*/;
+
+	private String getCurrentWCAGPresenterId() {
+	    return this.playerServices.getCurrentWCAGPresenterId();
+	}
+
+	private String getCurrentWCAGPresenterArea() {
+	    return this.playerServices.getCurrentWCAGPresenterArea();
+	}
 }

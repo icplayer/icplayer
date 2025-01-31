@@ -764,9 +764,6 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		if (this.savedEntry == null) {
 			return;
 		}
-		if (this.modeOn && this.isWCAGSupportOn) {
-			this.mainPageController.readPageTitle();
-		}
 
 		for (int i = 0; i < this.getPresenters().size(); i++) {
 			IPresenter presenter = (IPresenter) this.getPresenters().get(i).presenter;
@@ -776,12 +773,18 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
 				this.activateModule();
+				if (this.modeOn && this.isWCAGSupportOn) {
+                    this.mainPageController.readPageTitle();
+                }
 				return;
 			}
 		}
-		
+
 		this.actualSelectedModuleIndex = 0;
 		this.initialSelect();
+		if (this.modeOn && this.isWCAGSupportOn) {
+			this.mainPageController.readPageTitle();
+		}
 	}
 	
 	private PresenterEntry getPresenterById (List<PresenterEntry> mainPagePresenters, String id) {
@@ -971,5 +974,19 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			$wnd.removeEventListener("message", receiveMessage);
 		}
 	}-*/;
+
+	public String getCurrentPresenterId () {
+		final PresenterEntry presenterEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
+		final IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
+		final String id = iPresenter.getModel().getId();
+
+		return id;
+	}
+
+	public String getCurrentPresenterArea () {
+		final PresenterEntry presenterEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
+		final String area = presenterEntry.getArea();
+		return area;
+	}
 	
 }
