@@ -30,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.Score.Result;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +131,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
+		ensureOpenActivityScoresExist();
 
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
@@ -139,6 +141,26 @@ public class PageController implements ITextToSpeechController, IPageController 
 		if (gradualShowAnswersService != null) {
 			gradualShowAnswersService.refreshCurrentPagePresenters();
 		}
+	}
+	
+	private void ensureOpenActivityScoresExist() {
+		for (IPresenter presenter : presenters) {
+			if (!(presenter instanceof AddonPresenter)) {
+				continue;
+			}
+			AddonPresenter addonPresenter = (AddonPresenter) presenter;
+			if (addonPresenter.isOpenActivity()) {
+				ensureOpenActivityScoreExist(addonPresenter);
+			}
+		}
+	}
+	
+	private void ensureOpenActivityScoreExist(AddonPresenter addonPresenter) {
+		playerService.getScoreService().ensureOpenActivityScoreExist(
+			currentPage.getId(),
+			addonPresenter.getSerialId(),
+			new Integer(addonPresenter.getMaxScore())
+		);
 	}
 
 	public void sendResizeEvent() {

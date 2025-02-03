@@ -309,7 +309,15 @@ function AddonAnimated_Page_Progress_create() {
         }
 
         presenter.cleanView();
-        presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
+        var pageOpenActivitiesScore = presenter.scoreService.getPageScoreWithOnlyActiveOpenActivitiesById(presenter.pageID);
+        if (pageOpenActivitiesScore > 0) {
+            var pageScore = presenter.scoreService.getPageScoreById(presenter.pageID);
+            pageScore.score = pageOpenActivitiesScore;
+            var range = presenter.getRange(pageScore);
+            presenter.setViewImage(presenter.configuration.initialImage ? "initial" : range);
+        } else {
+            presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
+        }
     };
 
     presenter.showAnswers = function () {

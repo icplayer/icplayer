@@ -23,5 +23,6 @@ public interface IScoreService {
 	void setOpenActivitiesScores(HashMap<String, PageOpenActivitiesScore> scores);
 	ScoreInfo getOpenActivityScores(String pageID, String moduleID);
 	void updateOpenActivityScore(String pageID, String moduleID, String aiGrade, String aiRelevance);
+	public int getPageScoreWithOnlyActiveOpenActivitiesById(String pageID);
 	void ensureOpenActivityScoreExist(String pageID, String moduleID, Integer maxScore);
 }

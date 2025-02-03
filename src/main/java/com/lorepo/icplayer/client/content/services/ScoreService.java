@@ -81,13 +81,11 @@ public class ScoreService implements IScoreService {
 	@Override
 	public PageScore getPageScore(String pageId) {
 		PageScore score = pageScores.get(pageId);
-			
-		if(score == null){
+		if (score == null){
 			score = new PageScore();
 		}
-
-		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
-		return updatedPageScore;
+		
+		return updatePageScoreWithOpenActivitiesScore(score, pageId);
 	}
 
 	@Override
@@ -146,13 +144,10 @@ public class ScoreService implements IScoreService {
 		}
 
 		PageScore score = pageScores.get(pageId);
-
 		if (score == null) {
 			score = new PageScore();
 		}
-		PageScore updatedPageScore = updatePageScoreWithOpenActivitiesScore(score, pageId);
-
-		return updatedPageScore;
+		return updatePageScoreWithOpenActivitiesScore(score, pageId);
 	}
 
 	@Override
@@ -258,6 +253,19 @@ public class ScoreService implements IScoreService {
 		return pageScore.updateScoreWithOpenActivityScore(pageActivityScore.getScore());
 	}
 	
+	@Override
+	public int getPageScoreWithOnlyActiveOpenActivitiesById(String pageID) {
+		// After adjusting the activity scoring, this method should return a page' score
+		// consistent with activity scoring on the page, where addons other than Open Activities return 0.
+		// Needed for addons' views displaying score, after reset.
+		PageOpenActivitiesScore pageActivityScore = pagesOpenActivitiesScores.get(pageID);
+		IPage page = playerServices.getModel().getPageById(pageID);
+		if (pageActivityScore == null || page == null || !page.isReportable()) {
+			return 0;
+		}
+		return pageActivityScore.getScore();
+	}
+
 	@Override
 	public void ensureOpenActivityScoreExist(String pageID, String moduleID, Integer maxScore) {
 		PageOpenActivitiesScore pageScore = pagesOpenActivitiesScores.get(pageID);
