@@ -130,7 +130,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
-		ensureOpenActivityScoresExist();
+		ensureOpenActivitiesScoresExist();
 
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
@@ -142,7 +142,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 		}
 	}
 	
-	private void ensureOpenActivityScoresExist() {
+	private void ensureOpenActivitiesScoresExist() {
 		for (IPresenter presenter : presenters) {
 			if (!(presenter instanceof AddonPresenter)) {
 				continue;
