@@ -30,7 +30,6 @@ import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.Score.Result;
-import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

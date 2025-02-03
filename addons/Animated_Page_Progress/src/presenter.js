@@ -314,7 +314,7 @@ function AddonAnimated_Page_Progress_create() {
             var pageScore = presenter.scoreService.getPageScoreById(presenter.pageID);
             pageScore.score = pageOpenActivitiesScore;
             var range = presenter.getRange(pageScore);
-            presenter.setViewImage(presenter.configuration.initialImage ? "initial" : range);
+            presenter.setViewImage(range);
         } else {
             presenter.setViewImage(presenter.configuration.initialImage ? "initial" : 0);
         }
