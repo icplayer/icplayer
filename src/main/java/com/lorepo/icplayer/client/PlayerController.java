@@ -916,4 +916,14 @@ public class PlayerController implements IPlayerController {
 	public void updateMathJaxInCurrentPage() {
 		this.pageController1.refreshMathJax();
 	}
+
+    @Override
+	public String getCurrentWCAGPresenterId() {
+	    return this.keyboardController.getCurrentPresenterId();
+	}
+
+    @Override
+	public String getCurrentWCAGPresenterArea() {
+	    return this.keyboardController.getCurrentPresenterArea();
+	}
 }

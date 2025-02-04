@@ -335,4 +335,15 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public IAdaptiveLearningService getAdaptiveLearningService() {
 		return this.adaptiveLearningService;
 	}
+
+
+	@Override
+	public String getCurrentWCAGPresenterId() {
+	    return "";
+	};
+
+	@Override
+	public String getCurrentWCAGPresenterArea() {
+	    return "";
+	};
 }

@@ -484,4 +484,12 @@ public class PlayerServices implements IPlayerServices {
 		}
 		return contents;
 	}
+
+	public String getCurrentWCAGPresenterId() {
+	    return this.playerController.getCurrentWCAGPresenterId();
+	}
+
+	public String getCurrentWCAGPresenterArea() {
+	    return this.playerController.getCurrentWCAGPresenterArea();
+	}
 }

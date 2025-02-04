@@ -74,5 +74,9 @@
             </property>
 
         </property>
+        <property name="UseAlternativeTTSNavigation" displayName="Use alternative TTS navigation" nameLabel="WritingCalculations_property_use_alternative_tts_navigation" type="boolean" />
+        <property name="RowsAltTexts" displayName="Rows' alt texts" nameLabel="WritingCalculations_property_rows_alt_texts" type="list">
+            <property name="AltText" nameLabel="WritingCalculations_property_rows_alt_texts_alt_text" type="string"/>
+        </property>
     </model>
 </addon>

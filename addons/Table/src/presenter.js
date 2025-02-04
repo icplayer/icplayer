@@ -60,13 +60,17 @@ function AddonTable_create() {
     };
 
     function getParsedHTMLView () {
-        return presenter.textParser.parseGaps(presenter.$view.html(),
+        let textParserResult = presenter.textParser.parseGaps(presenter.$view.html(),
             {
                 isCaseSensitive: presenter.configuration.isCaseSensitive,
                 isKeepOriginalOrder: presenter.configuration.keepOriginalOrder,
                 useDraggableGaps: presenter.configuration.gapType === "draggable"
             }
         );
+        if (presenter.configuration.gapType === "math") {
+            textParserResult.parsedText = presenter.textParser.parseMathParentheses(textParserResult.parsedText, true);
+        }
+        return textParserResult;
     }
 
     presenter.parseGaps = function (isPreview) {

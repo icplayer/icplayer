@@ -61,6 +61,8 @@ public interface IPlayerController {
 	void setExternalVariable(String key, String value);
 	String getExternalVariable(String key);
 	void updateMathJaxInCurrentPage();
+	public String getCurrentWCAGPresenterId();
+	public String getCurrentWCAGPresenterArea();
 
 	String getPageStamp();
 }

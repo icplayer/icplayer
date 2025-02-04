@@ -329,4 +329,15 @@ public class PlayerControllerMockup implements IPlayerController {
 
 	@Override
 	public void updateMathJaxInCurrentPage() { }
+
+
+	@Override
+	public String getCurrentWCAGPresenterId() {
+	    return "";
+	};
+
+	@Override
+	public String getCurrentWCAGPresenterArea() {
+	    return "";
+	};
 }
