@@ -431,7 +431,7 @@ function AddonTextAudio_create() {
 
         if (presenter.configuration.controls === controls.CUSTOM){
             presenter.$playerTime.html(presenter.formatTime(currentTime) + ' / ' + presenter.formatTime(duration));
-            bar_width = presenter.$progressWrapper.width() * currentTime / duration;
+            bar_width = presenter.$progressWrapper.width() * currentTime / presenter.audio.duration;
             presenter.$progressBar.width(Math.round(bar_width));
             presenter.$progressSlider.css('left', Math.round(bar_width));
         }
