@@ -975,13 +975,6 @@ function AddonAudio_create(){
                     decreaseVolume();
                 }
                 break;
-            case letterSKeyCode:
-                if (keysDownCodes.includes(window.KeyboardControllerKeys.ARROW_UP)) {
-                    increasePlaybackRate();
-                } else if (keysDownCodes.includes(window.KeyboardControllerKeys.ARROW_DOWN)) {
-                    increaseVolume();
-                }
-                break;
             case window.KeyboardControllerKeys.ARROW_LEFT:
                 backward();
                 break;
