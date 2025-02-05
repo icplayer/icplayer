@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.report;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -252,7 +253,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 	
 	@Override
-	public void enter(KeyDownEvent event, boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
@@ -266,7 +267,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (listener != null 
 			&& this.currentWCAGSelectedColumnIndex == 0 
 			&& this.currentWCAGSelectedRowIndex != grid.getRowCount()-1) {
@@ -276,7 +277,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void tab(KeyDownEvent event) {
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (currentWCAGSelectedColumnIndex==this.getColumnCount()-1) {
 			if (currentWCAGSelectedRowIndex==lastRow) {
 				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
@@ -289,40 +290,40 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void left(KeyDownEvent event) {
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(-1,0);
 	}
 
 	@Override
-	public void right(KeyDownEvent event) {
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(1,0);
 		
 	}
 
 	@Override
-	public void down(KeyDownEvent event) {
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(0,1);
 		
 	}
 
 	@Override
-	public void up(KeyDownEvent event) {
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(0,-1);
 		
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
 		currentWCAGSelectedRowIndex = 1;
 		currentWCAGSelectedColumnIndex = 0;
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {}
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (currentWCAGSelectedColumnIndex==0) {
 			if (currentWCAGSelectedRowIndex==1) {
 				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);

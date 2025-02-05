@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.button;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
@@ -145,7 +146,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void enter (KeyDownEvent event, boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		if (isExiting) {
 			return;
 		}
@@ -178,13 +179,13 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 
 	@Override
-	public void tab(KeyDownEvent event) {	
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (this.isResetButton() && this.isDialogOpen()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton resetButton = (ResetButton) buttonWidget;
@@ -196,29 +197,29 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void left(KeyDownEvent event) {	
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 
 	@Override
-	public void right(KeyDownEvent event) {	
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 
 	@Override
-	public void down(KeyDownEvent event) {	
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 
 	@Override
-	public void up(KeyDownEvent event) {
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (this.isResetButton()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton button = (ResetButton) buttonWidget;
@@ -228,12 +229,12 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {	
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if (this.isResetButton() && this.isDialogOpen()) {
 			Widget buttonWidget = this.getWidget();
 			ResetButton resetButton = (ResetButton) buttonWidget;

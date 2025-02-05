@@ -2,8 +2,10 @@ package com.lorepo.icplayer.client.page;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.powermock.reflect.Whitebox;
 import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.googlecode.gwt.test.GwtModule;
@@ -39,6 +42,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 	PageController headerPageController = null;
 	PageController mainPageController = null;
 	PageController footerPageController = null;
+	int KEY_S = 83;
 	
 	private static long idCounter = 0;
 
@@ -217,7 +221,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		// Prepare
 		List<PresenterEntry> presenters = new ArrayList<PresenterEntry>();
 		PresenterEntry mock1 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "1", false);
-		PresenterEntry mock2 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "2",false);
+		PresenterEntry mock2 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "2", false);
 		PresenterEntry mock3 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "3", false);
 		presenters.add(mock1);
 		presenters.add(mock2);
@@ -345,19 +349,138 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Browser.dispatchEvent(RootPanel.get(), event);
 		
 		//Then check: 
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).up(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).down(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).left(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).right(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).escape(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).tab(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).space(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(3)).enter(Mockito.any(KeyDownEvent.class), Mockito.eq(false));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter((Mockito.any(KeyDownEvent.class)), Mockito.eq(true));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).shiftTab(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).customKeyCode(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).up(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).down(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).left(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).right(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).escape(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).tab(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).space(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(3)).enter(Mockito.any(KeyDownEvent.class), Mockito.eq(false), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter((Mockito.any(KeyDownEvent.class)), Mockito.eq(true), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).shiftTab(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).customKeyCode(Mockito.any(KeyDownEvent.class), Mockito.any(HashSet.class));
 	}
 	
+	@Test
+	public void keyboardControllerWillPassPressedKeys () {
+		// Prepare
+		List<PresenterEntry> presenters = new ArrayList<PresenterEntry>();
+		PresenterEntry mock1 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "1", false);
+		PresenterEntry mock2 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "2", false);
+		PresenterEntry mock3 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "3", false);
+		presenters.add(mock1);
+		presenters.add(mock2);
+		presenters.add(mock3);
+		
+		Mockito.when(mock1.presenter.getWCAGController())
+			.thenReturn(Mockito.mock(IWCAG.class));
+			
+		Mockito.when(mock1.presenter.isSelectable(true)).thenReturn(true);
+		Mockito.when(mock1.presenter.isSelectable(false)).thenReturn(true);
+		
+		Whitebox.setInternalState(this.controller, "presenters", presenters);
+		Whitebox.setInternalState(this.controller, "presentersOriginalOrder", presenters);
+		
+		Event event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KeyCodes.KEY_ENTER)
+			.setShiftKey(true)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		//Release enter
+		event = EventBuilder.create(Event.ONKEYUP)
+			.setKeyCode(KeyCodes.KEY_ENTER)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		//Do
+		
+		//Activate
+		event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KeyCodes.KEY_ENTER)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter(Mockito.any(KeyDownEvent.class), Mockito.eq(false), Mockito.eq(new HashSet<Integer>(Arrays.asList(KeyCodes.KEY_ENTER))));
+
+		//Release enter
+		event = EventBuilder.create(Event.ONKEYUP)
+			.setKeyCode(KeyCodes.KEY_ENTER)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		//S
+		event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KEY_S)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).customKeyCode(Mockito.any(KeyDownEvent.class), Mockito.eq(new HashSet<Integer>(Arrays.asList(KEY_S))));
+		
+		//up
+		event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KeyCodes.KEY_UP)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).up(Mockito.any(KeyDownEvent.class), Mockito.eq(new HashSet<Integer>(Arrays.asList(KEY_S, KeyCodes.KEY_UP))));
+		
+		//up
+		event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KeyCodes.KEY_UP)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(2)).up(Mockito.any(KeyDownEvent.class), Mockito.eq(new HashSet<Integer>(Arrays.asList(KEY_S, KeyCodes.KEY_UP))));
+		
+		//Release up
+		event = EventBuilder.create(Event.ONKEYUP)
+			.setKeyCode(KeyCodes.KEY_UP)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		//down
+		event = EventBuilder.create(Event.ONKEYDOWN)
+			.setKeyCode(KeyCodes.KEY_DOWN)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).down(Mockito.any(KeyDownEvent.class), Mockito.eq(new HashSet<Integer>(Arrays.asList(KEY_S, KeyCodes.KEY_DOWN))));
+		
+		//Release down
+		event = EventBuilder.create(Event.ONKEYUP)
+			.setKeyCode(KeyCodes.KEY_DOWN)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+		
+		//Release S
+		event = EventBuilder.create(Event.ONKEYUP)
+			.setKeyCode(KEY_S)
+			.setShiftKey(false)
+			.build();
+		
+		Browser.dispatchEvent(RootPanel.get(), event);
+	}
+
 	private ChoiceModel generateChoice() {
 		ChoiceModel module = new ChoiceModel();
 		module.setId("choice" + ++GWTKeyboardNavigationControllerTestCase.idCounter);

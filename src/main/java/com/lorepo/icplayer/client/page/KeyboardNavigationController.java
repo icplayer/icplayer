@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
@@ -9,7 +11,9 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.ResetButton;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -47,7 +51,9 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
 	private HandlerRegistration keyDownHandler = null;
+	private HandlerRegistration keyUpHandler = null;
 	private JavaScriptObject messageHandler = null;
+	private Set<Integer> keysDownCodes = new HashSet<Integer>();
 
 	private PageController headerController = null;
 	private PageController footerController = null;
@@ -441,9 +447,18 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
 
+		this.keyUpHandler = RootPanel.get().addDomHandler(new KeyUpHandler() {
+		    @Override
+			public void onKeyUp(KeyUpEvent event) {
+                keysDownCodes.remove(event.getNativeKeyCode());
+			}
+		}, KeyUpEvent.getType());
+
 		this.keyDownHandler = RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
+				keysDownCodes.add(event.getNativeKeyCode());
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					event.preventDefault();
 					changeKeyboardMode(event, false);
@@ -583,35 +598,35 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 
 		switch (event.getNativeEvent().getKeyCode()) {
 			case KeyCodes.KEY_UP:
-				wcagWidget.up(event);
+				wcagWidget.up(event, keysDownCodes);
 				break;
 			case KeyCodes.KEY_DOWN:
-				wcagWidget.down(event);
+				wcagWidget.down(event, keysDownCodes);
 				break;
 			case KeyCodes.KEY_LEFT:
-				wcagWidget.left(event);
+				wcagWidget.left(event, keysDownCodes);
 				break;
 			case KeyCodes.KEY_RIGHT:
-				wcagWidget.right(event);
+				wcagWidget.right(event, keysDownCodes);
 				break;
 			case KeyCodes.KEY_ESCAPE:
-				wcagWidget.escape(event);
+				wcagWidget.escape(event, keysDownCodes);
 				break;
 			case KeyCodes.KEY_ENTER:
-				wcagWidget.enter(event, event.isShiftKeyDown() || event.isControlKeyDown());
+				wcagWidget.enter(event, event.isShiftKeyDown() || event.isControlKeyDown(), keysDownCodes);
 				break;
 			case KeyCodes.KEY_TAB:
 				if (event.isShiftKeyDown()) {
-					wcagWidget.shiftTab(event);
+					wcagWidget.shiftTab(event, keysDownCodes);
 				} else {
-					wcagWidget.tab(event);
+					wcagWidget.tab(event, keysDownCodes);
 				}
 				break;
 			case KEY_SPACE_BAR:
-				wcagWidget.space(event);
+				wcagWidget.space(event, keysDownCodes);
 				break;
 			default:
-				wcagWidget.customKeyCode(event);
+				wcagWidget.customKeyCode(event, keysDownCodes);
 				break;
 		};
 	}
@@ -950,9 +965,11 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 
 	public void clearEventListeners() {
-		if (this.keyDownHandler != null) {
+		if (this.keyDownHandler != null || this.keyUpHandler != null) {
 			this.keyDownHandler.removeHandler();
+			this.keyUpHandler.removeHandler();
 			clearMessageListener(this);
+			keysDownCodes.clear();
 		}
 	}
 

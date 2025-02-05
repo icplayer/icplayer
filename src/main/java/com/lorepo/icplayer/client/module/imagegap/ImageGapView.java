@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.imagegap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -254,12 +255,12 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	}
 	
 	@Override
-	public void enter(KeyDownEvent event, boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		this.readStatus();
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault();
 		if (!module.isDisabled()) {
 			this.listener.onClicked();
@@ -267,42 +268,42 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	}
 
 	@Override
-	public void tab(KeyDownEvent event) {
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void left(KeyDownEvent event) {
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void right(KeyDownEvent event) {
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void down(KeyDownEvent event) {
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 	@Override
-	public void up(KeyDownEvent event) {
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		// TODO Auto-generated method stub
 	}
 

@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.limitedreset;
 
+import java.util.HashSet;
+
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.After;
@@ -107,14 +109,16 @@ public class GWTLimitedResetViewWCAGTestCase extends GwtTest {
 
 	private void pressEnter() {
 		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 
-		this.viewSpy.enter(eventMock, false);
+		this.viewSpy.enter(eventMock, false, keysDownCodesMock);
 	}
 
 	private void pressSpace() {
 		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 
-		this.viewSpy.space(eventMock);
+		this.viewSpy.space(eventMock, keysDownCodesMock);
 	}
 
 	private void verifyIfSpeechTextCreatedCountEqualTo(int expectedCount) {
