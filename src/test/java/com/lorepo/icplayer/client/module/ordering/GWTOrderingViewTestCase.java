@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.ordering;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
+
 import java.lang.reflect.Field;
 
 import org.junit.Before;
@@ -100,31 +102,31 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	
 	@Test
 	public void escapeWillDeselectCurrentElement () throws Exception {
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "escape", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "escape", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
 	
 	@Test
 	public void ifIsExitingThenEnterWillDeselectCurrentElement () throws Exception {
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), true);
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), true, Mockito.mock(HashSet.class));
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
 	
 	@Test 
 	public void enterWithoutExitingWillSelectElement () throws Exception {
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter",  Mockito.mock(KeyDownEvent.class), false);
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter",  Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 	}
 	
 	@Test
 	public void spaceWillCallClickEventAndSelectNewItem() throws Exception {
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);	
-		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
 		
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		class Clicked {
@@ -157,7 +159,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 			}
 		});
 		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
 		
 		assertTrue(clicked.isClicked());
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
@@ -166,9 +168,9 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 
 	@Test
 	public void spaceWillCallClickEventAndSelectNewItemWhenAudio() throws Exception {
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
-		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
 
 		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		class Clicked {
@@ -201,7 +203,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 			}
 		});
 
-		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
+		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class), Mockito.mock(HashSet.class));
 
 		assertTrue(clicked.isClicked());
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
@@ -211,7 +213,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void moveWillSelectNextElement () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 1);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", 1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
@@ -223,7 +225,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void moveWillSelectElementBefore () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 1);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", -1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
@@ -234,7 +236,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void moveWillSelectFirstElementIfIsAboveElementsCount () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 2);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", 1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
@@ -245,7 +247,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test 
 	public void moveWillSelectLastElementIfIsBelowZero () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 0);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false);
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", Mockito.mock(KeyDownEvent.class), false, Mockito.mock(HashSet.class));
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", -1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
