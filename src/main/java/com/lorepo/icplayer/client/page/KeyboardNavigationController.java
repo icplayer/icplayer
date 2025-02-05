@@ -446,14 +446,14 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
-
+		
 		this.keyUpHandler = RootPanel.get().addDomHandler(new KeyUpHandler() {
-		    @Override
+			@Override
 			public void onKeyUp(KeyUpEvent event) {
-                keysDownCodes.remove(event.getNativeKeyCode());
+				keysDownCodes.remove(event.getNativeKeyCode());
 			}
 		}, KeyUpEvent.getType());
-
+		
 		this.keyDownHandler = RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {

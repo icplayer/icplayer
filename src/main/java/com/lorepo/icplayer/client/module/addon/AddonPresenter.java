@@ -95,9 +95,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown, NativeEvent originalEvent, JavaScriptObject keysDownCodes) /*-{
-		console.log(keysDownCodes);
-		try{
-			if(obj.keyboardController !== undefined && obj.keyboardController !== null) {
+		try {
+			if (obj.keyboardController !== undefined && obj.keyboardController !== null) {
 				obj.keyboardController(parseInt(keyCode, 10), isShiftDown, originalEvent, keysDownCodes);
 			}
 		}
@@ -589,10 +588,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true, event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
-
+	
 	private static JavaScriptObject convertKeysDownCodesToJSArray(Set<Integer> keysDownCodes) {
-	    JavaScriptObject jsArray =  JsArrayInteger.createArray();
-	    Iterator<Integer> iterator = keysDownCodes.iterator();
+		JavaScriptObject jsArray =  JsArrayInteger.createArray();
+		Iterator<Integer> iterator = keysDownCodes.iterator();
 		while (iterator.hasNext()) {
 			Integer i = iterator.next();
 			JavaScriptUtils.addElementToJSArray(jsArray, i.intValue());
