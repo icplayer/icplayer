@@ -4,6 +4,7 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -241,7 +242,7 @@ public class LimitedCheckView extends PushButton implements IDisplay, IWCAG, IWC
     }
 
     @Override
-    public void enter(KeyDownEvent event, boolean isExiting) {
+    public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
         boolean isCheck = !isButtonPressed();
         if (isCheck) {
             onCheck();
@@ -310,38 +311,38 @@ public class LimitedCheckView extends PushButton implements IDisplay, IWCAG, IWC
     }
 
     @Override
-    public void space(KeyDownEvent event) {
+    public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
         event.preventDefault();
     }
 
     @Override
-    public void tab(KeyDownEvent event) {}
+    public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
     @Override
-    public void left(KeyDownEvent event) {}
+    public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
     @Override
-    public void right(KeyDownEvent event) {}
+    public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
     @Override
-    public void down(KeyDownEvent event) {
+    public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
         event.preventDefault();
     }
     @Override
-    public void up(KeyDownEvent event) {
-        event.preventDefault();
-    }
-
-    @Override
-    public void escape(KeyDownEvent event) {
+    public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
         event.preventDefault();
     }
 
     @Override
-    public void customKeyCode(KeyDownEvent event) {}
+    public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
+        event.preventDefault();
+    }
 
     @Override
-    public void shiftTab(KeyDownEvent event) {}
+    public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {}
+
+    @Override
+    public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
     @Override
     public void setPageController(PageController pc) {

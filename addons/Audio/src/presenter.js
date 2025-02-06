@@ -810,6 +810,18 @@ function AddonAudio_create(){
         }
     });
 
+    function increasePlaybackRate() {
+        const playbackIndex = playbackRateList.indexOf(presenter.playbackRate);
+        const nextPlaybackIndex = Math.min(playbackIndex+1, playbackRateList.length-1);
+        presenter.setPlaybackRate(("" + playbackRateList[nextPlaybackIndex]));
+    }
+
+    function decreasePlaybackRate() {
+        const playbackIndex = playbackRateList.indexOf(presenter.playbackRate);
+        const nextPlaybackIndex = Math.max(playbackIndex-1, 0);
+        presenter.setPlaybackRate(("" + playbackRateList[nextPlaybackIndex]));
+    }
+
     presenter.setPlaybackRate = function (value) {
         if (!presenter.audio) return;
         if (isNaN(value)) return;
@@ -926,42 +938,54 @@ function AddonAudio_create(){
         presenter.audio.volume = volume;
     }
 
-    presenter.keyboardController = function (keycode, isShift, event) {
+    presenter.keyboardController = function (keycode, isShift, event, keysDownCodes) {
         event.preventDefault();
+
+        if (keysDownCodes === undefined) {
+            keysDownCodes = [];
+        }
+        const letterSKeyCode = 83;
         switch (keycode) {
-            case 9: // TAB
+            case window.KeyboardControllerKeys.TAB:
                 if (isShift) {
                     backward();
                 } else {
                     forward();
                 }
                 break;
-            case 13: //ENTER
+            case window.KeyboardControllerKeys.ENTER:
                 if (isShift) {
                     presenter.stop();
                 }
                 break;
-            case 32: // SPACE
+            case window.KeyboardControllerKeys.SPACE:
                 playPause();
                 break;
-            case 38: // UP
-                increaseVolume();
+            case window.KeyboardControllerKeys.ARROW_UP:
+                if (keysDownCodes.includes(letterSKeyCode)) {
+                    increasePlaybackRate();
+                } else {
+                    increaseVolume();
+                }
                 break;
-            case 40: // DOWN
-                decreaseVolume();
+            case window.KeyboardControllerKeys.ARROW_DOWN:
+                if (keysDownCodes.includes(letterSKeyCode)) {
+                    decreasePlaybackRate();
+                } else {
+                    decreaseVolume();
+                }
                 break;
-            case 37: // LEFT
+            case window.KeyboardControllerKeys.ARROW_LEFT:
                 backward();
                 break;
-            case 39: // RIGHT
+            case window.KeyboardControllerKeys.ARROW_RIGHT:
                 forward();
                 break;
-            case 27: // ESC
+            case window.KeyboardControllerKeys.ESCAPE:
                 presenter.stop();
                 break;
         }
-
-    }
+    };
 
     return presenter;
 }

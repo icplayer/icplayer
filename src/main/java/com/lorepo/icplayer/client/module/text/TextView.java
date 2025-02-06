@@ -758,7 +758,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		moduleHasFocus = false;
 	}
 
-	public void enter (KeyDownEvent event, boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		if (isExiting) {
 			handleWCAGExit();
 		} else {
@@ -851,35 +851,35 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	@Override
-	public void tab (KeyDownEvent event) {
+	public void tab (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(true);
 		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	    event.preventDefault();
 	    handleWCAGExit();
 	}
 
 	@Override
-	public void shiftTab (KeyDownEvent event) {
+	public void shiftTab (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(false);
 		this.readNavigationText(this.keyboardNavigationCurrentElement, this.findActiveGapIndex());
 	}
 
 	@Override
-	public void left (KeyDownEvent event) {
+	public void left (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		inlineChoiceChangeSelected(event, false);
 	}
 
 	@Override
-	public void right (KeyDownEvent event) {
+	public void right (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		inlineChoiceChangeSelected(event, true);
 	}
 
 	@Override
-	public void down (KeyDownEvent event) {
+	public void down (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
@@ -888,7 +888,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	@Override
-	public void up (KeyDownEvent event) {
+	public void up (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		if(moduleHasFocus == false  ||  (keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType().equals("dropdown") )){
 			event.preventDefault();
 		}
@@ -897,7 +897,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		boolean isActivatedLinkWidget = keyboardNavigationCurrentElement != null && keyboardNavigationCurrentElement.getElementType() == "link";
 
 		if(WCAGUtils.hasLinks(this.module) && isActivatedLinkWidget) {
@@ -978,7 +978,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	@Override
-	public void customKeyCode(KeyDownEvent event) {}
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
 	@Override
 	public boolean isWCAGon() {

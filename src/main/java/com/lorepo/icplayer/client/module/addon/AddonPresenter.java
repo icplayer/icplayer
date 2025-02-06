@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -29,6 +31,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper;
 import com.lorepo.icplayer.client.metadata.*;
 import com.lorepo.icplayer.client.module.IOpenEndedContentPresenter;
@@ -92,10 +95,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		});
 	}
 	
-	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown, NativeEvent originalEvent) /*-{
-		try{
-			if(obj.keyboardController !== undefined && obj.keyboardController !== null) {
-				obj.keyboardController(parseInt(keyCode, 10), isShiftDown, originalEvent);
+	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown, NativeEvent originalEvent, JavaScriptObject keysDownCodes) /*-{
+		try {
+			if (obj.keyboardController !== undefined && obj.keyboardController !== null) {
+				obj.keyboardController(parseInt(keyCode, 10), isShiftDown, originalEvent, keysDownCodes);
 			}
 		}
 		catch(err){
@@ -538,53 +541,63 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	
 	@Override
-	public void enter(KeyDownEvent event, boolean isExiting) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, event.getNativeEvent());
+	public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, 32, event.isShiftKeyDown(), event.getNativeEvent());
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, 32, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void tab(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, event.isShiftKeyDown(), event.getNativeEvent());
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void left(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, event.isShiftKeyDown(), event.getNativeEvent());
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void right(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, event.isShiftKeyDown(), event.getNativeEvent());
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void down(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, event.isShiftKeyDown(), event.getNativeEvent());
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void up(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, event.isShiftKeyDown(), event.getNativeEvent());
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, event.isShiftKeyDown(), event.getNativeEvent());
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown(), event.getNativeEvent());
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown(), event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
 	}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true, event.getNativeEvent());
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true, event.getNativeEvent(), convertKeysDownCodesToJSArray(keysDownCodes));
+	}
+	
+	private static JavaScriptObject convertKeysDownCodesToJSArray(Set<Integer> keysDownCodes) {
+		JavaScriptObject jsArray =  JsArrayInteger.createArray();
+		Iterator<Integer> iterator = keysDownCodes.iterator();
+		while (iterator.hasNext()) {
+			Integer i = iterator.next();
+			JavaScriptUtils.addElementToJSArray(jsArray, i.intValue());
+		}
+		return jsArray;
 	}
 
 	public boolean isButton() {
