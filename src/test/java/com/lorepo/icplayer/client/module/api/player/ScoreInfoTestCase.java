@@ -51,6 +51,34 @@ public class ScoreInfoTestCase {
 		
 		assertEquals(2, info.getScore());
 	}
+
+	@Test
+	public void givenScoreInfoWithProvidedManualGradedScoreAndAIScoreAndMaxScoreWhenExecutedGetScoreThenReturnManualGradedScore() {
+		ScoreInfo info = new ScoreInfo(1, 2, 3, null);
+
+		assertEquals(2, info.getScore());
+	}
+
+	@Test
+	public void givenScoreInfoWithProvidedManualGradedScoreAndMaxScoreWhenExecutedGetScoreThenReturnManualGradedScore() {
+		ScoreInfo info = new ScoreInfo(null, 2, 3, null);
+
+		assertEquals(2, info.getScore());
+	}
+
+	@Test
+	public void givenScoreInfoWithProvidedAIScoreAndMaxScoreWhenExecutedGetScoreThenReturnAIScore() {
+		ScoreInfo info = new ScoreInfo(1, null, 3, null);
+
+		assertEquals(1, info.getScore());
+	}
+
+	@Test
+	public void givenScoreInfoWithProvidedMaxScoreWhenExecutedGetScoreThenReturnMaxScore() {
+		ScoreInfo info = new ScoreInfo(null, null, 3, null);
+
+		assertEquals(3, info.getScore());
+	}
 	
 	@Test
 	public void givenScoreInfoWithoutProvidedArgsWhenExecutedGetScoreThenReturnZero() {

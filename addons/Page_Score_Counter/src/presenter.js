@@ -174,7 +174,8 @@ function AddonPage_Score_Counter_create(){
 
     presenter.reset = function() {
         presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.currentScore = 0;
+        var scoreService = presenter.playerController.getScore();
+        presenter.currentScore = scoreService.getPageScoreWithOnlyActiveOpenActivitiesById(presenter.page.getId());
         updateView();
     };
 

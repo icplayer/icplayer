@@ -1574,6 +1574,10 @@ function AddonParagraph_create() {
         presenter.enableEdit();
     }
 
+    presenter.isOpenActivity = function () {
+        return presenter.configuration.isValid && presenter.configuration.manualGrading;
+    }
+
     return presenter;
 }
 

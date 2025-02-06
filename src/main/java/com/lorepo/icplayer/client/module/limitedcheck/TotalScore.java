@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 
 public class TotalScore {
 	public int score = 0;
@@ -44,10 +47,20 @@ public class TotalScore {
 		for (IPresenter presenter : presenters) {
 			if (presenter instanceof IActivity) {
 				IActivity activity = (IActivity) presenter;
-				
-				totalScore.score += activity.getScore();
+
 				totalScore.errors += activity.getErrorCount();
 				totalScore.maxScore += activity.getMaxScore();
+				if (presenter instanceof AddonPresenter) {
+					AddonPresenter addonPresenter = (AddonPresenter) presenter;
+					if (addonPresenter.isOpenActivity()) {
+						ScoreInfo scoreInfo = addonPresenter.getOpenActivityScores();
+						totalScore.score += scoreInfo.getScore();
+					} else {
+						totalScore.score += activity.getScore();
+					}
+				} else {
+					totalScore.score += activity.getScore();
+				}
 			}
 		}
 		
