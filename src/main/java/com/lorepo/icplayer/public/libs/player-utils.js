@@ -75,6 +75,19 @@
             for (i = 0; i < presentation.getPageCount(); i++) {
                 page = presentation.getPage(i);
 
+                var openActivitiesInfo = [];
+                var modulesIdsInPage = page.getModulesAsJS();
+                for (var j = 0; j < modulesIdsInPage.length; j++) {
+                    var moduleId = modulesIdsInPage[j];
+                    var scoreInfo = this.scoreService.getOpenActivityScores(page.getId(), moduleId);
+                    if (scoreInfo.maxScore !== null) {
+                        openActivitiesInfo.push({
+                            "activity_id": moduleId,
+                            "max_score": scoreInfo.maxScore
+                        });
+                    }
+                }
+
                 if (page.isReportable()) {
                     score = this.scoreService.getPageScoreWithoutOpenActivitiesById(page.getId());
 
@@ -104,7 +117,8 @@
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
                         "checks_count": score['checkCount'] ? score['checkCount'] : 0,
                         "mistake_count": score['mistakeCount'] ? score['mistakeCount'] : 0,
-                        "time": score['time'] ? parseInt(score['time'], 10) : 0
+                        "time": score['time'] ? parseInt(score['time'], 10) : 0,
+                        "open_activities": openActivitiesInfo
                     };
                     if (includeNonReportable) {
                         paginatedResults[count]["reportable"] = true;
@@ -124,7 +138,8 @@
                         "checks_count": 0,
                         "mistake_count": 0,
                         "time": pageTime ? parseInt(pageTime, 10) : 0,
-                        "reportable": false
+                        "reportable": false,
+                        "open_activities": openActivitiesInfo
                     };
                     count += 1;
                 }

@@ -42,6 +42,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 
@@ -225,7 +226,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return 0;
 	}-*/;
 	
-	
+
 	@Override
 	public int getScore() {
 		return getScore(jsObject, addonDescriptor.getAddonId());
@@ -752,7 +753,32 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return true;
 	}
+
+	public boolean isOpenActivity() {
+		return isOpenActivity(jsObject, this.model.getId());
+	}
 	
+	private native boolean isOpenActivity(JavaScriptObject obj, String addonId) /*-{
+		try {
+			if (obj.isOpenActivity != undefined){
+				var result = obj.isOpenActivity();
+				if (result === undefined) return false;
+				return result;
+			}
+		} catch(err){
+			alert("[" + addonId + "] Exception in isOpenActivity(): \n" + err);
+		}
+			
+		return false;
+	}-*/;
+
+	public ScoreInfo getOpenActivityScores() {
+		int currentPageIndex = services.getCurrentPageIndex();
+		String currentPageId = services.getModel().getPage(currentPageIndex).getId();
+		String addonId = this.model.getId();
+		return services.getScoreService().getOpenActivityScores(currentPageId, addonId);
+	}
+
 	private String getCurrentLayoutName() {
 		return services.getModel().getActualSemiResponsiveLayoutName();
 	}

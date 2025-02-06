@@ -1,4 +1,5 @@
 2025-02-04 Fixed progress bar length in TextAudio
+2025-02-03 Changed that Open Activities' addons get 100% of maxScore by default
 2025-01-31 Added Verbose New Page Message to the TTS addon
 2025-01-31 Added alternative keyboard navigation with TTS for Writing Calculations addon
 2025-01-31 Fixed not changing SVG icon in Double_State_Button
