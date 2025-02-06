@@ -393,7 +393,11 @@ public class JavaScriptPlayerServices {
 			score.getPageScoreById = function(pageId) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreById(Ljava/lang/String;)(pageId);
 			};
-
+			
+			score.getPageScoreWithOnlyActiveOpenActivitiesById = function(pageId) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageScoreWithOnlyActiveOpenActivitiesById(Ljava/lang/String;)(pageId);
+			};
+			
 			score.getOpenActivityScores = function(pageID, moduleID){
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenActivityScores(Ljava/lang/String;Ljava/lang/String;)(pageID, moduleID);
 			};
@@ -859,6 +863,10 @@ public class JavaScriptPlayerServices {
 
 		return model;
 	}
+	
+	private int getPageScoreWithOnlyActiveOpenActivitiesById(String id){
+		return playerServices.getScoreService().getPageScoreWithOnlyActiveOpenActivitiesById(id);
+	}
 
 	private JavaScriptObject getPageScoreWithoutOpenActivitiesById(String id){
 		PageScore score = playerServices.getScoreService().getPageScoreWithoutOpenActivitiesById(id);
@@ -871,6 +879,9 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getOpenActivityScores(String pageID, String moduleID){
 		ScoreInfo scoreInfo = playerServices.getScoreService().getOpenActivityScores(pageID, moduleID);
+		if (scoreInfo == null) {
+			scoreInfo = new ScoreInfo();
+		}
 		return scoreInfo.getAsJSObject();
 	}
 
