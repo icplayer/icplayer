@@ -1,3 +1,4 @@
+2025-02-10 Fixed problem with missing library for video addon
 2025-02-05 Added combination of keys to change playback rate in Audio addon
 2025-02-04 Fixed progress bar length in TextAudio
 2025-02-03 Changed that Open Activities' addons get 100% of maxScore by default

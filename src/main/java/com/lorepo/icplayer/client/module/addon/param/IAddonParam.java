@@ -15,4 +15,5 @@ public interface IAddonParam {
 	IAddonParam makeCopy();
 	boolean isDefault();
 	void setDefault(boolean isDefault);
+	void setValue(String value);
 }
