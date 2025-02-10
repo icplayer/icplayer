@@ -504,7 +504,7 @@ function Addonvideo_create() {
         MathJax.Hub.signal.hooks["End Process"].Remove(presenter.mathJaxHook);
     };
 
-    presenter.destroy = function () {
+    presenter.onDestroy = function () {
         var view = document.getElementsByClassName('ic_page');
 
         if (presenter.hlsPlayer != null) {
@@ -1145,9 +1145,6 @@ function Addonvideo_create() {
             presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
         }
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
-
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.$view.get(0));
-		MutationObserverService.setObserver();
 
         presenter.addClickListener();
     };
@@ -2338,3 +2335,7 @@ function Addonvideo_create() {
 
     return presenter;
 }
+
+Addonvideo_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
