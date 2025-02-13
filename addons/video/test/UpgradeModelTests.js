@@ -80,7 +80,8 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "Poster": "",
             ID : "",
             "time_labels": "",
-            "Audio Description": ""
+            "Audio Description": "",
+            "m3u8 video":""
         }],
         'Show play button': 'False',
         "speechTexts": {

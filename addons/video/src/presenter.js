@@ -675,6 +675,16 @@ function Addonvideo_create() {
         setAudioDescriptionEnabled(false);
     };
 
+    presenter.changePlayingSpeed = function(diff) {
+            const playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
+            let currentIndex = playingSpeedOptions.indexOf(presenter.videoObject.playbackRate);
+            if (currentIndex == -1) return;
+            currentIndex += diff;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= playingSpeedOptions.length) currentIndex = playingSpeedOptions.length - 1;
+            presenter.videoObject.playbackRate = playingSpeedOptions[currentIndex];
+        }
+
 
     presenter.keyboardController = function (keycode, isShift, event, keysDownCodes) {
         event.preventDefault();
@@ -744,23 +754,13 @@ function Addonvideo_create() {
             }
         }
 
-        function changeSpeed(diff) {
-            let playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
-            let currentIndex = playingSpeedOptions.indexOf(presenter.videoObject.playbackRate);
-            if (currentIndex == -1) return;
-            currentIndex += diff;
-            if (currentIndex < 0) currentIndex = 0;
-            if (currentIndex >= playingSpeedOptions.length) currentIndex = playingSpeedOptions.length - 1;
-            presenter.videoObject.playbackRate = playingSpeedOptions[currentIndex];
-        }
-
         function increaseSpeed() {
-            changeSpeed(1);
+            presenter.changePlayingSpeed(1);
             presenter.updateVideoSpeedController();
         }
 
         function decreaseSpeed() {
-            changeSpeed(-1);
+            presenter.changePlayingSpeed(-1);
             presenter.updateVideoSpeedController();
         }
 
