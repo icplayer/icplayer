@@ -1,3 +1,4 @@
+2025-02-13 Fixed setPrintableOrder malfunction in mCourser
 2025-01-31 Added Verbose New Page Message to the TTS addon
 2025-01-31 Added alternative keyboard navigation with TTS for Writing Calculations addon
 2025-01-31 Fixed not changing SVG icon in Double_State_Button
