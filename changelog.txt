@@ -1,4 +1,9 @@
-2025-02-10 Fixed issue with hls files in the video addon when a page is reloaded
+2025-02-14 Fixed issue with hls files in the video addon when a page is reloaded
+2025-02-12 Fixed problem with missing library for video addon
+2025-02-12 Added TTS support for speed control in video addon
+2025-02-05 Added combination of keys to change playback rate in Audio addon
+2025-02-04 Fixed progress bar length in TextAudio
+2025-02-03 Changed that Open Activities' addons get 100% of maxScore by default
 2025-01-31 Added Verbose New Page Message to the TTS addon
 2025-01-31 Added alternative keyboard navigation with TTS for Writing Calculations addon
 2025-01-31 Fixed not changing SVG icon in Double_State_Button

@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.module.api.player.PageOpenActivitiesScore.ScoreInfo;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 
@@ -101,5 +103,41 @@ public class TotalScoreTestCase {
 		assertEquals(3, totalScore.score);
 		assertEquals(4, totalScore.errors);
 		assertEquals(7, totalScore.maxScore);
+	}
+
+	@Test
+	public void getFromPresentersSingleOpenActivity() {
+		final AddonPresenter presenter = Mockito.mock(AddonPresenter.class);
+		Mockito.when(((IActivity)presenter).getScore()).thenReturn(0);
+		Mockito.when(((IActivity)presenter).getErrorCount()).thenReturn(0);
+		Mockito.when(((IActivity)presenter).getMaxScore()).thenReturn(5);
+		Mockito.when(presenter.isOpenActivity()).thenReturn(true);
+		Mockito.when(presenter.getOpenActivityScores()).thenReturn(new ScoreInfo(2, null, 5, null));
+
+		TotalScore totalScore = TotalScore.getFromPresenters(new LinkedList<IPresenter>(){{
+			add(presenter);
+		}});
+
+		assertEquals(2, totalScore.score);
+		assertEquals(0, totalScore.errors);
+		assertEquals(5, totalScore.maxScore);
+	}
+
+	@Test
+	public void getFromPresentersSingleNotOpenActivity() {
+		final AddonPresenter presenter = Mockito.mock(AddonPresenter.class);
+		Mockito.when(((IActivity)presenter).getScore()).thenReturn(0);
+		Mockito.when(((IActivity)presenter).getErrorCount()).thenReturn(0);
+		Mockito.when(((IActivity)presenter).getMaxScore()).thenReturn(5);
+		Mockito.when(presenter.isOpenActivity()).thenReturn(false);
+		Mockito.when(presenter.getOpenActivityScores()).thenReturn(new ScoreInfo(2, null, 5, null));
+
+		TotalScore totalScore = TotalScore.getFromPresenters(new LinkedList<IPresenter>(){{
+			add(presenter);
+		}});
+
+		assertEquals(0, totalScore.score);
+		assertEquals(0, totalScore.errors);
+		assertEquals(5, totalScore.maxScore);
 	}
 }

@@ -1366,6 +1366,10 @@ function AddonParagraph_Keyboard_create() {
         presenter.enableEdit();
     }
 
+    presenter.isOpenActivity = function () {
+        return presenter.configuration.isValid && presenter.configuration.manualGrading;
+    }
+
     return presenter;
 }
 

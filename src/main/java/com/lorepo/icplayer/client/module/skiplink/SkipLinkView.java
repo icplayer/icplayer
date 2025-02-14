@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.page.PageController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, IModuleView {
     private final ISkipLinkModule module;
@@ -57,7 +58,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     }
 
     @Override
-    public void enter(KeyDownEvent event, boolean isExiting) {
+    public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
         if (isExiting) {
             exitNavigation();
         } else {
@@ -122,19 +123,19 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     }
 
     @Override
-    public void shiftTab(KeyDownEvent event) {
+    public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
         keyboardManager.decrease();
         speakCurrentVisibleItem();
     }
 
     @Override
-    public void tab(KeyDownEvent event) {
+    public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
         keyboardManager.increase();
         speakCurrentVisibleItem();
     }
 
     @Override
-    public void space(KeyDownEvent event) {
+    public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
         if (keyboardManager.isActive()) {
             event.preventDefault();
             moveNavigationToSelectedModule();
@@ -142,7 +143,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     }
 
     @Override
-    public void escape(KeyDownEvent event) {
+    public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
         keyboardManager.setInactive();
         this.setVisible(false);
     }
@@ -178,27 +179,27 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     }
 
     @Override
-    public void left(KeyDownEvent event) {
+    public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 
     }
 
     @Override
-    public void right(KeyDownEvent event) {
+    public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
 
     }
 
     @Override
-    public void down(KeyDownEvent event) {
+    public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 
     }
 
     @Override
-    public void up(KeyDownEvent event) {
+    public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 
     }
 
     @Override
-    public void customKeyCode(KeyDownEvent event) {
+    public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
 
     }
 

@@ -212,7 +212,6 @@ public class StaticRowAddonParam implements IAddonParam{
 		this.displayName = displayName;
 	}
 
-
 	@Override
 	public String getDisplayName() {
 		return this.displayName;
@@ -233,6 +232,10 @@ public class StaticRowAddonParam implements IAddonParam{
 		AddonParamProvider addonProvider = new AddonParamProvider();
 		addonProvider.addParam(param);
 		addons.add(addonProvider);
-		
+	}
+	
+	@Override
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

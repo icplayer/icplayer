@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.Set;
 
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView, MathJaxElement {
@@ -399,7 +400,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 
 	@Override
-	public void enter(KeyDownEvent event, boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		if (!isExiting) {
 			addBorder();
 			textToSpeechCurrentOption();
@@ -410,53 +411,53 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 		select();
 		textToSpeechSelectOption();
 	}
 
 	@Override
-	public void tab(KeyDownEvent event) {
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		skip();
 		textToSpeechCurrentOption();
 	}
 
 	@Override
-	public void left(KeyDownEvent event) {
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		previous();
 		textToSpeechCurrentOption();
 	}
 
 	@Override
-	public void right(KeyDownEvent event) {
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
         skip();
         textToSpeechCurrentOption();
 	}
 
 	@Override
-	public void down(KeyDownEvent event) {
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 		skip();
         textToSpeechCurrentOption();
 	}
 
 	@Override
-	public void up(KeyDownEvent event) {
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault();
 		removeBorder();
 		position = -1;
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
@@ -465,7 +466,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 	
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	    previous();
 		textToSpeechCurrentOption();
 	}

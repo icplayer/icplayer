@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement {
@@ -839,7 +840,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void escape (KeyDownEvent event) {
+	public void escape (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault();
 		this.deselectCurrentItem();
 		currentWCAGSelectedItemIndex = 0;
@@ -863,7 +864,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void enter (KeyDownEvent event, boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
@@ -875,7 +876,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void space (KeyDownEvent event) {
+	public void space (KeyDownEvent event, Set<Integer> keysDownCodes) {
 	    event.preventDefault();
 		this.deselectCurrentItem();
 		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
@@ -887,28 +888,28 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}-*/;
 
 	@Override
-	public void tab (KeyDownEvent event) {
+	public void tab (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(1);
 	}
 
 	@Override
-	public void left (KeyDownEvent event) {
+	public void left (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(-1);
 	}
 
 	@Override
-	public void right (KeyDownEvent event) {
+	public void right (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(1);
 	}
 
 	@Override
-	public void up (KeyDownEvent event) {
+	public void up (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault();
 		this.move(-1);
 	}
 
 	@Override
-	public void down (KeyDownEvent event) {
+	public void down (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault();
 		this.move(1);
 	}
@@ -976,12 +977,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab (KeyDownEvent event) {
+	public void shiftTab (KeyDownEvent event, Set<Integer> keysDownCodes) {
 		this.move(-1);
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {}
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {}
 
 	@Override
 	public void setWCAGStatus (boolean isWCAGOn) {

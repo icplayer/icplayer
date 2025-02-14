@@ -8,16 +8,16 @@
         <property name="annotations" nameLabel="Model_Viewer_annotations" type="text"/>
         <property name="environmentImage" nameLabel="Model_Viewer_environmentImage" type="image"/>
         <property name="skyboxImage" nameLabel="Model_Viewer_skyboxImage" type="image"/>
-        <property name="shadowIntensity" nameLabel="Model_Viewer_shadowIntensity" type="string" value="0"/>
-        <property name="shadowSoftness" nameLabel="Model_Viewer_shadowSoftness" type="string" value="1"/>
+        <property name="shadowIntensity" nameLabel="Model_Viewer_shadowIntensity" type="string"/>
+        <property name="shadowSoftness" nameLabel="Model_Viewer_shadowSoftness" type="string"/>
         <property name="autoRotate" nameLabel="Model_Viewer_autoRotate" type="boolean"/>
-        <property name="scale" nameLabel="Model_Viewer_scale" type="string" value="1"/>
-        <property name="labelsEnabled" nameLabel="Model_Viewer_labelsEnabled" type="boolean" value="True"/>
+        <property name="scale" nameLabel="Model_Viewer_scale" type="string"/>
+        <property name="labelsEnabled" nameLabel="Model_Viewer_labelsEnabled" type="boolean"/>
         <property name="altText" nameLabel="Model_Viewer_altText" type="string"/>
         <property name="attributes" nameLabel="Model_Viewer_attributes" type="text"/>
         <property name="copyInfo" nameLabel="Model_Viewer_copyInfo" type="html"/>
-        <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="boolean" value="True"/>
-        <property name="enableFullscreen" nameLabel="Model_Viewer_enableFullscreen" type="boolean" value="False"/>
+        <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="boolean"/>
+        <property name="enableFullscreen" nameLabel="Model_Viewer_enableFullscreen" type="boolean"/>
         <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/5059308589809664"/>
     </model>
 </addon>
