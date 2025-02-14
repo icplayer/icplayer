@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 
@@ -176,7 +177,7 @@ public class ScoreServiceTestCase {
 	}
 	
 	@Test
-	public void givenScoreServiceWhenSetNoOpenActivitiesScoresThenOnGetShouldBeenReturnedEmptyScoreInfo() {
+	public void givenScoreServiceWhenSetNoOpenActivitiesScoresThenOnGetShouldBeenReturnedNull() {
 		// GIVEN
 		ScoreService scoreService = new ScoreService(ScoreType.last);
 		scoreService.setPlayerService(mockedPlayerServices);
@@ -188,9 +189,7 @@ public class ScoreServiceTestCase {
 		
 		// THEN
 		ScoreInfo scoreInfo = scoreService.getOpenActivityScores("xxx", "xxx1");
-		assertEquals("Test for max score failed:", 0, scoreInfo.getMaxScore());
-		assertEquals("Test for score failed:", 0, scoreInfo.getScore());
-		assertEquals("Test for AI reference failed:", null, scoreInfo.getAIRelevance());
+		assertNull(scoreInfo);
 	}
 	
 	@Test
@@ -263,5 +262,73 @@ public class ScoreServiceTestCase {
 		assertEquals("Test for max score of module failed:", 0, scoreInfo.getMaxScore());
 		assertEquals("Test for score of module failed:", 2, scoreInfo.getScore());
 		assertEquals("Test for AI reference of module failed:", 0.72f, scoreInfo.getAIRelevance(), 0);
+	}
+
+	@Test
+	public void givenScoreServiceWithoutAnyOpenActivityScoresWhenEnsureCalledForNotExistingModuleThenDataShouldBeenCreated() {
+		// GIVEN
+		ScoreService scoreService = new ScoreService(ScoreType.last);
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		scoreService.setPlayerService(services);
+		String pageID = "page1";
+		String moduleID = "xxx";
+
+		// WHEN
+		scoreService.ensureOpenActivityScoreExist(pageID, moduleID, 2);
+
+		// THEN
+		ScoreInfo scoreInfo = scoreService.getOpenActivityScores(pageID, moduleID);
+		assertEquals("Test for max score of module failed:", 2, scoreInfo.getMaxScore());
+		assertEquals("Test for score of module failed:", 2, scoreInfo.getScore());
+	}
+
+	@Test
+	public void givenScoreServiceWithoutOpenActivityScoresWhenEnsureCalledForNotExistingModuleThenDataShouldBeenCreated() {
+		// GIVEN
+		ScoreService scoreService = new ScoreService(ScoreType.last);
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		scoreService.setPlayerService(services);
+
+		HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores = new HashMap<String, PageOpenActivitiesScore>();
+		String pageID = "page1";
+		String moduleID = "xxx";
+		String moduleID2 = "aaa";
+		PageOpenActivitiesScore pageOpenActivitiesScore = new PageOpenActivitiesScore();
+		pageOpenActivitiesScore.addScore(moduleID, 1, null, 3, 0.5f);
+		pagesOpenActivitiesScores.put(pageID, pageOpenActivitiesScore);
+		scoreService.setOpenActivitiesScores(pagesOpenActivitiesScores);
+
+		// WHEN
+		scoreService.ensureOpenActivityScoreExist(pageID, moduleID2, 2);
+
+		// THEN
+		ScoreInfo scoreInfo = scoreService.getOpenActivityScores(pageID, moduleID2);
+		assertEquals("Test for max score of module failed:", 2, scoreInfo.getMaxScore());
+		assertEquals("Test for score of module failed:", 2, scoreInfo.getScore());
+	}
+
+	@Test
+	public void givenScoreServiceWithOpenActivityScoresWhenEnsureCalledForExistingModuleThenDataShouldNotBeenReplaced() {
+		// GIVEN
+		ScoreService scoreService = new ScoreService(ScoreType.last);
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		scoreService.setPlayerService(services);
+
+		HashMap<String, PageOpenActivitiesScore> pagesOpenActivitiesScores = new HashMap<String, PageOpenActivitiesScore>();
+		String pageID = "page1";
+		String moduleID = "xxx";
+		PageOpenActivitiesScore pageOpenActivitiesScore = new PageOpenActivitiesScore();
+		pageOpenActivitiesScore.addScore(moduleID, 1, null, 3, 0.5f);
+		pagesOpenActivitiesScores.put(pageID, pageOpenActivitiesScore);
+		scoreService.setOpenActivitiesScores(pagesOpenActivitiesScores);
+
+		// WHEN
+		scoreService.ensureOpenActivityScoreExist(pageID, moduleID, 2);
+
+		// THEN
+		ScoreInfo scoreInfo = scoreService.getOpenActivityScores(pageID, moduleID);
+		assertEquals("Test for max score of module failed:", 3, scoreInfo.getMaxScore());
+		assertEquals("Test for score of module failed:", 1, scoreInfo.getScore());
+		assertEquals("Test for AI reference of module failed:", 0.5f, scoreInfo.getAIRelevance(), 0);
 	}
 }

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		
 		this.textView.setWCAGStatus(true);
 	
-		this.textView.enter(mock(KeyDownEvent.class), false);
+		this.textView.enter(mock(KeyDownEvent.class), false, mock(HashSet.class));
 		
 		verify(pageControllerMock, times(1)).speak(any(List.class));
 	}
@@ -80,9 +81,10 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		
 		this.textView.setWCAGStatus(true);
 		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 		
-		this.textView.enter(mock(KeyDownEvent.class), false);
-		this.textView.tab(eventMock);
+		this.textView.enter(eventMock, false, keysDownCodesMock);
+		this.textView.tab(eventMock, keysDownCodesMock);
 		
 		verify(pageControllerMock, times(2)).speak(any(List.class));
 	}
@@ -92,10 +94,11 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.addElement(this.gapWidget);
 		
 		this.textView.setWCAGStatus(false);
-		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 		
-		this.textView.enter(mock(KeyDownEvent.class), false);
-		this.textView.tab(eventMock);
+		this.textView.enter(eventMock, false, keysDownCodesMock);
+		this.textView.tab(eventMock, keysDownCodesMock);
 		
 		verify(pageControllerMock, times(0)).speak(any(List.class));
 	}
@@ -105,10 +108,11 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.model.setText("  ");
 		
 		this.textView.setWCAGStatus(true);
-		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 		
-		this.textView.enter(mock(KeyDownEvent.class), false);
-		this.textView.space(eventMock);
+		this.textView.enter(eventMock, false, keysDownCodesMock);
+		this.textView.space(eventMock, keysDownCodesMock);
 		
 		verify(pageControllerMock, times(1)).speak(any(List.class));
 	}
@@ -122,18 +126,19 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.addElement(choiceMock);
 		
 		this.textView.setWCAGStatus(true);
-		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		KeyDownEvent eventMock = mock(KeyDownEvent.class);
+		HashSet keysDownCodesMock = mock(HashSet.class);
 		
-		this.textView.enter(mock(KeyDownEvent.class), false);
-		this.textView.tab(eventMock);
-		this.textView.down(eventMock);
-		this.textView.right(eventMock);
+		this.textView.enter(eventMock, false, keysDownCodesMock);
+		this.textView.tab(eventMock, keysDownCodesMock);
+		this.textView.down(eventMock, keysDownCodesMock);
+		this.textView.right(eventMock, keysDownCodesMock);
 		
 		verify(choiceMock, times(2)).changeSelected(true);
 		verify(choiceMock, times(0)).changeSelected(false);
 		
-		this.textView.up(eventMock);
-		this.textView.left(eventMock);
+		this.textView.up(eventMock, keysDownCodesMock);
+		this.textView.left(eventMock, keysDownCodesMock);
 		
 		verify(choiceMock, times(2)).changeSelected(true);
 		verify(choiceMock, times(2)).changeSelected(false);

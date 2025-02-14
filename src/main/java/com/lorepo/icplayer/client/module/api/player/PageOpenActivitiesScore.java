@@ -37,7 +37,7 @@ public class PageOpenActivitiesScore {
 			if (aiGradedScore != null) {
 				return aiGradedScore.intValue();
 			}
-			return 0;
+			return getMaxScore();
 		}
 		
 		public int getMaxScore() {
@@ -55,14 +55,16 @@ public class PageOpenActivitiesScore {
 			int _aiGradedScore = (aiGradedScore != null) ? aiGradedScore.intValue() : -999;
 			int _manualGradedScore = (manualGradedScore != null) ? manualGradedScore.intValue() : -999;
 			float _aiRelevance = (aiRelevance != null) ? aiRelevance.floatValue() : -999.0f;
-			return createJSObject(_aiGradedScore, _manualGradedScore, _aiRelevance);
+			int _maxScore = (maxScore != null) ? maxScore.intValue() : -999;
+			return createJSObject(_aiGradedScore, _manualGradedScore, _aiRelevance, _maxScore);
 		}
 		
-		private native JavaScriptObject createJSObject(int aiGradedScore, int manualGradedScore, float aiRelevance) /*-{
+		private native JavaScriptObject createJSObject(int aiGradedScore, int manualGradedScore, float aiRelevance, int maxScore) /*-{
 			return {
 				"manualGradedScore": manualGradedScore === -999 ? null : manualGradedScore,
 				"aiGradedScore": aiGradedScore === -999 ? null : aiGradedScore,
-				"aiRelevance": aiRelevance === -999 ? null : aiRelevance
+				"aiRelevance": aiRelevance === -999 ? null : aiRelevance,
+				"maxScore": maxScore === -999 ? null : maxScore
 			}
 		}-*/;
 	}

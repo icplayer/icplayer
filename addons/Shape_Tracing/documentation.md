@@ -9,6 +9,8 @@ Shape Tracing addon allows you to check the correctness of written signs. The ad
 
 ## Properties
 
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
+
 <table border='1'>
     <tr>
         <th>Property name</th>
@@ -17,7 +19,7 @@ Shape Tracing addon allows you to check the correctness of written signs. The ad
     <tr>
         <td>Shape image</td>
         <td>Image file – every non-white pixel is interpreted by the addon as a boundary point of a shape. (only .png files are permitted).
-           <p> An image from an online resource different from mAuthor's origin is not supported.</p>
+           <p> An image from an online resource different from mAuthor's origin is not supported by default. A resource from an origin other than mAuthor can be supported, after adding such an origin to the <a href="/doc/page/Requests-Configuration">player's white list</a>. </p>
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
 </td>
     </tr>
@@ -36,7 +38,7 @@ Shape Tracing addon allows you to check the correctness of written signs. The ad
     <tr>
         <td>Background image</td>
         <td>An image file (only .png files are permitted).
-           <p>An image from an online resource different from mAuthor's origin is not supported.</p>
+           <p> An image from an online resource different from mAuthor's origin is not supported by default. A resource from an origin other than mAuthor can be supported, after adding such an origin to the <a href="/doc/page/Requests-Configuration">player's white list</a>. </p>
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
 </td>
     </tr>
@@ -217,22 +219,20 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>source</td>
-            <td>addon ID</td>
-        </tr>
-        <tr>
-            <td>item</td>
-            <td>allOk</td>
-        </tr>
-        <tr>
-            <td>value</td>
-            <td>empty</td>
-        </tr>
-        <tr>
-            <td>score</td>
-            <td>Always: 1</td>
-        </tr>
+        <td>Source</td>
+        <td>addon ID</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>allOk</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>empty</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>Always: 1</td>
     </tr>
 </tbody>
 </table>
@@ -246,22 +246,20 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>source</td>
-            <td>addon ID</td>
-        </tr>
-        <tr>
-            <td>item</td>
-            <td>empty</td>
-        </tr>
-        <tr>
-            <td>value</td>
-            <td>Always: 0</td>
-        </tr>
-        <tr>
-            <td>score</td>
-            <td>empty</td>
-        </tr>
+        <td>Source</td>
+        <td>addon ID</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>empty</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>Always: 0</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>empty</td>
     </tr>
 </tbody>
 </table>

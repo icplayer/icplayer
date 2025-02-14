@@ -135,4 +135,9 @@ public class StringAddonParam implements IAddonParam {
 	public boolean isDefault() {
 		return isDefault;
 	}
+	
+	@Override
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

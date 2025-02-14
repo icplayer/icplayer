@@ -504,7 +504,7 @@ function Addonvideo_create() {
         MathJax.Hub.signal.hooks["End Process"].Remove(presenter.mathJaxHook);
     };
 
-    presenter.destroy = function () {
+    presenter.onDestroy = function () {
         var view = document.getElementsByClassName('ic_page');
 
         if (presenter.hlsPlayer != null) {
@@ -675,8 +675,18 @@ function Addonvideo_create() {
         setAudioDescriptionEnabled(false);
     };
 
+    presenter.changePlayingSpeed = function(diff) {
+            const playingSpeedOptions = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2];
+            let currentIndex = playingSpeedOptions.indexOf(presenter.videoObject.playbackRate);
+            if (currentIndex == -1) return;
+            currentIndex += diff;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= playingSpeedOptions.length) currentIndex = playingSpeedOptions.length - 1;
+            presenter.videoObject.playbackRate = playingSpeedOptions[currentIndex];
+        }
 
-    presenter.keyboardController = function (keycode, isShift, event) {
+
+    presenter.keyboardController = function (keycode, isShift, event, keysDownCodes) {
         event.preventDefault();
 
         function increasedVolume() {
@@ -744,15 +754,33 @@ function Addonvideo_create() {
             }
         }
 
+        function increaseSpeed() {
+            presenter.changePlayingSpeed(1);
+            presenter.updateVideoSpeedController();
+        }
+
+        function decreaseSpeed() {
+            presenter.changePlayingSpeed(-1);
+            presenter.updateVideoSpeedController();
+        }
+
         switch (keycode) {
             case 32:
                 playPause();
                 break;
             case 38:
-                presenter.videoObject.volume = increasedVolume();
+                if (keysDownCodes.indexOf(83) > -1) { // Press S at the same time
+                    increaseSpeed();
+                } else {
+                    presenter.videoObject.volume = increasedVolume();
+                }
                 break;
             case 40:
-                presenter.videoObject.volume = decreasedVolume();
+                if (keysDownCodes.indexOf(83) > -1) { // Press S at the same time
+                    decreaseSpeed();
+                } else {
+                    presenter.videoObject.volume = decreasedVolume();
+                }
                 break;
             case 37:
                 if (!isShift) {
@@ -776,6 +804,13 @@ function Addonvideo_create() {
                 break;
             case 65: // A
                 presenter.switchAudioDescriptionEnabled();
+                break;
+            case 83: // S
+                if (keysDownCodes.indexOf(38) > -1) { // Press UP at the same time
+                    increaseSpeed();
+                } else if (keysDownCodes.indexOf(40) > -1) { // Press DOWN at the same time
+                    decreaseSpeed();
+                }
                 break;
         }
     };
@@ -1145,9 +1180,6 @@ function Addonvideo_create() {
             presenter.videoObject.addEventListener('playing', presenter.onVideoPlaying, false);
         }
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', presenter.fullscreenChangedEventReceived);
-
-        MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.$view.get(0));
-		MutationObserverService.setObserver();
 
         presenter.addClickListener();
     };
@@ -2251,6 +2283,12 @@ function Addonvideo_create() {
         presenter.videoObject.playbackRate = parseFloat(playbackRate);
     }
 
+    presenter.updateVideoSpeedController = function() {
+        let $playebackRateSelect = presenter.$view.find('.video-playback-rate select');
+        if ($playebackRateSelect.length == 0) return;
+        $playebackRateSelect.val(presenter.videoObject.playbackRate);
+    }
+
     presenter.getVideo = function () {
         return presenter.videoContainer.find('video:first');
     };
@@ -2338,3 +2376,7 @@ function Addonvideo_create() {
 
     return presenter;
 }
+
+Addonvideo_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
