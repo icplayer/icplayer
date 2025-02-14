@@ -1,3 +1,4 @@
+2025-02-14 Fixed issue with hls files in the video addon when a page is reloaded
 2025-02-12 Fixed problem with missing library for video addon
 2025-02-12 Added TTS support for speed control in video addon
 2025-02-05 Added combination of keys to change playback rate in Audio addon
