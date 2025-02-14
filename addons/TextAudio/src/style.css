@@ -70,6 +70,16 @@
     cursor: pointer;
 }
 
+.textaudio-volume-container {
+    display: flex;
+    flex-direction: row;
+    width: 50px;
+}
+
+.textaudio-volume-container.keyboard_navigation_active_element.active {
+    width: 175px;
+}
+
 .textaudio-volume-btn {
     width: 40px;
     height: 40px;

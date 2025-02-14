@@ -30,6 +30,8 @@ function AddonTextAudio_create() {
     presenter.keyboardControllerObject = null;
     presenter.isWCAGOn = false;
     presenter.speechTexts = null;
+    presenter.volumeStep = 0.05;
+    presenter.progressStep = 5;
 
     presenter.PLAYBACK_RATE_LIST = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
     presenter.playbackRate = 1.0;
@@ -75,6 +77,8 @@ function AddonTextAudio_create() {
         PAUSE_BUTTON: "Pause button",
         STOP_BUTTON: "Stop button",
         AUDIO_SPEED_CONTROLLER: "Audio speed controller",
+        VOLUME_CONTROLLER: "Volume controller",
+        PROGRESS_BAR: "Progress bar"
     };
 
     presenter.CSS_CLASSES = {
@@ -83,6 +87,9 @@ function AddonTextAudio_create() {
         PLAY_PAUSE_BUTTON: "textaudio-play-pause-btn",
         STOP_BUTTON: "textaudio-stop-btn",
         AUDIO_SPEED_CONTROLLER: "textaudio-playback-rate",
+        VOLUME_CONTAINER: "textaudio-volume-container",
+        PROGRESS_BAR: "textaudio-progress-bar",
+        ACTIVE: "active"
     };
 
     presenter.OPERATION_TYPE = {
@@ -310,6 +317,12 @@ function AddonTextAudio_create() {
         if (!upgradedModel["speechTexts"]["AudioSpeedController"]) {
             upgradedModel["speechTexts"]["AudioSpeedController"] = {AudioSpeedController: ""};
         }
+        if (!upgradedModel["speechTexts"]["ProgressBar"]) {
+            upgradedModel["speechTexts"]["ProgressBar"] = {ProgressBar: ""};
+        }
+        if (!upgradedModel["speechTexts"]["VolumeController"]) {
+            upgradedModel["speechTexts"]["VolumeController"] = {VolumeController: ""};
+        }
 
         return upgradedModel;
     }
@@ -320,6 +333,8 @@ function AddonTextAudio_create() {
             Pause: presenter.DEFAULT_TTS_PHRASES.PAUSE_BUTTON,
             Stop: presenter.DEFAULT_TTS_PHRASES.STOP_BUTTON,
             AudioSpeedController: presenter.DEFAULT_TTS_PHRASES.AUDIO_SPEED_CONTROLLER,
+            ProgressBar: presenter.DEFAULT_TTS_PHRASES.PROGRESS_BAR,
+            VolumeController: presenter.DEFAULT_TTS_PHRASES.VOLUME_CONTROLLER
         };
 
         if (!speechTexts || $.isEmptyObject(speechTexts)) {
@@ -339,6 +354,12 @@ function AddonTextAudio_create() {
             AudioSpeedController: TTSUtils.getSpeechTextProperty(
                 speechTexts.AudioSpeedController.AudioSpeedController,
                 presenter.speechTexts.AudioSpeedController),
+            ProgressBar: TTSUtils.getSpeechTextProperty(
+                speechTexts.ProgressBar.ProgressBar,
+                presenter.speechTexts.ProgressBar),
+            VolumeController: TTSUtils.getSpeechTextProperty(
+                speechTexts.VolumeController.VolumeController,
+                presenter.speechTexts.VolumeController),
         };
     };
 
@@ -933,6 +954,9 @@ function AddonTextAudio_create() {
         presenter.$customPlayer.append(presenter.$progressWrapper);
 
         if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
+            presenter.$volumeContainer = $('<div>').
+                addClass('textaudio-volume-container')
+
             presenter.$volumeBtn = $('<div>').
                 addClass('textaudio-volume-btn').
                 on('click', presenter.toogleVolumeLayer);
@@ -952,9 +976,12 @@ function AddonTextAudio_create() {
                 append($volumeControlBackground).
                 append(presenter.$volumeControl);
 
-            presenter.$customPlayer.
+            presenter.$volumeContainer.
                 append(presenter.$volumeBtn).
                 append(presenter.$volumeLayer);
+
+            presenter.$customPlayer.
+                append(presenter.$volumeContainer);
         }
 
         if (presenter.configuration.enablePlaybackSpeedControls) {
@@ -2081,6 +2108,9 @@ function AddonTextAudio_create() {
                 break;
         }
 
+        elements.push(presenter.$progressWrapper);
+        elements.push(presenter.$volumeContainer);
+
         return elements.concat(presenter.slidesSpanElements.map(
             function(spanElement) {
                 return $(spanElement);
@@ -2089,11 +2119,24 @@ function AddonTextAudio_create() {
     };
 
     presenter.actualizeKeyboardControllerElements = function () {
+        if (presenter.isVocabularyOrProgressActive()) {
+            return;
+        }
+
         if (presenter.keyboardControllerObject) {
             const elements = presenter.getElementsForKeyboardNavigation();
             presenter.keyboardControllerObject.setElements(elements);
         }
     };
+
+    presenter.isVocabularyOrProgressActive = function () {
+        const keyboardController = presenter.keyboardControllerObject;
+        if (!keyboardController) return;
+
+        const currentElement = keyboardController.getCurrentElement();
+
+        return keyboardController.isVolumeControlActive(currentElement) || keyboardController.isProgressBarActive(currentElement);
+    }
 
     presenter.buildKeyboardController = function () {
         const elements = presenter.getElementsForKeyboardNavigation();
@@ -2171,8 +2214,49 @@ function AddonTextAudio_create() {
         if (presenter.configuration.isEnabled) {
             this.selectedMode = true;
         }
+
+        const $currentElement = this.getCurrentElement();
+        handleVolumeControl($currentElement);
+        handleAudioProgress($currentElement);
+
         KeyboardController.prototype.select.call(this, event);
     };
+
+    function addActiveClass($element) {
+        $element.addClass(presenter.CSS_CLASSES.ACTIVE);
+    }
+
+    function handleVolumeControl($element) {
+        if (!$element.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER)) {
+            return;
+        }
+
+        addActiveClass($element);
+        presenter.$volumeLayer.show();
+        presenter.$playerTime.hide();
+        presenter.onVolumeChanged();
+    }
+
+    function handleAudioProgress($element) {
+        if (!$element.hasClass(presenter.CSS_CLASSES.PROGRESS_BAR)) {
+            return;
+        }
+
+        addActiveClass($element);
+    }
+
+    function hideVolumeController() {
+        const $element = $(`.${presenter.CSS_CLASSES.VOLUME_CONTAINER}`);
+        if ($element && $element.hasClass(presenter.CSS_CLASSES.ACTIVE)) {
+            presenter.$volumeLayer.hide();
+            presenter.$playerTime.show();
+            $element.removeClass(presenter.CSS_CLASSES.ACTIVE);
+        }
+    }
+
+    function cleanProgressBar() {
+        presenter.$progressWrapper?.removeClass(presenter.CSS_CLASSES.ACTIVE);
+    }
 
     TextAudioKeyboardController.prototype.up = function (event) {
         if (event) {
@@ -2182,10 +2266,39 @@ function AddonTextAudio_create() {
         const $currentElement = this.getCurrentElement();
         if (this.isElementActiveForAfterSelectionAction($currentElement)) {
             presenter.changePlaybackRate(presenter.OPERATION_TYPE.INCREASE);
+        } else if (this.isVolumeControlActive($currentElement)) {
+            presenter.handleVolumeChange(event);
+        } else if (this.isProgressBarActive($currentElement)) {
+            presenter.handleProgressChange(event);
         } else {
             this.previousRow(event);
         }
     };
+
+    presenter.handleProgressChange = function (event) {
+        const currentTime = presenter.audio.currentTime;
+        if (event.keyCode === 38) {
+            (presenter.audio.currentTime !== 0) && (currentTime + presenter.progressStep < presenter.audio.duration) && (presenter.audio.currentTime += presenter.progressStep);
+            (presenter.audio.currentTime === 0) && (presenter.audio.currentTime = presenter.progressStep);
+            (currentTime + presenter.progressStep > presenter.audio.duration) && (presenter.audio.currentTime = presenter.audio.duration);
+        } else if (event.keyCode === 40) {
+            (presenter.audio.currentTime === 0) && (presenter.audio.currentTime = 0);
+            (currentTime - presenter.progressStep > 0) && (presenter.audio.currentTime -= presenter.progressStep);
+            (currentTime - presenter.progressStep <= 0) && (presenter.audio.currentTime = 0);
+        }
+    };
+
+    presenter.handleVolumeChange = function (event) {
+        const currentValue = presenter.audio.volume;
+        if (event.keyCode === 38) {
+            (currentValue !== 0) && (currentValue + presenter.volumeStep < 1) && (presenter.audio.volume += presenter.volumeStep);
+            (currentValue === 0) && (presenter.audio.volume = 0.1);
+            (currentValue + presenter.volumeStep >= 1) && (presenter.audio.volume = 1);
+        } else if (event.keyCode === 40) {
+            (currentValue - presenter.volumeStep > 0) && (presenter.audio.volume -= presenter.volumeStep);
+            (currentValue - presenter.volumeStep <= 0) && (presenter.audio.volume = 0);
+        }
+    }
 
     TextAudioKeyboardController.prototype.down = function (event) {
         if (event) {
@@ -2195,6 +2308,10 @@ function AddonTextAudio_create() {
         const $currentElement = this.getCurrentElement();
         if (this.isElementActiveForAfterSelectionAction($currentElement)) {
             presenter.changePlaybackRate(presenter.OPERATION_TYPE.DECREASE);
+        } else if (this.isVolumeControlActive($currentElement)) {
+            presenter.handleVolumeChange(event);
+        } else if (this.isProgressBarActive($currentElement)) {
+            presenter.handleProgressChange(event);
         } else {
             this.nextRow(event);
         }
@@ -2205,6 +2322,16 @@ function AddonTextAudio_create() {
             && this.selectedMode
             && $element.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)
         );
+    };
+
+    TextAudioKeyboardController.prototype.isVolumeControlActive = function ($element) {
+        return $element.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER) &&
+            $element.hasClass(presenter.CSS_CLASSES.ACTIVE);
+    };
+
+    TextAudioKeyboardController.prototype.isProgressBarActive = function ($element) {
+        return $element.hasClass(presenter.CSS_CLASSES.PROGRESS_BAR) &&
+            $element.hasClass(presenter.CSS_CLASSES.ACTIVE);
     };
 
     TextAudioKeyboardController.prototype.nextElement = function (event) {
@@ -2278,6 +2405,9 @@ function AddonTextAudio_create() {
     };
 
     TextAudioKeyboardController.prototype.switchElement = function (move) {
+        hideVolumeController();
+        cleanProgressBar();
+
         this.selectedMode = false;
         KeyboardController.prototype.switchElement.call(this, move);
         if (this.isCurrentElementVisible()) {
@@ -2295,12 +2425,18 @@ function AddonTextAudio_create() {
             presenter.audio.currentTime = 0;
         }
 
+        hideVolumeController();
+        cleanProgressBar();
+
         KeyboardController.prototype.escape.call(this, event);
     };
 
     TextAudioKeyboardController.prototype.exitWCAGMode = function () {
         this.selectedMode = false;
         KeyboardController.prototype.exitWCAGMode.call(this);
+
+        hideVolumeController();
+        cleanProgressBar();
     };
 
     TextAudioKeyboardController.prototype.speakCurrentElement = function () {
@@ -2312,6 +2448,10 @@ function AddonTextAudio_create() {
             this.speakForStopButton();
         } else if ($currentElement.hasClass(presenter.CSS_CLASSES.AUDIO_SPEED_CONTROLLER)) {
             this.speakForSpeedController();
+        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.PROGRESS_BAR)) {
+            this.speakForProgressBar();
+        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER)) {
+            this.speakForVolumeController();
         }
     };
 
@@ -2328,6 +2468,14 @@ function AddonTextAudio_create() {
 
     TextAudioKeyboardController.prototype.speakForSpeedController = function () {
         speakMessage(presenter.speechTexts.AudioSpeedController);
+    };
+
+    TextAudioKeyboardController.prototype.speakForProgressBar = function () {
+        speakMessage(presenter.speechTexts.ProgressBar);
+    };
+
+    TextAudioKeyboardController.prototype.speakForVolumeController = function () {
+        speakMessage(presenter.speechTexts.VolumeController);
     };
 
     function speakMessage(message) {
