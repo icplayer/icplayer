@@ -852,6 +852,11 @@ public class PlayerApp {
 	
 	public void generatePrintableHTML(PrintableParams params) {
 		printableParser = new PrintableContentParser();
+
+		if (this.printableOrder != null) {
+			printableParser.setPrintableOrder(this.printableOrder);
+		}
+		
 		if (params.seed != -1) {
 			printableParser.setRandomSeed(params.seed);
 		}
@@ -867,7 +872,6 @@ public class PlayerApp {
 
 	public void setPrintableOrder(JavaScriptObject order) {
 		this.printableOrder = PrintableOrderParser.toHashMap(order);
-		printableParser.setPrintableOrder(this.printableOrder);
 	}
 
 	private String getCurrentUserStyles() {
