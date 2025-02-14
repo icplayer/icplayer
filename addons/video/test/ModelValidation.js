@@ -20,6 +20,7 @@ TestCase("[Video] Model validation", {
                 "WebM video": "some path",
                 "MP4 video": "else path",
                 "Ogg video": "and another path",
+                "m3u8 video": "stream",
                 "AlternativeText": "A",
                 "time_labels":  "00:00:00 Start\n" +
                                 "20 End :P",
@@ -32,6 +33,7 @@ TestCase("[Video] Model validation", {
                 "WebM video": "some path",
                 "MP4 video": "else path",
                 "Ogg video": "that should be something different",
+                "m3u8 video": "stream 2",
                 "AlternativeText": "B",
                 "time_labels":  "02:01:01 Start2\n" +
                                 "02:20",
@@ -68,6 +70,7 @@ TestCase("[Video] Model validation", {
                 "WebM video": "some path",
                 "MP4 video": "else path",
                 "Ogg video": "and another path",
+                "m3u8 video": "stream",
                 "AlternativeText": "A",
                 "timeLabels": [
                     {isValid: true, title: "Start", time:0},
@@ -82,6 +85,7 @@ TestCase("[Video] Model validation", {
                 "WebM video": "some path",
                 "MP4 video": "else path",
                 "Ogg video": "that should be something different",
+                "m3u8 video": "stream 2",
                 "AlternativeText": "B",
                 "timeLabels": [
                     {isValid: true, title: "2. 02:20", time: 140},
