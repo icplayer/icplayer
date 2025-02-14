@@ -152,19 +152,27 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public void setAddonId(String id) {
 		this.addonId = id;
 	}
-
-
+	
+	public void addAddonParam(String name, String displayName, String type, String value) {
+		IAddonParam addonParam = createAddonParam(name, displayName, type);
+		addonParam.setValue(value);
+		addAddonParam(addonParam);
+	}
+	
 	public void addAddonParam(String name, String displayName, String type) {
+		IAddonParam addonParam = createAddonParam(name, displayName, type);
+		addAddonParam(addonParam);
+	}
+	
+	private IAddonParam createAddonParam(String name, String displayName, String type) {
 		AddonParamFactory paramFactory = new AddonParamFactory();
 		IAddonParam addonParam = paramFactory.createAddonParam(this, type);
 		addonParam.setName(name);
 		addonParam.setDisplayName(displayName);
-		
-		addAddonParam(addonParam);
+		return addonParam;
 	}
 
 	public void addAddonParam(IAddonParam param) {
-
 		addonParams.add(param);
 		addProperty(param.getAsProperty());
 	}
