@@ -88,6 +88,7 @@ function AddonTextAudio_create() {
         STOP_BUTTON: "textaudio-stop-btn",
         AUDIO_SPEED_CONTROLLER: "textaudio-playback-rate",
         VOLUME_CONTAINER: "textaudio-volume-container",
+        VOLUME_BTN: "textaudio-volume-btn",
         PROGRESS_BAR: "textaudio-progress-bar",
         ACTIVE: "active"
     };
@@ -2099,6 +2100,8 @@ function AddonTextAudio_create() {
                     presenter.$playPauseBtn,
                     presenter.$stopBtn
                 ];
+                elements.push(presenter.$progressWrapper);
+                elements.push(presenter.$volumeBtn);
                 if (presenter.configuration.enablePlaybackSpeedControls) {
                     elements.push(presenter.$playbackRateControls);
                 }
@@ -2107,9 +2110,6 @@ function AddonTextAudio_create() {
                 elements = [];
                 break;
         }
-
-        elements.push(presenter.$progressWrapper);
-        elements.push(presenter.$volumeContainer);
 
         return elements.concat(presenter.slidesSpanElements.map(
             function(spanElement) {
@@ -2219,7 +2219,9 @@ function AddonTextAudio_create() {
         handleVolumeControl($currentElement);
         handleAudioProgress($currentElement);
 
-        KeyboardController.prototype.select.call(this, event);
+        if (!presenter.isVocabularyOrProgressActive()) {
+            KeyboardController.prototype.select.call(this, event);
+        }
     };
 
     function addActiveClass($element) {
@@ -2227,7 +2229,7 @@ function AddonTextAudio_create() {
     }
 
     function handleVolumeControl($element) {
-        if (!$element.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER)) {
+        if (!$element.hasClass(presenter.CSS_CLASSES.VOLUME_BTN)) {
             return;
         }
 
@@ -2246,7 +2248,7 @@ function AddonTextAudio_create() {
     }
 
     function hideVolumeController() {
-        const $element = $(`.${presenter.CSS_CLASSES.VOLUME_CONTAINER}`);
+        const $element = $(`.${presenter.CSS_CLASSES.VOLUME_BTN}`);
         if ($element && $element.hasClass(presenter.CSS_CLASSES.ACTIVE)) {
             presenter.$volumeLayer.hide();
             presenter.$playerTime.show();
@@ -2325,7 +2327,7 @@ function AddonTextAudio_create() {
     };
 
     TextAudioKeyboardController.prototype.isVolumeControlActive = function ($element) {
-        return $element.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER) &&
+        return $element.hasClass(presenter.CSS_CLASSES.VOLUME_BTN) &&
             $element.hasClass(presenter.CSS_CLASSES.ACTIVE);
     };
 
@@ -2450,7 +2452,7 @@ function AddonTextAudio_create() {
             this.speakForSpeedController();
         } else if ($currentElement.hasClass(presenter.CSS_CLASSES.PROGRESS_BAR)) {
             this.speakForProgressBar();
-        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.VOLUME_CONTAINER)) {
+        } else if ($currentElement.hasClass(presenter.CSS_CLASSES.VOLUME_BTN)) {
             this.speakForVolumeController();
         }
     };
