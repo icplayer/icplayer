@@ -68,7 +68,7 @@ TestCase("[TextAudio] Build keyboard controller tests", {
         assertEquals(expectedElements.length, this.presenter.keyboardControllerObject.keyboardNavigationElementsLen);
     },
 
-    'test given view, browser controls when buildKeyboardController is called then keyboard controller have 5 slide elements in correct order' : function () {
+    'test given view, browser controls when buildKeyboardController is called then keyboard controller have 3 slide elements in correct order' : function () {
         this.editConfigurationToUseBrowserControls();
         this.createView();
 
@@ -76,13 +76,12 @@ TestCase("[TextAudio] Build keyboard controller tests", {
 
         this.presenter.buildKeyboardController();
 
-        const expectedElements = [this.presenter.$volumeContainer, this.presenter.$progressWrapper]
-            .concat(this.presenter.slidesSpanElements.map(spanElement => $(spanElement)));
+        const expectedElements = this.presenter.slidesSpanElements.map(spanElement => $(spanElement));
         assertTrue(this.presenter.keyboardControllerObject !== null);
         assertEquals(expectedElements.length, this.presenter.keyboardControllerObject.keyboardNavigationElementsLen);
     },
 
-    'test given view, none controls when buildKeyboardController is called then keyboard controller have 5 slide elements in correct order' : function () {
+    'test given view, none controls when buildKeyboardController is called then keyboard controller have 3 slide elements in correct order' : function () {
         this.editConfigurationToNotUseControls();
         this.createView();
 
@@ -90,8 +89,7 @@ TestCase("[TextAudio] Build keyboard controller tests", {
 
         this.presenter.buildKeyboardController();
 
-        const expectedElements = [this.presenter.$volumeContainer, this.presenter.$progressWrapper]
-            .concat(this.presenter.slidesSpanElements.map(spanElement => $(spanElement)));
+        const expectedElements = this.presenter.slidesSpanElements.map(spanElement => $(spanElement));
         assertTrue(this.presenter.keyboardControllerObject !== null);
         assertEquals(expectedElements.length, this.presenter.keyboardControllerObject.keyboardNavigationElementsLen);
     },
