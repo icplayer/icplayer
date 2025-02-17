@@ -70,6 +70,14 @@
     cursor: pointer;
 }
 
+.textaudio-volume-container {
+    display: flex;
+    flex-direction: row;
+    width: 50px;
+    position: relative;
+    background-color: inherit;
+}
+
 .textaudio-volume-btn {
     width: 40px;
     height: 40px;
@@ -143,8 +151,9 @@
     width: 100px;
     height: 40px;
     position: absolute;
-    right: 15px;
+    left: 50px !important;
     cursor: pointer;
+    background-color: inherit;
 }
 
 .textaudio-volume-control-background {
@@ -184,4 +193,8 @@
     color: grey;
     border: 0;
     background-color:inherit;
+}
+
+.keyboard_navigation_active_element {
+    z-index: 1;
 }

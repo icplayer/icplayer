@@ -29,19 +29,21 @@ TestCase("[TextAudio] Set speech texts tests", {
     },
 
     "test given empty speechTexts when setSpeechText is called with dict with new speech texts as arg then insert given values to speechTexts ": function () {
-       var newSpeechText = {
+        var newSpeechText = {
             Play: {Play: "Play button"},
             Pause: {Pause: "Pause button"},
             Stop: {Stop: "Stop button"},
             AudioSpeedController: {AudioSpeedController: "Audio speed controller"},
-       };
+            ProgressBar: {ProgressBar: "Progress bar"},
+            VolumeController: {VolumeController: "Volume controller"}
+        };
 
-       this.presenter.setSpeechTexts(newSpeechText);
+        this.presenter.setSpeechTexts(newSpeechText);
 
-       assertNotUndefined(this.presenter.speechTexts);
-       for (const [key, value] of Object.entries(newSpeechText)) {
-           assertEquals(value[key], this.presenter.speechTexts[key]);
-       }
+        assertNotUndefined(this.presenter.speechTexts);
+        for (const [key, value] of Object.entries(newSpeechText)) {
+            assertEquals(value[key], this.presenter.speechTexts[key]);
+        }
     },
 
     verifyIfPresenterSpeechTextsEqualsDefaultSpeechTexts: function () {
@@ -56,6 +58,8 @@ TestCase("[TextAudio] Set speech texts tests", {
             Pause: "Pause button",
             Stop: "Stop button",
             AudioSpeedController: "Audio speed controller",
+            ProgressBar: "Progress bar",
+            VolumeController: "Volume controller"
         };
     },
 });

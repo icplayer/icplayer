@@ -40,6 +40,12 @@
             <property name="AudioSpeedController" nameLabel="TextAudio_audio_speed_controller" type="staticrow">
                 <property name="AudioSpeedController" nameLabel="TextAudio_audio_speed_controller" type="string"/>
             </property>
+            <property name="ProgressBar" nameLabel="TextAudio_progress_bar" type="staticrow">
+                <property name="ProgressBar" nameLabel="TextAudio_progress_bar" type="string"/>
+            </property>
+            <property name="VolumeController" nameLabel="TextAudio_volume_controller" type="staticrow">
+                <property name="VolumeController" nameLabel="TextAudio_volume_controller" type="string"/>
+            </property>
         </property>
     </model>
 </addon>
