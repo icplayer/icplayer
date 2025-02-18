@@ -87,7 +87,6 @@ function AddonTextAudio_create() {
         PLAY_PAUSE_BUTTON: "textaudio-play-pause-btn",
         STOP_BUTTON: "textaudio-stop-btn",
         AUDIO_SPEED_CONTROLLER: "textaudio-playback-rate",
-        VOLUME_CONTAINER: "textaudio-volume-container",
         VOLUME_BTN: "textaudio-volume-btn",
         PROGRESS_BAR: "textaudio-progress-bar",
         ACTIVE: "active"
@@ -955,9 +954,6 @@ function AddonTextAudio_create() {
         presenter.$customPlayer.append(presenter.$progressWrapper);
 
         if (!MobileUtils.isSafariMobile(navigator.userAgent)) {
-            presenter.$volumeContainer = $('<div>').
-                addClass('textaudio-volume-container')
-
             presenter.$volumeBtn = $('<div>').
                 addClass('textaudio-volume-btn').
                 on('click', presenter.toogleVolumeLayer);
@@ -977,12 +973,9 @@ function AddonTextAudio_create() {
                 append($volumeControlBackground).
                 append(presenter.$volumeControl);
 
-            presenter.$volumeContainer.
+            presenter.$customPlayer.
                 append(presenter.$volumeBtn).
                 append(presenter.$volumeLayer);
-
-            presenter.$customPlayer.
-                append(presenter.$volumeContainer);
         }
 
         if (presenter.configuration.enablePlaybackSpeedControls) {
@@ -2131,7 +2124,7 @@ function AddonTextAudio_create() {
 
     presenter.isVocabularyOrProgressActive = function () {
         const keyboardController = presenter.keyboardControllerObject;
-        if (!keyboardController) return;
+        if (!keyboardController) return false;
 
         const currentElement = keyboardController.getCurrentElement();
 
@@ -2279,26 +2272,39 @@ function AddonTextAudio_create() {
 
     presenter.handleProgressChange = function (event) {
         const currentTime = presenter.audio.currentTime;
-        if (event.keyCode === 38) {
-            (presenter.audio.currentTime !== 0) && (currentTime + presenter.progressStep < presenter.audio.duration) && (presenter.audio.currentTime += presenter.progressStep);
-            (presenter.audio.currentTime === 0) && (presenter.audio.currentTime = presenter.progressStep);
-            (currentTime + presenter.progressStep > presenter.audio.duration) && (presenter.audio.currentTime = presenter.audio.duration);
-        } else if (event.keyCode === 40) {
-            (presenter.audio.currentTime === 0) && (presenter.audio.currentTime = 0);
-            (currentTime - presenter.progressStep > 0) && (presenter.audio.currentTime -= presenter.progressStep);
-            (currentTime - presenter.progressStep <= 0) && (presenter.audio.currentTime = 0);
+        if (event.keyCode === window.KeyboardControllerKeys.ARROW_UP) {
+            if (presenter.audio.currentTime !== 0 && currentTime + presenter.progressStep < presenter.audio.duration) {
+                presenter.audio.currentTime += presenter.progressStep;
+            } else if (presenter.audio.currentTime === 0) {
+                presenter.audio.currentTime = presenter.progressStep;
+            } else if (currentTime + presenter.progressStep >= presenter.audio.duration) {
+                presenter.audio.currentTime = presenter.audio.duration;
+            }
+        } else if (event.keyCode === window.KeyboardControllerKeys.ARROW_DOWN) {
+            if (currentTime - presenter.progressStep > 0) {
+                presenter.audio.currentTime -= presenter.progressStep;
+            } else if (currentTime - presenter.progressStep <= 0) {
+                presenter.audio.currentTime = 0;
+            }
         }
     };
 
     presenter.handleVolumeChange = function (event) {
         const currentValue = presenter.audio.volume;
-        if (event.keyCode === 38) {
-            (currentValue !== 0) && (currentValue + presenter.volumeStep < 1) && (presenter.audio.volume += presenter.volumeStep);
-            (currentValue === 0) && (presenter.audio.volume = 0.1);
-            (currentValue + presenter.volumeStep >= 1) && (presenter.audio.volume = 1);
-        } else if (event.keyCode === 40) {
-            (currentValue - presenter.volumeStep > 0) && (presenter.audio.volume -= presenter.volumeStep);
-            (currentValue - presenter.volumeStep <= 0) && (presenter.audio.volume = 0);
+        if (event.keyCode === window.KeyboardControllerKeys.ARROW_UP) {
+            if (currentValue !== 0 && currentValue + presenter.volumeStep < 1) {
+                presenter.audio.volume += presenter.volumeStep;
+            } else if (currentValue === 0) {
+                presenter.audio.volume = 0.1;
+            } else if (currentValue + presenter.volumeStep >= 1) {
+                presenter.audio.volume = 1;
+            }
+        } else if (event.keyCode === window.KeyboardControllerKeys.ARROW_DOWN) {
+            if (currentValue - presenter.volumeStep > 0) {
+                presenter.audio.volume -= presenter.volumeStep;
+            } else if (currentValue - presenter.volumeStep <= 0) {
+                presenter.audio.volume = 0;
+            }
         }
     }
 
