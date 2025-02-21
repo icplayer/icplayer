@@ -662,9 +662,9 @@ function AddonQuiz_create() {
     }
 
     function reloadMathJax() {
-        window.MathJax.Callback.Queue().Push(function () {
-            window.MathJax.Hub.Typeset(presenter.$view[0]);
-        });
+        const args = [];
+        args.push("Typeset", MathJax.Hub, presenter.$view[0]);
+        MathJax.Hub.Queue(args);
     }
 
     presenter.setPlayerController = function AddonQuiz_setPlayerController(controller) {

@@ -701,9 +701,9 @@ function AddonMath_create() {
     }
 
     presenter.reloadMathJax = function() {
-        MathJax.CallBack.Queue().Push(function () {
-            MathJax.Hub.Typeset();
-        });
+        const args = [];
+        args.push("Typeset", MathJax.Hub);
+        MathJax.Hub.Queue(args);
     }
 
     presenter.moduleAnswersCounter = function (module) {
