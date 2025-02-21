@@ -1521,7 +1521,9 @@ function Addongamememo_create(){
         presenter.createGrid();
         presenter.concealAllCards();
 
-        MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(presenter.viewContainer.find(".gamememo_container")[0])});
+        const args = [];
+        args.push("Typeset", MathJax.Hub, presenter.viewContainer.find(".gamememo_container")[0]);
+        MathJax.Hub.Queue(args);
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
