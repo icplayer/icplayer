@@ -130,6 +130,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
+		ensureOpenActivitiesScoresExist();
 
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
@@ -139,6 +140,26 @@ public class PageController implements ITextToSpeechController, IPageController 
 		if (gradualShowAnswersService != null) {
 			gradualShowAnswersService.refreshCurrentPagePresenters();
 		}
+	}
+	
+	private void ensureOpenActivitiesScoresExist() {
+		for (IPresenter presenter : presenters) {
+			if (!(presenter instanceof AddonPresenter)) {
+				continue;
+			}
+			AddonPresenter addonPresenter = (AddonPresenter) presenter;
+			if (addonPresenter.isOpenActivity()) {
+				ensureOpenActivityScoreExist(addonPresenter);
+			}
+		}
+	}
+	
+	private void ensureOpenActivityScoreExist(AddonPresenter addonPresenter) {
+		playerService.getScoreService().ensureOpenActivityScoreExist(
+			currentPage.getId(),
+			addonPresenter.getSerialId(),
+			new Integer(addonPresenter.getMaxScore())
+		);
 	}
 
 	public void sendResizeEvent() {

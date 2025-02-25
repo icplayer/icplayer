@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.skiplink;
 
+import java.util.HashSet;
 
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.Widget;
@@ -395,32 +396,37 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
 
     private void whenEnterPressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
+        HashSet keysDownCodesMock = mock(HashSet.class);
 
-        view.enter(eventMock, false);
+        view.enter(eventMock, false, keysDownCodesMock);
     }
 
     private void whenSpacePressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
+        HashSet keysDownCodesMock = mock(HashSet.class);
 
-        view.space(eventMock);
+        view.space(eventMock, keysDownCodesMock);
     }
 
     private void whenTabPressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
+        HashSet keysDownCodesMock = mock(HashSet.class);
 
-        view.tab(eventMock);
+        view.tab(eventMock, keysDownCodesMock);
     }
 
     private void whenShiftTabPressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
+        HashSet keysDownCodesMock = mock(HashSet.class);
 
-        view.shiftTab(eventMock);
+        view.shiftTab(eventMock, keysDownCodesMock);
     }
 
     private void whenExitPressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
+        HashSet keysDownCodesMock = mock(HashSet.class);
 
-        view.escape(eventMock);
+        view.escape(eventMock, keysDownCodesMock);
     }
 
     private void whenActivateNavigation() {

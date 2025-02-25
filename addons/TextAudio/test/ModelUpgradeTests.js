@@ -190,6 +190,8 @@ TestCase("[TextAudio] Upgrade model for speech texts", {
             Pause: {Pause: ""},
             Stop: {Stop: ""},
             AudioSpeedController: {AudioSpeedController: ""},
+            ProgressBar: {ProgressBar: ""},
+            VolumeController: {VolumeController: ""}
         };
         assertNotUndefined(upgradedModel.speechTexts);
         assertEquals(upgradedModel.speechTexts, expectedSpeechTexts);
@@ -201,6 +203,8 @@ TestCase("[TextAudio] Upgrade model for speech texts", {
                 Play: {Play: "Play button"},
                 Pause: {Pause: "Pause button"},
                 Stop: {Stop: "Stop button"},
+                ProgressBar: {ProgressBar: ""},
+                VolumeController: {VolumeController: ""}
             }
         };
 
@@ -211,6 +215,8 @@ TestCase("[TextAudio] Upgrade model for speech texts", {
             Pause: {Pause: "Pause button"},
             Stop: {Stop: "Stop button"},
             AudioSpeedController: {AudioSpeedController: ""},
+            ProgressBar: {ProgressBar: ""},
+            VolumeController: {VolumeController: ""}
         };
         assertNotUndefined(upgradedModel.speechTexts);
         assertEquals(upgradedModel.speechTexts, expectedSpeechTexts);
@@ -223,6 +229,8 @@ TestCase("[TextAudio] Upgrade model for speech texts", {
                 Pause: {Pause: "Pause button"},
                 Stop: {Stop: "Stop button"},
                 AudioSpeedController: {AudioSpeedController: "Audio speed controller"},
+                ProgressBar: {ProgressBar: "Progress bar"},
+                VolumeController: {VolumeController: "Volume controller"}
             }
         };
 

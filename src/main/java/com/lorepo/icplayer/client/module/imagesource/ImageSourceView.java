@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.imagesource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.dom.client.Element;
@@ -227,7 +228,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 		return "ImageSource";
 	}
 
-	public void enter(KeyDownEvent event, boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting, Set<Integer> keysDownCodes) {
 		List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
 		voicesArray.add(TextToSpeechVoice.create(this.module.getAlttext(),this.module.getLangAttribute()));
 		if (isSelected()) {
@@ -240,7 +241,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
+	public void space(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.getNativeEvent().preventDefault();
 		if (listener != null && !disabled) {
 			this.listener.onClicked();
@@ -251,37 +252,37 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	}
 
 	@Override
-	public void tab(KeyDownEvent event) {
+	public void tab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
-	public void left(KeyDownEvent event) {
+	public void left(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
-	public void right(KeyDownEvent event) {
+	public void right(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
-	public void down(KeyDownEvent event) {
+	public void down(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 	@Override
-	public void up(KeyDownEvent event) {
+	public void up(KeyDownEvent event, Set<Integer> keysDownCodes) {
 		event.preventDefault(); 
 	}
 
 	@Override
-	public void escape(KeyDownEvent event) {
+	public void escape(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void customKeyCode(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event, Set<Integer> keysDownCodes) {
 	}
 
 	@Override
