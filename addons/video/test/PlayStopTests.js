@@ -8,9 +8,16 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.isVideoLoaded = true;
         this.presenter.posterPlayButton = $(document.createElement("div"));
         this.presenter.$view = $(document.createElement("div"));
+        this.presenter.videoContainer = $(document.createElement("div"));
 
         sinon.stub(this.presenter, 'seek');
         sinon.stub(this.presenter, 'removeWaterMark');
+
+        this.stubs = {
+            find: sinon.stub()
+        };
+        this.presenter.videoContainer.find = this.stubs.find;
+        this.stubs.find.returns([this.presenter.videoObject]);
     },
 
     tearDown: function () {
@@ -36,6 +43,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
             play: sinon.mock(),
             paused: false
         };
+        this.stubs.find.returns([this.presenter.videoObject]);
 
         this.presenter.play();
 
