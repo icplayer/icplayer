@@ -590,7 +590,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			updateViewText();
 		}
 
-		view.refreshMath();
 		enteredText = null;
 		draggableItem = null;
 		consumedItems.clear();
