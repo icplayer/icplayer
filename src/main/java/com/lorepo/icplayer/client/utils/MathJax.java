@@ -9,6 +9,11 @@ public class MathJax {
 	 * Refresh MathJax object if present
 	 */
 	public static native void refreshMathJax(Element e) /*-{
+		var doesContainMathJax = e.innerText.match('.*?\\\(.*?\\\)') || e.innerText.match('.*?\\left\(.*?\\right\)');
+		if (!doesContainMathJax) {
+			return;
+		}
+
 		try {
 			// Array is created this way, because in different windows Array prototypes are different objects.
 			// Comparing array variable from one window to Array prototype in different window will return false
