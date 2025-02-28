@@ -1586,6 +1586,12 @@ function Addonvideo_create() {
             for (var i in state.videoURLS) {
                 if (state.videoURLS.hasOwnProperty(i)) {
                     var element = state.videoURLS[i];
+
+                    if (element.url === undefined) {
+                        console.warn(`Impact of execution addon' "setVideoURL" command was not properly restored for addon with ID: ${presenter.configuration.addonID}`)
+                        continue;
+                    }
+
                     presenter._setVideoURL(element.url, element.index);
                 }
             }

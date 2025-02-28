@@ -1,3 +1,4 @@
+2025-02-28 Fixed setState error related to not valid empty videoURLS in state
 2025-02-28 Fixed mathJax loading
 2025-02-14 Fixed setPrintableOrder malfunction in mCourser
 2025-02-14 Fixed issue with hls files in the video addon when a page is reloaded
