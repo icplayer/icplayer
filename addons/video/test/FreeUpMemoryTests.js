@@ -27,7 +27,7 @@ TestCase("[Video] Free Up Memory Tests", {
     },
 
     'test event listeners are off': function () {
-        this.presenter.destroy();
+        this.presenter.onDestroy();
 
         assertTrue(this.stubs.removeEventListener.called);
         assertTrue(this.stubs.unbind.called);
@@ -48,7 +48,7 @@ TestCase("[Video] Free Up Memory Tests", {
     },
 
     'test null is assigned to variables': function () {
-        this.presenter.destroy();
+        this.presenter.onDestroy();
         assertEquals(null, this.presenter.view);
         assertEquals(null, this.presenter.viewObject);
         assertEquals(null, this.presenter.mathJaxHook);

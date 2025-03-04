@@ -621,12 +621,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void show(boolean callRefreshMath) {
 		setVisible(true);
-		if (this.mathJaxIsLoaded) {
-			refreshMath();
-		}
 		if (callRefreshMath) {
 			refreshMath();
 			rerenderMathJax();
+		} else if (this.mathJaxIsLoaded) {
+			refreshMath();
 		}
 	}
 
