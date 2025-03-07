@@ -557,7 +557,9 @@ function AddonDouble_State_Button_create(){
     presenter.updateLaTeX = function () {
         var textElement = presenter.$view.find('.doublestate-button-text')[0];
         presenter.mathJaxProcessEnded.then(function () {
-                MathJax.CallBack.Queue().Push(function () {MathJax.Hub.Typeset(textElement)});
+                const args = [];
+                args.push("Typeset", MathJax.Hub, textElement);
+                MathJax.Hub.Queue(args);
         });
     };
 

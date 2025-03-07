@@ -2112,17 +2112,17 @@ function AddonTable_create() {
     };
 
     presenter.renderMathJax = function () {
-        MathJax.CallBack.Queue().Push(function () {
-            MathJax.Hub.Typeset(presenter.$view.find(".table-addon-wrapper")[0]);
-        });
+        const args = [];
+        args.push("Typeset", MathJax.Hub, presenter.$view.find(".table-addon-wrapper")[0]);
+        MathJax.Hub.Queue(args);
 
         addDisplayStyleToMathJaxElements();
     };
 
     presenter.rerenderMathJax = function () {
-        MathJax.CallBack.Queue().Push(function () {
-            MathJax.Hub.Rerender(presenter.$view.find(".table-addon-wrapper")[0]);
-        });
+        const args = [];
+        args.push("Rerender", MathJax.Hub, presenter.$view.find(".table-addon-wrapper")[0]);
+        MathJax.Hub.Queue(args);
 
         addDisplayStyleToMathJaxElements();
     };

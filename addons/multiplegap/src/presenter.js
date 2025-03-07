@@ -537,9 +537,9 @@ function Addonmultiplegap_create(){
     };
 
     presenter.updateLaTeX = function (element) {
-        MathJax.Hub.Queue(() => {
-            MathJax.Hub.Typeset(element)
-        });
+        const args = [];
+        args.push("Typeset", MathJax.Hub, element);
+        MathJax.Hub.Queue(args);
     };
 
 
