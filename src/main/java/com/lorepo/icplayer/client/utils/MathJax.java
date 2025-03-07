@@ -10,7 +10,8 @@ public class MathJax {
 	 */
 	public static native void refreshMathJax(Element e) /*-{
 		var doesContainMathJax = e.innerText.match('.*?\\\(.*?\\\)') || e.innerText.match('.*?\\left\(.*?\\right\)');
-		if (!doesContainMathJax) {
+		var isIcPageElement = e.classList.contains("ic_page");
+		if (!doesContainMathJax && !isIcPageElement) {
 			return;
 		}
 
