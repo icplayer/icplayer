@@ -563,26 +563,4 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		presenter.addView(mockedView);
 		assertEquals(5, presenter.getActivitiesCount());
 	}
-
-	@Test
-	public void givenDraggableItemWithMathJaxLessThanSignWhenCallingGapInfoIsCorrectThenReturnCorrectValue() throws Exception {
-		String placeHolder = "init";
-
-		TextModel module = new TextModel();
-		module.setIsVisible(true);
-
-		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1, false);
-		gapInfo1.setPlaceHolder(placeHolder);
-		gapInfo1.addAnswer("\\(<\\)");
-
-		IPlayerServices services = Mockito.mock(IPlayerServices.class);
-		TextPresenter presenter = new TextPresenter(module, services);
-
-        DraggableItem item = new DraggableText("1", "\\(<\\)");
-		Whitebox.setInternalState(presenter, "draggableItem", item);
-
-		String res = Whitebox.invokeMethod(presenter, "getParsedValue");
-
-		assertTrue(gapInfo1.isCorrect(res));
-	}
 }

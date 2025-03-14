@@ -1075,16 +1075,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private String getParsedValue() {
 		String value = draggableItem.getValue();
-		if (!value.matches("<[^ ].*>") && !isMathJaxFormula(value)) {
+		if (!value.matches("<[^ ].*>")) {
 			value = value.replace("<", "< ");
 		}
 
 		return value;
-	}
-
-	private boolean isMathJaxFormula(String value) {
-		String pattern = ".*\\\\\\(.*<.*\\\\\\).*";
-		return value.matches(pattern);
 	}
 
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
