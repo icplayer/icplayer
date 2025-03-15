@@ -1440,6 +1440,8 @@ var ice_dictionary_pl = {
 	"Table_property_new_width_calculate": "Stała szerokość kolumn",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
 	"Table_cell": "Cell",
+	"Table_property_update_question_modal_question": "In addition to saving the value, do you want to remove unnecessary elements in “Table cells”?",
+	"Table_property_update_not_valid_configuration": "Addon is not properly configured to automatically adjust the table expansion/reduction in the “Table cells” property in addition to changing the value.",
 	"text_identification_info" : "Pozwala na wstawienie do prezentacji ćwiczenia składającego się z kilku elementów tekstowych (w formacie HTML) do wyboru. Każdy element działa w trybie pojedynczej selekcji.",
 	"text_identification_name" : "Wybór tekstu",
 	"text_identification_property_text" : "Tekst",
