@@ -660,6 +660,11 @@ function AddonTable_create() {
     /**
      * Validate user input configuration.
      *
+     * In iceditor, there is an UpdatePropertyOfTableAddonAction action, responsible for automatically
+     * enlarging/reducing the list of `Table cells` when the value in 'Rows' or 'Columns' is changed.
+     * When changing the validation logic here, please correct that validation with the appropriate change if it
+     * applies to UpdatePropertyOfTableAddonAction functionality.
+     *
      * @param model {Array} of properties injected into Addon
      *
      * @return {Object} validation result

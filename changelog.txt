@@ -1,4 +1,5 @@
-2025-03-13 Fixed issue with Text draggable gaps and less than sign in mathjax 
+2025-03-18 Added auto 'Table cells' list expansion/reduction in Table addon
+2025-03-13 Fixed issue with Text draggable gaps and less than sign in mathjax
 2025-03-07 Fixed double equations sometimes occuring when mathjax 2.7 is enabled
 2025-03-05 Fixed connection elements in addon Connection
 2025-02-28 Fixed setState error related to not valid empty videoURLS in state
