@@ -127,4 +127,15 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 			super.setVisible(false);
 		}
 	}
+
+	@Override
+	public void show() {
+		setVisible(true);
+	}
+
+
+	@Override
+	public void hide() {
+		setVisible(false);
+	}
 }

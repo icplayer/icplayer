@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.HashMap;
@@ -24,12 +25,16 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	public interface IDisplay extends IModuleView {
 		public void setData(int value);
+		public void show();
+		public void hide();
 		public Element getElement();
 	}
 	
 	private CheckCounterModule module;
 	private IDisplay view;
 	private IPlayerServices playerServices;
+	private JavaScriptObject jsObject;
+	private boolean isVisible;
 	
 	public CheckCounterPresenter(CheckCounterModule module, IPlayerServices services) {
 		this.module = module;
@@ -147,7 +152,54 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	@Override
 	public JavaScriptObject getAsJavaScript() {
-		return JavaScriptObject.createObject();
+		if(jsObject == null){
+			jsObject = initJSObject(this);
+		}
+
+		return jsObject;
+	}
+
+	private native JavaScriptObject initJSObject(CheckCounterPresenter x) /*-{
+		var presenter = function() {};
+	
+		presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::show()();
+		}
+	
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::hide()();
+		}
+		
+		presenter.getView = function() {
+			return x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::getView()();
+		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+	
+		return presenter;
+	}-*/;
+	
+	private void show(){
+		isVisible = true;
+		
+		if(view != null) {
+			view.show();
+		}
+	}
+	
+	
+	private void hide(){
+		isVisible = false;
+
+		if(view != null) {
+			view.hide();
+		}
+	}
+
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
 
 	@Override
