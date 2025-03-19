@@ -13,7 +13,6 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
-import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.HashMap;
