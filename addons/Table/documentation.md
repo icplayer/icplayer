@@ -349,6 +349,10 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
         <td>.table-addon-wrapper .table-addon-gap-highlight </td>
         <td>A way of indicating that droppable object is over this gap.</td>
     </tr>
+    <tr>
+        <td>.table-addon-wrapper .cellSelector</td>
+        <td>Style applied only in the editor, to the currently targeted cell. A double-click on such a cell will open the editor in the configuration of that cell, if such a configuration exists.</td>
+    </tr>
 </table>
 
 ## Examples
