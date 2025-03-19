@@ -35,6 +35,11 @@
     width: 40px;
 }
 
+/* !important was used because the user's styles obscured this definition and because it does not affect the lesson outside the editor. */
+.table-addon-wrapper .cellSelector {
+    border: 1px solid grey !important;
+}
+
 .printable_addon_Table .table-addon-wrapper {
     height: fit-content;
 }

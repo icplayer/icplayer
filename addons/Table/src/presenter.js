@@ -37,6 +37,8 @@ function AddonTable_create() {
     presenter.printableParserID = null;
     presenter.printableParserCallback = null;
 
+    let previewInterval = null;
+
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
         'CL_01': 'Number of columns must be a positive integer!',
@@ -192,8 +194,8 @@ function AddonTable_create() {
     presenter.logic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.table-addon-wrapper');
-        presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.isPreview = isPreview;
+        presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
 
         if (presenter.hasMathGaps()){
             var mathJaxDeferred = new jQuery.Deferred();
@@ -243,10 +245,56 @@ function AddonTable_create() {
 
         if(isPreview) {
             presenter.setEditorGapWidth();
+            previewInterval = setInterval(function() { prepareToSelectingCellsInPreview(); }, 500);
         } else {
             presenter.setInputsSize();
         }
     };
+
+    function prepareToSelectingCellsInPreview() {
+        const $moduleSelector = $('.moduleSelector[data-id="'+presenter.configuration.addonID+'"]');
+
+        if ($moduleSelector.length > 0) {
+            $moduleSelector.on("mousemove", function(e) {
+                const mouseX = parseInt(e.pageX, 10);
+                const mouseY = parseInt(e.pageY, 10);
+                const cell = findCellAtPosition(mouseX, mouseY);
+                selectCellInPreview(cell);
+            });
+
+            $moduleSelector.on("mouseout", function(e) {
+                presenter.$view.find("td").removeClass("cellSelector");
+            });
+
+            clearInterval(previewInterval);
+        }
+    }
+
+    function findCellAtPosition(x, y) {
+        const $cells = presenter.$view.find("td");
+        for (let i = 0; i < $cells.size(); i++) {
+            const cell = $cells.get(i);
+            if (!cell) {
+                continue;
+            }
+            const boundingClientReact = cell.getBoundingClientRect();
+            if ((boundingClientReact.left < x && x < boundingClientReact.right) &&
+                (boundingClientReact.top < y && y < boundingClientReact.bottom)
+            ) {
+                return cell;
+            }
+        }
+        return null;
+    }
+
+    function selectCellInPreview(cell) {
+        if (!cell) {
+            presenter.$view.find("td").removeClass("cellSelector");
+            return;
+        }
+        $(cell).addClass("cellSelector");
+        presenter.$view.find("td").not(cell).removeClass("cellSelector");
+    }
 
     presenter.setInputsSize = function () {
         for (var i = 0; i < presenter.gapsSize.length; i++) {
@@ -406,10 +454,14 @@ function AddonTable_create() {
             $element.addClass('row_' + (row + 1));
             $element.addClass('col_' + (i + 1));
             $element.html(content[i].content);
-            $element.attr({
+            const elementAttributes = {
                 colspan: content[i].colSpan,
                 rowspan: content[i].rowSpan
-            });
+            };
+            if (isPreview) {
+                elementAttributes.tableCellConfIndex = content[i].tableCellConfIndex;
+            }
+            $element.attr(elementAttributes);
 
             if ( presenter.configuration.isTabindexEnabled) {
                 $element.attr('tabindex', '0');
@@ -545,6 +597,9 @@ function AddonTable_create() {
                             class : content[i].hasOwnProperty("CSS Class") ? content[i]["CSS Class"] : "",
                             style: content[i].hasOwnProperty("CSS Style") ? content[i]["CSS Style"] : ""
                         };
+                        if (presenter.isPreview) {
+                            validatedContent[row][column].tableCellConfIndex = i;
+                        }
                     } else {
                         validatedContent[row][column] = undefined;
                     }
