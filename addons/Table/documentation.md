@@ -351,7 +351,7 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
     </tr>
     <tr>
         <td>.table-addon-wrapper .cellSelector</td>
-        <td>Style applied only in the editor, to the currently targeted cell. A double-click on such a cell will open the editor in the configuration of that cell, if such a configuration exists.</td>
+        <td>Style applied only in editor, to the currently targeted cell. A double-click on such a cell will open editor in the configuration of that cell, if such a configuration exists.</td>
     </tr>
 </table>
 
