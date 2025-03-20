@@ -7,9 +7,11 @@ import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -20,7 +22,7 @@ import java.util.HashMap;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 
-public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
+public class CheckCounterPresenter implements IPresenter, IStateful, IWCAGPresenter, IButton{
 
 	public interface IDisplay extends IModuleView {
 		public void setData(int value);
@@ -38,6 +40,7 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	public CheckCounterPresenter(CheckCounterModule module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
+		this.isVisible = module.isVisible();
 		
 		connectHandlers();
 	}
@@ -95,6 +98,42 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	@Override
 	public IModuleModel getModel() {
 		return module;
+	}
+
+	@Override
+	public String getSerialId() {
+		return module.getId();
+	}
+
+	@Override
+	public String getState() {
+		HashMap<String, String> state = new HashMap<String, String>();
+		IJsonServices json = playerServices.getJsonServices();
+		
+		state.put("isVisible", Boolean.toString(isVisible));
+		
+		return json.toJSONString(state);
+	}
+
+
+	@Override
+	public void setState(String state) {
+		if (state == null || state.equals("")) {
+			return;
+		}
+		
+		IJsonServices json = playerServices.getJsonServices();
+		HashMap<String, String> decodedState = json.decodeHashMap(state);
+		
+		if (decodedState.containsKey("isVisible")) {
+			this.isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+			
+			if (this.isVisible) {
+				show();
+			} else {
+				hide();
+			}
+		}
 	}
 
 	@Override
