@@ -72,5 +72,37 @@ public class GWTTextViewTestCase extends GwtTest {
 		assertFalse(this.gapWidget3.isSelected());		
 	}
 
+	@Test
+	public void testGivenTextSetToStandardWhenGetTextValueIsCalledThenReturnCorrectValue() throws Exception {
+
+		this.gapWidget1.setText("hello world");
+
+		assertEquals("hello world", this.gapWidget1.getTextValue());
+	}
+
+	@Test
+	public void testGivenTextSetToLessThanSignInMathJaxBracketsWhenGetTextValueIsCalledThenReturnCorrectValue() throws Exception {
+
+		this.gapWidget1.setText("\\(<\\)");
+
+		assertEquals("\\(<\\)", this.gapWidget1.getTextValue());
+	}
+
+	@Test
+	public void testGivenTextSetToLessThanSignWithSpaceInMathJaxBracketsWhenGetTextValueIsCalledThenReturnCorrectValue() throws Exception {
+
+		this.gapWidget1.setText("\\(< \\)");
+
+		assertEquals("\\(< \\)", this.gapWidget1.getTextValue());
+	}
+
+	@Test
+	public void testGivenTextSetToLessThanSignWithSpaceWhenGetTextValueIsCalledThenReturnCorrectValue() throws Exception {
+
+		this.gapWidget1.setText("< ");
+
+		assertEquals("< ", this.gapWidget1.getTextValue());
+	}
+
 
 }
