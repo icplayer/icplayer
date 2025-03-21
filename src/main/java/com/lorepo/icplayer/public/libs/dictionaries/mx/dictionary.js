@@ -1441,7 +1441,7 @@ var ice_dictionary_mx = {
 	"Table_Of_Contents_speech_text_selected": "Selected",
 	"Table_cell": "Cell",
 	"Table_property_update_question_modal_question": "In addition to saving the value, do you want to remove unnecessary elements in `Table cells`?",
-	"Table_property_update_not_valid_configuration": "Addon is not properly configured to automatically adjust the table expansion/reduction in the `Table cells` property in addition to changing the value.",
+	"Table_property_update_not_valid_configuration": "The module is not properly configured to automatically adjust the table's expansion/reduction in the 'Table cells' property in addition to changing the value.",
 	"text_identification_info": "Permite añadir la actividad de selección de varios elementos de texto a la presentación. Cada elemento funciona en modo individual.",
 	"text_identification_name": "Identificación del texto",
 	"text_identification_property_text": "Texto",
