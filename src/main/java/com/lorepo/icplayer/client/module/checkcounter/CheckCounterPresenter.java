@@ -7,9 +7,11 @@ import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -20,20 +22,25 @@ import java.util.HashMap;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 
-public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
+public class CheckCounterPresenter implements IPresenter, IStateful, IWCAGPresenter, IButton{
 
 	public interface IDisplay extends IModuleView {
 		public void setData(int value);
+		public void show();
+		public void hide();
 		public Element getElement();
 	}
 	
 	private CheckCounterModule module;
 	private IDisplay view;
 	private IPlayerServices playerServices;
+	private JavaScriptObject jsObject;
+	private boolean isVisible;
 	
 	public CheckCounterPresenter(CheckCounterModule module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
+		this.isVisible = module.isVisible();
 		
 		connectHandlers();
 	}
@@ -94,6 +101,42 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	}
 
 	@Override
+	public String getSerialId() {
+		return module.getId();
+	}
+
+	@Override
+	public String getState() {
+		HashMap<String, String> state = new HashMap<String, String>();
+		IJsonServices json = playerServices.getJsonServices();
+		
+		state.put("isVisible", Boolean.toString(isVisible));
+		
+		return json.toJSONString(state);
+	}
+
+
+	@Override
+	public void setState(String state) {
+		if (state == null || state.equals("")) {
+			return;
+		}
+		
+		IJsonServices json = playerServices.getJsonServices();
+		HashMap<String, String> decodedState = json.decodeHashMap(state);
+		
+		if (decodedState.containsKey("isVisible")) {
+			this.isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+			
+			if (this.isVisible) {
+				show();
+			} else {
+				hide();
+			}
+		}
+	}
+
+	@Override
 	public void setShowErrorsMode() {
 		// Module is not an activity
 	}
@@ -147,7 +190,54 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	@Override
 	public JavaScriptObject getAsJavaScript() {
-		return JavaScriptObject.createObject();
+		if(jsObject == null){
+			jsObject = initJSObject(this);
+		}
+
+		return jsObject;
+	}
+
+	private native JavaScriptObject initJSObject(CheckCounterPresenter x) /*-{
+		var presenter = function() {};
+	
+		presenter.show = function() {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::show()();
+		}
+	
+		presenter.hide = function() {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::hide()();
+		}
+		
+		presenter.getView = function() {
+			return x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::getView()();
+		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+	
+		return presenter;
+	}-*/;
+	
+	private void show(){
+		isVisible = true;
+		
+		if(view != null) {
+			view.show();
+		}
+	}
+	
+	
+	private void hide(){
+		isVisible = false;
+
+		if(view != null) {
+			view.hide();
+		}
+	}
+
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
 
 	@Override

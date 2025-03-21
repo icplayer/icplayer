@@ -28,9 +28,14 @@ Check counter module displays the number of times the Check answers button has b
         <th>Description</th> 
     </tr>
     <tr>
-        <td>...</td>
-        <td>...</td> 
-        <td>...</td> 
+        <td>show</td>
+        <td>---</td>
+        <td>Shows module</td> 
+    </tr>
+    <tr>
+        <td>hide</td>
+        <td>---</td>
+        <td>Hides module</td> 
     </tr>
 </tbody>
 </table>
