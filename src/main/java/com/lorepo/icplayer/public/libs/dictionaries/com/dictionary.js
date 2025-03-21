@@ -1325,6 +1325,8 @@ var ice_dictionary_en = {
 	"Table_Of_Contents_speech_text_out_of": "Out Of",
 	"Table_Of_Contents_speech_text_selected": "Selected",
 	"Table_cell": "Cell",
+	"Table_property_update_question_modal_question": "In addition to saving the value, do you want to remove unnecessary elements in `Table cells`?",
+	"Table_property_update_not_valid_configuration": "The module is not properly configured to automatically adjust the table's expansion/reduction in the 'Table cells' property in addition to changing the value.",
 	"Table_property_new_width_calculate": "Fix columns width",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
 	"text_identification_info": "Allows to add multiple text selection with HTML content to a presentation, where each element works in a single selection mode.",
