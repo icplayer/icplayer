@@ -29,6 +29,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter;
+import com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
 import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
 import com.lorepo.icplayer.client.module.image.ImagePresenter;
@@ -821,6 +822,8 @@ public class JavaScriptPlayerServices {
 			return ((LimitedResetPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ErrorCounterPresenter) {
 			return ((ErrorCounterPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof CheckCounterPresenter) {
+			return ((CheckCounterPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ShapePresenter) {
 			return ((ShapePresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof LessonResetPresenter) {
