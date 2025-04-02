@@ -34,37 +34,43 @@ function getModelWhenSelectionIsIncorrectAndNotBlockedWrongAnswers () {
 }
 
 function getExpectedHTMLInNormalState () {
-    return getExpectedHTML(null, false, false)
+    return getExpectedHTML(false, false, null)
 }
 
 function getExpectedHTMLForShowAnswers (isCorrect) {
-    if (isCorrect)
-        return getExpectedHTML("printable_addon_Text_Identification-correct", false, false)
-    return getExpectedHTML(null, false, false)
+    if (isCorrect){
+        const additionalClasses = ["printable_addon_Text_Identification-show-answers", "printable_addon_Text_Identification-correct"];
+        return getExpectedHTML(false, false, ...additionalClasses);
+    }
+    const additionalClass = ["printable_addon_Text_Identification-show-answers"];
+    return getExpectedHTML(false, false, ...additionalClass)
 }
 
 function getExpectedHTMLForShowUserAnswers (isSelected) {
-    if (isSelected)
-        return getExpectedHTML("printable_addon_Text_Identification-selected", false, false)
-    return getExpectedHTML(null, false, false)
+    if (isSelected){
+        const additionalClasses = ["printable_addon_Text_Identification-show-user-answers", "printable_addon_Text_Identification-selected"];
+        return getExpectedHTML(false, false, ...additionalClasses)
+    }
+    const additionalClass = ["printable_addon_Text_Identification-show-user-answers"];
+    return getExpectedHTML(false, false, ...additionalClass)
 }
 
 function getExpectedHTMLForCheckAnswers (isSelected, shouldBeSelected) {
-    const selectedClass = "printable_addon_Text_Identification-selected";
+    const selectedClass = ["printable_addon_Text_Identification-selected"];
     if (isSelected) {
         if (shouldBeSelected)
-            return getExpectedHTML(selectedClass, true, true)
+            return getExpectedHTML(true, true, ...selectedClass)
         else
-            return getExpectedHTML(selectedClass, true, false)
+            return getExpectedHTML(true, false, ...selectedClass)
     } else {
         if (shouldBeSelected)
-            return getExpectedHTML(null, false, false)
+            return getExpectedHTML(false, false, null)
         else
-            return getExpectedHTML(null, false, true)
+            return getExpectedHTML(false, true, null)
     }
 }
 
-function getExpectedHTML(additionalClass, addCorrectnessElement, isCorrect) {
+function getExpectedHTML(addCorrectnessElement, isCorrect, ...additionalClasses) {
     const model = getCommonModel();
 
     var $mainStructureDiv = $('<div></div>');
@@ -73,8 +79,11 @@ function getExpectedHTML(additionalClass, addCorrectnessElement, isCorrect) {
     var $addonWrapper = $('<div></div>');
     $addonWrapper.html(model.Text);
     $addonWrapper.addClass("printable_addon_Text_Identification-wrapper");
-    if (additionalClass)
-        $addonWrapper.addClass(additionalClass);
+    if (additionalClasses) {
+        for (var i = 0; i < additionalClasses.length; i++) {
+            $addonWrapper.addClass(additionalClasses[i]);
+        }
+    }
     $mainStructureDiv.append($addonWrapper);
 
     if (addCorrectnessElement) {
@@ -226,7 +235,7 @@ TestCase("[Text Identification] GetPrintableHTML tests when show user answers pr
         const expectedHTML = getExpectedHTMLForShowUserAnswers(isSelected);
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
         assertEquals(expectedHTML, actualHTML);
-
+        
         assertTrue(isResetPrintableStateMode(this.presenter));
     },
 
