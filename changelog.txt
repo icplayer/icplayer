@@ -1,3 +1,4 @@
+2025-03-21 Fixed issue with < inside MathJax brackets  in Math addon
 2025-03-18 Added initJSObject method to CheckCounter module
 2025-03-18 Added auto 'Table cells' list expansion/reduction in Table addon
 2025-03-13 Fixed issue with Text draggable gaps and less than sign in mathjax
