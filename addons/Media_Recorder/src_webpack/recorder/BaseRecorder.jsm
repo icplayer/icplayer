@@ -39,6 +39,10 @@ export class BaseRecorder extends Recorder {
         this.sourceID = sourceID;
     }
 
+    sendInitialRecorderEvent() {
+        this._sendEventCallback(this, 'empty');
+    }
+
     destroy() {
         this.onAvailableRecordingCallback = blob => {
         };
