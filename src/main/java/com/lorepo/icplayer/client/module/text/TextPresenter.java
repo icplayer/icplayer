@@ -9,6 +9,7 @@ import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Timer;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
@@ -91,7 +92,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void connectDOMNodeRemovedEvent(String id);
+		void connectDOMNodeRemovedEvent(String id, TextPresenter presenter);
 		void sortGapsOrder();
 		boolean isWCAGon();
 		void setWorkMode();
@@ -136,6 +137,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isTextSetByCommand = false;
 	private boolean isDisabled = false;
 	private boolean isGradualShowAnswers = false;
+	private Date startTime = null;
+	private Timer timerSchedule = null;
+	private long scheduleTimerBase = 0;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -150,6 +154,22 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} catch(Exception e) {
 			JavaScriptUtils.error(e.getMessage());
 		}
+
+		startTimer();
+	}
+
+	private void startTimer() {
+	    this.startTime = new Date();
+	    final TextPresenter self = this;
+        this.timerSchedule = new Timer() {
+            public void run() {
+                Date newTime = new Date();
+                long timeDiff = scheduleTimerBase + (newTime.getTime() - self.startTime.getTime()) / 1000;
+                self.sendValueChangedEvent("timer", String.valueOf(timeDiff), "");
+            }
+        };
+
+        this.timerSchedule.scheduleRepeating(5000);
 	}
 
 	private void connectHandlers() {
@@ -433,6 +453,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
+		if (this.timerSchedule != null && this.startTime != null) {
+            Date newTime = new Date();
+            long timeDiff = scheduleTimerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
+            state.put("scheduleTimerBase", Long.toString(timeDiff));
+        }
+
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -504,6 +530,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
+
+		if (state.containsKey("scheduleTimerBase")) {
+		    this.scheduleTimerBase = Long.parseLong(state.get("scheduleTimerBase"));
+        }
 
 		if (isVisible) {
 			view.show(false);
@@ -755,7 +785,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 
-		view.connectDOMNodeRemovedEvent(module.getId());
+		view.connectDOMNodeRemovedEvent(module.getId(), this);
 		addiOSClassWithTimeout(this);
 	}
 
@@ -1947,5 +1977,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (isIOS && mathJaxRenderer.equals("MathML")) {
 			view.addIOSClass();
 		}
+	}
+
+	private void destroy() {
+	    if (this.timerSchedule != null) {
+            this.timerSchedule.cancel();
+            this.timerSchedule = null;
+	    }
 	}
 }

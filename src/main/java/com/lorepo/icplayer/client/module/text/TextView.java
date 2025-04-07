@@ -697,7 +697,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	public native void connectDOMNodeRemovedEvent (String id) /*-{
+	public native void connectDOMNodeRemovedEvent (String id, TextPresenter presenter) /*-{
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
@@ -708,6 +708,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (addonID != id || event.target !== addon) {
 				return;
 			}
+
+			presenter.@com.lorepo.icplayer.client.module.text.TextPresenter::destroy()();
 
 			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
 				mathJaxElement.Detach();
