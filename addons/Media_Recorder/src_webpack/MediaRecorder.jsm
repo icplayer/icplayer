@@ -90,6 +90,9 @@ export class MediaRecorder {
     }
 
     getState() {
+        if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+            this.recorder.sendEmptyRecorderEvent();
+        }
         return this.addonState.getState();
     }
 
@@ -242,7 +245,7 @@ export class MediaRecorder {
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
         } else
             this.mediaState.setNew();
-        if (this.recorder) this.recorder.sendInitialRecorderEvent();
+        if (this.recorder) this.recorder.sendEmptyRecorderEvent();
     }
 
     show() {
@@ -342,18 +345,6 @@ export class MediaRecorder {
         this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
         this.recorder.setEventBus(eventBus, this.model.ID);
         this.eventBus = eventBus;
-        this._setPageLoadedEventListener();
-    }
-
-    _setPageLoadedEventListener() {
-        let self = this;
-        let pageLoadedCount = 0;
-        this.eventBus.addEventListener("PageLoaded", {onEventReceived: (name, data)=>{
-            pageLoadedCount += 1;
-            if (pageLoadedCount == 1 && self.addonState != null && self.addonState.isEmpty()) {
-                self.recorder.sendInitialRecorderEvent();
-            }
-        }});
     }
 
     _loadViewElements() {

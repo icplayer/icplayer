@@ -39,7 +39,7 @@ export class BaseRecorder extends Recorder {
         this.sourceID = sourceID;
     }
 
-    sendInitialRecorderEvent() {
+    sendEmptyRecorderEvent() {
         this._sendEventCallback(this, 'empty');
     }
 

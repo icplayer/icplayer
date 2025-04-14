@@ -1348,6 +1348,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "getState",
         value: function getState() {
+            if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+                this.recorder.sendEmptyRecorderEvent();
+            }
             return this.addonState.getState();
         }
     }, {
@@ -1506,7 +1509,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.mediaState.setLoadedDefaultRecording();
                 this.timer.setDuration(this.defaultRecordingPlayer.duration);
             } else this.mediaState.setNew();
-            if (this.recorder) this.recorder.sendInitialRecorderEvent();
+            if (this.recorder) this.recorder.sendEmptyRecorderEvent();
         }
     }, {
         key: "show",
@@ -1616,19 +1619,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
             this.recorder.setEventBus(eventBus, this.model.ID);
             this.eventBus = eventBus;
-            this._setPageLoadedEventListener();
-        }
-    }, {
-        key: "_setPageLoadedEventListener",
-        value: function _setPageLoadedEventListener() {
-            var self = this;
-            var pageLoadedCount = 0;
-            this.eventBus.addEventListener("PageLoaded", { onEventReceived: function onEventReceived(name, data) {
-                    pageLoadedCount += 1;
-                    if (pageLoadedCount == 1 && self.addonState != null && self.addonState.isEmpty()) {
-                        self.recorder.sendInitialRecorderEvent();
-                    }
-                } });
         }
     }, {
         key: "_loadViewElements",
@@ -4168,8 +4158,8 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
             this.sourceID = sourceID;
         }
     }, {
-        key: "sendInitialRecorderEvent",
-        value: function sendInitialRecorderEvent() {
+        key: "sendEmptyRecorderEvent",
+        value: function sendEmptyRecorderEvent() {
             this._sendEventCallback(this, 'empty');
         }
     }, {
