@@ -1005,6 +1005,7 @@ function Addonvideo_create() {
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: validatedFiles.files,
+            originalFiles: JSON.parse(JSON.stringify(validatedFiles.files)), //deep copy
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
@@ -2040,6 +2041,7 @@ function Addonvideo_create() {
     presenter._setVideoURL = function (url, index) {
         var key;
         var videoFile;
+        var originalFile;
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -2056,10 +2058,16 @@ function Addonvideo_create() {
         }
 
         videoFile = presenter.configuration.files[index];
+        originalFile = presenter.configuration.originalFiles[index];
+
 
         for (key in mapper) {
             if (mapper.hasOwnProperty(key)) {
-                videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
+                if (url.hasOwnProperty(key) && (url[key] == null || url[key] == "")) {
+                    videoFile[mapper[key]]  = originalFile[mapper[key]];
+                } else {
+                    videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
+                }
             }
         }
 
@@ -2275,7 +2283,8 @@ function Addonvideo_create() {
         if (presenter.metadadaLoaded) {
             presenter.videoObject.pause();
         }
-
+        presenter.configuration.files = JSON.parse(JSON.stringify(presenter.configuration.originalFiles));
+        presenter.cachePosters();
         presenter.reload();
 
         if (presenter.configuration.shouldHideSubtitles) {

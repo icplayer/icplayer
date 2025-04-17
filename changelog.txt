@@ -1,3 +1,4 @@
+2025-04-17 Fixed issues with setVideoURL in video
 2025-04-02 Fixed issue with escaped html characters inside alt text in draggable Text gaps
 2025-03-21 Fixed issue with < inside MathJax brackets  in Math addon
 2025-03-18 Added initJSObject method to CheckCounter module
