@@ -9,6 +9,7 @@ function AddonAudio_create(){
     var audioIsLoaded = false;
     var fetchedAudioData;
     var isReadyToReplay = true;
+    var wasPlayed = false;
 
     presenter.playbackRate = 1.0;
     var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -487,7 +488,7 @@ function AddonAudio_create(){
     }
 
     presenter.sendOnPLayingEvent = function () {
-        var eventData = {
+        const eventData = {
             'source': presenter.configuration.addonID,
             'item': '',
             'value': 'playing',
@@ -498,10 +499,21 @@ function AddonAudio_create(){
     };
 
     presenter.sendOnPauseEvent = function () {
-        var eventData = {
+        const eventData = {
             'source': presenter.configuration.addonID,
             'item': '',
             'value': 'pause',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.sendNotStartedEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'not-started',
             'score': ''
         };
 
@@ -760,11 +772,12 @@ function AddonAudio_create(){
 
     presenter.play = deferredSyncQueue.decorate(function() {
         if (!presenter.audio) return;
-        if(presenter.audio.src && presenter.audio.paused) {
+        if (presenter.audio.src && presenter.audio.paused) {
             if (!isReadyToReplay) {
                 prepareToReplay();
             }
             presenter.audio.play();
+            wasPlayed = true;
             if (presenter.configuration.isHtmlPlayer) {
                 presenter.$playPauseBtn.
                     removeClass('audio-play-btn').
@@ -860,9 +873,13 @@ function AddonAudio_create(){
     };
 
     presenter.getState = function AddonAudio_getState () {
+        if (!wasPlayed) {
+            presenter.sendNotStartedEvent();
+        }
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible,
-            playbackRate: presenter.playbackRate
+            playbackRate: presenter.playbackRate,
+            wasPlayed: wasPlayed
         });
     };
 
@@ -889,6 +906,9 @@ function AddonAudio_create(){
         }
         if (parsedJson['playbackRate'] != undefined) {
             presenter.setPlaybackRate(parsedJson['playbackRate']);
+        }
+        if (parsedJson.wasPlayed !== undefined) {
+            wasPlayed = parsedJson.wasPlayed;
         }
 
         return false;
