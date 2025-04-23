@@ -520,6 +520,17 @@ function AddonAudio_create(){
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.sendReplayedInLoopEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.addonID,
+            'item': '',
+            'value': 'replayed-in-loop',
+            'score': ''
+        };
+
+        eventBus.sendEvent('ValueChanged', eventData);
+    };
+
     function AddonAudio_onAudioPlaying () {
         presenter.sendOnPLayingEvent();
     }
@@ -575,6 +586,7 @@ function AddonAudio_create(){
 
     function AddonAudio_onAudioEnded () {
         if (presenter.configuration.enableLoop) {
+            presenter.sendReplayedInLoopEvent();
             this.currentTime = 0;
             this.play();
         } else {

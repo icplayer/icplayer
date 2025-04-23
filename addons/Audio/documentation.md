@@ -234,6 +234,30 @@ Reset does not affect the sending of this event.
 </tbody>
 </table>
 
+When the addon is set to play in a loop then no <b>end</b> event is sent. 
+Instead, the <b>replayed-in-loop</b> event is sent when the audio is replayed in a loop.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>replayed-in-loop</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</tbody>
+</table>
+
 ## CSS Classes
 <table border='1'>
     <tr>
