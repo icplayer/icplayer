@@ -532,6 +532,7 @@ function AddonAudio_create(){
     };
 
     function AddonAudio_onAudioPlaying () {
+        presenter._setPlayed(true);
         presenter.sendOnPLayingEvent();
     }
 
@@ -789,7 +790,6 @@ function AddonAudio_create(){
                 prepareToReplay();
             }
             presenter.audio.play();
-            wasPlayed = true;
             if (presenter.configuration.isHtmlPlayer) {
                 presenter.$playPauseBtn.
                     removeClass('audio-play-btn').
@@ -1017,6 +1017,10 @@ function AddonAudio_create(){
                 presenter.stop();
                 break;
         }
+    };
+
+    presenter._setPlayed = function (_wasPlayed) {
+        wasPlayed = _wasPlayed;
     };
 
     return presenter;

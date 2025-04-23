@@ -62,7 +62,7 @@ TestCase('[Audio] State restoring', {
     },
 
     'test given played audio when getState called then set wasPlayed as True' : function() {
-        this.presenter.play();
+        this.presenter._setPlayed(true);
 
         var state = this.presenter.getState();
 
@@ -76,7 +76,7 @@ TestCase('[Audio] State restoring', {
     },
 
     'test given played audio when getState called then do not send not-started event' : function() {
-        this.presenter.play();
+        this.presenter._setPlayed(true);
 
         this.presenter.getState();
 
