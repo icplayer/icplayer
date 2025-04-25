@@ -100,7 +100,7 @@ public class AlternativeTextService {
                 String visible = token.getVisibleText();
                 String readable = token.getReadableText();
                 String escapedText = AlternativeTextTemplates.TEMPLATES.altTextEscaped(visible, readable).asString();
-
+                escapedText = unescapeHTML(escapedText);
                 builder.append(escapedText);
 
                 if (token.getLanguage() != null) {
@@ -113,6 +113,13 @@ public class AlternativeTextService {
 
         return builder.toString();
     }
+
+    private static String unescapeHTML(String sourceText) {
+        String escapedText = sourceText.replaceAll("&lt;", "<");
+        escapedText = escapedText.replaceAll("&gt;", ">");
+        escapedText = escapedText.replaceAll("&amp;", "&");
+        return escapedText;
+    };
 
     public static String unescapeAltText(String srcText) {
         return unescapeAltText(srcText, false);
