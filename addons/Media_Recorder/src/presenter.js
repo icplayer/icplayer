@@ -1794,7 +1794,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 if (_this2.enableAnalyser) {
                     _this2.mediaAnalyserService.closeAnalyzing();
                 }
-                _this2.recorder.stopRecording();
+                if (_this2.recorder.recorder) {
+                    _this2.recorder.stopRecording();
+                }
                 _this2.resourcesProvider.destroy();
             };
 

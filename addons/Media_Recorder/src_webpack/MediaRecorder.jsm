@@ -518,7 +518,9 @@ export class MediaRecorder {
             if (this.enableAnalyser) {
                 this.mediaAnalyserService.closeAnalyzing();
             }
-            this.recorder.stopRecording();
+            if (this.recorder.recorder) {
+                this.recorder.stopRecording();
+            }
             this.resourcesProvider.destroy();
         };
 
