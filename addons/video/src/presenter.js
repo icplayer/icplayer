@@ -1005,6 +1005,7 @@ function Addonvideo_create() {
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: validatedFiles.files,
+            originalFiles: JSON.parse(JSON.stringify(validatedFiles.files)), //deep copy
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
@@ -1028,6 +1029,7 @@ function Addonvideo_create() {
 
     presenter.cachePoster = function (fileNumber) {
         var posterSource = presenter.configuration.files[fileNumber].Poster;
+        if (typeof posterSource == 'object') return; //don't cache twice
         if (posterSource) {
             var image = new Image();
             image.src = posterSource;
@@ -1471,6 +1473,7 @@ function Addonvideo_create() {
     };
 
     presenter.reload = function () {
+        presenter.cachePosters();
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
@@ -1822,6 +1825,12 @@ function Addonvideo_create() {
                         presenter.play();
                     }
                 });
+            } else {
+                if (typeof presenter.videoObject.loop == 'boolean') {
+                    presenter.videoObject.loop = false;
+                } else {
+                    $(presenter.videoObject).off('ended');
+                }
             }
         }
     }
@@ -2040,6 +2049,7 @@ function Addonvideo_create() {
     presenter._setVideoURL = function (url, index) {
         var key;
         var videoFile;
+        var originalFile;
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -2056,10 +2066,15 @@ function Addonvideo_create() {
         }
 
         videoFile = presenter.configuration.files[index];
+        originalFile = presenter.configuration.originalFiles[index];
 
         for (key in mapper) {
             if (mapper.hasOwnProperty(key)) {
-                videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
+                if (url.hasOwnProperty(key) && (url[key] == null || url[key] == "")) {
+                    videoFile[mapper[key]]  = originalFile[mapper[key]];
+                } else {
+                    videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
+                }
             }
         }
 
@@ -2275,7 +2290,7 @@ function Addonvideo_create() {
         if (presenter.metadadaLoaded) {
             presenter.videoObject.pause();
         }
-
+        presenter.configuration.files = JSON.parse(JSON.stringify(presenter.configuration.originalFiles));
         presenter.reload();
 
         if (presenter.configuration.shouldHideSubtitles) {
