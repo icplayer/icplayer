@@ -1029,6 +1029,7 @@ function Addonvideo_create() {
 
     presenter.cachePoster = function (fileNumber) {
         var posterSource = presenter.configuration.files[fileNumber].Poster;
+        if (typeof posterSource == 'object') return; //don't cache twice
         if (posterSource) {
             var image = new Image();
             image.src = posterSource;
@@ -1472,6 +1473,7 @@ function Addonvideo_create() {
     };
 
     presenter.reload = function () {
+        presenter.cachePosters();
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
@@ -1823,6 +1825,12 @@ function Addonvideo_create() {
                         presenter.play();
                     }
                 });
+            } else {
+                if (typeof presenter.videoObject.loop == 'boolean') {
+                    presenter.videoObject.loop = false;
+                } else {
+                    $(presenter.videoObject).off('ended');
+                }
             }
         }
     }
@@ -2060,7 +2068,6 @@ function Addonvideo_create() {
         videoFile = presenter.configuration.files[index];
         originalFile = presenter.configuration.originalFiles[index];
 
-
         for (key in mapper) {
             if (mapper.hasOwnProperty(key)) {
                 if (url.hasOwnProperty(key) && (url[key] == null || url[key] == "")) {
@@ -2284,7 +2291,6 @@ function Addonvideo_create() {
             presenter.videoObject.pause();
         }
         presenter.configuration.files = JSON.parse(JSON.stringify(presenter.configuration.originalFiles));
-        presenter.cachePosters();
         presenter.reload();
 
         if (presenter.configuration.shouldHideSubtitles) {
