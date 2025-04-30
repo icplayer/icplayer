@@ -61,6 +61,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		this.isPreview = isPreview;
 		createUI(isPreview);
 		mathJaxLoaded();
+		JavaScriptUtils.log("TextView");
 	}
 
 	@Override
@@ -702,6 +703,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			addon = $addon[0];
 
 		function destroy (event, id) {
+			console.log("connectDOMNodeRemovedEvent -> Destroy");
 			var $droppableElements, $draggableElements;
 			var addonID = $wnd.$(addon).attr("id");
 

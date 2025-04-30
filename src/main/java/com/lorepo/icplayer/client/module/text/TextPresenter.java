@@ -138,8 +138,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isDisabled = false;
 	private boolean isGradualShowAnswers = false;
 	private Date startTime = null;
-	private Timer timerSchedule = null;
-	private long scheduleTimerBase = 0;
+	private long timerBase = 0;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -160,16 +159,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private void startTimer() {
 	    this.startTime = new Date();
-	    final TextPresenter self = this;
-        this.timerSchedule = new Timer() {
-            public void run() {
-                Date newTime = new Date();
-                long timeDiff = scheduleTimerBase + (newTime.getTime() - self.startTime.getTime()) / 1000;
-                self.sendValueChangedEvent("timer", String.valueOf(timeDiff), "");
-            }
-        };
-
-        this.timerSchedule.scheduleRepeating(5000);
 	}
 
 	private void connectHandlers() {
@@ -453,10 +442,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
-		if (this.timerSchedule != null && this.startTime != null) {
+		if (this.startTime != null) {
             Date newTime = new Date();
-            long timeDiff = scheduleTimerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
-            state.put("scheduleTimerBase", Long.toString(timeDiff));
+            long timeDiff = timerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
+            state.put("timerBase", Long.toString(timeDiff));
         }
 
 		return JSONUtils.toJSONString(state);
@@ -531,8 +520,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 
-		if (state.containsKey("scheduleTimerBase")) {
-		    this.scheduleTimerBase = Long.parseLong(state.get("scheduleTimerBase"));
+		if (state.containsKey("timerBase")) {
+		    this.timerBase = Long.parseLong(state.get("timerBase"));
         }
 
 		if (isVisible) {
@@ -1870,9 +1859,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	public void sendValueChangedEvent(String itemID, String value, String score) {
+		JavaScriptUtils.log("sendValueChangedEvent");
+		JavaScriptUtils.log(module);
 		String moduleType = module.getModuleTypeName();
+		JavaScriptUtils.log("svc 1");
 		String id = module.getId();
-
+		JavaScriptUtils.log("svc 2");
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
 
@@ -1980,9 +1972,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void destroy() {
-	    if (this.timerSchedule != null) {
-            this.timerSchedule.cancel();
-            this.timerSchedule = null;
-	    }
+		JavaScriptUtils.log("TextPresenter.destroy");
+		JavaScriptUtils.log(this);
+		if (this.startTime != null) {
+			JavaScriptUtils.log("1");
+			Date newTime = new Date();
+			JavaScriptUtils.log("2");
+			long timeDiff = timerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
+			JavaScriptUtils.log("3");
+			this.sendValueChangedEvent("timer", String.valueOf(timeDiff), "");
+			JavaScriptUtils.log("4");
+		}
 	}
 }
