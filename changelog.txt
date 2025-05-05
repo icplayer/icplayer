@@ -1,4 +1,3 @@
-2025-04-25 Added sending empty event in Paragraph
 2025-04-23 Added sending not-started and replayed-in-loop events in audio addon
 2025-04-02 Fixed issue with escaped html characters inside alt text in draggable Text gaps
 2025-03-21 Fixed issue with < inside MathJax brackets  in Math addon
