@@ -1498,8 +1498,6 @@ function AddonDrawing_create() {
             'score': ''
         };
 
-        console.log("Send modified event");
-
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
@@ -1510,8 +1508,6 @@ function AddonDrawing_create() {
             'value': 'empty',
             'score': ''
         };
-
-        console.log("Send empty event");
 
         eventBus.sendEvent('ValueChanged', eventData);
     };
