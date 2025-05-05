@@ -501,6 +501,7 @@ function AddonDrawing_create() {
             presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
             presenter.isModified = true;
             sendModifiedEvent();
+            blockNextSendOfModifiedEvent = true;
         }
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.points = [];
@@ -654,7 +655,6 @@ function AddonDrawing_create() {
                 tmp_canvas.removeEventListener(EventsUtils.PointingEvents.TYPES.MOVE, presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
-                sendModifiedEvent();
             }
             presenter.points = [];
         }, false);
