@@ -118,6 +118,53 @@ The list starts with the common properties, learn more about them by visiting th
     </tbody>
 </table>
 
+## Events
+
+The Drawing addon sends ValueChanged type events to Event Bus when a user interacts with it.
+
+The <b>modified</b> event is sent when the canvas is modified, that is, it occurs not only when the drawing 
+is completed, but also when the erasing is completed, the image is inserted and the text is inserted.
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>modified</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</table>
+
+The <b>empty</b> event occurs on reset or when drawing has never started and a state of the addon has been saved. 
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>empty</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</table>
+
 ## CSS classes
 
 <table border='1'>
