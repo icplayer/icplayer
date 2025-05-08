@@ -128,4 +128,14 @@ public class GWTAltTextEscapingTestCase extends GwtTest {
         assertEquals(expected, output);
     }
 
+    @Test
+    public void givenTextAndAltTextWithEscapedHTMLCharacterAsPartOfVisibleTextWhenUnEscapingAllVisibleAltTextThenReturnsUnEscapedText() {
+        String input = "additionalText \\alt{visibleText&amp;|readableText} additionalText";
+        String expected = "additionalText \\altEscapedvisibleText&amp;&altTextSeperator&readableText&altTextEnd& additionalText";
+
+        String output = AlternativeTextService.escapeAltTextWithAllVisibleText(input);
+
+        assertEquals(expected, output);
+    }
+
 }
