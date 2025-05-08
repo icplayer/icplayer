@@ -21,6 +21,8 @@ import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.module.addon.AddonModel;
+import com.lorepo.icplayer.client.module.addon.InterfaceVersion;
 import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.dnd.*;
@@ -92,7 +94,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void connectDOMNodeRemovedEvent(String id, TextPresenter presenter);
+		void connectDOMNodeRemovedEvent(String id);
 		void sortGapsOrder();
 		boolean isWCAGon();
 		void setWorkMode();
@@ -153,12 +155,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} catch(Exception e) {
 			JavaScriptUtils.error(e.getMessage());
 		}
-
-		startTimer();
 	}
 
 	private void startTimer() {
-	    this.startTime = new Date();
+		if (this.startTime == null) {
+			this.startTime = new Date();
+		}
+	}
+
+	private void stopTimer() {
+		if (this.startTime != null) {
+			Date newTime = new Date();
+			timerBase = timerBase + (newTime.getTime() - this.startTime.getTime());
+			this.startTime = null;
+		}
 	}
 
 	private void connectHandlers() {
@@ -442,11 +452,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
+		long time = timerBase;
 		if (this.startTime != null) {
             Date newTime = new Date();
-            long timeDiff = timerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
-            state.put("timerBase", Long.toString(timeDiff));
+            time = timerBase + (newTime.getTime() - this.startTime.getTime());
         }
+		state.put("timerBase", Long.toString(time));
+		sendTimerEvent();
 
 		return JSONUtils.toJSONString(state);
 	}
@@ -765,6 +777,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view = (IDisplay) display;
 			connectViewListener();
 			updateViewText();
+			setupScrollHandlers(this, view.getElement());
+			if (isVisibleInViewport()) startTimer();
 		}
 
 		if (display instanceof TextView && module.hasMathGaps()) {
@@ -774,7 +788,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 
-		view.connectDOMNodeRemovedEvent(module.getId(), this);
+		view.connectDOMNodeRemovedEvent(module.getId());
 		addiOSClassWithTimeout(this);
 	}
 
@@ -1859,12 +1873,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	public void sendValueChangedEvent(String itemID, String value, String score) {
-		JavaScriptUtils.log("sendValueChangedEvent");
-		JavaScriptUtils.log(module);
 		String moduleType = module.getModuleTypeName();
-		JavaScriptUtils.log("svc 1");
 		String id = module.getId();
-		JavaScriptUtils.log("svc 2");
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
 
@@ -1971,17 +1981,72 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-	private void destroy() {
-		JavaScriptUtils.log("TextPresenter.destroy");
-		JavaScriptUtils.log(this);
+	private void sendTimerEvent() {
+		long time = timerBase / 1000;
 		if (this.startTime != null) {
-			JavaScriptUtils.log("1");
 			Date newTime = new Date();
-			JavaScriptUtils.log("2");
-			long timeDiff = timerBase + (newTime.getTime() - this.startTime.getTime()) / 1000;
-			JavaScriptUtils.log("3");
-			this.sendValueChangedEvent("timer", String.valueOf(timeDiff), "");
-			JavaScriptUtils.log("4");
+			time = (timerBase + (newTime.getTime() - this.startTime.getTime())) / 1000;
 		}
+		this.sendValueChangedEvent("timer", String.valueOf(time), "");
 	}
+
+	private boolean isVisibleInViewport() {
+		if (this.playerServices == null || view == null) {
+			return isVisible;
+		}
+
+		if (!isVisible) return false;
+
+		int iframeScroll = this.playerServices.getCommands().getIframeScroll();
+		return isVisibleInViewPort(view.getElement(), iframeScroll);
+	}
+
+	private native boolean isVisibleInViewPort(Element e, int scrollTop) /*-{
+		var rect = e.getBoundingClientRect();
+		var screenHeight = $wnd.innerHeight;
+		try {
+			screenHeight = $wnd.top.innerHeight;
+		} catch (e) {};
+
+		if (screenHeight >= $wnd.innerHeight) {
+			return rect.top <  screenHeight && rect.bottom > 0;
+		} else {
+			return screenHeight + scrollTop > rect.top && scrollTop < rect.bottom;
+		}
+	}-*/;
+
+	private native JavaScriptObject findScrollElements()/*-{
+		var $defaultScrollElement = $wnd.$($wnd.parent.document);
+		var $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+		var $mAuthorMobileScrollElement = $wnd.$($wnd);
+		var $mCourserMobileScrollElement = $wnd.$("#content-view");
+		var $mLibroDesktopScrollElement = null;
+		var icplayerContent = $wnd.$("#_icplayerContent");
+		if (icplayerContent.length > 0) $mLibroDesktopScrollElement = $wnd.$(icplayerContent[0].shadowRoot.querySelector(".inner-scroll"));
+		return [
+			$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement,
+			$mCourserMobileScrollElement, $mLibroDesktopScrollElement
+		];
+	}-*/;
+
+	private native void setupScrollHandlers (TextPresenter x, Element e) /*-{
+		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements()();
+
+		try {
+			for (var i = 0; i < scrollElements.length; i++) {
+				if (scrollElements[i] && scrollElements[i].length) {
+					scrollElements[i].scroll(function(){
+						if ($wnd.$(e).parent().length == 0) return;
+						var visible = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isVisibleInViewport()();
+						if (visible) {
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::startTimer()();
+						} else {
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::stopTimer()();
+						}
+					});
+				}
+			}
+		} catch (err) {}
+	}-*/;
+
 }

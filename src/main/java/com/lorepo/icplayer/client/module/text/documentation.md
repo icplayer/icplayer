@@ -487,6 +487,32 @@ When audio playback is finished, audio in Text addon sends OnEnd event to Event 
 </tbody>
 </table>
 
+When getState is called, Text will send a ValueChanged with the time the addon was visible to the user.
+
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <tr>
+            <td>Item</td>
+            <td>"timer"</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>Time the module was visible in seconds</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>N/A</td>
+        </tr>
+    </tr>
+</tbody>
+</table>
+
 
 ##Show Answers
 
