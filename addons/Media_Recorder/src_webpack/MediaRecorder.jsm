@@ -90,6 +90,9 @@ export class MediaRecorder {
     }
 
     getState() {
+        if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+            this.recorder.sendEmptyRecorderEvent();
+        }
         return this.addonState.getState();
     }
 
@@ -242,6 +245,7 @@ export class MediaRecorder {
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
         } else
             this.mediaState.setNew();
+        if (this.recorder) this.recorder.sendEmptyRecorderEvent();
     }
 
     show() {
@@ -514,7 +518,9 @@ export class MediaRecorder {
             if (this.enableAnalyser) {
                 this.mediaAnalyserService.closeAnalyzing();
             }
-            this.recorder.stopRecording();
+            if (this.recorder.recorder) {
+                this.recorder.stopRecording();
+            }
             this.resourcesProvider.destroy();
         };
 
