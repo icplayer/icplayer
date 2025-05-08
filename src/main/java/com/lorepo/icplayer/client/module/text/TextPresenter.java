@@ -628,6 +628,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
+
+		this.timerBase = 0;
+		if (this.startTime != null) {
+			this.startTime = null;
+			this.startTimer();
+		}
 	}
 
 	private void resetAudio() {
