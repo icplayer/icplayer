@@ -273,8 +273,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = isVisibleBeforeSetState;
 		if (isVisibleBeforeSetState) {
 			view.show(false);
+			if (isVisibleInViewport()) startTimer();
 		} else {
 			view.hide();
+			stopTimer();
 		}
 	}
 
@@ -454,8 +456,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		long time = timerBase;
 		if (this.startTime != null) {
-            Date newTime = new Date();
-            time = timerBase + (newTime.getTime() - this.startTime.getTime());
+			Date newTime = new Date();
+			time = timerBase + (newTime.getTime() - this.startTime.getTime());
         }
 		state.put("timerBase", Long.toString(time));
 		sendTimerEvent();
@@ -538,8 +540,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		if (isVisible) {
 			view.show(false);
+			if (isVisibleInViewport()) startTimer();
 		} else {
 			view.hide();
+			stopTimer();
 		}
 
 		HashMap<String, String> hasBeenAccessed = null;
@@ -632,7 +636,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.timerBase = 0;
 		if (this.startTime != null) {
 			this.startTime = null;
-			this.startTimer();
+			if (isVisibleInViewport()) startTimer();
 		}
 	}
 
@@ -1800,6 +1804,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = true;
 		if (view != null) {
 			view.show(true);
+			if (isVisibleInViewport()) startTimer();
 		}
 
 		if (isShowAnswers()) {
@@ -1819,6 +1824,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = false;
 		if (view != null) {
 			view.hide();
+			stopTimer();
 		}
 	}
 

@@ -497,18 +497,16 @@ When getState is called, Text will send a ValueChanged with the time the addon w
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>"timer"</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>Time the module was visible in seconds</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>"timer"</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>Time the module was visible in seconds</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
