@@ -2298,6 +2298,7 @@ function Addonvideo_create() {
         } else {
             presenter.showSubtitles();
         }
+        presenter.addedVideoURLS = {};
     };
 
     presenter.setPlaybackRate = function (playbackRate) {
