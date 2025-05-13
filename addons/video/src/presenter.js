@@ -2078,10 +2078,18 @@ function Addonvideo_create() {
             }
         }
 
-        presenter.addedVideoURLS[index] = {
-            url: url,
-            index: index
-        };
+        if (presenter.addedVideoURLS[index] === undefined) {
+            presenter.addedVideoURLS[index] = {
+                url: url,
+                index: index
+            };
+        } else {
+            for (key in mapper) {
+                if (url.hasOwnProperty(key)) {
+                    presenter.addedVideoURLS[index].url[key] = url[key];
+                }
+            }
+        }
 
         return true;
     };
