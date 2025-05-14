@@ -221,8 +221,8 @@ The list starts with the common properties, learn more about them by visiting th
         </tr>
         <tr>
             <td>setVideoURL</td>
-            <td>videoURL, movieNumber</td>
-            <td>Sets new URL for video under specified movie ID.</td>
+            <td>videoParams, movieNumber</td>
+            <td>Sets new parameters for video under the specified movie ID. videoParams should be a dict object containing one or more of the following keys: oggFormat, mp4Format, webMFormat, poster, subtitles, id, altText, loop. Movie configuration will be updated with the values corresponding to the provided keys. If the provided value is a null, undefined, or an empty string, that parameter will be reset to its original value.</td>
         </tr>
     </tbody>
 </table>
