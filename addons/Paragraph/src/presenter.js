@@ -30,6 +30,7 @@ function AddonParagraph_create() {
     presenter.MAX_WAIT_TIME = 15;
     presenter.startTime = null;
     presenter.updateScoreEventName = 'updateScore';
+    presenter.previousContent = '';
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
@@ -45,6 +46,10 @@ function AddonParagraph_create() {
         FORMAT_WIDTH: 85,
         STYLE_SELECT_NAME: "styleselect"
     };
+
+    presenter.EVENTS = {
+        EMPTY: "Empty",
+    }
 
     presenter.ALLOWED_TOOLBAR_BUTTONS = 'customBold customUnderline customItalic newdocument bold italic underline strikethrough alignleft aligncenter '+
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
@@ -446,6 +451,17 @@ function AddonParagraph_create() {
         }
     };
 
+    presenter.sendEmptyEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'empty',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    }
+
     presenter.initTinymce = function () {
         if (!document.body.contains(presenter.view)) {
             return;
@@ -493,7 +509,13 @@ function AddonParagraph_create() {
             }
 
             presenter.editor.on('blur', function () {
-                presenter.sendOnBlurEvent();
+                if (presenter.wasEditorCleared()) {
+                    presenter.sendEmptyEvent();
+                    presenter.previousContent = '';
+                } else {
+                    presenter.sendOnBlurEvent();
+                    presenter.previousContent = presenter.getUserAnswer();
+                }
             });
 
             presenter.editor.on('focus', function () {
@@ -513,6 +535,18 @@ function AddonParagraph_create() {
             presenter.$view.append(input);
         }
         presenter.paragraphInitTimeoutID = null;
+    }
+
+    presenter.wasEditorCleared = function () {
+        return presenter.isEditorEmpty() && !!presenter.previousContent;
+    }
+    
+    presenter.isEditorEmpty = function () {
+        return !presenter.getUserAnswer();
+    }
+
+    presenter.getUserAnswer = function () {
+        return presenter.getText().replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
     }
 
     presenter.setWrapperID = function AddonParagraph_setWrapperID() {
@@ -881,6 +915,9 @@ function AddonParagraph_create() {
                 var iframe = presenter.$view.find('iframe');
                 iframe.focus();
                 document.activeElement.blur();
+            }
+            if (presenter.isEditorEmpty()) {
+                presenter.sendEmptyEvent();
             }
 
             clearTimeout(presenter.toolbarChangeHeightTimeoutID);
@@ -1275,6 +1312,7 @@ function AddonParagraph_create() {
                 presenter.configuration.state = tinymceState;
                 presenter.state = state;
             }
+            presenter.previousContent = presenter.getUserAnswer();
         }
 
         if (parsedState.isLocked) {
@@ -1301,6 +1339,7 @@ function AddonParagraph_create() {
         if (presenter.isLocked) {
             presenter.unlock();
         }
+        presenter.sendEmptyEvent();
     };
 
     presenter.show = function AddonParagraph_show() {
