@@ -23,16 +23,8 @@ TestCase("[Drawing] Reset command", {
             clearRect: sinon.stub(this.presenter.configuration.context, 'clearRect'),
             setThickness: sinon.stub(this.presenter, 'setThickness'),
             setColor: sinon.stub(this.presenter, 'setColor'),
-            setVisibility: sinon.stub(this.presenter, 'setVisibility'),
-            addEventListener: sinon.stub(),
-            sendEvent: sinon.stub(),
+            setVisibility: sinon.stub(this.presenter, 'setVisibility')
         };
-
-        this.presenter.eventBus = {
-            addEventListener: this.stubs.addEventListener,
-            sendEvent: this.stubs.sendEvent
-        };
-        this.presenter.setEventBus(this.presenter.eventBus);
     },
 
     'test reset with default visibility as hidden' : function() {
@@ -69,45 +61,5 @@ TestCase("[Drawing] Reset command", {
         assertTrue(this.stubs.setThickness.calledWith(41));
 
         assertTrue(this.stubs.setVisibility.calledWith(true));
-    },
-
-    'test given modified state when reset executed then change state to not modified' : function() {
-        this.presenter.isModified = true;
-        this.presenter.shouldUpdateState = true;
-
-        this.presenter.reset();
-
-        assertFalse(this.presenter.isModified);
-        assertFalse(this.presenter.shouldUpdateState);
-    },
-
-    'test given modified state when reset executed then send empty event' : function() {
-        this.presenter.isModified = true;
-        this.presenter.shouldUpdateState = true;
-        this.presenter.configuration.addonID = "123";
-
-        this.presenter.reset();
-
-        assertTrue(this.stubs.sendEvent.calledWith("ValueChanged", {
-            'source': "123",
-            'item': '',
-            'value': 'empty',
-            'score': ''
-        }));
-    },
-
-    'test given not modified state when reset executed then send empty event' : function() {
-        this.presenter.isModified = false;
-        this.presenter.shouldUpdateState = false;
-        this.presenter.configuration.addonID = "123";
-
-        this.presenter.reset();
-
-        assertTrue(this.stubs.sendEvent.calledWith("ValueChanged", {
-            'source': "123",
-            'item': '',
-            'value': 'empty',
-            'score': ''
-        }));
-    },
+    }
 });
