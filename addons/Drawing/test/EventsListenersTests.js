@@ -72,7 +72,7 @@ TestCase("[Drawing] Method to attach event listeners tests", {
     }
 });
 
-TestCase("[Drawing] Attaching pointer and mouse and touch event listeners tests", {
+TestCase("[Drawing] Attaching pointer, mouse and touch event listeners tests", {
     setUp: function () {
         this.presenter = AddonDrawing_create();
 
