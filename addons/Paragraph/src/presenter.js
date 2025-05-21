@@ -30,7 +30,6 @@ function AddonParagraph_create() {
     presenter.MAX_WAIT_TIME = 15;
     presenter.startTime = null;
     presenter.updateScoreEventName = 'updateScore';
-    presenter.previousContent = '';
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
@@ -46,10 +45,6 @@ function AddonParagraph_create() {
         FORMAT_WIDTH: 85,
         STYLE_SELECT_NAME: "styleselect"
     };
-
-    presenter.EVENTS = {
-        EMPTY: "Empty",
-    }
 
     presenter.ALLOWED_TOOLBAR_BUTTONS = 'customBold customUnderline customItalic newdocument bold italic underline strikethrough alignleft aligncenter '+
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
@@ -460,7 +455,18 @@ function AddonParagraph_create() {
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
-    }
+    };
+
+    presenter.sendModifiedEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'modified',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
 
     presenter.initTinymce = function () {
         if (!document.body.contains(presenter.view)) {
@@ -508,15 +514,7 @@ function AddonParagraph_create() {
                 presenter.findIframeAndSetStyles();
             }
 
-            presenter.editor.on('blur', function () {
-                if (presenter.wasEditorCleared()) {
-                    presenter.sendEmptyEvent();
-                    presenter.previousContent = '';
-                } else {
-                    presenter.sendOnBlurEvent();
-                    presenter.previousContent = presenter.getUserAnswer();
-                }
-            });
+            presenter.editor.on('blur', presenter.onEditorBlur);
 
             presenter.editor.on('focus', function () {
                 presenter.removeFocusFromDisabledElement();
@@ -537,17 +535,14 @@ function AddonParagraph_create() {
         presenter.paragraphInitTimeoutID = null;
     }
 
-    presenter.wasEditorCleared = function () {
-        return presenter.isEditorEmpty() && !!presenter.previousContent;
-    }
-    
-    presenter.isEditorEmpty = function () {
-        return !presenter.getUserAnswer();
-    }
-
-    presenter.getUserAnswer = function () {
-        return presenter.getText().replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
-    }
+    presenter.onEditorBlur = function() {
+        presenter.sendOnBlurEvent();
+        if (presenter.isAttempted()) {
+            presenter.sendModifiedEvent();
+        } else {
+            presenter.sendEmptyEvent();
+        }
+    };
 
     presenter.setWrapperID = function AddonParagraph_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -907,6 +902,12 @@ function AddonParagraph_create() {
         };
     };
 
+    presenter.preDestroy = function() {
+        if (!presenter.isAttempted()) {
+            presenter.sendEmptyEvent();
+        }
+    };
+
     presenter.onDestroy = function AddonParagraph_destroy() {
         // iOS fix to hide keyboard after page change
         // https://github.com/tinymce/tinymce/issues/3441
@@ -915,9 +916,6 @@ function AddonParagraph_create() {
                 var iframe = presenter.$view.find('iframe');
                 iframe.focus();
                 document.activeElement.blur();
-            }
-            if (presenter.isEditorEmpty()) {
-                presenter.sendEmptyEvent();
             }
 
             clearTimeout(presenter.toolbarChangeHeightTimeoutID);
@@ -1308,11 +1306,11 @@ function AddonParagraph_create() {
             if (presenter.editor != null && presenter.editor.initialized && presenter.isEditorLoaded) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
+                presenter.previousContent = presenter.getUserAnswer();
             } else {
                 presenter.configuration.state = tinymceState;
                 presenter.state = state;
             }
-            presenter.previousContent = presenter.getUserAnswer();
         }
 
         if (parsedState.isLocked) {
