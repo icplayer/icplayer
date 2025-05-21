@@ -90,9 +90,6 @@ export class MediaRecorder {
     }
 
     getState() {
-        if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
-            this.recorder.sendEmptyRecorderEvent();
-        }
         return this.addonState.getState();
     }
 
@@ -151,6 +148,12 @@ export class MediaRecorder {
         if (this.mediaState.isPlaying())
             this.playButton.forceClick();
     };
+
+    preDestroy() {
+        if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+            this.recorder.sendEmptyRecorderEvent();
+        }
+    }
 
     destroy() {
         this.playButton.destroy();

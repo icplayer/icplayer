@@ -885,9 +885,6 @@ function AddonAudio_create(){
     };
 
     presenter.getState = function AddonAudio_getState () {
-        if (!wasPlayed) {
-            presenter.sendNotStartedEvent();
-        }
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible,
             playbackRate: presenter.playbackRate,
@@ -1022,6 +1019,12 @@ function AddonAudio_create(){
     presenter._setPlayed = function (_wasPlayed) {
         wasPlayed = _wasPlayed;
     };
+
+    presenter.preDestroy = function() {
+        if (!wasPlayed) {
+            presenter.sendNotStartedEvent();
+        }
+    }
 
     return presenter;
 }

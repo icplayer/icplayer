@@ -1119,7 +1119,6 @@ function AddonDrawing_create() {
 
     presenter.getState = function() {
         if (!presenter.shouldUpdateState) {
-            presenter.sendEmptyEvent();
             return;
         }
 
@@ -1511,6 +1510,12 @@ function AddonDrawing_create() {
 
         eventBus.sendEvent('ValueChanged', eventData);
     };
+
+    presenter.preDestroy = function() {
+        if (!presenter.shouldUpdateState) {
+            presenter.sendEmptyEvent();
+        }
+    }
 
     return presenter;
 }

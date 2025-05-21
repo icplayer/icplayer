@@ -1192,6 +1192,10 @@ function AddonMedia_Recorder_create() {
         }
     };
 
+    presenter.preDestroy = function () {
+        presenter.mediaRecorder.preDestroy();
+    };
+
     presenter._internalElements = function () {
         return this.mediaRecorder._internalElements();
     };
@@ -1348,9 +1352,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "getState",
         value: function getState() {
-            if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
-                this.recorder.sendEmptyRecorderEvent();
-            }
             return this.addonState.getState();
         }
     }, {
@@ -1408,6 +1409,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "stopPlaying",
         value: function stopPlaying() {
             if (this.mediaState.isPlaying()) this.playButton.forceClick();
+        }
+    }, {
+        key: "preDestroy",
+        value: function preDestroy() {
+            if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+                this.recorder.sendEmptyRecorderEvent();
+            }
         }
     }, {
         key: "destroy",

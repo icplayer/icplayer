@@ -155,6 +155,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} catch(Exception e) {
 			JavaScriptUtils.error(e.getMessage());
 		}
+		setListenerOnPreDestroy();
 	}
 
 	private void startTimer() {
@@ -460,7 +461,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			time = timerBase + (newTime.getTime() - this.startTime.getTime());
         }
 		state.put("timerBase", Long.toString(time));
-		sendTimerEvent();
 
 		return JSONUtils.toJSONString(state);
 	}
@@ -2060,5 +2060,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		} catch (err) {}
 	}-*/;
+
+	private void setListenerOnPreDestroy() {
+		this.module.setPreDestroyAction(new TextModel.OnTextPreDestroyAction() {
+			@Override
+			public void onPreDestroy() {
+				preDestroy();
+			}
+		});
+	}
+
+	private void preDestroy(){
+		sendTimerEvent();
+	}
 
 }

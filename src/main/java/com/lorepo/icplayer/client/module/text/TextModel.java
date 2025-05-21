@@ -8,6 +8,7 @@ import com.lorepo.icf.properties.*;
 import com.lorepo.icf.utils.*;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPreDestroy;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
@@ -24,7 +25,7 @@ import java.util.List;
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
 
-public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
+public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel, IPreDestroy {
 	public static final int NUMBER_INDEX = 0;
 	public static final int GAP_INDEX = 1;
 	public static final int DROPDOWN_INDEX = 2;
@@ -74,10 +75,15 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private ArrayList<GroupGapsListItem> groupGaps = new ArrayList<GroupGapsListItem>();
 	private boolean allCharactersGapSizeStyle = true;
 	private PrintableController printableController = null;
+	private TextModel.OnTextPreDestroyAction onTextPreDestroyAction = null;
 	
 	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
 	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
 	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
+
+	public interface OnTextPreDestroyAction {
+		public void onPreDestroy();
+	}
 
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -108,6 +114,18 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addPropertyIgnoreDefaultPlaceholderWhenCheck();
 		addPropertyGroupGaps();
 		addGroupGapsItems(1);
+	}
+
+	@Override
+	public void preDestroy() {
+		if (this.onTextPreDestroyAction != null) {
+			this.onTextPreDestroyAction.onPreDestroy();
+			this.onTextPreDestroyAction = null;
+		}
+	}
+
+	public void setPreDestroyAction (TextModel.OnTextPreDestroyAction action) {
+		this.onTextPreDestroyAction = action;
 	}
 
 	@Override
