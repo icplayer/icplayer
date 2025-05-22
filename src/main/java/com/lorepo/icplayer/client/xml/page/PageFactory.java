@@ -54,7 +54,16 @@ public class PageFactory extends XMLVersionAwareFactory {
 			}
 		}
 	}
-	
+
+	/**
+	 * Load page
+	 *
+	 * Note:
+	 *     If this method is used to load a page that may not have been visited before saving that page to XML,
+	 *     it is required to fill the SelectionController instance with groups using the setGroupedModulesFromXML
+	 *     method.
+	 *     Even if the page is saved again later after visiting it, the groups on that page will function incorrectly.
+	 */
 	@Override
 	public void load(String fetchUrl, IProducingLoadingListener listener) {
 		this.producedPage.setBaseURL(fetchUrl);
