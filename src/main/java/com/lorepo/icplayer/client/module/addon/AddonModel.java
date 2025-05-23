@@ -24,6 +24,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPreDestroy;
 import com.lorepo.icplayer.client.module.addon.param.AddonParamFactory;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
@@ -32,7 +33,7 @@ import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
-public class AddonModel extends BasicModuleModel implements IPrintableModuleModel {
+public class AddonModel extends BasicModuleModel implements IPrintableModuleModel, IPreDestroy {
 
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
@@ -44,8 +45,13 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public interface OnAddonReleaseAction {
 		public void onRelease();
 	}
+
+	public interface OnAddonPreDestroyAction {
+		public void onPreDestroy();
+	}
 	
 	private OnAddonReleaseAction onAddonReleaseAction = null;
+	private OnAddonPreDestroyAction onAddonPreDestroyAction = null;
 	
 	
 	public AddonModel() {
@@ -61,9 +67,23 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			this.onAddonReleaseAction = null;
 		}
 	}
+
+	@Override
+	public void preDestroy() {
+		if (this.onAddonPreDestroyAction != null) {
+			this.onAddonPreDestroyAction.onPreDestroy();
+			this.onAddonPreDestroyAction = null;
+		}
+	}
+
+
 	
 	public void setReleaseAction (OnAddonReleaseAction action) {
 		this.onAddonReleaseAction = action;
+	}
+
+	public void setPreDestroyAction (OnAddonPreDestroyAction action) {
+		this.onAddonPreDestroyAction = action;
 	}
 	
 	@Override

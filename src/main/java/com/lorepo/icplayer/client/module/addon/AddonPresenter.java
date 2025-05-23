@@ -262,6 +262,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	public void run() {
 		this.setListenerOnRelease();
+		this.setListenerOnPreDestroy();
 		String addonName = "Addon" + model.getAddonId() + "_create";
 
 		this.interfaceVersion = InterfaceVersion.fromValue(this.getSupportedVersion(addonName));
@@ -283,6 +284,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			@Override
 			public void onRelease() {
 				destroy();
+			}
+		});
+	}
+
+	public void setListenerOnPreDestroy () {
+		this.model.setPreDestroyAction(new AddonModel.OnAddonPreDestroyAction() {
+			@Override
+			public void onPreDestroy() {
+				preDestroy();
 			}
 		});
 	}
@@ -795,4 +805,19 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private String getCurrentLayoutName() {
 		return services.getModel().getActualSemiResponsiveLayoutName();
 	}
+
+	public void preDestroy() {
+		preDestroy(jsObject);
+	}
+
+	private native void preDestroy(JavaScriptObject obj)/*-{
+		try {
+			if(obj.preDestroy) {
+			    obj.preDestroy();
+			}
+		} catch (err) {
+			alert("[" + addonId + "] Exception in preDestroy(): \n" + err + addonId);
+			console.error(err);
+		}
+	}-*/;
 }

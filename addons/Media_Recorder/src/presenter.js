@@ -1192,6 +1192,10 @@ function AddonMedia_Recorder_create() {
         }
     };
 
+    presenter.preDestroy = function () {
+        presenter.mediaRecorder.preDestroy();
+    };
+
     presenter._internalElements = function () {
         return this.mediaRecorder._internalElements();
     };
@@ -1407,6 +1411,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.mediaState.isPlaying()) this.playButton.forceClick();
         }
     }, {
+        key: "preDestroy",
+        value: function preDestroy() {
+            if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
+                this.recorder.sendEmptyRecorderEvent();
+            }
+        }
+    }, {
         key: "destroy",
         value: function destroy() {
             this.playButton.destroy();
@@ -1506,6 +1517,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.mediaState.setLoadedDefaultRecording();
                 this.timer.setDuration(this.defaultRecordingPlayer.duration);
             } else this.mediaState.setNew();
+            if (this.recorder) this.recorder.sendEmptyRecorderEvent();
         }
     }, {
         key: "show",
@@ -1790,7 +1802,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 if (_this2.enableAnalyser) {
                     _this2.mediaAnalyserService.closeAnalyzing();
                 }
-                _this2.recorder.stopRecording();
+                if (_this2.recorder.recorder) {
+                    _this2.recorder.stopRecording();
+                }
                 _this2.resourcesProvider.destroy();
             };
 
@@ -4152,6 +4166,11 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
         value: function setEventBus(eventBus, sourceID) {
             this.eventBus = eventBus;
             this.sourceID = sourceID;
+        }
+    }, {
+        key: "sendEmptyRecorderEvent",
+        value: function sendEmptyRecorderEvent() {
+            this._sendEventCallback(this, 'empty');
         }
     }, {
         key: "destroy",

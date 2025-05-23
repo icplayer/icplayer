@@ -145,6 +145,10 @@ function AddonMedia_Recorder_create() {
         }
     };
 
+    presenter.preDestroy = function() {
+        presenter.mediaRecorder.preDestroy();
+    }
+
     presenter._internalElements = function () {
         return this.mediaRecorder._internalElements();
     };
