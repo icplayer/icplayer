@@ -94,7 +94,7 @@ TestCase("[Writing Calculations] Reset tests", {
         this.validateElementValue("2", this.helpBox2);
     },
 
-    'test given addon in show answers state when reset executed then remove HTML attribute disabled from inputs' : function() {
+    'test given addon in show answers state when reset executed then enable addon' : function() {
         // GIVEN
         this.createMockupOfAddonInShowAnswers();
 
