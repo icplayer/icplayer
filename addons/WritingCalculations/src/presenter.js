@@ -1393,7 +1393,6 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.hideAnswers = function () {
-        console.log("Execute hideAnswers", (presenter.isNotActivity || !presenter.isShowAnswersActive));
         if (presenter.isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
