@@ -8,7 +8,7 @@ TestCase("[Writing Calculations] getState method tests", {
         this.presenter.isVisible = true;
     },
 
-    createView: function (elements) {
+    createViewMockup: function (elements) {
         const view = document.createElement("div");
 
         elements.forEach((element) => {
@@ -41,7 +41,7 @@ TestCase("[Writing Calculations] getState method tests", {
     },
 
     'test getState method when all answers are correct': function() {
-        this.presenter.$view = this.createView([
+        this.presenter.$view = this.createViewMockup([
             this.createEmptyBoxContainer("1", "1", "3"),
             this.createHelpBoxContainer("1", "2", "4"),
             this.createEmptyBoxContainer("2", "2", "5"),
@@ -71,7 +71,7 @@ TestCase("[Writing Calculations] getState method tests", {
     },
 
     'test getState method when one answer is correct': function() {
-        this.presenter.$view = this.createView([
+        this.presenter.$view = this.createViewMockup([
             this.createEmptyBoxContainer("1", "1", "3"),
             this.createHelpBoxContainer("1", "2", "4"),
             this.createEmptyBoxContainer("2", "2", "4"),
@@ -101,7 +101,7 @@ TestCase("[Writing Calculations] getState method tests", {
     },
 
     'test getState method when all answers are incorrect': function() {
-        this.presenter.$view = this.createView([
+        this.presenter.$view = this.createViewMockup([
             this.createEmptyBoxContainer("1", "1", "7"),
             this.createHelpBoxContainer("1", "2", "4"),
             this.createEmptyBoxContainer("2", "2", "4"),
@@ -131,7 +131,7 @@ TestCase("[Writing Calculations] getState method tests", {
     },
 
     'test getState method when addon is not visible': function() {
-        this.presenter.$view = this.createView([
+        this.presenter.$view = this.createViewMockup([
             this.createEmptyBoxContainer("1", "1", "3"),
             this.createHelpBoxContainer("1", "2", "4"),
             this.createEmptyBoxContainer("2", "2", "4"),
@@ -171,7 +171,7 @@ TestCase("[Writing Calculations] setState method tests", {
         this.helpBox1 = this.createHelpBoxContainer("1", "2", "");
         this.helpBox2 = this.createHelpBoxContainer("2", "2", "");
 
-        this.presenter.$view = this.createView([
+        this.presenter.$view = this.createViewMockup([
             this.emptyBox1, this.helpBox1, this.emptyBox2, this.helpBox2
         ]);
         sinon.stub(this.presenter, "setVisibility");
@@ -181,7 +181,7 @@ TestCase("[Writing Calculations] setState method tests", {
         this.presenter.setVisibility.restore();
     },
 
-    createView: function (elements) {
+    createViewMockup: function (elements) {
         const view = document.createElement("div");
 
         elements.forEach((element) => {
