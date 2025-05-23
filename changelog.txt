@@ -1,9 +1,5 @@
 2025-05-21 Added new events in Audio, Media Recorder, Drawing and Text
 2025-05-14 Fixed issues with setVideoURL in video
-2025-05-08 Added timer events to Text
-2025-05-08 Added recorder empty event in Media Recorder
-2025-05-05 Added sending empty and modified events in Drawing addon
-2025-04-23 Added sending not-started and replayed-in-loop events in audio addon
 2025-04-02 Fixed issue with escaped html characters inside alt text in draggable Text gaps
 2025-03-21 Fixed issue with < inside MathJax brackets  in Math addon
 2025-03-18 Added initJSObject method to CheckCounter module

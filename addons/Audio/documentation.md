@@ -210,7 +210,7 @@ The <b>pause</b> event occurs when the audio is paused
 </tbody>
 </table>
 
-The <b>not-started</b> event occurs when the audio has never been started and the state of the addon is saved.
+The <b>not-started</b> event occurs before page close when the audio has never been started, e.g., due to a switch to another lesson page
 Reset does not affect the sending of this event.
 
 <table border='1'>

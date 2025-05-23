@@ -89,7 +89,7 @@ function AddonDrawing_create() {
     presenter.shouldUpdateState = false;
     presenter.isModified = false;
     let shouldSendModifiedEventOnLeave = false;
-    let blockNextSendOfModifiedEvent = false;
+    let shouldSkipNextModifiedEvent = false;
 
     presenter.addedImage = {};
     presenter.draggingAnchor = {
@@ -501,7 +501,7 @@ function AddonDrawing_create() {
             presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
             presenter.isModified = true;
             sendModifiedEvent();
-            blockNextSendOfModifiedEvent = true;
+            shouldSkipNextModifiedEvent = true;
         }
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.points = [];
@@ -1114,7 +1114,7 @@ function AddonDrawing_create() {
         presenter.shouldUpdateState = false;
         presenter.isModified = false;
         shouldSendModifiedEventOnLeave = false;
-        blockNextSendOfModifiedEvent = false;
+        shouldSkipNextModifiedEvent = false;
     };
 
     presenter.getState = function() {
@@ -1133,10 +1133,6 @@ function AddonDrawing_create() {
             font = presenter.configuration.font;
 
         const textEditorResult = presenter.createTextEditorResult();
-
-        if (!presenter.isModified) {
-            presenter.sendEmptyEvent();
-        }
 
         return JSON.stringify({
             addonMode: addonMode,
@@ -1456,7 +1452,7 @@ function AddonDrawing_create() {
         presenter.shouldUpdateState = true;
         presenter.isModified = true;
         sendModifiedEvent();
-        blockNextSendOfModifiedEvent = true;
+        shouldSkipNextModifiedEvent = true;
 
         const drawingWrapper = presenter.$view.find(".drawing")[0];
         const x = presenter.$textWrapper[0].offsetLeft - drawingWrapper.offsetLeft + 1;
@@ -1478,8 +1474,8 @@ function AddonDrawing_create() {
     };
 
     function sendModifiedEvent() {
-        if (blockNextSendOfModifiedEvent) {
-            blockNextSendOfModifiedEvent = false;
+        if (shouldSkipNextModifiedEvent) {
+            shouldSkipNextModifiedEvent = false;
             return;
         }
 
@@ -1512,7 +1508,7 @@ function AddonDrawing_create() {
     };
 
     presenter.preDestroy = function() {
-        if (!presenter.shouldUpdateState) {
+        if (!presenter.isModified) {
             presenter.sendEmptyEvent();
         }
     }

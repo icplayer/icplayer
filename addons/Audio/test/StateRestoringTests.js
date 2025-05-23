@@ -69,20 +69,6 @@ TestCase('[Audio] State restoring', {
         assertTrue(JSON.parse(state).wasPlayed);
     },
 
-    'test given never played audio when getState called then send not-started event' : function() {
-        this.presenter.getState();
-
-        assertTrue(this.presenter.sendNotStartedEvent.calledOnce);
-    },
-
-    'test given played audio when getState called then do not send not-started event' : function() {
-        this.presenter._setPlayed(true);
-
-        this.presenter.getState();
-
-        assertFalse(this.presenter.sendNotStartedEvent.called);
-    },
-
     'test given never played audio when setState called then set wasPlayed as False' : function() {
         var previousState= JSON.stringify({
             isVisible : true,
