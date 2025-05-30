@@ -1,3 +1,4 @@
+2025-05-27 Fixed Gap Binder displaying all answers at once in gradual show answers mode
 2025-05-14 Fixed issues with setVideoURL in video
 2025-04-02 Fixed issue with escaped html characters inside alt text in draggable Text gaps
 2025-03-21 Fixed issue with < inside MathJax brackets  in Math addon
