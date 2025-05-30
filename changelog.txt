@@ -1,3 +1,5 @@
+2025-05-27 Fixed Gap Binder displaying all answers at once in gradual show answers mode
+2025-05-22 Fixed issue with ungrouping modules after some actions
 2025-05-21 Added new events in Audio, Media Recorder, Drawing and Text
 2025-05-14 Fixed issues with setVideoURL in video
 2025-04-02 Fixed issue with escaped html characters inside alt text in draggable Text gaps
