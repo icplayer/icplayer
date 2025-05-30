@@ -9,6 +9,7 @@ import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Timer;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
@@ -20,6 +21,8 @@ import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.module.addon.AddonModel;
+import com.lorepo.icplayer.client.module.addon.InterfaceVersion;
 import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.dnd.*;
@@ -136,6 +139,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isTextSetByCommand = false;
 	private boolean isDisabled = false;
 	private boolean isGradualShowAnswers = false;
+	private Date startTime = null;
+	private long timerBase = 0;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -149,6 +154,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		} catch(Exception e) {
 			JavaScriptUtils.error(e.getMessage());
+		}
+		setListenerOnPreDestroy();
+	}
+
+	private void startTimer() {
+		if (this.startTime == null) {
+			this.startTime = new Date();
+		}
+	}
+
+	private void stopTimer() {
+		if (this.startTime != null) {
+			Date newTime = new Date();
+			timerBase = timerBase + (newTime.getTime() - this.startTime.getTime());
+			this.startTime = null;
 		}
 	}
 
@@ -254,8 +274,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = isVisibleBeforeSetState;
 		if (isVisibleBeforeSetState) {
 			view.show(false);
+			if (isVisibleInViewport()) startTimer();
 		} else {
 			view.hide();
+			stopTimer();
 		}
 	}
 
@@ -433,6 +455,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		state.put("hasBeenAccessed", JSONUtils.toJSONString(hasBeenAccessed));
 
+		long time = timerBase;
+		if (this.startTime != null) {
+			Date newTime = new Date();
+			time = timerBase + (newTime.getTime() - this.startTime.getTime());
+        }
+		state.put("timerBase", Long.toString(time));
+
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -505,10 +534,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 
+		if (state.containsKey("timerBase")) {
+		    this.timerBase = Long.parseLong(state.get("timerBase"));
+        }
+
 		if (isVisible) {
 			view.show(false);
+			if (isVisibleInViewport()) startTimer();
 		} else {
 			view.hide();
+			stopTimer();
 		}
 
 		HashMap<String, String> hasBeenAccessed = null;
@@ -597,6 +632,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
+
+		this.timerBase = 0;
+		if (this.startTime != null) {
+			this.startTime = null;
+			if (isVisibleInViewport()) startTimer();
+		}
 	}
 
 	private void resetAudio() {
@@ -746,6 +787,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view = (IDisplay) display;
 			connectViewListener();
 			updateViewText();
+			setupScrollHandlers(this, view.getElement());
+			if (isVisibleInViewport()) startTimer();
 		}
 
 		if (display instanceof TextView && module.hasMathGaps()) {
@@ -1761,6 +1804,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = true;
 		if (view != null) {
 			view.show(true);
+			if (isVisibleInViewport()) startTimer();
 		}
 
 		if (isShowAnswers()) {
@@ -1780,6 +1824,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = false;
 		if (view != null) {
 			view.hide();
+			stopTimer();
 		}
 	}
 
@@ -1842,7 +1887,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public void sendValueChangedEvent(String itemID, String value, String score) {
 		String moduleType = module.getModuleTypeName();
 		String id = module.getId();
-
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
 
@@ -1948,4 +1992,86 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.addIOSClass();
 		}
 	}
+
+	private void sendTimerEvent() {
+		long time = timerBase / 1000;
+		if (this.startTime != null) {
+			Date newTime = new Date();
+			time = (timerBase + (newTime.getTime() - this.startTime.getTime())) / 1000;
+		}
+		this.sendValueChangedEvent("timer", String.valueOf(time), "");
+	}
+
+	private boolean isVisibleInViewport() {
+		if (this.playerServices == null || view == null) {
+			return isVisible;
+		}
+
+		if (!isVisible) return false;
+
+		int iframeScroll = this.playerServices.getCommands().getIframeScroll();
+		return isVisibleInViewPort(view.getElement(), iframeScroll);
+	}
+
+	private native boolean isVisibleInViewPort(Element e, int scrollTop) /*-{
+		var rect = e.getBoundingClientRect();
+		var screenHeight = $wnd.innerHeight;
+		try {
+			screenHeight = $wnd.top.innerHeight;
+		} catch (e) {};
+
+		if (screenHeight >= $wnd.innerHeight) {
+			return rect.top <  screenHeight && rect.bottom > 0;
+		} else {
+			return screenHeight + scrollTop > rect.top && scrollTop < rect.bottom;
+		}
+	}-*/;
+
+	private native JavaScriptObject findScrollElements()/*-{
+		var $defaultScrollElement = $wnd.$($wnd.parent.document);
+		var $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+		var $mAuthorMobileScrollElement = $wnd.$($wnd);
+		var $mCourserMobileScrollElement = $wnd.$("#content-view");
+		var $mLibroDesktopScrollElement = null;
+		var icplayerContent = $wnd.$("#_icplayerContent");
+		if (icplayerContent.length > 0) $mLibroDesktopScrollElement = $wnd.$(icplayerContent[0].shadowRoot.querySelector(".inner-scroll"));
+		return [
+			$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement,
+			$mCourserMobileScrollElement, $mLibroDesktopScrollElement
+		];
+	}-*/;
+
+	private native void setupScrollHandlers (TextPresenter x, Element e) /*-{
+		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements()();
+
+		try {
+			for (var i = 0; i < scrollElements.length; i++) {
+				if (scrollElements[i] && scrollElements[i].length) {
+					scrollElements[i].scroll(function(){
+						if ($wnd.$(e).parent().length == 0) return;
+						var visible = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isVisibleInViewport()();
+						if (visible) {
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::startTimer()();
+						} else {
+							x.@com.lorepo.icplayer.client.module.text.TextPresenter::stopTimer()();
+						}
+					});
+				}
+			}
+		} catch (err) {}
+	}-*/;
+
+	private void setListenerOnPreDestroy() {
+		this.module.setPreDestroyAction(new TextModel.OnTextPreDestroyAction() {
+			@Override
+			public void onPreDestroy() {
+				preDestroy();
+			}
+		});
+	}
+
+	private void preDestroy(){
+		sendTimerEvent();
+	}
+
 }
