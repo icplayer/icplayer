@@ -583,6 +583,10 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void closePage() {
+		if (currentPage != null) {
+			currentPage.preDestroy();
+		}
+
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
