@@ -26,6 +26,7 @@ import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.layout.Size;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
+import com.lorepo.icplayer.client.module.IPreDestroy;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -249,6 +250,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			module.release();
 		}
 		this.loaded = false;
+	}
+
+	public void preDestroy() {
+		for (IModuleModel module : modules) {
+			if (module instanceof IPreDestroy) {
+				((IPreDestroy)module).preDestroy();
+			}
+		}
 	}
 
 	@Override

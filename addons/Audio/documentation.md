@@ -127,23 +127,21 @@ The Audio addon sends ValueChanged type events to Event Bus when playback time c
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>N/A</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>Current time (in MM.SS format)</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>Current time (in MM.SS format)</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
 
-When audio playback is finished, Audio addon sends OnEnd event to Event Bus.
+When audio playback is finished, Audio addon sends <b>end</b> event to Event Bus.
 
 <table border='1'>
 <tbody>
@@ -152,23 +150,21 @@ When audio playback is finished, Audio addon sends OnEnd event to Event Bus.
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>end</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>N/A</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>end</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
 
-The playing event occurs when the audio is playing
+The <b>playing</b> event occurs when the audio is playing
 
 <table border='1'>
 <tbody>
@@ -177,23 +173,21 @@ The playing event occurs when the audio is playing
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>N/A</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>playing</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>playing</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
 
-The pause event occurs when the audio is paused
+The <b>pause</b> event occurs when the audio is paused
 
 <table border='1'>
 <tbody>
@@ -202,18 +196,64 @@ The pause event occurs when the audio is paused
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>N/A</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>pause</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>pause</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</tbody>
+</table>
+
+The <b>not-started</b> event occurs before page close when the audio has never been started, e.g., due to a switch to another lesson page
+Reset does not affect the sending of this event.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>not-started</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</tbody>
+</table>
+
+When the addon is set to play in a loop then no <b>end</b> event is sent. 
+Instead, the <b>replayed-in-loop</b> event is sent when the audio is replayed in a loop.
+
+<table border='1'>
+<tbody>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>replayed-in-loop</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>

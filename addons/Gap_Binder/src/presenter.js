@@ -303,15 +303,18 @@ function AddonGap_Binder_create() {
             presenter.isGradualShowAnswersActive = true;
         }
 
+        let gradualAnswerIndex = -1;
+
         presenter.modulesIDs.forEach(moduleID => {
             const moduleGaps = findModuleGaps(moduleID);
             const module = getModule(moduleID);
 
             for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
-                if (gapIndex === presenter.GSACounter) {
+                gradualAnswerIndex += 1;
+                if (gradualAnswerIndex === presenter.GSACounter) {
                     const gap = moduleGaps[gapIndex];
                     saveNextGapValue(gap);
-                    loadCorrectAnswer(gap, gapIndex);
+                    loadCorrectAnswer(gap, gradualAnswerIndex);
                     module.disableGap(gapIndex + 1);
                 }
             }

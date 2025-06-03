@@ -1080,22 +1080,18 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.reset = function() {
-        this.clean(true, true);
-        const $emptyBoxesInputs = presenter.getEmptyBoxesInputs();
-        if (typeof(presenter.userAnswers) !== "undefined") {
-            $.each($emptyBoxesInputs, function(index){
-                presenter.userAnswers[index] = '';
-            });
-        }
+        presenter.isErrorCheckingMode && presenter.setWorkMode();
+        presenter.isShowAnswersActive && presenter.hideAnswers();
+        presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
+        presenter.clean(true, true);
 
         const $helpBoxesInputs = presenter.getHelpBoxesInputs();
-        if (typeof(presenter.helpBoxesUserAnswers) !== "undefined") {
-            const defaultValues = presenter.helpBoxesDefaultValues.flat();
-            $.each($helpBoxesInputs, function(index){
-                presenter.helpBoxesUserAnswers[index] = defaultValues[index];
-                $(this).val(presenter.helpBoxesUserAnswers[index]);
-            });
-        }
+        const defaultValues = presenter.helpBoxesDefaultValues.flat();
+        $.each($helpBoxesInputs, function(index){
+            $(this).val(defaultValues[index]);
+        });
+        presenter.userAnswers = [];
+        presenter.helpBoxesUserAnswers = [];
 
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
@@ -1323,7 +1319,7 @@ function AddonWritingCalculations_create() {
         $.each($inputs, function() {
             $(this).attr("disabled", true);
         });
-    }
+    };
 
     presenter.enableInputs = function () {
         presenter.isDisabled = false;
@@ -1332,7 +1328,7 @@ function AddonWritingCalculations_create() {
         $.each($inputs, function() {
             $(this).attr("disabled", false);
         });
-    }
+    };
 
     presenter.showAnswers = function () {
         if (presenter.isNotActivity){
@@ -1394,7 +1390,7 @@ function AddonWritingCalculations_create() {
         $(input).addClass('writing-calculations_show-answers');
         presenter.userAnswers.push($(input).val());
         $(input).val(presenter.correctAnswersList[eventData.item].value);
-    }
+    };
 
     presenter.hideAnswers = function () {
         if (presenter.isNotActivity || !presenter.isShowAnswersActive) {
