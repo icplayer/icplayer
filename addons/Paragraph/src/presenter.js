@@ -1306,7 +1306,6 @@ function AddonParagraph_create() {
             if (presenter.editor != null && presenter.editor.initialized && presenter.isEditorLoaded) {
                 presenter.editor.setContent(tinymceState, {format: 'raw'});
                 presenter.state = state;
-                presenter.previousContent = presenter.getUserAnswer();
             } else {
                 presenter.configuration.state = tinymceState;
                 presenter.state = state;
