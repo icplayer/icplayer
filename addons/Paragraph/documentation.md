@@ -191,6 +191,7 @@ With other settings, the scoring will be miscalculated.
 </table>
 
 ## Events
+The <b>blur</b> event occurs on exiting the module.
 
 <table border='1'>
     <tr>
@@ -198,8 +199,66 @@ With other settings, the scoring will be miscalculated.
         <th>Description</th>
     </tr>
     <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
         <td>Value</td>
-        <td>blur - event sent on exiting the module.</td>
+        <td>blur</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+</table>
+
+<b>Note:</b> Which event (<b>empty</b> or <b>modified</b>) will be sent depends on the result of the <b>isAttempted</b> 
+command. That is, if an addon has the <b>Placeholder text</b> property defined and the <b>Editable placeholder</b> 
+property checked, then as long as the text in the editor is the same as from the placeholder, it will be treated as 
+<b>empty</b>.
+
+The <b>empty</b> event occurs:
+* after a reset,
+* after <b>blur</b> event, when module content has not been modified, 
+* before page close when it had no content, e.g., due to a switch to another lesson page.
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>empty</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
+    </tr>
+</table>
+
+The <b>modified</b> event occurs after <b>blur</b> event, when module content has been modified. 
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>modified</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </table>
 
