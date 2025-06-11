@@ -1,4 +1,5 @@
 2025-06-11 Fixed blockly code editor breaking if initial layout is not the default
+2025-06-03 Added sending empty and modified events in paragraph addon
 2025-05-30 Fixed issue causing unwanted resetting of user answers in Writing Calculations
 2025-05-27 Fixed Gap Binder displaying all answers at once in gradual show answers mode
 2025-05-22 Fixed issue with ungrouping modules after some actions
