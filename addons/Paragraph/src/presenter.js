@@ -446,6 +446,28 @@ function AddonParagraph_create() {
         }
     };
 
+    presenter.sendEmptyEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'empty',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.sendModifiedEvent = function () {
+        const eventData = {
+            'source': presenter.configuration.ID,
+            'item': '',
+            'value': 'modified',
+            'score': ''
+        };
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
     presenter.initTinymce = function () {
         if (!document.body.contains(presenter.view)) {
             return;
@@ -492,9 +514,7 @@ function AddonParagraph_create() {
                 presenter.findIframeAndSetStyles();
             }
 
-            presenter.editor.on('blur', function () {
-                presenter.sendOnBlurEvent();
-            });
+            presenter.editor.on('blur', presenter.onEditorBlur);
 
             presenter.editor.on('focus', function () {
                 presenter.removeFocusFromDisabledElement();
@@ -514,6 +534,15 @@ function AddonParagraph_create() {
         }
         presenter.paragraphInitTimeoutID = null;
     }
+
+    presenter.onEditorBlur = function() {
+        presenter.sendOnBlurEvent();
+        if (presenter.isAttempted()) {
+            presenter.sendModifiedEvent();
+        } else {
+            presenter.sendEmptyEvent();
+        }
+    };
 
     presenter.setWrapperID = function AddonParagraph_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
@@ -871,6 +900,12 @@ function AddonParagraph_create() {
                 speechTexts.Justify.Justify,
                 presenter.speechTexts.justify)
         };
+    };
+
+    presenter.preDestroy = function() {
+        if (!presenter.isAttempted()) {
+            presenter.sendEmptyEvent();
+        }
     };
 
     presenter.onDestroy = function AddonParagraph_destroy() {
@@ -1301,6 +1336,7 @@ function AddonParagraph_create() {
         if (presenter.isLocked) {
             presenter.unlock();
         }
+        presenter.sendEmptyEvent();
     };
 
     presenter.show = function AddonParagraph_show() {
