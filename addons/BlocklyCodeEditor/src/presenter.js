@@ -121,6 +121,8 @@ function AddonBlocklyCodeEditor_create () {
         blocksTranslation: {}
     };
 
+    presenter.savedRawState = '';
+
     function isPreviewDecorator(func) {
         if (!presenter.configuration.isPreview) {
             return func;
@@ -159,25 +161,38 @@ function AddonBlocklyCodeEditor_create () {
 
         presenter.setRunButton();
         presenter.setEditorCss();
-        presenter.addUserBlocks();
-        presenter.createWorkspace(view, isPreview);
+        presenter.setVisibility(presenter.configuration.visibleByDefault || isPreview); //fallback in case loading the workspace takes a while
 
-        presenter.setVisibility(presenter.configuration.visibleByDefault || isPreview);
+        setTimeout(() => {
+            // The creation of the blockly workspace needs to be delayed in case the initial layout is not the default one
+            // otherwise the initialization of workspace may be interrupted before completion, leading to errors
+            if (view.parentElement == null) return;
 
-        isPreviewDecorator(presenter.connectHandlers)();
+            presenter.addUserBlocks();
+            presenter.createWorkspace(view, isPreview);
 
-        isPreviewDecorator(presenter.updateToolbox)();
+            presenter.setVisibility(presenter.configuration.visibleByDefault || isPreview);
 
-        isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
+            isPreviewDecorator(presenter.connectHandlers)();
 
-        if (!isPreview) {
-            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
-        }
+            isPreviewDecorator(presenter.updateToolbox)();
 
-        if (isPreview) {
-            presenter.$view.css('z-index','0');
-        }
+            isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
+
+            if (!isPreview) {
+                MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
+                MutationObserverService.setObserver();
+            }
+
+            if (isPreview) {
+                presenter.$view.css('z-index', '0');
+            }
+
+            if (presenter.savedRawState.length > 0) {
+                presenter.setState(presenter.savedRawState);
+                presenter.savedRawState = '';
+            }
+        });
     };
 
     presenter.setConfiguration = function(configuration) {
@@ -1062,6 +1077,7 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.getState = function Blockly_Code_Edtior_get_state () {
+        if (presenter.configuration.workspace == null) return '';
         var xml = Blockly.Xml.workspaceToDom(presenter.configuration.workspace);
         var value = {
             code: Blockly.Xml.domToText(xml),
@@ -1071,6 +1087,11 @@ function AddonBlocklyCodeEditor_create () {
     };
 
     presenter.setState = function Blockly_Code_Editor_set_state (state) {
+        if (presenter.configuration.workspace == null) {
+            // state should only be set if the workspace is loaded
+            presenter.savedRawState = state;
+            return;
+        }
         var value = JSON.parse(state);
         var xml = Blockly.Xml.textToDom(value.code);
         Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
