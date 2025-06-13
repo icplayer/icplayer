@@ -281,6 +281,7 @@ function AddonGap_Binder_create() {
 
             for (let gapIndex = 0; gapIndex < moduleGaps.length; gapIndex++) {
                 const gap = moduleGaps[gapIndex];
+                presenter.removeShowAnswersClass(gap);
                 loadSavedGapValue(gap, answerIndex);
                 answerIndex++;
 
@@ -351,6 +352,29 @@ function AddonGap_Binder_create() {
         const answer = presenter.answers[index];
         gap.innerHTML = answer;
         gap.value = answer;
+        presenter.addShowAnswersClass(gap);
+    }
+
+    presenter.addShowAnswersClass = function(gap) {
+        let isTable = $(gap).parents('.addon_Table').length > 0;
+        let isFilledGap = gap.classList.contains('ic_filled_gap');
+
+        if (isTable) {
+            gap.classList.add('ic_gap-show-answers');
+        } else {
+            if (isFilledGap) {
+                gap.classList.add('ic_filled_gap-correct-answer');
+            } else {
+                gap.classList.add('ic_gap-correct-answer');
+            }
+        }
+
+    }
+
+    presenter.removeShowAnswersClass = function(gap) {
+        gap.classList.remove('ic_gap-correct-answer');
+        gap.classList.remove('ic_filled_gap-correct-answer');
+        gap.classList.remove('ic_gap-show-answers');
     }
 
     function loadSavedGapValue(gap, index) {
