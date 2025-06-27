@@ -2027,9 +2027,16 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}-*/;
 
-	private native JavaScriptObject findScrollElements()/*-{
-		var $defaultScrollElement = $wnd.$($wnd.parent.document);
-		var $mCourserScrollElement = $defaultScrollElement.find('#lesson-view > div > div');
+	private boolean isPlayerInCrossDomain() {
+	    if (this.playerServices != null) {
+            return this.playerServices.isPlayerInCrossDomain();
+        }
+        return false;
+	}
+
+	private native JavaScriptObject findScrollElements(boolean isCrossDomain)/*-{
+		var $defaultScrollElement = isCrossDomain ? null : $wnd.$($wnd.parent.document);
+		var $mCourserScrollElement = isCrossDomain ? null : $defaultScrollElement.find('#lesson-view > div > div');
 		var $mAuthorMobileScrollElement = $wnd.$($wnd);
 		var $mCourserMobileScrollElement = $wnd.$("#content-view");
 		var $mLibroDesktopScrollElement = null;
@@ -2042,8 +2049,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}-*/;
 
 	private native void setupScrollHandlers (TextPresenter x, Element e) /*-{
-		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements()();
-
+	    var isCrossDomain = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isPlayerInCrossDomain()();
+		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements(Z)(isCrossDomain);
 		try {
 			for (var i = 0; i < scrollElements.length; i++) {
 				if (scrollElements[i] && scrollElements[i].length) {

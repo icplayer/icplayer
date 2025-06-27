@@ -1,3 +1,4 @@
+2025-06-27 Fixed cross-domain error in Text
 2025-06-25 Fixed draggable gap in Table accepting images
 2025-06-13 Fixed gap binder not adding appropriate classes to gaps in show answers mode
 2025-06-11 Fixed blockly code editor breaking if initial layout is not the default
