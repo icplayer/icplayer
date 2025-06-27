@@ -1746,6 +1746,10 @@ function AddonTable_create() {
         return this.$view.val(value);
     };
 
+    presenter.filterSelectedItem = function(selectedItem) {
+        return selectedItem.type !== 'image';
+    }
+
     presenter.DraggableDroppableGap = function (htmlID, correctAnswers, gapScore) {
         var configuration = {
             addonID: presenter.configuration.addonID,
@@ -1757,6 +1761,7 @@ function AddonTable_create() {
             showAnswersValue: correctAnswers,
             fillGap: presenter.DraggableDroppableGap.prototype.fillGap,
             makeGapEmpty: presenter.DraggableDroppableGap.prototype.makeGapEmpty,
+            filterSelectedItem: presenter.filterSelectedItem,
 
             gapScore: gapScore,
             maxLength: presenter.getMaxLength(correctAnswers)
