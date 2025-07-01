@@ -107,7 +107,6 @@ function AddonExternal_Link_Button_create() {
             currentPage = presenter.playerController.getPresentation().getPage(currentPageIndex),
             pageBaseURL = currentPage.getBaseURL();
 
-
         presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
     };
 
