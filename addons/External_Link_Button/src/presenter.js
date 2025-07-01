@@ -113,14 +113,15 @@ function AddonExternal_Link_Button_create() {
     presenter.presenterLogic = function (view, model) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
+
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
         	DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
         	return;
         }
+
         if (presenter.isLocalResource(presenter.configuration.URI)) {
             presenter.fixLocalResourceURI();
-        } else {
         }
 
         var $wrapper = presenter.getWrapper();
