@@ -32,6 +32,10 @@ TestCase("[External Link Button] Local resource", {
         assertTrue(this.presenter.isLocalResource('../resources/123456.png'));
     },
 
+    'test uri points to local SCORM resource with digits in extension': function () {
+        assertTrue(this.presenter.isLocalResource('../resources/123456.mp3'));
+    },
+
     'test uri points to local SCORM resource without extension': function () {
         assertFalse(this.presenter.isLocalResource('../resources/123456'));
     },
@@ -42,6 +46,10 @@ TestCase("[External Link Button] Local resource", {
 
     'test uri points to external resource with digits in extension that looks like local one': function () {
         assertFalse(this.presenter.isLocalResource('http://mauthor.com/../resources/123456.mp3'));
+    },
+
+    'test uri points to external resources with any character instead of dots': function () {
+        assertFalse(this.presenter.isLocalResource('bj/resources/123456&png'));
     },
 
     'test fixing local resource URI': function () {
