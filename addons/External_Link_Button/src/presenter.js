@@ -109,25 +109,19 @@ function AddonExternal_Link_Button_create() {
 
 
         presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
-        console.log(presenter.addonID, "NEW URL: " + presenter.configuration.URI, "currentPageIndex: " + currentPageIndex, "pageBaseURL: " + pageBaseURL);
     };
 
     presenter.presenterLogic = function (view, model) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
-        console.log(presenter.addonID, "Execute presenterLogic");
-
         presenter.configuration = presenter.validateModel(model);
-        console.log(presenter.addonID, "presenter.configuration.URI: " + presenter.configuration.URI);
         if (!presenter.configuration.isValid) {
         	DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
         	return;
         }
         if (presenter.isLocalResource(presenter.configuration.URI)) {
-            console.log(presenter.addonID, "is Local Resource");
             presenter.fixLocalResourceURI();
         } else {
-            console.log(presenter.addonID, "is NOT Local Resource");
         }
 
         var $wrapper = presenter.getWrapper();
