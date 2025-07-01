@@ -40,6 +40,10 @@ TestCase("[External Link Button] Local resource", {
         assertFalse(this.presenter.isLocalResource('http://mauthor.com/../resources/123456.png'));
     },
 
+    'test uri points to external resource with digits in extension that looks like local one': function () {
+        assertFalse(this.presenter.isLocalResource('http://mauthor.com/../resources/123456.mp3'));
+    },
+
     'test fixing local resource URI': function () {
         this.presenter.configuration = {
             URI: '../resources/123456.png'
