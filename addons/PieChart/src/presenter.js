@@ -256,7 +256,7 @@ function AddonPieChart_create(){
             x1 = parseFloat(presenter.center + presenter.radius * Math.sin(angle));
             y1 = parseFloat(presenter.center - presenter.radius * Math.cos(angle));
             angle2 = angle + 0.5*(parameter)/50 * Math.PI;
-            angle += (parameter)/50 * Math.PI;
+            angle += (parameter)/50 * Math.PI; //if this changes, fix generateItemData
             x2 = parseFloat(presenter.center + presenter.radius * Math.sin(angle));
             y2 = parseFloat(presenter.center - presenter.radius * Math.cos(angle));
             x3 = parseFloat(presenter.center + Math.sin(angle2)*(presenter.center * presenter.percentsPosition));
@@ -277,7 +277,7 @@ function AddonPieChart_create(){
                 percents += presenter.drawPercent(i,x3,y3,parameter);
             }
             if (type != 'showAnswers') {
-                presenter.angles[i] = ((angle/Math.PI*180-180)+360)%360;
+                presenter.angles[i] = ((angle/Math.PI*180-180)+360)%360;  //if this changes, fix generateItemData
                 presenter.startingLines[i] = presenter.angles[i];
             }
             lines += '<rect id="'+(i+1)+'" class ="line" height="'+presenter.radius+'" width="2" y="'+presenter.center+'" x="'+(presenter.center-1)+'" transform="rotate('+ (((angle/Math.PI*180-180)+360)%360) +', '+presenter.center+', '+presenter.center+')"></rect>';
@@ -289,6 +289,21 @@ function AddonPieChart_create(){
         $svg += '</svg>';
         presenter.piechart.prepend($svg);
     };
+
+    presenter.generateItemData = function(parameter, angleDegrees) {
+        // the method is based on drawGraph
+        let angle = angleDegrees * Math.PI / 180 + Math.PI  - (parameter)/50 * Math.PI;
+        angle = (angle + 2*Math.PI) % (2 * Math.PI);
+        let x1 = parseFloat(presenter.center + presenter.radius * Math.sin(angle));
+        let y1 = parseFloat(presenter.center - presenter.radius * Math.cos(angle));
+        angle += (parameter)/50 * Math.PI;
+        let x2 = parseFloat(presenter.center + presenter.radius * Math.sin(angle));
+        let y2 = parseFloat(presenter.center - presenter.radius * Math.cos(angle));
+        let ItemData = 'M '+presenter.center+' '+presenter.center+' L '+x1+' '+y1+' A '+presenter.radius+' '+presenter.radius+' 0 ';
+        ((parameter) > 50) ? (ItemData += '1') : (ItemData += '0');
+        ItemData += ' 1 '+x2+' '+y2+' L '+presenter.center+' '+presenter.center+' Z';
+        return ItemData;
+    }
 
     presenter.drawPercent = function(i,x,y,value) {
         var tmp = '<text id="Text'+(i+1)+'" class="percentsValues" x="'+x+'" y="'+y+'" text-anchor="middle">'+value+'%</text>';
@@ -674,7 +689,7 @@ function AddonPieChart_create(){
             for(i = 0; i < presenter.numberOfItems; i++) {
                 ii = (i===0) ? (presenter.numberOfItems-1) : i-1;
                 presenter.$view.find('#'+(i+1)).attr("transform", "rotate(" + presenter.angles[i] + ", "+presenter.center+", "+presenter.center+")");
-                presenter.$view.find('#item'+(i+1)).attr("d", itemsData[i]);
+                presenter.$view.find('#item'+(i+1)).attr("d", presenter.generateItemData(presenter.currentPercents[i], presenter.angles[i]));
                 angle = (Math.round((presenter.angles[i] - presenter.angles[ii])*100)/100+360)%360;
                 angleTmp = presenter.angles[ii] + 0.5*angle + 180;
                 if (presenter.currentPercents[i] === 100) {
