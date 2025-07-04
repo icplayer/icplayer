@@ -7,32 +7,61 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ImageGapPresenterResetTestCase {
+    private PlayerServicesMockup services;
+	private ImageGapViewMockup display;
+    private ImageGapModule module;
     private ImageGapPresenter presenterSpy;
 
     @Before
     public void setUp() {
-        PlayerServicesMockup services = new PlayerServicesMockup();
-        ImageGapModule module = new ImageGapModule();
+        services = new PlayerServicesMockup();
+        module = new ImageGapModule();
+		display = new ImageGapViewMockup(module);
+    }
 
+    private void buildPresenter() {
         ImageGapPresenter presenter = new ImageGapPresenter(module, services);
-        presenter.addView(new ImageGapViewMockup(module));
-
+        presenter.addView(display);
         presenterSpy = Mockito.spy(presenter);
     }
 
     @Test
-    public void givenNotErrorsModeWhenResettingModuleThenDoesNotCallSetWorkMode() {
+    public void givenVisibleByDefaultModuleWhenCallingShowThenCallsShowInView() {
+        module.setIsVisible(true);
+        buildPresenter();
+
         presenterSpy.reset(false);
 
-        Mockito.verify(presenterSpy, Mockito.never()).setWorkMode();
+        Mockito.verify(presenterSpy, Mockito.times(1)).show();
     }
 
     @Test
-    public void givenErrorsModeWhenResettingModuleThenCallsSetWorkMode() {
-        presenterSpy.setShowErrorsMode();
+    public void givenVisibleByDefaultModuleWhenResettingModuleThenDoesNotCallHide() {
+        module.setIsVisible(true);
+        buildPresenter();
+
         presenterSpy.reset(false);
 
-        Mockito.verify(presenterSpy, Mockito.times(1)).setWorkMode();
+        Mockito.verify(presenterSpy, Mockito.never()).hide();
     }
 
+    @Test
+    public void givenNotVisibleByDefaultModuleWhenResettingModuleThenCallsHide() {
+        module.setIsVisible(false);
+        buildPresenter();
+
+        presenterSpy.reset(false);
+
+        Mockito.verify(presenterSpy, Mockito.times(1)).hide();
+    }
+
+    @Test
+    public void givenNotVisibleByDefaultModuleWhenResettingModuleThenDoesNotCallShow() {
+        module.setIsVisible(false);
+        buildPresenter();
+
+        presenterSpy.reset(false);
+
+        Mockito.verify(presenterSpy, Mockito.never()).show();
+    }
 }

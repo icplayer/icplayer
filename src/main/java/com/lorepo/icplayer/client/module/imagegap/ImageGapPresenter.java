@@ -269,9 +269,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		view.setDisabled(model.isDisabled());
 
 		if (model.isVisible()) {
-			view.show();
+			show();
 		} else {
-			view.hide();
+			hide();
 		}
 	}
 
