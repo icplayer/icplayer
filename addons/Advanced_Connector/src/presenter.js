@@ -29,6 +29,7 @@ function AddonAdvanced_Connector_create() {
             return;
         }
         var i, length;
+        const previousEvent = event;
         let filledEventData = presenter.fillEventData(eventData, eventName);
 
         try {
@@ -41,7 +42,7 @@ function AddonAdvanced_Connector_create() {
             Helpers.alertErrorMessage(error, "Advanced Connector - problem occurred while running scripts!");
         }
 
-        event = undefined;
+        event = previousEvent;
     };
 
     presenter.reset = function () {
