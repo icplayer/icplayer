@@ -151,14 +151,15 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	
 	@Override
 	public void reset(boolean onlyWrongAnswers) {
-		
-		if(module.isVisible()) show();
-		else view.hide();
+		if (module.isVisible()) {
+		    show();
+		} else {
+		    hide();
+		}
 		
 		score = 0;
 		updateDisplay();
 	}
-	
 
 	
 	@Override
@@ -242,7 +243,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		return module.getId();
 	}
 	
-	private void show(){
+	public void show(){
 		
 		isVisible = true;
 		if(view != null){
@@ -251,7 +252,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	}
 	
 	
-	private void hide(){
+	public void hide(){
 		
 		isVisible = false;
 		if(view != null){

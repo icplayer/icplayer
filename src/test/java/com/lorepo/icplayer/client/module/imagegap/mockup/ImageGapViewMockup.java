@@ -16,7 +16,7 @@ public class ImageGapViewMockup implements IDisplay {
 
 
 	public ImageGapViewMockup(ImageGapModule module) {
-		// TODO Auto-generated constructor stub
+		visible = module.isVisible();
 	}
 
 	@Override

@@ -22,7 +22,7 @@ import com.lorepo.icplayer.client.module.choice.mockup.ChoiceViewMockup;
 import com.lorepo.icplayer.client.module.choice.mockup.OptionViewMockup;
 import com.lorepo.icplayer.client.module.choice.mockup.OptionViewMockup.StyleType;
 
-public class PresenterTestCase {
+public class ChoicePresenterTestCase {
 
 	private boolean eventReceived;
 	private static final String PAGE_VERSION = "2";
