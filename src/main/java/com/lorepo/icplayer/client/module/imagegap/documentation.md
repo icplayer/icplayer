@@ -97,6 +97,16 @@ An Image gap module is an empty box which should be filled in with a relevant it
         <td>–</td> 
         <td>Returns true if an image in a gap is correct.</td> 
     </tr>
+    <tr>
+        <td>show</td>
+        <td>---</td>
+        <td>Shows the module.</td>
+    </tr>
+    <tr>
+        <td>hide</td>
+        <td>---</td>
+        <td>Hides the module.</td>
+    </tr>
 </tbody>
 </table>
 
