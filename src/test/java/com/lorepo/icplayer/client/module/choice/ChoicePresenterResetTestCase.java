@@ -27,7 +27,7 @@ public class ChoicePresenterResetTestCase {
     }
 
     @Test
-    public void givenVisibleByDefaultModuleWhenCallingShowThenCallsShowInView() {
+    public void givenVisibleByDefaultModuleWhenResettingThenCallsShow() {
         module.setIsVisible(true);
         buildDisplayAndPresenter();
 
@@ -37,7 +37,7 @@ public class ChoicePresenterResetTestCase {
     }
 
     @Test
-    public void givenVisibleByDefaultModuleWhenResettingModuleThenDoesNotCallHideInView() {
+    public void givenVisibleByDefaultModuleWhenResettingThenDoesNotCallHide() {
         module.setIsVisible(true);
         buildDisplayAndPresenter();
 
@@ -47,7 +47,7 @@ public class ChoicePresenterResetTestCase {
     }
 
     @Test
-    public void givenNotVisibleByDefaultModuleWhenResettingModuleThenCallsHide() {
+    public void givenNotVisibleByDefaultModuleWhenResettingThenCallsHide() {
         module.setIsVisible(false);
         buildDisplayAndPresenter();
 
@@ -57,7 +57,7 @@ public class ChoicePresenterResetTestCase {
     }
 
     @Test
-    public void givenNotVisibleByDefaultModuleWhenResettingModuleThenDoesNotCallShowInView() {
+    public void givenNotVisibleByDefaultModuleWhenResettingThenDoesNotCallShow() {
         module.setIsVisible(false);
         buildDisplayAndPresenter();
 

@@ -22,7 +22,7 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DictionaryWrapper.class)
-public class ModelTestCase {
+public class ErrorCounterModelTestCase {
 	
 	private static final String PAGE_VERSION = "2";
 
