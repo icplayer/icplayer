@@ -1,7 +1,9 @@
 ## Description
-Advanced Connector is a special kind of addon. It combines multiple addons and modules in fully interactive, responsive exercises.
+The Advanced Connector is a special kind of module. It combines multiple modules into fully interactive, responsive content.
 
 ## Properties
+
+The list starts with the common properties, learn more about them by visiting the [Modules description](https://www.mauthor.com/doc/en/page/Modules-description) section. The other available properties are described below.
 
 <table border='1'>
     <tr>
@@ -10,47 +12,53 @@ Advanced Connector is a special kind of addon. It combines multiple addons and m
     </tr>
     <tr>
         <td>Scripts</td>
-        <td>List of scripts to be executed when specified conditions occur</td>
+        <td>List of scripts to be executed when specified conditions occur.</td>
     </tr>
     <tr>
-        <td>Is disabled</td>
-        <td>This property allows to disable Advanced Connector module so that it doesn't react (evaluate any scripts) when new events hit Event Bus.
+        <td>Is Disabled</td>
+        <td>This property allows disabling the Advanced Connector module so that it doesn't react (evaluate any scripts) when new events hit the Event Bus.
         </td> 
     </tr>
 </table>
 
 
 ## Scripts syntax
-Each script starts with the 'EVENTSTART' keyword and ends with 'EVENTEND'. All conditions and script to be executed must be placed between them!  
-Each script is executed when specified conditions occur. These conditions match event data sent by other addons. User can filter events through:
+Each script starts with the 'EVENTSTART' keyword and ends with 'EVENTEND'. All conditions and scripts to be executed must be placed between them!  
+Each script is executed when specified conditions occur. These conditions match event data sent by other modules. Users can filter events through:
 
-* Name - name of the event type. There are few event types: Definition, ItemSelected, ItemConsumed, ItemReturned and ValueChanged. **By default, events are filtered by 'Name:ValueChanged' condition. In order to be able to react to other types of events, it is necessary to specify them in a condition!**
-* Source - ID of the addon/page/module which sends the event (ValueChanged and PageLoaded events only)
-* Item - 'item' field value of event data
-* Value - 'value' field value of event data
-* Score - 'score' field value of event data (ValueChanged events only)
-* Type - 'type' field value of event data (draggable events only)
-* Word - 'word' field value of event data (Definition events only)
+* Name - name of the event type. There are a few event types: Definition, ItemSelected, ItemConsumed, ItemReturned, and ValueChanged. **By default, events are filtered by 'Name:ValueChanged' condition. To be able to react to other types of events, it is necessary to specify them in a condition!**
+<br/>Other available names are:
+<br/>PageLoaded - event sent by the player when the current page is loaded.
+<br/>Check - on pressing the Check Answers button.
+<br/>Uncheck - on disabling the Check Answers mode.
+<br/>Reset - when the Reset module is pressed.
+* Source - ID of the addon/page/module that sends the event (ValueChanged and PageLoaded events only).
+* Item - 'item' field value of event data.
+* Value - 'value' field value of event data.
+* Score - 'score' field value of event data (ValueChanged events only).
+* Type - 'type' field value of event data (draggable events only).
+* Word - 'word' field value of event data (Definition events only).
 
-For full reference of event types and fields please go to [documentation](/doc/page/Addon-Events "Documentation").
+For a full reference of event types and fields, please go to [documentation](/doc/page/Addon-Events "Documentation").
 
-Additionally, the Advanced Connector addon emulates three events: Reset, Check (when entering error checking mode) and Uncheck (when returning from error checking mode). Those three events can be used in event type of scripts (see [demo presentation](/embed/2419014 "Demo presentation") for examples).
+The Advanced Connector addon also emulates three events: Reset, Check (when entering the error-checking mode), and Uncheck (when returning from the error-checking mode). Those three events can be used in the event type of scripts (see [demo presentation](/present/5743683201531904 "Demo presentation") for examples).
 
-Above conditions are specified using the JavaScript Regular Expression format. For more information see [Introductory Guide to regular expressions](http://www.javascriptkit.com/javatutors/re.shtml "Introductory Guide to regular expressions") from [JavaScript Kit](http://www.javascriptkit.com "JavaScript Kit").  
-Omitting a particular condition is equal to setting its value to '.*'.
+The above conditions are specified using the JavaScript Regular Expression format. For more information see [Regular expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions "Regular expressions").  
+Omitting a particular condition equals setting its value to '.*'.
 
-Script to be executed is simply JavaScript script. It has to start with 'SCRIPTSTART' and end with 'SCRIPTEND' keywords.
-To access the addon or module a user has to use getModule(moduleID) method from playerController. For example, to switch frame to next in Image Viewer Addon a user can add syntax like below:
+The script to be executed is simply JavaScript script. It has to start with 'SCRIPTSTART' and end with 'SCRIPTEND' keywords.
+To access the module or addon it is necessary to use the getModule(moduleID) method from the playerController. For example, to switch frame to the next one in the Image Viewer module, the user can add a syntax like the one below:
 
     presenter.playerController.getModule('ImageViewer1').next();
 
-Example script from [demo presentation](/embed/2419014 "Demo presentation") looks like below:
+Example script from the [demo presentation](/present/5743683201531904 "Demo presentation") looks like this:
 
     EVENTSTART
     Source:TrueFalse1
     Item:1-1
     Value:1
     SCRIPTSTART
+
 		var audioCorrect = presenter.playerController.getModule('Audio_Correct');
 		var feedback = presenter.playerController.getModule('feedback1');
 		var imageViewer = presenter.playerController.getModule('Image_Viewer_Public1');
@@ -58,16 +66,18 @@ Example script from [demo presentation](/embed/2419014 "Demo presentation") look
 		audioCorrect.play();
 		feedback.change('TF-1-1');
 		imageViewer.moveToFrame(2);
+
     SCRIPTEND
     EVENTEND
 
-Above script is executed when the addon with ID TrueFalse1 sends event with item '1-1' and value '1' (other fields don't matter in this example). When this happens, the Audio addon is played, Feedback changes its text and Image Viewer changes its frame.
+The above script is executed when the addon with the ID TrueFalse1 sends an event with item '1-1' and value '1' (other fields do not matter in this example). When this happens, the Audio module is played, the Feedback module changes its text, and the Image Viewer module changes its frame.
 
-Additionally to playerController, each executed script has access to 'event' variable which holds all information about the event that triggered current script. For example, let's display them using Text module:
+Additionally, to the playerController, each executed script has access to the 'event' variable which holds all information about the event that triggered the current script. For example, let us display them using the Text module:
 
-	EVENTSTART
+    EVENTSTART
     Source:TrueFalse1
     SCRIPTSTART
+
 		var textSource = presenter.playerController.getModule('TextSource'),
 			textItem = presenter.playerController.getModule('TextItem'),
 			textValue = presenter.playerController.getModule('TextValue'),
@@ -77,45 +87,52 @@ Additionally to playerController, each executed script has access to 'event' var
 		textItem.setText('Item: ' + event.item);
 		textValue.setText('Value: ' + event.value);
 		textScore.setText('Score: ' + event.score);
+
     SCRIPTEND
     EVENTEND
 	
-Event object has following properties:
+The event object has the following properties:
 
-* name
-* source
-* item
-* value
-* score
-* word
-* type
+* name,
+* source,
+* item,
+* value,
+* score,
+* word,
+* type.
 
-If some property is not present in a current event, its value is set to empty string ("").
+If some property is not present in the current event, its value is set to an empty string ("").
 
-To react on draggable events a user can write scripts like this:
+To react to draggable events, the user can write scripts like this:
 
     EVENTSTART
     Name:ItemSelected
     Value:.+
     SCRIPTSTART
+
         var feedback = presenter.playerController.getModule('feedback1');
         feedback.change('ITEM-SELECTED');
+
     SCRIPTEND
     EVENTEND
+
+
     EVENTSTART
     Name:ItemSelected
     Value:^$
     SCRIPTSTART
+
         var feedback = presenter.playerController.getModule('feedback1');
         feedback.change('ITEM-DESELECTED');
+
     SCRIPTEND
     EVENTEND
 
-For selecting a draggable element (i.e. Image Source) the first script will be executed (because 'value' field has at least one character - '.+' expression) and feedback changes its message to 'ITEM-SELECTED'. When this item is deselected, the event with empty 'value' field ('^$' condition) and feedback will change message to 'ITEM-DESELECTED'.
+For selecting a draggable element (i.e. Image Source), the first script will be executed (because the 'value' field has at least one character - '.+' expression) and feedback changes its message to 'ITEM-SELECTED'. When this item is deselected, the event with an empty 'value' field ('^$' condition) and feedback will change the message to 'ITEM-DESELECTED'.
 
 ##Header and Footer Modules
 
-All header and footer modules can be accessed using getHeaderModule() or getFooterModule() methods accordingly. Below you can view a sample script showing how to change a header title on a button click:
+All header and footer modules can be accessed using getHeaderModule() or getFooterModule() methods accordingly. Below you can view a sample script showing how to change the header title on a button click:
 
     var text1 = presenter.playerController.getHeaderModule('Text1');    
     text1.setText("changed title");
@@ -149,21 +166,21 @@ All header and footer modules can be accessed using getHeaderModule() or getFoot
     </tr>
 </table>
 
-Advanced Connector addon doesn't expose any CSS classes because its internal structure should not be changed (neither via Advanced Connector nor CSS styles).
+The Advanced Connector module does not expose any CSS classes because its internal structure should not be changed (neither via Advanced Connector nor CSS styles).
 
 ## External links in script
 
-Try NOT to keep links to resources in Advanced Connector script. If you want to use external resources try describe them in CSS (Presenter -> Edit CSS...). Example of WRONG script:
+Try NOT to keep links to resources in the Advanced Connector script. If you want to use external resources, try describing them in CSS (Presenter -> Edit CSS...). Example of a WRONG script:
 
     $("#MyElem").css("background", (/file/serve/6757006) 0 0 no-repeat);
 
-It is better to define new class in CSS:
+It is better to define a new class in CSS:
 
     .background_image {
         background: (/file/serve/6757006) 0 0 no-repeat;
     }
 
-and add to suitable element:
+and add to the suitable element:
 
     $("#MyElem").addClass("background_image");
 
