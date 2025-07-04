@@ -10,7 +10,7 @@ import org.xml.sax.SAXException;
 
 import com.lorepo.icplayer.client.module.mockup.ModuleFactoryMockup;
 
-public class ModelTestCase {
+public class PageProgressModelTestCase {
 	PageProgressModule module = null;
 	private final String PAGE_VERSION = "2";
 	
