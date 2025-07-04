@@ -1,3 +1,4 @@
+2025-07-04 Fixed pie chart state not accounting for different addon size in different layouts
 2025-07-04 Fixed bug related to lack of support for all file extensions in the External Link Button
 2025-07-03 Added support for nested event handling in Advanced Connector
 2025-06-27 Fixed cross-domain error in Text
