@@ -97,7 +97,7 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.isLocalResource = function (uri) {
-        var regex = new RegExp('^\.\.\/resources\/[0-9]*\.[a-zA-Z]+$');
+        var regex = new RegExp('^\\.\\.\/resources\/[0-9]*\\.[a-zA-Z0-9]+$');
 
         return regex.test(uri);
     };
@@ -110,7 +110,7 @@ function AddonExternal_Link_Button_create() {
         presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
     };
 
-    presenter.presenterLogic = function (view, model) {
+    presenter.presenterLogic = function (view, model, isPreview) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
 
@@ -120,7 +120,7 @@ function AddonExternal_Link_Button_create() {
         	return;
         }
 
-        if (presenter.isLocalResource(presenter.configuration.URI)) {
+        if (!isPreview && presenter.isLocalResource(presenter.configuration.URI)) {
             presenter.fixLocalResourceURI();
         }
 
@@ -132,13 +132,13 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.createPreview = function(view, model) {
-    	presenter.presenterLogic(view, model);
+    	presenter.presenterLogic(view, model, true);
 
         presenter.setVisibility(true);
     };
 
     presenter.run = function(view, model){
-    	presenter.presenterLogic(view, model);
+    	presenter.presenterLogic(view, model, false);
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };

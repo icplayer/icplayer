@@ -120,6 +120,7 @@
         this.helper = configuration.helper || DraggableDroppableObject.prototype.helper;
         this.makeGapEmpty = configuration.makeGapEmpty || DraggableDroppableObject.prototype.makeGapEmpty;
         this.fillGap = configuration.fillGap || DraggableDroppableObject.prototype.fillGap;
+        this.filterSelectedItem = configuration.filterSelectedItem || DraggableDroppableObject.prototype.filterSelectedItem;
         this.cursorAt = configuration.cursorAt || DraggableDroppableObject.prototype.cursorAt;
 
         this.getDroppedElement = DraggableDroppableObject.prototype.getDroppedElement;
@@ -533,6 +534,7 @@
      */
     DraggableDroppableObject.prototype.clickHandler = function (event) {
         var selectedItem = DraggableDroppableObject._internal.getSelectedItemWrapper.call(this);
+        if (!this.filterSelectedItem(selectedItem)) return;
 
         if (!DraggableDroppableObject._internal.isSelectedItemEmpty(selectedItem)) {
             var sourceID = selectedItem.item.substr(0, selectedItem.item.lastIndexOf('-')),
@@ -568,6 +570,16 @@
     };
 
     /**
+     * Helper method used to filter dropped items.
+     * @method filterSelectedItem
+     * @param selectedItem {object} getSelectedItem object
+     * @returns {boolean} returns true if item should be accepted
+     */
+    DraggableDroppableObject.prototype.filterSelectedItem = function (selectedItem) {
+        return true;
+    };
+
+    /**
      * Callback for drop event.
      * It sends item returned event and fills gap
      * Called with this as DraggableDroppableObject
@@ -576,9 +588,11 @@
      * @param ui {object} jQuery UI object
      */
     DraggableDroppableObject.prototype.dropHandler = function (event, ui) {
+        var selectedItem = DraggableDroppableObject._internal.getSelectedItemWrapper.call(this);
+        if (!this.filterSelectedItem(selectedItem)) return;
         this.setDroppedElement(ui.draggable[0]);
         this.sendItemReturnedEvent();
-        this.fillGap.call(this, DraggableDroppableObject._internal.getSelectedItemWrapper.call(this));
+        this.fillGap.call(this, selectedItem);
     };
 
     /**
