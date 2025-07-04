@@ -33,11 +33,11 @@ public class PageProgressViewMockup implements IDisplay {
     public void hide() {
         this.visible = false;
     }
-
-	public boolean isVisible(){
-		return this.visible;
-	}
-
+    
+    public boolean isVisible(){
+        return this.visible;
+    }
+    
     @Override
     public List<IOptionDisplay> getOptions() {
         return options;
