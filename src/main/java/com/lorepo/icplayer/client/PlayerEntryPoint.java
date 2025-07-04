@@ -320,6 +320,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		final int currentPageIndex = this.theApplication.getPlayerServices()
 				.getCurrentPageIndex();
 		String source = Integer.toString(currentPageIndex + 1);
+		updateMathJax();
 		fireStatusChanged(this.statusChangedListener, "PageLoaded", source, "");
 	}
 
