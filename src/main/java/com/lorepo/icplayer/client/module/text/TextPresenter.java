@@ -1100,7 +1100,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean hasTextStyle(String value) {
-		String[] textFormatingTags = {"<b>", "<i>", "<s>", "<u>", "<mark>", "<br>", "<br/>"};
+		String[] textFormatingTags = {"<b>", "<i>", "<s>", "<u>", "<mark>", "<br>", "<br/>", "<sub>", "<sup>"};
 		for (String tag : textFormatingTags) {
 			if (value.contains(tag)) {
 				return true;
