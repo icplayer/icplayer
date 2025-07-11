@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.report.mockup.ReportDisplayMockup;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
-public class PresenterTestCase {
+public class ReportPresenterTestCase {
 
 	@Test
 	public void checkRowCount() throws SAXException, IOException {

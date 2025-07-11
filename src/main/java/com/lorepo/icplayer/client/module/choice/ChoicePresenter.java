@@ -244,8 +244,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			hideAnswers();
 		}
 		
-		if(module.isVisible()) show();
-		else view.hide();
+		if (module.isVisible()) {
+		    show();
+		} else {
+		    hide();
+		}
 
 		clearStylesAndSelection(onlyWrongAnswers);
 		
@@ -739,7 +742,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 
-	private void show(){
+	public void show(){
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -751,7 +754,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	
-	private void hide(){
+	public void hide(){
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
