@@ -134,7 +134,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	public void setShowErrorsMode(boolean isActivity) {
 		if (isActivity) {
 		    String parsedAnswerText = rawAnswerText;
-		    if (!parsedAnswerText.matches("<[^ ].*>")){
+		    if (!parsedAnswerText.matches(".*<[^ ].*>.*")){
                 parsedAnswerText = parsedAnswerText.replace("< ", "<");
             }
 			if (parsedAnswerText.length() > 0) {
@@ -244,7 +244,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public String getTextValue() {
 	    String parsedAnswerText = answerText;
-        if (!parsedAnswerText.matches("<[^ ].*>")){
+        if (!parsedAnswerText.matches(".*<[^ ].*>.*")){
             parsedAnswerText = parsedAnswerText.replace("< ", "<");
         }
 		return parsedAnswerText;

@@ -319,7 +319,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private String getParsedAnswer(String answer) {
-		if (isMathFormula(answer) && !answer.matches("<[^ ].*>")) {
+		if (isMathFormula(answer) && !answer.matches(".*<[^ ].*>.*")) {
 			return answer.replace("<", "< ");
 		}
 
@@ -1100,7 +1100,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean hasTextStyle(String value) {
-		String[] textFormatingTags = {"<b>", "<i>", "<s>", "<u>", "<mark>"};
+		String[] textFormatingTags = {"<b>", "<i>", "<s>", "<u>", "<mark>", "<br>", "<br/>", "<sub>", "<sup>"};
 		for (String tag : textFormatingTags) {
 			if (value.contains(tag)) {
 				return true;
@@ -1118,7 +1118,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private String getParsedValue() {
 		String value = draggableItem.getValue();
-		if (!value.matches("<[^ ].*>")) {
+		if (!value.matches(".*<[^ ].*>.*")) {
 			value = value.replace("<", "< ");
 		}
 
