@@ -20,7 +20,7 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.ordering.mockup.OrderingViewMockup;
 
 
-public class PresenterTestCase {
+public class OrderingPresenterTestCase {
 
 	private static final String PAGE_VERSION = "2";
 

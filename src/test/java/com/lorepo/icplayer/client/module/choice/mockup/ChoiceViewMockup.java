@@ -15,7 +15,7 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 	private ChoiceModel module;
 	private ArrayList<IOptionDisplay>	options = new ArrayList<IOptionDisplay>();
 	private IOptionListener listener;
-	boolean isVisible = true;
+	boolean visible = true;
 	private int[] order;
 	
 	
@@ -76,18 +76,18 @@ public class ChoiceViewMockup implements IDisplay, IOptionMockupListener {
 
 	@Override
 	public void show() {
-		isVisible = true;
+		visible = true;
 	}
 
 
 	@Override
 	public void hide() {
-		isVisible = false;
+		visible = false;
 	}
 
 
 	public boolean isVisible() {
-		return isVisible;
+		return visible;
 	}
 
 

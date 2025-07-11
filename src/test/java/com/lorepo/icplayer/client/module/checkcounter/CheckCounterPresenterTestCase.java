@@ -9,7 +9,7 @@ import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.module.checkcounter.CheckCounterPresenter.IDisplay;
 
 
-public class PresenterTestCase {
+public class CheckCounterPresenterTestCase {
 
 	private class TestDisplay implements IDisplay{
 

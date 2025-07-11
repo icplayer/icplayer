@@ -32,13 +32,13 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 
 	private void createUI(boolean isPreview) {
 
-		if(!isPreview){
-			setVisible(module.isVisible());
-		}
 		setStyleName("ic_pageprogress");
 		StyleUtils.applyInlineStyle(this, module);
 		originalDisplay = getElement().getStyle().getDisplay();
 		setProgress(50);
+		if (!isPreview){
+			setVisible(module.isVisible());
+		}
 		getElement().setId(module.getId());
 	}
 	
