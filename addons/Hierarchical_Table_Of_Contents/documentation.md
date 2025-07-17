@@ -132,4 +132,4 @@ The Hierarchical Table Of Contents module does not send any events.
 </table>
 
 ## Demo presentation
-Demo presentation is available [here](/embed/5934857403760640).       
+Demo presentation is available [here](/embed/5934857403760640).
