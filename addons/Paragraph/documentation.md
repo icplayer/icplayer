@@ -218,9 +218,11 @@ property checked, then as long as the text in the editor is the same as from the
 <b>empty</b>.
 
 The <b>empty</b> event occurs:
-* after a reset,
-* after <b>blur</b> event, when module content has not been modified, 
-* before page close when it had no content, e.g., due to a switch to another lesson page.
+<ul>
+    <li>after a reset,</li>
+    <li>after <b>blur</b> event, when module content has not been modified,</li> 
+    <li>before lesson's page close when it had no content, e.g., due to a switch to another lesson page.</li>
+</ul>
 
 <table border='1'>
     <tr>

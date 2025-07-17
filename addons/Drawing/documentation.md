@@ -144,7 +144,7 @@ is completed, but also when the erasing is completed, the image is inserted and 
     </tr>
 </table>
 
-The <b>empty</b> event occurs on reset or before page close when drawing has never started, e.g., due to a switch to another lesson page
+The <b>empty</b> event occurs on reset or before page close when drawing has never started, e.g., due to a switch to another lesson page.
 
 <table border='1'>
     <tr>
