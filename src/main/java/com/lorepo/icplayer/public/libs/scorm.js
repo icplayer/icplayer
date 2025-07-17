@@ -7,13 +7,17 @@ function getScorm() {
 	var initialized = false;
 
 	function scanForAPI(win) {
-		while ((win.API_1484_11 == null) && (win.parent != null) &&	(win.parent != win)) {
-			nFindAPITries ++;
-			if (nFindAPITries > maxTries) {
-				alert("Error in finding API instance -- too deeply nested.");
-				return null;
+		try {
+			while ((win.API_1484_11 == null) && (win.parent != null) && (win.parent != win)) {
+				nFindAPITries++;
+				if (nFindAPITries > maxTries) {
+					alert("Error in finding API instance -- too deeply nested.");
+					return null;
+				}
+				win = win.parent;
 			}
-			win = win.parent;
+		} catch (e) {
+			return null;
 		}
 		return win.API_1484_11;
 	}
