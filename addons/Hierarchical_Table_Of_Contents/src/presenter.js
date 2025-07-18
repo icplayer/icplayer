@@ -19,6 +19,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         CHAPTER_EXPANDER: "treegrid-expander",
         CHAPTER_EXPANDER_EXPANDED: "treegrid-expander-expanded",
         CHAPTER_EXPANDER_COLLAPSED: "treegrid-expander-collapsed",
+        CURRENT_PAGE: "current-page",
     };
 
     presenter.DEFAULT_TTS_PHRASES = {
@@ -102,22 +103,38 @@ function AddonHierarchical_Table_Of_Contents_create() {
         return row;
     }
 
-    function generatePageLinks(text, isChapter, pageId) {
-        var $element = $(document.createElement('td')),
-            $link = $("<a></a>").text(text).attr('href', '#').attr('data-page-id', pageId);
+    function createRowCell(text, isChapter, pageId) {
+        const rowCell = document.createElement('td');
 
-        $element.append($('<div class="text-wrapper">').html(isChapter ? text : $link));
+        const textWrapper = document.createElement('div');
+        textWrapper.classList.add('text-wrapper');
+        if (isChapter) {
+            rowCell.innerHTML = text;
+        } else {
+            const link = document.createElement('a');
+            link.textContent = text;
+            link.setAttribute('href', '#');
+            link.setAttribute('data-page-id', pageId);
 
-        return $element;
+            textWrapper.appendChild(link);
+            if (!presenter.isPreview){
+                const presentation = presentationController.getPresentation();
+                const currentPageId = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
+
+                if (currentPageId === pageId) {
+                    link.classList.add(presenter.CSS_CLASSES.CURRENT_PAGE);
+                }
+            }
+        }
+        rowCell.append(textWrapper);
+
+        return rowCell;
     }
 
-    function addRow(name, index, parrentIndex, isChapter, pageId) {
-        var row = createRow(index, parrentIndex, isChapter);
-
-        var nameCell = generatePageLinks(name, isChapter, pageId);
-        if(row != null){
-            $(nameCell).appendTo($(row));
-        }
+    function addRow(name, index, parentIndex, isChapter, pageId) {
+        const row = createRow(index, parentIndex, isChapter);
+        const cell = createRowCell(name, isChapter, pageId);
+        row.append(cell);
     }
 
     function resetScore() {
@@ -161,7 +178,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         return chapterScore;
     };
 
-    presenter.createTree = function (root, parrentIndex, pageCount) {
+    presenter.createTree = function (root, parentIndex, pageCount) {
         var chapterIndex = 0,
             chapterScore = resetScore(),
             pageScore = resetScore(),
@@ -181,7 +198,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
             if (!isChapter) {
                 pageId = root.get(i).getId();
             }
-            addRow(root.get(i).getName(), pageIndex, parrentIndex, isChapter, pageId);
+            addRow(root.get(i).getName(), pageIndex, parentIndex, isChapter, pageId);
             pageScore = presentationController.getScore().getPageScoreById(pageId);
             pageScore.count = 1;
             pageIndex++;
@@ -524,7 +541,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
     HTocKeyboardController.prototype.nextRow = function (event) {
         if (event) event.preventDefault();
         this.moveToNextKeyNavElement();
-    }
+    };
 
     // Up Arrow
     HTocKeyboardController.prototype.previousRow = function (event) {
@@ -548,7 +565,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         this.markCurrentElement(previousIndex);
 
         centerElement(this.keyboardNavigationCurrentElement);
-    }
+    };
 
     HTocKeyboardController.prototype.getNextSelectableElementIndexOrNull = function () {
         const elements = this.keyboardNavigationElements;
@@ -560,7 +577,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
             }
         }
         return null;
-    }
+    };
 
     HTocKeyboardController.prototype.getPreviousSelectableElementIndexOrNull = function () {
         const elements = this.keyboardNavigationElements;
@@ -572,11 +589,11 @@ function AddonHierarchical_Table_Of_Contents_create() {
             }
         }
         return null;
-    }
+    };
 
     presenter.isParentTableRowVisible = function (element) {
         return $(element).closest("tr").style('display') !== "none";
-    }
+    };
 
     HTocKeyboardController.prototype.enter = function (event) {
         if (presenter.isFirstEnter) {
