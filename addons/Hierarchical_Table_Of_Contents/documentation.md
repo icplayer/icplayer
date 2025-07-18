@@ -126,7 +126,7 @@ The Hierarchical Table Of Contents module does not send any events.
         <td style="width: 908px;">Indicates the look of the lines containing chapters.</td>
     </tr>
     <tr>
-        <td style="width: 235px;">.current-page</td>
+        <td style="width: 235px;">.hier_report .current-page</td>
         <td style="width: 908px;">Indicates the look of the page being displayed.</td>
     </tr>
 </table>

@@ -1,4 +1,4 @@
-2025-07-17 Added CSS class for element representing the current page in the Hierarchical Table of Contents
+2025-07-18 Added CSS class for element representing the current page in the Hierarchical Table of Contents
 2025-07-08 Added Source List support for br tag
 2025-07-05 Fixed resetting Image gap, Choice and Page Progress to restore their default visibility
 2025-07-04 Added MathJax refresh after onPageLoaded listener execution
