@@ -2296,7 +2296,7 @@ var ice_dictionary_fr = {
     "Mathtext_property_popup_button_cancel": "Cancel button",
     "Mathtext_property_popup_button_save": "Save button",
     "Mathtext_no_access_error": "You are not authorized to access WIRIS features, including the WIRIS editor within the MathText addon.",
-	"Mathtext_editor_enabled_and_not_initialized_error": "Initialization of the WIRIS' editor has failed. Consequently, the WIRIS editor within the MathText addon has been deactivated.",
+    "Mathtext_editor_enabled_and_not_initialized_error": "Initialization of the WIRIS' editor has failed. Consequently, the WIRIS editor within the MathText addon has been deactivated.",
     "Media_Recorder_name": "Media Recorder",
     "Media_Recorder_info": "Media Recorder",
     "Media_Recorder_property_is_disabled": "Is disabled",
