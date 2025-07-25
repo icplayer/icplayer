@@ -487,8 +487,8 @@ When audio playback is finished, audio in Text addon sends OnEnd event to Event 
 </tbody>
 </table>
 
-When getState is called, Text will send a ValueChanged with the time the addon was visible to the user.
-
+When the lesson's page is about to close (e.g., due to a switch to another lesson page), 
+Text will send a ValueChanged with the total time this addon was visible to the user.
 
 <table border='1'>
 <tbody>
@@ -498,7 +498,7 @@ When getState is called, Text will send a ValueChanged with the time the addon w
     </tr>
     <tr>
         <td>Item</td>
-        <td>"timer"</td>
+        <td>timer</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -512,7 +512,7 @@ When getState is called, Text will send a ValueChanged with the time the addon w
 </table>
 
 
-##Show Answers
+## Show Answers
 
 All types of gaps in Text moule are fully compatible with [Show Answers module](/doc/page/Show-Answers "Show Answers module") and correct answers are displayed when an adequate event is sent.
 

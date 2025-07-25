@@ -13,6 +13,12 @@ TestCase("[Hierarchical Table Of Contents] Keyboard Navigation", {
         this.$tableOfContent = this.generateView();
         this.$tableOfContent.appendTo(this.presenter.$view);
 
+        this.stubs = {
+            isTTSStub: sinon.stub(),
+        };
+        this.presenter.isTTS = this.stubs.isTTSStub;
+        this.stubs.isTTSStub.returns(false);
+
         setSpeechTexts(this.presenter);
         this.presenter.buildKeyboardController();
     },
@@ -148,13 +154,22 @@ TestCase("[Hierarchical Table Of Contents] Keyboard Navigation", {
         assertTrue(hasKeyboardNavigationActiveElementClass(nestedTreeGrid));
     },
 
-    'test given first enter when TTS active then title should be marked' : function() {
-        this.setWCAGStatus(true);
+    'test given view with active TTS when entering to addon then title element should be marked' : function() {
+        this.stubs.isTTSStub.returns(true);
 
         activateEnterEvent(this.presenter);
 
-        const tableHeader = this.presenter.$view.find(".hier_report-header")
+        const tableHeader = this.presenter.$view.find(".hier_report-header");
         assertTrue(hasKeyboardNavigationActiveElementClass(tableHeader));
+    },
+
+    'test given view with not active TTS when entering to addon then first page should be marked' : function() {
+        this.stubs.isTTSStub.returns(false);
+
+        activateEnterEvent(this.presenter);
+
+        const firstTreeGrid = this.getTreeGrid(1);
+        assertTrue(hasKeyboardNavigationActiveElementClass(firstTreeGrid));
     },
 
     'test given last keyNav element active when switching to next then should stay at last' : function() {
