@@ -109,7 +109,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         const textWrapper = document.createElement('div');
         textWrapper.classList.add('text-wrapper');
         if (isChapter) {
-            rowCell.innerHTML = text;
+            textWrapper.textContent = text;
         } else {
             const link = document.createElement('a');
             link.textContent = text;
