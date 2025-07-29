@@ -20,7 +20,7 @@ function AddonMathText_create() {
         ACTIVITY: 'activity'
     };
 
-    presenter.WIRIS_DISABLED_MESSAGE = "This addon requires internet access and enabled Wiris to work correctly";
+    presenter.WIRIS_DISABLED_MESSAGE = "This addon requires internet access and enabled WIRIS to work correctly";
 
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
     presenter.WIRIS_RENDER_URL = "https://www.wiris.net/client/editor/render?";
@@ -303,7 +303,7 @@ function AddonMathText_create() {
     };
 
     presenter.isWirisEnabled = function() {
-        return window.hasOwnProperty('com') && window.com.hasOwnProperty('wiris');
+        return window.hasOwnProperty('com') && window.com.hasOwnProperty('wiris') && window.com.wiris.hasOwnProperty('jsEditor');
     };
 
     presenter.initializeEditor = function AddonMathText_initializeEditor (isPreview) {
