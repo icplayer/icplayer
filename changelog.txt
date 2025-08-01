@@ -1,3 +1,4 @@
+2025-08-01 Fixed issue with infinity loop from Advanced Connector addon and events sent on page close
 2025-07-29 Fixed editor error when WIRIS editor is not available
 2025-07-28 Fixed displaying Hierarchical Table of Contents when selected display only chapters
 2025-07-25 Fixed scorm files failing when in cross-origin frame
