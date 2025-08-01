@@ -601,7 +601,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 		pageView.removeAllModules();
 		presenters.clear();
-        preDestroyCalled = false;
+		preDestroyCalled = false;
 	}
 
 	public IPlayerServices getPlayerServices() {
