@@ -84,6 +84,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private boolean hasFooter = true;
 	private String headerId = "";
 	private String footerId = "";
+	private boolean preDestroyBlocked = true;
 	
 	@SuppressWarnings("serial")
 	private final HashMap<String, List<Ruler>> rulers = new HashMap<String, List<Ruler>>(){{
@@ -252,7 +253,19 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		this.loaded = false;
 	}
 
+	public void unblockPreDestroy() {
+	    preDestroyBlocked = false;
+	}
+
+	public boolean isPreDestroyBlocked() {
+        return preDestroyBlocked;
+    }
+
 	public void preDestroy() {
+		if (preDestroyBlocked) {
+            return;
+        }
+		preDestroyBlocked = true;
 		for (IModuleModel module : modules) {
 			if (module instanceof IPreDestroy) {
 				((IPreDestroy)module).preDestroy();

@@ -70,8 +70,6 @@ public class PageController implements ITextToSpeechController, IPageController 
 	private Content contentModel;
 	private GradualShowAnswersService gradualShowAnswersService;
 
-	private boolean preDestroyCalled = false;
-	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -120,7 +118,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
-
+		page.unblockPreDestroy();
 		currentPage = page;
 		this.setCurrentPageSemiResponsiveLayouts();
 
@@ -585,15 +583,14 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void closePage() {
-		if (currentPage != null && !preDestroyCalled) {
-			preDestroyCalled = true;
+		if (currentPage != null && !currentPage.isPreDestroyBlocked()) {
 			currentPage.preDestroy();
 		}
 
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
-		
+
 		if (currentPage != null) {
 			currentPage.release();
 			currentPage = null;
@@ -601,7 +598,6 @@ public class PageController implements ITextToSpeechController, IPageController 
 
 		pageView.removeAllModules();
 		presenters.clear();
-		preDestroyCalled = false;
 	}
 
 	public IPlayerServices getPlayerServices() {
