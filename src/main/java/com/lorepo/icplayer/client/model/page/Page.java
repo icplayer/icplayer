@@ -252,19 +252,19 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 		this.loaded = false;
 	}
-
+	
 	public void unblockPreDestroy() {
-	    preDestroyBlocked = false;
+		preDestroyBlocked = false;
 	}
-
+	
 	public boolean isPreDestroyBlocked() {
-        return preDestroyBlocked;
-    }
-
+		return preDestroyBlocked;
+	}
+	
 	public void preDestroy() {
 		if (preDestroyBlocked) {
-            return;
-        }
+			return;
+		}
 		preDestroyBlocked = true;
 		for (IModuleModel module : modules) {
 			if (module instanceof IPreDestroy) {
