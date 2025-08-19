@@ -1414,7 +1414,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "preDestroy",
         value: function preDestroy() {
             if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
-                this.recorder.sendEmptyRecorderPreDestroyedEvent();
+                this.recorder.sendPreDestroyedEmptyEvent();
             }
         }
     }, {
@@ -1517,7 +1517,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.mediaState.setLoadedDefaultRecording();
                 this.timer.setDuration(this.defaultRecordingPlayer.duration);
             } else this.mediaState.setNew();
-            if (this.recorder) this.recorder.sendEmptyRecorderValueChangedEvent();
+            if (this.recorder) this.recorder.sendValueChangedEmptyEvent();
         }
     }, {
         key: "show",
@@ -4168,13 +4168,13 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
             this.sourceID = sourceID;
         }
     }, {
-        key: "sendEmptyRecorderValueChangedEvent",
-        value: function sendEmptyRecorderValueChangedEvent() {
+        key: "sendValueChangedEmptyEvent",
+        value: function sendValueChangedEmptyEvent() {
             this._sendValueChangedEventCallback(this, 'empty');
         }
     }, {
-        key: "sendEmptyRecorderPreDestroyedEvent",
-        value: function sendEmptyRecorderPreDestroyedEvent() {
+        key: "sendPreDestroyedEmptyEvent",
+        value: function sendPreDestroyedEmptyEvent() {
             if (this.eventBus) {
                 var eventData = {
                     'source': this.sourceID,

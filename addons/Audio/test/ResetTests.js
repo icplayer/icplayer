@@ -9,6 +9,16 @@ TestCase('[Audio] Reset', {
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hideAddon');
         sinon.stub(this.presenter, 'stop');
+
+        this.stubs = {
+            addEventListener: sinon.stub(),
+            sendEvent: sinon.stub(),
+        };
+        this.presenter.eventBus = {
+            addEventListener: this.stubs.addEventListener,
+            sendEvent: this.stubs.sendEvent
+        };
+        this.presenter.setEventBus(this.presenter.eventBus);
     },
 
     tearDown : function() {
@@ -76,5 +86,21 @@ TestCase('[Audio] Reset', {
         assertTrue(this.presenter.show.calledOnce);
         assertFalse(this.presenter.hideAddon.calledOnce);
         assertFalse(this.presenter.stop.calledOnce);
+    },
+
+    'test given not played state when reset executed then do not send any event' : function() {
+        this.presenter._setPlayed(false);
+
+        this.presenter.reset();
+
+        assertFalse(this.stubs.sendEvent.called);
+    },
+
+    'test given played state when reset executed then do not send any event' : function() {
+        this.presenter._setPlayed(true);
+
+        this.presenter.reset();
+
+        assertFalse(this.stubs.sendEvent.called);
     }
 });

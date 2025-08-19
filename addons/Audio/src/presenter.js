@@ -49,6 +49,10 @@ function AddonAudio_create(){
         presenter.playerController = controller;
     };
 
+    presenter.setEventBus = function AddonAudio_setEventBus (eventBusWrapper) {
+        eventBus = eventBusWrapper;
+    };
+
     presenter.upgradeModel = function AddonAudio_upgradeModel (model) {
         var upgradedModel = presenter.upgradeEnableLoop(model);
         upgradedModel = presenter.upgradeForceLoadAudio(upgradedModel);
@@ -650,7 +654,6 @@ function AddonAudio_create(){
 
     presenter.run = function AddonAudio_run (view, model){
         presenter.initialize(view, model, false);
-        eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
         eventBus.addEventListener('ValueChanged', this);
     };

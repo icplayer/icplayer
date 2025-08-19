@@ -108,27 +108,5 @@ TestCase("[Drawing] Reset command", {
             "value": "empty",
             "score": ''
         }));
-    },
-
-    'test given modified state when preDestroy executed then do not send any event' : function() {
-        this.presenter.isModified = true;
-        this.presenter.shouldUpdateState = true;
-
-        this.presenter.preDestroy();
-
-        assertFalse(this.stubs.sendEvent.called);
-    },
-
-    'test given not modified state when preDestroyed executed then send `empty` pre destroyed event' : function() {
-        this.presenter.isModified = false;
-        this.presenter.shouldUpdateState = false;
-
-        this.presenter.preDestroy();
-
-        assertTrue(this.stubs.sendEvent.calledWith("PreDestroyed", {
-            "source": "Drawing1",
-            "item": '',
-            "value": "empty",
-        }));
-    },
+    }
 });

@@ -39,11 +39,11 @@ export class BaseRecorder extends Recorder {
         this.sourceID = sourceID;
     }
 
-    sendEmptyRecorderValueChangedEvent() {
+    sendValueChangedEmptyEvent() {
         this._sendValueChangedEventCallback(this, 'empty');
     }
 
-    sendEmptyRecorderPreDestroyedEvent() {
+    sendPreDestroyedEmptyEvent() {
         if (this.eventBus) {
             var eventData = {
                 'source': this.sourceID,
