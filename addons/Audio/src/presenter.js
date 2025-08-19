@@ -514,10 +514,9 @@ function AddonAudio_create(){
             'source': presenter.configuration.addonID,
             'item': '',
             'value': 'not-started',
-            'score': ''
         };
 
-        eventBus.sendEvent('ValueChanged', eventData);
+        eventBus.sendEvent('PreDestroyed', eventData);
     };
 
     presenter.sendReplayedInLoopEvent = function () {
@@ -1024,7 +1023,7 @@ function AddonAudio_create(){
         if (!wasPlayed) {
             presenter.sendNotStartedEvent();
         }
-    }
+    };
 
     return presenter;
 }

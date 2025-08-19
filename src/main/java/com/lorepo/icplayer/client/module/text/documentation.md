@@ -317,6 +317,10 @@ ValueChanged event when gap not defined in `Group answers` property:
         <th>Description</th>
     </tr>
     <tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
+    </tr>
+    <tr>
         <td>Item</td>
         <td>index - 1-based index of gap in module</td>
     </tr>
@@ -336,6 +340,10 @@ ValueChanged event when gap defined in `Group answers` property:
     <tr>
         <th>Field name</th>
         <th>Description</th>
+    </tr>
+    <tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
     </tr>
     <tr>
         <td>Item</td>
@@ -359,6 +367,10 @@ The Text module sends additional ValueChanged event to Event Bus when a user cha
         <th>Description</th>
     </tr>
     <tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
+    </tr>
+    <tr>
         <td>Item</td>
         <td>Group index ("Group" + 1-based index of group answers)</td>
     </tr>
@@ -380,6 +392,10 @@ When a user clicks on a definition, it will trigger a definition event.
         <th>Description</th>
     </tr>
     <tr>
+        <td>Name</td>
+        <td>Definition</td>
+    </tr>
+    <tr>
         <td>word</td>
         <td>id of the definition</td>
     </tr>
@@ -396,18 +412,20 @@ The audio in Text addon sends ValueChanged type events to Event Bus when playing
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>Current item</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>playing</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>Current item</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>playing</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
@@ -421,18 +439,20 @@ When playback time changes, audio in Text addon sends a relevant event to Event 
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>Current item</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>Current time (in MM:SS format)</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>Current item</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>Current time (in MM:SS format)</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
@@ -446,18 +466,20 @@ The pause event occurs when the audio in Text addon is paused.
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>Current item</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>pause</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
+        <td>Name</td>
+        <td>ValueChanged</td>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>Current item</td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>pause</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>N/A</td>
     </tr>
 </tbody>
 </table>
@@ -471,38 +493,16 @@ When audio playback is finished, audio in Text addon sends OnEnd event to Event 
         <th>Description</th>
     </tr>
     <tr>
-        <tr>
-            <td>Item</td>
-            <td>Current item</td>
-        </tr>
-        <tr>
-            <td>Value</td>
-            <td>end</td>
-        </tr>
-        <tr>
-            <td>Score</td>
-            <td>N/A</td>
-        </tr>
-    </tr>
-</tbody>
-</table>
-
-When the lesson's page is about to close (e.g., due to a switch to another lesson page), 
-Text will send a ValueChanged with the total time this addon was visible to the user.
-
-<table border='1'>
-<tbody>
-    <tr>
-        <th>Field name</th>
-        <th>Description</th>
+        <td>Name</td>
+        <td>ValueChanged</td>
     </tr>
     <tr>
         <td>Item</td>
-        <td>timer</td>
+        <td>Current item</td>
     </tr>
     <tr>
         <td>Value</td>
-        <td>Time the module was visible in seconds</td>
+        <td>end</td>
     </tr>
     <tr>
         <td>Score</td>
@@ -511,6 +511,29 @@ Text will send a ValueChanged with the total time this addon was visible to the 
 </tbody>
 </table>
 
+Just before the module is destroyed (e.g., when switching to another lesson page), 
+Text will send a PreDestroyed type event with the total time this module was visible to the user.
+
+<table border='1'>
+    <tbody>
+        <tr>
+            <th>Field name</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>PreDestroyed</td>
+        </tr>
+        <tr>
+            <td>Item</td>
+            <td>timer</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>Time the module was visible in seconds</td>
+        </tr>
+    </tbody>
+</table>
 
 ## Show Answers
 

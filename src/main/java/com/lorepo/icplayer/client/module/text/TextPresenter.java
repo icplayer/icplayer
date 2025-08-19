@@ -1999,7 +1999,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			Date newTime = new Date();
 			time = (timerBase + (newTime.getTime() - this.startTime.getTime())) / 1000;
 		}
-		this.sendValueChangedEvent("timer", String.valueOf(time), "");
+		String moduleType = module.getModuleTypeName();
+		String id = module.getId();
+		this.playerServices.getEventBusService().sendPreDestroyedEvent(moduleType, id, "timer", String.valueOf(time));
 	}
 
 	private boolean isVisibleInViewport() {

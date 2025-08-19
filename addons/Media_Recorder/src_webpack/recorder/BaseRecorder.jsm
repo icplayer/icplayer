@@ -39,8 +39,19 @@ export class BaseRecorder extends Recorder {
         this.sourceID = sourceID;
     }
 
-    sendEmptyRecorderEvent() {
-        this._sendEventCallback(this, 'empty');
+    sendEmptyRecorderValueChangedEvent() {
+        this._sendValueChangedEventCallback(this, 'empty');
+    }
+
+    sendEmptyRecorderPreDestroyedEvent() {
+        if (this.eventBus) {
+            var eventData = {
+                'source': this.sourceID,
+                'item': 'recorder',
+                'value': 'empty',
+            };
+            this.eventBus.sendEvent('PreDestroyed', eventData);
+        }
     }
 
     destroy() {
@@ -61,14 +72,14 @@ export class BaseRecorder extends Recorder {
     }
 
     _onStartRecordingCallback() {
-        this._sendEventCallback(this, 'start');
+        this._sendValueChangedEventCallback(this, 'start');
     }
 
     _onStopRecordingCallback(self) {
-        self._sendEventCallback(self, 'stop');
+        self._sendValueChangedEventCallback(self, 'stop');
     }
 
-    _sendEventCallback(self, value) {
+    _sendValueChangedEventCallback(self, value) {
         if (self.eventBus) {
             var eventData = {
                 'source': self.sourceID,

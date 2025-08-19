@@ -8,7 +8,8 @@ public interface IPlayerEventBusService {
 	
 	public void resetEventBus();
 	public void sendEvent(String eventName, JavaScriptObject eventData);
-	// sendValueChangedEvent function needed because modules send events in different way than addons
+	// sendValueChangedEvent and sendPreDestroyedEvent functions needed because modules send events in different way than addons
 	public void sendValueChangedEvent(String moduleType, String moduleID, String itemID, String value, String score);
+	public void sendPreDestroyedEvent(String moduleType, String moduleID, String itemID, String value);
 	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 }
