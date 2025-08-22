@@ -152,6 +152,19 @@ All header and footer modules can be accessed using getHeaderModule() or getFoot
     </tr>
 </table>
 
+## Unsupported events types
+
+<table border='1'>
+    <tr>
+        <th>Event name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>PreDestroyed</td>
+        <td>Due to the point in the lifecycle at which this event is fired, it is not intended to be handled within modules. Please refer to <a href="/doc/en/page/Addon-Events" target="_blank" rel="noopener noreferrer">Addon-Events</a> for further details.</td>
+    </tr>
+</table>
+
 
 ## CSS classes
 

@@ -3,6 +3,7 @@ TestCase("[Drawing] Reset command", {
         this.presenter = AddonDrawing_create();
 
         this.presenter.configuration = {
+            addonID: "Drawing1",
             context: {
                 clearRect: function() { }
             },
@@ -81,33 +82,31 @@ TestCase("[Drawing] Reset command", {
         assertFalse(this.presenter.shouldUpdateState);
     },
 
-    'test given modified state when reset executed then send empty event' : function() {
+    'test given modified state when reset executed then send `empty` value changed event' : function() {
         this.presenter.isModified = true;
         this.presenter.shouldUpdateState = true;
-        this.presenter.configuration.addonID = "123";
 
         this.presenter.reset();
 
         assertTrue(this.stubs.sendEvent.calledWith("ValueChanged", {
-            'source': "123",
-            'item': '',
-            'value': 'empty',
-            'score': ''
+            "source": "Drawing1",
+            "item": '',
+            "value": "empty",
+            "score": ''
         }));
     },
 
-    'test given not modified state when reset executed then send empty event' : function() {
+    'test given not modified state when reset executed then send `empty` value changed event' : function() {
         this.presenter.isModified = false;
         this.presenter.shouldUpdateState = false;
-        this.presenter.configuration.addonID = "123";
 
         this.presenter.reset();
 
         assertTrue(this.stubs.sendEvent.calledWith("ValueChanged", {
-            'source': "123",
-            'item': '',
-            'value': 'empty',
-            'score': ''
+            "source": "Drawing1",
+            "item": '',
+            "value": "empty",
+            "score": ''
         }));
-    },
+    }
 });

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.mockup.services;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.content.services.PlayerEventBus;
+import com.lorepo.icplayer.client.module.api.event.PreDestroyedEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 
@@ -27,6 +28,12 @@ public class PlayerEventBusServiceMockup implements IPlayerEventBusService {
 	@Override
 	public void sendValueChangedEvent(String moduleType, String moduleID, String itemID, String value, String score) {
 		ValueChangedEvent event = new ValueChangedEvent(moduleID, itemID, value, score);
+		this.eventBus.fireEvent(event);
+	}
+
+	@Override
+	public void sendPreDestroyedEvent(String moduleType, String moduleID, String itemID, String value) {
+		PreDestroyedEvent event = new PreDestroyedEvent(moduleID, itemID, value);
 		this.eventBus.fireEvent(event);
 	}
 

@@ -1100,7 +1100,7 @@ function AddonDrawing_create() {
 
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
-        presenter.sendEmptyEvent();
+        sendValueChangedEmptyEvent();
 
         presenter.setColor(presenter.model.Color);
         presenter.setThickness(presenter.model.Thickness);
@@ -1496,22 +1496,33 @@ function AddonDrawing_create() {
         eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.sendEmptyEvent = function () {
+    function sendPreDestroyedEmptyEvent() {
+        presenter.sendEmptyEvent(false);
+    }
+
+    function sendValueChangedEmptyEvent() {
+        presenter.sendEmptyEvent(true);
+    }
+
+    presenter.sendEmptyEvent = function (isValueChangedEvent) {
+        const eventName = isValueChangedEvent ? 'ValueChanged' : 'PreDestroyed';
         const eventData = {
             'source': presenter.configuration.addonID,
             'item': '',
             'value': 'empty',
-            'score': ''
         };
+        if (isValueChangedEvent) {
+            eventData.score = '';
+        }
 
-        eventBus.sendEvent('ValueChanged', eventData);
+        eventBus.sendEvent(eventName, eventData);
     };
 
     presenter.preDestroy = function() {
         if (!presenter.isModified) {
-            presenter.sendEmptyEvent();
+            sendPreDestroyedEmptyEvent();
         }
-    }
+    };
 
     return presenter;
 }

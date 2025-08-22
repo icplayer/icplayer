@@ -19,13 +19,11 @@ TestCase('[Audio] State restoring', {
 
         sinon.stub(this.presenter, 'show');
         sinon.stub(this.presenter, 'hideAddon');
-        sinon.stub(this.presenter, 'sendNotStartedEvent');
     },
 
     tearDown : function() {
         this.presenter.show.restore();
         this.presenter.hideAddon.restore();
-        this.presenter.sendNotStartedEvent.restore();
     },
 
     'test set state to visible' : function() {
