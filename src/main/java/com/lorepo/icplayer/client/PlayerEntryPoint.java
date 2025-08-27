@@ -145,6 +145,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.preloadAllPages = function(callback) {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::preloadAllPages(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
 			};
+
+			player.setPrintableStateUsage = function(shouldUseState) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setPrintableStateUsage(Z)(shouldUseState);
+			};
 			
 			player.getCurrentStyles = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getCurrentStyles()(); 
@@ -411,6 +415,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			
 		});
 	}
+
+	private void setPrintableStateUsage(boolean shouldUseState) {
+        theApplication.setPrintableStateUsage(shouldUseState);
+    }
 
 	private JavaScriptObject getScoreWithMetadata() {
 		JavaScriptObject jsScores = JavaScriptUtils.createEmptyJsArray();

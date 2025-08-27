@@ -1653,6 +1653,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	@Override
 	public void setPrintableState(String stateObj) {
+		this.printableState = null;
+
 		if (stateObj.length() == 0) {
 			return;
 		}

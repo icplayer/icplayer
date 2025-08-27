@@ -1807,9 +1807,11 @@ function AddonText_Selection_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
-            return;
+        presenter.printableState = null;
 
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
+            return;
+        }
         presenter.printableState = JSON.parse(state);
     };
 

@@ -2688,10 +2688,13 @@ function AddonTable_create() {
     }
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     presenter.setPrintableController = function(controller) {
         presenter.textParser = new TextParserProxy(controller.getTextParser());
