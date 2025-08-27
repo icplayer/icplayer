@@ -1414,7 +1414,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         key: "preDestroy",
         value: function preDestroy() {
             if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
-                this.recorder.sendEmptyRecorderEvent();
+                this.recorder.sendPreDestroyedEmptyEvent();
             }
         }
     }, {
@@ -1517,7 +1517,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 this.mediaState.setLoadedDefaultRecording();
                 this.timer.setDuration(this.defaultRecordingPlayer.duration);
             } else this.mediaState.setNew();
-            if (this.recorder) this.recorder.sendEmptyRecorderEvent();
+            if (this.recorder) this.recorder.sendValueChangedEmptyEvent();
         }
     }, {
         key: "show",
@@ -4168,9 +4168,21 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
             this.sourceID = sourceID;
         }
     }, {
-        key: "sendEmptyRecorderEvent",
-        value: function sendEmptyRecorderEvent() {
-            this._sendEventCallback(this, 'empty');
+        key: "sendValueChangedEmptyEvent",
+        value: function sendValueChangedEmptyEvent() {
+            this._sendValueChangedEventCallback(this, 'empty');
+        }
+    }, {
+        key: "sendPreDestroyedEmptyEvent",
+        value: function sendPreDestroyedEmptyEvent() {
+            if (this.eventBus) {
+                var eventData = {
+                    'source': this.sourceID,
+                    'item': 'recorder',
+                    'value': 'empty'
+                };
+                this.eventBus.sendEvent('PreDestroyed', eventData);
+            }
         }
     }, {
         key: "destroy",
@@ -4193,16 +4205,16 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "_onStartRecordingCallback",
         value: function _onStartRecordingCallback() {
-            this._sendEventCallback(this, 'start');
+            this._sendValueChangedEventCallback(this, 'start');
         }
     }, {
         key: "_onStopRecordingCallback",
         value: function _onStopRecordingCallback(self) {
-            self._sendEventCallback(self, 'stop');
+            self._sendValueChangedEventCallback(self, 'stop');
         }
     }, {
-        key: "_sendEventCallback",
-        value: function _sendEventCallback(self, value) {
+        key: "_sendValueChangedEventCallback",
+        value: function _sendValueChangedEventCallback(self, value) {
             if (self.eventBus) {
                 var eventData = {
                     'source': self.sourceID,

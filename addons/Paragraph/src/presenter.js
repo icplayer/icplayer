@@ -447,15 +447,26 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.sendEmptyEvent = function () {
+    function sendPreDestroyedEmptyEvent() {
+        presenter.sendEmptyEvent(false);
+    }
+
+    function sendValueChangedEmptyEvent() {
+        presenter.sendEmptyEvent(true);
+    }
+
+    presenter.sendEmptyEvent = function (isValueChangedEvent) {
+        const eventName = isValueChangedEvent ? 'ValueChanged' : 'PreDestroyed';
         const eventData = {
             'source': presenter.configuration.ID,
             'item': '',
             'value': 'empty',
-            'score': ''
         };
+        if (isValueChangedEvent) {
+            eventData.score = '';
+        }
 
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        eventBus.sendEvent(eventName, eventData);
     };
 
     presenter.sendModifiedEvent = function () {
@@ -541,7 +552,7 @@ function AddonParagraph_create() {
         if (presenter.isAttempted()) {
             presenter.sendModifiedEvent();
         } else {
-            presenter.sendEmptyEvent();
+            sendValueChangedEmptyEvent();
         }
     };
 
@@ -905,7 +916,7 @@ function AddonParagraph_create() {
 
     presenter.preDestroy = function() {
         if (!presenter.isAttempted()) {
-            presenter.sendEmptyEvent();
+            sendPreDestroyedEmptyEvent();
         }
     };
 
@@ -1340,7 +1351,7 @@ function AddonParagraph_create() {
         if (presenter.isLocked) {
             presenter.unlock();
         }
-        presenter.sendEmptyEvent();
+        sendValueChangedEmptyEvent();
     };
 
     presenter.show = function AddonParagraph_show() {

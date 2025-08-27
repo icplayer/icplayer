@@ -64,7 +64,7 @@ TestCase("[Paragraph] Event tests", {
         }));
     },
 
-    'test given not attempted module when blur then send empty event': function () {
+    'test given not attempted module when blur then send `empty` value changed event': function () {
         this.stubs.isAttempted.returns(false);
         this.presenter.sendOnBlurEvent = this.stubs.sendOnBlurEvent;
 
@@ -86,16 +86,15 @@ TestCase("[Paragraph] Event tests", {
         assertEquals(0, this.stubs.sendEvent.callCount);
     },
 
-    'test given not attempted module when preDestroy executed then send empty event': function () {
+    'test given not attempted module when preDestroy executed then send `empty` pre destroyed event': function () {
         this.stubs.isAttempted.returns(false);
 
         this.presenter.preDestroy();
 
-        assertTrue(this.stubs.sendEvent.calledWith("ValueChanged", {
+        assertTrue(this.stubs.sendEvent.calledWith("PreDestroyed", {
             'source': "Placeholder1",
             'item': '',
             'value': 'empty',
-            'score': ''
         }));
     }
 });

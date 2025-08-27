@@ -1,4 +1,5 @@
 2025-08-28 Added command to disable usage of state in printable functionality
+2025-08-19 Added PreDestroyed type event
 2025-08-04 Fixed issue with infinity loop from Advanced Connector addon and events sent on page close
 2025-07-29 Fixed editor error when WIRIS editor is not available
 2025-07-28 Fixed displaying Hierarchical Table of Contents when selected display only chapters

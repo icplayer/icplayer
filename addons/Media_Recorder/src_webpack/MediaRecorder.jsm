@@ -151,7 +151,7 @@ export class MediaRecorder {
 
     preDestroy() {
         if (this.recorder && this.addonState != null && this.addonState.isEmpty()) {
-            this.recorder.sendEmptyRecorderEvent();
+            this.recorder.sendPreDestroyedEmptyEvent();
         }
     }
 
@@ -248,7 +248,7 @@ export class MediaRecorder {
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
         } else
             this.mediaState.setNew();
-        if (this.recorder) this.recorder.sendEmptyRecorderEvent();
+        if (this.recorder) this.recorder.sendValueChangedEmptyEvent();
     }
 
     show() {

@@ -13,6 +13,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.builders.ValueChangedBuilder;
+import com.lorepo.icplayer.client.module.api.event.builders.PreDestroyedBuilder;
 import com.lorepo.icplayer.client.module.api.event.dnd.*;
 import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 
@@ -25,6 +26,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
 	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
     private static final String RESIZE_WINDOW_EVENT_NAME = "ResizeWindow";
+    private static final String PRE_DESTROYED_EVENT_NAME = "PreDestroyed";
 	
 	private final PlayerEventBus eventBus;
 	protected final PlayerServices playerServices;
@@ -93,7 +95,22 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			eventBus.fireEvent(event);
 		}
 	}
-	
+
+	@Override
+	public void sendPreDestroyedEvent(String moduleType, String moduleID, String itemID, String value) {
+		String pageID = this.playerServices.getCommands().getPageController().getPage().getId();
+
+		PreDestroyedBuilder builder = new PreDestroyedBuilder(moduleID, itemID, value)
+			.setModuleType(moduleType)
+			.setPageId(pageID);
+
+		GwtEvent<?> event = builder.build();
+
+		if (eventBus != null) {
+			eventBus.fireEvent(event);
+		}
+	}
+
 	@Override
 	public void sendEvent(String eventName, JavaScriptObject eventData){
 
@@ -133,6 +150,12 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 		} else if (DEFINITION_EVENT_NAME.compareTo(eventName) == 0) {
 			String word = JavaScriptUtils.getArrayItemByKey(eventData, "word");
 			event = new DefinitionEvent(word);
+		} else if (PRE_DESTROYED_EVENT_NAME.compareTo(eventName) == 0) {
+		    PreDestroyedBuilder builder = new PreDestroyedBuilder(source, id, value)
+				.setModuleType(moduleType)
+				.setPageId(pageId);
+
+			event = builder.build();
 		} else {
 			String jsonString = JavaScriptUtils.toJsonString(eventData);
 			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
@@ -218,6 +241,13 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			@Override
 			public void onResizeWindowEvent(ResizeWindowEvent event) {
 				fireEvent(RESIZE_WINDOW_EVENT_NAME, new HashMap<String, String>());
+			}
+		});
+
+		eventBus.addHandler(PreDestroyedEvent.TYPE, new PreDestroyedEvent.Handler() {
+			@Override
+			public void onPreDestroyed(PreDestroyedEvent event) {
+				fireEvent(PRE_DESTROYED_EVENT_NAME, event.getData());
 			}
 		});
 	}
