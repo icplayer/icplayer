@@ -511,7 +511,7 @@ When audio playback is finished, audio in Text addon sends OnEnd event to Event 
 </tbody>
 </table>
 
-Just before the module is destroyed (e.g., when switching to another lesson page), 
+Just before the module is destroyed (when switching to another lesson page), 
 Text will send a PreDestroyed type event with the total time this module was visible to the user.
 
 <table border='1'>
