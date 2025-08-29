@@ -162,9 +162,9 @@ function Addoncrossword_create(){
             for(var j = 0; j < presenter.columnCount + numberOfExclamationMarks; j++) {
                 if (rows[i][j] === '!') {
                     j++;
-                    r.push('!' + rows[i][j].toUpperCase());
+                    r.push('!' + capitalize(rows[i][j]));
                 } else {
-                    r.push(rows[i][j].toUpperCase());
+                    r.push(capitalize(rows[i][j]));
                 }
             }
 
@@ -347,7 +347,7 @@ function Addoncrossword_create(){
         }
         originalFieldValue = '';
 
-        cellInput.value = cellInput.value.toUpperCase();
+        cellInput.value = capitalize(cellInput.value);
 
         if (presenter.blockWrongAnswers) {
             var isCorrectValue
@@ -370,7 +370,7 @@ function Addoncrossword_create(){
         if(length > 1) {
             $(event.target).val($(event.target).val().substring(1, 2));
         }
-        $(event.target).val($(event.target).val().toUpperCase());
+        $(event.target).val(capitalize($(event.target).val()));
     };
  
     presenter.onCellInputMouseUp = function(event) {
@@ -947,7 +947,7 @@ function Addoncrossword_create(){
 
                     if(presenter.preview) {
                         input.attr({
-                            value: presenter.crossword[i][j].toUpperCase(),
+                            value: capitalize(presenter.crossword[i][j]),
                             disabled: true
                         });
                     }
@@ -1421,7 +1421,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[i][k] != presenter.$view.find(classPrefix + 'cell_' + i + 'x' + k + " input").attr('value').toUpperCase()
+                        if(presenter.crossword[i][k] != capitalize(presenter.$view.find(classPrefix + 'cell_' + i + 'x' + k + " input").attr('value'))
                             && presenter.crossword[i][k][0] !== '!') {
                             wordValid = false;
                         }
@@ -1465,7 +1465,7 @@ function Addoncrossword_create(){
                             break;
                         }
 
-                        if(presenter.crossword[k][j] != presenter.$view.find(classPrefix + 'cell_' + k + 'x' + j + " input").attr('value').toUpperCase() && presenter.crossword[k][j][0] !== '!') {
+                        if(presenter.crossword[k][j] != capitalize(presenter.$view.find(classPrefix + 'cell_' + k + 'x' + j + " input").attr('value')) && presenter.crossword[k][j][0] !== '!') {
                             wordValid = false;
                         }
 
@@ -1778,7 +1778,7 @@ function Addoncrossword_create(){
                     if(presenter.crossword[max_y][k] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[max_y][k] !== presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value').toUpperCase() && presenter.crossword[max_y][k][0] !== '!') {
+                    if(presenter.crossword[max_y][k] !== capitalize(presenter.$view.find('.cell_' + max_y + 'x' + k + " input").attr('value')) && presenter.crossword[max_y][k][0] !== '!') {
                         horizontalResult.word = '';
                         break;
                     }
@@ -1802,7 +1802,7 @@ function Addoncrossword_create(){
                     if(presenter.crossword[k][max_x] === ' ') {
                         break;
                     }
-                    if(presenter.crossword[k][max_x] !== presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value').toUpperCase() && presenter.crossword[k][max_x][0] !== '!') {
+                    if(presenter.crossword[k][max_x] !== capitalize(presenter.$view.find('.cell_' + k + 'x' + max_x + " input").attr('value')) && presenter.crossword[k][max_x][0] !== '!') {
                         verticalResult.word = '';
                         break;
                     }
@@ -2742,6 +2742,12 @@ function Addoncrossword_create(){
             className = presenter.CSS_CLASSES.PRINTABLE + "_" + className;
         }
         $element.addClass(className);
+    }
+
+    function capitalize(value) {
+        // standard toUpperCase uses 'SS' as capital 'ß', which causes errors
+        if (value === 'ß') return 'ß';
+        return value.toUpperCase();
     }
 
     return presenter;
