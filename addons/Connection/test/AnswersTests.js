@@ -3,8 +3,8 @@ TestCase("[Connection] Answers manipulation tests", {
    setUp: function () {
        this.presenter = AddonConnection_create();
        this.presenter.mathJaxLoaders = {
-            runLoader: true,
-            setStateLoader: true
+            runLoaded: true,
+            setStateLoaded: true
         };
 
        this.stubs = {
@@ -27,35 +27,28 @@ TestCase("[Connection] Answers manipulation tests", {
            selectEnabled: this.stubs.selectEnabledStub
        };
 
-       this.presenter.isNotActivity = false;
+       this.presenter.configuration = {
+           isNotActivity: false
+       };
    },
 
     'test given active addon and showing answers when hideAnswers was called then hide answers and redraw the view': function () {
        this.presenter.isShowAnswersActive = true;
-       var expected = {
-           redrawCalled: true,
-           selectEnabledArg: true,
-           isShowAnswersActive: false
-       };
 
-        this.presenter.hideAnswers();
+       this.presenter.hideAnswers();
 
-        assertEquals(expected.redrawCalled, this.stubs.redrawStub.called);
-        assertEquals(expected.selectEnabledArg, this.stubs.selectEnabledStub.args[0][0]);
-        assertEquals(expected.isShowAnswersActive, this.presenter.isShowAnswersActive);
+       assertTrue("Redraw called once", this.stubs.redrawStub.calledOnce);
+       assertTrue("Select enabled", this.stubs.selectEnabledStub.args[0][0]);
+       assertFalse("Is show answers active", this.presenter.isShowAnswersActive);
     },
 
     'test given active addon when showAnswers was called then show answers and redraw the view': function () {
-       var expected = {
-           redrawShowAnswersCalled: true,
-           selectEnabledArg: false,
-           isShowAnswersActive: true
-       };
+       this.presenter.isShowAnswersActive = false;
 
-        this.presenter.showAnswers();
+       this.presenter.showAnswers();
 
-        assertEquals(expected.redrawShowAnswersCalled, this.stubs.redrawShowAnswersStub.called);
-        assertEquals(expected.selectEnabledArg, this.stubs.selectEnabledStub.args[0][0]);
-        assertEquals(expected.isShowAnswersActive, this.presenter.isShowAnswersActive);
+       assertTrue("Redraw show answers called once", this.stubs.redrawShowAnswersStub.calledOnce);
+       assertFalse("Select enabled", this.stubs.selectEnabledStub.args[0][0]);
+       assertTrue("Is show answers active", this.presenter.isShowAnswersActive);
     },
 });

@@ -263,7 +263,7 @@ The pause event occurs when the audio is paused.
     </tbody>
 </table>
 
-The not-started event occurs just before destruction of module (e.g., due to a switch to another lesson page) when the audio has never been started. 
+The not-started event occurs just before page close (due to a switch to another lesson page) when the audio has never been started. 
 Reset does not affect the sending of this event.
 
 <table border='1'>

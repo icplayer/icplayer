@@ -55,7 +55,7 @@ public class PlayerApp {
 	private boolean isContentModelLoaded = false;
 	private static JavaScriptObject iframeHandlers = null;
 	private HashMap<String, List<String>> printableOrder = new HashMap<String, List<String>>();
-	private PrintableContentParser printableParser;
+	private boolean shouldUseStateOnPrint = true;
 
 	public PlayerApp(String id, PlayerEntryPoint entryPoint) {
 		this.divId = id;
@@ -851,7 +851,7 @@ public class PlayerApp {
 	}
 	
 	public void generatePrintableHTML(PrintableParams params) {
-		printableParser = new PrintableContentParser();
+		PrintableContentParser printableParser = new PrintableContentParser();
 
 		if (this.printableOrder != null) {
 			printableParser.setPrintableOrder(this.printableOrder);
@@ -866,13 +866,19 @@ public class PlayerApp {
 		printableParser.setRandomizePages(params.randomizePages);
 		printableParser.setRandomizeModules(params.randomizeModules);
 		printableParser.setShowAnswers(params.showAnswers);
-		printableParser.setState(loadedState);
+		if (this.shouldUseStateOnPrint) {
+		    printableParser.setState(loadedState);
+		}
 		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	};
 
 	public void setPrintableOrder(JavaScriptObject order) {
 		this.printableOrder = PrintableOrderParser.toHashMap(order);
-	}
+	};
+
+	public void setUseStateOnPrint(boolean shouldUseState) {
+        this.shouldUseStateOnPrint = shouldUseState;
+    };
 
 	private String getCurrentUserStyles() {
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();

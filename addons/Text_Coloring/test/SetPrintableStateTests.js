@@ -1,6 +1,6 @@
-TestCase("[Page_Score_Counter] setPrintableState tests", {
+TestCase("[Text_Coloring] setPrintableState tests", {
     setUp: function () {
-        this.presenter = AddonPage_Score_Counter_create();
+        this.presenter = AddonText_Coloring_create();
     },
 
     'test given printableState with default value when setPrintableState is called with null then printableState should be null': function() {
@@ -20,7 +20,7 @@ TestCase("[Page_Score_Counter] setPrintableState tests", {
     },
 
     'test given printableState with some value when setPrintableState is called with null then printableState should be null': function() {
-        this.presenter.printableState = {"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 1};
+        this.presenter.printableState = {"someKey": "Some state"};
         const newState = null;
 
         this.presenter.setPrintableState(newState);
@@ -29,20 +29,11 @@ TestCase("[Page_Score_Counter] setPrintableState tests", {
     },
 
     'test given printableState with some value when setPrintableState is called with empty string then printableState should be null': function() {
-        this.presenter.printableState = {"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 1};
+        this.presenter.printableState = {"someKey": "Some state"};
         const newState = "";
 
         this.presenter.setPrintableState(newState);
 
         assertNull(this.presenter.printableState);
-    },
-
-    'test given printableState when setPrintableState is called with correct state then printableState should be updated': function() {
-        const state = '{"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 1}';
-        const expectedState = {"isVisible": true, "isScoreVisible":true, "score": 1, "maxScore": 1};
-
-        this.presenter.setPrintableState(state);
-
-        assertEquals(expectedState, this.presenter.printableState);
     }
 });

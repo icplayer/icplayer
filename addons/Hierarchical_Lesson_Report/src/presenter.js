@@ -1681,10 +1681,13 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     NodeRepresentation.prototype = Object.create(NodeRepresentation.prototype);
     NodeRepresentation.prototype.constructor = NodeRepresentation;

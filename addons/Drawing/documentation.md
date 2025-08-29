@@ -174,7 +174,7 @@ The <b>empty</b> event occurs on reset
     </tbody>
 </table>
 
-and just before destruction of module (e.g., due to a switch to another lesson page) when canvas is clear (e.g., drawing not started or after reset).
+and just before page close (due to a switch to another lesson page) when canvas is clear (e.g., drawing not started or after reset).
 
 <table border='1'>
     <tbody>    
