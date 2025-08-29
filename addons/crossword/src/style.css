@@ -70,7 +70,6 @@
     background: transparent;
     border: none;
     -webkit-appearance: none;
-    text-transform: uppercase;
 }
 
 .printable_crossword_container .printable_cell_letter_content {
