@@ -1,4 +1,4 @@
-TestCase("[Text Identification] SetPrintableState tests", {
+TestCase("[Text Identification] setPrintableState tests", {
     setUp: function () {
         this.presenter = Addontext_identification_create();
     },
@@ -92,8 +92,8 @@ TestCase("[Text Identification] SetPrintableState tests", {
     },
 
     'test of set printable state when got state in old format': function() {
-        const isSelectedPossibleStates = ["True", "true", "False", "false", "", "random"];
-        const isSelectedExpectedStates = [true, false, false, false, false, false];
+        const isSelectedPossibleStates = ["True", "true", "False", "false", "random"];
+        const isSelectedExpectedStates = [true, false, false, false, false];
 
         for (var selectIdx = 0; selectIdx < isSelectedPossibleStates.length; selectIdx++) {
             const state = isSelectedPossibleStates[selectIdx];
@@ -106,4 +106,28 @@ TestCase("[Text Identification] SetPrintableState tests", {
             assertEquals(expectedPrintableState, actualPrintableState);
         }
     },
+
+    'test given printableState with some value when setPrintableState is called with null then printableState should be null': function() {
+        this.presenter.printableState = {
+            isSelected: false,
+            isVisible: true,
+        };
+        const newState = null;
+
+        this.presenter.setPrintableState(newState);
+
+        assertNull(this.presenter.printableState);
+    },
+
+    'test given printableState with some value when setPrintableState is called with empty string then printableState should be null': function() {
+        this.presenter.printableState = {
+            isSelected: false,
+            isVisible: true,
+        };
+        const newState = "";
+
+        this.presenter.setPrintableState(newState);
+
+        assertNull(this.presenter.printableState);
+    }
 });
