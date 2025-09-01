@@ -23,6 +23,10 @@
     min-height: 20px;
 }
 
+.text_selection.disabled {
+	opacity: unset;
+}
+
 .printable_addon_Text_Selection_selected {
 	text-decoration: underline;
 	text-decoration-style: solid;
