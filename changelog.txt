@@ -1,4 +1,4 @@
-2025-09-01 Added CSS class .disabled to Text_Selection addon
+2025-09-01 Added CSS class .text_selection_disabled to Text_Selection addon
 2025-08-29 Fixed issue with eszett in crosswords addon
 2025-08-19 Added PreDestroyed type event
 2025-08-04 Fixed issue with infinity loop from Advanced Connector addon and events sent on page close

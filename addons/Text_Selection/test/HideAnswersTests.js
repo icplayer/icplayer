@@ -10,7 +10,7 @@ TestCase("[Text_Selection] HideAnswers tests", {
     },
 
     createView: function () {
-        this.presenter.$view = $('<div><div class="text_selection disabled"></div></div>');
+        this.presenter.$view = $('<div><div class="text_selection text_selection_disabled"></div></div>');
     },
 
     "test should set isShowAnswers to false": function () {
@@ -25,9 +25,9 @@ TestCase("[Text_Selection] HideAnswers tests", {
         assertTrue(this.presenter.turnOnEventListeners.called);
     },
 
-    "test should remove disabled class": function () {
+    "test should remove text_selection_disabled class": function () {
         this.presenter.onEventReceived('HideAnswers');
 
-        assertFalse(this.presenter.$view.find('.text_selection').hasClass("disabled"));
+        assertFalse(this.presenter.$view.find('.text_selection').hasClass("text_selection_disabled"));
     }
 });

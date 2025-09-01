@@ -12,7 +12,7 @@ TestCase("[Text_Selection] setShowErrorsMode tests", {
     },
 
     setDisabledClass: function () {
-        this.presenter.$view.find('.text_selection').addClass('disabled');
+        this.presenter.$view.find('.text_selection').addClass('text_selection_disabled');
     },
 
     "test should set isWorkMode to false": function () {
@@ -27,10 +27,10 @@ TestCase("[Text_Selection] setShowErrorsMode tests", {
         assertTrue(this.presenter.turnOffEventListeners.called);
     },
 
-    "test should add disabled class": function () {
+    "test should add text_selection_disabled class": function () {
         this.presenter.setShowErrorsMode();
 
-        assertTrue(this.presenter.$view.find('.text_selection').hasClass("disabled"));
+        assertTrue(this.presenter.$view.find('.text_selection').hasClass("text_selection_disabled"));
     },
 
     "test should not set isWorkMode to false if addon is not activity": function () {
@@ -49,11 +49,11 @@ TestCase("[Text_Selection] setShowErrorsMode tests", {
         assertFalse(this.presenter.turnOffEventListeners.called);
     },
 
-    "test should not add disabled class if addon is not activity": function () {
+    "test should not add text_selection_disabled class if addon is not activity": function () {
         this.presenter.configuration.isActivity = false;
 
         this.presenter.setShowErrorsMode();
 
-        assertFalse(this.presenter.$view.find('.text_selection').hasClass("disabled"));
+        assertFalse(this.presenter.$view.find('.text_selection').hasClass("text_selection_disabled"));
     },
 });

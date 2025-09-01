@@ -191,7 +191,7 @@ This module is fully compatible with [Show Answers](/doc/page/Show-Answers "Show
         <td>A phrase marked in the show answers mode. </td>
     </tr>
     <tr>
-        <td>.text_selection.disabled</td>
+        <td>.addon_Text_Selection .text_selection_disabled</td>
         <td>The module is disabled. This can occur, for instance, if the Check Answers, Show Answers, or Gradual Show Answers mode is active. </td>
     </tr>
 </table>

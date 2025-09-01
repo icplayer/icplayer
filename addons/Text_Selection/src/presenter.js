@@ -46,7 +46,7 @@ function AddonText_Selection_create() {
     var CSS_CLASSES = {
         SELECTABLE: "selectable",
         SELECTED: "selected",
-        DISABLED: "disabled",
+        DISABLED: "text_selection_disabled",
         PRINTABLE: "printable_addon_Text_Selection",
         PRINTABLE_SELECTED: "printable_addon_Text_Selection_selected",
         PRINTABLE_WRONG: "printable_addon_Text_Selection_wrong",

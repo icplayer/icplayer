@@ -25,10 +25,10 @@ TestCase("[Text_Selection] GradualShowAnswers tests", {
         assertTrue(this.presenter.turnOffEventListeners.called);
     },
 
-    "test should add disabled class": function () {
+    "test should add text_selection_disabled class": function () {
         this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Text_Selection1'});
 
-        assertTrue(this.presenter.$view.find('.text_selection').hasClass("disabled"));
+        assertTrue(this.presenter.$view.find('.text_selection').hasClass("text_selection_disabled"));
     },
 
     "test should not set isGradualShowAnswersActive to true if addon is not activity": function () {
@@ -41,7 +41,7 @@ TestCase("[Text_Selection] GradualShowAnswers tests", {
         // It is not possible to test correctness from the addon .presenter.js code alone.
     },
 
-    "test should not add disabled class if addon is not activity": function () {
+    "test should not add text_selection_disabled class if addon is not activity": function () {
         // Checking whether the addon is an activity is performed by GradualShowAnswersService and AddonPresenter.
         // It is not possible to test correctness from the addon .presenter.js code alone.
     },

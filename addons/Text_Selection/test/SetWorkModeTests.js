@@ -8,7 +8,7 @@ TestCase("[Text_Selection] setWorkMode tests", {
     },
 
     createView: function () {
-        this.presenter.$view = $('<div><div class="text_selection disabled"></div></div>');
+        this.presenter.$view = $('<div><div class="text_selection text_selection_disabled"></div></div>');
     },
 
     "test should set isWorkMode to true": function () {
@@ -23,9 +23,9 @@ TestCase("[Text_Selection] setWorkMode tests", {
         assertTrue(this.presenter.turnOnEventListeners.called);
     },
 
-    "test should remove disabled class": function () {
+    "test should remove text_selection_disabled class": function () {
         this.presenter.setWorkMode();
 
-        assertFalse(this.presenter.$view.find('.text_selection').hasClass("disabled"));
+        assertFalse(this.presenter.$view.find('.text_selection').hasClass("text_selection_disabled"));
     }
 });
