@@ -48,6 +48,7 @@ TestCase('[Text Selection] States restoring', {
     },
 
     'test scoring blocked' : function() {
+        this.presenter.$view = $('<div><div class="text_selection"></div></div>');
         var isStarted = this.presenter.configuration.isExerciseStarted;
 
         this.presenter.setShowErrorsMode();
