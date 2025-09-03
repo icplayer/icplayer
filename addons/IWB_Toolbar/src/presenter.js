@@ -2021,6 +2021,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.isOnScreen = function (element, windowElement) {
+        if (element == null || element.length === 0) return false;
         var zoomHeightScale = presenter.getZoomHeightScale();
         var topWindow = $(windowElement.parent.document);
         var coords = {

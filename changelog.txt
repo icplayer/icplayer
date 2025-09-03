@@ -1,3 +1,4 @@
+2025-09-03 Fixed IWB Toolbar sometimes breaking when the scroll element can't be found
 2025-08-29 Fixed issue with eszett in crosswords addon
 2025-08-19 Added PreDestroyed type event
 2025-08-04 Fixed issue with infinity loop from Advanced Connector addon and events sent on page close
