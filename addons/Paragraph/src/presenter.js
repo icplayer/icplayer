@@ -30,6 +30,7 @@ function AddonParagraph_create() {
     presenter.MAX_WAIT_TIME = 15;
     presenter.startTime = null;
     presenter.updateScoreEventName = 'updateScore';
+    presenter.printableState = null;
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
@@ -1299,8 +1300,11 @@ function AddonParagraph_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
         presenter.printableState = JSON.parse(state).tinymceState;
     };
 

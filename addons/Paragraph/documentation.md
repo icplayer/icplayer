@@ -280,7 +280,7 @@ The <b>empty</b> ValueChanged type event occurs:
     </tr>
 </table>
 
-The <b>empty</b> PreDestroyed type event occurs just before lesson's page close when it had no content, e.g., due to a switch to another lesson page.
+The <b>empty</b> PreDestroyed type event occurs just before lesson's page close (due to a switch to another lesson page) when it had no content.
 
 <table border='1'>
     <tr>

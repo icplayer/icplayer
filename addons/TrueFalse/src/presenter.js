@@ -565,11 +565,15 @@ function AddonTrueFalse_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+        presenter.didUserRespond = false;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
         presenter.didUserRespond = true;
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     presenter.setShowErrorsMode = function () {
         if (isNotActivity) {

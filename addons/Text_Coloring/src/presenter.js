@@ -1658,11 +1658,13 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
-            return;
+        presenter.printableState = null;
 
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
+            return;
+        }
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var printableHTML = '';

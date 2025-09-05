@@ -400,7 +400,7 @@ Can be opened with the reset button if `Extended mode` is selected.
     </tr>
     <tr>
         <td>value</td>
-        <td>empty - event occurs just before the module is destroyed (e.g., when switching to another lesson page), but only if the module does not have a user recording.
+        <td>empty - event occurs just before page close (when switching to another lesson page), but only if the module does not have a user recording.
         </td>
     </tr>
 </table>
