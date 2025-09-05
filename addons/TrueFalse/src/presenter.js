@@ -20,6 +20,7 @@ function AddonTrueFalse_create() {
     var isNotActivity = false;
     var questions = [];
     var playerController;
+    var printableController;
     var eventBus; // Modules communication
     var textParser = null; // Links to Glossary Addon
     var tts;
@@ -97,6 +98,10 @@ function AddonTrueFalse_create() {
                 });
             }
         }
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        textParser = new TextParserProxy(getTextParser());
     };
 
     function whichQuestion(row, table) {
@@ -256,12 +261,9 @@ function AddonTrueFalse_create() {
     }
 
     function generateQuestionElement(row, rowID) {
-        var question = questions[rowID - 1].Question;
-
-        if (textParser !== null) { // Actions performed only in Player mode
-            question = textParser.parse(question);
-        }
-        var td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + question + '</td>');
+        const question = questions[rowID - 1].Question;
+        const parsedQuestion = textParser.parse(question);
+        const td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + parsedQuestion + '</td>');
 
         if (presenter.isTabindexEnabled) {
             presenter.addTabindex(td, 0);
@@ -395,7 +397,7 @@ function AddonTrueFalse_create() {
             }
         }
 
-        if (textParser !== null) { // Actions performed only in Player mode
+        if (textParser !== null && !isPreview) { // Actions performed only in Player mode
             textParser.connectLinks($(view));
         }
 
@@ -1133,6 +1135,11 @@ function AddonTrueFalse_create() {
 
     };
 
+    presenter.setPrintableController = function (controller) {
+        printableController = controller;
+        textParser = new TextParserProxy(printableController.getTextParser());
+    };
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var isMulti = model.Multi === 'True';
@@ -1168,7 +1175,7 @@ function AddonTrueFalse_create() {
             var $tr = $("<tr></tr>");
 
             var $questionCell = $("<td></td>");
-            $questionCell.html(window.TTSUtils.parsePreviewAltText(question.Question));
+            $questionCell.html(textParser.parse(question.Question));
             $tr.append($questionCell);
 
             var answers = [];

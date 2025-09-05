@@ -320,6 +320,12 @@ function AddonTable_create() {
 
         presenter.initializeGaps(isPreview);
 
+        $.each(presenter.$view.find('.table_cell'), function (index, element) {
+            const parsedHTML = presenter.textParser.parse($(element).html());
+            const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
+            $(element).html(sanitizedParsedHTML);
+        });
+
         if (!isPreview) {
             presenter.parseDefinitionLinks();
         } else {
@@ -344,7 +350,6 @@ function AddonTable_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.textParser = new TextParserProxy(controller.getTextParser());
-
     };
 
     presenter.setEventBus = function (eventBus) {
@@ -358,7 +363,7 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
 
-    presenter.setTextParser = function (textParser) {
+    presenter.setPreviewTextParser = function (textParser) {
         presenter.textParser = new TextParserProxy(textParser());
     };
 
@@ -481,11 +486,6 @@ function AddonTable_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
-            $(element).html(sanitizedLink);
-        });
-
         presenter.textParser.connectLinks(presenter.$view);
     };
 
@@ -1303,10 +1303,8 @@ function AddonTable_create() {
         if(presenter.hasMathGaps()) {
             return value;
         }
-        if (presenter.textParser) {
-            value = presenter.textParser.parseAnswer(value);
-        }
 
+        value = presenter.textParser.parseAnswer(value);
         if (!presenter.configuration.isCaseSensitive) {
             value = value.toLowerCase();
         }

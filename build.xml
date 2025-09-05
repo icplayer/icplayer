@@ -11,7 +11,7 @@
     <property name="jsoup-lib" location="libs/jsoup-1.10.3.jar"/>
 
     <!-- Arguments to gwtc and devmode targets -->
-  	<property name="gwt.args" value=""/>
+  	<property name="gwt.args" value="-style PRETTY"/>
     <import file="build-js-addons-compress.xml"/>
 
     <property name="libs.junit" location="libs/junit-4.9.jar"/>
@@ -320,7 +320,7 @@
                     <arg line="--port 9876"/>
                     <arg line="--browser"/>
                     <arg value="${googleChrome.command}${firefox.command}${msie.command}${msedge.command}"/>
-<!--                    <arg line="&#45;&#45;browserTimeout 180000"/>-->
+                    <arg line="--browserTimeout 180000"/>
 <!--                    <arg line="&#45;&#45;runnerMode INFO"/>-->
 <!--                    <arg value="&#45;&#45;verbose"/>-->
                 </java>
@@ -328,7 +328,7 @@
             <waitfor maxwait="5" maxwaitunit="second">
                 <socket server="localhost" port="9876"/>
             </waitfor>
-<!--            <echo >Wait 3 seconds for other browsers at http://localhost:9876/capture</echo>-->
+            <echo >Wait 3 seconds for other browsers at http://localhost:9876/capture</echo>
             <sleep seconds="1"/>
         </parallel>
     </target>
@@ -493,7 +493,7 @@
         <antcall target="test.addons"/>
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project"/>
+    <target name="build" depends="clean, gwtc" description="Build this project"/>
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests"/>
 

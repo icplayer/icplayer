@@ -11,6 +11,7 @@ function Addonmultiplegap_create(){
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
     var isWCAGOn = false;
     var printableController = null;
+    var textParser = null;
 
     var presenter = function(){};
 
@@ -750,12 +751,7 @@ function Addonmultiplegap_create(){
             parsedValue = item.value.replace('<', '< ');
         }
         child.html(presenter.parseItemValue(parsedValue));
-
-        if (presenter.playerController) {
-            child.html(presenter.playerController.getTextParser().parseAltTexts(child.html()));
-        } else {
-            child = window.TTSUtils.parsePreviewAltText(child);
-        }
+        child.html(textParser.parseAltTexts(child.html()));
 
         return child;
     };
@@ -794,11 +790,7 @@ function Addonmultiplegap_create(){
         var audioAddon = presenter.playerController.getModule(audioAddonID);
         if (audioAddon != null) {
             var itemText = audioAddon.getTextFromFileID(audioItemID);
-            if (presenter.playerController) {
-                itemText = presenter.playerController.getTextParser().parseAltTexts(itemText);
-            } else {
-                itemText = window.TTSUtils.parsePreviewAltText(itemText);
-            }
+            itemText = textParser.parseAltTexts(itemText);
             if (itemText !== null && $("<span>"+itemText+"</span>").text().length > 0) {
                 var $text = $('<span></span>');
                 $text.addClass('multiaudio-item-text');
@@ -1166,6 +1158,12 @@ function Addonmultiplegap_create(){
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
+
+        textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        textParser = new TextParserProxy(getTextParser());
     };
 
     presenter.setEventBus = function (eventBus) {
@@ -1750,6 +1748,8 @@ function Addonmultiplegap_create(){
 
     presenter.setPrintableController = function (controller) {
         printableController = controller;
+
+        textParser = new TextParserProxy(printableController.getTextParser());
     };
 
     presenter.setPrintableState = function (state){
@@ -1799,7 +1799,7 @@ function Addonmultiplegap_create(){
                     answerHTML = prepareBasicPrint(answerHTML, $wrapper, ...correctAnswers);
                 }
             }
-            $wrapper.html(answerHTML);
+            $wrapper.html(textParser.parseAltTexts(answerHTML));
         }
 
         $view.append($wrapper);

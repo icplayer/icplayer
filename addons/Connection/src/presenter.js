@@ -383,11 +383,6 @@ function AddonConnection_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
-            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
-            $(element).html(sanitizedLink);
-        });
-
         presenter.textParser.connectLinks(presenter.$view);
     };
 
@@ -426,6 +421,10 @@ function AddonConnection_create() {
         playerController = controller;
 
         presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
     };
 
     presenter.registerMathJax = function AddonConnection_registerMathJax() {
@@ -682,6 +681,12 @@ function AddonConnection_create() {
         setSpeechTexts(model["speechTexts"]);
         presenter.gatherCorrectConnections();
         presenter.buildKeyboardController();
+
+        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
+            const parsedHTML = presenter.textParser.parse($(element).html());
+            const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
+            $(element).html(sanitizedParsedHTML);
+        });
     };
 
     presenter.validateModel = function (model) {
@@ -2527,6 +2532,8 @@ function AddonConnection_create() {
 
     presenter.setPrintableController = function (controller) {
         presenter.printableController = controller;
+
+        presenter.textParser = new TextParserProxy(printableController.getTextParser());
     };
 
     presenter.setPrintableState = function(state) {
@@ -2628,10 +2635,14 @@ function AddonConnection_create() {
         const correctAnswers = getCorrectAnswersObject(model);
         const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
         isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
+        const parsedHTML = presenter.textParser.parse($printableWrapper.html());
+        const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
+        $printableWrapper.html(sanitizedParsedHTML);
 
         $printableWrapper.css("visibility", "hidden");
         let height;
         $("body").append($printableWrapper);
+
         waitForLoad($root, function(){
             $printableWrapper.css("visibility", "");
 
