@@ -702,8 +702,11 @@ function Addontext_identification_create() {
     };
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
 
         var serializedIsSelected, parsedState;
         if (state.indexOf("}") > -1 && state.indexOf("{") > -1) {
@@ -723,7 +726,7 @@ function Addontext_identification_create() {
             if(parsedState.isDisabled !== undefined)
                 presenter.printableState.isDisabled = parsedState.isDisabled;
         }
-    }
+    };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         const text = setUpLogicForPrintable(model);

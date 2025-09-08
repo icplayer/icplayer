@@ -78,7 +78,7 @@ TestCase("[Text Identification] Keyboard controller tests", {
         var args = this.tts.speak.args[0];
         // gets first argument of call
         var readText = args[0][0].text;
-        assertEquals('Text', readText);
+        assertEquals('Text.', readText);
     },
 
     'test should call tts.read when selecting addon' : function() {

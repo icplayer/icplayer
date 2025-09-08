@@ -745,10 +745,13 @@ function AddonImage_Identification_create(){
     }
 
     presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
+        presenter.printableState = null;
+
+        if (state === null || ModelValidationUtils.isStringEmpty(state)) {
             return;
+        }
         presenter.printableState = JSON.parse(state);
-    }
+    };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         chosePrintableStateMode(showAnswers);

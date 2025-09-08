@@ -1107,8 +1107,11 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 	@Override
 	public void setPrintableState(String state) {
-		if (state.equals(""))
-			return;
+		this.printableState = null;
+
+		if (state.equals("")) {
+		    return;
+		}
 		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
 	}
