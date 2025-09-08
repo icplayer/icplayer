@@ -185,7 +185,7 @@
 
     <target name="browser.init" unless="browser.initialized">
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
-        <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path"
+        <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
                   value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"/>
         <exec executable="which" osfamily="unix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
