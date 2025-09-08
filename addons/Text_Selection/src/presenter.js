@@ -46,6 +46,7 @@ function AddonText_Selection_create() {
     var CSS_CLASSES = {
         SELECTABLE: "selectable",
         SELECTED: "selected",
+        DISABLED: "text_selection_disabled",
         PRINTABLE: "printable_addon_Text_Selection",
         PRINTABLE_SELECTED: "printable_addon_Text_Selection_selected",
         PRINTABLE_WRONG: "printable_addon_Text_Selection_wrong",
@@ -1209,6 +1210,7 @@ function AddonText_Selection_create() {
             presenter.isWorkMode = false;
 
             presenter.turnOffEventListeners();
+            addDisabledClass();
 
             if (!presenter.configuration.isExerciseStarted) return false;
 
@@ -1250,6 +1252,7 @@ function AddonText_Selection_create() {
             presenter.selected_elements = presenter.$view.find('.text_selection').find('.selected');
             presenter.turnOffEventListeners();
             presenter.turnOnEventListeners();
+            removeDisabledClass();
         }
     };
 
@@ -1324,6 +1327,7 @@ function AddonText_Selection_create() {
         }
 
         presenter.turnOffEventListeners();
+        addDisabledClass();
 
         presenter.isShowAnswers = true;
         presenter.saveAndRemoveSelection();
@@ -1359,6 +1363,7 @@ function AddonText_Selection_create() {
         }
 
         presenter.turnOnEventListeners();
+        removeDisabledClass();
 
         presenter.activeGradualShowAnswersItems = [];
         presenter.isShowAnswers = false;
@@ -1383,6 +1388,7 @@ function AddonText_Selection_create() {
         } else if (eventName === "GradualShowAnswers") {
             if (presenter.configuration.areEventListenersOn) {
                 presenter.turnOffEventListeners();
+                addDisabledClass();
             }
             if (data.moduleID === presenter.configuration.addonID) {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
@@ -1973,23 +1979,35 @@ function AddonText_Selection_create() {
         presenter.showCorrectAnswer(item);
     };
 
-   presenter.restoreGradualShowAnswers = function () {
-       if (!presenter.activeGradualShowAnswersItems.length) return;
-       if (presenter.configuration.areEventListenersOn) {
-                presenter.turnOffEventListeners();
-            }
+    presenter.restoreGradualShowAnswers = function () {
+        if (!presenter.activeGradualShowAnswersItems.length) {
+            return;
+        }
+        if (presenter.configuration.areEventListenersOn) {
+            presenter.turnOffEventListeners();
+            addDisabledClass();
+        }
         presenter.saveAndRemoveSelection();
         presenter.isGradualShowAnswersActive = true;
         for (const item in presenter.activeGradualShowAnswersItems) {
             presenter.showCorrectAnswer(item);
-       }
-   }
+        }
+    };
 
     presenter.gradualHideAnswers = function () {
         presenter.isGradualShowAnswersActive = false;
         presenter.turnOnEventListeners();
         presenter.restoreSelection();
+        removeDisabledClass();
     };
+
+    function addDisabledClass() {
+        presenter.$view.find('.text_selection').addClass(CSS_CLASSES.DISABLED);
+    }
+
+    function removeDisabledClass() {
+        presenter.$view.find('.text_selection').removeClass(CSS_CLASSES.DISABLED);
+    }
 
     return presenter;
 }
