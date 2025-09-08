@@ -22,7 +22,6 @@ function AddonTrueFalse_create() {
     var playerController;
     var printableController;
     var eventBus; // Modules communication
-    var textParser = null; // Links to Glossary Addon
     var tts;
     var selectedSpeechText = "selected";
     var deselectedSpeechText = "deselected";
@@ -32,6 +31,8 @@ function AddonTrueFalse_create() {
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
     var isWCAGOn = false;
+
+    presenter.textParser = null;
 
     presenter.isSelectionCorrect = function (question, selection) {
         var answers = question.Answer.split(',');
@@ -101,7 +102,7 @@ function AddonTrueFalse_create() {
     };
 
     presenter.setPreviewTextParser = function (getTextParser) {
-        textParser = new TextParserProxy(getTextParser());
+        presenter.textParser = new TextParserProxy(getTextParser());
     };
 
     function whichQuestion(row, table) {
@@ -262,7 +263,7 @@ function AddonTrueFalse_create() {
 
     function generateQuestionElement(row, rowID) {
         const question = questions[rowID - 1].Question;
-        const parsedQuestion = textParser.parse(question);
+        const parsedQuestion = presenter.textParser.parse(question);
         const td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + parsedQuestion + '</td>');
 
         if (presenter.isTabindexEnabled) {
@@ -397,8 +398,8 @@ function AddonTrueFalse_create() {
             }
         }
 
-        if (textParser !== null && !isPreview) { // Actions performed only in Player mode
-            textParser.connectLinks($(view));
+        if (presenter.textParser !== null && !isPreview) { // Actions performed only in Player mode
+            presenter.textParser.connectLinks($(view));
         }
 
         if (!isPreview) {
@@ -463,7 +464,7 @@ function AddonTrueFalse_create() {
     presenter.run = function (view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
-        textParser = new TextParserProxy(playerController.getTextParser());
+        presenter.textParser = new TextParserProxy(playerController.getTextParser());
 
         presenter.validateModel(model);
 
@@ -1141,7 +1142,7 @@ function AddonTrueFalse_create() {
 
     presenter.setPrintableController = function (controller) {
         printableController = controller;
-        textParser = new TextParserProxy(printableController.getTextParser());
+        presenter.textParser = new TextParserProxy(printableController.getTextParser());
     };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
@@ -1179,7 +1180,7 @@ function AddonTrueFalse_create() {
             var $tr = $("<tr></tr>");
 
             var $questionCell = $("<td></td>");
-            $questionCell.html(textParser.parse(question.Question));
+            $questionCell.html(presenter.textParser.parse(question.Question));
             $tr.append($questionCell);
 
             var answers = [];

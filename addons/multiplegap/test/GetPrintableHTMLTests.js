@@ -38,9 +38,19 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
         this.presenter = Addonmultiplegap_create();
         this.model = getValidPrintableModel(true);
         this.showAnswers = false;
-        this.printableController = {
-            getPrintableContext: sinon.stub()
+
+        const textParser = {
+            parseAltTexts: sinon.stub(),
+            parse: sinon.stub(),
         };
+        textParser.parse.returnsArg(0);
+        textParser.parseAltTexts.returnsArg(0);
+
+        this.printableController = {
+            getPrintableContext: sinon.stub(),
+            getTextParser: sinon.stub(),
+        };
+        this.printableController.getTextParser.returns(textParser);
         this.presenter.setPrintableController(this.printableController);
         this.printableController.getPrintableContext.withArgs("Source_list1").returns({
             items: ["donkey", "pigeon", "zebra", "swan", "dolphin", "duck", "seagull", "tiger"]

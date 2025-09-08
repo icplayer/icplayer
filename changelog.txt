@@ -1,3 +1,4 @@
+2025-09-09 Fixed rendering of content with alt texts and MathJax in print
 2025-09-08 Added command to disable usage of state in printable functionality
 2025-08-29 Fixed issue with eszett in crosswords addon
 2025-08-19 Added PreDestroyed type event

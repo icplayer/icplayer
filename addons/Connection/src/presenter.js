@@ -2638,9 +2638,12 @@ function AddonConnection_create() {
         const correctAnswers = getCorrectAnswersObject(model);
         const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
         isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
-        const parsedHTML = presenter.textParser.parse($printableWrapper.html());
-        const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
-        $printableWrapper.html(sanitizedParsedHTML);
+
+        $.each($root.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
+            const parsedHTML = presenter.textParser.parse($(element).html());
+            const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
+            $(element).html(sanitizedParsedHTML);
+        });
 
         $printableWrapper.css("visibility", "hidden");
         let height;

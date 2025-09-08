@@ -1819,15 +1819,15 @@ function AddonText_Selection_create() {
     };
 
    presenter.getPrintableHTML = function (model, showAnswers) {
-       var upgradedModel = presenter.upgradeModel(model);
-       var configuration = presenter.validateModel(upgradedModel);
-       var $html = createHTMLStructureForPrintable(configuration);
+       const upgradedModel = presenter.upgradeModel(model);
+       const configuration = presenter.validateModel(upgradedModel);
+       const $html = createHTMLStructureForPrintable(configuration);
 
        chosePrintableStateMode(showAnswers);
        upgradeHTMLStructureForPrintable($html, configuration.mode);
        presenter.printableStateMode = null;
 
-       var $view = createViewForPrintable(upgradedModel, $html);
+       const $view = createViewForPrintable(upgradedModel, $html);
        return $view[0].outerHTML;
    };
 
