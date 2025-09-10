@@ -271,11 +271,7 @@ function Addontext_identification_create() {
         presenter.setTabindex(container,presenter.configuration.isTabindexEnabled);
 
         var text = $('<div class="text-identification-content"></div>');
-        if (isPreview) {
-            text.html(window.TTSUtils.parsePreviewAltText(textSrc));
-        } else {
-            text.html(presenter.textParser.parse(textSrc));
-        }
+        text.html(presenter.textParser.parse(textSrc));
         container.append(text);
 
         viewContainer.append(container);
@@ -303,6 +299,10 @@ function Addontext_identification_create() {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
     };
 
     /**
