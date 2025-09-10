@@ -681,12 +681,6 @@ function AddonConnection_create() {
         setSpeechTexts(model["speechTexts"]);
         presenter.gatherCorrectConnections();
         presenter.buildKeyboardController();
-
-        // $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
-        //     const parsedHTML = presenter.textParser.parse($(element).html());
-        //     const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
-        //     $(element).html(sanitizedParsedHTML);
-        // });
     };
 
     presenter.validateModel = function (model) {
