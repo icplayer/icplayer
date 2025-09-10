@@ -1499,7 +1499,8 @@ function AddonConnection_create() {
         const contentWrapper = document.createElement("div");
         contentWrapper.classList.add(presenter.CSS_CLASSES.INNER_WRAPPER);
         contentWrapper.style.direction = isRTL ? "rtl" : "ltr";
-        contentWrapper.innerHTML = presenter.textParser.parse(content);
+        const parsedContent = presenter.textParser.parse(content);
+        contentWrapper.innerHTML = window.xssUtils.sanitize(parsedContent);
         !!additionalClassName && contentWrapper.classList.add(additionalClassName);
         presenter.configuration.isTabindexEnabled && contentWrapper.setAttribute("tabindex", 0);
         contentElement.append(contentWrapper);
