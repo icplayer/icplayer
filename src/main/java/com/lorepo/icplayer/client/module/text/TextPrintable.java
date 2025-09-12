@@ -210,6 +210,11 @@ public class TextPrintable {
 			} while (answers.hasNext());
 		}
 
+		if (model.hasDraggableGaps()) {
+		    TextParser parser = new TextParser();
+		    value = parser.parseAltText(value);
+        }
+
 		span.setInnerHTML(value);
 		String newValue = "&nbsp;" + span.getString();
 

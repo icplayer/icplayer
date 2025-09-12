@@ -2637,6 +2637,10 @@ function AddonConnection_create() {
         $("body").append($printableWrapper);
 
         function restoreRenderedMathJax($viewWithRenderedMathJax) {
+            if (!$viewWithRenderedMathJax) {
+                return;
+            }
+
             $root.find('[id^="MathJax-Element-"]').each(function(){
                 this.classList.remove("MathJax_Processed");
                 this.innerHTML = $viewWithRenderedMathJax.find("#" + this.id)[0].innerHTML;
@@ -2669,7 +2673,9 @@ function AddonConnection_create() {
             $root.remove();
             $printableWrapper.detach();
             $printableWrapper.remove();
-            $elementWithRenderedMathJax.remove();
+            if (!!$elementWithRenderedMathJax) {
+                $elementWithRenderedMathJax.remove();
+            }
 
             presenter.printableParserCallback(printableHTML);
         });
