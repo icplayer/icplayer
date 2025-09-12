@@ -56,7 +56,14 @@ TestCase("[Connection] Connection printable html validation", {
         this.presenter.printableController = {
             getLessonTemplate: this.stubs.getLessonTemplateStub
         };
+        this.presenter.textParser = {
+            parseAltTexts: sinon.stub(),
+            parse: sinon.stub(),
+        };
+        this.presenter.textParser.parse.returnsArg(0);
+        this.presenter.textParser.parseAltTexts.returnsArg(0);
     },
+
     'test empty printable state': function () {
         // given
         var $connectionsSVG = $('<svg class="connections"></svg>');

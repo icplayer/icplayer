@@ -18,7 +18,12 @@ TestCase("[TrueFalse] Printable HTML", {
 
         this.spies = {
             upgradeModel : sinon.spy(this.presenter, 'upgradeModel')
-        }
+        };
+
+        this.presenter.textParser = {
+            parse: sinon.stub(),
+        };
+        this.presenter.textParser.parse.returnsArg(0);
     },
 
     tearDown: function () {

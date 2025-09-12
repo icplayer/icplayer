@@ -5,6 +5,7 @@ function AddonHeading_create () {
     var isVisibleByDefault = true;
     var isWCAGOn = false;
     var playerController = null;
+    var printableController = null;
     var textParser = null;
 
     var presenter = function () {};
@@ -41,16 +42,10 @@ function AddonHeading_create () {
             return;
         }
 
-        var headingString = '<[tag]></[tag]]>'.replace('[tag]', presenter.configuration.heading);
-        var $heading = $(headingString);
+        const headingString = '<[tag]></[tag]]>'.replace('[tag]', presenter.configuration.heading);
+        const $heading = $(headingString);
 
-        var parsedContent = presenter.configuration.content;
-        if (textParser != null) {
-            parsedContent = textParser.parseAltTexts(parsedContent);
-        } else if (isPreview) {
-            parsedContent = parsedContent.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with
-            parsedContent = parsedContent.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1'); // replace \alt{a|b} with a
-        }
+        const parsedContent = textParser.parseAltTexts(presenter.configuration.content);
         $heading.html(parsedContent);
 
         if (presenter.configuration.isTabindexEnabled) {
@@ -139,10 +134,13 @@ function AddonHeading_create () {
     };
 
     presenter.setPlayerController = function (controller) {
-
         playerController = controller;
 
         textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        textParser = new TextParserProxy(getTextParser());
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {
@@ -179,6 +177,11 @@ function AddonHeading_create () {
 
     presenter.isEnterable = function(){ return false;};
 
+    presenter.setPrintableController = function (controller) {
+        printableController = controller;
+        textParser = new TextParserProxy(printableController.getTextParser());
+    };
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
@@ -191,8 +194,7 @@ function AddonHeading_create () {
 
         var $heading = $('<[tag]></[tag]]>'.replace('[tag]', configuration.heading));
         var parsedContent = configuration.content;
-        parsedContent = parsedContent.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with
-        parsedContent = parsedContent.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1'); // replace \alt{a|b} with a
+        parsedContent = textParser.parseAltTexts(parsedContent);
         $heading.html(parsedContent);
         $root.append($heading);
 

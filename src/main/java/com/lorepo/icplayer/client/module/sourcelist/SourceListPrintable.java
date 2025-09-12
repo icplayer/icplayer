@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.Random;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
@@ -26,7 +27,7 @@ public class SourceListPrintable {
 		result += "<ul>";
 		List<Integer> orderedIndexes = this.getOrderedIndexes();
 		for (Integer index : orderedIndexes) {
-			result += "<li>" + model.getItem(index) + "</li>";
+			result += "<li>" + getItem(index) + "</li>";
 		}
 		result += "</ul>";
 		result += "</div>";
@@ -60,5 +61,10 @@ public class SourceListPrintable {
 			return controller.nextInt(upperBound);
 		}
 		return Random.nextInt(upperBound);
+	}
+
+	private String getItem(int index) {
+	    String item = model.getItem(index);
+	    return AlternativeTextService.getVisibleText(item);
 	}
 }

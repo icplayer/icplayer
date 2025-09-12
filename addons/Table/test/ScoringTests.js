@@ -20,6 +20,12 @@ TestCase("[Table] GetScore / GetMaxScore / GetErrorCount", {
             draggableConnectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
             setGapWidth: sinon.stub(this.presenter.GapUtils.prototype, 'setGapWidth')
         };
+        this.presenter.textParser = {
+            parseAltTexts: sinon.stub(),
+            parse: sinon.stub(),
+        };
+        this.presenter.textParser.parse.returnsArg(0);
+        this.presenter.textParser.parseAltTexts.returnsArg(0);
     },
 
     tearDown: function () {

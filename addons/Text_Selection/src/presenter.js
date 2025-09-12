@@ -60,6 +60,10 @@ function AddonText_Selection_create() {
         presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
+    };
+
     /**
      * @param controller (PrintableController)
      */
@@ -599,8 +603,6 @@ function AddonText_Selection_create() {
     }
 
     presenter.validateModel = function (model) {
-        var parsedText;
-
         presenter.setSpeechTexts(model['speechTexts']);
 
         if (ModelValidationUtils.isStringEmpty(model.Text)) {
@@ -611,28 +613,22 @@ function AddonText_Selection_create() {
             return getErrorObject('M06');
         }
 
-        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
-        var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
-        var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
+        const isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
+        const mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
+        const selectionType = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
+        const isLettersSelectionEnabled = ModelValidationUtils.validateBoolean(model['Enable letters selections']);
 
-        var wordSelection = ModelValidationUtils.validateBoolean(model['Enable letters selections']);
-
-        if(mode == "ALL_SELECTABLE" && !presenter.validateSingleWordAltText(model.Text)) {
+        if (mode == "ALL_SELECTABLE" && !presenter.validateSingleWordAltText(model.Text)) {
             return getErrorObject('M07');
         }
 
         presenter.areAllPhrasesSingleWord = !presenter.detectMultipleWordPhrases(model.Text);
 
-        var preparedText = model.Text;
-        if (presenter.textParser) {
-            preparedText = presenter.textParser.parseAltTexts(model.Text);
+        let parsedText = presenter.textParser.parseAltTexts(model.Text);
+        if (isLettersSelectionEnabled) {
+            parsedText = presenter.parseCharacters(parsedText, mode, selectionType);
         } else {
-            preparedText = window.TTSUtils.parsePreviewAltText(model.Text);
-        }
-        if (wordSelection) {
-            parsedText = presenter.parseCharacters(preparedText, mode, selection_type);
-        } else {
-            parsedText = presenter.parseWords(preparedText, mode, selection_type);
+            parsedText = presenter.parseWords(parsedText, mode, selectionType);
         }
 
         if (!parsedText.isValid) {
@@ -642,7 +638,7 @@ function AddonText_Selection_create() {
         return {
             isValid: true,
             mode: mode,
-            selection_type: selection_type,
+            selection_type: selectionType,
             renderedRun: parsedText.renderedRun,
             renderedPreview: parsedText.renderedPreview,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
@@ -1794,7 +1790,7 @@ function AddonText_Selection_create() {
     }
 
     presenter.detectMultipleWordPhrases = function(text) {
-        var parsedText = window.TTSUtils.parsePreviewAltText(text);
+        var parsedText = presenter.textParser.parseAltTexts(text);
         var regex_correct = /\\correct{([^}]*?)}/g;
         var regex_wrong = /\\wrong{([^}]*?)}/g;
         do {
@@ -1829,15 +1825,15 @@ function AddonText_Selection_create() {
     };
 
    presenter.getPrintableHTML = function (model, showAnswers) {
-       var upgradedModel = presenter.upgradeModel(model);
-       var configuration = presenter.validateModel(upgradedModel);
-       var $html = createHTMLStructureForPrintable(configuration);
+       const upgradedModel = presenter.upgradeModel(model);
+       const configuration = presenter.validateModel(upgradedModel);
+       const $html = createHTMLStructureForPrintable(configuration);
 
        chosePrintableStateMode(showAnswers);
        upgradeHTMLStructureForPrintable($html, configuration.mode);
        presenter.printableStateMode = null;
 
-       var $view = createViewForPrintable(upgradedModel, $html);
+       const $view = createViewForPrintable(upgradedModel, $html);
        return $view[0].outerHTML;
    };
 

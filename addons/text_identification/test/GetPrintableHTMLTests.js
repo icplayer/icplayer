@@ -39,14 +39,14 @@ function getExpectedHTMLInNormalState () {
 
 function getExpectedHTMLForShowAnswers (isCorrect) {
     if (isCorrect)
-        return getExpectedHTML("printable_addon_Text_Identification-correct", false, false)
-    return getExpectedHTML(null, false, false)
+        return getExpectedHTML("printable_addon_Text_Identification-show-answers printable_addon_Text_Identification-correct", false, false)
+    return getExpectedHTML("printable_addon_Text_Identification-show-answers", false, false)
 }
 
 function getExpectedHTMLForShowUserAnswers (isSelected) {
     if (isSelected)
-        return getExpectedHTML("printable_addon_Text_Identification-selected", false, false)
-    return getExpectedHTML(null, false, false)
+        return getExpectedHTML("printable_addon_Text_Identification-show-user-answers printable_addon_Text_Identification-selected", false, false)
+    return getExpectedHTML("printable_addon_Text_Identification-show-user-answers", false, false)
 }
 
 function getExpectedHTMLForCheckAnswers (isSelected, shouldBeSelected) {

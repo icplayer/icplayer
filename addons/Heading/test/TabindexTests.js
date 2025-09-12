@@ -1,27 +1,39 @@
 TestCase('[Heading] Tabindex adding tests', {
-   setUp: function () {
-       this.presenter = AddonHeading_create();
+    setUp: function () {
+        this.presenter = AddonHeading_create();
 
-       this.configuration = {
-           isValid: true,
-           heading: 'h1',
-           content: 'content',
-           isTabindexEnabled: true
-       };
+        this.configuration = {
+            isValid: true,
+            heading: 'h1',
+            content: 'content',
+            isTabindexEnabled: true
+        };
 
-       this.stubs = {
-           validateModelStub: sinon.stub().returns(this.configuration)
-       };
+        this.stubs = {
+            validateModelStub: sinon.stub().returns(this.configuration),
+            parseAltTextsStub: sinon.stub()
+        };
+        this.stubs.parseAltTextsStub.returnsArg(0);
 
-       this.presenter.validateModel = this.stubs.validateModelStub;
+        this.presenter.validateModel = this.stubs.validateModelStub;
 
-       this.view = $('<div> </div>')
-   },
+        this.view = $('<div> </div>');
+
+        const textParser = {
+            parseAltTexts: this.stubs.parseAltTextsStub,
+        };
+        const playerController = {
+            getTextParser: function () {
+                return textParser;
+            }
+        }
+        this.presenter.setPlayerController(playerController);
+    },
 
     'test should set tabindex to 0 for heading h1': function () {
         this.presenter.presenterLogic(this.view, {}, false);
 
-        var result = $(this.view).find('h1');
+        const result = $(this.view).find('h1');
         assertEquals(1, result.length);
         assertEquals(0, result.attr("tabindex"));
     },
@@ -31,7 +43,7 @@ TestCase('[Heading] Tabindex adding tests', {
 
         this.presenter.presenterLogic(this.view, {}, false);
 
-        var result = $(this.view).find('h1');
+        const result = $(this.view).find('h1');
         assertEquals(1, result.length);
         assertEquals(undefined, result.attr("tabindex"));
     }

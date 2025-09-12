@@ -383,11 +383,6 @@ function AddonConnection_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.' + presenter.CSS_CLASSES.INNER_WRAPPER), function (index, element) {
-            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
-            $(element).html(sanitizedLink);
-        });
-
         presenter.textParser.connectLinks(presenter.$view);
     };
 
@@ -426,6 +421,10 @@ function AddonConnection_create() {
         playerController = controller;
 
         presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
     };
 
     presenter.registerMathJax = function AddonConnection_registerMathJax() {
@@ -1500,7 +1499,8 @@ function AddonConnection_create() {
         const contentWrapper = document.createElement("div");
         contentWrapper.classList.add(presenter.CSS_CLASSES.INNER_WRAPPER);
         contentWrapper.style.direction = isRTL ? "rtl" : "ltr";
-        contentWrapper.innerHTML = content;
+        const parsedContent = presenter.textParser.parse(content);
+        contentWrapper.innerHTML = window.xssUtils.sanitize(parsedContent);
         !!additionalClassName && contentWrapper.classList.add(additionalClassName);
         presenter.configuration.isTabindexEnabled && contentWrapper.setAttribute("tabindex", 0);
         contentElement.append(contentWrapper);
@@ -2527,6 +2527,8 @@ function AddonConnection_create() {
 
     presenter.setPrintableController = function (controller) {
         presenter.printableController = controller;
+
+        presenter.textParser = new TextParserProxy(presenter.printableController.getTextParser());
     };
 
     presenter.setPrintableState = function(state) {
@@ -2623,8 +2625,6 @@ function AddonConnection_create() {
         root.append(connectionContainer);
         presenter.setLengthOfSideObjects(root);
 
-        const $printableWrapper = wrapInPrintableLessonTemplate($root);
-
         presenter.loadElements(root, model);
         this.removeNonVisibleInnerHTMLForRoot($root);
 
@@ -2632,12 +2632,22 @@ function AddonConnection_create() {
         const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
         isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
 
+        const $printableWrapper = wrapInPrintableLessonTemplate($root);
         $printableWrapper.css("visibility", "hidden");
-        let height;
         $("body").append($printableWrapper);
-        waitForLoad($root, function(){
-            $printableWrapper.css("visibility", "");
 
+        function restoreRenderedMathJax($viewWithRenderedMathJax) {
+            if (!$viewWithRenderedMathJax) {
+                return;
+            }
+
+            $root.find('[id^="MathJax-Element-"]').each(function(){
+                this.classList.remove("MathJax_Processed");
+                this.innerHTML = $viewWithRenderedMathJax.find("#" + this.id)[0].innerHTML;
+            })
+        }
+
+        function drawConnections() {
             root.classList.add(...presenter.printableClassNames);
             if (connectionsInformation.length > 0) {
                 const connectionsSVG = $root.find("svg");
@@ -2646,15 +2656,28 @@ function AddonConnection_create() {
                     drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
                 }
             }
-
             root.classList.remove(...presenter.printableClassNames);
-            $printableWrapper.detach();
+        }
+
+        let height;
+        waitForLoad($root, function($elementWithRenderedMathJax){
+            $printableWrapper.css("visibility", "");
+            restoreRenderedMathJax($elementWithRenderedMathJax);
+            drawConnections();
+
             height = getPrintableTableHeight($root);
             $root.css("height", height+"px");
-            const parsedView = root.outerHTML;
+
+            const printableHTML = root.outerHTML;
+
             $root.remove();
+            $printableWrapper.detach();
             $printableWrapper.remove();
-            presenter.printableParserCallback(parsedView);
+            if (!!$elementWithRenderedMathJax) {
+                $elementWithRenderedMathJax.remove();
+            }
+
+            presenter.printableParserCallback(printableHTML);
         });
 
         const $clone = $root.clone();
@@ -2767,26 +2790,31 @@ function AddonConnection_create() {
     }
 
     function waitForLoad($element, callback) {
-        var $imgs = $element.find('img');
-        var loadCounter = $imgs.length + 2;
-        var continuedParsing = false;
-        var isReady = false;
+        const $imgs = $element.find('img');
+        let loadCounter = $imgs.length + 2;
+        let continuedParsing = false;
+        let isReady = false;
+        let $elementWithRenderedMathJax = null;
 
-        var loadCallback = function(){
+        const mathJaxLoadedCallback = function(){
+            $elementWithRenderedMathJax = $element.clone();
+            loadCallback();
+        };
+
+        const loadCallback = function(){
             loadCounter -= 1;
             if (loadCounter < 1 && isReady && !continuedParsing) {
                 continuedParsing = true;
                 if (timeout) clearTimeout(timeout);
-                callback();
+                callback($elementWithRenderedMathJax);
             }
         };
 
         $imgs.each(function(){
-            var $this = $(this);
             if (this.complete && this.naturalHeight !== 0) {
                 loadCallback();
             } else {
-                $this.load(loadCallback);
+                $(this).load(loadCallback);
             }
         });
 
@@ -2795,17 +2823,17 @@ function AddonConnection_create() {
             loadCallback();
         });
 
-        var timeout = setTimeout(function(){
-            if (loadCounter > 0 || isReady == false) {
+        const timeout = setTimeout(function(){
+            if (loadCounter > 0 || isReady === false) {
                 isReady = true;
                 loadCounter = 0;
                 loadCallback();
             }
         }, 15000);
 
-        var args = [];
+        const args = [];
         args.push("Typeset", MathJax.Hub, $element[0]);
-        args.push(loadCallback);
+        args.push(mathJaxLoadedCallback);
         MathJax.Hub.Queue(args);
     }
 
