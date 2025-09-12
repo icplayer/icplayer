@@ -129,6 +129,7 @@ public class TextPrintable {
 		String userAnswer = null;
 		String value = "";
 		String longestAnswer = "";
+		String nextAnswer = "";
 		HashMap<String, String> printableState = model.getPrintableState();
 
 		if (printableState != null) {
@@ -142,7 +143,7 @@ public class TextPrintable {
 			longestAnswer = userAnswer;
 		} else {
 			do {
-				String nextAnswer = answers.next();
+				nextAnswer = answers.next();
 				if (showAnswers && value.length() == 0) {
 					value = nextAnswer;
 				}
@@ -198,16 +199,11 @@ public class TextPrintable {
 			}
 		}
 		if (userAnswer != null && userAnswer.length() > 0 && showAnswers) {
-			do {
-				if (userAnswer.equals(answers.next())) {
-					span.addClassName("ic_text-correct-answer");
-					break;
-				}
-				if (!answers.hasNext()) {
-					span.addClassName("ic_text-wrong-answer");
-					break;
-				}
-			} while (answers.hasNext());
+			if (gapInfo.isCorrect(userAnswer)) {
+                span.addClassName("ic_text-correct-answer");
+            } else {
+                span.addClassName("ic_text-wrong-answer");
+            }
 		}
 
 		if (model.hasDraggableGaps()) {
