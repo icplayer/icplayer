@@ -7,12 +7,13 @@ function AddonMathText_create() {
         isShowAnswers: false,
         isCheckAnswers: false,
         currentAnswer: presenter.EMPTY_MATHTEXT,
-        wasChanged: true, // for checking if user has made changes since last answer check
+        wasChanged: false, // for checking if user has made changes and needs update of scores
         lastScore: 0,
         hasUserInteracted: false // for checking if user has interacted with addon
     };
     presenter.editor = null;
     presenter.answerObject = null;
+    presenter.waitingForChanges = false;
 
     presenter.TYPES_DEFINITIONS = {
         TEXT: 'text',
@@ -43,7 +44,10 @@ function AddonMathText_create() {
 
     presenter.setPlayerController = function AddonMathText_setPlayerController (playerController) {
         presenter.playerController = playerController;
-        presenter.eventBus = playerController.getEventBus();
+    };
+
+    presenter.setEventBus = function (wrappedEventBus) {
+        presenter.eventBus = wrappedEventBus;
     };
 
     presenter.createPreview = function AddonMathText_createPreview (view, model) {
@@ -222,6 +226,7 @@ function AddonMathText_create() {
             MutationObserverService.createDestroyObserver(presenter.configuration.ID, presenter.destroy, presenter.view);
             MutationObserverService.setObserver();
         }
+        presenter.waitingForChanges = true;
     };
 
     presenter.initializeView = function AddonMathText_initializeView (isPreview) {
@@ -267,10 +272,10 @@ function AddonMathText_create() {
                     // when using setMathML WIRIS editor needs to make request to WIRIS API,
                     // so this callback will be called asynchronusly after request response,
                     // but after state.isShowAnswers was already changed in normal execution
-                    var currentText = editor.getMathML();
+
+                    const currentText = editor.getMathML();
                     if (presenter.editor.isReady() &&
-                        !presenter.state.isShowAnswers &&
-                        !presenter.state.isCheckAnswers &&
+                        presenter.waitingForChanges &&
                         currentText !== presenter.state.currentAnswer
                     ) {
                         presenter.state.wasChanged = true;
@@ -287,6 +292,8 @@ function AddonMathText_create() {
         if (event.target !== presenter.view) {
             return;
         }
+
+        $(window).off("pointerdown", presenter.onFocusOutsideEditor);
 
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.editor.getEditorModel().removeEditorListener(presenter.editorListener);
@@ -319,11 +326,13 @@ function AddonMathText_create() {
             presenter.$view.find('.wrs_focusElementContainer').css('display', 'none');
             presenter.$view.find('.wrs_handWrapper').css('display', 'none');
         } else {
-            var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
+            const builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
             presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
 
             // when initial text is correct answer
-            presenter.state.lastScore = presenter.checkIfAnswerIsCorrect(presenter.configuration.initialText) ? 1 : 0;
+            presenter.calculateScore(presenter.configuration.initialText);
+            presenter.wrapper.addEventListener('focusin', presenter.onFocusInEditor);
+            $(window).on("pointerdown", presenter.onFocusOutsideEditor);
         }
     };
 
@@ -339,9 +348,9 @@ function AddonMathText_create() {
 
         if (!isPreview) {
             presenter.resetPopupPosition();
-            var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
+            const builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
             presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
-            presenter.state.lastScore = presenter.checkIfAnswerIsCorrect(presenter.configuration.initialText) ? 1 : 0;
+            presenter.calculateScore(presenter.configuration.initialText);
         }
         presenter.makeRequestForImage(presenter.configuration.initialText);
     };
@@ -351,17 +360,20 @@ function AddonMathText_create() {
 
         presenter.editorPopupWrapper = document.createElement('div');
         presenter.editorPopupWrapper.classList.add('mathtext-editor-popup-wrapper');
+
         presenter.editorPopupEditor = document.createElement('div');
         presenter.editorPopupEditor.classList.add('mathtext-editor-popup-editor');
 
-        var editorPopupButtons = document.createElement('div');
-        editorPopupButtons.classList.add('mathtext-editor-popup-buttons');
         presenter.editorPopupCancel = document.createElement('div');
         presenter.editorPopupCancel.classList.add('cancel-button');
         presenter.editorPopupCancel.innerText = presenter.configuration.buttonTexts.cancel;
+
         presenter.editorPopupSave = document.createElement('div');
         presenter.editorPopupSave.classList.add('save-button');
         presenter.editorPopupSave.innerText = presenter.configuration.buttonTexts.save;
+
+        const editorPopupButtons = document.createElement('div');
+        editorPopupButtons.classList.add('mathtext-editor-popup-buttons');
         editorPopupButtons.appendChild(presenter.editorPopupCancel);
         editorPopupButtons.appendChild(presenter.editorPopupSave);
 
@@ -390,19 +402,22 @@ function AddonMathText_create() {
 
     presenter.onSavePopup = function AddonMathText_onSavePopup () {
         presenter.state.currentAnswer = presenter.editor.getMathML();
+        presenter.calculateScore(presenter.state.currentAnswer);
         presenter.makeRequestForImage(presenter.state.currentAnswer);
         presenter.hidePopup();
         presenter.resetPopupPosition();
+        presenter.sendSavedEvent();
     }
 
      presenter.onCancelPopup = function AddonMathText_onCancelPopup () {
         if (presenter.state.currentAnswer && presenter.state.currentAnswer !== presenter.EMPTY_MATHTEXT) {
-            presenter.editor.setMathML(presenter.state.currentAnswer);
+            presenter.setMathML(presenter.state.currentAnswer);
         } else {
-            presenter.editor.setMathML(presenter.configuration.initialText);
+            presenter.setMathML(presenter.configuration.initialText);
         }
         presenter.hidePopup();
         presenter.resetPopupPosition();
+        presenter.sendCanceledEvent();
     }
 
     presenter.resetPopupPosition = function AddonMathText_resetPopupPosition () {
@@ -433,6 +448,7 @@ function AddonMathText_create() {
         }
 
         if (presenter.configuration.showEditor && !presenter.state.isShowAnswers && presenter.isWirisEnabled()) {
+            presenter.waitingForChanges = false;
             presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.editor.setToolbarHidden(true);
@@ -443,7 +459,7 @@ function AddonMathText_create() {
                     presenter.makeRequestForImage(presenter.answerObject.getCorrectAnswer(0));
                 } else {
                     presenter.state.currentAnswer = presenter.editor.getMathML();
-                    presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
+                    presenter.setMathML(presenter.answerObject.getCorrectAnswer(0));
                 }
             }
         }
@@ -462,21 +478,23 @@ function AddonMathText_create() {
                         presenter.makeRequestForImage(presenter.state.currentAnswer);
                     }
                 } else {
-                    presenter.editor.setMathML(presenter.state.currentAnswer);
+                    presenter.setMathML(presenter.state.currentAnswer);
                 }
             }
 
             presenter.state.isShowAnswers = false;
+            presenter.waitingForChanges = true;
             presenter.setDisabled(presenter.state.isDisabled);
         }
     };
 
-     presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
+    presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
         if (presenter.state.isShowAnswers) {
             presenter.hideAnswers();
         }
 
         if (presenter.configuration.showEditor && !presenter.state.isCheckAnswers && presenter.isWirisEnabled()) {
+            presenter.waitingForChanges = false;
             presenter.state.isCheckAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.editor.setToolbarHidden(true);
@@ -488,7 +506,7 @@ function AddonMathText_create() {
                 }
 
                 if (presenter.state.hasUserInteracted) {
-                    var score = presenter.getScore();
+                    const score = presenter.getScore();
 
                     if (score === 1) {
                         presenter.wrapper.classList.add('correct');
@@ -512,6 +530,7 @@ function AddonMathText_create() {
 
             presenter.state.isCheckAnswers = false;
             presenter.setDisabled(presenter.state.isDisabled);
+            presenter.waitingForChanges = true;
         }
     };
 
@@ -525,12 +544,13 @@ function AddonMathText_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.setDisabled(presenter.configuration.isDisabled);
 
-        presenter.state.wasChanged = true;
+        presenter.state.wasChanged = false;
         presenter.state.hasUserInteracted = false;
 
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.state.currentAnswer = presenter.configuration.initialText;
-            presenter.editor.setMathML(presenter.configuration.initialText);
+            presenter.setMathML(presenter.configuration.initialText);
+            presenter.calculateScore(presenter.configuration.initialText)
             if (presenter.configuration.mathEditorInPopup) {
                 presenter.makeRequestForImage(presenter.configuration.initialText);
             }
@@ -544,6 +564,10 @@ function AddonMathText_create() {
         else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
         }
+    };
+
+    presenter.calculateScore = function (text) {
+        presenter.state.lastScore = presenter.checkIfAnswerIsCorrect(text) ? 1 : 0;
     };
 
     presenter.checkIfAnswerIsCorrect = function(userText) {
@@ -575,44 +599,45 @@ function AddonMathText_create() {
         return instance.isAnswerCorrect(0);
     };
 
-     presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
-         presenter.state.isVisible = isVisible;
-         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
+        presenter.state.isVisible = isVisible;
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-     presenter.setDisabled = function(value) {
-         presenter.state.isDisabled = value;
+    presenter.setDisabled = function(value) {
+        presenter.state.isDisabled = value;
 
-         // that means input is disabled, and toolbar is hidden
-         if (presenter.state.isShowAnswers || presenter.state.isCheckAnswers) {
-             return;
-         }
+        // that means input is disabled, and toolbar is hidden
+        if (presenter.state.isShowAnswers || presenter.state.isCheckAnswers) {
+            return;
+        }
 
-         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
-             if (value) {
-                 presenter.$view.find('input').attr('disabled', true);
-             } else {
-                 presenter.$view.find('input').removeAttr('disabled');
-             }
+        if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
+            if (value) {
+                presenter.$view.find('input').attr('disabled', true);
+            } else {
+                presenter.$view.find('input').removeAttr('disabled');
+            }
 
-             presenter.editor.setToolbarHidden(value);
-         }
+            presenter.editor.setToolbarHidden(value);
+        }
     };
 
-     presenter.setState = function (state) {
-         var parsedState = JSON.parse(state);
-         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
-            presenter.editor.setMathML(parsedState.text);
+    presenter.setState = function (state) {
+        const parsedState = JSON.parse(state);
+        if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
+            presenter.setMathML(parsedState.text);
             presenter.state.currentAnswer = parsedState.text;
+            presenter.calculateScore(presenter.state.currentAnswer);
             if (presenter.configuration.mathEditorInPopup) {
                 presenter.makeRequestForImage(parsedState.text);
             }
-         }
+        }
 
-         presenter.state.hasUserInteracted = parsedState.hasUserInteracted;
-         presenter.setVisibility(parsedState.isVisible);
-         presenter.setDisabled(parsedState.isDisabled)
-     };
+        presenter.state.hasUserInteracted = parsedState.hasUserInteracted;
+        presenter.setVisibility(parsedState.isVisible);
+        presenter.setDisabled(parsedState.isDisabled)
+    };
 
 
     presenter.getState = function() {
@@ -641,24 +666,10 @@ function AddonMathText_create() {
             presenter.hideAnswers();
         }
 
-        var score = 0;
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor && presenter.isWirisEnabled()) {
-            if (presenter.state.wasChanged) {
-                var mml = '';
-                if (presenter.configuration.mathEditorInPopup) {
-                    mml = presenter.state.currentAnswer;
-                } else {
-                    mml = presenter.editor.getMathML();
-                }
-                score = presenter.checkIfAnswerIsCorrect(mml) ? 1 : 0;
-                presenter.state.wasChanged = false;
-                presenter.state.lastScore = score;
-                presenter.sendScoreChangedEvent(score);
-            } else {
-                score = presenter.state.lastScore;
-            }
+        if (!presenter.configuration.isActivity || !presenter.isWirisEnabled()) {
+            return 0;
         }
-        return score;
+        return presenter.state.lastScore;
     };
 
     presenter.getErrorCount = function () {
@@ -672,12 +683,50 @@ function AddonMathText_create() {
         return presenter.configuration.isActivity ? 1 : 0;
     };
 
-    presenter.sendScoreChangedEvent = function (score) {
-        var eventData = {
-                source: presenter.configuration.ID,
-                item: '0',
-                value: 1,
-                score: score
+    presenter.sendSavedEvent = function () {
+        const eventData = {
+            source: presenter.configuration.ID,
+            item: 'saved',
+            value: 1,
+            score: presenter.state.lastScore
+        };
+
+        presenter.sendValueChangedEvent(eventData);
+    };
+
+    presenter.sendCanceledEvent = function () {
+        const eventData = {
+            source: presenter.configuration.ID,
+            item: 'canceled',
+            value: 1,
+            score: presenter.state.lastScore
+        };
+
+        presenter.sendValueChangedEvent(eventData);
+    };
+
+    presenter.onFocusInEditor = function (event) {
+        presenter.hasEditorFocus = true;
+    };
+
+    presenter.onFocusOutsideEditor = function (event) {
+        if (!presenter.hasEditorFocus) {
+            return;
+        }
+
+        if (presenter.wrapper.contains(event.target)) {
+            return;
+        }
+        presenter.hasEditorFocus = false;
+        if (presenter.state.wasChanged) {
+            presenter.calculateScore(presenter.editor.getMathML());
+        }
+
+        const eventData = {
+            source: presenter.configuration.ID,
+            item: 'blur',
+            value: 1,
+            score: presenter.state.lastScore
         };
 
         presenter.sendValueChangedEvent(eventData);
@@ -704,7 +753,7 @@ function AddonMathText_create() {
     };
 
     presenter.executeCommand = function(name, params) {
-        var commands = {
+        const commands = {
             'show': presenter.show,
             'hide': presenter.hide,
             'showAnswers' : presenter.showAnswers,
@@ -716,6 +765,12 @@ function AddonMathText_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.setMathML = function (mathml) {
+        presenter.waitingForChanges = false;
+        presenter.editor.setMathMLWithCallback(mathml, () => {
+            presenter.waitingForChanges = true;
+        });
+    };
 
     return presenter;
 }
