@@ -293,6 +293,8 @@ function AddonMathText_create() {
             return;
         }
 
+        $(window).off("pointerdown", presenter.onFocusOutsideEditor);
+
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.editor.getEditorModel().removeEditorListener(presenter.editorListener);
             presenter.removeWIRISEditor();
@@ -769,13 +771,5 @@ function AddonMathText_create() {
         });
     };
 
-    presenter.destroy = function() {
-        $(window).off("pointerdown", presenter.onFocusOutsideEditor);
-    }
-
     return presenter;
 }
-
-AddonMathText_create.__supported_player_options__ = {
-    resetInterfaceVersion: 2
-};
