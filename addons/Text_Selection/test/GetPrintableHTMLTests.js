@@ -7,14 +7,14 @@ function getCommonModel () {
 }
 
 function getMarkPhrasesToSelectWithMultiselectModelAndEnabledLettersSelections () {
-    var model = getMarkPhrasesToSelectWithMultiselectModel();
+    const model = getMarkPhrasesToSelectWithMultiselectModel();
     model.Text = "Mark numbers: \\correct{1}, \\correct{2}, \\wrong{A}, \\wrong{B}.";
     model["Enable letters selections"] = true;
     return model;
 }
 
 function getMarkPhrasesToSelectWithMultiselectModel () {
-    var model = getCommonModel();
+    const model = getCommonModel();
     model.Text = "Mark fruits: \\correct{orange}, \\correct{apple}, \\wrong{potato}, \\wrong{carrot}.";
     model.Mode = "Mark phrases to select";
     model['Selection type'] = "Multiselect";
@@ -22,14 +22,14 @@ function getMarkPhrasesToSelectWithMultiselectModel () {
 }
 
 function getMarkPhrasesToSelectWithSingleSelectModelAndEnabledLettersSelections () {
-    var model = getMarkPhrasesToSelectWithSingleSelectModel();
+    const model = getMarkPhrasesToSelectWithSingleSelectModel();
     model.Text = "Mark numbers: \\correct{1}, \\wrong{A}.";
     model["Enable letters selections"] = true;
     return model;
 }
 
 function getMarkPhrasesToSelectWithSingleSelectModel () {
-    var model = getCommonModel();
+    const model = getCommonModel();
     model.Text = "Mark fruits: \\correct{orange}, \\wrong{potato}.";
     model.Mode = "Mark phrases to select";
     model['Selection type'] = "Single select";
@@ -37,14 +37,14 @@ function getMarkPhrasesToSelectWithSingleSelectModel () {
 }
 
 function getAllSelectableWithMultiselectModelAndEnabledLettersSelections () {
-    var model = getAllSelectableWithMultiselectModel();
+    const model = getAllSelectableWithMultiselectModel();
     model.Text = "Mark numbers: \\correct{1}, \\correct{2}, A, B.";
     model["Enable letters selections"] = true;
     return model;
 }
 
 function getAllSelectableWithMultiselectModel () {
-    var model = getCommonModel();
+    const model = getCommonModel();
     model.Text = "Mark fruits: \\correct{orange}, \\correct{apple}, potato, carrot.";
     model.Mode = "All selectable";
     model['Selection type'] = "Multiselect";
@@ -52,14 +52,14 @@ function getAllSelectableWithMultiselectModel () {
 }
 
 function getAllSelectableWithSingleSelectModelAndEnabledLettersSelections () {
-    var model = getAllSelectableWithSingleSelectModel();
+    const model = getAllSelectableWithSingleSelectModel();
     model.Text = "Mark numbers: \\correct{1}, A.";
     model["Enable letters selections"] = true;
     return model;
 }
 
 function getAllSelectableWithSingleSelectModel () {
-    var model = getCommonModel();
+    const model = getCommonModel();
     model.Text = "Mark fruits: \\correct{orange}, potato.";
     model.Mode = "All selectable";
     model['Selection type'] = "Single select";
@@ -70,7 +70,7 @@ function setPrintableState(presenter, numbers) {
     presenter.printableState = {numbers: numbers};
 }
 
-function isResetPrintableStateMode (presenter) {
+function wasPrintableStateModeReset (presenter) {
     return presenter.printableStateMode === null;
 }
 
@@ -83,6 +83,12 @@ function stubTextParser(presenter) {
 
 function wrapInCommonMainDiv(text) {
     return '<div class="printable_addon_Text_Selection" style="max-width: 800px;">' + text + '</div>';
+}
+
+function validateResult(expectedHTML, actualHTML, presenter) {
+    assertEquals(expectedHTML, actualHTML);
+    assertTrue("Was parsing called", presenter.textParser.parseAltTexts.called);
+    assertTrue("Was printable state mode reset", wasPrintableStateModeReset(presenter));
 }
 
 TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mode", {
@@ -106,9 +112,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select and single selection': function() {
@@ -121,9 +125,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and multiselect': function() {
@@ -138,9 +140,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and single selection': function() {
@@ -153,9 +153,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, multiselect and enable letters selections': function() {
@@ -170,9 +168,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection and enable letters selections': function() {
@@ -185,9 +181,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, multiselect and enable letters selections': function() {
@@ -202,9 +196,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection and enable letters selections': function() {
@@ -217,9 +209,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when empty printable state mod
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 });
 
@@ -244,9 +234,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select and single selection': function() {
@@ -259,9 +247,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and multiselect': function() {
@@ -276,9 +262,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and single selection': function() {
@@ -291,9 +275,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, multiselect and enable letters selections': function() {
@@ -308,9 +290,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection and enable letters selections': function() {
@@ -323,9 +303,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, multiselect and enable letters selections': function() {
@@ -340,9 +318,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection and enable letters selections': function() {
@@ -355,9 +331,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show answers printable st
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 });
 
@@ -383,9 +357,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select and single selection': function() {
@@ -399,9 +371,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and multiselect': function() {
@@ -416,9 +386,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and single selection': function() {
@@ -432,9 +400,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, multiselect and enable letters selections': function() {
@@ -450,9 +416,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection and enable letters selections': function() {
@@ -466,9 +430,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, multiselect and enable letters selections': function() {
@@ -484,9 +446,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection and enable letters selections': function() {
@@ -500,9 +460,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when show user answers printab
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 });
 
@@ -528,9 +486,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection and correct selected': function() {
@@ -544,9 +500,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection and wrong selected': function() {
@@ -560,9 +514,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable and multiselect': function() {
@@ -578,9 +530,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection and correct selected': function() {
@@ -594,9 +544,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection and wrong selected': function() {
@@ -610,9 +558,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, multiselect and enable letters selections': function() {
@@ -628,9 +574,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection, enable letters selections and correct selected': function() {
@@ -644,9 +588,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when set mark phrases to select, single selection, enable letters selections and wrong selected': function() {
@@ -660,9 +602,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, multiselect and enable letters selections': function() {
@@ -678,9 +618,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection, enable letters selections and correct selected': function() {
@@ -694,9 +632,7 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 
     'test printable HTML when all selectable, single selection, enable letters selections and wrong selected': function() {
@@ -710,8 +646,6 @@ TestCase("[Text Selection] GetPrintableHTML tests when check answers printable s
 
         const actualHTML = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
-        assertEquals(expectedHTML, actualHTML);
-        assertTrue(this.presenter.textParser.parseAltTexts.calledOnce);
-        assertTrue(isResetPrintableStateMode(this.presenter));
+        validateResult(expectedHTML, actualHTML, this.presenter);
     },
 });

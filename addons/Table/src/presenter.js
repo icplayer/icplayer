@@ -320,6 +320,12 @@ function AddonTable_create() {
 
         presenter.initializeGaps(isPreview);
 
+        $.each(presenter.$view.find('.table_cell'), function (index, element) {
+            const parsedHTML = presenter.textParser.parse($(element).html());
+            const sanitizedParsedHTML = window.xssUtils.sanitize(parsedHTML);
+            $(element).html(sanitizedParsedHTML);
+        });
+
         if (!isPreview) {
             presenter.parseDefinitionLinks();
         } else {
@@ -344,7 +350,6 @@ function AddonTable_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.textParser = new TextParserProxy(controller.getTextParser());
-
     };
 
     presenter.setEventBus = function (eventBus) {
@@ -358,7 +363,7 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
 
-    presenter.setTextParser = function (textParser) {
+    presenter.setPreviewTextParser = function (textParser) {
         presenter.textParser = new TextParserProxy(textParser());
     };
 
@@ -481,11 +486,6 @@ function AddonTable_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('.table_cell'), function (index, element) {
-            const sanitizedLink = window.xssUtils.sanitize(presenter.textParser.parse($(element).html()));
-            $(element).html(sanitizedLink);
-        });
-
         presenter.textParser.connectLinks(presenter.$view);
     };
 
@@ -1303,10 +1303,8 @@ function AddonTable_create() {
         if(presenter.hasMathGaps()) {
             return value;
         }
-        if (presenter.textParser) {
-            value = presenter.textParser.parseAnswer(value);
-        }
 
+        value = presenter.textParser.parseAnswer(value);
         if (!presenter.configuration.isCaseSensitive) {
             value = value.toLowerCase();
         }
@@ -2732,23 +2730,15 @@ function AddonTable_create() {
         chosePrintableStateMode(showAnswers);
         createPrintableHTMLStructure(model);
 
+        const parsingGapsResult = parsePrintableGaps(presenter.$view[0].innerHTML);
+        presenter.$view.html(parsingGapsResult.html);
         presenter.$view.addClass("printable_module");
+
         const clone = presenter.$view.clone();
         clone.attr('id', presenter.printableParserID);
 
-        if (presenter.hasMathGaps()) {
-            presenter.transformMathGaps();
-        } else {
-            // normal gaps don't need additional parsing like math gaps, this just notifies callback asynchronusly
-            setTimeout(function() {
-                const result = parsePrintableGaps(presenter.$view[0].outerHTML);
-
-                presenter.notifyParserCallback(result);
-            }, 0);
-        }
-
+        parsePrintableHTMLUsingMathJax(parsingGapsResult);
         return clone[0].outerHTML;
-
     };
 
     function createPrintableHTMLStructure(model) {
@@ -2828,7 +2818,7 @@ function AddonTable_create() {
         return matchGap(gapRegex, html, "}}".length);
     }
 
-    function parsePrintableGaps (html) {
+    function parsePrintableEditabeAndDropdownGaps (html) {
         let gapsMatches = matchGapAndFilledGap(html);
         gapsMatches = gapsMatches.concat(matchDropdownGap(html));
 
@@ -2838,24 +2828,31 @@ function AddonTable_create() {
             const optionHTML = tablePrintableOption.getPrintableHTML();
             html = html.replace(tablePrintableOption.text, optionHTML);
         }
-        return html;
+        return {
+            printableOptions: tablePrintableOptions,
+            html: html
+        };
     }
 
     /**
+     Parse printable html using MathJax
+
      To properly parse math gaps, gaps need to be transformed to special syntax \gap{id|width|size|{{value:value}}
      and it needs to be passed into mathjax processor.
      Then gaps will be changed to html inputs which can be transformed into proper printable gap html
-     */
-    presenter.transformMathGaps = function() {
-        let result = parsePrintableMathGaps(presenter.$view[0].outerHTML);
-        presenter.$view.html(result.html);
 
+     In addition to the gaps, the HTML must also be processed. Therefore, even though the gaps are not of the Math type,
+     their content may still require this processing, so it is necessary to wait for the HTML to be generated.
+     */
+    function parsePrintableHTMLUsingMathJax(parsingGapsResult){
         function mathJaxTypesetEnd() {
-            // replace each input with its corresponding gap html
-            presenter.$view.find('input').each(function (index, element) {
-                let html = result.printableOptions[index].getPrintableHTML();
-                $(this).replaceWith(html);
-            });
+            if (presenter.hasMathGaps()) {
+                // replace each input with its corresponding gap html
+                presenter.$view.find('input').each(function (index, element) {
+                    const html = parsingGapsResult.printableOptions[index].getPrintableHTML();
+                    $(this).replaceWith(html);
+                });
+            }
 
             presenter.notifyParserCallback(presenter.$view[0].outerHTML);
         }
@@ -2866,12 +2863,11 @@ function AddonTable_create() {
         MathJax.Hub.Queue(args);
     }
 
-    presenter.notifyParserCallback = function (outerHTML) {
-        presenter.printableStateMode = null;
-
-        presenter.printableParserCallback(
-            presenter.textParser.parseAltTexts(outerHTML)
-        );
+    function parsePrintableGaps(html) {
+        if (presenter.hasMathGaps()) {
+            return parsePrintableMathGaps(html);
+        }
+        return parsePrintableEditabeAndDropdownGaps(html);
     }
 
     function parsePrintableMathGaps(html) {
@@ -2888,8 +2884,16 @@ function AddonTable_create() {
         return {
             printableOptions: tablePrintableOptions,
             html: html
-        }
+        };
     }
+
+    presenter.notifyParserCallback = function (outerHTML) {
+        presenter.printableStateMode = null;
+
+        presenter.printableParserCallback(
+            presenter.textParser.parseAltTexts(outerHTML)
+        );
+    };
 
     function indexRegexMatchesBaseOnGapsTypes(gapsMatches) {
         const normalGapRegex = /\\gap{.*?}/g,

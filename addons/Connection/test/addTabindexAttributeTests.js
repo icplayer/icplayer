@@ -34,6 +34,10 @@ TestCase("[Connection] Add tabindex for connection elements", {
                 'id': "d"
             }]
         };
+        this.presenter.textParser = {
+            parse: sinon.stub(),
+        };
+        this.presenter.textParser.parse.returnsArg(0);
    },
 
     createViewBase: function() {
