@@ -7,7 +7,9 @@ TestCase("[MathText] State tests", {
             getMathMLStub: sinon.stub(),
             setDisabledStub: sinon.stub(),
             isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
-            setMathMLWithCallbackStub: sinon.stub()
+            setMathMLWithCallbackStub: sinon.stub(),
+            getCorrectAnswerStub: sinon.stub(),
+            requestForQuizzesCorrectnessStub: sinon.stub()
         };
 
         this.stubs.isWirisEnableStub.returns(true);
@@ -30,7 +32,12 @@ TestCase("[MathText] State tests", {
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
         this.presenter.setDisabled = this.stubs.setDisabledStub;
 
+        this.presenter.answerObject = {
+            getCorrectAnswer: this.stubs.getCorrectAnswerStub
+        }
+
         this.stubs.getMathMLStub.returns('currentText');
+        this.presenter.requestForQuizzesCorrectness = this.stubs.requestForQuizzesCorrectnessStub;
     },
 
     // getState

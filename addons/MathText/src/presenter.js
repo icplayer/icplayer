@@ -628,6 +628,7 @@ function AddonMathText_create() {
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.setMathML(parsedState.text);
             presenter.state.currentAnswer = parsedState.text;
+            presenter.calculateScore(presenter.state.currentAnswer);
             if (presenter.configuration.mathEditorInPopup) {
                 presenter.makeRequestForImage(parsedState.text);
             }
