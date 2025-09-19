@@ -5,7 +5,6 @@ TestCase("[MathText] Check answers tests", {
         // stubs
         this.stubs = {
             getMathMLStub: sinon.stub(),
-            setMathMLStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
             getScoreStub: sinon.stub(),
             hideAnswersStub: sinon.stub(),
@@ -14,7 +13,8 @@ TestCase("[MathText] Check answers tests", {
             removeAttrStub: sinon.stub(),
             removeStub: sinon.stub(),
             addStub: sinon.stub(),
-            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
+            setMathMLWithCallbackStub: sinon.stub()
         };
         this.stubs.isWirisEnableStub.returns(true);
         this.stubs.getScoreStub.returns(1);
@@ -43,7 +43,7 @@ TestCase("[MathText] Check answers tests", {
         this.presenter.editor = {
             setToolbarHidden: this.stubs.setToolbarHiddenStub,
             getMathML: this.stubs.getMathMLStub,
-            setMathML: this.stubs.setMathMLStub
+            setMathMLWithCallback: this.stubs.setMathMLWithCallbackStub
         };
 
         this.presenter.$view = {

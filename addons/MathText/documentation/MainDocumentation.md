@@ -1,10 +1,12 @@
 ## Description
 
-MathText (WIRIS) is an addon that allows the use of MathType for Office Tools packages and WirisQuizzes.
+MathText (WIRIS) is an module that allows the use of MathType for Office Tools packages and WirisQuizzes.
 
-With MathType for Office Tools packages it is possible to create or edit mathematical equations using a special WYSIWYG formula editor, also known as equation editor. In the WIRIS editor, it is possible to use method known as Hand - input method for writing mathematics in handwriting mode, which is provided by WIRIS. The resulting output of Hand is the equivalent presentation MathML of the formula handwritten by the user. Depending on the type selected in the addon's settings, math equations in the player can be edited or available only in SVG form.
+With MathType for Office Tools packages it is possible to create or edit mathematical equations using a special WYSIWYG formula editor, also known as equation editor. In the WIRIS editor, it is possible to use method known as Hand - input method for writing mathematics in handwriting mode, which is provided by WIRIS. The resulting output of Hand is the equivalent presentation MathML of the formula handwritten by the user. Depending on the type selected in the module's settings, math equations in the player can be edited or available only in SVG form.
 
 ## Properties
+
+The list starts with the common properties. Learn more about them by visiting the <a href="/doc/en/page/Modules-description" target="_blank" rel="noopener noreferrer">Modules description</a> section. The other available properties are described below.
 
 <table border='1'>
     <tr>
@@ -36,7 +38,7 @@ With MathType for Office Tools packages it is possible to create or edit mathema
                     </tr>
                     <tr>
                         <td>text</td>
-                        <td>In player, equations written in property 'Initial text' are available in SVG format and 
+                        <td>In player, equations written in property <code>Initial text</code> are available in SVG format and 
                             cannot be edited. Restrictions on minimum height and width are lifted.
                         </td>
                         <td>No</td>
@@ -44,15 +46,15 @@ With MathType for Office Tools packages it is possible to create or edit mathema
                     </tr>
                     <tr>
                         <td>editor</td>
-                        <td>In player, equations written in property 'Initial text' are editable in editor.</td>
+                        <td>In player, equations written in property <code>Initial text</code> are editable in editor.</td>
                         <td>Yes</td>
                         <td>No</td>
                     </tr>
                     <tr>
                         <td>activity</td>
-                        <td>In player, equations written in property 'Initial text' are editable in editor.
+                        <td>In player, equations written in property <code>Initial text</code> are editable in editor.
                             This type allows a user's answer to be compared and scored against the model content 
-                            defined in the property 'Correct answer'.
+                            defined in the property <code>Correct answer</code>.
                         </td>
                         <td>Yes</td>
                         <td>Yes</td>
@@ -61,14 +63,14 @@ With MathType for Office Tools packages it is possible to create or edit mathema
             </table>
             , where:
             <ul>
-                <li>The popup option is available - Determines whether the addon supports 'popup' mode if the 'Math editor in popup' property is checked.</li>
-                <li>Is activity - Determines whether the addon is an activity or not. When it is not an activity, the answer given in 'Correct answer' property is not taken into account in the overall result.</li>
+                <li>The popup option is available - Determines whether the module supports 'popup' mode if the <code>Math editor in popup</code> property is checked.</li>
+                <li>Is activity - Determines whether the module is an activity or not. When it is not an activity, the answer given in <code>Correct answer</code> property is not taken into account in the overall result.</li>
             </ul>
         </td>
     </tr>
     <tr>
         <td>Is disabled</td>
-	    <td>Allows disabling the addon so that it won't be able to interact.</td>
+	    <td>Allows disabling the module so that it won't be able to interact.</td>
     </tr>
     <tr>
         <td>Language</td>
@@ -124,40 +126,48 @@ With MathType for Office Tools packages it is possible to create or edit mathema
     <tr>
         <td>show</td>
         <td>---</td>
-        <td>Shows the addon.</td>
+        <td>Shows the module.</td>
     </tr>
     <tr>
         <td>hide</td>
         <td>---</td>
-        <td>Hides the addon.</td>
+        <td>Hides the module.</td>
     </tr>
     <tr>
         <td>showAnswers</td>
         <td>---</td>
-        <td>Shows the addon answers.</td>
+        <td>Shows the module answers.</td>
     </tr>
     <tr>
         <td>hideAnswers</td>
         <td>---</td>
-        <td>Hides the addon answers.</td>
+        <td>Hides the module answers.</td>
     </tr>
     <tr>
         <td>enable</td>
         <td>---</td>
-        <td>Enables the addon.</td>
+        <td>Enables the module.</td>
     </tr>
     <tr>
         <td>disable</td>
         <td>---</td>
-        <td>Disables the addon.</td>
+        <td>Disables the module.</td>
     </tr>
 </table>
 
 ## Events
 
-> Events are only available if the 'type' property has the 'activity' value chosen.
+The MathText module sends different ValueChanged events depending on its configuration.
 
-The MathText addon sends ValueChanged event when the user answer changed and state of scores is updated.
+Scenario 1: Inline Editor
+
+This scenario applies when the module is configured with an inline editor, which means:
+<ul>
+    <li>The <code>Type</code> property is set to <code>editor</code> or <code>activity</code>.</li>
+    <li>The <code>Math editor in popup</code> property is <b>deselected</b>.</li>
+</ul>
+
+In this case, the module dispatches a blur event after a user clicks or touches outside the WIRIS editor area.
 
 <table border='1'>
     <tr>
@@ -166,7 +176,7 @@ The MathText addon sends ValueChanged event when the user answer changed and sta
     </tr>
     <tr>
         <td>Item</td>
-        <td>0</td>
+        <td>blur</td>
     </tr>
     <tr>
         <td>Value</td>
@@ -174,14 +184,47 @@ The MathText addon sends ValueChanged event when the user answer changed and sta
     </tr>
     <tr>
         <td>Score</td>
-        <td>1 when the addon has a correct answer, otherwise 0</td>
+        <td>1 if the module has a correct answer; 0 otherwise. The score is always 0 if the <code>Type</code> property is not set to <code>activity</code>.</td>
+    </tr>
+</table>
+
+Scenario 2: Popup Editor
+This scenario applies when the module is configured to use a popup editor, which means:
+<ul>
+    <li>The <code>Type</code> property is set to <code>editor</code> or <code>activity</code>.</li>
+    <li>The <code>Math editor in popup</code> property is <b>selected</b>.</li>
+</ul>
+
+In this case, the module dispatches an event when the popup editor is closed.
+
+<table border='1'>
+    <tr>
+        <th>Field name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>Item</td>
+        <td>
+            <ul>
+                <li>canceled - if the editor was closed using the "Cancel" button.</li>
+                <li>saved - if the editor was closed using the "Save" button.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Value</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Score</td>
+        <td>1 if the module has a correct answer; 0 otherwise. The score is always 0 if the <code>Type</code> property is not set to <code>activity</code>.</td>
     </tr>
 </table>
 
 ## Advanced Connector integration
 
-Each command supported by MathText addon can be used in the Advanced Connector addon scripts. 
-The below example shows how to show or hide the addon according to the Double State Button module's state.
+Each command supported by MathText module can be used in the Advanced Connector module scripts. 
+The below example shows how to show or hide the module according to the Double State Button module's state.
 
     EVENTSTART
     Source:DoubleStateButton1
@@ -210,15 +253,15 @@ The below example shows how to show or hide the addon according to the Double St
     </tr>
     <tr>
         <td>.mathtext-editor-wrapper</td>
-        <td>Class for the div wrapping addon editor or div wrapping SVG.</td>
+        <td>Class for the div wrapping module editor or div wrapping SVG.</td>
     </tr>
     <tr>
         <td>.mathtext-editor-wrapper .wrong</td>
-        <td>Class for the addon solved incorrectly.</td>
+        <td>Class for the module solved incorrectly.</td>
     </tr>
     <tr>
         <td>.mathtext-editor-wrapper .correct</td>
-        <td>Class for the addon solved correctly.</td>
+        <td>Class for the module solved correctly.</td>
     </tr>
     <tr>
         <td>.mathtext-editor-popup-wrapper</td>
@@ -283,6 +326,7 @@ The following WIRIS documentation was used to provide documentation in the edito
         <td><a href="../page/WIRIS-Additional-properties" title="Additional properties">Documentation</a></td>
     </tr>
 </table>
+
 
 ## Demo presentation
 

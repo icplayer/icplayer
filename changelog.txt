@@ -1,4 +1,5 @@
-2025-09-12 Fixed rendering of content with alt texts and MathJax in print
+2025-09-19 Fixed rendering of content with alt texts and MathJax in print
+2025-09-19 Changed events in MathText addon
 2025-09-08 Added command to disable usage of state in printable functionality
 2025-09-08 Added CSS class .text_selection_disabled to Text_Selection addon
 2025-09-03 Fixed IWB Toolbar sometimes breaking when the scroll element can't be found
