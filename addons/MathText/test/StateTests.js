@@ -4,10 +4,10 @@ TestCase("[MathText] State tests", {
 
         this.stubs = {
             setVisibilityStub: sinon.stub(),
-            setMathMLStub: sinon.stub(),
             getMathMLStub: sinon.stub(),
             setDisabledStub: sinon.stub(),
-            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
+            setMathMLWithCallbackStub: sinon.stub()
         };
 
         this.stubs.isWirisEnableStub.returns(true);
@@ -24,7 +24,7 @@ TestCase("[MathText] State tests", {
 
         this.presenter.editor = {
             getMathML: this.stubs.getMathMLStub,
-            setMathML: this.stubs.setMathMLStub
+            setMathMLWithCallback: this.stubs.setMathMLWithCallbackStub
         };
 
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
@@ -114,8 +114,8 @@ TestCase("[MathText] State tests", {
 
         this.presenter.setState(state);
 
-        assertTrue(this.stubs.setMathMLStub.called);
-        assertTrue(this.stubs.setMathMLStub.calledWith('testText'));
+        assertTrue(this.stubs.setMathMLWithCallbackStub.called);
+        assertTrue(this.stubs.setMathMLWithCallbackStub.calledWith('testText'));
     },
 
     'test should not set text to editor when not activity': function(){
@@ -125,7 +125,7 @@ TestCase("[MathText] State tests", {
 
         this.presenter.setState(state);
 
-        assertFalse(this.stubs.setMathMLStub.called);
+        assertFalse(this.stubs.setMathMLWithCallbackStub.called);
     },
 
     'test should set hasUserInteracted': function(){

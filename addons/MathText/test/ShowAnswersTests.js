@@ -5,7 +5,6 @@ TestCase("[MathText] Show answers tests", {
         // stubs
         this.stubs = {
             getMathMLStub: sinon.stub(),
-            setMathMLStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
             getScoreStub: sinon.stub(),
             setWorkModeStub: sinon.stub(),
@@ -14,7 +13,8 @@ TestCase("[MathText] Show answers tests", {
             removeAttrStub: sinon.stub(),
             setDisabledStub: sinon.stub(),
             getCorrectAnswerStub: sinon.stub(),
-            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
+            setMathMLWithCallbackStub: sinon.stub()
         };
 
         this.stubs.isWirisEnableStub.returns(true);
@@ -45,7 +45,7 @@ TestCase("[MathText] Show answers tests", {
         this.presenter.editor = {
             setToolbarHidden: this.stubs.setToolbarHiddenStub,
             getMathML: this.stubs.getMathMLStub,
-            setMathML: this.stubs.setMathMLStub
+            setMathMLWithCallback: this.stubs.setMathMLWithCallbackStub
         };
 
         this.presenter.$view = {
@@ -88,7 +88,7 @@ TestCase("[MathText] Show answers tests", {
         this.presenter.showAnswers();
 
         assertEquals('MathML', this.presenter.state.currentAnswer);
-        assertTrue(this.presenter.editor.setMathML.calledWith('correctAnswer'));
+        assertTrue(this.presenter.editor.setMathMLWithCallback.calledWith('correctAnswer'));
     },
 
 
@@ -112,6 +112,6 @@ TestCase("[MathText] Show answers tests", {
         this.presenter.state.currentAnswer = 'user answer';
         this.presenter.hideAnswers();
 
-        assertTrue(this.stubs.setMathMLStub.calledWith('user answer'));
+        assertTrue(this.stubs.setMathMLWithCallbackStub.calledWith('user answer'));
     }
 });
