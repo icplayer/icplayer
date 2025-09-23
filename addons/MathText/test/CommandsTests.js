@@ -7,7 +7,6 @@ TestCase("[MathText] Changing inner state tests", {
          // stubs
         this.stubs = {
             getMathMLStub: sinon.stub(),
-            setMathMLStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
             getScoreStub: sinon.stub(),
             findStub: sinon.stub(),
@@ -16,7 +15,8 @@ TestCase("[MathText] Changing inner state tests", {
             removeStub: sinon.stub(),
             addStub: sinon.stub(),
             getCorrectAnswerStub: sinon.stub(),
-            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
+            setMathMLWithCallbackStub: sinon.stub()
         };
 
         this.stubs.isWirisEnableStub.returns(true);
@@ -47,7 +47,7 @@ TestCase("[MathText] Changing inner state tests", {
         this.presenter.editor = {
             setToolbarHidden: this.stubs.setToolbarHiddenStub,
             getMathML: this.stubs.getMathMLStub,
-            setMathML: this.stubs.setMathMLStub
+            setMathMLWithCallback: this.stubs.setMathMLWithCallbackStub
         };
 
         this.presenter.answerObject = {

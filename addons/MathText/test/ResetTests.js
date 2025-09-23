@@ -5,13 +5,14 @@ TestCase("[MathText] Reset tests", {
         this.stubs = {
             setVisibilityStub: sinon.stub(),
             removeStub: sinon.stub(),
-            setMathMLStub: sinon.stub(),
             findStub: sinon.stub(),
             attrStub: sinon.stub(),
             removeAttrStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
             setDisabledStub: sinon.stub(),
-            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled'),
+            setMathMLWithCallbackStub: sinon.stub(),
+            calculateScoreStub: sinon.stub()
         };
 
         this.stubs.findStub.returns({
@@ -31,8 +32,8 @@ TestCase("[MathText] Reset tests", {
         };
 
         this.presenter.editor = {
-            setMathML: this.stubs.setMathMLStub,
-            setToolbarHidden: this.stubs.setToolbarHiddenStub
+            setToolbarHidden: this.stubs.setToolbarHiddenStub,
+            setMathMLWithCallback: this.stubs.setMathMLWithCallbackStub
         };
 
         this.presenter.state = {
@@ -50,6 +51,7 @@ TestCase("[MathText] Reset tests", {
         };
 
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
+        this.presenter.calculateScore = this.stubs.calculateScoreStub;
     },
 
     'test set isCheckAnswers ans isShowAnswers state to false': function(){
@@ -76,8 +78,8 @@ TestCase("[MathText] Reset tests", {
     'test reset should reset current text to initial text': function(){
         this.presenter.reset();
 
-        assertTrue(this.stubs.setMathMLStub.called);
-        assertTrue(this.stubs.setMathMLStub.calledWith('initial'));
+        assertTrue(this.stubs.setMathMLWithCallbackStub.called);
+        assertTrue(this.stubs.setMathMLWithCallbackStub.calledWith('initial'));
     },
 
     'test reset should restore visibility of toolbar': function(){
@@ -93,7 +95,7 @@ TestCase("[MathText] Reset tests", {
         this.presenter.reset();
 
         assertFalse(this.stubs.setToolbarHiddenStub.called);
-        assertFalse(this.stubs.setMathMLStub.called);
+        assertFalse(this.stubs.setMathMLWithCallbackStub.called);
     },
 
     'test reset should call setDisabled with parameter from config': function () {

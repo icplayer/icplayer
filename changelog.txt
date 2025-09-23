@@ -1,4 +1,6 @@
 2025-09-23 Fixed loading icon not being centered correctly on mobile mCourser
+2025-09-19 Fixed rendering of content with alt texts and MathJax in print
+2025-09-19 Changed events in MathText addon
 2025-09-08 Added command to disable usage of state in printable functionality
 2025-09-08 Added CSS class .text_selection_disabled to Text_Selection addon
 2025-09-03 Fixed IWB Toolbar sometimes breaking when the scroll element can't be found
@@ -145,7 +147,7 @@
 2024-05-07 Change URL to library in Model Viewer 3D
 2024-04-26 Added Model Viewer 3D addon
 2024-04-19 Fixed mathjax not being rendered when added to a text module via the setText method
-2924-04-18 Fixed magic boxes throwing errors in iceditor on reload
+2024-04-18 Fixed magic boxes throwing errors in iceditor on reload
 2024-04-05 Fixed adding special characters into iframe tag in Paragraph
 2024-04-04 Fixed issue with apostrophes in answers in Text and Table addons
 2024-04-02 Added Send only card changed event property to the FlashCards

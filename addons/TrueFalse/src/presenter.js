@@ -20,8 +20,8 @@ function AddonTrueFalse_create() {
     var isNotActivity = false;
     var questions = [];
     var playerController;
+    var printableController;
     var eventBus; // Modules communication
-    var textParser = null; // Links to Glossary Addon
     var tts;
     var selectedSpeechText = "selected";
     var deselectedSpeechText = "deselected";
@@ -31,6 +31,8 @@ function AddonTrueFalse_create() {
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
     var isWCAGOn = false;
+
+    presenter.textParser = null;
 
     presenter.isSelectionCorrect = function (question, selection) {
         var answers = question.Answer.split(',');
@@ -97,6 +99,10 @@ function AddonTrueFalse_create() {
                 });
             }
         }
+    };
+
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
     };
 
     function whichQuestion(row, table) {
@@ -256,12 +262,9 @@ function AddonTrueFalse_create() {
     }
 
     function generateQuestionElement(row, rowID) {
-        var question = questions[rowID - 1].Question;
-
-        if (textParser !== null) { // Actions performed only in Player mode
-            question = textParser.parse(question);
-        }
-        var td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + question + '</td>');
+        const question = questions[rowID - 1].Question;
+        const parsedQuestion = presenter.textParser.parse(question);
+        const td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + parsedQuestion + '</td>');
 
         if (presenter.isTabindexEnabled) {
             presenter.addTabindex(td, 0);
@@ -395,8 +398,8 @@ function AddonTrueFalse_create() {
             }
         }
 
-        if (textParser !== null) { // Actions performed only in Player mode
-            textParser.connectLinks($(view));
+        if (presenter.textParser !== null && !isPreview) { // Actions performed only in Player mode
+            presenter.textParser.connectLinks($(view));
         }
 
         if (!isPreview) {
@@ -461,7 +464,7 @@ function AddonTrueFalse_create() {
     presenter.run = function (view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
-        textParser = new TextParserProxy(playerController.getTextParser());
+        presenter.textParser = new TextParserProxy(playerController.getTextParser());
 
         presenter.validateModel(model);
 
@@ -1137,6 +1140,11 @@ function AddonTrueFalse_create() {
 
     };
 
+    presenter.setPrintableController = function (controller) {
+        printableController = controller;
+        presenter.textParser = new TextParserProxy(printableController.getTextParser());
+    };
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var isMulti = model.Multi === 'True';
@@ -1172,7 +1180,7 @@ function AddonTrueFalse_create() {
             var $tr = $("<tr></tr>");
 
             var $questionCell = $("<td></td>");
-            $questionCell.html(window.TTSUtils.parsePreviewAltText(question.Question));
+            $questionCell.html(presenter.textParser.parse(question.Question));
             $tr.append($questionCell);
 
             var answers = [];
