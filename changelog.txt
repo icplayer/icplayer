@@ -1,3 +1,4 @@
+2025-09-23 Fixed loading icon not being centered correctly on mobile mCourser
 2025-09-19 Fixed rendering of content with alt texts and MathJax in print
 2025-09-19 Changed events in MathText addon
 2025-09-08 Added command to disable usage of state in printable functionality

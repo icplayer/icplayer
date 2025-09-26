@@ -33,8 +33,15 @@ public class WaitDialog extends DialogBox {
 	};
 
 	public native void updateWrapperPosition() /*-{
+	    var top = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getTop()();
 		var width = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getWidth()();
 		var height = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getHeight()();
+
+		var isMobileDevice = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isMobile()();
+		var isHorizontal = this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::isHorizontal()();
+		if (isHorizontal && isMobileDevice) {
+		    height -= top;
+		}
 
 		$wnd.$('.ic_waitdlg').width(width + 'px');
 		$wnd.$('.ic_waitdlg').height(height + 'px');
@@ -43,7 +50,7 @@ public class WaitDialog extends DialogBox {
 		$wnd.$('.ic_waitdlg').css('align-items', 'center');
 		$wnd.$('.ic_waitdlg').css('padding', '0');
 		$wnd.$('.ic_waitdlg').css('left', '0');
-		$wnd.$('.ic_waitdlg').css('top', '0');
+		$wnd.$('.ic_waitdlg').css('top', top + 'px');
 
 		this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::addScale()();
 	}-*/;
@@ -151,5 +158,18 @@ public class WaitDialog extends DialogBox {
 		}
 
 		return this.@com.lorepo.icplayer.client.utils.widget.WaitDialog::getContentScale()();
+	}-*/;
+
+	public native boolean isHorizontal() /*-{
+	    var windowHeight = $wnd.$($wnd).height();
+		var windowWidth = $wnd.$($wnd).width();
+		return windowWidth > windowHeight;
+	}-*/;
+
+	public native double getTop() /*-{
+	    //account for mC header
+	    var $header = $wnd.$('#header');
+	    if ($header.length == 0 || $header.closest('#lesson-view').length == 0 || $header.closest('#_icplayer').length > 0) return 0;
+	    return $header[0].getBoundingClientRect().height;
 	}-*/;
 }
