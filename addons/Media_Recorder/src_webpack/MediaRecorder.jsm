@@ -39,11 +39,6 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
 
-        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-        if (isSafari) {
-            this.enableAnalyser = false;
-        }
-
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
         } else if (validatedModel.isValid) {

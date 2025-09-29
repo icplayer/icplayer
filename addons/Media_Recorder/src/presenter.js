@@ -1300,11 +1300,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var upgradedModel = this._upgradeModel(model);
             var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
-            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-            if (isSafari) {
-                this.enableAnalyser = false;
-            }
-
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
             } else if (validatedModel.isValid) {
