@@ -662,20 +662,10 @@ function AddonMathText_create() {
     };
 
     presenter.getScore = function() {
-        var wasShowAnswers = false;
-        if (presenter.state.isShowAnswers) {
-            presenter.hideAnswers();
-            wasShowAnswers = true;
-        }
-
         if (!presenter.configuration.isActivity || !presenter.isWirisEnabled()) {
             return 0;
         }
-        var score = presenter.state.lastScore;
-         if (wasShowAnswers) {
-            presenter.showAnswers();
-        }
-         return score;
+        return presenter.state.lastScore;
     };
 
     presenter.getErrorCount = function () {
