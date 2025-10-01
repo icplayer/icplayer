@@ -39,10 +39,10 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
 
-        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-        if (isSafari) {
-            this.enableAnalyser = false;
-        }
+        // const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+        // if (isSafari) {
+        //     this.enableAnalyser = false;
+        // }
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -454,6 +454,10 @@ export class MediaRecorder {
         this.viewHandlers.$downloadButtonView.css('display', 'block');
     }
 
+    setGainNodeValue(value) {
+        this.recorder.setGainNodeValue(value);
+    }
+
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
@@ -669,17 +673,33 @@ export class MediaRecorder {
         this.recordingTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
     }
 
-    _handleRecording(stream) {
+    _handleRecording(originalStream) {
         this.mediaState.setRecording();
         if (!this.model.disableRecording) {
-            this.recorder.startRecording(stream);
-            this.timer.reset();
-            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-            this.recordingTimeLimiter.startCountdown();
-        }
-        if (this.enableAnalyser) {
-            this.mediaAnalyserService.createAnalyserFromStream(stream)
-                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+            this.recorder._clearRecorder();
+
+            const audioContext = AudioContextSingleton.getOrCreate();
+            audioContext.resume().then(() => {
+                const stream =
+                    this.recorder._shouldIncreaseAmplitude()
+                        ? this.recorder._createStreamWithAdjustedAmplitude(originalStream, audioContext)
+                        : originalStream;
+                this.recorder.recorder = RecordRTC(stream, this.recorder._getOptions());
+                this.recorder.recorder.startRecording();
+                this.recorder._onStartRecordingCallback();
+                this.timer.reset();
+                this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+                this.recordingTimeLimiter.startCountdown();
+                if (this.enableAnalyser) {
+                    this.mediaAnalyserService.createAnalyserFromStream(stream)
+                        .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+                }
+            });
+        } else {
+            if (this.enableAnalyser) {
+                this.mediaAnalyserService.createAnalyserFromStream(originalStream)
+                    .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+            }
         }
     };
 

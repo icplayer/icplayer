@@ -76,6 +76,11 @@ function AddonMedia_Recorder_create() {
         return 0;
     };
 
+    presenter.setGainNodeValue = function(value) {
+        console.log("Execute setGainNodeValue with value: " + value);
+        presenter.mediaRecorder.setGainNodeValue(value);
+    }
+
     presenter.show = function() {
         presenter.mediaRecorder.show();
     };
@@ -131,6 +136,7 @@ function AddonMedia_Recorder_create() {
             'hide': presenter.hide,
             'enable': presenter.enable,
             'disable': presenter.disable,
+            'setGainNodeValue': presenter.setGainNodeValue,
         };
 
         return Commands.dispatch(commands, name, params, presenter);

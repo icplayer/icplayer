@@ -557,6 +557,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
             var raisedVolume = this._raiseVolume(avgVolume);
             var alignedVolume = this._alignVolume(raisedVolume);
             var intensity = alignedVolume * this.volumeLevels;
+            console.log("avgVolume: " + avgVolume + ", raisedVolume: " + raisedVolume + ", alignedVolume: " + alignedVolume + ", intensity: " + intensity);
             this._setIntensity(intensity);
             if (this.eventBus) {
                 this._handleEvents(intensity);
@@ -1123,6 +1124,11 @@ function AddonMedia_Recorder_create() {
         return 0;
     };
 
+    presenter.setGainNodeValue = function (value) {
+        console.log("Execute setGainNodeValue with value: " + value);
+        presenter.mediaRecorder.setGainNodeValue(value);
+    };
+
     presenter.show = function () {
         presenter.mediaRecorder.show();
     };
@@ -1177,7 +1183,8 @@ function AddonMedia_Recorder_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'enable': presenter.enable,
-            'disable': presenter.disable
+            'disable': presenter.disable,
+            'setGainNodeValue': presenter.setGainNodeValue
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1300,10 +1307,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var upgradedModel = this._upgradeModel(model);
             var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
-            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-            if (isSafari) {
-                this.enableAnalyser = false;
-            }
+            // const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+            // if (isSafari) {
+            //     this.enableAnalyser = false;
+            // }
 
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
@@ -1738,6 +1745,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.viewHandlers.$downloadButtonView.css('display', 'block');
         }
     }, {
+        key: "setGainNodeValue",
+        value: function setGainNodeValue(value) {
+            this.recorder.setGainNodeValue(value);
+        }
+    }, {
         key: "_loadLogic",
         value: function _loadLogic() {
             var _this2 = this;
@@ -1967,20 +1979,34 @@ var MediaRecorder = exports.MediaRecorder = function () {
         }
     }, {
         key: "_handleRecording",
-        value: function _handleRecording(stream) {
+        value: function _handleRecording(originalStream) {
             var _this3 = this;
 
             this.mediaState.setRecording();
             if (!this.model.disableRecording) {
-                this.recorder.startRecording(stream);
-                this.timer.reset();
-                this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-                this.recordingTimeLimiter.startCountdown();
-            }
-            if (this.enableAnalyser) {
-                this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
-                    return _this3.soundIntensity.startAnalyzing(analyser);
+                this.recorder._clearRecorder();
+
+                var audioContext = AudioContextSingleton.getOrCreate();
+                audioContext.resume().then(function () {
+                    var stream = _this3.recorder._shouldIncreaseAmplitude() ? _this3.recorder._createStreamWithAdjustedAmplitude(originalStream, audioContext) : originalStream;
+                    _this3.recorder.recorder = RecordRTC(stream, _this3.recorder._getOptions());
+                    _this3.recorder.recorder.startRecording();
+                    _this3.recorder._onStartRecordingCallback();
+                    _this3.timer.reset();
+                    _this3.timer.startDecrementalCountdown(_this3.recordingTimeLimiter.maxTime);
+                    _this3.recordingTimeLimiter.startCountdown();
+                    if (_this3.enableAnalyser) {
+                        _this3.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
+                            return _this3.soundIntensity.startAnalyzing(analyser);
+                        });
+                    }
                 });
+            } else {
+                if (this.enableAnalyser) {
+                    this.mediaAnalyserService.createAnalyserFromStream(originalStream).then(function (analyser) {
+                        return _this3.soundIntensity.startAnalyzing(analyser);
+                    });
+                }
             }
         }
     }, {
@@ -2539,6 +2565,7 @@ var MediaState = exports.MediaState = function () {
             BLOCKED_SAFARI: 8
         };
 
+        console.log("Set NEW");
         this._value = this.values.NEW;
     }
 
@@ -2590,46 +2617,55 @@ var MediaState = exports.MediaState = function () {
     }, {
         key: "setNew",
         value: function setNew() {
+            console.log("Set NEW");
             this._value = this.values.NEW;
         }
     }, {
         key: "setRecording",
         value: function setRecording() {
+            console.log("Set setRecording");
             this._value = this.values.RECORDING;
         }
     }, {
         key: "setLoading",
         value: function setLoading() {
+            console.log("Set setLoading");
             this._value = this.values.LOADING;
         }
     }, {
         key: "setLoaded",
         value: function setLoaded() {
+            console.log("Set setLoaded");
             this._value = this.values.LOADED;
         }
     }, {
         key: "setPlaying",
         value: function setPlaying() {
+            console.log("Set setPlaying");
             this._value = this.values.PLAYING;
         }
     }, {
         key: "setPlayingDefaultRecording",
         value: function setPlayingDefaultRecording() {
+            console.log("Set setPlayingDefaultRecording");
             this._value = this.values.PLAYING_DEFAULT_RECORDING;
         }
     }, {
         key: "setLoadedDefaultRecording",
         value: function setLoadedDefaultRecording() {
+            console.log("Set setLoadedDefaultRecording");
             this._value = this.values.LOADED_DEFAULT_RECORDING;
         }
     }, {
         key: "setBlocked",
         value: function setBlocked() {
+            console.log("Set setBlocked");
             this._value = this.values.BLOCKED;
         }
     }, {
         key: "setBlockedSafari",
         value: function setBlockedSafari() {
+            console.log("Set setBlockedSafari");
             this._value = this.values.BLOCKED_SAFARI;
         }
     }, {
@@ -3982,6 +4018,34 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
                 }
             };
         }
+
+        // /**
+        // * Check if stream have
+        // *
+        // * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+        // * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
+        // * on these devices.
+        // */
+        // _shouldAdjustGraph() {
+        //     console.log("shouldIncreaseAmplitude: " + !navigator.mediaDevices.getSupportedConstraints().autoGainControl);
+        //     return !navigator.mediaDevices.getSupportedConstraints().autoGainControl && this.gainNodeValue !== 1;
+        // }
+        //
+        // _adjustGraph(stream, audioContext) {
+        //     console.log("Execute _createStreamWithAdjustedAmplitude");
+        //     const source = audioContext.createMediaStreamSource(stream);
+        //     const gainNode = audioContext.createGain();
+        //     const destination = audioContext.createMediaStreamDestination();
+        //
+        //     const gainValue = this.gainNodeValue;
+        //     gainNode.gain.value = gainValue;
+        //
+        //     source.connect(gainNode);
+        //     gainNode.connect(destination);
+        //
+        //     return destination.stream;
+        // }
+
     }]);
 
     return AudioResourcesProvider;
@@ -4044,6 +4108,15 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
         value: function _getOptions() {
             throw new Error("GetOptions accessor is not implemented");
         }
+
+        // _shouldAdjustGraph() {
+        //     return false;
+        // }
+        //
+        // _adjustGraph() {
+        //     throw new Error("AdjustGraph accessor is not implemented");
+        // }
+
     }]);
 
     return ResourcesProvider;
@@ -4080,8 +4153,6 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
     _createClass(AudioRecorder, [{
         key: '_getOptions',
         value: function _getOptions() {
-            var isEdge = DevicesUtils.isEdge();
-
             return {
                 type: 'audio',
                 mimeType: 'audio/wav',
@@ -4130,21 +4201,62 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
         _this.recorder = null;
         _this.eventBus = null;
         _this.sourceID = '';
+        _this.gainNodeValue = 1;
         return _this;
     }
 
     _createClass(BaseRecorder, [{
+        key: "setGainNodeValue",
+        value: function setGainNodeValue(value) {
+            this.gainNodeValue = value;
+        }
+    }, {
         key: "startRecording",
-        value: function startRecording(stream) {
+        value: function startRecording(originalStream) {
             var _this2 = this;
 
             this._clearRecorder();
+
             var audioContext = AudioContextSingleton.getOrCreate();
-            this.recorder = RecordRTC(stream, this._getOptions());
-            audioContext.resume().then(function () {
+            return audioContext.resume().then(function () {
+                var stream = _this2._shouldIncreaseAmplitude() ? _this2._createStreamWithAdjustedAmplitude(originalStream, audioContext) : originalStream;
+                _this2.recorder = RecordRTC(stream, _this2._getOptions());
                 _this2.recorder.startRecording();
                 _this2._onStartRecordingCallback();
+                console.log("stream", stream);
+                return stream;
             });
+        }
+    }, {
+        key: "_createStreamWithAdjustedAmplitude",
+        value: function _createStreamWithAdjustedAmplitude(stream, audioContext) {
+            console.log("Execute _createStreamWithAdjustedAmplitude");
+            var source = audioContext.createMediaStreamSource(stream);
+            var gainNode = audioContext.createGain();
+            var destination = audioContext.createMediaStreamDestination();
+
+            var gainValue = this.gainNodeValue;
+            gainNode.gain.value = gainValue;
+
+            source.connect(gainNode);
+            gainNode.connect(destination);
+
+            return destination.stream;
+        }
+
+        /**
+        * Check if stream have
+        *
+        * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+        * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
+        * on these devices.
+        */
+
+    }, {
+        key: "_shouldIncreaseAmplitude",
+        value: function _shouldIncreaseAmplitude() {
+            console.log("shouldIncreaseAmplitude: " + !navigator.mediaDevices.getSupportedConstraints().autoGainControl);
+            return !navigator.mediaDevices.getSupportedConstraints().autoGainControl && this.gainNodeValue !== 1;
         }
     }, {
         key: "stopRecording",
@@ -4175,14 +4287,16 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "sendPreDestroyedEmptyEvent",
         value: function sendPreDestroyedEmptyEvent() {
-            if (this.eventBus) {
-                var eventData = {
-                    'source': this.sourceID,
-                    'item': 'recorder',
-                    'value': 'empty'
-                };
-                this.eventBus.sendEvent('PreDestroyed', eventData);
+            if (!this.eventBus) {
+                return;
             }
+
+            var eventData = {
+                'source': this.sourceID,
+                'item': 'recorder',
+                'value': 'empty'
+            };
+            this.eventBus.sendEvent('PreDestroyed', eventData);
         }
     }, {
         key: "destroy",
@@ -4215,15 +4329,17 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "_sendValueChangedEventCallback",
         value: function _sendValueChangedEventCallback(self, value) {
-            if (self.eventBus) {
-                var eventData = {
-                    'source': self.sourceID,
-                    'item': 'recorder',
-                    'value': value,
-                    'score': ''
-                };
-                self.eventBus.sendEvent('ValueChanged', eventData);
+            if (!self.eventBus) {
+                return;
             }
+
+            var eventData = {
+                'source': self.sourceID,
+                'item': 'recorder',
+                'value': value,
+                'score': ''
+            };
+            self.eventBus.sendEvent('ValueChanged', eventData);
         }
     }, {
         key: "_getOptions",

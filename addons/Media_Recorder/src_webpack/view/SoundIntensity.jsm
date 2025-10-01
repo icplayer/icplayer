@@ -62,6 +62,7 @@ export class SoundIntensity {
         let raisedVolume = this._raiseVolume(avgVolume);
         let alignedVolume = this._alignVolume(raisedVolume);
         let intensity = alignedVolume * this.volumeLevels;
+        console.log("avgVolume: " + avgVolume + ", raisedVolume: " + raisedVolume + ", alignedVolume: " + alignedVolume + ", intensity: " + intensity);
         this._setIntensity(intensity);
         if (this.eventBus) {
             this._handleEvents(intensity);

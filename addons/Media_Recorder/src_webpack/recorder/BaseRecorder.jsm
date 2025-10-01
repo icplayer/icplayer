@@ -10,16 +10,55 @@ export class BaseRecorder extends Recorder {
         this.recorder = null;
         this.eventBus = null;
         this.sourceID = '';
+        this.gainNodeValue = 1;
     }
 
-    startRecording(stream) {
+    setGainNodeValue(value) {
+        this.gainNodeValue = value;
+    }
+
+    startRecording(originalStream) {
         this._clearRecorder();
+
         const audioContext = AudioContextSingleton.getOrCreate();
-        this.recorder = RecordRTC(stream, this._getOptions());
-        audioContext.resume().then(() => {
+        return audioContext.resume().then(() => {
+            const stream =
+                this._shouldIncreaseAmplitude()
+                    ? this._createStreamWithAdjustedAmplitude(originalStream, audioContext)
+                    : originalStream;
+            this.recorder = RecordRTC(stream, this._getOptions());
             this.recorder.startRecording();
             this._onStartRecordingCallback();
+            console.log("stream", stream);
+            return stream;
         });
+    }
+
+    _createStreamWithAdjustedAmplitude(stream, audioContext) {
+        console.log("Execute _createStreamWithAdjustedAmplitude");
+        const source = audioContext.createMediaStreamSource(stream);
+        const gainNode = audioContext.createGain();
+        const destination = audioContext.createMediaStreamDestination();
+
+        const gainValue = this.gainNodeValue;
+        gainNode.gain.value = gainValue;
+
+        source.connect(gainNode);
+        gainNode.connect(destination);
+
+        return destination.stream;
+    }
+
+    /**
+    * Check if stream have
+    *
+    * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+    * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
+    * on these devices.
+    */
+    _shouldIncreaseAmplitude() {
+        console.log("shouldIncreaseAmplitude: " + !navigator.mediaDevices.getSupportedConstraints().autoGainControl);
+        return !navigator.mediaDevices.getSupportedConstraints().autoGainControl && this.gainNodeValue !== 1;
     }
 
     stopRecording() {
@@ -44,14 +83,16 @@ export class BaseRecorder extends Recorder {
     }
 
     sendPreDestroyedEmptyEvent() {
-        if (this.eventBus) {
-            var eventData = {
-                'source': this.sourceID,
-                'item': 'recorder',
-                'value': 'empty',
-            };
-            this.eventBus.sendEvent('PreDestroyed', eventData);
+        if (!this.eventBus) {
+            return;
         }
+
+        const eventData = {
+            'source': this.sourceID,
+            'item': 'recorder',
+            'value': 'empty',
+        };
+        this.eventBus.sendEvent('PreDestroyed', eventData);
     }
 
     destroy() {
@@ -80,15 +121,17 @@ export class BaseRecorder extends Recorder {
     }
 
     _sendValueChangedEventCallback(self, value) {
-        if (self.eventBus) {
-            var eventData = {
-                'source': self.sourceID,
-                'item': 'recorder',
-                'value': value,
-                'score': ''
-            };
-            self.eventBus.sendEvent('ValueChanged', eventData);
+        if (!self.eventBus) {
+            return;
         }
+
+        const eventData = {
+            'source': self.sourceID,
+            'item': 'recorder',
+            'value': value,
+            'score': ''
+        };
+        self.eventBus.sendEvent('ValueChanged', eventData);
     }
 
     _getOptions() {

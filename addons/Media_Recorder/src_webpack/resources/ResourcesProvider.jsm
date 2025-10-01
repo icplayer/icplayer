@@ -38,4 +38,12 @@ export class ResourcesProvider {
     _getOptions() {
         throw new Error("GetOptions accessor is not implemented");
     }
+
+    // _shouldAdjustGraph() {
+    //     return false;
+    // }
+    //
+    // _adjustGraph() {
+    //     throw new Error("AdjustGraph accessor is not implemented");
+    // }
 }
