@@ -235,4 +235,9 @@ public class TextViewMockup implements IDisplay {
 
 	@Override
 	public void addIOSClass() {}
+
+	@Override
+	public boolean hasAddonGaps() {
+	    return false;
+    }
 }
