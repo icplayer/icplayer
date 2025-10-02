@@ -1268,8 +1268,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	private native boolean hasAddonGaps(Element x)/*-{
-	    console.log("hasAddonGaps");
-	    console.log($wnd.$(x).find('.inner_addon').length > 0);
 	    return $wnd.$(x).find('.inner_addon').length > 0;
 	}-*/;
 
