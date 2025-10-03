@@ -1262,4 +1262,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		return scores;
 	}
 
+    @Override
+	public boolean hasAddonGaps() {
+	    return hasAddonGaps(this.getElement());
+	}
+
+	private native boolean hasAddonGaps(Element x)/*-{
+	    return $wnd.$(x).find('.inner_addon').length > 0;
+	}-*/;
+
 }
