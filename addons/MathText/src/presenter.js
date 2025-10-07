@@ -665,6 +665,9 @@ function AddonMathText_create() {
         if (!presenter.configuration.isActivity || !presenter.isWirisEnabled()) {
             return 0;
         }
+        if (presenter.state.wasChanged && !presenter.state.isShowAnswers && presenter.editor.isHandOpen()) {
+            presenter.calculateScore(presenter.editor.getMathML());
+        }
         return presenter.state.lastScore;
     };
 
