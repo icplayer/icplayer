@@ -3465,7 +3465,7 @@ var AudioRoutingGraphService = exports.AudioRoutingGraphService = function () {
         this.gainNode = null;
         this.analyser = null;
 
-        this.gainNodeValue = 2.5;
+        this.gainNodeValue = 5;
     }
 
     _createClass(AudioRoutingGraphService, [{

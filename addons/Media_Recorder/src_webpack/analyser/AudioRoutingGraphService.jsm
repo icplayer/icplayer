@@ -8,7 +8,7 @@ export class AudioRoutingGraphService {
         this.gainNode = null;
         this.analyser = null;
 
-        this.gainNodeValue = 2.5;
+        this.gainNodeValue = 5;
     }
 
     createGraphToRecord(stream) {
