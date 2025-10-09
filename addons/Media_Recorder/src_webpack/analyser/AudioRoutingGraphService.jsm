@@ -59,7 +59,7 @@ export class AudioRoutingGraphService {
     /**
     * Check if auto gain node should be added to adjust recording volume
     *
-    * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+    * Note on iOS compatibility: The autoGainControl setting is not supported on Safari and some microphones.
     * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
     * on these devices.
     */

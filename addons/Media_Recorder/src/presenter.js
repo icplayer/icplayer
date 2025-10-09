@@ -1106,10 +1106,6 @@ function AddonMedia_Recorder_create() {
         return 0;
     };
 
-    presenter.setGainNodeValue = function (value) {
-        presenter.mediaRecorder.setGainNodeValue(value);
-    };
-
     presenter.show = function () {
         presenter.mediaRecorder.show();
     };
@@ -1164,8 +1160,7 @@ function AddonMedia_Recorder_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'enable': presenter.enable,
-            'disable': presenter.disable,
-            'setGainNodeValue': presenter.setGainNodeValue
+            'disable': presenter.disable
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1716,11 +1711,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
             this.viewHandlers.$resetButtonView.css('display', 'block');
             this.viewHandlers.$downloadButtonView.css('display', 'block');
-        }
-    }, {
-        key: "setGainNodeValue",
-        value: function setGainNodeValue(value) {
-            this.audioRoutingGraphService.setGainNodeValue(value);
         }
     }, {
         key: "_loadLogic",
@@ -3479,11 +3469,6 @@ var AudioRoutingGraphService = exports.AudioRoutingGraphService = function () {
     }
 
     _createClass(AudioRoutingGraphService, [{
-        key: "setGainNodeValue",
-        value: function setGainNodeValue(value) {
-            this.gainNodeValue = value;
-        }
-    }, {
         key: "createGraphToRecord",
         value: function createGraphToRecord(stream) {
             var _this = this;
@@ -3536,7 +3521,7 @@ var AudioRoutingGraphService = exports.AudioRoutingGraphService = function () {
         /**
         * Check if auto gain node should be added to adjust recording volume
         *
-        * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+        * Note on iOS compatibility: The autoGainControl setting is not supported on Safari and some microphones.
         * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
         * on these devices.
         */
