@@ -13,7 +13,7 @@ import {AddonState} from "./state/AddonState.jsm";
 import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
 import {DottedSoundIntensity} from "./view/DottedSoundIntensity.jsm";
-import {MediaAnalyserService} from "./analyser/MediaAnalyserService.jsm";
+import {AudioRoutingGraphService} from "./analyser/AudioRoutingGraphService.jsm";
 import {AudioLoader} from "./view/loader/AudioLoader.jsm";
 import {SoundEffect} from "./view/button/sound/SoundEffect.jsm";
 import {RecordButtonSoundEffect} from "./view/button/sound/RecordButtonSoundEffect.jsm";
@@ -29,7 +29,6 @@ import {MP3ConvertHandler} from "./worker/MP3ConvertHandler.jsm";
 
 export class MediaRecorder {
 
-    enableAnalyser = true;
     isMlibro = false;
     isWCAGOn = false;
     keyboardControllerObject = null;
@@ -38,11 +37,6 @@ export class MediaRecorder {
     run(view, model) {
         let upgradedModel = this._upgradeModel(model);
         let validatedModel = validateModel(upgradedModel);
-
-        const isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-        if (isSafari) {
-            this.enableAnalyser = false;
-        }
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -169,7 +163,7 @@ export class MediaRecorder {
         this.stopRecordingSoundEffect.destroy();
         this.loader.destroy();
         this.addonViewService.destroy();
-        this.mediaAnalyserService.destroy();
+        this.audioRoutingGraphService.destroy();
         this.addonState.destroy();
         this.mediaState.destroy();
         this.activationState.destroy();
@@ -192,7 +186,7 @@ export class MediaRecorder {
         this.startRecordingSoundEffect = null;
         this.loader = null;
         this.addonViewService = null;
-        this.mediaAnalyserService = null;
+        this.audioRoutingGraphService = null;
         this.addonState = null;
         this.mediaState = null;
         this.activationState = null;
@@ -278,7 +272,7 @@ export class MediaRecorder {
     _loadAddon(view, model) {
         this._loadCoreElements(view, model);
 
-        this.mediaAnalyserService = new MediaAnalyserService();
+        this.audioRoutingGraphService = new AudioRoutingGraphService();
         this.recordingTimeLimiter = new RecordingTimeLimiter(this.model.maxTime);
 
         this._loadMediaElements();
@@ -335,7 +329,6 @@ export class MediaRecorder {
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
         this.player = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
-        this.player.setIsMlibro(this.isMlibro);
         this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
         if (this.playerController)
@@ -391,7 +384,6 @@ export class MediaRecorder {
         if (this.eventBus && this.model.enableIntensityChangeEvents) {
             this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
         }
-        this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
         this._hideSelectedElements();
     }
@@ -478,9 +470,7 @@ export class MediaRecorder {
                 this.timer.stopCountdown();
                 this.recordingTimeLimiter.stopCountdown();
                 this.soundIntensity.stopAnalyzing();
-                if (this.enableAnalyser) {
-                    this.mediaAnalyserService.closeAnalyzing();
-                }
+                this.audioRoutingGraphService.disconnectGraph();
                 if (!this.model.disableRecording) {
                     this.recorder.stopRecording()
                         .then(blob => {
@@ -518,9 +508,7 @@ export class MediaRecorder {
             this.timer.stopCountdown();
             this.recordingTimeLimiter.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            if (this.enableAnalyser) {
-                this.mediaAnalyserService.closeAnalyzing();
-            }
+            this.audioRoutingGraphService.disconnectGraph();
             if (this.recorder.recorder) {
                 this.recorder.stopRecording();
             }
@@ -569,13 +557,9 @@ export class MediaRecorder {
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            if (this.enableAnalyser) {
-                this.player.startPlaying()
-                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
-            } else {
-                this.player.startPlaying();
-            }
+            this.player.startPlaying()
+                .then(htmlMediaElement => this.audioRoutingGraphService.createGraphToListen(htmlMediaElement))
+                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
         };
 
         this.playButton.onStopPlaying = () => {
@@ -586,22 +570,16 @@ export class MediaRecorder {
                 this.player.stopPlaying();
             }
             this.soundIntensity.stopAnalyzing();
-            if (this.enableAnalyser) {
-                this.mediaAnalyserService.closeAnalyzing();
-            }
+            this.audioRoutingGraphService.disconnectGraph();
         };
 
         this.defaultRecordingPlayButton.onStartPlaying = () => {
             this.mediaState.setPlayingDefaultRecording();
             this.timer.setDuration(this.defaultRecordingPlayer.duration);
             this.timer.startCountdown();
-            if (this.enableAnalyser) {
-                this.defaultRecordingPlayer.startPlaying()
-                    .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
-                        .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
-            } else {
-                this.defaultRecordingPlayer.startPlaying();
-            }
+            this.defaultRecordingPlayer.startPlaying()
+                .then(htmlMediaElement => this.audioRoutingGraphService.createGraphToListen(htmlMediaElement))
+                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
         };
 
         this.defaultRecordingPlayButton.onStopPlaying = () => {
@@ -615,9 +593,7 @@ export class MediaRecorder {
             this.defaultRecordingPlayer.stopPlaying();
             this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
-            if (this.enableAnalyser) {
-                this.mediaAnalyserService.closeAnalyzing();
-            }
+            this.audioRoutingGraphService.disconnectGraph();
         };
 
         this.player.onStartLoading = () => {
@@ -669,18 +645,17 @@ export class MediaRecorder {
         this.recordingTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
     }
 
-    _handleRecording(stream) {
+    _handleRecording(originalStream) {
         this.mediaState.setRecording();
-        if (!this.model.disableRecording) {
-            this.recorder.startRecording(stream);
-            this.timer.reset();
-            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-            this.recordingTimeLimiter.startCountdown();
-        }
-        if (this.enableAnalyser) {
-            this.mediaAnalyserService.createAnalyserFromStream(stream)
-                .then(analyser => this.soundIntensity.startAnalyzing(analyser));
-        }
+        this.audioRoutingGraphService.createGraphToRecord(originalStream).then((modifiedStream) => {
+            if (!this.model.disableRecording) {
+                this.recorder.startRecording(modifiedStream);
+                this.timer.reset();
+                this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+                this.recordingTimeLimiter.startCountdown();
+            }
+            this.soundIntensity.startAnalyzing(this.audioRoutingGraphService.getAnalyser());
+        });
     };
 
     _loadDefaultRecording(model) {

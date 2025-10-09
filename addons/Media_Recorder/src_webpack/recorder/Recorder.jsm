@@ -7,7 +7,6 @@ export class Recorder {
 
     startRecording(stream) {
         throw new Error("StartRecording method is not implemented");
-
     }
 
     stopRecording() {

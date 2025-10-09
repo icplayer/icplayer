@@ -489,23 +489,10 @@ var SoundIntensity = exports.SoundIntensity = function () {
         this.$view = $view;
         this.volumeLevels = 6;
         this.interval = null;
-        this.enableAnalyser = true;
-        this.shouldBeVisible = true;
+        this.show();
     }
 
     _createClass(SoundIntensity, [{
-        key: 'setEnableAnalyser',
-        value: function setEnableAnalyser(enableAnalyser) {
-            this.enableAnalyser = enableAnalyser;
-            if (this.shouldBeVisible) {
-                if (this.enableAnalyser) {
-                    this.show();
-                } else {
-                    this.hide();
-                }
-            }
-        }
-    }, {
         key: 'startAnalyzing',
         value: function startAnalyzing(analyser) {
             var _this = this;
@@ -531,16 +518,12 @@ var SoundIntensity = exports.SoundIntensity = function () {
     }, {
         key: 'show',
         value: function show() {
-            if (this.enableAnalyser) {
-                this.$view.css('display', '');
-            }
-            this.shouldBeVisible = true;
+            this.$view.css('display', '');
         }
     }, {
         key: 'hide',
         value: function hide() {
             this.$view.css('display', 'none');
-            this.shouldBeVisible = false;
         }
     }, {
         key: 'setEventBus',
@@ -1123,6 +1106,10 @@ function AddonMedia_Recorder_create() {
         return 0;
     };
 
+    presenter.setGainNodeValue = function (value) {
+        presenter.mediaRecorder.setGainNodeValue(value);
+    };
+
     presenter.show = function () {
         presenter.mediaRecorder.show();
     };
@@ -1177,7 +1164,8 @@ function AddonMedia_Recorder_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'enable': presenter.enable,
-            'disable': presenter.disable
+            'disable': presenter.disable,
+            'setGainNodeValue': presenter.setGainNodeValue
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1255,7 +1243,7 @@ var _SoundIntensity = __webpack_require__(5);
 
 var _DottedSoundIntensity = __webpack_require__(31);
 
-var _MediaAnalyserService = __webpack_require__(32);
+var _AudioRoutingGraphService = __webpack_require__(32);
 
 var _AudioLoader = __webpack_require__(34);
 
@@ -1287,7 +1275,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
     function MediaRecorder() {
         _classCallCheck(this, MediaRecorder);
 
-        this.enableAnalyser = true;
         this.isMlibro = false;
         this.isWCAGOn = false;
         this.keyboardControllerObject = null;
@@ -1299,11 +1286,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function run(view, model) {
             var upgradedModel = this._upgradeModel(model);
             var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
-
-            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-            if (isSafari) {
-                this.enableAnalyser = false;
-            }
 
             if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
@@ -1433,7 +1415,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.stopRecordingSoundEffect.destroy();
             this.loader.destroy();
             this.addonViewService.destroy();
-            this.mediaAnalyserService.destroy();
+            this.audioRoutingGraphService.destroy();
             this.addonState.destroy();
             this.mediaState.destroy();
             this.activationState.destroy();
@@ -1456,7 +1438,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.startRecordingSoundEffect = null;
             this.loader = null;
             this.addonViewService = null;
-            this.mediaAnalyserService = null;
+            this.audioRoutingGraphService = null;
             this.addonState = null;
             this.mediaState = null;
             this.activationState = null;
@@ -1552,7 +1534,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function _loadAddon(view, model) {
             this._loadCoreElements(view, model);
 
-            this.mediaAnalyserService = new _MediaAnalyserService.MediaAnalyserService();
+            this.audioRoutingGraphService = new _AudioRoutingGraphService.AudioRoutingGraphService();
             this.recordingTimeLimiter = new _RecordingTimeLimiter.RecordingTimeLimiter(this.model.maxTime);
 
             this._loadMediaElements();
@@ -1614,7 +1596,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function _loadMediaElements() {
             this.recorder = new _AudioRecorder.AudioRecorder();
             this.player = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
-            this.player.setIsMlibro(this.isMlibro);
             this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
             if (this.playerController) this._loadEventBus();
@@ -1671,7 +1652,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.eventBus && this.model.enableIntensityChangeEvents) {
                 this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
             }
-            this.soundIntensity.setEnableAnalyser(this.enableAnalyser);
 
             this._hideSelectedElements();
         }
@@ -1738,6 +1718,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.viewHandlers.$downloadButtonView.css('display', 'block');
         }
     }, {
+        key: "setGainNodeValue",
+        value: function setGainNodeValue(value) {
+            this.audioRoutingGraphService.setGainNodeValue(value);
+        }
+    }, {
         key: "_loadLogic",
         value: function _loadLogic() {
             var _this2 = this;
@@ -1763,9 +1748,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.timer.stopCountdown();
                     _this2.recordingTimeLimiter.stopCountdown();
                     _this2.soundIntensity.stopAnalyzing();
-                    if (_this2.enableAnalyser) {
-                        _this2.mediaAnalyserService.closeAnalyzing();
-                    }
+                    _this2.audioRoutingGraphService.disconnectGraph();
                     if (!_this2.model.disableRecording) {
                         _this2.recorder.stopRecording().then(function (blob) {
                             _this2.addonState.setRecordingBlob(blob);
@@ -1799,9 +1782,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.timer.stopCountdown();
                 _this2.recordingTimeLimiter.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                if (_this2.enableAnalyser) {
-                    _this2.mediaAnalyserService.closeAnalyzing();
-                }
+                _this2.audioRoutingGraphService.disconnectGraph();
                 if (_this2.recorder.recorder) {
                     _this2.recorder.stopRecording();
                 }
@@ -1850,15 +1831,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.playButton.onStartPlaying = function () {
                 _this2.mediaState.setPlaying();
-                if (_this2.enableAnalyser) {
-                    _this2.player.startPlaying().then(function (htmlMediaElement) {
-                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                            return _this2.soundIntensity.startAnalyzing(analyser);
-                        });
-                    });
-                } else {
-                    _this2.player.startPlaying();
-                }
+                _this2.player.startPlaying().then(function (htmlMediaElement) {
+                    return _this2.audioRoutingGraphService.createGraphToListen(htmlMediaElement);
+                }).then(function (analyser) {
+                    return _this2.soundIntensity.startAnalyzing(analyser);
+                });
             };
 
             this.playButton.onStopPlaying = function () {
@@ -1869,24 +1846,18 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.player.stopPlaying();
                 }
                 _this2.soundIntensity.stopAnalyzing();
-                if (_this2.enableAnalyser) {
-                    _this2.mediaAnalyserService.closeAnalyzing();
-                }
+                _this2.audioRoutingGraphService.disconnectGraph();
             };
 
             this.defaultRecordingPlayButton.onStartPlaying = function () {
                 _this2.mediaState.setPlayingDefaultRecording();
                 _this2.timer.setDuration(_this2.defaultRecordingPlayer.duration);
                 _this2.timer.startCountdown();
-                if (_this2.enableAnalyser) {
-                    _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
-                        return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
-                            return _this2.soundIntensity.startAnalyzing(analyser);
-                        });
-                    });
-                } else {
-                    _this2.defaultRecordingPlayer.startPlaying();
-                }
+                _this2.defaultRecordingPlayer.startPlaying().then(function (htmlMediaElement) {
+                    return _this2.audioRoutingGraphService.createGraphToListen(htmlMediaElement);
+                }).then(function (analyser) {
+                    return _this2.soundIntensity.startAnalyzing(analyser);
+                });
             };
 
             this.defaultRecordingPlayButton.onStopPlaying = function () {
@@ -1900,9 +1871,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.defaultRecordingPlayer.stopPlaying();
                 _this2.timer.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
-                if (_this2.enableAnalyser) {
-                    _this2.mediaAnalyserService.closeAnalyzing();
-                }
+                _this2.audioRoutingGraphService.disconnectGraph();
             };
 
             this.player.onStartLoading = function () {
@@ -1967,21 +1936,19 @@ var MediaRecorder = exports.MediaRecorder = function () {
         }
     }, {
         key: "_handleRecording",
-        value: function _handleRecording(stream) {
+        value: function _handleRecording(originalStream) {
             var _this3 = this;
 
             this.mediaState.setRecording();
-            if (!this.model.disableRecording) {
-                this.recorder.startRecording(stream);
-                this.timer.reset();
-                this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-                this.recordingTimeLimiter.startCountdown();
-            }
-            if (this.enableAnalyser) {
-                this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
-                    return _this3.soundIntensity.startAnalyzing(analyser);
-                });
-            }
+            this.audioRoutingGraphService.createGraphToRecord(originalStream).then(function (modifiedStream) {
+                if (!_this3.model.disableRecording) {
+                    _this3.recorder.startRecording(modifiedStream);
+                    _this3.timer.reset();
+                    _this3.timer.startDecrementalCountdown(_this3.recordingTimeLimiter.maxTime);
+                    _this3.recordingTimeLimiter.startCountdown();
+                }
+                _this3.soundIntensity.startAnalyzing(_this3.audioRoutingGraphService.getAnalyser());
+            });
         }
     }, {
         key: "_loadDefaultRecording",
@@ -3491,7 +3458,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.MediaAnalyserService = undefined;
+exports.AudioRoutingGraphService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -3499,72 +3466,137 @@ var _AnalyserProvider = __webpack_require__(33);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var MediaAnalyserService = exports.MediaAnalyserService = function () {
-    function MediaAnalyserService() {
-        _classCallCheck(this, MediaAnalyserService);
+var AudioRoutingGraphService = exports.AudioRoutingGraphService = function () {
+    function AudioRoutingGraphService() {
+        _classCallCheck(this, AudioRoutingGraphService);
 
-        this.audioContext = AudioContextSingleton.getOrCreate();
         this.mediaStreamSource = null;
         this.mediaElementSource = null;
+        this.gainNode = null;
+        this.analyser = null;
+
+        this.gainNodeValue = 2.5;
     }
 
-    _createClass(MediaAnalyserService, [{
-        key: "createAnalyserFromStream",
-        value: function createAnalyserFromStream(stream) {
+    _createClass(AudioRoutingGraphService, [{
+        key: "setGainNodeValue",
+        value: function setGainNodeValue(value) {
+            this.gainNodeValue = value;
+        }
+    }, {
+        key: "createGraphToRecord",
+        value: function createGraphToRecord(stream) {
             var _this = this;
 
             return new Promise(function (resolve) {
                 // on Chrome when user hasn't interacted with the page before AudioContext was created it will be created in suspended state
                 // this will happen if MediaRecorder is on the first page user visits (constructor call will happen before user interaction)
                 // resume is then needed to unblock AudioContext (see https://goo.gl/7K7WLu)
-                _this.audioContext.resume().then(function () {
-                    _this.mediaStreamSource = _this.audioContext.createMediaStreamSource(stream);
+                var audioContext = AudioContextSingleton.getOrCreate();
+                audioContext.resume().then(function () {
+                    _this.mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                    _this._ensureAnalyserExist(audioContext);
 
-                    var analyser = _AnalyserProvider.AnalyserProvider.create(_this.audioContext);
-                    _this.mediaStreamSource.connect(analyser);
+                    if (_this._shouldAddAutoGainNode()) {
+                        _this._ensureGainNodeExist(audioContext);
+                        _this.mediaStreamSource.connect(_this.gainNode);
+                        _this.gainNode.connect(_this.analyser);
+                    } else {
+                        _this.mediaStreamSource.connect(_this.analyser);
+                    }
 
-                    resolve(analyser);
+                    var destination = audioContext.createMediaStreamDestination();
+                    _this.analyser.connect(destination);
+
+                    resolve(destination.stream);
                 });
             });
         }
     }, {
-        key: "createAnalyserFromElement",
-        value: function createAnalyserFromElement(htmlMediaElement) {
+        key: "_ensureGainNodeExist",
+        value: function _ensureGainNodeExist(audioContext) {
+            if (!this.gainNode) {
+                this.gainNode = audioContext.createGain();
+                this.gainNode.gain.value = this.gainNodeValue;
+            }
+        }
+    }, {
+        key: "_ensureAnalyserExist",
+        value: function _ensureAnalyserExist(audioContext) {
+            if (!this.analyser) {
+                this.analyser = _AnalyserProvider.AnalyserProvider.create(audioContext);
+            }
+        }
+    }, {
+        key: "getAnalyser",
+        value: function getAnalyser() {
+            return this.analyser;
+        }
+
+        /**
+        * Check if auto gain node should be added to adjust recording volume
+        *
+        * Note on iOS compatibility: The autoGainControl setting is not supported on iOS and some microphones.
+        * As a result, recording volume is not automatically adjusted, which may cause recordings to be too quiet
+        * on these devices.
+        */
+
+    }, {
+        key: "_shouldAddAutoGainNode",
+        value: function _shouldAddAutoGainNode() {
+            return !navigator.mediaDevices.getSupportedConstraints().autoGainControl;
+        }
+    }, {
+        key: "createGraphToListen",
+        value: function createGraphToListen(htmlAudioElement) {
             var _this2 = this;
 
             return new Promise(function (resolve) {
                 // on Chrome when user hasn't interacted with the page before AudioContext was created it will be created in suspended state
                 // this will happen if MediaRecorder is on the first page user visits (constructor call will happen before user interaction)
                 // resume is then needed to unblock AudioContext (see https://goo.gl/7K7WLu)
-                _this2.audioContext.resume().then(function () {
-                    if (!_this2.mediaElementSource) _this2.mediaElementSource = _this2.audioContext.createMediaElementSource(htmlMediaElement);
+                var audioContext = AudioContextSingleton.getOrCreate();
+                audioContext.resume().then(function () {
+                    if (!_this2.mediaElementSource) {
+                        _this2.mediaElementSource = audioContext.createMediaElementSource(htmlAudioElement);
+                    }
 
-                    var analyser = _AnalyserProvider.AnalyserProvider.create(_this2.audioContext);
-                    _this2.mediaElementSource.connect(analyser);
-                    analyser.connect(_this2.audioContext.destination);
+                    _this2._ensureAnalyserExist(audioContext);
+                    _this2.mediaElementSource.connect(_this2.analyser);
+                    _this2.analyser.connect(audioContext.destination);
 
-                    resolve(analyser);
+                    resolve(_this2.analyser);
                 });
             });
         }
     }, {
-        key: "closeAnalyzing",
-        value: function closeAnalyzing() {
-            if (this.mediaStreamSource) this.mediaStreamSource.disconnect();
-            if (this.mediaElementSource) this.mediaElementSource.disconnect();
+        key: "disconnectGraph",
+        value: function disconnectGraph() {
+            if (this.mediaStreamSource) {
+                this.mediaStreamSource.disconnect();
+            }
+            if (this.mediaElementSource) {
+                this.mediaElementSource.disconnect();
+            }
+            if (this.analyser) {
+                this.analyser.disconnect();
+            }
+            if (this.gainNode) {
+                this.gainNode.disconnect();
+            }
         }
     }, {
         key: "destroy",
         value: function destroy() {
-            this.closeAnalyzing();
+            this.disconnectGraph();
             AudioContextSingleton.close();
-            this.audioContext = null;
             this.mediaElementSource = null;
             this.mediaStreamSource = null;
+            this.analyser = null;
         }
     }]);
 
-    return MediaAnalyserService;
+    return AudioRoutingGraphService;
 }();
 
 /***/ }),
@@ -4080,8 +4112,6 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
     _createClass(AudioRecorder, [{
         key: '_getOptions',
         value: function _getOptions() {
-            var isEdge = DevicesUtils.isEdge();
-
             return {
                 type: 'audio',
                 mimeType: 'audio/wav',
@@ -4136,15 +4166,10 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     _createClass(BaseRecorder, [{
         key: "startRecording",
         value: function startRecording(stream) {
-            var _this2 = this;
-
             this._clearRecorder();
-            var audioContext = AudioContextSingleton.getOrCreate();
             this.recorder = RecordRTC(stream, this._getOptions());
-            audioContext.resume().then(function () {
-                _this2.recorder.startRecording();
-                _this2._onStartRecordingCallback();
-            });
+            this.recorder.startRecording();
+            this._onStartRecordingCallback();
         }
     }, {
         key: "stopRecording",
@@ -4175,14 +4200,16 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "sendPreDestroyedEmptyEvent",
         value: function sendPreDestroyedEmptyEvent() {
-            if (this.eventBus) {
-                var eventData = {
-                    'source': this.sourceID,
-                    'item': 'recorder',
-                    'value': 'empty'
-                };
-                this.eventBus.sendEvent('PreDestroyed', eventData);
+            if (!this.eventBus) {
+                return;
             }
+
+            var eventData = {
+                'source': this.sourceID,
+                'item': 'recorder',
+                'value': 'empty'
+            };
+            this.eventBus.sendEvent('PreDestroyed', eventData);
         }
     }, {
         key: "destroy",
@@ -4215,15 +4242,17 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "_sendValueChangedEventCallback",
         value: function _sendValueChangedEventCallback(self, value) {
-            if (self.eventBus) {
-                var eventData = {
-                    'source': self.sourceID,
-                    'item': 'recorder',
-                    'value': value,
-                    'score': ''
-                };
-                self.eventBus.sendEvent('ValueChanged', eventData);
+            if (!self.eventBus) {
+                return;
             }
+
+            var eventData = {
+                'source': self.sourceID,
+                'item': 'recorder',
+                'value': value,
+                'score': ''
+            };
+            self.eventBus.sendEvent('ValueChanged', eventData);
         }
     }, {
         key: "_getOptions",
