@@ -14,12 +14,9 @@ export class BaseRecorder extends Recorder {
 
     startRecording(stream) {
         this._clearRecorder();
-        const audioContext = AudioContextSingleton.getOrCreate();
         this.recorder = RecordRTC(stream, this._getOptions());
-        audioContext.resume().then(() => {
-            this.recorder.startRecording();
-            this._onStartRecordingCallback();
-        });
+        this.recorder.startRecording();
+        this._onStartRecordingCallback();
     }
 
     stopRecording() {
@@ -44,14 +41,16 @@ export class BaseRecorder extends Recorder {
     }
 
     sendPreDestroyedEmptyEvent() {
-        if (this.eventBus) {
-            var eventData = {
-                'source': this.sourceID,
-                'item': 'recorder',
-                'value': 'empty',
-            };
-            this.eventBus.sendEvent('PreDestroyed', eventData);
+        if (!this.eventBus) {
+            return;
         }
+
+        const eventData = {
+            'source': this.sourceID,
+            'item': 'recorder',
+            'value': 'empty',
+        };
+        this.eventBus.sendEvent('PreDestroyed', eventData);
     }
 
     destroy() {
@@ -80,15 +79,17 @@ export class BaseRecorder extends Recorder {
     }
 
     _sendValueChangedEventCallback(self, value) {
-        if (self.eventBus) {
-            var eventData = {
-                'source': self.sourceID,
-                'item': 'recorder',
-                'value': value,
-                'score': ''
-            };
-            self.eventBus.sendEvent('ValueChanged', eventData);
+        if (!self.eventBus) {
+            return;
         }
+
+        const eventData = {
+            'source': self.sourceID,
+            'item': 'recorder',
+            'value': value,
+            'score': ''
+        };
+        self.eventBus.sendEvent('ValueChanged', eventData);
     }
 
     _getOptions() {
