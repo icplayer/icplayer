@@ -587,6 +587,7 @@ function AddonFlashCards_create(){
     presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.$view.css("display", isVisible ? "" : "none");
     };
 
     presenter.updateVisibility = function () {
