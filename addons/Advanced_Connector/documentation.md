@@ -181,9 +181,9 @@ All header and footer modules can be accessed using getHeaderModule() or getFoot
 
 The Advanced Connector module does not expose any CSS classes because its internal structure should not be changed (neither via Advanced Connector nor CSS styles).
 
-## External links in script
+## Links in script
 
-Try NOT to keep links to resources in the Advanced Connector script. If you want to use external resources, try describing them in CSS (Presenter -> Edit CSS...). Example of a WRONG script:
+Try NOT to keep links to resources like assets in the Advanced Connector script. If you want to use assets, try describing them in CSS (Presenter -> Edit CSS...). Example of a WRONG script:
 
     $("#MyElem").css("background", (/file/serve/6757006) 0 0 no-repeat);
 
@@ -197,6 +197,9 @@ and add to the suitable element:
 
     $("#MyElem").addClass("background_image");
 
+<b>Recommendation:</b> 
+This addon can be used to create scripts of such complexity that the player may not be able to handle links within them correctly. Therefore, we recommend implementing any functionality that relies on assets through dedicated addons or by using the 'Edit CSS' feature, as demonstrated in the preceding example.
+
 ## Demo presentation
 
-[Demo presentation](/embed/2419014 "Demo presentation") contains examples of how to use the Advanced Connector addon.                      
+[Demo presentation](https://mauthor.com/present/5743683201531904 "Demo presentation") contains examples of how to use the Advanced Connector module. 

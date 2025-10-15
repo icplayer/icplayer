@@ -92,22 +92,21 @@ function AddonAdvanced_Connector_create() {
         $(view).css('visibility', 'hidden');
     };
 
-    presenter.checkScriptsResources = function(script) {
+    presenter.containsFileServeLink = function(script) {
         script = script.replace(/\s/g,'');
-        var regex = new RegExp("[\(|\=](\'|\")*(/)*file/serve/[0-9]*");
+        const regex = new RegExp("(\/)*file\/serve\/[0-9]+");
 
         return regex.test(script);
     };
 
     presenter.createPreview = function(view, model) {
-        var validatedScript = presenter.validateScript(model.Scripts);
+        const validatedScript = presenter.validateScript(model.Scripts);
         if (validatedScript.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedScript.errorCode);
         }
-        if (presenter.checkScriptsResources(model.Scripts)) {
+        if (presenter.containsFileServeLink(model.Scripts)) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'SV_09');
         }
-
     };
 
     presenter.ERROR_CODES = {
@@ -119,7 +118,7 @@ function AddonAdvanced_Connector_create() {
         'SV_06': "Repeated event field value declaration!",
         'SV_07': "Repeated keyword!",
         'SV_08': "Invalid identification. Should be Source,Item, Value or Score!",
-        'SV_09': "Please pay attention to the correct linking resources"
+        'SV_09': "Please ensure that resources are linked correctly. For more information, refer to this addon's documentation."
     };
 
     function returnErrorResult(errorCode) {
@@ -204,9 +203,56 @@ function AddonAdvanced_Connector_create() {
         }
 
         presenter.fillBlankFields(eventDeclaration);
+        eventDeclaration.Code = parseLinks(eventDeclaration.Code);
 
         return { isError: false, eventDeclaration: eventDeclaration };
     };
+
+    function parseLinks(code) {
+        let baseURL = getBaseURL();
+        if (!baseURL) {
+            return code;
+        }
+
+        const linkRegexp = /('|")(\.\.\/resources\/[0-9]+\.[a-zA-Z0-9]+)('|")/g;
+        const matches = code.matchAll(linkRegexp);
+        const matchesArray = [...matches];
+        if (matchesArray.length === 0) {
+            return code;
+        }
+
+        let parsedCode = "";
+        let previousEndIndex = 0;
+        for (let i = 0; i <= matchesArray.length - 1; i++) {
+            const match = matchesArray[i];
+            const relativePath = match[2];
+            const startIndex = match.index;
+            const endIndex = match.index + match[0].length;
+
+            const newURL = new URL(relativePath, baseURL);
+            const signedNewURL = presenter.playerController.getRequestsConfig().signURL(newURL.href);
+
+            parsedCode += code.substring(previousEndIndex, startIndex);
+            parsedCode += match[1] + signedNewURL + match[3];
+            previousEndIndex = endIndex;
+        }
+        parsedCode += code.substring(previousEndIndex, code.length);
+
+        return parsedCode;
+    }
+
+    function getBaseURL() {
+        if (!presenter.playerController) {
+            return null;
+        }
+        const contextMetadata = presenter.playerController.getContextMetadata();
+        const contentBaseURL = !!contextMetadata ? contextMetadata['contentBaseURL'] : null;
+        if (!!contentBaseURL) {
+            return contentBaseURL;
+        }
+        const pageIndex = presenter.playerController.getCurrentPageIndex();
+        return presenter.playerController.getPresentation().getPage(pageIndex).getBaseURL();
+    }
 
     function extractLines(script, start, end) {
         var array = [];
