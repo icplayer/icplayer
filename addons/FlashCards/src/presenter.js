@@ -252,7 +252,9 @@ function AddonFlashCards_create(){
         }        
 
         presenter.showCard(1);
-        presenter.addClickHandlers();
+        setTimeout(()=> {
+            presenter.addClickHandlers();
+        }, 0);
 
         //audio
         presenter.isFrontPlaying = false;
