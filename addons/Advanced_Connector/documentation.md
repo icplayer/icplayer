@@ -185,17 +185,17 @@ The Advanced Connector module does not expose any CSS classes because its intern
 
 Try NOT to keep links to resources like assets in the Advanced Connector script. If you want to use assets, try describing them in CSS (Presenter -> Edit CSS...). Example of a WRONG script:
 
-    $("#MyElem").css("background", (/file/serve/6757006) 0 0 no-repeat);
+    $("#Image1").css("background", "url(\"/file/serve/6757006\") 0 0 no-repeat");
 
 It is better to define a new class in CSS:
 
     .background_image {
-        background: (/file/serve/6757006) 0 0 no-repeat;
+        background: url("/file/serve/6757006") 0 0 no-repeat;
     }
 
 and add to the suitable element:
 
-    $("#MyElem").addClass("background_image");
+    $("#Image1").addClass("background_image");
 
 <b>Recommendation:</b> 
 This addon can be used to create scripts of such complexity that the player may not be able to handle links within them correctly. Therefore, we recommend implementing any functionality that relies on assets through dedicated addons or by using the 'Edit CSS' feature, as demonstrated in the preceding example.
