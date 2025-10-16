@@ -1,3 +1,4 @@
+2025-10-15 Fixed media recorder events missing moduleType
 2025-10-02 Fixed issue with nested addons getting overwritten in the Text module on getState
 2025-09-23 Fixed loading icon not being centered correctly on mobile mCourser
 2025-09-19 Fixed rendering of content with alt texts and MathJax in print
