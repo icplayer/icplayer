@@ -214,7 +214,7 @@ function AddonAdvanced_Connector_create() {
             return code;
         }
 
-        const linkRegexp = /('|")(\.\.\/resources\/[0-9]+\.[a-zA-Z0-9]+)('|")/g;
+        const linkRegexp = /([a-zA-Z0-9\/\\]+)*\.\.\/resources\/[0-9]+\.[a-zA-Z0-9]+/g;
         const matches = code.matchAll(linkRegexp);
         const matchesArray = [...matches];
         if (matchesArray.length === 0) {
@@ -225,7 +225,10 @@ function AddonAdvanced_Connector_create() {
         let previousEndIndex = 0;
         for (let i = 0; i <= matchesArray.length - 1; i++) {
             const match = matchesArray[i];
-            const relativePath = match[2];
+            if (!!match[1]) {
+                continue;
+            }
+            const relativePath = match[0];
             const startIndex = match.index;
             const endIndex = match.index + match[0].length;
 
@@ -233,7 +236,7 @@ function AddonAdvanced_Connector_create() {
             const signedNewURL = presenter.playerController.getRequestsConfig().signURL(newURL.href);
 
             parsedCode += code.substring(previousEndIndex, startIndex);
-            parsedCode += match[1] + signedNewURL + match[3];
+            parsedCode += signedNewURL;
             previousEndIndex = endIndex;
         }
         parsedCode += code.substring(previousEndIndex, code.length);
