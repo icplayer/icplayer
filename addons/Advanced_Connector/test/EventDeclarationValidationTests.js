@@ -1,6 +1,37 @@
 TestCase("Event declaration validation", {
     setUp: function() {
         this.presenter = AddonAdvanced_Connector_create();
+
+        this.stubs = {
+            signURLStub: sinon.stub(),
+        }
+        this.stubs.signURLStub.returnsArg(0);
+
+        const self = this;
+        this.presenter.playerController = {
+            getContextMetadata() {
+                return {};
+            },
+            getCurrentPageIndex() {
+                return 0;
+            },
+            getPresentation() {
+                return {
+                    getPage(pageIndex) {
+                        return {
+                            getBaseURL() {
+                                return "https://test.com/resources/"
+                            }
+                        }
+                    }
+                }
+            },
+            getRequestsConfig() {
+                return {
+                    signURL: self.stubs.signURLStub
+                }
+            }
+        }
     },
 
     'test missing SCRIPTSTART keyword': function() {
@@ -587,5 +618,186 @@ TestCase("Event declaration validation", {
 
         assertFalse(validationResult.isError);
         assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with relative to resources link when executing then parse link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "../resources/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "https://test.com/resources/123.mp3";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with absolute link when executing then do not parse link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "https://badsite.com/../resources/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "https://badsite.com/../resources/123.mp3";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event without proper path link when executing then do not parse link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "/../resources/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "/../resources/123.mp3";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with /file/serve path link when executing then do not parse link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "/file/serve/123";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "/file/serve/123";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with /file/serve path and with file extension link when executing then do not parse link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "/file/serve/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "/file/serve/123.mp3";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with ../resources/ path link and should sign URL when executing then should return signed and parsed link': function() {
+        this.stubs.signURLStub.reset();
+        this.stubs.signURLStub.callsFake(function (url) { return (url + "?123");});
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "../resources/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+        const expectedEvent = {
+            Source: 'Single_State_Button1',
+            Item: '.*',
+            Value: '.*',
+            Score: '.*',
+            Type: '.*',
+            Word: '.*',
+            Name: 'ValueChanged',
+            Code: 'let url = "https://test.com/resources/123.mp3?123";\nwindow.open(url);'
+        };
+
+        const validationResult = this.presenter.validateEvent(script);
+
+        assertTrue(this.stubs.signURLStub.called);
+        assertFalse(validationResult.isError);
+        assertEquals(expectedEvent, validationResult.eventDeclaration);
+    },
+
+    'test given valid event with absolute link and should not sign URL when executing then should do not sigh link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "https://badsite.com/../resources/123.mp3";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+
+        this.presenter.validateEvent(script);
+
+        assertFalse(this.stubs.signURLStub.called);
+    },
+
+    'test given valid event with /file/serve/ path link and should not sign URL when executing then should not sigh link': function() {
+        const script = [
+            'Source:Single_State_Button1',
+            'SCRIPTSTART',
+            'let url = "/file/serve/123";',
+            'window.open(url);',
+            'SCRIPTEND'
+        ];
+
+        this.presenter.validateEvent(script);
+
+        assertFalse(this.stubs.signURLStub.called);
     }
 });
