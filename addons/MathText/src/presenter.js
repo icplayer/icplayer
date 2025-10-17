@@ -662,12 +662,11 @@ function AddonMathText_create() {
     };
 
     presenter.getScore = function() {
-        if (presenter.state.isShowAnswers) {
-            presenter.hideAnswers();
-        }
-
         if (!presenter.configuration.isActivity || !presenter.isWirisEnabled()) {
             return 0;
+        }
+        if (presenter.state.wasChanged && !presenter.state.isShowAnswers && presenter.editor.isHandOpen()) {
+            presenter.calculateScore(presenter.editor.getMathML());
         }
         return presenter.state.lastScore;
     };
