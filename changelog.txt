@@ -1,4 +1,6 @@
-2025-10-15 Fixed bug where links were being created incorrectly in Advanced Connector
+2025-10-17 Fixed bug where links were being created incorrectly in Advanced Connector
+2025-10-17 Fixed several issues with events in Text, Media Recorder and Paragraph
+2025-10-14 Fixed parts of flashcard being visible after hide has been called
 2025-10-02 Fixed issue with nested addons getting overwritten in the Text module on getState
 2025-09-29 Fixed MathText leaving showAnswers mode when getScore is called
 2025-09-23 Fixed loading icon not being centered correctly on mobile mCourser
