@@ -9,8 +9,12 @@ function AddonMedia_Recorder_create() {
     presenter.addonID = null;
 
     presenter.setPlayerController = function (controller) {
-        presenter.mediaRecorder.setPlayerController(controller)
+        presenter.mediaRecorder.setPlayerController(controller);
     };
+
+    presenter.setEventBus = function (eventBus) {
+        presenter.mediaRecorder.setEventBus(eventBus);
+    }
 
     presenter.run = function run(view, model) {
         presenter.view = view;
