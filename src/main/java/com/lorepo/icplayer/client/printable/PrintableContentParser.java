@@ -870,7 +870,10 @@ public class PrintableContentParser {
 			}
 		});
 		
-		if (lastNode == null) return {head: "", tail: html};
+		if (lastNode == null) {
+		    $outerLessonWrapper.remove();
+		    return {head: "", tail: html};
+        }
 		
 		var headRange = $doc.createRange();
 		headRange.setStartBefore($wrapper.children().first()[0]);
