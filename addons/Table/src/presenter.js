@@ -2792,7 +2792,7 @@ function AddonTable_create() {
             const textWithoutFoundGapBeginning = textToSearch.substring(gapMatch.index + gapMatch[0].length);
 
             closingBracketIndex = presenter.textParser.findClosingBracket(textWithoutFoundGapBeginning);
-            if (closingBracketIndex > 0) {
+            if (closingBracketIndex > -1) {
                 const gapEndIndex = gapMatch.index + gapMatch[0].length + closingBracketIndex + closingSignGapSize;
                 const wholeGapTextToTheEndingBracket = textToSearch.substring(gapMatch.index, gapEndIndex);
                 // ex: \gap{lorem|ispum|\(\frac{1}{4}\)}
