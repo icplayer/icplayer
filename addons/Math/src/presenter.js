@@ -211,7 +211,7 @@ function AddonMath_create() {
         return expressions;
     }
 
-    presenter.evaluateExpression = function (expression, variables, separators) {
+    presenter.evaluateExpression = function (expression, variables, separators, isPrint) {
         var i, expressionRunner = {
             /**
              * @param  {string} expression
@@ -243,7 +243,12 @@ function AddonMath_create() {
         try {
             var convertedVariables = [];
             for (i = 0; i < variables.length; i++) {
-                var convertedVariable = presenter.convertVariable(variables[i].value, separators);
+                var convertedVariable;
+                if (!isPrint) {
+                    convertedVariable = presenter.convertVariable(variables[i].value, separators);
+                } else {
+                    convertedVariable = presenter.getVariableValueFromPrintableState(variables[i].value);
+                }
                 if (convertedVariable === undefined) return { isValid: false, result: getAlertMessage(variables[i]) };
                 convertedVariables.push({
                     name: variables[i].name,
@@ -298,11 +303,11 @@ function AddonMath_create() {
         return presentVariables;
     };
 
-    presenter.evaluateAllExpressions = function (expressions, variables, separators) {
+    presenter.evaluateAllExpressions = function (expressions, variables, separators, isPrint = false) {
         var results = [], i, overall = true, evaluationResult;
 
         for (i = 0; i < expressions.length; i++) {
-            evaluationResult = presenter.evaluateExpression(expressions[i], variables, separators);
+            evaluationResult = presenter.evaluateExpression(expressions[i], variables, separators, isPrint);
             if (!evaluationResult.isValid) {
                 return { isError: true, errorMessage: evaluationResult.result };
             }
@@ -805,6 +810,61 @@ function AddonMath_create() {
                 notSAmodule.markConnectionWithMath();
             }
         }
+    }
+
+    presenter.printableController = null;
+    presenter.setPrintableController = function(controller) {
+        presenter.printableController = controller;
+    }
+
+    presenter.onBeforePrint = function(model) {
+        if (!presenter.printableController) return;
+        var configuration = presenter.convertModel(model);
+        var result = presenter.evaluateAllExpressions(configuration.expressions, configuration.variables, configuration.separators, true);
+        if (!result.isError) {
+            var variableToGapDict = {};
+            for (var i = 0; i < configuration.variables.length; i++) {
+                presenter.printableController.setCalculatedGapCorrect(configuration.variables[i].value, result.overall);
+                variableToGapDict[configuration.variables[i].name] = configuration.variables[i].value;
+            }
+        }
+        for (var i = 0; i < configuration.answers.length; i++) {
+            var answer = configuration.answers[i];
+            presenter.printableController.setCalculatedGapAnswer(variableToGapDict[answer.name], answer.value);
+        }
+
+    }
+
+    presenter.isTableState = function(addonState) {
+        return addonState.hasOwnProperty('gaps');
+    }
+
+    presenter.getGapValueFromTableState = function(gapIndex, addonState) {
+        var gapState = addonState.gaps[gapIndex-1];
+        if (gapState === undefined) return null;
+        return gapState.value;
+    }
+
+    presenter.getVariableValueFromPrintableState = function(variableID) {
+        if (!presenter.printableController) return null;
+        var splitVariableID = variableID.split('.');
+        if (splitVariableID.length !== 2) return null;
+        var addonID = splitVariableID[0];
+        var gapIndex = parseInt(splitVariableID[1]);
+        if (isNaN(gapIndex)) return null;
+        var addonStateRaw = presenter.printableController.getModuleState(addonID);
+        if (!addonStateRaw) return null;
+        var addonState = JSON.parse(addonStateRaw);
+        var gapValue = null;
+        if (presenter.isTableState(addonState)) {
+            gapValue = presenter.getGapValueFromTableState(gapIndex, addonState);
+            if (isNaN(gapValue)) {
+                gapValue = null;
+            } else {
+                gapValue = parseInt(gapValue);
+            }
+        }
+        return gapValue;
     }
 
     return presenter;

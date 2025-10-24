@@ -28,12 +28,13 @@ import com.lorepo.icplayer.client.module.IPreDestroy;
 import com.lorepo.icplayer.client.module.addon.param.AddonParamFactory;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.IBeforePrintable;
 import com.lorepo.icplayer.client.printable.Printable;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
-public class AddonModel extends BasicModuleModel implements IPrintableModuleModel, IPreDestroy {
+public class AddonModel extends BasicModuleModel implements IPrintableModuleModel, IBeforePrintable, IPreDestroy {
 
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
@@ -437,5 +438,43 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	
 	private native void addToJSArray(JavaScriptObject model, JavaScriptObject obj)  /*-{
 		model.push(obj);
+	}-*/;
+
+	@Override
+	public boolean isBeforePrint(){
+		String addonName = "Addon" + getAddonId() + "_create";
+		return isBeforePrint(addonName);
+	}
+
+	public native boolean isBeforePrint(String addonName)/*-{
+		if($wnd.window[addonName] == null){
+			return false;
+		}
+		var presenter = $wnd.window[addonName]();
+
+		return presenter.hasOwnProperty("onBeforePrint");
+	}-*/;
+
+	public void onBeforePrint() {
+	    String addonName = "Addon" + getAddonId() + "_create";
+	    JavaScriptObject jsModel = createJsModel(this);
+		JavaScriptObject printController = getPrintableControllerAsJsObject();
+
+		onBeforePrint(addonName, jsModel, printController);
+	}
+
+	public native void onBeforePrint(String addonName, JavaScriptObject model, JavaScriptObject controller)/*-{
+		if($wnd.window[addonName] == null){
+			return false;
+		}
+		var presenter = $wnd.window[addonName]();
+
+		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
+			presenter.setPrintableController(controller);
+		}
+
+		if (presenter.hasOwnProperty("onBeforePrint")) {
+		    presenter.onBeforePrint(model);
+		}
 	}-*/;
 }
