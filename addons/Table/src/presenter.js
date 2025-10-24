@@ -2972,7 +2972,7 @@ function AddonTable_create() {
 		$wrapper.html(html);
 		$("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return width;
     }
 

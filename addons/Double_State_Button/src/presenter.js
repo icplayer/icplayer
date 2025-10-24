@@ -948,14 +948,6 @@ function AddonDouble_State_Button_create(){
     presenter.destroy = function(event) {
         if (event.target === presenter.view) {
             presenter.wrapper.removeEventListener("keydown", presenter.handleKeyboardEvents);
-
-            var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
-            element.off("touchstart", touchStartEventHandler);
-            element.off("touchend", touchEndEventHandler);
-
-            element.off("mousedown", mouseDownEventHandler);
-            element.off("click", clickEventHandler);
-            element.off("mouseup", mouseUpEventHandler);
         }
     };
 
