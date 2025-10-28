@@ -647,7 +647,7 @@ function AddonConnection_create() {
             return false;
         }
 
-        presenter.chooseOrientation(model, isPreview);
+        presenter.chooseOrientation(model, true);
         presenter.setUpViewBody(presenter.view);
         connections = presenter.$view.find('.' + presenter.CSS_CLASSES.CONNECTIONS + ':first');
 
@@ -751,9 +751,9 @@ function AddonConnection_create() {
         currentLayoutName = layoutName;
     }
 
-    presenter.chooseOrientation = function (model, isPreview) {
+    presenter.chooseOrientation = function (model, supportsVerticalOrientation) {
         presenter.isHorizontal = false;
-        if (!playerController && !isPreview) {
+        if (!supportsVerticalOrientation) {
             return;
         }
 
@@ -2452,7 +2452,7 @@ function AddonConnection_create() {
         Line: Line
     };
 
-    function drawSVGLine(svg, firstID, secondID, correctLine, model) {
+    function drawSVGLine($svg, firstID, secondID, correctLine, model) {
         var leftSize = model["Left column"].length;
 
         var isFirstIDInLeftColumn = false;
@@ -2490,11 +2490,11 @@ function AddonConnection_create() {
             firstID = tmp;
         }
 
-        drawSVGLineLeftToRight(svg, firstID, secondID, correctLine, model);
+        drawSVGLineLeftToRight($svg, firstID, secondID, correctLine, model);
 
     }
 
-    function drawSVGLineLeftToRight(svg, leftID, rightID, correctLine, model) {
+    function drawSVGLineLeftToRight($svg, leftID, rightID, correctLine, model) {
         var leftSize = model["Left column"].length;
         var leftTotalSize = 0;
         var rightTotalSize = 0;
@@ -2522,7 +2522,7 @@ function AddonConnection_create() {
             : $('<line class="inCorrectConnectionLine" x1="0" x2="100%" style="stroke: rgb(0, 0, 0); stroke-width: 1;" stroke-dasharray="4" />');
         $line.attr('y1', leftY);
         $line.attr('y2', rightY);
-        svg.append($line);
+        $svg.append($line);
     }
 
     presenter.setPrintableController = function (controller) {
@@ -2611,67 +2611,41 @@ function AddonConnection_create() {
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
         presenter.model = model;
-        const root = createPrintableBaseView(model);
-        const $root = $(root);
+        const view = createPrintableBaseView(model);
+        const $view = $(view);
 
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
-            DOMOperationsUtils.showErrorMessage(root, presenter.ERROR_MESSAGES, presenter.configuration.errorCode);
-            return $root[0].outerHTML;
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_MESSAGES, presenter.configuration.errorCode);
+            return $view[0].outerHTML;
         }
 
         presenter.chooseOrientation(model, false);
         const connectionContainer = createPrintableConnectionContainer();
-        root.append(connectionContainer);
-        presenter.setLengthOfSideObjects(root);
+        view.append(connectionContainer);
+        presenter.setLengthOfSideObjects(view);
 
-        presenter.loadElements(root, model);
-        this.removeNonVisibleInnerHTMLForRoot($root);
+        presenter.loadElements(view, model);
+        this.removeNonVisibleInnerHTMLForRoot($view);
 
         const correctAnswers = getCorrectAnswersObject(model);
         const connectionsInformation = getPrintableConnectionsInformation(correctAnswers);
-        isPrintableCheckAnswersStateMode() && this.addAnswersElements(root, model, correctAnswers);
+        isPrintableCheckAnswersStateMode() && this.addAnswersElements(view, model, correctAnswers);
 
-        const $printableWrapper = wrapInPrintableLessonTemplate($root);
+        const $printableWrapper = wrapInPrintableLessonTemplate($view);
         $printableWrapper.css("visibility", "hidden");
         $("body").append($printableWrapper);
 
-        function restoreRenderedMathJax($viewWithRenderedMathJax) {
-            if (!$viewWithRenderedMathJax) {
-                return;
-            }
-
-            $root.find('[id^="MathJax-Element-"]').each(function(){
-                this.classList.remove("MathJax_Processed");
-                this.innerHTML = $viewWithRenderedMathJax.find("#" + this.id)[0].innerHTML;
-            })
-        }
-
-        function drawConnections() {
-            root.classList.add(...presenter.printableClassNames);
-            if (connectionsInformation.length > 0) {
-                const connectionsSVG = $root.find("svg");
-                for (let connection, i = 0; i < connectionsInformation.length; i++) {
-                    connection = connectionsInformation[i];
-                    drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
-                }
-            }
-            root.classList.remove(...presenter.printableClassNames);
-        }
-
-        let height;
-        waitForLoad($root, function($elementWithRenderedMathJax){
+        waitForLoad($view, function($elementWithRenderedMathJax){
             $printableWrapper.css("visibility", "");
-            restoreRenderedMathJax($elementWithRenderedMathJax);
-            drawConnections();
+            restoreRenderedMathJaxForPrintableView($view, $elementWithRenderedMathJax);
+            forceBrowserToRecalculateSVGSize($view);
+            drawConnectionsForPrintableView($view, model, connectionsInformation);
+            setHeightForPrintableView(view);
 
-            height = getPrintableTableHeight($root);
-            $root.css("height", height+"px");
+            view.classList.remove(...presenter.printableClassNames);
+            const printableHTML = view.outerHTML;
 
-            const printableHTML = root.outerHTML;
-
-            $root.remove();
-            $printableWrapper.detach();
             $printableWrapper.remove();
             if (!!$elementWithRenderedMathJax) {
                 $elementWithRenderedMathJax.remove();
@@ -2680,7 +2654,7 @@ function AddonConnection_create() {
             presenter.printableParserCallback(printableHTML);
         });
 
-        const $clone = $root.clone();
+        const $clone = $view.clone();
         $clone.attr("id", presenter.printableParserID);
         $clone.css("visibility", "");
         const result = $clone[0].outerHTML;
@@ -2688,6 +2662,43 @@ function AddonConnection_create() {
 
         return result;
     };
+
+    function setHeightForPrintableView(view) {
+        let originalHeight = view.getBoundingClientRect().height;
+        view.style.height = originalHeight + "px";
+
+        let heightAfterChangeOfStyle = view.getBoundingClientRect().height;
+        if (originalHeight !== heightAfterChangeOfStyle) {
+            view.style.height = (originalHeight - (heightAfterChangeOfStyle - originalHeight)) + "px";
+        }
+    }
+
+    function drawConnectionsForPrintableView($view, model, connectionsInformation) {
+        if (connectionsInformation.length > 0) {
+            const $connectionsSVG = $view.find("svg");
+            for (let connection, i = 0; i < connectionsInformation.length; i++) {
+                connection = connectionsInformation[i];
+                drawSVGLine($connectionsSVG, connection.from, connection.to, connection.correct, model);
+            }
+        }
+    }
+
+    function restoreRenderedMathJaxForPrintableView($view, $viewWithRenderedMathJax) {
+        if (!$viewWithRenderedMathJax) {
+            return;
+        }
+
+        $view.find('[id^="MathJax-Element-"]').each(function(){
+            this.classList.remove("MathJax_Processed");
+            this.innerHTML = $viewWithRenderedMathJax.find("#" + this.id)[0].innerHTML;
+        })
+    }
+
+    function forceBrowserToRecalculateSVGSize($view){
+        const svgElement = $view.find("svg")[0];
+        const svgElementParent = svgElement.parentElement;
+        svgElementParent.innerHTML = svgElementParent.innerHTML;
+    }
 
     presenter.setPrintableClassNames = function (classNames) {
         presenter.printableClassNames = classNames;
@@ -2707,6 +2718,7 @@ function AddonConnection_create() {
         view.id = model.ID;
         view.classList.add("printable_addon_Connection");
         view.style.maxWidth = model.Width + "px";
+        view.classList.add(...presenter.printableClassNames);
         return view;
     }
 
@@ -2839,30 +2851,6 @@ function AddonConnection_create() {
 
     return presenter;
 }
-
-function getPrintableTableHeight($table) {
-        var $outerLessonWrapper = $("<div></div>");
-        $outerLessonWrapper.css("position", "absolute");
-        $outerLessonWrapper.css("visibility", "hidden");
-        $outerLessonWrapper.addClass("printable_lesson");
-
-        var $outerPageWrapper = $("<div></div>");
-        $outerPageWrapper.addClass("printable_page");
-        $outerLessonWrapper.append($outerPageWrapper);
-
-        var $outerModuleWrapper = $("<div></div>");
-        $outerModuleWrapper.addClass("printable_module");
-        $outerModuleWrapper.addClass("printable_addon_Connection");
-        $outerPageWrapper.append($outerModuleWrapper);
-
-		$outerModuleWrapper.append($table);
-
-		$("body").append($outerLessonWrapper);
-		var height = $table[0].getBoundingClientRect().height;
-		$outerLessonWrapper.remove();
-		$table.remove();
-		return height;
-    }
 
 AddonConnection_create.__supported_player_options__ = {
     resetInterfaceVersion: 2
