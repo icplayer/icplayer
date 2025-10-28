@@ -73,10 +73,13 @@ function AddonMath_create() {
 
     presenter.convertVariables = function (variables, expressions) {
         if (ModelValidationUtils.isStringEmpty(variables)) return { isError: false, variables: [] };
+
         var variablesArray = [], splittedVariables = variables.split('\n'), i, j, expVariables = [];
+
         for (i = 0; i < splittedVariables.length; i++) {
             var line = splittedVariables[i];
             if (line.indexOf('=') === -1) return { isError: true, errorCode: 'CV_01' };
+
             var splittedLine = line.split('=');
             if (splittedLine.length !== 2 || splittedLine[1].length === 0) return { isError: true, errorCode: 'CV_02' };
 
@@ -102,6 +105,7 @@ function AddonMath_create() {
 
     presenter.parseShowAnswers = function (answers, convertedVariables) {
         if (ModelValidationUtils.isStringEmpty(answers)) return getCorrectObject([]);
+
         var variables = answers.split('\n').map(function(line) {
             return {
                 name:line.substr(0, line.indexOf('=')).trim(),
@@ -109,6 +113,7 @@ function AddonMath_create() {
                 users: ''
             }
         });
+
         if (variables.some(function(v) { return v.value === '' && v.name === ''; })) {
             return getErrorObject('SA04'); // check if empty line is in property
         }
@@ -141,6 +146,7 @@ function AddonMath_create() {
 
     presenter.convertExpressions = function (expressions) {
         var expressionsArray = [], splittedExpressions = expressions.split('\n');
+
         for (var i = 0; i < splittedExpressions.length; i++) {
             expressionsArray.push(splittedExpressions[i]);
         }
