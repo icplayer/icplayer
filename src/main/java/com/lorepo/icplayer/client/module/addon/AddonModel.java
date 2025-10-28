@@ -455,6 +455,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		return presenter.hasOwnProperty("onBeforePrint");
 	}-*/;
 
+    @Override
 	public void onBeforePrint() {
 	    String addonName = "Addon" + getAddonId() + "_create";
 	    JavaScriptObject jsModel = createJsModel(this);
@@ -464,17 +465,19 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	}
 
 	public native void onBeforePrint(String addonName, JavaScriptObject model, JavaScriptObject controller)/*-{
-		if($wnd.window[addonName] == null){
-			return false;
+		if ($wnd.window[addonName] == null) {
+			return;
 		}
 		var presenter = $wnd.window[addonName]();
+
+		if (!presenter.hasOwnProperty("onBeforePrint")) return;
 
 		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
 			presenter.setPrintableController(controller);
 		}
 
-		if (presenter.hasOwnProperty("onBeforePrint")) {
-		    presenter.onBeforePrint(model);
-		}
+
+	    presenter.onBeforePrint(model);
+
 	}-*/;
 }

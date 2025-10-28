@@ -2827,7 +2827,7 @@ function AddonTable_create() {
 
         const tablePrintableOptions = indexRegexMatchesBaseOnGapsTypes(gapsMatches);
         for (let i = 0; i < tablePrintableOptions.length; i++) {
-            let gapScriptID = presenter.configuration.addonID + '.' + (i+1);
+            const gapScriptID = presenter.configuration.addonID + '.' + (i+1);
             const tablePrintableOption = tablePrintableOptions[i];
             if (presenter.printableController) {
                 if (presenter.printableController.hasCalculatedGapCorrect(gapScriptID)) {
@@ -2886,8 +2886,8 @@ function AddonTable_create() {
 
         for (var i = 0; i < tablePrintableOptions.length; i++) {
             if (presenter.printableController) {
-                let tablePrintableOption = tablePrintableOptions[i];
-                let gapScriptID = presenter.configuration.addonID + '.' + (i+1);
+                const tablePrintableOption = tablePrintableOptions[i];
+                const gapScriptID = presenter.configuration.addonID + '.' + (i+1);
                 if (presenter.printableController.hasCalculatedGapCorrect(gapScriptID)) {
                     tablePrintableOption.setCalculatedCorrect(presenter.printableController.getCalculatedGapCorrect(gapScriptID));
                 }

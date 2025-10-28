@@ -15,6 +15,21 @@ function AddonMath_create() {
         presenter.eventBus = eventBus;
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeAddPrintable(model);
+    }
+
+    presenter.upgradeAddPrintable = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['printable'] === undefined) {
+            upgradedModel['printable'] = "No";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model);
         presenter.$view.css('visibility', 'hidden');
@@ -34,10 +49,10 @@ function AddonMath_create() {
     };
 
     presenter.presenterLogic = function (view, model) {
+        let upgradedModel = presenter.upgradeModel(model);
         presenter.$view = $(view);
-        presenter.model = model;
-
-        presenter.configuration = presenter.convertModel(model);
+        presenter.model = upgradedModel;
+        presenter.configuration = presenter.convertModel(upgradedModel);
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
         }
@@ -58,13 +73,10 @@ function AddonMath_create() {
 
     presenter.convertVariables = function (variables, expressions) {
         if (ModelValidationUtils.isStringEmpty(variables)) return { isError: false, variables: [] };
-
         var variablesArray = [], splittedVariables = variables.split('\n'), i, j, expVariables = [];
-
         for (i = 0; i < splittedVariables.length; i++) {
             var line = splittedVariables[i];
             if (line.indexOf('=') === -1) return { isError: true, errorCode: 'CV_01' };
-
             var splittedLine = line.split('=');
             if (splittedLine.length !== 2 || splittedLine[1].length === 0) return { isError: true, errorCode: 'CV_02' };
 
@@ -90,7 +102,6 @@ function AddonMath_create() {
 
     presenter.parseShowAnswers = function (answers, convertedVariables) {
         if (ModelValidationUtils.isStringEmpty(answers)) return getCorrectObject([]);
-
         var variables = answers.split('\n').map(function(line) {
             return {
                 name:line.substr(0, line.indexOf('=')).trim(),
@@ -98,7 +109,6 @@ function AddonMath_create() {
                 users: ''
             }
         });
-
         if (variables.some(function(v) { return v.value === '' && v.name === ''; })) {
             return getErrorObject('SA04'); // check if empty line is in property
         }
@@ -131,7 +141,6 @@ function AddonMath_create() {
 
     presenter.convertExpressions = function (expressions) {
         var expressionsArray = [], splittedExpressions = expressions.split('\n');
-
         for (var i = 0; i < splittedExpressions.length; i++) {
             expressionsArray.push(splittedExpressions[i]);
         }
@@ -819,14 +828,14 @@ function AddonMath_create() {
 
     presenter.onBeforePrint = function(model) {
         if (!presenter.printableController) return;
-        var configuration = presenter.convertModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var configuration = presenter.convertModel(upgradedModel);
         var result = presenter.evaluateAllExpressions(configuration.expressions, configuration.variables, configuration.separators, true);
-        if (!result.isError) {
-            var variableToGapDict = {};
-            for (var i = 0; i < configuration.variables.length; i++) {
-                presenter.printableController.setCalculatedGapCorrect(configuration.variables[i].value, result.overall);
-                variableToGapDict[configuration.variables[i].name] = configuration.variables[i].value;
-            }
+        if (result.isError) return;
+        var variableToGapDict = {};
+        for (var i = 0; i < configuration.variables.length; i++) {
+            presenter.printableController.setCalculatedGapCorrect(configuration.variables[i].value, result.overall);
+            variableToGapDict[configuration.variables[i].name] = configuration.variables[i].value;
         }
         for (var i = 0; i < configuration.answers.length; i++) {
             var answer = configuration.answers[i];
@@ -858,10 +867,11 @@ function AddonMath_create() {
         var gapValue = null;
         if (presenter.isTableState(addonState)) {
             gapValue = presenter.getGapValueFromTableState(gapIndex, addonState);
+            gapValue = gapValue.replace(',','.');
             if (isNaN(gapValue)) {
                 gapValue = null;
             } else {
-                gapValue = parseInt(gapValue);
+                gapValue = parseFloat(gapValue);
             }
         }
         return gapValue;

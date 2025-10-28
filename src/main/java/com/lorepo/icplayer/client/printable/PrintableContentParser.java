@@ -397,11 +397,11 @@ public class PrintableContentParser {
 			IModuleModel model = getModuleModel(page, page.getId(), i);
 			if (model instanceof IBeforePrintable && model instanceof IPrintableModuleModel) {
 			    IPrintableModuleModel printModel = (IPrintableModuleModel) model;
-			    IBeforePrintable beforePrintableModel = (IBeforePrintable) printModel;
-			    if (beforePrintableModel.isBeforePrint()) {
-			        printModel.setPrintableController(controller);
-			        beforePrintableModel.onBeforePrint();
-			    }
+			    if (printModel.getPrintableMode() == PrintableMode.NO) continue;
+                IBeforePrintable beforePrintableModel = (IBeforePrintable) printModel;
+                if (!beforePrintableModel.isBeforePrint()) continue;
+                printModel.setPrintableController(controller);
+                beforePrintableModel.onBeforePrint();
 			}
         }
 	}

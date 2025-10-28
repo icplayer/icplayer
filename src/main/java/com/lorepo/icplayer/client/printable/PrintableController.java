@@ -106,7 +106,7 @@ public class PrintableController {
 		}
 
 		controller.setCalculatedGapAnswer = function(gapId, value) {
-		    return x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapAnswer(Ljava/lang/String;Ljava/lang/String;)(gapId, value);
+		    x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapAnswer(Ljava/lang/String;Ljava/lang/String;)(gapId, value);
 		}
 
 		controller.getCalculatedGapAnswer = function(gapId) {
@@ -114,7 +114,7 @@ public class PrintableController {
 		}
 
 		controller.setCalculatedGapCorrect = function(gapId, value) {
-		    return x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapCorrect(Ljava/lang/String;Z)(gapId, value);
+		    x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapCorrect(Ljava/lang/String;Z)(gapId, value);
 		}
 
 		controller.getCalculatedGapCorrect = function(gapId) {
@@ -213,7 +213,7 @@ public class PrintableController {
 	}
 
 	public boolean getCalculatedGapCorrect(String gapId) {
-	    if (!calculatedGapsCorrect.containsKey(gapId)) return false;
+	    if (!hasCalculatedGapCorrect(gapId)) return false;
 	    return calculatedGapsCorrect.get(gapId);
 	}
 
