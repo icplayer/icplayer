@@ -143,7 +143,7 @@ function AddonParagraph_create() {
             'score': ''
         };
 
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.removeFocusFromDisabledElement = function () {
@@ -477,7 +477,7 @@ function AddonParagraph_create() {
             'score': ''
         };
 
-        presenter.eventBus.sendEvent('ValueChanged', eventData);
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.initTinymce = function () {
@@ -1270,7 +1270,6 @@ function AddonParagraph_create() {
 
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
         presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
         presenter.pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
     };

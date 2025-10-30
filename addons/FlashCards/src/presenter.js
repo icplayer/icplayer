@@ -252,7 +252,9 @@ function AddonFlashCards_create(){
         }        
 
         presenter.showCard(1);
-        presenter.addClickHandlers();
+        setTimeout(()=> {
+            presenter.addClickHandlers();
+        }, 0);
 
         //audio
         presenter.isFrontPlaying = false;
@@ -587,6 +589,7 @@ function AddonFlashCards_create(){
     presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.$view.css("display", isVisible ? "" : "none");
     };
 
     presenter.updateVisibility = function () {

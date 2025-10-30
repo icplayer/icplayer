@@ -355,7 +355,7 @@ public class TextPrintable {
 
 		$_("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
-		$wrapper.detach();
+		$outerLessonWrapper.remove();
 		return width;
 	}-*/;
 }
