@@ -860,6 +860,17 @@ function AddonMath_create() {
         return gapState.value;
     }
 
+    presenter.isTextState = function(addonState) {
+        return addonState.hasOwnProperty('values') && addonState.hasOwnProperty('gapUniqueId');
+    }
+
+    presenter.getGapValueFromTextState = function(gapIndex, addonState) {
+        var values = JSON.parse(addonState.values);
+        var gapKey = addonState.gapUniqueId + "-" + gapIndex;
+        if (!values.hasOwnProperty(gapKey)) return null;
+        return values[gapKey];
+    }
+
     presenter.getVariableValueFromPrintableState = function(variableID) {
         if (!presenter.printableController) return null;
         var splitVariableID = variableID.split('.');
@@ -873,6 +884,10 @@ function AddonMath_create() {
         var gapValue = null;
         if (presenter.isTableState(addonState)) {
             gapValue = presenter.getGapValueFromTableState(gapIndex, addonState);
+        } else if (presenter.isTextState(addonState)) {
+            gapValue = presenter.getGapValueFromTextState(gapIndex, addonState);
+        }
+        if (gapValue != null) {
             gapValue = gapValue.replace(',','.');
             if (isNaN(gapValue)) {
                 gapValue = null;
