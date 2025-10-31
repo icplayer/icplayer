@@ -19,6 +19,9 @@ public class PrintableController {
 	private IPrintableTextParser textParser;
 	private boolean preview = false;
 	private String lessonTemplate = "";
+	private HashMap<String, String> loadedState = null;
+	private HashMap<String, String> calculatedGapsAnswers = new HashMap<String, String>();
+	private HashMap<String, Boolean> calculatedGapsCorrect = new HashMap<String, Boolean>();
 	
 	PrintableController(Page page) {
 		this.page = page;
@@ -98,6 +101,30 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getLessonTemplate()();
 		}
 
+		controller.getModuleState = function(moduleId) {
+		    return x.@com.lorepo.icplayer.client.printable.PrintableController::getModuleState(Ljava/lang/String;)(moduleId);
+		}
+
+		controller.setCalculatedGapAnswer = function(gapId, value) {
+		    x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapAnswer(Ljava/lang/String;Ljava/lang/String;)(gapId, value);
+		}
+
+		controller.getCalculatedGapAnswer = function(gapId) {
+		    return x.@com.lorepo.icplayer.client.printable.PrintableController::getCalculatedGapAnswer(Ljava/lang/String;)(gapId);
+		}
+
+		controller.setCalculatedGapCorrect = function(gapId, value) {
+		    x.@com.lorepo.icplayer.client.printable.PrintableController::setCalculatedGapCorrect(Ljava/lang/String;Z)(gapId, value);
+		}
+
+		controller.getCalculatedGapCorrect = function(gapId) {
+		    return x.@com.lorepo.icplayer.client.printable.PrintableController::getCalculatedGapCorrect(Ljava/lang/String;)(gapId);
+		}
+
+		controller.hasCalculatedGapCorrect = function(gapId) {
+		    return x.@com.lorepo.icplayer.client.printable.PrintableController::hasCalculatedGapCorrect(Ljava/lang/String;)(gapId);
+		}
+
 		return controller;
 	}-*/;
 
@@ -158,6 +185,40 @@ public class PrintableController {
 
 	public String getLessonTemplate() {
 		return lessonTemplate;
+	}
+
+	public void setLoadedState(HashMap<String, String> loadedState) {
+	    this.loadedState = loadedState;
+	}
+
+	public String getModuleState(String moduleId) {
+	    if (moduleId == null) return "";
+		String stateKey = this.page.getId() + moduleId;
+		if (this.loadedState != null && this.loadedState.containsKey(stateKey)) {
+			return this.loadedState.get(stateKey);
+		}
+		return "";
+	}
+
+	public void setCalculatedGapAnswer(String gapId, String value) {
+	    calculatedGapsAnswers.put(gapId, value);
+	}
+
+	public String getCalculatedGapAnswer(String gapId) {
+	    return calculatedGapsAnswers.get(gapId);
+	}
+
+	public void setCalculatedGapCorrect(String gapId, boolean value) {
+	    calculatedGapsCorrect.put(gapId, value);
+	}
+
+	public boolean getCalculatedGapCorrect(String gapId) {
+	    if (!hasCalculatedGapCorrect(gapId)) return false;
+	    return calculatedGapsCorrect.get(gapId);
+	}
+
+	public boolean hasCalculatedGapCorrect(String gapId) {
+	    return calculatedGapsCorrect.containsKey(gapId);
 	}
 
 }

@@ -25,6 +25,7 @@ import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.text.TextPrintable;
+import com.lorepo.icplayer.client.printable.IBeforePrintable;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 import com.lorepo.icplayer.client.printable.PrintableContentParser.ParsedListener;
 import com.lorepo.icplayer.client.printable.PrintableContentParser.PrintableHtmlTemplates;
@@ -229,6 +230,7 @@ public class PrintableContentParser {
 		} else {
 			result = printable.getPrintableHTML(showAnswers);
 		}
+		if (result == null) result = "";
 		return result;
 	}
 
@@ -348,6 +350,11 @@ public class PrintableContentParser {
 		if (!this.contentInformation.isEmpty()) {
 			pagePrintableController.setContentInformation(this.contentInformation);
 		}
+		if (loadedState != null) {
+		    pagePrintableController.setLoadedState(loadedState);
+		}
+
+		precomputePageModules(page, pagePrintableController);
 
 		ModuleList modules = page.getModules();
 		int modulesNumber = getModulesNumber(modules, page.getId());
@@ -381,6 +388,22 @@ public class PrintableContentParser {
 			result += getPrintableModuleHTML(printable, showAnswers, pagePrintableController);
 		}
 		return result;
+	}
+
+	private void precomputePageModules(Page page, PrintableController controller) {
+	    ModuleList modules = page.getModules();
+		int modulesNumber = getModulesNumber(modules, page.getId());
+		for (int i = 0; i < modulesNumber; i++) {
+			IModuleModel model = getModuleModel(page, page.getId(), i);
+			if (model instanceof IBeforePrintable && model instanceof IPrintableModuleModel) {
+			    IPrintableModuleModel printModel = (IPrintableModuleModel) model;
+			    if (printModel.getPrintableMode() == PrintableMode.NO) continue;
+                IBeforePrintable beforePrintableModel = (IBeforePrintable) printModel;
+                if (!beforePrintableModel.isBeforePrint()) continue;
+                printModel.setPrintableController(controller);
+                beforePrintableModel.onBeforePrint();
+			}
+        }
 	}
 
 	private int getModulesNumber(ModuleList modules, String pageID){
