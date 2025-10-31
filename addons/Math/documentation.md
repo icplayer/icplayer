@@ -47,6 +47,11 @@ The Math addon has been developed for all teachers who prepare math presentation
         <td>The empty answer is specially dedicated to dropdown gaps in Text module with the default option "---". It's treated by the Math module as an answer, not as an empty value. This property allows defining that it should be treated as an empty answer, not the triple dash value. Only one single word without spaces is allowed, e.g: "---".
         </td>
     </tr>
+    <tr>
+        <td>Printable</td>
+        <td>If set to a value other than NO, the use of the Math addon in print will be enabled. The linked gaps will display the values configured in the Math addon when printing in the Show Answers and Check User Answers modes.
+        </td>
+    </tr>
 </table>
 
 ### Note about expressions:

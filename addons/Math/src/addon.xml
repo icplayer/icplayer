@@ -11,5 +11,6 @@
         <property name="onIncorrect" nameLabel="Math_property_on_incorrect" type="event" />
         <property name="onPartiallyCompleted" nameLabel="Math_property_on_partially_completed" type="event" />
         <property name="Empty Answer" nameLabel="Math_property_empty_answer" type="string" />
+        <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
     </model>
 </addon>
