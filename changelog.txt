@@ -1,3 +1,4 @@
+2025-09-30 Fixed media recorder analyzer being blocked on Safari
 2025-10-30 Extended default CSS styles to prevent differences in printouts between devices
 2025-10-30 Fixed issue with wrong height of Connection addon in printable mode
 2025-10-30 Added support for Math with Text in print
