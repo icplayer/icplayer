@@ -318,7 +318,7 @@ TestCase("[Connection] Connection printable html validation", {
         $root.attr('id', '');
         $root.addClass('printable_addon_Connection');
         $root.css('max-width', '300px');
-        $root.css('height', '92px');
+        $root.css('height', '156px');
         $root.html(
             '<table class="connectionContainer">' +
                 '<tr>' + answersLeftColumn +

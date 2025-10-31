@@ -105,6 +105,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void enableDraggableGapExtension(String gapId);
 		void disableDraggableGapExtension(String gapId);
 		void addIOSClass();
+		boolean hasAddonGaps();
 	}
 
 	public interface NavigationTextElement {
@@ -512,7 +513,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		savedDisabledState = stateDisabled;
 
-		if (module.hasMathGaps() && !isShowAnswersActive) {
+		if (module.hasMathGaps() && !isShowAnswersActive && !view.hasAddonGaps()) {
 			view.setHTML(module.parsedText);
 			view.refreshMath();
 			((TextView) view).reconnectHandlers();

@@ -333,16 +333,19 @@ export class MediaRecorder {
         this.player.setIsMlibro(this.isMlibro);
         this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
-        if (this.playerController)
+        if (this.eventBus)
             this._loadEventBus();
     }
 
-    _loadEventBus() {
-        let eventBus = this.playerController.getEventBus();
-        this.player.setEventBus(eventBus, this.model.ID, "player");
-        this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
-        this.recorder.setEventBus(eventBus, this.model.ID);
+    setEventBus(eventBus) {
         this.eventBus = eventBus;
+    }
+
+    _loadEventBus() {
+        // this method passes the event bus to the other components
+        this.player.setEventBus(this.eventBus, this.model.ID, "player");
+        this.defaultRecordingPlayer.setEventBus(this.eventBus, this.model.ID, "default");
+        this.recorder.setEventBus(this.eventBus, this.model.ID);
     }
 
     _loadViewElements() {

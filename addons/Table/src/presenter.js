@@ -2694,8 +2694,11 @@ function AddonTable_create() {
         presenter.printableState = JSON.parse(state);
     };
 
+    presenter.printableController = null;
+
     presenter.setPrintableController = function(controller) {
         presenter.textParser = new TextParserProxy(controller.getTextParser());
+        presenter.printableController = controller;
     }
 
     function chosePrintableStateMode(showAnswers) {
@@ -2789,7 +2792,7 @@ function AddonTable_create() {
             const textWithoutFoundGapBeginning = textToSearch.substring(gapMatch.index + gapMatch[0].length);
 
             closingBracketIndex = presenter.textParser.findClosingBracket(textWithoutFoundGapBeginning);
-            if (closingBracketIndex > 0) {
+            if (closingBracketIndex > -1) {
                 const gapEndIndex = gapMatch.index + gapMatch[0].length + closingBracketIndex + closingSignGapSize;
                 const wholeGapTextToTheEndingBracket = textToSearch.substring(gapMatch.index, gapEndIndex);
                 // ex: \gap{lorem|ispum|\(\frac{1}{4}\)}
@@ -2824,7 +2827,14 @@ function AddonTable_create() {
 
         const tablePrintableOptions = indexRegexMatchesBaseOnGapsTypes(gapsMatches);
         for (let i = 0; i < tablePrintableOptions.length; i++) {
+            const gapScriptID = presenter.configuration.addonID + '.' + (i+1);
             const tablePrintableOption = tablePrintableOptions[i];
+            if (presenter.printableController) {
+                if (presenter.printableController.hasCalculatedGapCorrect(gapScriptID)) {
+                    tablePrintableOption.setCalculatedCorrect(presenter.printableController.getCalculatedGapCorrect(gapScriptID));
+                }
+                tablePrintableOption.setCalculatedAnswer(presenter.printableController.getCalculatedGapAnswer(gapScriptID));
+            }
             const optionHTML = tablePrintableOption.getPrintableHTML();
             html = html.replace(tablePrintableOption.text, optionHTML);
         }
@@ -2873,6 +2883,17 @@ function AddonTable_create() {
     function parsePrintableMathGaps(html) {
         const gapsMatches = matchGapAndFilledGap(html);
         const tablePrintableOptions = indexRegexMatchesBaseOnGapsTypes(gapsMatches);
+
+        for (var i = 0; i < tablePrintableOptions.length; i++) {
+            if (presenter.printableController) {
+                const tablePrintableOption = tablePrintableOptions[i];
+                const gapScriptID = presenter.configuration.addonID + '.' + (i+1);
+                if (presenter.printableController.hasCalculatedGapCorrect(gapScriptID)) {
+                    tablePrintableOption.setCalculatedCorrect(presenter.printableController.getCalculatedGapCorrect(gapScriptID));
+                }
+                tablePrintableOption.setCalculatedAnswer(presenter.printableController.getCalculatedGapAnswer(gapScriptID));
+            }
+        }
 
         // replace normal gap syntax with math gap syntax
         for (let i = 0; i < gapsMatches.length; i++) {
@@ -2972,7 +2993,7 @@ function AddonTable_create() {
 		$wrapper.html(html);
 		$("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return width;
     }
 
@@ -3013,6 +3034,16 @@ function AddonTable_create() {
         return $signSpan[0].outerHTML;
     }
 
+    TablePrintableOption.prototype.setCalculatedAnswer = function(answer) {
+        if (answer == null) return;
+        this.calculatedAnswer = answer;
+    }
+
+    TablePrintableOption.prototype.setCalculatedCorrect = function(isCorrect) {
+        if (isCorrect == null) return;
+        this.calculatedCorrect = isCorrect;
+    }
+
     /**
      * TablePrintableEditableGapOption
      */
@@ -3047,6 +3078,7 @@ function AddonTable_create() {
     }
 
     TablePrintableEditableGapOption.prototype.hasCorrectAnswer = function () {
+        if (this.calculatedCorrect !== undefined) return this.calculatedCorrect;
         return this.correctAnswer === this.getAnswer();
     }
 
@@ -3060,6 +3092,7 @@ function AddonTable_create() {
                 return this.generateInnerTextForEmptyStateMode();
             }
             case presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS: {
+                if (this.calculatedAnswer !== undefined) return this.calculatedAnswer;
                 return this.correctAnswer;
             }
             case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS:
@@ -3206,6 +3239,7 @@ function AddonTable_create() {
     }
 
     TablePrintableDropdownGapOption.prototype.hasCorrectAnswer = function () {
+        if (this.calculatedCorrect !== undefined) return this.calculatedCorrect;
         return this.chosenOptionIndex === this.correctOptionIndex;
     }
 

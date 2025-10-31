@@ -1,28 +1,24 @@
 function AddonDouble_State_Button_create(){
-    var presenter = function() {};
+    let presenter = function() {};
 
-    var playerController;
-    var isMouseDown = false;
-    var isTouchDown = false;
-    var isMouseBlocked = false;
-    var isWCAGOn = false;
+    let playerController;
+    let isWCAGOn = false;
+    let eventBus = null;
 
-    presenter.lastEvent = null;
     presenter.speechTexts = {};
     presenter.setURLIconFromCSS = false;
 
-    var CSS_CLASSES = {
+    const CSS_CLASSES = {
         ELEMENT : "doublestate-button-element",
         MOUSE_HOVER : "doublestate-button-element-mouse-hover",
-        MOUSE_CLICK : "doublestate-button-element-mouse-click",
         SELECTED : "doublestate-button-element-selected",
         SELECTED_MOUSE_HOVER : "doublestate-button-element-selected-mouse-hover",
-        SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click",
-        IMAGE_BUTTON : "doublestate-button-image",
+        IMAGE : "doublestate-button-image",
+        TEXT : "doublestate-button-text",
         MOCKED : 'mocked',
     };
 
-    var DEFAULT_TTS_PHRASES = {
+    const DEFAULT_TTS_PHRASES = {
         SELECT_BUTTON: "selected",
         DESELECT_BUTTON: "deselected",
         DISABLED_BUTTON: "disabled"
@@ -33,8 +29,8 @@ function AddonDouble_State_Button_create(){
     };
 
     function CSS_CLASSESToString() {
-        return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.MOUSE_CLICK + " " +
-            CSS_CLASSES.SELECTED + " " + CSS_CLASSES.SELECTED_MOUSE_HOVER + " " + CSS_CLASSES.SELECTED_MOUSE_CLICK;
+        return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.MOUSE_HOVER + " "  +
+            CSS_CLASSES.SELECTED + " " + CSS_CLASSES.SELECTED_MOUSE_HOVER;
     }
 
     presenter.DISPLAY_CONTENT_TYPE = {
@@ -161,37 +157,10 @@ function AddonDouble_State_Button_create(){
         handleReplaceSVGIcon();
     };
 
-    function handleTouchActions() {
-        var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
-
-        element.on('touchstart', touchStartEventHandler);
-        element.on('touchend', touchEndEventHandler);
-    }
-
-    function touchStartEventHandler(e) {
-        isMouseBlocked = true;
-        e.preventDefault();
-        e.stopPropagation();
-        presenter.lastEvent = e;
-        isTouchDown = true;
-    }
-
-    function touchEndEventHandler(e) {
-        e.preventDefault();
-        if (isTouchDown) {
-            if ( presenter.lastEvent.type != e.type ) {
-                presenter.clickHandler(e);
-            }
-            isTouchDown = false;
-        }
-    }
-
-    function handleMouseActions() {
+    function addPointersListeners() {
         const $element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
-        $element.on('mousedown', (e) => mouseDownEventHandler(e));
-        $element.on('click', (e) => clickEventHandler(e));
-        $element.on('mouseup', (e) => mouseUpEventHandler(e));
+        $element.on('click', (e) => presenter.clickHandler(e));
 
         $element.hover(
             function() {
@@ -203,32 +172,6 @@ function AddonDouble_State_Button_create(){
                 $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
             }
         );
-    }
-
-    function mouseDownEventHandler(e) {
-        if (!isMouseBlocked) {
-            e.preventDefault();
-            e.stopPropagation();
-            presenter.lastEvent = e;
-            isMouseDown = true;
-        }
-    }
-
-    function clickEventHandler(e){
-        e.stopPropagation();
-    }
-
-    function mouseUpEventHandler(e) {
-        if (!isMouseBlocked) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isMouseDown) {
-                if (presenter.lastEvent.type != e.type) {
-                    presenter.clickHandler(e);
-                }
-                isMouseDown = false;
-            }
-        }
     }
 
     function setElementsDimensions(model, wrapper, element) {
@@ -278,8 +221,8 @@ function AddonDouble_State_Button_create(){
     };
 
     function createImageElement(element) {
-        var imageElement = document.createElement('img');
-        $(imageElement).addClass('doublestate-button-image');
+        const imageElement = document.createElement('img');
+        $(imageElement).addClass(CSS_CLASSES.IMAGE);
         $(imageElement).attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
 
         $(element).append(imageElement);
@@ -436,8 +379,8 @@ function AddonDouble_State_Button_create(){
     };
 
     function createTextElement(element) {
-        var textElement = document.createElement('span');
-        $(textElement).addClass('doublestate-button-text');
+        const textElement = document.createElement('span');
+        $(textElement).addClass(CSS_CLASSES.TEXT);
         const buttonText = presenter.getSanitizedButtonTextValue();
         $(textElement).html(buttonText);
         $(element).append(textElement);
@@ -490,8 +433,7 @@ function AddonDouble_State_Button_create(){
     }
 
     presenter.addEvents = function () {
-        handleTouchActions();
-        handleMouseActions();
+        addPointersListeners();
         presenter.addKeyboardListeners();
     }
 
@@ -508,7 +450,6 @@ function AddonDouble_State_Button_create(){
         }
     };
 
-
     function applySelectionStyle(className) {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
@@ -517,14 +458,14 @@ function AddonDouble_State_Button_create(){
     }
 
     presenter.setElementSelection = function() {
-        var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
-        var displayContent = presenter.isSelected() ? presenter.configuration.selected.displayContent : presenter.configuration.deselected.displayContent;
+        const element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+        const displayContent = presenter.isSelected() ? presenter.configuration.selected.displayContent : presenter.configuration.deselected.displayContent;
 
-        var textElement = $(element).find('.doublestate-button-text');
+        const textElement = $(element).find('.' + CSS_CLASSES.TEXT);
         const buttonText = presenter.getSanitizedButtonTextValue();
         textElement.html(buttonText);
 
-        var imageElement = $(element).find('.doublestate-button-image');
+        const imageElement = $(element).find('.' + CSS_CLASSES.IMAGE);
         imageElement.attr('src', presenter.isSelected() ? presenter.configuration.selected.image : presenter.configuration.deselected.image);
 
         switch (displayContent) {
@@ -555,7 +496,7 @@ function AddonDouble_State_Button_create(){
     }
 
     presenter.updateLaTeX = function () {
-        var textElement = presenter.$view.find('.doublestate-button-text')[0];
+        const textElement = presenter.$view.find('.' + CSS_CLASSES.TEXT)[0];
         presenter.mathJaxProcessEnded.then(function () {
                 const args = [];
                 args.push("Typeset", MathJax.Hub, textElement);
@@ -621,7 +562,6 @@ function AddonDouble_State_Button_create(){
 
     presenter.setPlayerController = function(controller) {
         playerController = controller;
-        var eventBus = playerController.getEventBus();
 
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
@@ -634,10 +574,14 @@ function AddonDouble_State_Button_create(){
                 }
             }
         });
+    };
+
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
-    };
+    }
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model, true);
@@ -873,10 +817,8 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.sendEventData = function () {
-        var eventData = presenter.createEventData();
-        if (playerController !== null) {
-            playerController.getEventBus().sendEvent('ValueChanged', eventData);
-        }
+        const eventData = presenter.createEventData();
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1006,14 +948,6 @@ function AddonDouble_State_Button_create(){
     presenter.destroy = function(event) {
         if (event.target === presenter.view) {
             presenter.wrapper.removeEventListener("keydown", presenter.handleKeyboardEvents);
-
-            var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
-            element.off("touchstart", touchStartEventHandler);
-            element.off("touchend", touchEndEventHandler);
-
-            element.off("mousedown", mouseDownEventHandler);
-            element.off("click", clickEventHandler);
-            element.off("mouseup", mouseUpEventHandler);
         }
     };
 

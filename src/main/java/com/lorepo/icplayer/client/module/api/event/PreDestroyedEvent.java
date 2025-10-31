@@ -54,6 +54,7 @@ public class PreDestroyedEvent extends PlayerEvent<Handler> {
 		data.put("source", moduleID);
 		data.put("value", value);
 		data.put("pageId", pageID);
+		if (itemID.length() > 0)  data.put("item", itemID);
 		data.put("moduleType", moduleType);
 
 		return data;

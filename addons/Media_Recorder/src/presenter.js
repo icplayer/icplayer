@@ -1059,6 +1059,10 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.setPlayerController(controller);
     };
 
+    presenter.setEventBus = function (eventBus) {
+        presenter.mediaRecorder.setEventBus(eventBus);
+    };
+
     presenter.run = function run(view, model) {
         presenter.view = view;
         presenter.mediaRecorder.run(view, model);
@@ -1612,16 +1616,20 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.player.setIsMlibro(this.isMlibro);
             this.defaultRecordingPlayer = new _AudioPlayer.AudioPlayer(this.viewHandlers.$playerView, this.isMlibro);
             this.resourcesProvider = new _AudioResourcesProvider.AudioResourcesProvider(this.viewHandlers.$wrapperView);
-            if (this.playerController) this._loadEventBus();
+            if (this.eventBus) this._loadEventBus();
+        }
+    }, {
+        key: "setEventBus",
+        value: function setEventBus(eventBus) {
+            this.eventBus = eventBus;
         }
     }, {
         key: "_loadEventBus",
         value: function _loadEventBus() {
-            var eventBus = this.playerController.getEventBus();
-            this.player.setEventBus(eventBus, this.model.ID, "player");
-            this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
-            this.recorder.setEventBus(eventBus, this.model.ID);
-            this.eventBus = eventBus;
+            // this method passes the event bus to the other components
+            this.player.setEventBus(this.eventBus, this.model.ID, "player");
+            this.defaultRecordingPlayer.setEventBus(this.eventBus, this.model.ID, "default");
+            this.recorder.setEventBus(this.eventBus, this.model.ID);
         }
     }, {
         key: "_loadViewElements",
