@@ -10,6 +10,7 @@ import com.google.gwt.dom.client.Text;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.google.gwt.regexp.shared.MatchResult;
@@ -388,7 +389,9 @@ public class WCAGUtils {
 			final NavigationTextElement element = !isClosestBreak ? getElement(textElements, elementNumber - 1) : null;
 			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
 
+            JavaScriptUtils.log("element");
 			final String elementContent = element != null ? getElementTextElementContent(element) : "";
+			JavaScriptUtils.log(elementContent);
 			final List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
 
 			if (element instanceof AltTextGap) {

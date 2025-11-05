@@ -4,6 +4,7 @@ import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
@@ -135,6 +136,8 @@ public class AlternativeTextService {
     }
 
     public static List<IToken> parseAltText(String srcText) {
+        JavaScriptUtils.log("parseAltText");
+        JavaScriptUtils.log(srcText);
         srcText = escapeAltTextInTag(srcText);
         final String pattern = "\\\\alt\\{";
         String input = srcText;
@@ -159,10 +162,12 @@ public class AlternativeTextService {
             index = TextParser.findClosingBracket(input);
 
             String expression = input.substring(0, index); // inside of brackets {visibleText|readableText}
+            JavaScriptUtils.log("expression");
+            JavaScriptUtils.log(expression);
             input = input.substring(index + 1); // remove closing bracket
             Map<String, String> gapOptions = getGapOptions(input); // finds [lang langTag]
             input = removeGapOptions(input); // removes langtag from input
-            int separatorIndex = expression.indexOf("|");
+            int separatorIndex = findSeparatorIndexOutsideBrackets(expression);
             if (separatorIndex > 0) {
                 String visibleText = expression.substring(0, separatorIndex);
                 String readableText = expression.substring(separatorIndex + 1);
@@ -263,4 +268,27 @@ public class AlternativeTextService {
         }
         return parsedText;
     }
+
+    public static int findSeparatorIndexOutsideBrackets(String input) {
+
+		int counter = 0;
+
+		if (input.indexOf("\\gap{") == -1 || input.indexOf("\\(") == -1) {
+		    return input.indexOf("|");
+		} else {
+            for (int index = 0; index < input.length(); index++) {
+
+                char currentChar = input.charAt(index);
+                if (currentChar == '{') {
+                    counter++;
+                } else if (currentChar == '}') {
+                    counter--;
+                } else if (currentChar =='|' && counter == 0) {
+                    return index;
+                }
+            }
+
+            return -1;
+		}
+	}
 }
