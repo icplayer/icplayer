@@ -82,6 +82,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 
 		getElement().setAttribute("lang", this.module.getLangAttribute());
+		JavaScriptUtils.log("final test - IT WORKS!!!");
 	}
 
 	@Override
@@ -1017,6 +1018,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void speak (List<TextToSpeechVoice> textVoices) {
+	    JavaScriptUtils.log("speak");
+	    for (int i=0; i<textVoices.size(); i++) JavaScriptUtils.log(textVoices.get(i));
 		if (this.pageController != null && this.isWCAGon) {
 			this.pageController.speak(textVoices);
 		}

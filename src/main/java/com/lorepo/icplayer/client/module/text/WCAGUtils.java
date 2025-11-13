@@ -13,6 +13,7 @@ import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.NavigationTextElement;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 
@@ -83,6 +84,27 @@ public class WCAGUtils {
 			overwritten = true;
 		}
 		
+		return i;
+	}
+
+	private static int getMinPositiveNumber (int n1, int n2, int n3) {
+		boolean overwritten = false;
+		int i = -1;
+		if(n1 >= 0) {
+			i = n1;
+			overwritten = true;
+		}
+
+		if(n2 >= 0 && (!overwritten || n2 < i)) {
+			i = n2;
+			overwritten = true;
+		}
+
+		if(n3 >= 0 && (!overwritten || n3 < i)) {
+			i = n3;
+			overwritten = true;
+		}
+
 		return i;
 	}
 	
@@ -364,6 +386,7 @@ public class WCAGUtils {
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<NavigationTextElement> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
+		text = AlternativeTextService.parseGapsInAltText(text);
 		int gapNumber = 1;
 		int elementNumber = 1; 		//added to distinct gaps from links
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
@@ -389,9 +412,7 @@ public class WCAGUtils {
 			final NavigationTextElement element = !isClosestBreak ? getElement(textElements, elementNumber - 1) : null;
 			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
 
-            JavaScriptUtils.log("element");
 			final String elementContent = element != null ? getElementTextElementContent(element) : "";
-			JavaScriptUtils.log(elementContent);
 			final List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
 
 			if (element instanceof AltTextGap) {
@@ -522,4 +543,43 @@ public class WCAGUtils {
 	public static boolean hasLinks(TextModel model) {
 		return model.getOriginalText().contains("href");
 	}
+
+	public static String getClosestGapText(String text) {
+	    int gapIndex = text.indexOf(GAP_START);
+        int filledGapIndex = text.indexOf(FILLED_GAP_START);
+        int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
+
+        if (gapIndex == -1 && filledGapIndex == -1 && dropdownIndex == -1) return "";
+
+        int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex);
+
+        boolean isClosestGap = lowestIndex == gapIndex;
+        boolean isClosestFilledGap = lowestIndex == filledGapIndex;
+        boolean isClosestDropdown = lowestIndex == dropdownIndex;
+
+        if (isClosestGap) {
+            int endGapIndex = text.indexOf(GAP_END, lowestIndex);
+            if (endGapIndex == -1) return "";
+            endGapIndex += GAP_END.length();
+            return text.substring(gapIndex, endGapIndex);
+        }
+
+        if (isClosestFilledGap) {
+            int endGapIndex = text.indexOf(FILLED_GAP_END, lowestIndex);
+            if (endGapIndex == -1) return "";
+            endGapIndex += FILLED_GAP_END.length();
+            return text.substring(filledGapIndex, endGapIndex);
+        }
+
+        if (isClosestDropdown) {
+            int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, lowestIndex);
+            if (endGapIndex == -1) return "";
+            endGapIndex += DROP_DOWN_GAP_END.length();
+            return text.substring(dropdownIndex, endGapIndex);
+        }
+
+        return "";
+
+	}
+
 }
