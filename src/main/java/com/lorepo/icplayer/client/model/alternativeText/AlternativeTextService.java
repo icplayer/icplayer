@@ -4,7 +4,6 @@ import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
@@ -270,9 +269,6 @@ public class AlternativeTextService {
 
 		int counter = 0;
 
-		//if (input.indexOf("\\gap{") == -1 || input.indexOf("\\(") == -1) {
-		//    return input.indexOf("|");
-		//} else {
             for (int index = 0; index < input.length(); index++) {
 
                 char currentChar = input.charAt(index);
