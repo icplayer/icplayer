@@ -1,3 +1,8 @@
+2025-09-30 Fixed media recorder analyzer being blocked on Safari
+2025-10-30 Extended default CSS styles to prevent differences in printouts between devices
+2025-10-30 Fixed issue with wrong height of Connection addon in printable mode
+2025-10-30 Added support for Math with Text in print
+2025-10-24 Added support for Math with Table in print
 2025-10-21 Fixed issue with not full clean up after getPrintableHTML call
 2025-10-17 Fixed issue with no switching between mouse and touch support for Double State Button
 2025-10-17 Fixed media recorder events missing moduleType

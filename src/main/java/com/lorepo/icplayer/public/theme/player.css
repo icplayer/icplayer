@@ -1235,7 +1235,14 @@ semantics > annotation-xml {
 .printable_lesson {
     font-size: 14px;
     color: black;
-    font-family: open_sansregular;
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.2;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+.printable_lesson .MathJax span {
+    line-height: 1.2;
 }
 
 .printable_lesson .printable_page:last-child .printable_content > div {
@@ -1267,7 +1274,31 @@ semantics > annotation-xml {
 }
 
 /*
-Ensures MathML form MathJax uses "STIX Two Math" as primary font.
+Ensures results form player's getPrintableHTML and getPrintableHTMLWithSeed methods can use "Open Sans" as primary font.
+	The license and copyright for this font can be found under the relative links relative to where the player is placed:
+	> Copyright and Licence: <icplayer>/theme/fonts/Open_Sans/OFL.txt
+	Or online under followed links:
+	> Copyright and License: https://fonts.google.com/specimen/Open+Sans/license
+ */
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 300 800;
+    font-stretch: 75% 100%;
+    src: url(fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf) format('truetype-variations');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: italic;
+    font-weight: 300 800;
+    font-stretch: 75% 100%;
+    src: url(fonts/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf) format('truetype-variations');
+}
+
+/*
+Ensures MathML from MathJax can use "STIX Two Math" as primary font.
 	The license and copyright for this font can be found under the relative links relative to where the player is placed:
 	> Licence: <icplayer>/theme/fonts/STIXTwoMath/LICENSE.txt
 	> Copyright: <icplayer>/theme/fonts/STIXTwoMath/COPYRIGHT.txt

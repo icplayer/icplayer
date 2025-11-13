@@ -11,15 +11,21 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableController;
 
 public class TextPrintable {
 
 	private TextModel model = null;
 	private float spaceSize = 0;
+	PrintableController controller = null;
 
 	public TextPrintable(TextModel model) {
 		this.model = model;
 		this.spaceSize = getTextWidthInPixels("&nbsp;");
+	}
+
+	public void setPrintableController(PrintableController controller) {
+	    this.controller = controller;
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
@@ -118,7 +124,10 @@ public class TextPrintable {
 	}
 
 	private String createPrintableGap(GapInfo gapInfo, String placeholder, boolean showAnswers) {
-
+        String gapScriptId = "";
+        if (gapInfo.getId().split("-").length == 2) {
+            gapScriptId = model.getId() + "." + gapInfo.getId().split("-")[1];
+        }
 		Element span = DOM.createSpan();
 
 		span.setAttribute("style", "border-bottom: 1px solid;");
@@ -142,6 +151,13 @@ public class TextPrintable {
 			}
 			longestAnswer = userAnswer;
 		} else {
+		    if (controller != null && showAnswers && gapScriptId.length() > 0) {
+		        String calculatedAnswer = controller.getCalculatedGapAnswer(gapScriptId);
+		        if (calculatedAnswer != null) {
+		            value = calculatedAnswer;
+		            longestAnswer = calculatedAnswer;
+		        }
+		    }
 			do {
 				nextAnswer = answers.next();
 				if (showAnswers && value.length() == 0) {
@@ -199,7 +215,13 @@ public class TextPrintable {
 			}
 		}
 		if (userAnswer != null && userAnswer.length() > 0 && showAnswers) {
-			if (gapInfo.isCorrect(userAnswer)) {
+		    boolean isCorrect;
+		    if (controller != null && gapScriptId.length() > 0 && controller.hasCalculatedGapCorrect(gapScriptId)) {
+		        isCorrect = controller.getCalculatedGapCorrect(gapScriptId);
+		    } else {
+		        isCorrect = gapInfo.isCorrect(userAnswer);
+		    }
+			if (isCorrect) {
                 span.addClassName("ic_text-correct-answer");
             } else {
                 span.addClassName("ic_text-wrong-answer");

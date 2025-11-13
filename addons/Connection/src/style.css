@@ -100,3 +100,9 @@
 .inCorrectAnswerDiv::before {
     content: "\2716";
 }
+
+.printable_addon_Connection .connectionContainer .connections {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+}
