@@ -38,7 +38,13 @@ If you want a gap with the introductory text (e.g. to be corrected by students),
 
 For more than one answer, you should use the syntax for a draggable and editable gap:
 
-\\filledGap{initial text|answer|another answer} where the first value is a placeholder and the next two values are the answers. 
+\\filledGap{initial text|answer|another answer} where the first value is a placeholder and the next two values are the answers.
+
+* Gaps within alternative text
+
+In order to correctly read the contents of gaps within an alternative text element, you should use the alternative gap syntax. \\altGap will within the alternative text will be read as the corresponding gap from visible text. It is important that the number and order of altGap elements is the same as the gaps within the visible text.
+
+Example: \\alt{1 + \\{gap{2) = 3 | one plus \\altGap equals three}
 
 ## Definitions
 It is possible to put definitions inside the Text module. To do it, use \\def{my_id|word} syntax and "word" will be displayed as a clickable element with an id – "my_id". Clicking on the definition will trigger a Definition event which can be used by other modules. The most common use involves cooperation with Glossary addon.

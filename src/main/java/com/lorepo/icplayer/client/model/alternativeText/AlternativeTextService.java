@@ -5,6 +5,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextParser;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
 import java.util.ArrayList;
@@ -162,7 +163,7 @@ public class AlternativeTextService {
             input = input.substring(index + 1); // remove closing bracket
             Map<String, String> gapOptions = getGapOptions(input); // finds [lang langTag]
             input = removeGapOptions(input); // removes langtag from input
-            int separatorIndex = expression.indexOf("|");
+            int separatorIndex = findSeparatorIndexOutsideBrackets(expression);
             if (separatorIndex > 0) {
                 String visibleText = expression.substring(0, separatorIndex);
                 String readableText = expression.substring(separatorIndex + 1);
@@ -263,4 +264,103 @@ public class AlternativeTextService {
         }
         return parsedText;
     }
+
+    public static int findSeparatorIndexOutsideBrackets(String input) {
+
+		int counter = 0;
+
+            for (int index = 0; index < input.length(); index++) {
+
+                char currentChar = input.charAt(index);
+                if (currentChar == '{') {
+                    counter++;
+                } else if (currentChar == '}') {
+                    counter--;
+                } else if (currentChar =='|' && counter == 0) {
+                    return index;
+                }
+            }
+
+            return -1;
+		//}
+	}
+
+	public static String parseGapsInAltText(String srcText) {
+
+	    String output = "";
+
+	    srcText = escapeAltTextInTag(srcText);
+        final String pattern = "\\\\alt\\{";
+        String input = srcText;
+        int index = -1;
+        RegExp regExp = RegExp.compile(pattern);
+        MatchResult matchResult;
+
+        List<IToken> altTokens = new ArrayList<IToken>();
+
+        while ((matchResult = regExp.exec(input)) != null) {
+            if (matchResult.getGroupCount() <= 0) { // check if alt text is available
+                break;
+            }
+
+            String group = matchResult.getGroup(0);
+
+            String textToBeginingOfAltText = input.substring(0, matchResult.getIndex());
+            if (textToBeginingOfAltText.length() > 0) {
+                output += textToBeginingOfAltText;
+            }
+            input = input.substring(matchResult.getIndex() + group.length()); // remove .*\alt{.* from input
+            index = TextParser.findClosingBracket(input);
+
+            String expression = input.substring(0, index); // inside of brackets {visibleText|readableText}
+            Map<String, String> gapOptions = getGapOptions(input.substring(index + 1)); // finds [lang langTag]
+            input = input.substring(index);
+            output += parseGapsInAltTextExpression(expression, gapOptions);
+        }
+
+        if (input.length() > 0) {
+            output += input;
+        }
+
+	    return output;
+	}
+
+	private static String parseGapsInAltTextExpression(String expression, Map<String, String> gapOptions) {
+        String output = "";
+
+        String gapOptionsText = "";
+        for (Map.Entry<String, String> entry: gapOptions.entrySet()) {
+            gapOptionsText += "[" + entry.getKey() + " " + entry.getValue() + "]";
+        }
+
+        int separatorIndex = findSeparatorIndexOutsideBrackets(expression);
+        if (separatorIndex > 0) {
+            String visibleText = expression.substring(0, separatorIndex);
+            String readableText = expression.substring(separatorIndex + 1);
+
+            String closestGap = WCAGUtils.getClosestGapText(visibleText);
+            int counter = 0;
+            while (closestGap.length() > 0 && counter < 100) {
+                counter += 1;
+                closestGap = closestGap.replace("\\","\\\\");
+                String closestGapRegex = closestGap.replace("{","\\{").replace("|","\\|");
+                visibleText = visibleText.replaceFirst(closestGapRegex, "");
+                if (readableText.indexOf("\\altGap") != -1) {
+                    String altGapReplacement = "}";
+                    altGapReplacement += gapOptionsText;
+                    altGapReplacement += closestGap;
+                    altGapReplacement += "\\\\alt{ |";
+                    readableText = readableText.replaceFirst("\\\\altGap", altGapReplacement);
+                }
+                closestGap = WCAGUtils.getClosestGapText(visibleText);
+            }
+
+            output += "\\alt{"+ visibleText + "|" + readableText;
+        } else {
+            output += "ERR";
+        }
+        output = unescapeAltTextInTag(output);
+
+        return output;
+	}
 }
