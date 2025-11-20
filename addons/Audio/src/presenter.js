@@ -676,17 +676,10 @@ function AddonAudio_create(){
             presenter.$view.bind('click', function (event) {
                 event.stopPropagation();
             });
-            MutationObserverService.createDestroyObserver(presenter.configuration.addonID, presenter.destroy, presenter.view);
-            MutationObserverService.setObserver();
         }
-
     };
 
-    presenter.destroy = function AddonAudio_destroy (event) {
-        if (event.target != presenter.view) {
-            return;
-        }
-
+    presenter.onDestroy = function () {
         presenter.audio.pause();
 
         presenter.playerController = null;
@@ -1030,3 +1023,7 @@ function AddonAudio_create(){
 
     return presenter;
 }
+
+AddonAudio_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
