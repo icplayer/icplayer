@@ -1,3 +1,4 @@
+2025-11-21 Fixed mathjax sometimes breaking the detection of alt text elements
 2025-11-14 Added alt gaps in Text
 2025-10-30 Fixed media recorder analyzer being blocked on Safari
 2025-10-30 Extended default CSS styles to prevent differences in printouts between devices

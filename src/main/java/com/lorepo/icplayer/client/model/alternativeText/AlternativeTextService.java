@@ -269,20 +269,19 @@ public class AlternativeTextService {
 
 		int counter = 0;
 
-            for (int index = 0; index < input.length(); index++) {
+        for (int index = 0; index < input.length(); index++) {
 
-                char currentChar = input.charAt(index);
-                if (currentChar == '{') {
-                    counter++;
-                } else if (currentChar == '}') {
-                    counter--;
-                } else if (currentChar =='|' && counter == 0) {
-                    return index;
-                }
+            char currentChar = input.charAt(index);
+            if (currentChar == '{') {
+                counter++;
+            } else if (currentChar == '}') {
+                counter--;
+            } else if (currentChar =='|' && counter == 0) {
+                return index;
             }
+        }
 
-            return -1;
-		//}
+        return -1;
 	}
 
 	public static String parseGapsInAltText(String srcText) {
