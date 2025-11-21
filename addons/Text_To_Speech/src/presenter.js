@@ -359,6 +359,7 @@ function AddonText_To_Speech_create() {
             {
                 // altText elements with a langTag need to be isolated into seperate items
                 // in the texts array, so that they can use a different language tag.
+                texts[i].text = presenter.cleanBracesInAltText(texts[i].text);
                 var match = texts[i].text.match(/\\alt{([^{}|]*?)\|([^{}|]*?)}(\[([a-zA-Z0-9_\- ]*?)\])+/g);
                 if (match && match.length>0) {
                     // get the first altText element with a lang tag.
@@ -417,6 +418,31 @@ function AddonText_To_Speech_create() {
         texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
         return texts;
     };
+
+    presenter.cleanBracesInAltText = function (text) {
+        let output = text;
+        let remainingText = text;
+        let nextAltIndex = remainingText.indexOf('\\alt{');
+        let count = 0; //backup in case of issues
+        while (nextAltIndex !== -1 && count < 99) {
+            remainingText = remainingText.substring(nextAltIndex + 5);
+            let openBrackets = 1;
+            for (let i = 0; i < remainingText.length; i++) {
+                if (remainingText[i] === "{") openBrackets += 1;
+                if (remainingText[i] === "}") openBrackets -= 1;
+                if (openBrackets === 0) {
+                    let altContent = remainingText.substring(0, i);
+                    remainingText = remainingText.substring(i);
+                    let cleanAltContent = altContent.replaceAll("{", "").replaceAll("}", "");
+                    output = output.replace(altContent, cleanAltContent);
+                    break;
+                }
+            }
+            count += 1;
+            nextAltIndex = remainingText.indexOf('\\alt{');
+        }
+        return output;
+    }
 
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String
