@@ -788,6 +788,7 @@ public class PlayerController implements IPlayerController {
 			this.headerController.setPage(header);
 	    } else {
 			this.playerView.removeHeaderView();
+			this.headerController.closePage();
 		}
 	}
 	
@@ -810,6 +811,7 @@ public class PlayerController implements IPlayerController {
 			this.footerController.setPage(footer);
 		} else {
 			this.playerView.removeFooterView();
+			this.footerController.closePage();
 		}
 	}
 	
