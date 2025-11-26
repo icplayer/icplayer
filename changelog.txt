@@ -1,3 +1,4 @@
+2025-11-26 Fixed issue with filtered out to many frames in TextAudio
 2025-11-21 Improved cleanup after footer and header
 2025-11-21 Fixed mathjax sometimes breaking the detection of alt text elements
 2025-11-14 Added alt gaps in Text
