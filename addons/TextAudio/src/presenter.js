@@ -35,7 +35,6 @@ function AddonTextAudio_create() {
 
     presenter.PLAYBACK_RATE_LIST = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
     presenter.playbackRate = 1.0;
-    presenter.isPreview = false;
 
     var controls = {
         CUSTOM: "Custom",
@@ -653,7 +652,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.areSlidesEqual = function addonTextAudio_areSlidesEqual (slide1, slide2) {
-        return slide1.slide_id == slide2.slide_id && slide1.selection_id == slide2.selection_id;
+        return slide1.slide_id === slide2.slide_id && slide1.selection_id === slide2.selection_id;
     };
 
     presenter.highlightSelectionAll = function AddonTextAudio_highlightSelectionAll (textWrapper, selection_id) {
@@ -714,7 +713,7 @@ function AddonTextAudio_create() {
                 presenter.pause();
                 blockHighlight = true;
             }
-            if (slide_data.slide_id != presenter.current_slide_data.slide_id && !presenter.slidesMade) {
+            if (slide_data.slide_id !== presenter.current_slide_data.slide_id && !presenter.slidesMade) {
                 presenter.makeSlide(textWrapper, slide_data.slide_id);
             }
             presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
@@ -729,12 +728,9 @@ function AddonTextAudio_create() {
             }
             presenter.current_slide_data = slide_data;
             presenter.playedByClick = false;
-        } else {
-            if (presenter.$view.find('.active').length === 0) {
-                presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
-            }
+        } else if (presenter.$view.find('.active').length === 0) {
+            presenter.highlightSelectionAll(textWrapper, slide_data.selection_id);
         }
-        presenter.addHoverHandlers();
     };
 
     presenter.changeSlideFromData = function AddonTextAudio_changeSlideFromData (slide_data) {
@@ -1072,12 +1068,7 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('loadeddata', presenter.onLoadedMetadataCallback, false);
         }
 
-        if (isPreview) {
-            presenter.handleChangingSlidesForPreview();
-        } else {
-            presenter.handleChangingSlides();
-        }
-
+        presenter.handleChangingSlides(isPreview);
         presenter.slidesMade = true;
 
         if (!isPreview) {
@@ -1101,35 +1092,17 @@ function AddonTextAudio_create() {
         });
     };
 
-    presenter.handleChangingSlidesForPreview = function () {
+    presenter.handleChangingSlides = function (isPreview) {
         if (presenter.configuration.showSlides === "Show all slides") {
-            const frames_array = filterFrames(presenter.configuration.frames).slice(0, 2);
-            for (let i = 0; i < frames_array.length; i++) {
-                if (frames_array[i].slide_id >= 0) {
-                    const slide_data = {
-                        slide_id: frames_array[i].slide_id,
-                        selection_id: frames_array[i].selection_id
-                    };
-                    presenter.changeSlideFromDataAllPreview(slide_data);
-                }
+            const frames = presenter.filterFrames(presenter.configuration.frames);
+            const changeSlideFunction = isPreview
+                ? presenter.changeSlideFromDataAllPreview
+                : presenter.changeSlideFromDataAll;
+            for (let i = 0; i < frames.length; i++) {
+                changeSlideFunction(frames[i]);
             }
-            presenter.$view.find('.textaudio-text span').removeClass('active');
-        } else {
-            presenter.changeSlide(presenter.getFirstSlideStartTime());
-        }
-    }
-
-    presenter.handleChangingSlides = function () {
-        if (presenter.configuration.showSlides === "Show all slides") {
-            const frames_array = filterFrames(presenter.configuration.frames);
-            for (let i = 0; i < frames_array.length; i++) {
-                if (frames_array[i].slide_id >= 0) {
-                    const slide_data = {
-                        slide_id: frames_array[i].slide_id,
-                        selection_id: frames_array[i].selection_id
-                    };
-                    presenter.changeSlideFromDataAll(slide_data);
-                }
+            if (!isPreview) {
+                presenter.addHoverHandlers();
             }
             presenter.$view.find('.textaudio-text span').removeClass('active');
         } else {
@@ -1141,33 +1114,18 @@ function AddonTextAudio_create() {
         return presenter.configuration.slides[0].Times[0].start;
     }
 
-    function filterFrames(frames) {
-        const filteredFrames = [];
-        let lastAddedElement = null;
-        frames.forEach((frame) => {
-            if (!filteredFrames.length) {
-                filteredFrames.push({
-                    slide_id: frame.slide_id,
-                    selection_id: frame.selection_id
-                })
-                lastAddedElement = {
-                    slide_id: frame.slide_id,
-                    selection_id: frame.selection_id
-                }
+    presenter.filterFrames = function (frames) {
+        let lastAddedFrame = null;
+        return frames.filter(function (frame) {
+            if (frame.slide_id < 0 || frame.selection_id < 0) {
+                return false;
             }
-            if (lastAddedElement.slide_id !== frame.slide_id && lastAddedElement.selection_id !== frame.selection_id) {
-                filteredFrames.push({
-                    slide_id: frame.slide_id,
-                    selection_id: frame.selection_id
-                })
-                lastAddedElement = {
-                    slide_id: frame.slide_id,
-                    selection_id: frame.selection_id
-                }
+            if (lastAddedFrame === null || !presenter.areSlidesEqual(lastAddedFrame, frame)) {
+                lastAddedFrame = frame;
+                return true;
             }
+            return false;
         })
-
-        return filteredFrames;
     }
 
     presenter.onAudioPlaying = function AddonTextAudio_onAudioPlaying () {
@@ -1424,7 +1382,6 @@ function AddonTextAudio_create() {
     presenter.initialize = function AddonTextAudio_initialize (view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.isPreview = isPreview;
 
         buzz.defaults.preload = 'auto';
         buzz.defaults.autoplay = false;
