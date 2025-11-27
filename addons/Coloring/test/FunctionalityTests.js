@@ -13,7 +13,8 @@ TestCase("[Coloring] Functionality Tests", {
             'areas' : [
             ],
             'defaultFillingColor' : [255, 50, 50, 255],
-            'colorsThatCanBeFilled' : [[255, 255, 255, 255]]
+            'colorsThatCanBeFilled' : [[255, 255, 255, 255]],
+            'currentFillingColor': [1, 1, 1, 1]
         };
 
         sinon.stub(this.presenter, 'clearCanvas');
@@ -27,6 +28,8 @@ TestCase("[Coloring] Functionality Tests", {
         this.presenter.ctx = canvasElement[0].getContext('2d');
         this.presenter.canvasWidth = 200;
         this.presenter.canvasHeight = 100;
+
+        this.presenter.isCanvasInitiated = true;
     },
 
     tearDown : function() {
@@ -81,5 +84,21 @@ TestCase("[Coloring] Functionality Tests", {
         this.presenter.reset(true);
 
         assertTrue(this.fillAreaSpy.calledWith(3, 3, '255 255 255 255', true));
-    }
+    },
+
+    'test reset will resets after resolved promise of run end' : function() {
+        this.presenter.runEndedDeferred = new $.Deferred();
+        this.presenter.runEnded = this.presenter.runEndedDeferred.promise();
+        this.presenter.isCanvasInitiated = false;
+        this.presenter.configuration.isErase = true;
+
+        this.presenter.reset();
+
+        assertEquals([1, 1, 1, 1], this.presenter.configuration.currentFillingColor);
+
+        this.presenter.isCanvasInitiated = true;
+        this.presenter.runEndedDeferred.resolve();
+
+        assertEquals([255, 255, 0, 255], this.presenter.configuration.currentFillingColor);
+    },
 });

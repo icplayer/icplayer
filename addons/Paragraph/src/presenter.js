@@ -437,11 +437,10 @@ function AddonParagraph_create() {
         if (presenter.playerController) {
             var paragraphInitDelay = presenter.playerController.getExternalVariable('paragraphInitDelay');
             if (paragraphInitDelay.length == 0 || isNaN(paragraphInitDelay)) {
-                presenter.initTinymce();
-            } else {
-                presenter.$view.css("visibility", "hidden");
-                presenter.paragraphInitTimeoutID = setTimeout(presenter.initTinymce, Number(paragraphInitDelay));
+                paragraphInitDelay = 10;
             }
+            presenter.$view.css("visibility", "hidden");
+            presenter.paragraphInitTimeoutID = setTimeout(presenter.initTinymce, Number(paragraphInitDelay));
         } else {
             presenter.initTinymce();
         }

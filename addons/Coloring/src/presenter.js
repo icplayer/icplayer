@@ -21,6 +21,7 @@ function AddonColoring_create(){
     presenter.eventBus = null;
     presenter.lastEvent = null;
     presenter.imageHasBeenLoaded = false;
+    presenter.shouldResetAfterCanvasInit = false;
     presenter.keyboardControllerObject = null;
     presenter.colorSpeechTextMap = {};
     presenter.isTTSExitBlocked = false;
@@ -99,8 +100,6 @@ function AddonColoring_create(){
 
         presenter.runEndedDeferred = new $.Deferred();
         presenter.runEnded = presenter.runEndedDeferred.promise();
-
-        presenter.eventBus = controller.getEventBus();
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -717,13 +716,17 @@ function AddonColoring_create(){
         };
     };
 
+    presenter.setEventBus = function (wrappedEventBus) {
+        presenter.eventBus = wrappedEventBus;
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
+    };
+
     presenter.run = function(view, model){
         runLogic(view, model, false);
-
-        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-        for (let i = 0; i < events.length; i++) {
-            presenter.eventBus.addEventListener(events[i], this);
-        }
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
@@ -1037,6 +1040,17 @@ function AddonColoring_create(){
     };
 
     presenter.reset = function(resetOnlyWrong){
+        if (!presenter.isCanvasInitiated) {
+            presenter.shouldResetAfterCanvasInit = true;
+            presenter.runEnded.then(function() {
+                _reset(resetOnlyWrong);
+            })
+        } else {
+            _reset(resetOnlyWrong);
+        }
+    };
+
+    function _reset(resetOnlyWrong) {
         if (resetOnlyWrong) {
             $.each(presenter.configuration.areas, function () {
                 var area = this;
@@ -1068,7 +1082,8 @@ function AddonColoring_create(){
 
         setColorsThatCanBeFilled();
         presenter.recolorImage();
-    };
+        presenter.shouldResetAfterCanvasInit = false;
+    }
 
     presenter.getErrorCount = function(){
         if (presenter.isShowAnswersActive) {
@@ -1307,20 +1322,23 @@ function AddonColoring_create(){
 
     presenter.restoreColoringAtState = function (filledAreasArray, state) {
         presenter.runEnded.then(function() {
-            presenter.configuration.colorsThatCanBeFilled = state.colorsThatCanBeFilled;
-            $.each(filledAreasArray, presenter.restoreFilledArea);
+            if (!presenter.shouldResetAfterCanvasInit) {
+                presenter.configuration.colorsThatCanBeFilled = state.colorsThatCanBeFilled;
+                $.each(filledAreasArray, presenter.restoreFilledArea);
+            }
         });
     };
 
     presenter.restoreFilledArea = function (_, areaToFillObject) {
-        presenter.floodFill({
-            x: areaToFillObject.area.x,
-            y: areaToFillObject.area.y,
-            color: presenter.getColorAtPoint(areaToFillObject.area.x, areaToFillObject.area.y)
-        },
-
-        areaToFillObject.color,
-        presenter.configuration.tolerance);
+        presenter.floodFill(
+            {
+                x: areaToFillObject.area.x,
+                y: areaToFillObject.area.y,
+                color: presenter.getColorAtPoint(areaToFillObject.area.x, areaToFillObject.area.y)
+            },
+            areaToFillObject.color,
+            presenter.configuration.tolerance
+        );
         presenter.allColoredPixels = [];
     };
 

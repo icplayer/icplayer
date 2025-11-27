@@ -5,6 +5,9 @@ TestCase("[Puzzle] Model validation", {
         this.model = {
             "Is Visible": "True",
             "ID": 'Puzzle1',
+            "Width": "250",
+            "Height": "250",
+            "image": "//www.mauthor.com/file/serve/1826680",
         };
     },
 
@@ -14,13 +17,15 @@ TestCase("[Puzzle] Model validation", {
         assertTrue(validationResult.isValid);
         assertTrue(validationResult.isVisible);
         assertTrue(validationResult.isVisibleByDefault);
-        assertFalse(validationResult.isErrorMode);
         assertFalse(validationResult.shouldCalcScore);
 
         assertEquals(4, validationResult.columns);
         assertEquals(4, validationResult.rows);
 
         assertEquals('Puzzle1', validationResult.addonID);
+        assertEquals('//www.mauthor.com/file/serve/1826680', validationResult.image);
+        assertEquals('250', validationResult.width);
+        assertEquals('250', validationResult.height);
     },
 
     'test given model without isNotActivity value when validating then set isNotActivity to false': function () {
