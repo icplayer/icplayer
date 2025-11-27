@@ -8,15 +8,15 @@ TestCase("[Puzzle] Scores tests", {
     },
 
     'test given normal conditions when calling getMaxScore then getMaxScore should return 1': function () {
-        var maxScore = this.presenter.getMaxScore();
+        const maxScore = this.presenter.getMaxScore();
 
-        assertEquals(1,maxScore);
+        assertEquals(1, maxScore);
     },
 
     'test given isNotActivity true when calling getMaxScore then getMaxScore should return 0': function () {
         this.presenter.configuration.isNotActivity = true;
 
-        var maxScore = this.presenter.getMaxScore();
+        const maxScore = this.presenter.getMaxScore();
 
         assertEquals(0, maxScore);
     },
