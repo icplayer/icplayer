@@ -1056,7 +1056,7 @@ public class PrintableContentParser {
 				} else if (height > maxHeight && height/maxHeight > width/maxWidth) {
 					width = maxHeight * width/height;
 					height = maxHeight;
-					this.css('object-fit','scale-down');
+					$this.css('object-fit','scale-down');
 				}
 				var computedStyle = $wnd.getComputedStyle(this);
 				var minHeight = $wnd.getComputedStyle(this).minHeight;
