@@ -6,9 +6,6 @@ function AddonPuzzle_create() {
     var indexBoard = []; // board storing marks
     var savedBoard = [];
 
-    var intPuzzleWidth = 0;
-    var intPuzzleHeight = 0;
-
     var animation = false;
     var clickNumber = 0; //Check if this is first or second click
 
@@ -31,16 +28,27 @@ function AddonPuzzle_create() {
 
     var puzzle = null;
 
-    var Container;
+    var $container;
     var jImg;
     var mark;
 
     var playerController;
     var eventBus;
 
+    presenter.initialState = null;
     presenter.previousScore = 0;
     presenter.previousErrors = 0;
     presenter.isPreview = false;
+
+    presenter.isShowAnswersActive = false;
+    presenter.isErrorMode = false;
+
+    presenter.lockedDeferredCommandQueue = false;
+    var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(isReadyToExecuteCommand);
+
+    function isReadyToExecuteCommand() {
+        return presenter.runEndedDeferred.isResolved() && !presenter.lockedDeferredCommandQueue;
+    }
 
     function getElementDimensions(element) {
         element = $(element);
@@ -97,12 +105,12 @@ function AddonPuzzle_create() {
     }
 
     function getOuterDistances() {
-        var containerDimensions = getElementDimensions(Container);
+        var containerDimensions = getElementDimensions($container);
         var containerDistances = calculateOuterDistance(containerDimensions);
 
         var puzzle = $(document.createElement("div"));
         puzzle.addClass('puzzle');
-        $(Container).append(puzzle);
+        $container.append(puzzle);
         var puzzleDimensions = getElementDimensions(puzzle);
         var puzzleDistances = calculateOuterDistance(puzzleDimensions);
         $(puzzle).remove();
@@ -116,7 +124,7 @@ function AddonPuzzle_create() {
     function getMarkDimensions() {
         var tempMark = $(document.createElement('div'));
         $(tempMark).addClass('mark').addClass('correct');
-        $(Container).append(tempMark);
+        $container.append(tempMark);
 
         var markWidth = $(tempMark).width();
         var markHeight = $(tempMark).height();
@@ -145,7 +153,7 @@ function AddonPuzzle_create() {
         }
     }
 
-    function InitPuzzleBoard() {
+    function initPuzzleBoard() {
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns;
         for (var row = 0; row < rows; row++) {
@@ -166,7 +174,7 @@ function AddonPuzzle_create() {
         }
     }
 
-    function InitPuzzle(width, height) {
+    function initPuzzle(width, height) {
         var outerDistances = getOuterDistances();
         var markDimensions = getMarkDimensions();
         var containerWidth = width - outerDistances.container.horizontal;
@@ -193,7 +201,7 @@ function AddonPuzzle_create() {
                     left: ((puzzleWidth * col + markHorizontalOffset) + "px")
                 });
                 indexBoard[row][col] = mark;
-                Container.append(mark);
+                $container.append(mark);
 
                 puzzle = board[row][col];
                 puzzle.css({
@@ -210,20 +218,20 @@ function AddonPuzzle_create() {
                     height: puzzleHeight + 'px'
                 });
                 board[row][col] = puzzle;
-                Container.append(puzzle);
+                $container.append(puzzle);
 
                 // first add it to DOM, then apply draggable, so that it won't add position: relative to element
                 addDraggableDroppable(puzzle);
             }
         }
 
-        Container.css({
+        $container.css({
             width: (puzzleOuterWidth * columns) + 'px',
             height: (puzzleOuterHeight * rows) + 'px'
         });
 
         addBorderClasses();
-        Shuffle();
+        presenter.shuffle();
     }
 
     function addDraggableDroppable(puzzle) {
@@ -407,7 +415,7 @@ function AddonPuzzle_create() {
         return shuffleSequence;
     };
 
-    function Shuffle() {
+    presenter.shuffle = function () {
         var i, iteration,
             shuffleSequence, shuffle,
             $firstPiece, $secondPiece;
@@ -437,7 +445,7 @@ function AddonPuzzle_create() {
         }
 
         animation = true;
-    }
+    };
 
     function elementHasClasses(element) {
         element = $(element);
@@ -486,7 +494,7 @@ function AddonPuzzle_create() {
         }
         event.stopPropagation();
 
-        if (presenter.configuration.isErrorMode) return;
+        if (presenter.isErrorMode) return;
 
         var Piece = $(this);
         // Check to see if we are in the middle of an animation.
@@ -569,7 +577,7 @@ function AddonPuzzle_create() {
             }
         }
         presenter.setDraggableState("enable");
-        presenter.configuration.isErrorMode = false;
+        presenter.isErrorMode = false;
     }
 
     presenter.setDraggableState = function(state) {
@@ -583,20 +591,20 @@ function AddonPuzzle_create() {
         }
     };
 
-    presenter.reset = function () {
+    presenter.reset = deferredCommandQueue.decorate(function () {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
         presenter.configuration.shouldCalcScore = true;
         setNormalMode();
-        Shuffle();
+        presenter.shuffle();
 
         if (presenter.configuration.isVisibleByDefault) {
             presenter.show();
         } else {
             presenter.hide();
         }
-    };
+    });
 
     presenter.setMarkVisibility = function (isVisible) {
         // it will be called by createPreview, in which case indexBoard won't be created
@@ -673,8 +681,8 @@ function AddonPuzzle_create() {
             presenter.hideAnswers();
         }
 
-        if (!presenter.isFullyLoaded()) {
-            return "";
+        if (!presenter.runEndedDeferred.isResolved() && presenter.initialState !== null) {
+            return presenter.initialState;
         }
 
         presenter.saveBoard();
@@ -690,9 +698,13 @@ function AddonPuzzle_create() {
 
     presenter.setState = function (state) {
         if (!state) return;
+        if (!presenter.runEndedDeferred.isResolved()) {
+            presenter.initialState = state;
+        }
 
-        var parsedState = JSON.parse(state);
+        presenter.lockedDeferredCommandQueue = true;
 
+        const parsedState = JSON.parse(state);
         if (parsedState.score) {
             presenter.previousScore = parsedState.score;
         }
@@ -701,7 +713,8 @@ function AddonPuzzle_create() {
             presenter.previousErrors = parsedState.errors;
         }
 
-        $.when(presenter['imageLoaded']).then(function () {
+        presenter.runEnded.then(function () {
+            presenter.lockedDeferredCommandQueue = false; // unlock command execution to execute methods like hide/show before resolving queue
             presenter.prepareBoardFromSavedState(parsedState.board);
             presenter.configuration.shouldCalcScore = parsedState.shouldCalcScore;
             if (!parsedState.visible) {
@@ -709,6 +722,7 @@ function AddonPuzzle_create() {
             } else {
                 presenter.show();
             }
+            presenter.resolveDeferredCommandQueue();
         });
     };
 
@@ -720,11 +734,11 @@ function AddonPuzzle_create() {
     };
 
     presenter.getScore = function () {
-        if (!presenter.isFullyLoaded()) {
-            return presenter.previousScore;
-        }
-        if(presenter.configuration.isNotActivity) {
+        if (presenter.configuration.isNotActivity) {
             return 0;
+        }
+        if (!isReadyToExecuteCommand()) {
+            return presenter.previousScore;
         }
 
         var rows = presenter.configuration.rows,
@@ -743,11 +757,11 @@ function AddonPuzzle_create() {
     };
 
     presenter.getErrorCount = function () {
-        if (!presenter.isFullyLoaded()) {
-            return presenter.previousErrors;
-        }
-        if(presenter.configuration.isNotActivity) {
+        if (presenter.configuration.isNotActivity) {
             return 0;
+        }
+        if (!isReadyToExecuteCommand()) {
+            return presenter.previousErrors;
         }
 
         var rows = presenter.configuration.rows,
@@ -765,25 +779,20 @@ function AddonPuzzle_create() {
         return presenter.configuration.shouldCalcScore ? errors : 0;
     };
 
-    presenter.setWorkMode = function () {
+    presenter.setWorkMode = deferredCommandQueue.decorate(function () {
         setNormalMode();
-    };
+    });
 
-    presenter.setShowErrorsMode = function () {
-        if(presenter.configuration.isNotActivity) {
-            return 0;
+    presenter.setShowErrorsMode = deferredCommandQueue.decorate(function () {
+        if (presenter.configuration.isNotActivity) {
+            return;
         }
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
 
         presenter.setDraggableState("disable");
-        presenter.configuration.isErrorMode = true;
-
-        if (!presenter.isFullyLoaded()) {
-            return;
-        }
-
+        presenter.isErrorMode = true;
         presenter.configuration.shouldCalcScore = true;
 
         var rows = presenter.configuration.rows,
@@ -800,64 +809,74 @@ function AddonPuzzle_create() {
                 }
             }
         }
-    };
+    });
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
     };
 
-    presenter.isFullyLoaded = function () {
-        return presenter['imageLoadedDeferred'].state() != "pending";
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.run = function (view, model) {
-        Container = $($(view).find('.puzzle-container:first')[0]);
-        intPuzzleWidth = model.Width;
-        intPuzzleHeight = model.Height;
-        var width = model.Width;
-        var height = model.Height;
-        presenter.$view = $(view);
-        eventBus = playerController.getEventBus();
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        presenter.registerRunEndedDeferred();
+
+        presenter.isPreview = false;
         const upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
-        presenter.isPreview = false;
-        InitPuzzleBoard()
 
-        jImg = Container.find("img:first");
-        jImg.attr('src', model.Image);
-        jImg.attr('height', height);
-        jImg.attr('width', width);
-        jImg.load(function () {
-            InitPuzzle(width, height);
+        presenter.$view = $(view);
+        $container = $(presenter.$view.find('.puzzle-container:first')[0]);
+        initPuzzleBoard();
+        setImageElement(function () {
+            initPuzzle(presenter.configuration.width, presenter.configuration.height);
             if (!presenter.configuration.isVisibleByDefault) {
-                presenter.hide();
+                syncHide();
             }
-            presenter['imageLoadedDeferred'].resolve();
-            if (presenter.configuration.isErrorMode){
-                presenter.setShowErrorsMode()
-            }
+            presenter.runEndedDeferred.resolve();
         });
 
+        presenter.runEnded.then(function() {
+            if (!presenter.lockedDeferredCommandQueue) {
+                presenter.resolveDeferredCommandQueue();
+            }
+        })
     };
 
-    presenter.validateModel = function (model) {
-        var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        var isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
-        LoadedPromise(this, {
-            'image' : true
+    presenter.registerRunEndedDeferred = function () {
+        presenter.runEndedDeferred = $.Deferred();
+        presenter.runEnded = presenter.runEndedDeferred.promise();
+    };
+
+    function setImageElement(onLoadCallback) {
+        jImg = $container.find("img:first");
+        jImg.attr('src', presenter.configuration.image);
+        jImg.attr('height', presenter.configuration.height);
+        jImg.attr('width', presenter.configuration.width);
+        jImg.load(function () {
+            onLoadCallback();
         });
+    }
+
+    presenter.validateModel = function (model) {
+        const isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        const isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         return {
             isValid: true,
-            isErrorMode: false,
+            addonID: model.ID,
+            width: model.Width,
+            height: model.Height,
+            image: model.Image,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             shouldCalcScore: false,
             columns: presenter.validatePuzzleDimension(model.Columns),
             rows: presenter.validatePuzzleDimension(model.Rows),
-            isNotActivity: isNotActivity,
-            addonID: model.ID
+            isNotActivity: isNotActivity
         };
     };
 
@@ -891,13 +910,12 @@ function AddonPuzzle_create() {
     };
 
     presenter.executeCommand = function (name, params) {
-        if (presenter.configuration.isErrorMode) return;
+        if (presenter.isErrorMode) return;
 
-        var commands = {
+        const commands = {
             'show': presenter.show,
             'hide': presenter.hide,
             'isAllOK': presenter.isAllOK,
-            'getLoadedPromise': presenter.getLoadedPromise,
             'reset': presenter.reset
         };
 
@@ -908,19 +926,27 @@ function AddonPuzzle_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.show = function () {
+    presenter.show = deferredCommandQueue.decorate(function () {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
         presenter.setMarkVisibility(true);
-    };
+    });
 
-    presenter.hide = function () {
+    // hide is used to hide the addon with deferred queue to prevent state desync when called in the middle of other actions
+    presenter.hide = deferredCommandQueue.decorate(function () {
+        syncHide();
+    });
+
+    // syncHide is used to immediately hide the addon without waiting for deferred queue
+    // function needed to hide addon immediately in initialization process before setState continues to avoid state desync
+    // (e.g. to prevent situation when show from setState will be called before hide from initialization)
+    function syncHide() {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
         presenter.setMarkVisibility(false);
-    };
+    }
 
     presenter.isAllOK = function () {
         presenter.configuration.shouldCalcScore = true;
@@ -968,30 +994,44 @@ function AddonPuzzle_create() {
         }
     }
 
-    presenter.showAnswers = function () {
-        if(presenter.configuration.isNotActivity) {
+    presenter.showAnswers = deferredCommandQueue.decorate(function () {
+        if (presenter.configuration.isNotActivity) {
             return;
         }
-        presenter.isShowAnswersActive = true;
-        presenter.saveBoard();
         presenter.setWorkMode();
+        presenter.saveBoard();
+        presenter.isShowAnswersActive = true;
         showCorrect();
         presenter.setDraggableState("disable");
-    };
+    });
 
-    presenter.hideAnswers = function () {
-        if (!presenter.isShowAnswersActive) {
+    presenter.hideAnswers = deferredCommandQueue.decorate(function () {
+        if (presenter.configuration.isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
-        Container.find(".show-answers").removeClass("show-answers");
-        $.when(presenter['imageLoaded']).then(function () {
-            presenter.prepareBoardFromSavedState(savedBoard);
-            presenter.setDraggableState("enable");
-        });
-
         presenter.isShowAnswersActive = false;
+        $container.find(".show-answers").removeClass("show-answers");
+        presenter.prepareBoardFromSavedState(savedBoard);
+        presenter.setDraggableState("enable");
+    });
+
+    presenter.onDestroy = function () {
+        if (!presenter.runEndedDeferred.isResolved()) {
+            presenter.runEndedDeferred.reject();
+        }
+        if (deferredCommandQueue.queue.length !== 0) {
+            deferredCommandQueue.queue.length = 0;
+        }
+    };
+
+    presenter.resolveDeferredCommandQueue = function() {
+        deferredCommandQueue.resolve();
     };
 
     return presenter;
 }
+
+AddonPuzzle_create.__supported_player_options__ = {
+    resetInterfaceVersion: 2
+};
