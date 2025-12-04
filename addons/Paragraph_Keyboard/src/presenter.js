@@ -26,7 +26,6 @@ function AddonParagraph_Keyboard_create() {
     presenter.updateScoreEventName = 'updateScore';
     presenter.eventBus = null;
     presenter.textParser = null;
-    presenter.altTextsMap = null;
 
     var checkHeightCounter = 0;
 
@@ -1595,7 +1594,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return this.$view.find(`.${presenter.CSS_CLASSES.MCE_BUTTON}, .${presenter.CSS_CLASSES.MCE_EDIT_AREA}, .${presenter.CSS_CLASSES.KEYBOARD_LETTER}, .${presenter.CSS_CLASSES.KEYBOARD_SHIFT}`); // TODO check
+        return this.$view.find(`.${presenter.CSS_CLASSES.MCE_BUTTON}, .${presenter.CSS_CLASSES.MCE_EDIT_AREA}, .${presenter.CSS_CLASSES.KEYBOARD_LETTER}, .${presenter.CSS_CLASSES.KEYBOARD_SHIFT}`);
     };
 
     presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
@@ -1713,9 +1712,9 @@ function AddonParagraph_Keyboard_create() {
      *                      otherwise returns `false` if no visible elements are found.
      */
     ParagraphKeyboardController.prototype.previousVisibleElement = function () {
-        for (var i = 1; i < this.keyboardNavigationElementsLen; i++) {
-            var index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
-            var element = this.keyboardNavigationElements[index];
+        for (let i = 1; i < this.keyboardNavigationElementsLen; i++) {
+            const index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
+            const element = this.keyboardNavigationElements[index];
             if (!this.isElementHidden(element)) {
                 this.markCurrentElement(index);
                 return true;
@@ -1725,9 +1724,9 @@ function AddonParagraph_Keyboard_create() {
     };
 
     ParagraphKeyboardController.prototype.firstVisibleShift = function () {
-        for (var i = 1; i < this.keyboardNavigationElementsLen; i++) {
-            var index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
-            var element = this.keyboardNavigationElements[index];
+        for (let i = 1; i < this.keyboardNavigationElementsLen; i++) {
+            const index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
+            const element = this.keyboardNavigationElements[index];
             if (!this.isElementHidden(element) && $(element).hasClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT)) {
                 this.markCurrentElement(index);
                 element.focus();
@@ -1749,10 +1748,10 @@ function AddonParagraph_Keyboard_create() {
      * @returns {boolean} - Returns `true` if the element is hidden, otherwise `false`.
      */
     ParagraphKeyboardController.prototype.isElementHidden = function (element) {
-        var elementHeight = element.offsetHeight;
-        var elementWidth = element.offsetWidth;
-        var isDisplayed = $(element).css('display') !== 'none';
-        var isVisible = $(element).css('visibility') === 'visible';
+        const elementHeight = element.offsetHeight;
+        const elementWidth = element.offsetWidth;
+        const isDisplayed = $(element).css('display') !== 'none';
+        const isVisible = $(element).css('visibility') === 'visible';
 
         return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
     };
