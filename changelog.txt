@@ -1,3 +1,4 @@
+2025-12-04 Added TTS support to Paragraph Keyboard
 2025-11-27 Fixed scaling of images in printable mode
 2025-11-26 Fixed issue with filtered out to many frames in TextAudio
 2025-11-26 Fixed issue with Paragraph breaking when embeded multiple times
