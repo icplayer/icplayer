@@ -35,3 +35,50 @@ TestCase("[ModelViewer3D] Upgrade model tests", {
         assertEquals(EXAMPLE_PATH, upgradedModel["modelIOS"]);
     },
 });
+
+TestCase("[ModelViewer3D] upgradeModelWithModelIOS tests", {
+    setUp: function () {
+        this.presenter = AddonModelViewer3D_create();
+        this.model = {
+            "ID": "ID",
+            "existingProperty": "existingValue"
+        };
+    },
+
+    'test given model without modelIOS property when upgradeModelWithModelIOS called then add modelIOS with empty string': function () {
+        var upgradedModel = this.presenter.upgradeModelWithModelIOS(this.model);
+
+        assertTrue(upgradedModel.hasOwnProperty('modelIOS'));
+        assertEquals("", upgradedModel['modelIOS']);
+    },
+
+    'test given model with modelIOS property when upgradeModelWithModelIOS called then keep existing value': function () {
+        this.model['modelIOS'] = "path/to/model.usdz";
+
+        var upgradedModel = this.presenter.upgradeModelWithModelIOS(this.model);
+
+        assertEquals("path/to/model.usdz", upgradedModel['modelIOS']);
+    },
+
+    'test given model when upgradeModelWithModelIOS called then preserve existing properties': function () {
+        var upgradedModel = this.presenter.upgradeModelWithModelIOS(this.model);
+
+        assertEquals("ID", upgradedModel["ID"]);
+        assertEquals("existingValue", upgradedModel["existingProperty"]);
+    },
+
+    'test given model when upgradeModelWithModelIOS called then return new object without modifying original': function () {
+        var upgradedModel = this.presenter.upgradeModelWithModelIOS(this.model);
+
+        assertFalse(this.model.hasOwnProperty('modelIOS'));
+        assertTrue(upgradedModel.hasOwnProperty('modelIOS'));
+    },
+
+    'test given model with empty string modelIOS when upgradeModelWithModelIOS called then keep empty string': function () {
+        this.model['modelIOS'] = "";
+
+        var upgradedModel = this.presenter.upgradeModelWithModelIOS(this.model);
+
+        assertEquals("", upgradedModel['modelIOS']);
+    }
+});
