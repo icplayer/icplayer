@@ -25,7 +25,6 @@ TestCase("[Paragraph Keyboard] Reset method", {
         }
 
         this.presenter.setStyles = this.spies.setStyles;
-
     },
 
     'test when placeholder is not editable on reset set content to empty string': function () {

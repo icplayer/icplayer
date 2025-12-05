@@ -184,6 +184,30 @@ TestCase("[Paragraph Keyboard] Model parsing", {
         assertTrue(validatedModel.isValid);
     },
 
+    'test proper Custom Keyboard Layout with alt texts': function() {
+        var model = {
+            'ID': 'Paragraph_Keyboard1',
+            'layoutType': 'custom',
+            'keyboardLayout': '{"default": ["s t r i n \\alt{g|letter g}"]}'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test proper Custom Keyboard Layout with alt texts with language': function() {
+        var model = {
+            'ID': 'Paragraph_Keyboard1',
+            'layoutType': 'custom',
+            'keyboardLayout': '{"default": ["s t r i n \\alt{g|letter g}[lang pl]"]}'
+        };
+
+        var validatedModel = this.presenter.parseModel(model);
+
+        assertTrue(validatedModel.isValid);
+    },
+
     'test given manual grading and title when properties set then should be the same in model': function () {
         var model = {
             'ID': 'Paragraph_Keyboard1',

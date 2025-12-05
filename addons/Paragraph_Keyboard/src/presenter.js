@@ -1,6 +1,6 @@
 function AddonParagraph_Keyboard_create() {
     var presenter = function () {};
-    var eventBus;
+    
     var userAnswerAIReviewRequest = 'gradeByAi';
     var userAnswerAIReviewResponse = 'aiGraded';
 
@@ -24,6 +24,9 @@ function AddonParagraph_Keyboard_create() {
     presenter.MAX_WAIT_TIME = 15;
     presenter.startTime = null;
     presenter.updateScoreEventName = 'updateScore';
+    presenter.eventBus = null;
+    presenter.textParser = null;
+
     var checkHeightCounter = 0;
 
     presenter.DEFAULTS = {
@@ -62,6 +65,38 @@ function AddonParagraph_Keyboard_create() {
         }"
     };
 
+    presenter.TOOLBAR_ARIAS = {
+        bold: "bold",
+        italic: "italic",
+        underline: "underline",
+        alignleft: "alignLeft",
+        aligncenter: "alignCenter",
+        alignright: "alignRight",
+        justify: "justify"
+    };
+
+    presenter.DEFAULT_TTS_PHRASES = {
+        selected: "selected",
+        deselected:"deselected",
+        paragraphContent: "paragraph content",
+        bold: "bold",
+        italic: "italic",
+        underline: "underline",
+        alignLeft: "align left",
+        alignCenter: "align center",
+        alignRight: "align right",
+        justify: "justify",
+        shift: "shift"
+    };
+
+    presenter.CSS_CLASSES = {
+        MCE_EDIT_AREA: "mce-edit-area",
+        MCE_BUTTON: "mce-btn",
+        MCE_ACTIVE: "mce-active",
+        KEYBOARD_LETTER: "paragraph-keyboard-letter",
+        KEYBOARD_SHIFT: "paragraph-keyboard-shift",
+    };
+
     presenter.validateType = function AddonParagraph_Keyboard_validateType(rawType) {
         if (!rawType || rawType.length == 0) {
             return 'french (special characters)';
@@ -89,13 +124,13 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.setEventBus = function (wrappedEventBus) {
-        eventBus = wrappedEventBus;
+        presenter.eventBus = wrappedEventBus;
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
-        eventBus.addEventListener('GradualShowAnswers', this);
-        eventBus.addEventListener('GradualHideAnswers', this);
-        eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
+        presenter.eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
@@ -418,36 +453,21 @@ function AddonParagraph_Keyboard_create() {
             hasDefaultFontSize = true;
         }
 
-        if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType] != undefined) {
-            keyboardLayout = presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType];
-        }
-
         height -= !isToolbarHidden ? 37 : 2;
-
-        if (keyboardLayout.length > 0) {
-            try {
-                eval('keyboardLayout = ' + keyboardLayout);
-            } catch(e) {
-                presenter.ERROR_CODES['evaluationError'] = 'Custom keyboard layout parsing error: ' + e.message;
-                return ModelErrorUtils.getErrorObject('evaluationError');
-            }
-        }
-
-        if (typeof keyboardLayout['default'] !== 'object' || keyboardLayout['default'].length < 1) {
-            return ModelErrorUtils.getErrorObject('defaultLayoutError');
-        }
 
         const validatedWeight = presenter.validateWeight(weight, isPreview);
         if (!validatedWeight.isValid) {
             return validatedWeight;
         }
 
-        var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
-
-        if (keyboardPosition == 'left' || keyboardPosition == 'right') {
-            keyboardLayout = transposeLayout(keyboardLayout);
-        } else if (supportedPositions.indexOf(keyboardPosition) == -1) {
+        const supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
+        if (supportedPositions.indexOf(keyboardPosition) === -1) {
             keyboardPosition = 'bottom';
+        }
+
+        const validatedLayout = presenter.validateLayout(keyboardLayout, layoutType, keyboardPosition);
+        if (!validatedLayout.isValid) {
+            return validatedLayout;
         }
 
         return {
@@ -470,14 +490,96 @@ function AddonParagraph_Keyboard_create() {
             placeholderText: model["Placeholder Text"],
             isPlaceholderEditable: isPlaceholderEditable,
             pluginName: presenter.makePluginName(model["ID"]),
-            keyboardLayout: keyboardLayout,
+            keyboardLayout: validatedLayout.value,
             keyboardPosition: keyboardPosition,
             manualGrading: manualGrading,
             title: title,
             weight: validatedWeight.value,
-            modelAnswer: modelAnswer
+            modelAnswer: modelAnswer,
+            langTag: model["langAttribute"]
         };
     };
+
+    presenter.validateLayout = function (keyboardLayout, layoutType, keyboardPosition) {
+        if (presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType]) {
+            keyboardLayout = presenter.LAYOUT_TO_LANGUAGE_MAPPING[layoutType];
+        }
+
+        const altTextsMap = {};
+        if (keyboardLayout.length > 0) {
+            keyboardLayout = replaceAltText(keyboardLayout, altTextsMap);
+            try {
+                eval('keyboardLayout = ' + keyboardLayout);
+            } catch(e) {
+                presenter.ERROR_CODES['evaluationError'] = 'Custom keyboard layout parsing error: ' + e.message;
+                return ModelErrorUtils.getErrorObject('evaluationError');
+            }
+        }
+
+        if (!Array.isArray(keyboardLayout['default']) || keyboardLayout['default'].length < 1) {
+            return ModelErrorUtils.getErrorObject('defaultLayoutError');
+        }
+
+        if (['left', 'right'].includes(keyboardPosition)) {
+            keyboardLayout = transposeLayout(keyboardLayout);
+        }
+
+        for (let [set, keyset]of Object.entries(keyboardLayout)) {
+            let parsedKeyset = [];
+            for ( let rowIndex = 0; rowIndex < keyset.length; rowIndex++ ){
+                const parsedKeysetRow = [];
+                let currentKeysetRow = keyset[rowIndex];
+                currentKeysetRow = $.trim(currentKeysetRow);
+                const keys = currentKeysetRow.split(/\s+/);
+
+                for ( let keyIndex = 0; keyIndex < keys.length; keyIndex++ ) {
+                    const key = keys[keyIndex];
+                    if (hasMoreThenOneAltText(key)) {
+                        presenter.ERROR_CODES['evaluationError'] = 'Alt texts should be separated by space';
+                        return ModelErrorUtils.getErrorObject('evaluationError');
+                    }
+                    if (altTextsMap[key] !== undefined) {
+                        if (hasWhiteSpace(altTextsMap[key].contents)) {
+                            presenter.ERROR_CODES['evaluationError'] = 'Text with alternative text has white space: ' + altTextsMap[key].match;
+                            return ModelErrorUtils.getErrorObject('evaluationError');
+                        }
+                        parsedKeysetRow.push(altTextsMap[key].match);
+                    } else {
+                        parsedKeysetRow.push(key);
+                    }
+                }
+                parsedKeyset.push(parsedKeysetRow);
+            }
+            keyboardLayout[set] = parsedKeyset;
+        }
+
+         return {
+            isValid: true,
+            value: keyboardLayout,
+            errorCode: ''
+        };
+    };
+
+    function replaceAltText (text, altTextsMap) {
+        let altTextIndex = 0;
+        return text.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, function (match, contents, offset, string, groups) {
+            altTextIndex++;
+            const newIndex = "{altText" + altTextIndex + "}";
+            altTextsMap[newIndex] = {
+                match: match,
+                contents: contents.trim()
+            };
+            return newIndex;
+        });
+    }
+
+    function hasWhiteSpace(s) {
+        return /\s/g.test(s);
+    }
+
+    function hasMoreThenOneAltText(s) {
+        return (s.match(new RegExp(/\{altText[0-9]+\}/, "g")) || []).length > 1;
+    }
 
     presenter.validateWeight = function (weight, isPreview) {
         if (ModelValidationUtils.isStringEmpty(weight)) {
@@ -527,13 +629,15 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        var upgradedModel = presenter.upgradeTitle(model);
+        let upgradedModel = presenter.upgradeTitle(model);
         upgradedModel = presenter.upgradeManualGrading(upgradedModel);
         upgradedModel = presenter.upgradeWeight(upgradedModel);
         upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         upgradedModel = presenter.upgradePlaceholderText(upgradedModel);
         upgradedModel = presenter.upgradeEditablePlaceholder(upgradedModel);
-        return presenter.upgradeUseCustomCSSFiles(upgradedModel);
+        upgradedModel = presenter.upgradeUseCustomCSSFiles(upgradedModel);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeManualGrading = function (model) {
@@ -564,17 +668,91 @@ function AddonParagraph_Keyboard_create() {
         return presenter.upgradeAttribute(model, "useCustomCSSFiles", "False");
     };
 
+    presenter.upgradeLangTag = function (model) {
+        return presenter.upgradeAttribute(model, "langAttribute", "");
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        const defaultValue = {
+            Selected: {Selected: ""},
+            Deselected: {Deselected: ""},
+            ParagraphContent: {ParagraphContent: ""},
+            Bold: {Bold: ""},
+            Italic: {Italic: ""},
+            Underline: {Underline: ""},
+            AlignLeft: {AlignLeft: ""},
+            AlignCenter: {AlignCenter: ""},
+            AlignRight: {AlignRight: ""},
+            Justify: {Justify: ""}
+        };
+
+        const upgradedModel =  presenter.upgradeAttribute(model, "speechTexts", defaultValue);
+        if (!upgradedModel.speechTexts.hasOwnProperty("Shift")) {
+            upgradedModel.speechTexts.Shift = {Shift: ""};
+        }
+
+        return upgradedModel;
+    };
+
+
+    presenter.setSpeechTexts = function (speechTexts) {
+        presenter.speechTexts = {
+            ...presenter.DEFAULT_TTS_PHRASES
+        };
+
+        if (!speechTexts || $.isEmptyObject(speechTexts)) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            selected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.selected),
+            deselected: TTSUtils.getSpeechTextProperty(
+                speechTexts.Deselected.Deselected,
+                presenter.speechTexts.deselected),
+            paragraphContent: TTSUtils.getSpeechTextProperty(
+                speechTexts.ParagraphContent.ParagraphContent,
+                presenter.speechTexts.paragraphContent),
+            bold : TTSUtils.getSpeechTextProperty(
+                speechTexts.Bold.Bold,
+                presenter.speechTexts.bold),
+            italic: TTSUtils.getSpeechTextProperty(
+                speechTexts.Italic.Italic,
+                presenter.speechTexts.italic),
+            underline : TTSUtils.getSpeechTextProperty(
+                speechTexts.Underline.Underline,
+                presenter.speechTexts.underline),
+            alignLeft: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignLeft.AlignLeft,
+                presenter.speechTexts.alignLeft),
+            alignCenter: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignCenter.AlignCenter,
+                presenter.speechTexts.alignCenter),
+            alignRight: TTSUtils.getSpeechTextProperty(
+                speechTexts.AlignRight.AlignRight,
+                presenter.speechTexts.alignRight),
+            justify: TTSUtils.getSpeechTextProperty(
+                speechTexts.Justify.Justify,
+                presenter.speechTexts.justify),
+            shift: TTSUtils.getSpeechTextProperty(
+                speechTexts.Shift.Shift,
+                presenter.speechTexts.shift),
+        };
+    };
+
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.isPreview = isPreview;
-        var upgradedModel = presenter.upgradeModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.parseModel(upgradedModel, isPreview);
 
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
+        presenter.setSpeechTexts(upgradedModel["speechTexts"]);
 
         presenter.$view.on('click', function(e){
             e.stopPropagation();
@@ -629,6 +807,7 @@ function AddonParagraph_Keyboard_create() {
             presenter.onInit();
             presenter.isEditorLoaded = true;
             presenter.setStyles();
+            presenter.buildKeyboardController();
         });
     }
 
@@ -712,7 +891,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.sendOnBlurEvent = function () {
-        var eventData = {
+        const eventData = {
             'source': presenter.configuration.ID,
             'item': '',
             'value': 'blur',
@@ -908,10 +1087,10 @@ function AddonParagraph_Keyboard_create() {
         presenter.$view.find('.keySetLayer:visible').hide();
         presenter.currentKeyboard = (presenter.currentKeyboard == 'default' ? 'shift' : 'default');
         presenter.$view.find('.keyset-' + presenter.currentKeyboard).show();
-        presenter.$view.find('.paragraph-keyboard-shift:visible').addClass('clicked');
+        presenter.$view.find(`.${presenter.CSS_CLASSES.KEYBOARD_SHIFT}:visible`).addClass('clicked');
 
         window.setTimeout(function(){
-            presenter.$view.find('.paragraph-keyboard-shift.clicked').removeClass('clicked');
+            presenter.$view.find(`.${presenter.CSS_CLASSES.KEYBOARD_SHIFT}.clicked`).removeClass('clicked');
         }, 200);
 
         presenter.window.focus();
@@ -924,14 +1103,13 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.buildKeyboard = function AddonParagraph_Keyboard_buildKeyboard(){
         var keyboard = presenter.$view.find('.paragraph-keyboard'),
-            row, currentSet, keys, key, keyRow, $button, t, keySetLayer;
+            row, keys, key, keyRow, $button, text, keySetLayer;
         $.each(presenter.configuration.keyboardLayout, function(set, keySet) {
             keySetLayer = $('<div>').addClass('keySetLayer');
             keySetLayer.addClass('keyset-' + set);
 
             for ( row = 0; row < keySet.length; row++ ){
-                currentSet = $.trim(keySet[row]).replace(/\{(\.?)[\s+]?:[\s+]?(\.?)\}/g,'{$1:$2}');
-                keys = currentSet.split(/\s+/);
+                keys = keySet[row];
 
                 if (!keys) {
                     continue;
@@ -944,16 +1122,22 @@ function AddonParagraph_Keyboard_create() {
                         continue;
                     }
 
-                    t = keys[key];
-
-                    if (t == '{empty}') {
+                    text = keys[key];
+                    if (text == '{empty}') {
                         keyRow.append($('<div>').addClass('paragraph-keyboard-empty').html('&nbsp;'));
-                    } else if (t == '{shift}') {
-                        $button = $('<div>').addClass('paragraph-keyboard-shift').html('&nbsp;');
+                    } else if (text == '{shift}') {
+                        $button = $('<div>').addClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT).html('&nbsp;');
                         $button.on('click', presenter.switchKeyboard);
                         keyRow.append($button);
                     } else {
-                        $button = $('<div>').addClass('paragraph-keyboard-letter').text(t);
+                        $button = $('<div>');
+                        $button.addClass(presenter.CSS_CLASSES.KEYBOARD_LETTER);
+                        if (text.includes("\\alt")) {
+                            const html = parseAltText(text);
+                            $button.html(html);
+                        } else {
+                            $button.text(text);
+                        }
                         $button.on('click', presenter.clickKeyboard);
                         $button.on('mousedown', presenter.onMouseDownKeyboard);
                         keyRow.append($button);
@@ -983,7 +1167,7 @@ function AddonParagraph_Keyboard_create() {
 
         if (presenter.configuration.isToolbarHidden) {
             presenter.$view.find('.mce-container.mce-panel.mce-first').remove();
-            presenter.$view.find('.mce-edit-area').css('border-top-width', '0');
+            presenter.$view.find('.' + presenter.CSS_CLASSES.MCE_EDIT_AREA).css('border-top-width', '0');
         }
 
         presenter.jQueryTinyMCEHTML = $(presenter.editor.dom.select('html'));
@@ -1036,6 +1220,32 @@ function AddonParagraph_Keyboard_create() {
         if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
             presenter.setText(presenter.configuration.placeholderText);
         }
+
+        presenter.addEventListenerOnKeyEscapeToEditorMCE();
+    };
+
+    presenter.addEventListenerOnKeyEscapeToEditorMCE = function (){
+        const mceIframe = presenter.$view.find('.' + presenter.CSS_CLASSES.MCE_EDIT_AREA)[0].childNodes[0];
+        const content = (mceIframe.contentDocument || mceIframe.contentWindow.document).documentElement;
+        const escapeKeyCallback = function (e) {
+            if (e.keyCode === window.KeyboardControllerKeys.ESCAPE && presenter.keyboardControllerObject.keyboardNavigationActive) {
+                presenter.dispatchEscapeKeydownEvent();
+                document.activeElement.blur();
+            }
+        };
+
+        content.addEventListener("keydown", escapeKeyCallback);
+    };
+
+    presenter.dispatchEscapeKeydownEvent = function () {
+        const event = new KeyboardEvent('keydown', {
+            code: 'Escape',
+            key: 'Escape',
+            charCode: window.KeyboardControllerKeys.ESCAPE,
+            keyCode: window.KeyboardControllerKeys.ESCAPE,
+            bubbles: true
+        });
+        document.body.dispatchEvent(event);
     };
 
     function checkForChanges(){
@@ -1053,9 +1263,10 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.setPlayerController = function AddonParagraph_Keyboard_playerController(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+
         presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
         presenter.pageID = presenter.playerController.getPresentation().getPage(presenter.currentPageIndex).getId();
+        presenter.textParser = new TextParserProxy(presenter.playerController.getTextParser());
     };
 
     presenter.getState = function AddonParagraph_Keyboard_getState() {
@@ -1175,7 +1386,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.setText = function AddonParagraph_Keyboard_setText(text) {
         presenter.editor.setContent(text);
-    }
+    };
 
     presenter.isAttempted = function AddonParagraph_Keyboard_isAttempted() {
         if (!presenter.isEditorLoaded) {
@@ -1197,30 +1408,30 @@ function AddonParagraph_Keyboard_create() {
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
-        var model = presenter.upgradeModel(model);
-        const configuration = presenter.parseModel(model, false);
+        const upgradedModel = presenter.upgradeModel(model);
+        const configuration = presenter.parseModel(upgradedModel, false);
         const modelAnswer = configuration.modelAnswer;
 
-        var $wrapper = $('<div></div>');
+        const $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
         $wrapper.css("left", "0px");
         $wrapper.css("right", "0px");
         $wrapper.css("height", configuration.paragraphHeight + "px");
         $wrapper.css("padding", "10px 10px 10px 0px");
-        var $paragraph = $('<div></div>');
+        const $paragraph = $('<div></div>');
         $paragraph.css("left", "0px");
         $paragraph.css("right", "0px");
         $paragraph.css("height", "100%");
         $paragraph.css("border", "1px solid");
 
-        let innerText = "";
+        let innerHTML = "";
         if (showAnswers) {
-            innerText = modelAnswer;
+            innerHTML = modelAnswer;
         }
         if (presenter.printableState) {
-            innerText = presenter.printableState;
+            innerHTML = presenter.printableState;
         }
-        $paragraph.html(innerText);
+        $paragraph.html(innerHTML);
 
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
@@ -1356,7 +1567,7 @@ function AddonParagraph_Keyboard_create() {
             presenter.isWaitingForAIGrade = false;
             presenter.enableEdit();
         }
-    }
+    };
 
     presenter.handleUpdateScoreEvent = function (eventData) {
         if (eventData.source !== presenter.configuration.ID && eventData.value !== presenter.updateScoreEventName) { return; }
@@ -1364,10 +1575,258 @@ function AddonParagraph_Keyboard_create() {
         clearInterval(presenter.aiGradeInterval);
         presenter.isWaitingForAIGrade = false;
         presenter.enableEdit();
-    }
+    };
 
     presenter.isOpenActivity = function () {
         return presenter.configuration.isValid && presenter.configuration.manualGrading;
+    };
+
+    function ParagraphKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    ParagraphKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ParagraphKeyboardController.prototype.constructor = ParagraphKeyboardController;
+
+    presenter.buildKeyboardController = function Paragraph_buildKeyboardController () {
+        presenter.keyboardControllerObject = new ParagraphKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
+        presenter.keyboardControllerObject.overrideKeysHandlers();
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return this.$view.find(`.${presenter.CSS_CLASSES.MCE_BUTTON}, .${presenter.CSS_CLASSES.MCE_EDIT_AREA}, .${presenter.CSS_CLASSES.KEYBOARD_LETTER}, .${presenter.CSS_CLASSES.KEYBOARD_SHIFT}`);
+    };
+
+    presenter.keyboardController = function (keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    ParagraphKeyboardController.prototype.overrideKeysHandlers = function () {
+        this.mapping[window.KeyboardControllerKeys.ARROW_UP] = this.previousElement;
+        this.mapping[window.KeyboardControllerKeys.ARROW_DOWN] = this.nextElement;
+    };
+
+    ParagraphKeyboardController.prototype.selectAction = function () {
+        if (presenter.isShowAnswersActive
+            || presenter.isGradualShowAnswersActive
+            || presenter.isErrorCheckingMode) {
+            return;
+        }
+
+        const $element = this.getTarget(this.keyboardNavigationCurrentElement, true);
+        if ($element.hasClass(presenter.CSS_CLASSES.MCE_EDIT_AREA)) {
+            presenter.editor.execCommand('mceCodeEditor');
+        } else if ($element.hasClass(presenter.CSS_CLASSES.MCE_BUTTON)) {
+            $element[0].click();
+            document.activeElement.blur();
+            presenter.speakSelectedOnAction($element);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.KEYBOARD_LETTER)) {
+            $element[0].click();
+            document.activeElement.blur();
+            $element[0].focus();
+            presenter.speakSelectedOnAction($element);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT)) {
+            $element[0].click();
+            document.activeElement.blur();
+            presenter.speakSelectedOnAction($element);
+            this.firstVisibleShift();
+        }
+        this.mark(this.keyboardNavigationCurrentElement);
+    };
+
+    presenter.speakSelectedOnAction = function ($element) {
+        const textToSpeak = (
+            $element.hasClass(presenter.CSS_CLASSES.MCE_ACTIVE)
+            || $element.hasClass(presenter.CSS_CLASSES.KEYBOARD_LETTER)
+            || $element.hasClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT)
+        )
+            ? presenter.speechTexts.selected
+            : presenter.speechTexts.deselected;
+        presenter.speak(textToSpeak);
+    };
+
+    ParagraphKeyboardController.prototype.mark = function (element) {
+        const $target = this.getTarget(element, false);
+        $target.addClass('keyboard_navigation_active_element_important');
+        if ($target.hasClass(presenter.CSS_CLASSES.MCE_EDIT_AREA)) {
+            $target.addClass('keyboard-navigation-margin');
+        }
+    };
+
+    ParagraphKeyboardController.prototype.unmark = function (element) {
+        const $target = this.getTarget(element, false);
+        $target.removeClass('keyboard_navigation_active_element_important');
+        if ($target.hasClass(presenter.CSS_CLASSES.MCE_EDIT_AREA)) {
+            $target.removeClass('keyboard-navigation-margin');
+        }
+    };
+
+    ParagraphKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+    };
+
+    ParagraphKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const wasSuccess = this.nextVisibleElement();
+        if (wasSuccess) {
+            this.readCurrentElement();
+        }
+    };
+
+    ParagraphKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const wasSuccess = this.previousVisibleElement();
+        if (wasSuccess) {
+            this.readCurrentElement();
+        }
+    };
+
+    /**
+     * Finds and switches to the next visible element in the keyboard navigation elements list.
+     * @method nextVisibleElement
+     * @returns {boolean} - Returns `true` if a visible element is found and switched to,
+     *                      otherwise returns `false` if no visible elements are found.
+     */
+    ParagraphKeyboardController.prototype.nextVisibleElement = function () {
+        for (var i = 1; i < this.keyboardNavigationElementsLen; i++) {
+            var index = (this.keyboardNavigationCurrentElementIndex + i) % this.keyboardNavigationElementsLen;
+            var element = this.keyboardNavigationElements[index];
+            if (!this.isElementHidden(element)) {
+                this.markCurrentElement(index);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    /**
+     * Finds and switches to the previous visible element in the keyboard navigation elements list.
+     * @method previousVisibleElement
+     * @returns {boolean} - Returns `true` if a visible element is found and switched to,
+     *                      otherwise returns `false` if no visible elements are found.
+     */
+    ParagraphKeyboardController.prototype.previousVisibleElement = function () {
+        for (let i = 1; i < this.keyboardNavigationElementsLen; i++) {
+            const index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
+            const element = this.keyboardNavigationElements[index];
+            if (!this.isElementHidden(element)) {
+                this.markCurrentElement(index);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    ParagraphKeyboardController.prototype.firstVisibleShift = function () {
+        for (let i = 1; i < this.keyboardNavigationElementsLen; i++) {
+            const index = (this.keyboardNavigationCurrentElementIndex - i + this.keyboardNavigationElementsLen) % this.keyboardNavigationElementsLen;
+            const element = this.keyboardNavigationElements[index];
+            if (!this.isElementHidden(element) && $(element).hasClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT)) {
+                this.markCurrentElement(index);
+                element.focus();
+                return true;
+            }
+        }
+        return false;
+    };
+
+    /**
+     * Checks if a given DOM element is hidden.
+     *
+     * An element is considered hidden if:
+     * - Its height or width is 0.
+     * - Its CSS `display` property is set to `none`.
+     * - Its CSS `visibility` property is not `visible`.
+     *
+     * @param {HTMLElement} element - The DOM element to check.
+     * @returns {boolean} - Returns `true` if the element is hidden, otherwise `false`.
+     */
+    ParagraphKeyboardController.prototype.isElementHidden = function (element) {
+        const elementHeight = element.offsetHeight;
+        const elementWidth = element.offsetWidth;
+        const isDisplayed = $(element).css('display') !== 'none';
+        const isVisible = $(element).css('visibility') === 'visible';
+
+        return elementHeight === 0 || elementWidth === 0 || !isDisplayed || !isVisible;
+    };
+
+    ParagraphKeyboardController.prototype.getCurrentElement = function () {
+		return this.getTarget(this.keyboardNavigationCurrentElement, false);
+	};
+
+    ParagraphKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    ParagraphKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    ParagraphKeyboardController.prototype.readCurrentElement = function () {
+        const $element = this.getCurrentElement();
+        const ariaLabel = $element.attr("aria-label");
+        let text = "";
+
+        if ($element.hasClass(presenter.CSS_CLASSES.KEYBOARD_LETTER)) {
+            text = TTSUtils.getTextVoiceArrayFromElement($element, presenter.configuration.langTag);
+        } else if ($element.hasClass(presenter.CSS_CLASSES.KEYBOARD_SHIFT)) {
+            text = presenter.speechTexts.shift;
+        } else if ($element.hasClass(presenter.CSS_CLASSES.MCE_BUTTON) && ariaLabel) {
+            const label = ariaLabel.toLowerCase().replace(/\s/gm, "");
+            const ttsKey = presenter.TOOLBAR_ARIAS[label];
+            text = ttsKey ? presenter.speechTexts[ttsKey] : ariaLabel;
+            if ($element.hasClass(presenter.CSS_CLASSES.MCE_ACTIVE)) {
+                text += ` ${presenter.speechTexts.selected}`;
+            }
+        } else if ($element.hasClass(presenter.CSS_CLASSES.MCE_EDIT_AREA)) {
+            let $contentToRead = $(presenter.editor.getContent({format : 'raw'}));
+            if ($contentToRead.text().trim().length === 0) {
+                text = presenter.speechTexts.paragraphContent;
+            } else {
+                text = TTSUtils.getTextVoiceArrayFromElement($contentToRead, presenter.configuration.langTag);
+            }
+        } else {
+            let content;
+            try {
+                content = $element[0].textContent;
+            } catch (error) {
+                console.error(error);
+                content = "element";
+            }
+            text = content;
+        }
+
+        presenter.speak(text);
+    };
+
+    presenter.speak = function (data) {
+        const tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function Paragraph_setWCAGStatus(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function Paragraph_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function parseAltText(text) {
+        return presenter.isPreview ? window.TTSUtils.parsePreviewAltText(text) : presenter.textParser.parseAltTexts(text);
     }
 
     return presenter;

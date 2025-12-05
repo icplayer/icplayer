@@ -61,19 +61,19 @@ TestCase('[Paragraph Keyboard] Commands test', {
     },
 
     'test given text in the view when getText was called then return the addon content': function () {
-        var result = this.presenter.getText();
+        const result = this.presenter.getText();
 
         assertEquals(result, 'Paragraph eKeyboard content');
     },
 
     'test given text when setText was called then update the view content': function () {
-        var text = 'Updated Paragraph eKeyboard content';
+        const text = 'Updated Paragraph eKeyboard content';
 
         this.presenter.setText(text);
-        var result = this.presenter.getText();
+        const result = this.presenter.getText();
 
         assertEquals(result, text);
-    },
+    }
 });
 
 TestCase("[Paragraph Keyboard] isAttempted method", {
