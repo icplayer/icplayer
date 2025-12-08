@@ -1999,6 +1999,7 @@ var ice_dictionary_bl = {
 	"Model_Viewer_copyInfo": "Copyright Info",
 	"Model_Viewer_interactionPrompt": "Interaction Prompt",
 	"Model_Viewer_enableFullscreen": "Enable fullscreen",
+    "Model_Viewer_lang_attribute": "Lang attribute",
     "SelectableAddonsBinder_name" : "Множество плъгини по избор",
     "SelectableAddonsBinder_info" : "Позволява управлението на групи плъгини по избор",
     "SelectableAddonsBinder_property_addons" : "Плъгини",

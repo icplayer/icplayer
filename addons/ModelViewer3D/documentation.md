@@ -77,6 +77,10 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Enable fullscreen</td>
         <td>Allows to enter fullscreen mode. After checking this property, the content of the addon will be wrapped with an element with CSS class `.modelViewerWrapper`, regardless of whether the device supports Fullscreen API. Check chapter `Fullscreen` for more information.</td>
     </tr>
+    <tr>
+        <td>Lang attribute</td>
+        <td>This property allows defining the language for this module (different than the language of the lesson).</td>
+    <tr>
 </tbody>
 </table>
 

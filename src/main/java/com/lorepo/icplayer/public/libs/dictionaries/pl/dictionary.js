@@ -2003,6 +2003,7 @@ var ice_dictionary_pl = {
 	"Model_Viewer_copyInfo": "Copyright Info",
 	"Model_Viewer_interactionPrompt": "Interaction Prompt",
 	"Model_Viewer_enableFullscreen": "Enable fullscreen",
+    "Model_Viewer_lang_attribute": "Lang attribute",
     "SelectableAddonsBinder_name" : "Łącznik addonów wybieralnych",
     "SelectableAddonsBinder_info" : "Pozwala sterować pracą grup addonów wybieralnych.",
     "SelectableAddonsBinder_property_addons" : "Addony",

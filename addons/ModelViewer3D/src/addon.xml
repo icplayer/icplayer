@@ -19,5 +19,6 @@
         <property name="interactionPrompt" nameLabel="Model_Viewer_interactionPrompt" type="boolean"/>
         <property name="enableFullscreen" nameLabel="Model_Viewer_enableFullscreen" type="boolean"/>
         <property name="{library}" nameLabel="Model_Viewer_library" type="module-script" value="/file/serve/5059308589809664"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Model_Viewer_lang_attribute" type="string" />
     </model>
 </addon>

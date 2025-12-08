@@ -1,6 +1,6 @@
 function AddonModelViewer3D_create() {
     // to create version on mauthor-dev use storage.googleapis URL
-    var presenter = function() {};
+    var presenter = function () { };
 
     presenter.wasInitiated = false;
     presenter.annotationsVisibility = "visible";
@@ -12,25 +12,26 @@ function AddonModelViewer3D_create() {
         requestFullscreenMethod: null,
         exitFullscreenMethod: null,
     };
+    presenter.isWCAGOn = false;
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
     };
 
-    presenter.run = function(view, model){
-        if(!presenter.wasInitiated) {
+    presenter.run = function (view, model) {
+        if (!presenter.wasInitiated) {
             presenter.init(view, model, false);
         }
     };
 
-    presenter.createPreview = function(view, model){
-        if(!presenter.wasInitiated) {
+    presenter.createPreview = function (view, model) {
+        if (!presenter.wasInitiated) {
             presenter.init(view, model, true);
             presenter.disableEvents();
         }
     };
 
-    presenter.init = function(view, model, isPreview) {
+    presenter.init = function (view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
 
@@ -53,20 +54,20 @@ function AddonModelViewer3D_create() {
         presenter.handleCopyright();
         presenter.handleFullscreenButton();
 
-        $(presenter.modelViewer).on('load', function(){
-            if(presenter.configuration.scale !== undefined && presenter.configuration.scale !== "") presenter.setScale(presenter.configuration.scale);
+        $(presenter.modelViewer).on('load', function () {
+            if (presenter.configuration.scale !== undefined && presenter.configuration.scale !== "") presenter.setScale(presenter.configuration.scale);
         });
 
         presenter.wasInitiated = true;
     };
 
-    presenter.upgradeModel = function(model) {
-        const upgradedModel = presenter.upgradeModelWithEnableFullscreen(model);
-
-        return presenter.upgradeModelWithModelIOS(upgradedModel);
+    presenter.upgradeModel = function (model) {
+        let upgradedModel = presenter.upgradeModelWithEnableFullscreen(model);
+        upgradedModel = presenter.upgradeModelWithModelIOS(upgradedModel);
+        return presenter.upgradeModelWithLangAttribute(upgradedModel);
     };
 
-    presenter.upgradeModelWithEnableFullscreen = function(model) {
+    presenter.upgradeModelWithEnableFullscreen = function (model) {
         const upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
@@ -78,11 +79,22 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.upgradeModelWithModelIOS = function (model) {
-        var upgradedModel = {};
+        const upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
         if (!model.hasOwnProperty('modelIOS')) {
             upgradedModel['modelIOS'] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModelWithLangAttribute = function (model) {
+        const upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model.hasOwnProperty('langAttribute')) {
+            upgradedModel['langAttribute'] = "";
         }
 
         return upgradedModel;
@@ -97,8 +109,9 @@ function AddonModelViewer3D_create() {
         const isInteractionPrompt = ModelValidationUtils.validateBoolean(model["interactionPrompt"]);
         const environmentImage = model["environmentImage"] === "" ? "neutral" : model["environmentImage"];
         try {
-            if (model["attributes"].trim() !== "") {
-                additionalAttributes = JSON.parse(model["attributes"].trim());
+            const attributes = model["attributes"];
+            if (attributes && attributes.trim() !== "") {
+                additionalAttributes = JSON.parse(attributes.trim());
             }
         } catch (e) {
             isValid = false;
@@ -124,6 +137,7 @@ function AddonModelViewer3D_create() {
             copyInfo: model["copyInfo"],
             interactionPrompt: isInteractionPrompt,
             enableFullscreen: ModelValidationUtils.validateBoolean(model["enableFullscreen"]),
+            langTag: model["langAttribute"],
         };
     };
 
@@ -223,19 +237,19 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.handleCopyright = function () {
-        const copyText = '<div class="copyContainer">'+presenter.configuration.copyInfo+'</div>';
+        const copyText = '<div class="copyContainer">' + presenter.configuration.copyInfo + '</div>';
         $(presenter.copyMessage).append(copyText);
 
         presenter.copyContainer = $(presenter.copyMessage).find(".copyContainer").get(0);
         const link = presenter.copyContainer.querySelector('a');
         if (link) {
-            link.addEventListener('click', function(event) {
+            link.addEventListener('click', function (event) {
                 event.preventDefault();
                 window.open(link.getAttribute('href'), '_blank');
             });
         }
 
-        $( presenter.copyButton ).on( "click", function(e) {
+        $(presenter.copyButton).on("click", function (e) {
             $(presenter.copyButton).toggleClass("copyButton-selected");
             $(presenter.copyMessage).toggleClass("copyMessage-visible");
         });
@@ -253,47 +267,47 @@ function AddonModelViewer3D_create() {
 
     presenter.handleDisplayingButtons = function () {
         if (presenter.configuration.annotations === "") {
-            $( presenter.labelsButton ).addClass("hidden");
+            $(presenter.labelsButton).addClass("hidden");
         }
 
         if (presenter.configuration.copyInfo === "") {
-            $( presenter.copyButton ).addClass("hidden");
+            $(presenter.copyButton).addClass("hidden");
         }
 
         if (!isFullscreenEnabled()) {
-            $( presenter.fullscreenButton ).addClass("hidden");
+            $(presenter.fullscreenButton).addClass("hidden");
         }
     };
-    
+
     presenter.disableEvents = function () {
         $(presenter.modelViewer).css('pointer-events', 'none');
     };
 
-    presenter.setScale = function(scale){
-        presenter.modelViewer.scale = scale+" "+scale+" "+scale;
+    presenter.setScale = function (scale) {
+        presenter.modelViewer.scale = scale + " " + scale + " " + scale;
     };
 
-    presenter.showAnnotations = function() {
+    presenter.showAnnotations = function () {
         if (!presenter.configuration.isVisible) { return; }
         presenter.setAnnotationsVisibility("visible");
         $(presenter.labelsButton).addClass("labelsButton-selected");
     };
 
-    presenter.hideAnnotations = function(){
+    presenter.hideAnnotations = function () {
         presenter.setAnnotationsVisibility("hidden");
         $(presenter.labelsButton).removeClass("labelsButton-selected");
     };
 
-    presenter.setAnnotationsVisibility = function(value) {
+    presenter.setAnnotationsVisibility = function (value) {
         $(presenter.modelViewer).find(".Hotspot").css("visibility", value);
         presenter.annotationsVisibility = value;
     };
 
-    presenter.getAnnotationsVisibility = function(){
+    presenter.getAnnotationsVisibility = function () {
         return presenter.annotationsVisibility;
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
@@ -307,9 +321,9 @@ function AddonModelViewer3D_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.setShowErrorsMode = function() {};
+    presenter.setShowErrorsMode = function () { };
 
-    presenter.setWorkMode = function() {};
+    presenter.setWorkMode = function () { };
 
     presenter.reset = function () {
         if (presenter.isVisibleOnStart !== presenter.configuration.isVisible) {
@@ -328,59 +342,59 @@ function AddonModelViewer3D_create() {
         presenter.setAnimationToDefault();
     };
 
-    presenter.getErrorCount = function(){
+    presenter.getErrorCount = function () {
         return 0;
     };
 
-    presenter.getMaxScore = function(){
+    presenter.getMaxScore = function () {
         return 0;
     };
 
-    presenter.getScore = function(){
+    presenter.getScore = function () {
         return 0;
     };
 
-    presenter.changeAnimation = function(animation) {
+    presenter.changeAnimation = function (animation) {
         $(presenter.modelViewer).attr("animation-name", animation);
     };
 
-    presenter.play = function(repetitions, pingpong) {
+    presenter.play = function (repetitions, pingpong) {
         presenter.modelViewer.play(repetitions, pingpong);
     };
 
-    presenter.pause = function() {
+    presenter.pause = function () {
         presenter.modelViewer.pause();
     };
 
-    presenter.listAnimations = function() {
+    presenter.listAnimations = function () {
         return presenter.modelViewer.availableAnimations;
     };
 
-    presenter.jumpTo = function(time) {
+    presenter.jumpTo = function (time) {
         presenter.modelViewer.currentTime = time;
     };
 
-    presenter.isPaused = function() {
+    presenter.isPaused = function () {
         return presenter.modelViewer.paused;
     };
 
-    presenter.animationDuration = function() {
+    presenter.animationDuration = function () {
         return presenter.modelViewer.duration;
     };
 
-    presenter.changeSpeed = function(speed) {
+    presenter.changeSpeed = function (speed) {
         presenter.modelViewer.timeScale = speed;
     };
 
-    presenter.userPrompt = function(value) {
+    presenter.userPrompt = function (value) {
         $(presenter.modelViewer).attr("interaction-prompt", value);
     };
 
-    presenter.currentTime = function() {
+    presenter.currentTime = function () {
         return presenter.modelViewer.currentTime;
     };
 
-    presenter.getState = function() {
+    presenter.getState = function () {
         return JSON.stringify({
             annotationsVisibility: presenter.annotationsVisibility,
             isVisible: presenter.configuration.isVisible,
@@ -390,7 +404,7 @@ function AddonModelViewer3D_create() {
         });
     };
 
-    presenter.setState = function(stateString){
+    presenter.setState = function (stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
 
         var state = JSON.parse(stateString);
@@ -416,7 +430,7 @@ function AddonModelViewer3D_create() {
         }, 100);
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
         if (presenter.annotationsVisibility === "visible") {
@@ -424,13 +438,13 @@ function AddonModelViewer3D_create() {
         }
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
         $(presenter.modelViewer).find(".Hotspot").css("visibility", "hidden");
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
@@ -588,6 +602,41 @@ function AddonModelViewer3D_create() {
             presenter.fullscreenChangedEventReceived
         );
     };
+
+    presenter.keyboardController = function(keyCode, isShift, event) {
+        event.preventDefault();
+        if (keyCode === window.KeyboardControllerKeys.ENTER) {
+            presenter.readAltText();
+        }
+    };
+
+    presenter.readAltText = function () {
+        presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.langTag)]);
+    }
+
+    presenter.getTextToSpeechOrNull = function () {
+        if (presenter.playerController) {
+            return presenter.playerController.getModule('Text_To_Speech1');
+        }
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        const tts = presenter.getTextToSpeechOrNull();
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.setWCAGStatus = function (isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.isEnterable = function(){ return false;};
+
+    presenter.isSelectable = function(isWCAGOn) {
+        return isWCAGOn;
+	}
 
     return presenter;
 }
