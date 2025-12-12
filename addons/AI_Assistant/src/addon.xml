@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="AI_Assistant" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Chat name" nameLabel="AI_Assistant_chat_name" type="string"/>
+        <property name="Welcome text" nameLabel="AI_Assistant_welcome_text" type="list">
+            <property name="Text" nameLabel="AI_Assistant_text" type="text"/>
+        </property>
+        <property name="Hidden prompt" nameLabel="AI_Assistant_hidden_prompt" type="text"/>
+        <property name="Suggestions" nameLabel="AI_Assistant_suggestions" type="list">
+            <property name="Text" nameLabel="AI_Assistant_text" type="text"/>
+        </property>
+        <property name="Instructions" nameLabel="AI_Assistant_instructions" type="text"/>
+        <property name="Draggable" nameLabel="AI_Assistant_draggable" type="boolean"/>
+        <property name="Hide header" nameLabel="AI_Assistant_hide_header" type="boolean"/>
+        <property name="Mute voice" nameLabel="AI_Assistant_mute_voice" type="boolean"/>
+        <property name="Voice language" nameLabel="AI_Assistant_voice_language" type="string"/>
+        <property name="Voice type" nameLabel="AI_Assistant_voice_type" type="string"/>
+        <property name="Reading speed" nameLabel="AI_Assistant_reading_speed" type="string"/>
+        <property name="Translation languages" nameLabel="AI_Assistant_translation_languages" type="string"/>
+        <property name="Class names" nameLabel="AI_Assistant_class_name" type="staticlist">
+            <property name="Show" nameLabel="AI_Assistant_Show" type="staticrow">
+                <property name="Show" nameLabel="AI_Assistant_Show" type="string"/>
+            </property>
+            <property name="Hide" nameLabel="AI_Assistant_Hide" type="staticrow">
+                <property name="Hide" nameLabel="AI_Assistant_Hide" type="string"/>
+            </property>
+        </property>
+        <property name="langAttribute" nameLabel="AI_Assistant_lang_attribute" type="string" />
+        <property name="speechTexts" nameLabel="AI_Assistant_speech_texts" type="staticlist">
+
+            <property name="messageSent" nameLabel="AI_Assistant_messageSent" type="staticrow">
+                <property name="messageSent" nameLabel="AI_Assistant_messageSent" type="string"/>
+            </property>
+            <property name="recording" nameLabel="AI_Assistant_recording" type="staticrow">
+                <property name="recording" nameLabel="AI_Assistant_recording" type="string"/>
+            </property>
+            <property name="finishedRecording" nameLabel="AI_Assistant_finishedRecording" type="staticrow">
+                <property name="finishedRecording" nameLabel="AI_Assistant_finishedRecording" type="string"/>
+            </property>
+            <property name="lastMessage" nameLabel="AI_Assistant_lastMessage" type="staticrow">
+                <property name="lastMessage" nameLabel="AI_Assistant_lastMessage" type="string"/>
+            </property>
+            <property name="assistantMessage" nameLabel="AI_Assistant_assistantMessage" type="staticrow">
+                <property name="assistantMessage" nameLabel="AI_Assistant_assistantMessage" type="string"/>
+            </property>
+            <property name="userMessage" nameLabel="AI_Assistant_userMessage" type="staticrow">
+                <property name="userMessage" nameLabel="AI_Assistant_userMessage" type="string"/>
+            </property>
+            <property name="textInput" nameLabel="AI_Assistant_textInput" type="staticrow">
+                <property name="textInput" nameLabel="AI_Assistant_textInput" type="string"/>
+            </property>
+            <property name="recordButton" nameLabel="AI_Assistant_recordButton" type="staticrow">
+                <property name="recordButton" nameLabel="AI_Assistant_recordButton" type="string"/>
+            </property>
+            <property name="sendButton" nameLabel="AI_Assistant_sendButton" type="staticrow">
+                <property name="sendButton" nameLabel="AI_Assistant_sendButton" type="string"/>
+            </property>
+            <property name="disabled" nameLabel="AI_Assistant_disabled" type="staticrow">
+                <property name="disabled" nameLabel="AI_Assistant_disabled" type="string"/>
+            </property>
+            <property name="active" nameLabel="AI_Assistant_active" type="staticrow">
+                <property name="active" nameLabel="AI_Assistant_active" type="string"/>
+            </property>
+        </property>
+    </model>
+</addon>

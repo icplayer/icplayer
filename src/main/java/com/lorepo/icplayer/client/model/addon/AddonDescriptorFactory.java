@@ -167,6 +167,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Text_To_Speech", "scripting_menu");
         addDescriptor("PseudoCode_Console", "scripting_menu");
 		addDescriptor("Timer", "scripting_menu");
+		addDescriptor("AI_Assistant", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");
