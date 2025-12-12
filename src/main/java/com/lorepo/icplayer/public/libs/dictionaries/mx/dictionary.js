@@ -2003,6 +2003,7 @@ var ice_dictionary_mx = {
 	"Model_Viewer_copyInfo": "Copyright Info",
 	"Model_Viewer_interactionPrompt": "Interaction Prompt",
 	"Model_Viewer_enableFullscreen": "Enable fullscreen",
+    "Model_Viewer_lang_attribute": "Lang attribute",
 	"SelectableAddonsBinder_name": "Conector de addons seleccionables",
 	"SelectableAddonsBinder_info": "Permite a controlar un grupo de addons seleccionables",
 	"SelectableAddonsBinder_property_addons": "Addons",
