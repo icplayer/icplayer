@@ -2601,5 +2601,6 @@ var ice_dictionary_pl = {
     "AI_Assistant_recordButton": "Record button",
     "AI_Assistant_sendButton": "Send button",
     "AI_Assistant_disabled": "Disabled",
-    "AI_Assistant_active": "Active"
+    "AI_Assistant_active": "Active",
+    "AI_Assistant_suggestion": "Suggestion number:"
 };

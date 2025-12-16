@@ -95,7 +95,8 @@ function AddonAI_Assistant_create() {
             recordButton: 'Record button',
             sendButton: 'Send button',
             disabled: 'Disabled',
-            active: 'Active'
+            active: 'Active',
+            suggestion: 'Suggestion number'
         };
 
         if (!speechTexts) {
@@ -114,7 +115,7 @@ function AddonAI_Assistant_create() {
             sendButton: TTSUtils.getSpeechTextProperty(speechTexts['sendButton']['sendButton'], presenter.speechTexts.sendButton),
             disabled: TTSUtils.getSpeechTextProperty(speechTexts['disabled']['disabled'], presenter.speechTexts.disabled),
             active: TTSUtils.getSpeechTextProperty(speechTexts['active']['active'], presenter.speechTexts.active),
-
+            suggestion: TTSUtils.getSpeechTextProperty(speechTexts['suggestion']['suggestion'], presenter.speechTexts.suggestion),
         };
     }
 
@@ -123,23 +124,10 @@ function AddonAI_Assistant_create() {
             return;
         };
 
-        if (eventData.source.indexOf('Get_Assist_Comment') == 0) {
-            let button = presenter.playerController.getModule(eventData.source);
-            for (let el of button.getView().classList) {
-                if (el.includes('AI_Blob')) {
-                    presenter.view.classList.remove('close');
-                    presenter.view.classList.add('open');
-                    break;
-                };
-            };
-        };
-
         if (eventName == 'PageLoaded' && eventData.source.indexOf('header') < 0 && eventData.source.indexOf('footer') < 0) {
             handleMuteState();
             presenter.handleInput('enable');
             presenter.conversate();
-            let aiAssistBtn = presenter.playerController.getModule('Get_Assist_Comment');
-            if (aiAssistBtn) aiAssistBtn.deselect();
         };
     };
 
@@ -265,11 +253,15 @@ function AddonAI_Assistant_create() {
         return last;
     };
 
-    presenter.geMessageById = function (id) {
-        let chatMessages = Array.from(presenter.view.querySelector('[message-id="'+ id + '"]').children);
-        if (chatMessages.length === 0) return null;
-        return chatMessages[0];
+    presenter.getMessageById = function (id) {
+        return presenter.view.querySelector('[message-id="'+ id + '"]');
     };
+
+    presenter.getSuggestionByIndex = function (index) {
+        let suggestions = $(presenter.view).find('.ai-chat-suggestions-container > .ai-suggestion');
+        if (index < suggestions.length) return suggestions[index];
+        return null;
+    }
 
     presenter.getUserInput = function () {
         let textInput = presenter.view.querySelector('.text-input');
@@ -593,15 +585,15 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.showAnimated = function() {
-        let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide.length : 'close';
-        let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show.length : 'open';
+        let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide : 'close';
+        let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show : 'open';
         presenter.view.classList.remove(closeName);
         presenter.view.classList.add(openName);
     }
 
     presenter.hideAnimated = function() {
-        let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide.length : 'close';
-        let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show.length : 'open';
+        let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide : 'close';
+        let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show : 'open';
         presenter.view.classList.remove(openName);
         presenter.view.classList.add(closeName);
     }
@@ -878,10 +870,7 @@ function AddonAI_Assistant_create() {
             }
         });
         buttonClose.addEventListener('click', () => {
-            $(presenter.view).removeClass('open');
-            $(presenter.view).addClass('close');
-            let aiAssistBtn = presenter.playerController.getModule('Get_Assist_Comment');
-            if (aiAssistBtn) aiAssistBtn.deselect();
+            presenter.hide();
         });
         buttonMute.addEventListener('click', () => { handleMuteButton() });
 
@@ -1257,11 +1246,12 @@ function AddonAI_Assistant_create() {
         LAST_MESSAGE: "LAST_MESSAGE",
         TEXT_INPUT: "TEXT_INPUT",
         RECORD_BUTTON: "RECORD_BUTTON",
-        SEND_BUTTON: "SEND_BUTTON"
+        SEND_BUTTON: "SEND_BUTTON",
+        SUGGESTION: "SUGGESTION"
     }
 
     presenter.WCAGState = {
-        selectedMessage: -1,
+        selectedElementIndex: -1,
         status: presenter.WCAGSTATUS.LAST_MESSAGE
     };
 
@@ -1324,6 +1314,8 @@ function AddonAI_Assistant_create() {
                     } else {
                         presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.finishedRecording)]);
                     }
+                } else if (presenter.WCAGState.status === presenter.WCAGSTATUS.SUGGESTION) {
+                    presenter.sendRequest(presenter.suggestions[presenter.WCAGState.selectedElementIndex].Text);
                 }
         }
     };
@@ -1331,18 +1323,33 @@ function AddonAI_Assistant_create() {
     presenter.prevWCAGElement = function() {
         switch (presenter.WCAGState.status) {
             case presenter.WCAGSTATUS.LAST_MESSAGE:
-                let currentMessage = presenter.getLastMessageId() - 1;
-                if (currentMessage > 0) {
-                    presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
-                    presenter.WCAGState.selectedMessage = currentMessage;
+                let lastMessageId = presenter.getLastMessageId();
+                if (lastMessageId === 2 && presenter.usesSuggestions()) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
+                    presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
                     presenter.selectCurrentWCAGElement();
                     presenter.readCurrentElement();
+                } else {
+                    let currentMessage = lastMessageId - 1;
+                    if (currentMessage > 0) {
+                        presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
+                        presenter.WCAGState.selectedElementIndex = currentMessage;
+                        presenter.selectCurrentWCAGElement();
+                        presenter.readCurrentElement();
+                    }
                 }
                 break;
             case presenter.WCAGSTATUS.TEXT_INPUT:
-                presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
-                presenter.selectCurrentWCAGElement();
-                presenter.readCurrentElement();
+                if (presenter.getLastMessageId() === 1 && presenter.usesSuggestions()) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
+                    presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
+                    presenter.selectCurrentWCAGElement();
+                    presenter.readCurrentElement();
+                } else {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+                    presenter.selectCurrentWCAGElement();
+                    presenter.readCurrentElement();
+                }
                 break;
             case presenter.WCAGSTATUS.RECORD_BUTTON:
                 presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
@@ -1354,11 +1361,32 @@ function AddonAI_Assistant_create() {
                 presenter.selectCurrentWCAGElement();
                 presenter.readCurrentElement();
                 break;
-            default:
-                if (presenter.WCAGState.selectedMessage > 1) {
-                    presenter.WCAGState.selectedMessage -= 1;
+            case presenter.WCAGSTATUS.SUGGESTION:
+                if (presenter.WCAGState.selectedElementIndex > 0) {
+                    presenter.WCAGState.selectedElementIndex -= 1;
+                } else {
+                    if (presenter.getLastMessageId() === 1) {
+                        presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+                    } else {
+                        presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
+                        presenter.WCAGState.selectedElementIndex = 1;
+                    }
+                }
+                presenter.selectCurrentWCAGElement();
+                presenter.readCurrentElement();
+                break;
+            default: //presenter.WCAGSTATUS.MESSAGE
+                if (presenter.WCAGState.selectedElementIndex === 2 && presenter.usesSuggestions()) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
+                    presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
                     presenter.selectCurrentWCAGElement();
                     presenter.readCurrentElement();
+                } else {
+                    if (presenter.WCAGState.selectedElementIndex > 1) {
+                        presenter.WCAGState.selectedElementIndex -= 1;
+                        presenter.selectCurrentWCAGElement();
+                        presenter.readCurrentElement();
+                    }
                 }
                 break;
         }
@@ -1367,7 +1395,12 @@ function AddonAI_Assistant_create() {
     presenter.nextWCAGElement = function() {
         switch (presenter.WCAGState.status) {
         case presenter.WCAGSTATUS.LAST_MESSAGE:
-            presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
+            if (presenter.getLastMessageId() === 1 && presenter.usesSuggestions()) {
+                presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
+                presenter.WCAGState.selectedElementIndex = 0;
+            } else {
+                presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
+            }
             break;
         case presenter.WCAGSTATUS.TEXT_INPUT:
             presenter.WCAGState.status = presenter.WCAGSTATUS.RECORD_BUTTON;
@@ -1375,10 +1408,30 @@ function AddonAI_Assistant_create() {
         case presenter.WCAGSTATUS.RECORD_BUTTON:
             presenter.WCAGState.status = presenter.WCAGSTATUS.SEND_BUTTON;
             break;
+        case presenter.WCAGSTATUS.SUGGESTION:
+            if (presenter.WCAGState.selectedElementIndex < presenter.suggestions.length - 1) {
+                presenter.WCAGState.selectedElementIndex += 1;
+            } else {
+                let lastMessageId = presenter.getLastMessageId();
+                if (lastMessageId === 1) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
+                } else if (lastMessageId === 2) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+                } else {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
+                    presenter.WCAGState.selectedElementIndex = 2;
+                }
+            }
+            break;
         default:
-            presenter.WCAGState.selectedMessage += 1;
-            if (presenter.WCAGState.selectedMessage >= presenter.getLastMessageId()) {
-                presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+            if (presenter.WCAGState.selectedElementIndex === 1 && presenter.usesSuggestions()) {
+                presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
+                presenter.WCAGState.selectedElementIndex = 0;
+            } else {
+                presenter.WCAGState.selectedElementIndex += 1;
+                if (presenter.WCAGState.selectedElementIndex >= presenter.getLastMessageId()) {
+                    presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+                }
             }
             break;
         }
@@ -1398,7 +1451,9 @@ function AddonAI_Assistant_create() {
         let $element = null;
         switch (presenter.WCAGState.status) {
             case presenter.WCAGSTATUS.LAST_MESSAGE:
-                $element = $(presenter.getLastMessage());
+                let lastMessage = presenter.getLastMessage();
+                scrollToMessage(lastMessage);
+                $element = $(lastMessage);
                 presenter.blurTextInput();
                 break;
             case presenter.WCAGSTATUS.TEXT_INPUT:
@@ -1412,8 +1467,13 @@ function AddonAI_Assistant_create() {
             case presenter.WCAGSTATUS.SEND_BUTTON:
                 $element = $(presenter.view).find('.button-input');
                 break;
+            case presenter.WCAGSTATUS.SUGGESTION:
+                $element = $(presenter.getSuggestionByIndex(presenter.WCAGState.selectedElementIndex));
+                break;
             default:
-                $element = $(presenter.geMessageById(presenter.WCAGState.selectedMessage));
+                let message = presenter.getMessageById(presenter.WCAGState.selectedElementIndex);
+                scrollToMessage(message);
+                $element = $(message);
                 break;
         }
         if ($element === null) return;
@@ -1431,7 +1491,7 @@ function AddonAI_Assistant_create() {
     presenter.readCurrentElement = function() {
         let textVoices = [];
         if (presenter.WCAGState.status === presenter.WCAGSTATUS.MESSAGE || presenter.WCAGState.status === presenter.WCAGSTATUS.LAST_MESSAGE) {
-            let $message = presenter.WCAGState.status === presenter.WCAGSTATUS.LAST_MESSAGE ? $(presenter.getLastMessage()) : $(presenter.geMessageById(presenter.WCAGState.selectedMessage));
+            let $message = presenter.WCAGState.status === presenter.WCAGSTATUS.LAST_MESSAGE ? $(presenter.getLastMessage()) : $(presenter.getMessageById(presenter.WCAGState.selectedElementIndex));
             if (presenter.WCAGState.status === presenter.WCAGSTATUS.LAST_MESSAGE) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.lastMessage));
             }
@@ -1466,6 +1526,11 @@ function AddonAI_Assistant_create() {
             if ($(presenter.view).find('.button-input').hasClass("disabled")) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.disabled));
             }
+        }
+        if (presenter.WCAGState.status === presenter.WCAGSTATUS.SUGGESTION) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.suggestion + ' ' + (presenter.WCAGState.selectedElementIndex + 1)));
+            let suggestion = presenter.getSuggestionByIndex(presenter.WCAGState.selectedElementIndex);
+            textVoices = textVoices.concat(window.TTSUtils.getTextVoiceArrayFromElement($(suggestion), presenter.language));
         }
         presenter.speak(textVoices);
     }

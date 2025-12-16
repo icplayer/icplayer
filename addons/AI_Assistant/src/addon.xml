@@ -62,6 +62,9 @@
             <property name="active" nameLabel="AI_Assistant_active" type="staticrow">
                 <property name="active" nameLabel="AI_Assistant_active" type="string"/>
             </property>
+            <property name="suggestion" nameLabel="AI_Assistant_suggestion" type="staticrow">
+                <property name="suggestion" nameLabel="AI_Assistant_suggestion" type="string"/>
+            </property>
         </property>
     </model>
 </addon>
