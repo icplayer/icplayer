@@ -32,9 +32,6 @@
             <property name="messageSent" nameLabel="AI_Assistant_messageSent" type="staticrow">
                 <property name="messageSent" nameLabel="AI_Assistant_messageSent" type="string"/>
             </property>
-            <property name="recording" nameLabel="AI_Assistant_recording" type="staticrow">
-                <property name="recording" nameLabel="AI_Assistant_recording" type="string"/>
-            </property>
             <property name="finishedRecording" nameLabel="AI_Assistant_finishedRecording" type="staticrow">
                 <property name="finishedRecording" nameLabel="AI_Assistant_finishedRecording" type="string"/>
             </property>

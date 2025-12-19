@@ -4,11 +4,14 @@ function AddonAI_Assistant_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        presenter.eventBus = controller.getEventBus();
-        presenter.eventBus.addEventListener('ValueChanged', this);
-        presenter.eventBus.addEventListener('PageLoaded', this);
         presenter.commander = controller.getCommands();
     };
+
+    presenter.setEventBus = function (eventBus) {
+        presenter.eventBus = eventBus;
+        presenter.eventBus.addEventListener('ValueChanged', this);
+        presenter.eventBus.addEventListener('PageLoaded', this);
+    }
 
     presenter.fetchSessionJWTToken = function() {
         presenter.isFetching.request = true;
@@ -86,7 +89,6 @@ function AddonAI_Assistant_create() {
     presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
             messageSent: 'Message sent',
-            recording: 'Recording',
             finishedRecording: 'Finished Recording',
             lastMessage: 'Last message',
             assistantMessage: 'Assistant message number',
@@ -105,7 +107,6 @@ function AddonAI_Assistant_create() {
 
         presenter.speechTexts = {
             messageSent: TTSUtils.getSpeechTextProperty(speechTexts['messageSent']['messageSent'], presenter.speechTexts.messageSent),
-            recording: TTSUtils.getSpeechTextProperty(speechTexts['recording']['recording'], presenter.speechTexts.recording),
             finishedRecording: TTSUtils.getSpeechTextProperty(speechTexts['finishedRecording']['finishedRecording'], presenter.speechTexts.finishedRecording),
             lastMessage: TTSUtils.getSpeechTextProperty(speechTexts['lastMessage']['lastMessage'], presenter.speechTexts.lastMessage),
             assistantMessage: TTSUtils.getSpeechTextProperty(speechTexts['assistantMessage']['assistantMessage'], presenter.speechTexts.assistantMessage),
@@ -133,30 +134,33 @@ function AddonAI_Assistant_create() {
 
     // === === === METHODS === === == \\
 
+    presenter.getResponseJSON = function(response) {
+        if (!response.ok) return Promise.reject(response);
+        return response.json();
+    }
+
     presenter.sendRequest = function (transcript, history, visibleText) {
 
-        let message = transcript !== undefined ? transcript : presenter.getUserInput();
+        let message = transcript !== undefined ? transcript : presenter.getAndCleanUserInput();
         let length = presenter.savedChatHistory.messages.length;
         let type = 'next';
         let addToHistory = history !== undefined ? history : true;
 
-        if (presenter.firstMessageType() == 'hiddenPrompt' && length == 0) {
+        if (presenter.getFirstMessageType() == 'hiddenPrompt' && length == 0) {
             type = 'first';
             addToHistory = false;
         };
-        if (presenter.firstMessageType() == 'welcomeText' && length == 1) type = 'first';
-        if (presenter.firstMessageType() == 'user' && length == 0) type = 'first';
+        if (presenter.getFirstMessageType() == 'welcomeText' && length == 1) type = 'first';
+        if (presenter.getFirstMessageType() == 'user' && length == 0) type = 'first';
 
         if (addToHistory) presenter.addMessage('user', 'write', message)
         else if (!addToHistory && visibleText) presenter.addMessage('user', 'write', visibleText);
 
         if (!isEmpty(message.trim())) {
+            createLoader();
             if (type == 'first') {
             presenter.fetchSessionJWTToken()
-                .then(response => {
-                    if (!response.ok) return Promise.reject(response);
-                    return response.json();
-                })
+                .then(response => {return presenter.getResponseJSON(response);})
                 .then(json => $.ajax({
                     url: `/api/v2/openai/responses/conversation`,
                     type: 'POST',
@@ -178,10 +182,7 @@ function AddonAI_Assistant_create() {
 
     presenter.sendRequestWithID = function(message, conversationID) {
         let sentRequest = presenter.fetchSessionJWTToken()
-            .then(response => {
-                if (!response.ok) return Promise.reject(response);
-                return response.json();
-            })
+            .then(response => {return presenter.getResponseJSON(response);})
             .then(json => {
                     let data = {
                         "model": "gpt-4",
@@ -217,8 +218,8 @@ function AddonAI_Assistant_create() {
                                     presenter.addMessage(response.message.role, 'write', response.message.text);
                                     presenter.sendEventData('response', response.message.text);
                                     if (presenter.isMobile && presenter.audioElement) {
-                                        $(presenter.view).one('touchstart', (ev) => {
-                                            ev.stopPropagation();
+                                        $(presenter.view).one('touchstart', (event) => {
+                                            event.stopPropagation();
                                             if (!presenter.voiceMuted) presenter.audioElement.play()
                                             .then(() => { return presenter.sendEventData('chat_audio', 'playing'); })
                                             .catch((error) => { console.error("Playback failed:", error); });
@@ -238,7 +239,7 @@ function AddonAI_Assistant_create() {
     }
 
 
-    presenter.firstMessageType = function () {
+    presenter.getFirstMessageType = function () {
         if (!isEmpty(presenter.hiddenPrompt)) return 'hiddenPrompt';
         for (let element of presenter.welcomeText) {
             if (!isEmpty(element.Text.trim())) return 'welcomeText';
@@ -249,8 +250,7 @@ function AddonAI_Assistant_create() {
     presenter.getLastMessage = function () {
         let chatMessages = Array.from(presenter.view.querySelector('.ai-chat-messages').children);
         chatMessages = chatMessages.filter(el => !el.classList.contains('error-message') && !el.classList.contains('ai-loader-container') && !el.classList.contains('ai-chat-suggestions-container'));
-        let last = chatMessages[chatMessages.length - 1];
-        return last;
+        return chatMessages[chatMessages.length - 1];
     };
 
     presenter.getMessageById = function (id) {
@@ -263,7 +263,7 @@ function AddonAI_Assistant_create() {
         return null;
     }
 
-    presenter.getUserInput = function () {
+    presenter.getAndCleanUserInput = function () {
         let textInput = presenter.view.querySelector('.text-input');
         let message = textInput.value;
         textInput.value = '';
@@ -278,30 +278,30 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.startConversation = function () {
-        if (presenter.savedChatHistory.messages.length == 0) {
-            if (presenter.firstMessageType() == 'welcomeText') {
-                createLoader();
-                presenter.handleInput('disable');
-                setTimeout( () => {
-                    let random = generateNumber(0, presenter.welcomeText.length - 1);
-                    if (presenter.voiceMuted) {
+        if (presenter.savedChatHistory.messages.length != 0) return;
+
+        if (presenter.getFirstMessageType() == 'welcomeText') {
+            createLoader();
+            presenter.handleInput('disable');
+            setTimeout( () => {
+                let random = generateNumber(0, presenter.welcomeText.length - 1);
+                if (presenter.voiceMuted) {
+                    removeLoader();
+                    presenter.handleInput('enable');
+                    presenter.addMessage('assistant', 'write', presenter.welcomeText[random].Text);
+                } else {
+                    readText(presenter.welcomeText[random].Text)
+                    .then( () => {
                         removeLoader();
                         presenter.handleInput('enable');
                         presenter.addMessage('assistant', 'write', presenter.welcomeText[random].Text);
-                    } else {
-                        readText(presenter.welcomeText[random].Text)
-                        .then( () => {
-                            removeLoader();
-                            presenter.handleInput('enable');
-                            presenter.addMessage('assistant', 'write', presenter.welcomeText[random].Text);
-                        });
-                    };
-                }, 1350)
-            } else if (presenter.firstMessageType() == 'hiddenPrompt') {
-                presenter.sendRequest(presenter.hiddenPrompt);
-            } else if (presenter.firstMessageType() == 'user') {
-                setTimeout( () => { presenter.showSuggestions() }, 1000);
-            };
+                    });
+                };
+            }, 1350)
+        } else if (presenter.getFirstMessageType() == 'hiddenPrompt') {
+            presenter.sendRequest(presenter.hiddenPrompt);
+        } else if (presenter.getFirstMessageType() == 'user') {
+            setTimeout( () => { presenter.showSuggestions() }, 1000);
         };
     };
 
@@ -397,9 +397,9 @@ function AddonAI_Assistant_create() {
             let container = document.createElement('div');
             container.className = 'ai-chat-suggestions-container';
             if (chatMessages !== null) {
-                if (presenter.firstMessageType() == 'welcomeText') {
+                if (presenter.getFirstMessageType() == 'welcomeText') {
                     chatMessages.firstElementChild.after(container);
-                } else if (presenter.firstMessageType() == 'user') {
+                } else if (presenter.getFirstMessageType() == 'user') {
                     chatMessages.prepend(container);
                 };
             };
@@ -440,7 +440,10 @@ function AddonAI_Assistant_create() {
 
         let supportedAudios = presenter.getSupportedMimeTypes('Audio');
         let options = {mimeType: supportedAudios[0]};
-        if (presenter.isMobile) options = {mimeType: "Audio/mp4;codecs=mp4a"}
+        console.log("supported audios");
+        console.log(supportedAudios);
+        let preferredMobileMimeType = "Audio/mp4;codecs=mp4a";
+        if (presenter.isMobile && supportedAudios.indexOf(preferredMobileMimeType) > -1) options = {mimeType: preferredMobileMimeType}
         let recordedChunks = [];
 
         presenter.mediaRecorder = new MediaRecorder(stream, options);
@@ -505,10 +508,7 @@ function AddonAI_Assistant_create() {
 
     presenter.handleRecording = function(base64string) {
         presenter.fetchSessionJWTToken()
-        .then(response => {
-            if (!response.ok) return Promise.reject(response);
-            return response.json();
-        })
+        .then(response => {return presenter.getResponseJSON(response);})
         .then(json => {
             return fetch("/api/v2/openai/audio/transcriptions", {
                 method: 'POST',
@@ -544,12 +544,10 @@ function AddonAI_Assistant_create() {
         });
     };
 
-    //-===-===-===-===-====-===-===-===-===-\\
-
     presenter.sendEventData = function (item, value) {
         let eventData = presenter.createEventData(item, value);
         if (presenter.playerController !== null) {
-            presenter.playerController.getEventBus().sendEvent('ValueChanged', eventData);
+            presenter.eventBus.sendEvent('ValueChanged', eventData);
         };
     };
 
@@ -562,10 +560,10 @@ function AddonAI_Assistant_create() {
         return data;
     };
 
-    presenter.setVisibility = function (boolean) {
-        $(presenter.view).css('visibility', boolean ? 'visible' : 'hidden');
-        presenter.isVisible = boolean;
-        presenter.sendEventData('visibility', `${boolean}`)
+    presenter.setVisibility = function (isVisible) {
+        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.isVisible = isVisible;
+        presenter.sendEventData('visibility', `${isVisible}`)
     };
 
     presenter.show = function() {
@@ -608,10 +606,7 @@ function AddonAI_Assistant_create() {
 
     presenter.getState = function () {
         presenter.pageChanged = true;
-        if (presenter.isFetching.request) presenter.removeMessage(presenter.getLastMessage());
-        presenter.stopReading();
         return JSON.stringify({
-            // isVisible: presenter.isVisible,
             savedChatHistory: presenter.savedChatHistory,
             threadID: presenter.threadID,
             voiceMuted: presenter.voiceMuted,
@@ -637,10 +632,7 @@ function AddonAI_Assistant_create() {
         presenter.isFetching.translation = true;
 
         return presenter.fetchSessionJWTToken()
-                .then(response => {
-                    if (!response.ok) return Promise.reject(response);
-                    return response.json();
-                })
+                .then(response => {return presenter.getResponseJSON(response);})
                 .then(json => $.ajax({
                     url: `/api/v2/openai/responses/conversation`,
                     type: 'POST',
@@ -650,10 +642,7 @@ function AddonAI_Assistant_create() {
                     }
                 })).then(conversation_json => {
                     data.conversation_id = conversation_json.conversation_id;
-                    return presenter.fetchSessionJWTToken().then(response => {
-                        if (!response.ok) return Promise.reject(response);
-                        return response.json();
-                    });
+                    return presenter.fetchSessionJWTToken().then(response => {return presenter.getResponseJSON(response);});
                 }).then(json => $.ajax({
                     url: '/api/v2/openai/responses/send_message',
                     type: 'POST',
@@ -672,59 +661,59 @@ function AddonAI_Assistant_create() {
 
     };
 
-    function handleTranslateButton(ev, m) {
-        ev.stopPropagation();
+    function handleTranslateButton(event, messageData) {
+        event.stopPropagation();
 
-        let languageCode = m.label.textContent.toLowerCase();
-        let translatedMessage = presenter.savedChatHistory.translations[languageCode][m.messageIndex];
+        let languageCode = messageData.label.textContent.toLowerCase();
+        let translatedMessage = presenter.savedChatHistory.translations[languageCode][messageData.messageIndex];
 
-        let isSmall = m.button.classList.contains('small');
+        let isSmall = messageData.button.classList.contains('small');
         if (isSmall) {
-            showTranslatePanel(m);
+            showTranslatePanel(messageData);
         } else if (!presenter.isFetching.translation) {
-            $(m.button).toggleClass('pressed');
-            if (m.button.classList.contains('pressed')) {
-                $(m.selector).toggleClass('pressed', true);
+            $(messageData.button).toggleClass('pressed');
+            if (messageData.button.classList.contains('pressed')) {
+                $(messageData.selector).toggleClass('pressed', true);
                 if (!translatedMessage) {
-                    createSpinner(m.message);
-                    return presenter.requestTranslation(m.savedMessage, languageCode)
+                    createSpinner(messageData.message);
+                    return presenter.requestTranslation(messageData.savedMessage, languageCode)
                     .then(translation => {
                         if (inView() && presenter.isFetching.translation && !presenter.pageChanged) {
-                            presenter.savedChatHistory.translations[languageCode][m.messageIndex] = translation;
-                            translatedMessage = presenter.savedChatHistory.translations[languageCode][m.messageIndex];
-                            m.content.innerHTML = convertMarkdown(translatedMessage);
-                            removeSpinner(m.message);
-                            scrollToMessage(m.message);
+                            presenter.savedChatHistory.translations[languageCode][messageData.messageIndex] = translation;
+                            translatedMessage = presenter.savedChatHistory.translations[languageCode][messageData.messageIndex];
+                            messageData.content.innerHTML = convertMarkdown(translatedMessage);
+                            removeSpinner(messageData.message);
+                            scrollToMessage(messageData.message);
                             presenter.isFetching.translation = false;
                         };
                     })
                     .catch(error => {
                         presenter.isFetching.translation = false;
-                        $(m.button).toggleClass('pressed', false);
-                        $(m.selector).toggleClass('pressed', false);
-                        removeSpinner(m.message);
+                        $(messageData.button).toggleClass('pressed', false);
+                        $(messageData.selector).toggleClass('pressed', false);
+                        removeSpinner(messageData.message);
                     })
                 } else if (translatedMessage) {
-                    m.content.innerHTML = convertMarkdown(translatedMessage);
-                    scrollToMessage(m.message);
+                    messageData.content.innerHTML = convertMarkdown(translatedMessage);
+                    scrollToMessage(messageData.message);
                 };
             } else {
-                $(m.selector).toggleClass('pressed', false);
-                m.content.innerHTML = convertMarkdown(m.savedMessage.text);
-                scrollToMessage(m.message);
+                $(messageData.selector).toggleClass('pressed', false);
+                messageData.content.innerHTML = convertMarkdown(messageData.savedMessage.text);
+                scrollToMessage(messageData.message);
             };
         };
     };
 
-    function handleLanguageChoice(ev, m) {
-        ev.stopPropagation();
+    function handleLanguageChoice(event, messageData) {
+        event.stopPropagation();
 
-        let currentIndex = Array.from(m.list.children).indexOf(ev.target);
+        let currentIndex = Array.from(messageData.list.children).indexOf(event.target);
         assignLabelLanguage(m, currentIndex);
-        $(m.button).toggleClass('pressed', false);
-        $(m.selector).toggleClass('pressed', false);
-        $(m.list).toggleClass('hidden', true);
-        m.content.innerHTML = convertMarkdown(m.savedMessage.text);
+        $(messageData.button).toggleClass('pressed', false);
+        $(messageData.selector).toggleClass('pressed', false);
+        $(messageData.list).toggleClass('hidden', true);
+        messageData.content.innerHTML = convertMarkdown(messageData.savedMessage.text);
     };
 
     function addTranslatePanel(message) {
@@ -783,12 +772,12 @@ function AddonAI_Assistant_create() {
 
         $(message).on('mouseenter', () => { if (!presenter.isMobile) showTranslatePanel(data); });
         $(message).on('mouseleave', () => { if (!presenter.isMobile) hideTranslatePanel(data); });
-        $(message).on('click', (ev) => {
+        $(message).on('click', (event) => {
             if (presenter.isMobile) toggleTranslatePanel(data);
-            if (!presenter.isMobile) hideLanguageList(ev, data);
+            if (!presenter.isMobile) hideLanguageList(event, data);
         });
-        $(selector).on('click', (ev) => { toggleLanguageList(ev, data); });
-        $(button).on('click', (ev) => { handleTranslateButton(ev, data) });
+        $(selector).on('click', (event) => { toggleLanguageList(event, data); });
+        $(button).on('click', (event) => { handleTranslateButton(event, data) });
     };
 
     function animateText(element, html, delay = 65) {
@@ -845,10 +834,10 @@ function AddonAI_Assistant_create() {
     };
 
     function handleListeners() {
-        let buttonInput = presenter.view.querySelector('.button-input');
-        let buttonClose = presenter.view.querySelector('.ai-close-btn');
-        let buttonMute = presenter.view.querySelector('.ai-mute-btn');
-        let textInput = presenter.view.querySelector('.text-input');
+        const buttonInput = presenter.view.querySelector('.button-input');
+        const buttonClose = presenter.view.querySelector('.ai-close-btn');
+        const buttonMute = presenter.view.querySelector('.ai-mute-btn');
+        const textInput = presenter.view.querySelector('.text-input');
 
         buttonInput.addEventListener('click', () => { if (!presenter.isFetching.request) presenter.sendRequest() });
         textInput.addEventListener('keyup', (event) => {
@@ -977,14 +966,14 @@ function AddonAI_Assistant_create() {
 
     // === === === HELPERS === === === \\
 
-    function assignLabelLanguage(m, index) {
-        let targetLang = Array.from(m.list.children)[index];
+    function assignLabelLanguage(messageData, index) {
+        let targetLang = Array.from(messageData.list.children)[index];
         if (targetLang === undefined) return;
-        $(m.flag).css({'background-image' : `${targetLang.querySelector('.lang-flag').style.backgroundImage}`});
-        m.text.textContent = targetLang.querySelector('.lang-text').textContent;
+        $(messageData.flag).css({'background-image' : `${targetLang.querySelector('.lang-flag').style.backgroundImage}`});
+        messageData.text.textContent = targetLang.querySelector('.lang-text').textContent;
     }
 
-    function addLanguageButton(languageCode, m) {
+    function addLanguageButton(languageCode, messageData) {
         let lang = document.createElement('div');
         let text = document.createElement('div');
         let flag = document.createElement('div');
@@ -995,47 +984,47 @@ function AddonAI_Assistant_create() {
         $(flag).css({ 'background-image' : `var(--flag-${languageCode})`});
         lang.appendChild(text);
         lang.appendChild(flag);
-        $(lang).on('click', (ev) => { handleLanguageChoice(ev, m) });
-        m.list.append(lang);
+        $(lang).on('click', (event) => { handleLanguageChoice(event, messageData) });
+        messageData.list.append(lang);
     };
 
-    function showTranslatePanel(m) {
-        $(m.list).toggleClass('hidden', true);
-        $(m.selector).toggleClass('hidden', false);
-        $(m.button).toggleClass('small', false);
-        m.button.classList.contains('pressed') ? $(m.selector).toggleClass('pressed', true) : $(m.selector).toggleClass('pressed', false);
+    function showTranslatePanel(messageData) {
+        $(messageData.list).toggleClass('hidden', true);
+        $(messageData.selector).toggleClass('hidden', false);
+        $(messageData.button).toggleClass('small', false);
+        messageData.button.classList.contains('pressed') ? $(messageData.selector).toggleClass('pressed', true) : $(messageData.selector).toggleClass('pressed', false);
     };
 
-    function hideTranslatePanel(m) {
-        $(m.selector).toggleClass('hidden', true);
-        $(m.button).toggleClass('small', true);
-        $(m.list).toggleClass('hidden', true);
-        m.button.classList.contains('pressed') ? $(m.selector).toggleClass('pressed', true) : $(m.selector).toggleClass('pressed', false);
+    function hideTranslatePanel(messageData) {
+        $(messageData.selector).toggleClass('hidden', true);
+        $(messageData.button).toggleClass('small', true);
+        $(messageData.list).toggleClass('hidden', true);
+        messageData.button.classList.contains('pressed') ? $(messageData.selector).toggleClass('pressed', true) : $(messageData.selector).toggleClass('pressed', false);
     };
 
-    function toggleTranslatePanel(m) {
-        $(m.selector).toggleClass('hidden');
-        $(m.button).toggleClass('small');
-        if (m.selector.classList.contains('hidden')) {
-            $(m.list).toggleClass('hidden', true);
-            $(m.selector).toggleClass('pressed', false);
+    function toggleTranslatePanel(messageData) {
+        $(messageData.selector).toggleClass('hidden');
+        $(messageData.button).toggleClass('small');
+        if (messageData.selector.classList.contains('hidden')) {
+            $(messageData.list).toggleClass('hidden', true);
+            $(messageData.selector).toggleClass('pressed', false);
         };
-        m.button.classList.contains('pressed') ? $(m.selector).toggleClass('pressed', true) : $(m.selector).toggleClass('pressed', false);
+        messageData.button.classList.contains('pressed') ? $(messageData.selector).toggleClass('pressed', true) : $(messageData.selector).toggleClass('pressed', false);
     };
 
-    function toggleLanguageList(ev, m) {
-        ev.stopPropagation();
+    function toggleLanguageList(event, messageData) {
+        event.stopPropagation();
         if (!presenter.isFetching.translation) {
-            m.button.classList.contains('pressed') ? $(m.selector).toggleClass('pressed', true) : $(m.selector).toggleClass('pressed');
-            m.selector.classList.contains('pressed') ? $(m.list).toggleClass('hidden', false) : $(m.list).toggleClass('hidden', true);
+            messageData.button.classList.contains('pressed') ? $(messageData.selector).toggleClass('pressed', true) : $(messageData.selector).toggleClass('pressed');
+            messageData.selector.classList.contains('pressed') ? $(messageData.list).toggleClass('hidden', false) : $(messageData.list).toggleClass('hidden', true);
         };
     };
 
-    function hideLanguageList(ev, m) {
-        ev.stopPropagation();
-        if (!presenter.isFetching.translation && !m.list.classList.contains('hidden')) {
-            $(m.list).toggleClass('hidden', true);
-            if (!m.button.classList.contains('pressed')) $(m.selector).toggleClass('pressed', false);
+    function hideLanguageList(event, messageData) {
+        event.stopPropagation();
+        if (!presenter.isFetching.translation && !messageData.list.classList.contains('hidden')) {
+            $(messageData.list).toggleClass('hidden', true);
+            if (!messageData.button.classList.contains('pressed')) $(messageData.selector).toggleClass('pressed', false);
         };
     };
 
@@ -1160,14 +1149,13 @@ function AddonAI_Assistant_create() {
     };
 
     function handleElement(element, type) {
-        let action;
+        const action = type === 'disable';
         let elements = {
             'textInput' : presenter.view.querySelector('.text-input'),
             'buttonInput' : presenter.view.querySelector('.button-input'),
             'buttonRecord' : presenter.view.querySelector('.button-record')
         }
 
-        type == 'disable' ? action = true : action = false;
         if (elements[element] !== null) {
             $(elements[element]).toggleClass('disabled', action);
             if (action) elements[element].setAttribute('disabled', '');
@@ -1188,8 +1176,7 @@ function AddonAI_Assistant_create() {
     };
 
     function isEmpty(string) {
-        if (string == '') return true;
-        return false;
+        return string === '';
     };
 
     presenter.removeChatMessages = function () {
@@ -1207,7 +1194,7 @@ function AddonAI_Assistant_create() {
     presenter.sendEventData = function (item, obj) {
         let eventData = presenter.createEventData(item, obj);
         if (presenter.playerController !== null) {
-            presenter.playerController.getEventBus().sendEvent('ValueChanged', eventData);
+            presenter.eventBus.sendEvent('ValueChanged', eventData);
         };
     };
 
@@ -1258,7 +1245,7 @@ function AddonAI_Assistant_create() {
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
 
         switch (keycode) {
-            case 9: //tab
+            case window.KeyboardControllerKeys.TAB:
                 event.stopPropagation();
                 event.preventDefault();
                 if (isShiftKeyDown) {
@@ -1267,19 +1254,15 @@ function AddonAI_Assistant_create() {
                     presenter.nextWCAGElement();
                 }
                 break;
-            case 37: //arrow left
-
+            case window.KeyboardControllerKeys.ARROW_LEFT:
                 break;
-            case 38: //arrow up
-
+            case window.KeyboardControllerKeys.ARROW_UP:
                 break;
-            case 39: //arrow right
-
+            case window.KeyboardControllerKeys.ARROW_RIGHT:
                 break;
-            case 40: //arrow down
-
+            case window.KeyboardControllerKeys.ARROW_DOWN:
                 break;
-            case 13: //Enter
+            case window.KeyboardControllerKeys.ENTER:
                 event.stopPropagation();
                 event.preventDefault();
                 if (isShiftKeyDown) {
@@ -1291,11 +1274,11 @@ function AddonAI_Assistant_create() {
                     presenter.selectCurrentWCAGElement();
                 }
                 break;
-            case 27: //Escape;
+            case window.KeyboardControllerKeys.ESCAPE:
                 presenter.clearCurrentWCAGElement();
                 presenter.blurTextInput();
                 presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
-            case 32: //Space
+            case window.KeyboardControllerKeys.SPACE:
                 if (presenter.WCAGState.status !== presenter.WCAGSTATUS.TEXT_INPUT) {
                     event.stopPropagation();
                     event.preventDefault();
@@ -1309,9 +1292,7 @@ function AddonAI_Assistant_create() {
                 } else if (presenter.WCAGState.status === presenter.WCAGSTATUS.RECORD_BUTTON) {
                     let $sendButton = $(presenter.view).find('.button-record');
                     $sendButton[0].click();
-                    if ($sendButton.hasClass("active")) {
-                        presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.recording)]);
-                    } else {
+                    if (!$sendButton.hasClass("active")) {
                         presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.finishedRecording)]);
                     }
                 } else if (presenter.WCAGState.status === presenter.WCAGSTATUS.SUGGESTION) {
@@ -1321,81 +1302,77 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.prevWCAGElement = function() {
+        let shouldSelectAndRead = false;
         switch (presenter.WCAGState.status) {
             case presenter.WCAGSTATUS.LAST_MESSAGE:
                 let lastMessageId = presenter.getLastMessageId();
-                if (lastMessageId === 2 && presenter.usesSuggestions()) {
+                if (isSecondMessageLast() && presenter.usesSuggestions()) {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
                     presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
-                    presenter.selectCurrentWCAGElement();
-                    presenter.readCurrentElement();
+                    shouldSelectAndRead = true;
                 } else {
                     let currentMessage = lastMessageId - 1;
                     if (currentMessage > 0) {
                         presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
                         presenter.WCAGState.selectedElementIndex = currentMessage;
-                        presenter.selectCurrentWCAGElement();
-                        presenter.readCurrentElement();
+                        shouldSelectAndRead = true;
                     }
                 }
                 break;
             case presenter.WCAGSTATUS.TEXT_INPUT:
-                if (presenter.getLastMessageId() === 1 && presenter.usesSuggestions()) {
+                if (isFirstMessageLast() && presenter.usesSuggestions()) {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
                     presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
-                    presenter.selectCurrentWCAGElement();
-                    presenter.readCurrentElement();
+                    shouldSelectAndRead = true;
                 } else {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
-                    presenter.selectCurrentWCAGElement();
-                    presenter.readCurrentElement();
+                    shouldSelectAndRead = true;
                 }
                 break;
             case presenter.WCAGSTATUS.RECORD_BUTTON:
                 presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
-                presenter.selectCurrentWCAGElement();
-                presenter.readCurrentElement();
+                shouldSelectAndRead = true;
                 break;
             case presenter.WCAGSTATUS.SEND_BUTTON:
                 presenter.WCAGState.status = presenter.WCAGSTATUS.RECORD_BUTTON;
-                presenter.selectCurrentWCAGElement();
-                presenter.readCurrentElement();
+                shouldSelectAndRead = true;
                 break;
             case presenter.WCAGSTATUS.SUGGESTION:
                 if (presenter.WCAGState.selectedElementIndex > 0) {
                     presenter.WCAGState.selectedElementIndex -= 1;
                 } else {
-                    if (presenter.getLastMessageId() === 1) {
+                    if (isFirstMessageLast()) {
                         presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
                     } else {
                         presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
                         presenter.WCAGState.selectedElementIndex = 1;
                     }
                 }
-                presenter.selectCurrentWCAGElement();
-                presenter.readCurrentElement();
+                shouldSelectAndRead = true;
                 break;
             default: //presenter.WCAGSTATUS.MESSAGE
                 if (presenter.WCAGState.selectedElementIndex === 2 && presenter.usesSuggestions()) {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
                     presenter.WCAGState.selectedElementIndex = presenter.suggestions.length - 1;
-                    presenter.selectCurrentWCAGElement();
-                    presenter.readCurrentElement();
+                    shouldSelectAndRead = true;
                 } else {
                     if (presenter.WCAGState.selectedElementIndex > 1) {
                         presenter.WCAGState.selectedElementIndex -= 1;
-                        presenter.selectCurrentWCAGElement();
-                        presenter.readCurrentElement();
+                        shouldSelectAndRead = true;
                     }
                 }
                 break;
+        }
+        if (shouldSelectAndRead) {
+            presenter.selectCurrentWCAGElement();
+            presenter.readCurrentElement();
         }
     }
 
     presenter.nextWCAGElement = function() {
         switch (presenter.WCAGState.status) {
         case presenter.WCAGSTATUS.LAST_MESSAGE:
-            if (presenter.getLastMessageId() === 1 && presenter.usesSuggestions()) {
+            if (isFirstMessageLast() && presenter.usesSuggestions()) {
                 presenter.WCAGState.status = presenter.WCAGSTATUS.SUGGESTION;
                 presenter.WCAGState.selectedElementIndex = 0;
             } else {
@@ -1412,10 +1389,9 @@ function AddonAI_Assistant_create() {
             if (presenter.WCAGState.selectedElementIndex < presenter.suggestions.length - 1) {
                 presenter.WCAGState.selectedElementIndex += 1;
             } else {
-                let lastMessageId = presenter.getLastMessageId();
-                if (lastMessageId === 1) {
+                if (isFirstMessageLast()) {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.TEXT_INPUT;
-                } else if (lastMessageId === 2) {
+                } else if (isSecondMessageLast()) {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
                 } else {
                     presenter.WCAGState.status = presenter.WCAGSTATUS.MESSAGE;
@@ -1437,6 +1413,14 @@ function AddonAI_Assistant_create() {
         }
         presenter.selectCurrentWCAGElement();
         presenter.readCurrentElement();
+    }
+    
+    function isFirstMessageLast() {
+        return presenter.getLastMessageId()===1;
+    }
+    
+    function isSecondMessageLast() {
+        return presenter.getLastMessageId()===2;
     }
 
     presenter.blurTextInput = function() {

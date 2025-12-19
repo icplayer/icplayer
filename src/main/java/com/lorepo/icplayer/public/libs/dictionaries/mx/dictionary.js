@@ -2592,7 +2592,6 @@ var ice_dictionary_mx = {
     "AI_Assistant_Hide": "Hide",
     "AI_Assistant_speech_texts": "Speech text",
     "AI_Assistant_messageSent": "Message sent",
-    "AI_Assistant_recording": "Recording",
     "AI_Assistant_finishedRecording": "Finished recording",
     "AI_Assistant_lastMessage": "Last message",
     "AI_Assistant_assistantMessage": "Assistant message number:",
