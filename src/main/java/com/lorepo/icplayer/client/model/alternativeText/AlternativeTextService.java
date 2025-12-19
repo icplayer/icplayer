@@ -342,7 +342,10 @@ public class AlternativeTextService {
             while (closestGap.length() > 0 && counter < 100) {
                 counter += 1;
                 closestGap = closestGap.replace("\\","\\\\");
-                String closestGapRegex = closestGap.replace("{","\\{").replace("|","\\|");
+                String closestGapRegex = closestGap;
+                for (String specialCharacter: new String[]{".", "+", "*", "?", "^", "$", "(", ")", "[", "]", "{", "}", "|"}) {
+                    closestGapRegex = closestGapRegex.replace(specialCharacter, "\\"+specialCharacter);
+                }
                 visibleText = visibleText.replaceFirst(closestGapRegex, "");
                 if (readableText.indexOf("\\altGap") != -1) {
                     String altGapReplacement = "}";
