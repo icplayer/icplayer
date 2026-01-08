@@ -57,7 +57,7 @@ The list starts with the common properties, learn more about them by visiting th
     </tr>
     <tr>
         <td>Translation languages</td>
-        <td>Defines the languages which will be available for translating the Assistant's messages. Each code should be separated by a comma.</td>
+        <td>Defines the languages which will be available for translating the Assistant's messages. Each code should be separated by a semicolon.</td>
     </tr>
     <tr>
         <td>Class names</td>

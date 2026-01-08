@@ -215,7 +215,7 @@ function AddonAI_Assistant_create() {
                         },
                         data: JSON.stringify(data)
                     })}).then(response => {
-                        if (response.length !== 0 && inView() && presenter.isFetching.request && !presenter.pageChanged) {
+                        if (response.length !== 0 && inView() && presenter.isFetching.request) {
                             presenter.isFetching.request = false;
                             if (presenter.voiceMuted) {
                                 removeLoader();
@@ -454,8 +454,6 @@ function AddonAI_Assistant_create() {
 
         let supportedAudios = presenter.getSupportedMimeTypes('Audio');
         let options = {mimeType: supportedAudios[0]};
-        console.log("supported audios");
-        console.log(supportedAudios);
         let preferredMobileMimeType = "Audio/mp4;codecs=mp4a";
         if (presenter.isMobile && supportedAudios.indexOf(preferredMobileMimeType) > -1) options = {mimeType: preferredMobileMimeType}
         let recordedChunks = [];
@@ -543,7 +541,7 @@ function AddonAI_Assistant_create() {
             if (!response.ok) return Promise.reject(response);
         })
         .then(response => {
-            if (inView() && presenter.isFetching.request && !presenter.pageChanged) {
+            if (inView() && presenter.isFetching.request) {
                 presenter.isFetching.request = false;
                 removeLoader();
                 presenter.sendRequest(response);
@@ -634,7 +632,6 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.getState = function () {
-        presenter.pageChanged = true;
         return JSON.stringify({
             savedChatHistory: presenter.savedChatHistory,
             threadID: presenter.threadID,
@@ -708,7 +705,7 @@ function AddonAI_Assistant_create() {
                     createSpinner(messageData.message);
                     return presenter.requestTranslation(messageData.savedMessage, languageCode)
                     .then(translation => {
-                        if (inView() && presenter.isFetching.translation && !presenter.pageChanged) {
+                        if (inView() && presenter.isFetching.translation) {
                             presenter.savedChatHistory.translations[languageCode][messageData.messageIndex] = translation;
                             translatedMessage = presenter.savedChatHistory.translations[languageCode][messageData.messageIndex];
                             messageData.content.innerHTML = convertMarkdown(translatedMessage);
@@ -739,7 +736,7 @@ function AddonAI_Assistant_create() {
         event.stopPropagation();
 
         let currentIndex = Array.from(messageData.list.children).indexOf(event.target);
-        assignLabelLanguage(m, currentIndex);
+        assignLabelLanguage(messageData, currentIndex);
         $(messageData.button).toggleClass('pressed', false);
         $(messageData.selector).toggleClass('pressed', false);
         $(messageData.list).toggleClass('hidden', true);
@@ -817,11 +814,6 @@ function AddonAI_Assistant_create() {
             let index = 0;
 
             function displayNextWord() {
-                if (presenter.pageChanged) {
-                    element.innerHTML = html;
-                    resolve("Animation interrupted");
-                    return;
-                };
 
                 if (index < words.length) {
                     if (typeof(words[index]) == 'string') {
@@ -957,7 +949,7 @@ function AddonAI_Assistant_create() {
             return response.arrayBuffer();
         })
         .then(arrayBuffer => {
-            if (inView() && presenter.isFetching.request && !presenter.pageChanged) {
+            if (inView() && presenter.isFetching.request) {
                 presenter.isFetching.request = false;
                 presenter.stopReading();
                 let audioBlob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
