@@ -52,6 +52,10 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Defines the voice type which will be used to read the contents of the Assistant's messages. The default value is 'onyx'. This property does not affect the TTS functionality in the WCAG mode.</td>
     </tr>
     <tr>
+        <td>Reading speed</td>
+        <td>Defines the speed at which the contents of the Assistant's messages will be read. Te value must be greater than 0.25 and lesser than 4. The default value is '1'. This property does not affect the TTS functionality in the WCAG mode.</td>
+    </tr>
+    <tr>
         <td>Translation languages</td>
         <td>Defines the languages which will be available for translating the Assistant's messages. Each code should be separated by a comma.</td>
     </tr>
@@ -83,6 +87,7 @@ The list starts with the common properties, learn more about them by visiting th
         <td></td>
         <td>Displays the addon. If Class names property has been set, the classes specified in that property will be used.</td>
     </tr>
+    <tr>
         <td>hide</td>
         <td></td>
         <td>Hides the addon. If Class names property has been set, the classes specified in that property will be used.</td>
@@ -92,6 +97,7 @@ The list starts with the common properties, learn more about them by visiting th
         <td></td>
         <td>Displays the addon by assigning it either the class specified in the class names property, or the 'open' class if the Class names property is empty.</td>
     </tr>
+    <tr>
         <td>hideAnimated</td>
         <td></td>
         <td>Hides the addon by assigning it either the class specified in the class names property, or the 'close' class if the Class names property is empty.</td>

@@ -25,7 +25,8 @@ function AddonAI_Assistant_create() {
         'transcript': 'Unrecognized speech, please try again.',
         '400': 'Authorization error. (400)',
         '401': 'Authorization error. (401)',
-        '500': 'Something went wrong, please try again. (500)'
+        '500': 'Something went wrong, please try again. (500)',
+        'speed out of bounds': 'The text speed property must be larger than 0.25 and smaller than 4'
     };
 
     presenter.run = function (view, model) {
@@ -50,6 +51,7 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.initiate = function (view, model, isPreview) {
+        presenter.isValid = true;
 
         presenter.chatName = !isEmpty(model['Chat name']) ? model['Chat name'] : 'AI Tutor';
         presenter.welcomeText = model['Welcome text'];
@@ -61,6 +63,10 @@ function AddonAI_Assistant_create() {
         presenter.language = !isEmpty(model['Voice language']) ? model['Voice language'] : 'en';
         presenter.voiceType = !isEmpty(model['Voice type']) ? model['Voice type'] : 'onyx';
         presenter.readingSpeed = !isEmpty(model['Reading speed']) && !isNaN(model['Reading speed']) ? model['Reading speed'] : 1.0;
+        if (presenter.readingSpeed <= 0.25 || presenter.readingSpeed >= 4) {
+            presenter.isValid = false;
+            presenter.errorCode = "speed out of bounds"
+        }
         presenter.translationLanguages = listLanguages(model['Translation languages']);
         presenter.instructions = !isEmpty(model['Instructions']) ? model['Instructions'] : "You are a helpful assistant.";
         presenter.threadID = '';
@@ -69,12 +75,20 @@ function AddonAI_Assistant_create() {
         presenter.audioElement;
         presenter.isFetching = {request: false, translation: false};
         presenter.isWCAGOn = false;
+
+        if (!presenter.isValid) {
+            $(presenter.view).html(errorMessages[presenter.errorCode]);
+            return;
+        }
+
         handleHeader(view);
         presenter.setSpeechTexts(model['speechTexts']);
         presenter.classNames = {
             hide: model['Class names']['Hide']['Hide'].trim(),
             show: model['Class names']['Show']['Show'].trim()
         }
+
+
 
         if (!isPreview) {
 
@@ -121,11 +135,11 @@ function AddonAI_Assistant_create() {
     }
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventData.source == undefined) {
+        if (eventData.source == undefined || !presenter.isValid) {
             return;
         };
 
-        if (eventName == 'PageLoaded' && eventData.source.indexOf('header') < 0 && eventData.source.indexOf('footer') < 0) {
+        if (eventName == 'PageLoaded' && eventData.source.indexOf('header') < 0 && eventData.source.indexOf('footer') < 0 && presenter.isValid) {
             handleMuteState();
             presenter.handleInput('enable');
             presenter.conversate();
@@ -563,10 +577,11 @@ function AddonAI_Assistant_create() {
     presenter.setVisibility = function (isVisible) {
         $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
         presenter.isVisible = isVisible;
-        presenter.sendEventData('visibility', `${isVisible}`)
+        presenter.sendEventData('visibility', `${isVisible}`);
     };
 
     presenter.show = function() {
+        if (!presenter.isValid) return;
         if (presenter.classNames.show.length > 0) {
             presenter.showAnimated();
         } else {
@@ -575,6 +590,7 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.hide = function() {
+        if (!presenter.isValid) return;
         if (presenter.classNames.hide.length > 0) {
             presenter.hideAnimated();
         } else {
@@ -583,17 +599,23 @@ function AddonAI_Assistant_create() {
     };
 
     presenter.showAnimated = function() {
+        if (!presenter.isValid) return;
         let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide : 'close';
         let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show : 'open';
         presenter.view.classList.remove(closeName);
         presenter.view.classList.add(openName);
+        presenter.isVisible = true;
+        presenter.sendEventData('visibility', `true`);
     }
 
     presenter.hideAnimated = function() {
+        if (!presenter.isValid) return;
         let closeName = presenter.classNames.hide.length > 0 ? presenter.classNames.hide : 'close';
         let openName = presenter.classNames.show.length > 0 ? presenter.classNames.show : 'open';
         presenter.view.classList.remove(openName);
         presenter.view.classList.add(closeName);
+        presenter.isVisible = false;
+        presenter.sendEventData('visibility', `false`);
     }
 
     presenter.setState = function (state) {
@@ -602,6 +624,13 @@ function AddonAI_Assistant_create() {
         presenter.savedChatHistory = parsedState.savedChatHistory;
         presenter.threadID = parsedState.threadID;
         presenter.voiceMuted = parsedState.voiceMuted;
+        if (presenter.isVisible !== parsedState.isVisible) {
+            if (parsedState.isVisible) {
+                presenter.show();
+            } else {
+                presenter.hide();
+            }
+        }
     };
 
     presenter.getState = function () {
@@ -610,6 +639,7 @@ function AddonAI_Assistant_create() {
             savedChatHistory: presenter.savedChatHistory,
             threadID: presenter.threadID,
             voiceMuted: presenter.voiceMuted,
+            isVisible: presenter.isVisible
         });
     };
 
@@ -1278,6 +1308,7 @@ function AddonAI_Assistant_create() {
                 presenter.clearCurrentWCAGElement();
                 presenter.blurTextInput();
                 presenter.WCAGState.status = presenter.WCAGSTATUS.LAST_MESSAGE;
+                break;
             case window.KeyboardControllerKeys.SPACE:
                 if (presenter.WCAGState.status !== presenter.WCAGSTATUS.TEXT_INPUT) {
                     event.stopPropagation();
@@ -1298,6 +1329,7 @@ function AddonAI_Assistant_create() {
                 } else if (presenter.WCAGState.status === presenter.WCAGSTATUS.SUGGESTION) {
                     presenter.sendRequest(presenter.suggestions[presenter.WCAGState.selectedElementIndex].Text);
                 }
+                break;
         }
     };
 

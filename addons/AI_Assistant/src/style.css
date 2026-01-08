@@ -224,16 +224,8 @@
     border-radius: var(--ai-main-radius);
     background-color: var(--ai-main-blue-pressed);
     border: 0px;
-    background-image: url("/file/serve/5529803841470464");
-    background-position: center;
-    background-size: 60%;
-    background-repeat: no-repeat;
     cursor: pointer;
     padding: 1px 6px 1px 6px;
-}
-
-.ai-chat-window .ai-mute-btn.unmuted {
-    background-image: url("/file/serve/4535046801588224");
 }
 
 .ai-chat-window .ai-chat-input .ai-inputbuttons-container {
@@ -337,10 +329,6 @@
     margin-left: 7px;
     background-color: #3F51B5;
     border: none;
-    background-image: url("/file/serve/4733337011093504");
-    background-size: 20px;
-    background-repeat: no-repeat;
-    background-position: center;
     border-radius: var(--ai-main-radius);
     cursor: pointer;
 }
@@ -355,10 +343,6 @@
     margin-left: 7px;
     background-color: #3F51B5;
     border: none;
-    background-image: url("/file/serve/6727222164324352");
-    background-size: 20px;
-    background-repeat: no-repeat;
-    background-position: center;
     border-radius: var(--ai-main-radius);
     cursor: pointer;
 }
