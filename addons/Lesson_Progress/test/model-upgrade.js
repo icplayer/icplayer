@@ -23,7 +23,28 @@ TestCase("[Lesson_Progress] Upgrading model test", {
         var upgradedModel = this.presenter.upgradeModel(this.model);
 
         assertEquals('True', upgradedModel['Calculate_Score_On_Page_Change']);
-    }
+    },
+
+    'test given model without Labels when upgrading model then will return model with that field and default values': function () {
+        var upgradedModel = this.presenter.upgradeModel(this.model);
+
+        assertTrue(upgradedModel['labels'] !== undefined);
+
+        assertTrue(upgradedModel["labels"]["correct"] !== undefined);
+        assertEquals("", upgradedModel["labels"]["correct"]["correct"]);
+
+        assertTrue(upgradedModel["labels"]["maxScore"] !== undefined);
+        assertEquals("", upgradedModel["labels"]["maxScore"]["maxScore"]);
+
+        assertTrue(upgradedModel["labels"]["mistakes"] !== undefined);
+        assertEquals("", upgradedModel["labels"]["mistakes"]["mistakes"]);
+
+        assertTrue(upgradedModel["labels"]["checks"] !== undefined);
+        assertEquals("", upgradedModel["labels"]["checks"]["checks"]);
+
+        assertTrue(upgradedModel["labels"]["errors"] !== undefined);
+        assertEquals("", upgradedModel["labels"]["errors"]["errors"]);
+    },
 
 
 });
