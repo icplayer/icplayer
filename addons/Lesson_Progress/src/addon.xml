@@ -9,5 +9,28 @@
         <property name="Show_Mistakes" displayName="Show Mistakes" nameLabel="Lesson_Progress_property_show_mistakes" type="boolean" />
         <property name="Show_All_Answers" displayName="Show All Answers" nameLabel="Lesson_Progress_property_show_all_answers" type="boolean" />
         <property name="Calculate_Score_On_Page_Change" displayName="Calculate score on page change" nameLabel="Lesson_Progress_property_calculate_score_on_page_change" type="boolean" />
+        <property name="labels" displayName="Labels" nameLabel="Lesson_Progress_property_labels" type="staticlist">
+
+        <property name="correct" nameLabel="Lesson_Progress_property_correct" type="staticrow">
+            <property name="correct" nameLabel="Lesson_Progress_property_correct" type="string"/>
+        </property>
+
+        <property name="maxScore" nameLabel="Lesson_Progress_property_maxScore" type="staticrow">
+            <property name="maxScore" nameLabel="Lesson_Progress_property_maxScore" type="string"/>
+        </property>
+
+        <property name="mistakes" nameLabel="Lesson_Progress_property_mistakes" type="staticrow">
+            <property name="mistakes" nameLabel="Lesson_Progress_property_mistakes" type="string"/>
+        </property>
+
+        <property name="checks" nameLabel="Lesson_Progress_property_checks" type="staticrow">
+            <property name="checks" nameLabel="Lesson_Progress_property_checks" type="string"/>
+        </property>
+
+        <property name="errors" nameLabel="Lesson_Progress_property_errors" type="staticrow">
+            <property name="errors" nameLabel="Lesson_Progress_property_errors" type="string"/>
+        </property>
+
+    </property>
 	</model>
 </addon>

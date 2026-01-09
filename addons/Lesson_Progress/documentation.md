@@ -33,6 +33,10 @@ Lesson Progress enables you to insert a ready-made Lesson progress bar indicatin
         <td>Show All Answers</td>
         <td>Shows the maximum score obtained in a lesson. </td>
     </tr>
+    <tr>
+        <td>Labels</td>
+        <td>Allows you to change the labels used by the addon. If a value is left empty, a default value will be used.</td>
+    </tr>
 </table>
 
 

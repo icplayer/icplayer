@@ -32,9 +32,28 @@ function AddonLesson_Progress_create(){
             showMistakes: ModelValidationUtils.validateBoolean(model['Show_Mistakes']),
             showMaxScore: ModelValidationUtils.validateBoolean(model['Show_All_Answers']),
             showCorrectAnswers: ModelValidationUtils.validateBoolean(model['Show_Correct_Answers']),
-            calculateScoreOnPageChange: ModelValidationUtils.validateBoolean(model['Calculate_Score_On_Page_Change'])
+            calculateScoreOnPageChange: ModelValidationUtils.validateBoolean(model['Calculate_Score_On_Page_Change']),
+            labels: presenter.validateLabels(model['labels'])
         }
     };
+
+    presenter.validateLabels = function(modelLabels){
+        let labels = {
+            correct: "",
+            maxScore: "",
+            mistakes: "",
+            checks: "",
+            errors: ""
+        };
+
+        labels["correct"] = !!modelLabels["correct"]["correct"].trim() ? modelLabels["correct"]["correct"].trim() : "";
+        labels["maxScore"] = !!modelLabels["maxScore"]["maxScore"].trim() ? modelLabels["maxScore"]["maxScore"].trim() : "";
+        labels["mistakes"] = !!modelLabels["mistakes"]["mistakes"].trim() ? modelLabels["mistakes"]["mistakes"].trim() : "";
+        labels["checks"] = !!modelLabels["checks"]["checks"].trim() ? modelLabels["checks"]["checks"].trim() : "";
+        labels["errors"] = !!modelLabels["errors"]["errors"].trim() ? modelLabels["errors"]["errors"].trim() : "";
+
+        return labels;
+    }
 
     function runLogic(view, model, isPreview) {
         presenter.$view = $(view);
@@ -50,6 +69,7 @@ function AddonLesson_Progress_create(){
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.setLabels();
         removeHidden(presenter.configuration.showProgressBar, presenter.$progressBarContainer);
         removeHidden(presenter.configuration.showChecks, presenter.$checks);
         removeHidden(presenter.configuration.showErrors, presenter.$errors);
@@ -67,6 +87,24 @@ function AddonLesson_Progress_create(){
             $element.removeClass('hidden');
         } else {
             $element.addClass('hidden');
+        }
+    }
+
+    presenter.setLabels = function() {
+        if (!!presenter.configuration.labels.correct) {
+            presenter.$correctAnswers.find('.text').text(presenter.configuration.labels.correct);
+        }
+        if (!!presenter.configuration.labels.maxScore) {
+            presenter.$maxScore.find('.text').text(presenter.configuration.labels.maxScore);
+        }
+        if (!!presenter.configuration.labels.mistakes) {
+            presenter.$mistakes.find('.text').text(presenter.configuration.labels.mistakes);
+        }
+        if (!!presenter.configuration.labels.checks) {
+            presenter.$checks.find('.text').text(presenter.configuration.labels.checks);
+        }
+        if (!!presenter.configuration.labels.errors) {
+            presenter.$errors.find('.text').text(presenter.configuration.labels.errors);
         }
     }
 
@@ -223,8 +261,25 @@ function AddonLesson_Progress_create(){
             upgradedModel['Calculate_Score_On_Page_Change'] = 'False';
         }
 
+        upgradedModel = presenter.upgradeAddLabels(upgradedModel);
+
         return upgradedModel;
     };
+
+    presenter.upgradeAddLabels = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (model["labels"] === undefined) {
+            upgradedModel["labels"] = {}
+            upgradedModel["labels"]["correct"] = {correct: ""};
+            upgradedModel["labels"]["maxScore"] = {maxScore: ""};
+            upgradedModel["labels"]["mistakes"] = {mistakes: ""};
+            upgradedModel["labels"]["checks"] = {checks: ""};
+            upgradedModel["labels"]["errors"] = {errors: ""};
+        }
+        return upgradedModel;
+    }
 
     return presenter;
 }
