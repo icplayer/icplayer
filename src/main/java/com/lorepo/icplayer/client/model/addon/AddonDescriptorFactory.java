@@ -139,6 +139,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Media_Recorder", "media_menu");
 		addDescriptor("FlashCards", "media_menu");
 		addDescriptor("EditableWindow", "media_menu");
+		addDescriptor("AI_Assistant", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");

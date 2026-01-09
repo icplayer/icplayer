@@ -1427,6 +1427,8 @@ function Addonmultiplegap_create(){
     };
     
     presenter.isAttempted = function() {
+        if (!presenter.configuration.isActivity) return true;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
