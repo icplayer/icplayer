@@ -179,7 +179,8 @@
         },
 
         _prepareAltTexts: function($clone) {
-            $clone.find('[aria-hidden="true"]').remove();
+            console.log("_prepareAltTexts");
+            console.log($clone.html());
 
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
@@ -189,8 +190,11 @@
                     sanitizedText = '\\alt{ |' + sanitizedText + '}' + '[lang ' + langTag + ']';
                 }
                 $(this).append(sanitizedText);
+                $(this).find('.ic_gap').appendTo($(this));
             });
+            $clone.find('[aria-hidden="true"]').remove();
 
+            console.log($clone.html());
             return $clone;
         },
 
@@ -343,6 +347,9 @@
         },
 
         _parseRawText: function(content, speechTexts, presenterLangTag) {
+            console.log("_parseRawText");
+            console.log(content);
+
             var splitTexts = content.split(this.statics.breakText);
             var TextVoiceArray = [];
             for (var i = 0; i < splitTexts.length; i++) {

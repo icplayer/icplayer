@@ -2385,8 +2385,11 @@ function AddonTable_create() {
     };
 
     presenter.readCurrentNavigationElement = function() {
+        console.log("readCurrentNavigationElement");
         var html = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
+        console.log(html[0]);
         var data = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
+        console.log(data);
         presenter.speak(data);
     };
 
