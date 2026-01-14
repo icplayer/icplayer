@@ -179,8 +179,6 @@
         },
 
         _prepareAltTexts: function($clone) {
-            console.log("_prepareAltTexts");
-            console.log($clone.html());
 
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
@@ -189,12 +187,17 @@
                 if (langTag && langTag.trim().length > 0 ) {
                     sanitizedText = '\\alt{ |' + sanitizedText + '}' + '[lang ' + langTag + ']';
                 }
+                sanitizedText = sanitizedText.replaceAll('\\altGap','<span class="tts-utils-altGap"></span>');
                 $(this).append(sanitizedText);
-                $(this).find('.ic_gap').appendTo($(this));
+                var $hidden = $(this).find('[aria-hidden="true"]');
+                $(this).find('span.tts-utils-altGap').each(function(){
+                    if ($hidden.find('.ic_gap').length > 0) {
+                        $(this).append($hidden.find('.ic_gap').first());
+                    }
+                });
             });
             $clone.find('[aria-hidden="true"]').remove();
 
-            console.log($clone.html());
             return $clone;
         },
 
@@ -347,9 +350,6 @@
         },
 
         _parseRawText: function(content, speechTexts, presenterLangTag) {
-            console.log("_parseRawText");
-            console.log(content);
-
             var splitTexts = content.split(this.statics.breakText);
             var TextVoiceArray = [];
             for (var i = 0; i < splitTexts.length; i++) {
