@@ -1,3 +1,4 @@
+2026-01-15 Fixed alt text not working in True False choices
 2026-01-09 Added labels property to Lesson Progress
 2026-01-08 Changed isAttempted method in multiplegap to return true when the addon is not an activity
 2026-01-08 Added AI Assistant addon
