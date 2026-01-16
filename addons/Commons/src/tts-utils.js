@@ -179,17 +179,25 @@
         },
 
         _prepareAltTexts: function($clone) {
-            $clone.find('[aria-hidden="true"]').remove();
-
             $clone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
                 var sanitizedText = window.xssUtils.sanitize(replaceText);
                 var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
                     sanitizedText = '\\alt{ |' + sanitizedText + '}' + '[lang ' + langTag + ']';
+                    sanitizedText = sanitizedText.replaceAll('\\altGap',' }' + '[lang ' + langTag + ']'+'<span class="tts-utils-altGap"></span>' + '\\alt{ | ');
+                } else {
+                    sanitizedText = sanitizedText.replaceAll('\\altGap', '<span class="tts-utils-altGap"></span>');
                 }
                 $(this).append(sanitizedText);
+                var $hidden = $(this).find('[aria-hidden="true"]');
+                $(this).find('span.tts-utils-altGap').each(function(){
+                    if ($hidden.find('.ic_gap').length > 0) {
+                        $(this).append($hidden.find('.ic_gap').first());
+                    }
+                });
             });
+            $clone.find('[aria-hidden="true"]').remove();
 
             return $clone;
         },
