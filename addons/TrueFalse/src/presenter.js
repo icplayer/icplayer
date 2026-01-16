@@ -251,7 +251,8 @@ function AddonTrueFalse_create() {
         row.append('<td class="tf_' + presenter.type + '_question first" role="gridcell">&nbsp;</td>');
 
         for (var k = 0; k < possibleChoices.length; k++) {
-            var td = $('<td class="tf_' + presenter.type + '_text" role="gridcell">' + possibleChoices[k].Choice + '</td>');
+            var parsedPossibleChoice = presenter.textParser.parse(possibleChoices[k].Choice);
+            var td = $('<td class="tf_' + presenter.type + '_text" role="gridcell">' + parsedPossibleChoice + '</td>');
 
             if (presenter.isTabindexEnabled) {
                 presenter.addTabindex(td, 0);
@@ -1164,7 +1165,7 @@ function AddonTrueFalse_create() {
         for (var i = 0; i < choiceLength; i++) {
             var choice = model.Choices[i];
             var $td = $("<td></td>");
-            $td.html(choice.Choice);
+            $td.html(presenter.textParser.parse(choice.Choice));
             if (isMulti && showAnswers && presenter.didUserRespond) {
                 $td.attr('colspan', '2');
             } else if (!isMulti && showAnswers && presenter.didUserRespond && i === (choiceLength - 1)) {
