@@ -223,9 +223,9 @@ TestCase("[Commons - TTS Utils] getTextVoiceArrayFromElementWithGaps method", {
     'test given element with altGap tags and lang attribute when preparing alt texts then gaps are moved in place of altGap tags': function() {
         var $input = $('<div><div aria-label="hello \\altGap world" lang="en"><div aria-hidden="true">hello <input class="ic_gap"/> world</div></div></div>');
         var expectedResult = '<div aria-label="hello \\altGap world" lang="en">\\alt{ |hello  }[lang en]<span class="tts-utils-altGap"><input class="ic_gap"></span>\\alt{ |  world}[lang en]</div>';
-        console.log("hello world");
+
         var $result = window.TTSUtils._prepareAltTexts($input);
-        console.log($result.html());
+
         assertEquals(expectedResult, $input.html());
     },
 
