@@ -24,6 +24,7 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.ITextProperty;
+import com.lorepo.icf.properties.IEditableScriptProperty;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
@@ -560,4 +561,70 @@ public class GWTAddonModelTestCase extends GwtTest {
 
 		assertTrue(module.isLocked());
 	}
+
+	@Test
+	public void givenAdvancedConnectorWithScriptsPropertyAsTextWhenLoadingThenChangeScriptsPropertyTypeToEditableScript() throws SAXException, IOException {
+	    InputStream inputStream = getClass().getResourceAsStream("testdata/Advanced_Connector_old.xml");
+	    XMLParserMockup xmlParser = new XMLParserMockup();
+	    Element element = xmlParser.parser(inputStream);
+
+	    AddonModel module = new AddonModel();
+	    module.load(element, "", PAGE_VERSION);
+
+	    IProperty property = module.getPropertyByName("Scripts");
+	    assertTrue(property instanceof IEditableScriptProperty);
+    }
+
+	@Test
+	public void givenAdvancedConnectorWithScriptsPropertyAsEditableScriptWhenLoadingThenChangeScriptsPropertyTypeToEditableScript() throws SAXException, IOException {
+	    InputStream inputStream = getClass().getResourceAsStream("testdata/Advanced_Connector_new.xml");
+	    XMLParserMockup xmlParser = new XMLParserMockup();
+	    Element element = xmlParser.parser(inputStream);
+
+	    AddonModel module = new AddonModel();
+	    module.load(element, "", PAGE_VERSION);
+
+	    IProperty property = module.getPropertyByName("Scripts");
+	    assertTrue(property instanceof IEditableScriptProperty);
+    }
+
+    @Test
+    public void givenCustomScoringWithScriptPropertyAsTextWhenLoadingThenChangeScriptPropertyTypeToEditableScript() throws SAXException, IOException {
+        InputStream inputStream = getClass().getResourceAsStream("testdata/Custom_Scoring_old.xml");
+        XMLParserMockup xmlParser = new XMLParserMockup();
+        Element element = xmlParser.parser(inputStream);
+
+        AddonModel module = new AddonModel();
+        module.load(element, "", PAGE_VERSION);
+
+        IProperty property = module.getPropertyByName("Script");
+        assertTrue(property instanceof IEditableScriptProperty);
+    }
+
+    @Test
+    public void givenCustomScoringWithScriptPropertyAsEditableScriptWhenLoadingThenRemainScriptPropertyTypeToEditableScript() throws SAXException, IOException {
+        InputStream inputStream = getClass().getResourceAsStream("testdata/Custom_Scoring_new.xml");
+        XMLParserMockup xmlParser = new XMLParserMockup();
+        Element element = xmlParser.parser(inputStream);
+
+        AddonModel module = new AddonModel();
+        module.load(element, "", PAGE_VERSION);
+
+        IProperty property = module.getPropertyByName("Script");
+        assertTrue(property instanceof IEditableScriptProperty);
+    }
+
+    @Test
+    public void givenAdvancedConnectorWthenLoadingThenDoNotChangePropertyTypeOfOtherAddon() throws SAXException, IOException {
+        InputStream inputStream = getClass().getResourceAsStream("testdata/addonWithScriptProperty.xml");
+        XMLParserMockup xmlParser = new XMLParserMockup();
+        Element element = xmlParser.parser(inputStream);
+
+        AddonModel module = new AddonModel();
+        module.load(element, "", PAGE_VERSION);
+
+        IProperty property = module.getPropertyByName("Script");
+        assertFalse(property instanceof IEditableScriptProperty);
+        assertTrue(property instanceof ITextProperty);
+    }
 }

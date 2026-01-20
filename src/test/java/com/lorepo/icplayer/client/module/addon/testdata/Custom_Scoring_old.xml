@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addonModule addonId="Custom_Scoring" id="Custom_Scoring1" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
+    <layouts isVisible="true">
+        <layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+            <relative type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+            </relative>
+            <absolute left="80" right="0" top="120" bottom="0" width="100" height="100"/>
+        </layout>
+    </layouts>
+    <properties>
+        <property name="Script" displayName="Script" type="text" value="Some value">Some value</property>
+        <property name="Max Score" displayName="Max Score" type="string" value=""/>
+    </properties>
+</addonModule>
