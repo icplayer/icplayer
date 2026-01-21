@@ -46,7 +46,7 @@ var ice_dictionary_pl = {
 	"delete_semi_responsive_layout_error_not_enough_layouts": "Nie ma wystarczającej liczby układów do usunięcia.",
 	"delete_semi_responsive_layout_error_does_not_exists": "Układ responsywny nie istnieje, nie można go usunąć.",
 	"delete_semi_responsive_layout_success": "Układ został pomyślnie usunięty.",
-	"semi_responsive_addon_warning": "Wstawiony Addon może nie działać poprawnie w układzie responsywnym.<br />Więcej informacji na stronie dokumentacji<a href='//www.mauthor.com/doc/en/page/semi-responsive' target='_blank'>",
+	"semi_responsive_addon_warning": "Wstawiony moduł może nie działać poprawnie w układzie responsywnym.<br />Więcej informacji na stronie <a href='//www.mauthor.com/doc/en/page/Creating-responsive-layouts' target='_blank'>dokumentacji</a>",
 	"semi_responsive_editing_layout_name_label": "Nazwa:",
 	"semi_responsive_editing_layout_threshold_label": "Wartość progowa:",
 	"semi_responsive_editing_layout_grid_size_label": "Grid size:",

@@ -45,7 +45,7 @@ var ice_dictionary_mx = {
 	"delete_semi_responsive_layout_error_not_enough_layouts": "There are not enough layouts, can't perform the delete action.",
 	"delete_semi_responsive_layout_error_does_not_exists": "The responsive layout does not exist, can't perform the delete action.",
 	"delete_semi_responsive_layout_success": "The layout has been deleted with success",
-	"semi_responsive_addon_warning": "The inserted addon may not work properly in the responsive layout.<br />For more information, see <a href='//www.mauthor.com/doc/en/page/semi-responsive' target='_blank'>documentation.",
+	"semi_responsive_addon_warning": "The inserted module may not work properly in a responsive layout.<br />For more information, see the <a href='//www.mauthor.com/doc/en/page/Creating-responsive-layouts' target='_blank'>documentation.</a>",
 	"semi_responsive_editing_layout_name_label": "Name:",
 	"semi_responsive_editing_layout_threshold_label": "Threshold:",
 	"semi_responsive_editing_layout_grid_size_label": "Grid size:",
