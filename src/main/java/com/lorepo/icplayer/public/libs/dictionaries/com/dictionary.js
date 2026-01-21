@@ -1589,7 +1589,7 @@ var ice_dictionary_en = {
 	"Text_Coloring_property_deselected": "Deselected",
 	"Text_Coloring_property_TextContent": "Text content",
 	"Text_Coloring_property_correct": "Correct",
-	"Text_Coloring_property_Incorrect": "Incorrect",
+	"Text_Coloring_property_Incorrect": "Wrong",
 	"Text_Coloring_property_lang_attribute": "Lang attribute",
 	"Text_Coloring_property_is_not_activity": "Is Not Activity",
 	"Text_Selection_info": "Allows to select dpecific parts of text. It works in two modes – 'Mark phrases to select', where you can mark wrong and correct answers or 'All selectable', where all phrases are selectable and you can mark only the correct answers.",

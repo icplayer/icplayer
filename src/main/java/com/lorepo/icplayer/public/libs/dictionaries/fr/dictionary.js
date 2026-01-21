@@ -1589,7 +1589,7 @@ var ice_dictionary_fr = {
     "Text_Coloring_property_deselected": "Deselected",
     "Text_Coloring_property_TextContent": "Text content",
     "Text_Coloring_property_correct": "Correct",
-    "Text_Coloring_property_Incorrect": "Incorrect",
+    "Text_Coloring_property_Incorrect": "Wrong",
     "Text_Coloring_property_lang_attribute": "Lang attribute",
     "Text_Coloring_property_is_not_activity": "Is Not Activity",
     "Text_Selection_info": "Permet de sélectionner des parties spécifiques du texte. Il fonctionne en deux modes – le mode 'Cliquer sur les phrases à sélectionner', où vous pouvez cliquer soit sur les mauvaises réponses, soit sur les bonnes, ou le mode 'Tout sélectionner', où toutes les phrases sont sélectionnables mais où vous ne cliquerez que sur les bonnes réponses.",
