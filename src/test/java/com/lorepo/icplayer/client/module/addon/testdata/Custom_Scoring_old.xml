@@ -13,7 +13,7 @@
         </layout>
     </layouts>
     <properties>
-        <property name="Script" displayName="Script" type="text" value="Some value">Some value</property>
+        <property name="Script" displayName="Script" type="text">Some value</property>
         <property name="Max Score" displayName="Max Score" type="string" value=""/>
     </properties>
 </addonModule>
