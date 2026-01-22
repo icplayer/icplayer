@@ -46,7 +46,7 @@ var ice_dictionary_bl = {
 	"delete_semi_responsive_layout_error_not_enough_layouts": "Няма достатъчно оформления. Не е възможно изтриване.",
 	"delete_semi_responsive_layout_error_does_not_exists": "Не съществува такова адаптивно оформление. Не е възможно изтриване.",
 	"delete_semi_responsive_layout_success": "Оформлението беше изтрито",
-	"semi_responsive_addon_warning": "Избраният плъгин може да не функционира правилно в полу-адаптивното оформление.<br />За допълнителна информация посетете <a href='//www.mauthor.com/doc/en/page/Creating-responsive-layouts' target='_blank'>документацията.</a>",
+	"semi_responsive_addon_warning": "Избраният плъгин може да не функционира правилно в полу-адаптивното оформление.<br />За допълнителна информация посетете <a href='//www.mauthor.com/doc/en/page/Creating-responsive-layouts' target='_blank'>документацията</a>.",
 	"semi_responsive_editing_layout_name_label": "Име:",
 	"semi_responsive_editing_layout_threshold_label": "Граница:",
 	"semi_responsive_editing_layout_grid_size_label": "Grid size:",
