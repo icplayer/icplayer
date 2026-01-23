@@ -486,7 +486,7 @@ function AddonConnectingDots_create(){
                 presenter.mouseX = scaledPoint.x;
                 presenter.mouseY = scaledPoint.y;
 
-                distance = Math.abs(parseInt(presenter.points[presenter.toSelect][0],10) - presenter.mouseX) + Math.abs(parseInt(presenter.points[presenter.toSelect][1],10) - presenter.mouseY);
+                distance = presenter.toSelect < presenter.points.length ? Math.abs(parseInt(presenter.points[presenter.toSelect][0],10) - presenter.mouseX) + Math.abs(parseInt(presenter.points[presenter.toSelect][1],10) - presenter.mouseY) : 9999;
                 if (distance < 35) {
                     if (presenter.toSelect > 0) {
                         presenter.$view.find('div#dot_container_'+presenter.randomId+'_'+presenter.addonID+'_'+(presenter.toSelect-1)).removeClass('active');
@@ -499,7 +499,20 @@ function AddonConnectingDots_create(){
 
                     presenter.toSelect++;
                     presenter.draw++;
-                    presenter.triggerPointSelectedEvent(i+1,1);
+                    presenter.triggerPointSelectedEvent(presenter.toSelect,1);
+                } else {
+                    var touchedPoint = -1;
+                    for (var i = 0; i < presenter.points.length; i++) {
+                        if (i === presenter.toSelect) continue;
+                        var pointDist = Math.abs(parseInt(presenter.points[i][0],10) - presenter.mouseX) + Math.abs(parseInt(presenter.points[i][1],10) - presenter.mouseY);
+                        if (pointDist < 35) {
+                            touchedPoint = i;
+                            break;
+                        }
+                    }
+                    if (touchedPoint !== -1) {
+                        presenter.triggerPointSelectedEvent(touchedPoint + 1,0);
+                    }
                 }
                 presenter.isDown = false;
             });
