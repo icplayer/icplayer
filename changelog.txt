@@ -1,3 +1,4 @@
+2026-01-23 Changed the warning on adding coordinate dependant addon to a lesson with multiple layouts§
 2026-01-23 Fixed issue with audio playlist duration on ipad
 2026-01-23 Fixed Connecting Dots not sending events on mobile devices
 2026-01-15 Fixed alt text not working in True False choices
