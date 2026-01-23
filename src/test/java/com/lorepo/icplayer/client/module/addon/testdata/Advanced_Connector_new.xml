@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addonModule addonId="Advanced_Connector" id="Advanced_Connector1" isTabindexEnabled="false" shouldOmitInKeyboardNavigation="false" shouldOmitInTTS="false" ttsTitle="">
+    <layouts isVisible="true">
+        <layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+            <relative type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+            </relative>
+            <absolute left="54" right="0" top="257" bottom="0" width="100" height="100"/>
+        </layout>
+    </layouts>
+    <properties>
+        <property name="Scripts" displayName="Scripts" type="editablescript">EVENTSTART\nSource:Choice1\nScore:1\nSCRIPTSTART\n\n  var image = presenter.playerController.getModule('Image1');\n  image.show();\n\nSCRIPTEND\nEVENTEND</property>
+        <property name="Is disabled" displayName="Is Disabled" type="boolean" value=""/>
+    </properties>
+</addonModule>

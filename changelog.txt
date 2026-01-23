@@ -1,3 +1,4 @@
+2026-01-23 Changed editor in Custom Scoring addon
 2026-01-23 Changed the warning on adding coordinate dependant addon to a lesson with multiple layouts§
 2026-01-23 Fixed issue with audio playlist duration on ipad
 2026-01-23 Fixed Connecting Dots not sending events on mobile devices

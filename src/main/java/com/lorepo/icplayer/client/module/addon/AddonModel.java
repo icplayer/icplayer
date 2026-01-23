@@ -136,11 +136,12 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 
 	private IAddonParam createAddonParam(AddonParamFactory paramFactory, Element element) {
 		String name = XMLUtils.getAttributeAsString(element, "name");
-		
 		String type = XMLUtils.getAttributeAsString(element, "type");
-		if (addonId.compareTo("Advanced_Connector") == 0 && name.compareTo("Scripts") == 0) {
-			type = "editablescript";
-		}
+
+		if ((addonId.equals("Advanced_Connector") && name.equals("Scripts")) ||
+            (addonId.equals("Custom_Scoring") && name.equals("Script"))) {
+            type = "editablescript";
+        }
 		
 		return paramFactory.createAddonParam(this, type);
 	}
