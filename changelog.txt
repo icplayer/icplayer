@@ -1,3 +1,4 @@
+2026-01-23 Fixed issue with audio playlist duration on ipad
 2026-01-23 Fixed Connecting Dots not sending events on mobile devices
 2026-01-15 Fixed alt text not working in True False choices
 2026-01-14 Fixed issue with gaps inside both alt text and latex in Table addon
