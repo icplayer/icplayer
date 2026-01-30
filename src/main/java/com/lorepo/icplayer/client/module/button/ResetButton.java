@@ -66,6 +66,16 @@ class ResetButton extends ExecutableButton {
 		});
 	}
 
+	private static native int calculateTopWhenCentred(Element popupElement) /*-{
+		var elementHeight = popupElement.getBoundingClientRect().height;
+		return $wnd.PositioningUtils.calculateTopForPopupToBeCentred(elementHeight);
+	}-*/;
+
+	private static native int calculateLeftWhenCentred(Element popupElement) /*-{
+		var elementWidth = popupElement.getBoundingClientRect().width;
+		return $wnd.PositioningUtils.calculateLeftForPopupToBeCentred(elementWidth);
+	}-*/;
+
 	public void execute(){
 		if(this.confReset){
 
@@ -98,8 +108,6 @@ class ResetButton extends ExecutableButton {
 	        dialogHPanel.add(noButton);
 	        this.element = getElement();
 	        parent = this.element.getParentElement();
-	        int top = 200 + Window.getScrollTop();
-	        int left = (parent.getClientWidth() / 2) - 150;
 
 	        noButton.addClickHandler(new ClickHandler() {
 	            @Override
@@ -126,8 +134,11 @@ class ResetButton extends ExecutableButton {
 			buttons.add(noButton);
 
             dialogBox.setWidget(dialogHPanel);
-            dialogBox.setPopupPosition(left, top);
             dialogBox.show();
+
+            int top = calculateTopWhenCentred(dialogBox.getElement());
+	        int left = calculateLeftWhenCentred(dialogBox.getElement());
+            dialogBox.setPopupPosition(left, top);
         } else {
             this.pageService.reset(resetOnlyWrong);
         }
