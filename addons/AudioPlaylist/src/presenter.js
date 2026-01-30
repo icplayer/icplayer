@@ -1086,6 +1086,7 @@ function AddonAudioPlaylist_create() {
 
         name.innerText = item.name;
         time.innerText = "00:00";
+        time.classList.add("timeElement");
 
         playButton.addEventListener("click", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
         playButton.addEventListener("touch", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
@@ -1100,9 +1101,13 @@ function AddonAudioPlaylist_create() {
     }
 
      function AddonAudioPlaylistItemWrapper__audioDurationChange(ev) {
-        this.time.innerText = StringUtils.timeFormat(isNaN(this.audio.duration) ? 0 : this.audio.duration);
-        this.audio.removeEventListener("durationchange", AddonAudioPlaylistItemWrapper__audioDurationChange);
-        this.audio = null;
+        if (!this || !this.time || !this.audio) return;
+        let self = this;
+        setTimeout(()=> {
+            self.time.innerText = StringUtils.timeFormat(isNaN(self.audio.duration) ? 0 : self.audio.duration);
+            self.audio.removeEventListener("durationchange", AddonAudioPlaylistItemWrapper__audioDurationChange);
+            self.audio = null;
+        }, 0);
     }
 
     function AddonAudioPlaylistItemWrapper__buttonHandler(ev) {
