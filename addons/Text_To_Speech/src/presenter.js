@@ -276,10 +276,7 @@ function AddonText_To_Speech_create() {
 
         // Necessary for Chrome browser because instead stop reading
         if (isChrome()) {
-                presenter.intervalResume = setInterval(function () {
-                window.speechSynthesis.pause();
-                window.speechSynthesis.resume();
-            }, 3000);
+            presenter.intervalResume = setResumeInterval();
         }
 
         presenter.intervalId = setInterval(function() {
@@ -315,11 +312,22 @@ function AddonText_To_Speech_create() {
                             window.speechSynthesis.cancel();
                         }
                     };
+                } else {
+                    msg.onstart = function (event) {
+                        if (currentIntervalId === presenter.intervalId && presenter.intervalResume !== undefined) {
+                            clearInterval(presenter.intervalResume);
+                            presenter.intervalResume = setResumeInterval();
+                        }
+                    };
                 }
                 if (i === textsObjects.length - 1) {
                     msg.onend = function (event) {
                         if(currentIntervalId === presenter.intervalId){
                             window.speechSynthesis.cancel();
+                            if (presenter.intervalResume !== undefined) {
+                                clearInterval(presenter.intervalResume);
+                                presenter.intervalResume = undefined;
+                            }
                         }
                         if (finalCallback && onStartExecuted){
                             onStartExecuted = false;
@@ -336,6 +344,18 @@ function AddonText_To_Speech_create() {
                 window.speechSynthesis.speak(msg);
             }
         }, 250);
+    }
+
+    function setResumeInterval() {
+        return setInterval(function () {
+            if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending && !window.speechSynthesis.paused) {
+                clearInterval(presenter.intervalResume);
+                presenter.intervalResume = undefined;
+            } else {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }
+        }, 13000);
     }
 
     function getAltTextOptions(expression) {
@@ -944,7 +964,7 @@ function AddonText_To_Speech_create() {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
-        if(presenter.speechSynthInterval!==null){
+        if (presenter.speechSynthInterval !== null){
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
 
