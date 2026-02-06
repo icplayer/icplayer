@@ -261,10 +261,12 @@ function AddonText_To_Speech_create() {
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts, finalCallback) {
-        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
 
         if (presenter.intervalId != null) {
-        clearInterval(presenter.intervalId);
+            clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
         var onStartExecuted = false;
@@ -278,6 +280,11 @@ function AddonText_To_Speech_create() {
         if (isChrome()) {
             presenter.intervalResume = setResumeInterval();
         }
+        let timeoutValue = 250;
+        if (!!presenter.lastTimestamp && Date.now() - presenter.lastTimestamp < 1000) {
+            timeoutValue = 700;
+        }
+        presenter.lastTimestamp = Date.now();
 
         presenter.intervalId = setInterval(function() {
 
@@ -316,6 +323,8 @@ function AddonText_To_Speech_create() {
                     msg.onstart = function (event) {
                         if (currentIntervalId === presenter.intervalId && presenter.intervalResume !== undefined) {
                             clearInterval(presenter.intervalResume);
+                        }
+                        if (presenter.intervalResume !== undefined) {
                             presenter.intervalResume = setResumeInterval();
                         }
                     };
@@ -343,7 +352,7 @@ function AddonText_To_Speech_create() {
                 utterances.push(msg);
                 window.speechSynthesis.speak(msg);
             }
-        }, 250);
+        }, timeoutValue);
     }
 
     function setResumeInterval() {
