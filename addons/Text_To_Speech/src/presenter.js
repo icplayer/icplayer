@@ -261,10 +261,12 @@ function AddonText_To_Speech_create() {
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts, finalCallback) {
-        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
 
         if (presenter.intervalId != null) {
-        clearInterval(presenter.intervalId);
+            clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
         var onStartExecuted = false;
@@ -276,11 +278,13 @@ function AddonText_To_Speech_create() {
 
         // Necessary for Chrome browser because instead stop reading
         if (isChrome()) {
-                presenter.intervalResume = setInterval(function () {
-                window.speechSynthesis.pause();
-                window.speechSynthesis.resume();
-            }, 3000);
+            presenter.intervalResume = setResumeInterval();
         }
+        let timeoutValue = 250;
+        if (!!presenter.lastTimestamp && Date.now() - presenter.lastTimestamp < 1000) {
+            timeoutValue = 700;
+        }
+        presenter.lastTimestamp = Date.now();
 
         presenter.intervalId = setInterval(function() {
 
@@ -315,11 +319,24 @@ function AddonText_To_Speech_create() {
                             window.speechSynthesis.cancel();
                         }
                     };
+                } else {
+                    msg.onstart = function (event) {
+                        if (currentIntervalId === presenter.intervalId && presenter.intervalResume !== undefined) {
+                            clearInterval(presenter.intervalResume);
+                        }
+                        if (presenter.intervalResume !== undefined) {
+                            presenter.intervalResume = setResumeInterval();
+                        }
+                    };
                 }
                 if (i === textsObjects.length - 1) {
                     msg.onend = function (event) {
                         if(currentIntervalId === presenter.intervalId){
                             window.speechSynthesis.cancel();
+                            if (presenter.intervalResume !== undefined) {
+                                clearInterval(presenter.intervalResume);
+                                presenter.intervalResume = undefined;
+                            }
                         }
                         if (finalCallback && onStartExecuted){
                             onStartExecuted = false;
@@ -335,7 +352,19 @@ function AddonText_To_Speech_create() {
                 utterances.push(msg);
                 window.speechSynthesis.speak(msg);
             }
-        }, 250);
+        }, timeoutValue);
+    }
+
+    function setResumeInterval() {
+        return setInterval(function () {
+            if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending && !window.speechSynthesis.paused) {
+                clearInterval(presenter.intervalResume);
+                presenter.intervalResume = undefined;
+            } else {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }
+        }, 13000);
     }
 
     function getAltTextOptions(expression) {
@@ -944,7 +973,7 @@ function AddonText_To_Speech_create() {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
-        if(presenter.speechSynthInterval!==null){
+        if (presenter.speechSynthInterval !== null){
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
 
