@@ -276,7 +276,6 @@ TestCase("[FigureDrawing] Score Functionality tests - without coloring", {
                 </div>
             </div>`
         );
-        this.presenter.AnswerLines = ["line_1_3_1_4"];
 
         const result = this.presenter.getErrorCount();
 

@@ -1135,7 +1135,7 @@ function AddonFigureDrawing_create(){
         presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         let lineCounter, color, $line;
-        let errorCounter = presenter.$view.find('.line').length - presenter.$view.find('.nonremovable').length;
+        let errorCounter = presenter.$view.find('.line:not(.nonremovable)').length;
         for (let i = 0; i < presenter.AnswerLines.length; i++) {
             $line = presenter.$view.find('#' + presenter.AnswerLines[i]);
             if ($line.length > 0) {
