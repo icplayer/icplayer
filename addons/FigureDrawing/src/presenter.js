@@ -1078,7 +1078,7 @@ function AddonFigureDrawing_create(){
 
         let maxScore = presenter.AnswerLines.length;
         if (presenter.coloring) {
-            maxScore = presenter.answersColors.length;
+            maxScore += presenter.answersColors.length;
         }
         return maxScore;
     }
@@ -1094,8 +1094,8 @@ function AddonFigureDrawing_create(){
         presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         let i, j, $line, color, lineCounter, scoreCounter = 0;
-        for (i = 0; i <= presenter.AnswerLines.length; i++) {
-            $line = presenter.$view.find('#'+presenter.AnswerLines[i]);
+        for (i = 0; i < presenter.AnswerLines.length; i++) {
+            $line = presenter.$view.find('#' + presenter.AnswerLines[i]);
             if ($line.length > 0) {
                 scoreCounter++;
             }
@@ -1104,20 +1104,22 @@ function AddonFigureDrawing_create(){
             for (i = 0; i < presenter.answersColors.length; i++) {
                 lineCounter = 0;
                 for (j = 0; j < presenter.answersColors[i].lines.length; j++) {
-                    $line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
+                    $line = presenter.$view.find('#' + presenter.answersColors[i].lines[j]);
                     if ($line.length > 0) {
                         lineCounter++;
                     }
                 }
-                color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
-                if (lineCounter == presenter.answersColors[i].lines.length && color == presenter.answersColors[i].color) {
-                    scoreCounter++;
+                if (lineCounter === presenter.answersColors[i].lines.length) {
+                    color = getClickedAreaColor(presenter.answersColors[i].x, presenter.answersColors[i].y).join(" ");
+                    if (color === presenter.answersColors[i].color) {
+                        scoreCounter++;
+                    }
                 }
             }
         }
 
         wasShowAnswersActive && presenter.showAnswers();
-        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+        wasGradualShowAnswersActive && presenter.performGradualShowAnswers(previousGSAcounter);
 
         return scoreCounter;
     }
@@ -1133,9 +1135,9 @@ function AddonFigureDrawing_create(){
         presenter.isGradualShowAnswersActive && presenter.gradualHideAnswers();
 
         let lineCounter, color, $line;
-        let errorCounter = presenter.$view.find('.line').not('.nonremovable').length;
-        for (let i = 0; i <= presenter.AnswerLines.length; i++) {
-            $line = presenter.$view.find('#'+presenter.AnswerLines[i]);
+        let errorCounter = presenter.$view.find('.line:not(.nonremovable)').length;
+        for (let i = 0; i < presenter.AnswerLines.length; i++) {
+            $line = presenter.$view.find('#' + presenter.AnswerLines[i]);
             if ($line.length > 0) {
                 errorCounter--;
             }
@@ -1144,20 +1146,22 @@ function AddonFigureDrawing_create(){
             for (let i = 0; i < presenter.answersColors.length; i++) {
                 lineCounter = 0;
                 for (let j = 0; j < presenter.answersColors[i].lines.length; j++) {
-                    $line = presenter.$view.find('#'+presenter.answersColors[i].lines[j]);
+                    $line = presenter.$view.find('#' + presenter.answersColors[i].lines[j]);
                     if ($line.length > 0) {
                         lineCounter++;
                     }
                 }
-                color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
-                if (color != presenter.answersColors[i].color && color != '0 0 0 0' && lineCounter == presenter.answersColors[i].lines.length) {
-                    errorCounter++;
+                if (lineCounter === presenter.answersColors[i].lines.length) {
+                    color = getClickedAreaColor(presenter.answersColors[i].x,presenter.answersColors[i].y).join(" ");
+                    if (color !== presenter.answersColors[i].color && color !== '0 0 0 0') {
+                        errorCounter++;
+                    }
                 }
             }
         }
 
         wasShowAnswersActive && presenter.showAnswers();
-        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+        wasGradualShowAnswersActive && presenter.performGradualShowAnswers(previousGSAcounter);
 
         return errorCounter;
     }
@@ -1237,7 +1241,7 @@ function AddonFigureDrawing_create(){
         })
 
         wasShowAnswersActive && presenter.showAnswers();
-        wasGradualShowAnswersActive && gradualShowAnswers(previousGSAcounter);
+        wasGradualShowAnswersActive && presenter.performGradualShowAnswers(previousGSAcounter);
         return result;
     };
 
@@ -1291,10 +1295,10 @@ function AddonFigureDrawing_create(){
             return;
         }
 
-        gradualShowAnswers(parseInt(eventData.item, 10));
+        presenter.performGradualShowAnswers(parseInt(eventData.item, 10));
     };
 
-    function gradualShowAnswers(index) {
+    presenter.performGradualShowAnswers = function (index) {
         if (!presenter.activity) {
             return;
         }
