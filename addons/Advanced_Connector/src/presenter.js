@@ -149,6 +149,7 @@ function AddonAdvanced_Connector_create() {
 
     presenter.validateEvent = function(script) {
         var indexes = [], i, length;
+        // In case of extending events types, remember to update the EditableScriptEditorWidget.java as well.
         var eventDeclaration = {
             Source: undefined,
             Item: undefined,
