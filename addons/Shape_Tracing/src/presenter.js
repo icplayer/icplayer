@@ -403,11 +403,11 @@ function AddonShape_Tracing_create() {
             }
         }
 
-        return "X:" + addZerosToNumber(x) + "\nY:" + addZerosToNumber(y);
+        return "X:" + addZerosToNumber(Math.round(x)) + "\nY:" + addZerosToNumber(Math.round(y));
     }
 
     function cursorCoordinates() {
-        drawBoxPointerData(52, 37);
+        drawBoxPointerData(53, 37);
 
         presenter.data.shapeImageLoaded.then(function() {
             const moduleSelector = $(`.moduleSelector[data-id="${presenter.configuration.ID}"]`)[0];
