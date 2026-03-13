@@ -379,13 +379,13 @@ function AddonShape_Tracing_create() {
         });
         presenter.text = new Kinetic.Text({
             x: position, y: position,
-            text: prepearText(0, 0),
+            text: prepareText(0, 0),
             fontSize: 15,
             fontFamily: 'Calibri',
             fill: '#555',
             width: box_width,
             padding: 4,
-            align: 'center'
+            align: 'left'
         });
 
         presenter.layerBG.add(presenter.box);
@@ -393,17 +393,8 @@ function AddonShape_Tracing_create() {
         presenter.stageBG.add(presenter.layerBG);
     }
 
-    function prepearText(x, y) {
-        function addZerosToNumber(n) {
-            switch (n.toString().length) {
-                case 1: return "000" + n;
-                case 2: return "00" + n;
-                case 3: return "0" + n;
-                default: return "" + n;
-            }
-        }
-
-        return "X:" + addZerosToNumber(Math.round(x)) + "\nY:" + addZerosToNumber(Math.round(y));
+    function prepareText(x, y) {
+        return "X:" + Math.round(x) + "\nY:" + Math.round(y);
     }
 
     function cursorCoordinates() {
@@ -419,7 +410,7 @@ function AddonShape_Tracing_create() {
                     moduleSelector.releasePointerCapture(event.pointerId);
                 }
 
-                presenter.text.setText(prepearText(event.offsetX, event.offsetY));
+                presenter.text.setText(prepareText(event.offsetX, event.offsetY));
                 presenter.layerBG.draw();
             }, false);
         });
@@ -434,7 +425,7 @@ function AddonShape_Tracing_create() {
             }
             event.stopPropagation();
 
-            presenter.text.setText(prepearText(event.offsetX, event.offsetY));
+            presenter.text.setText(prepareText(event.offsetX, event.offsetY));
             presenter.layerBG.draw();
         }, false);
     }
