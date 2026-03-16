@@ -21,6 +21,11 @@ var setUpUtils = function () {
     };
 
     this.gap = new this.presenter.GapUtils(mockConfig);
+
+    this.presenter.textParser = {
+        parseAnswer: sinon.stub(),
+    };
+    this.presenter.textParser.parseAnswer.returnsArg(0);
 };
 
 var tearDownUtils = function () {

@@ -1586,7 +1586,7 @@ function AddonTable_create() {
 
     presenter.SelectGap.prototype.onEdit = function (event) {
         this.notifyEdit();
-        this.value = this.$view.find(":selected").text();
+        this.value = this.$view.find(":selected").val();
         this.notify();
     };
 

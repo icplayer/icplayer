@@ -34,6 +34,11 @@ TestCase("[Table] Is attempted", {
             isAllOK: sinon.stub(this.presenter, 'isAllOK')
         }
 
+        this.presenter.textParser = {
+            parseAnswer: sinon.stub(),
+        };
+        this.presenter.textParser.parseAnswer.returnsArg(0);
+
     },
 
     tearDown: function () {
