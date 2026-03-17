@@ -665,15 +665,15 @@ function AddonText_Coloring_create() {
     presenter.getButtonsContainerHTML = function (css) {
         var colorsButtons = presenter.getColorsButtonsHTML(presenter.configuration.colors, css.colorsContainer);
         var eraserButtons = presenter.getEraserModeButtonHTML(css.eraserContainer);
-        return StringUtils.format("<div class='{0}'>{1} {2}</div>", css.buttonContainer, colorsButtons, eraserButtons);
+        return "<div class='" + css.buttonContainer + "'>" + colorsButtons + " " + eraserButtons + "</div>";
     };
 
     presenter.getColorsButtonsHTML = function (colorsDefinitions, containerCssClass) {
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
+        var result = "<div class='" + containerCssClass + "'>";
 
         var colorsLen = colorsDefinitions.length;
         for (var i = 0; i < colorsLen; i++) {
-            result = StringUtils.format("{0}{1}", result, presenter.getColorHTMLText(colorsDefinitions[i]));
+            result += presenter.getColorHTMLText(colorsDefinitions[i]);
         }
 
         result += "</div>";
@@ -682,34 +682,34 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getEraserModeButtonHTML = function (containerCssClass) {
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
-        result += StringUtils.format("<div class='{0}'>{1}</div>", presenter.defaults.css.eraserButton, presenter.configuration.eraserButtonText);
+        var result = "<div class='" + containerCssClass + "'>";
+        result += "<div class='" + presenter.defaults.css.eraserButton + "'>" + presenter.configuration.eraserButtonText + "</div>";
         result += "</div>";
 
         return result;
     };
 
     presenter.getColorHTMLText = function (colorDefinition) {
-        return StringUtils.format("<div class='{0}' data-{1}='{2}'>{3}</div>", presenter.defaults.css.colorButton, presenter.defaults.dataHolders.colorID, colorDefinition.id, colorDefinition.description);
+        return "<div class='" + presenter.defaults.css.colorButton + "' data-" + presenter.defaults.dataHolders.colorID + "='" + colorDefinition.id + "'>" + colorDefinition.description + "</div>";
     };
 
     presenter.getTextHTML = function (tokens, containerCssClass, mode) {
         var tokensLen = tokens.length;
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
+        var result = "<div class='" + containerCssClass + "'>";
 
         for (var i = 0, wordIndex = 0; i < tokensLen; i++) {
             if (tokens[i].type == presenter.TOKENS_TYPES.NEW_LINE) {
-                result = StringUtils.format("{0}{1}", result, presenter.getNewLineHTML());
+                result += presenter.getNewLineHTML();
             } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE) {
-                result = StringUtils.format("{0}{1}", result, presenter.getSpaceHTML());
+                result += presenter.getSpaceHTML();
             } else if ([presenter.TOKENS_TYPES.SELECTABLE, presenter.TOKENS_TYPES.INTRUDER].includes(tokens[i].type)) {
-                result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                result += presenter.getWordHTML(tokens[i], wordIndex);
                 wordIndex++;
             } else {
                 if (mode == "ALL_SELECTABLE") {
-                    result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                    result += presenter.getWordHTML(tokens[i], wordIndex);
                 } else {
-                    result = StringUtils.format("{0}{1}", result, tokens[i].value);
+                    result += tokens[i].value;
                 }
                 wordIndex++;
             }
@@ -728,8 +728,7 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getWordHTML = function (token, index) {
-        return StringUtils.format("<span class='{0}' data-word-index='{1}' >{2}</span>",
-            presenter.defaults.css.selectableWord, index, token.value);
+        return "<span class='" + presenter.defaults.css.selectableWord + "' data-word-index='" + index + "' >" + token.value + "</span>";
     };
 
     presenter.upgradeModel = function(model) {
@@ -961,8 +960,29 @@ function AddonText_Coloring_create() {
         return result;
     };
 
+    presenter.getPatterns = function() {
+        if (presenter._patterns) return presenter._patterns;
+
+        const maxDepth = 10;
+        const noBrackets = "[^{}]";
+        let balancedBrackets = "\\{" + noBrackets + "*\\}";
+        for (let i = 0; i < maxDepth; i++) {
+            balancedBrackets = "\\{(?:" + noBrackets + "|" + balancedBrackets + ")*\\}";
+        }
+        const nestedBracketsPattern = "(?:" + noBrackets + "|" + balancedBrackets + ")+";
+
+        const selectableRegExpSource = "\\\\color{(?<color>[^}]+)}{(?<colorValue>" + nestedBracketsPattern + ")}";
+        const intruderRegExpSource = "\\\\intruder{(?<intruderValue>" + nestedBracketsPattern + ")}";
+
+        presenter._patterns = {
+             color: selectableRegExpSource,
+             intruder: intruderRegExpSource,
+        };
+        return presenter._patterns;
+    };
+
     presenter.splitGroupToWords = function (group, mode) {
-        if (mode == "ALL_SELECTABLE") {
+        if (mode === "ALL_SELECTABLE") {
             return group.split(" ").map(function (element) {
                 element.trim();
                 return element;
@@ -970,11 +990,12 @@ function AddonText_Coloring_create() {
                 return element != "";
             });
         } else {
+            const patterns = presenter.getPatterns();
             const splitGroup = [];
 
             const spaceRegExpSource = / /.source;
-            const selectableRegExpSource = /\\color{[^}]+}{[^}]+}[^\s]*/.source;
-            const intruderRegExpSource = /\\intruder{[^}]+}[^\s]*/.source;
+            const selectableRegExpSource = patterns.color + "[^\\s]*";
+            const intruderRegExpSource = patterns.intruder + "[^\\s]*";
             const mainRegExp = new RegExp([selectableRegExpSource, spaceRegExpSource, intruderRegExpSource].join('|'));
 
             let match = mainRegExp.exec(group);
@@ -1000,11 +1021,11 @@ function AddonText_Coloring_create() {
 
     presenter.parseWords = function (text, mode) {
         const result = [];
-        const selectableRegExpSource = /\\color{(?<color>[^}]+)}{(?<colorValue>[^}]+)}/.source;
-        const intruderRegExpSource = /\\intruder{(?<intruderValue>[^}]+)}/.source;
-        const regExps = [selectableRegExpSource];
+        const patterns = presenter.getPatterns();
+
+        const regExps = [patterns.color];
         if (mode === "MARK_PHRASES") {
-            regExps.push(intruderRegExpSource);
+             regExps.push(patterns.intruder);
         }
 
         const selectablePart = {
