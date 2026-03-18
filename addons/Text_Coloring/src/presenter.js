@@ -422,13 +422,15 @@ function AddonText_Coloring_create() {
     presenter.ERROR_CODES = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "Color definitions in colors property have to be proper rgb hex e.g #FF0000 (red)",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "Color definitions in colors property must have id",
-        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id"
+        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id",
+        "TC_TEXT_INVALID_LATEX_USAGE": "LaTeX expression cannot contain color or intruder definition"
     };
 
     presenter.ERROR_CODES_KEYS = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "TC_COLORS_COLOR_MUST_HAVE_ID",
-        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "TC_TEXT_COLOR_DEFINITION_WRONG_ID"
+        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "TC_TEXT_COLOR_DEFINITION_WRONG_ID",
+        "TC_TEXT_INVALID_LATEX_USAGE": "TC_TEXT_INVALID_LATEX_USAGE"
     };
 
     presenter.TOKENS_TYPES = {
@@ -830,11 +832,34 @@ function AddonText_Coloring_create() {
         };
     };
 
+    presenter.checkIfColorOrIntruderInsideLatex = function (text) {
+        if (!text) return false;
+
+        const patterns = presenter.getPatterns();
+        const colorPattern = patterns.color;
+        const intruderPattern = patterns.intruder;
+        const combinedPattern = "(?:" + colorPattern + "|" + intruderPattern + ")";
+
+        // Check for patterns inside \( ... \)
+        // We use (?:(?!\\\\\\)).)* to match content that does not contain \)
+        const mathJaxInlineRegExp = new RegExp("\\\\\\((?:(?!\\\\\\)).)*" + combinedPattern + ".*?\\\\\\)");
+        
+        // Check for patterns inside \[ ... \]
+        // We use (?:(?!\\\\\\]).)* to match content that does not contain \]
+        const mathJaxBlockRegExp = new RegExp("\\\\\\[(?:(?!\\\\\\]).)*" + combinedPattern + ".*?\\\\\\]");
+
+        return mathJaxInlineRegExp.test(text) || mathJaxBlockRegExp.test(text);
+    };
+
     presenter.validateModel = function (model) {
         var validatedIsNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         var validatedColors = presenter.validateColors(model.colors);
         if (validatedColors.isError) {
             return validatedColors;
+        }
+
+        if (presenter.checkIfColorOrIntruderInsideLatex(model.text)) {
+            return ModelErrorUtils.getErrorObject(presenter.ERROR_CODES_KEYS.TC_TEXT_INVALID_LATEX_USAGE);
         }
 
         var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
@@ -982,22 +1007,55 @@ function AddonText_Coloring_create() {
     };
 
     presenter.splitGroupToWords = function (group, mode) {
+        const patterns = presenter.getPatterns();
+        const splitGroup = [];
+
+        const spaceRegExpSource = / /.source;
+        const selectableRegExpSource = patterns.color + "[^\\s]*";
+        const intruderRegExpSource = patterns.intruder + "[^\\s]*";
+        const mathJaxInlineRegExpSource = "\\\\\\(.*?\\\\\\)";
+        const mathJaxBlockRegExpSource = "\\\\\\[.*?\\\\\\]";
+
+        const regExpSources = [
+            selectableRegExpSource,
+            mathJaxInlineRegExpSource,
+            mathJaxBlockRegExpSource,
+            spaceRegExpSource
+        ];
+
+        if (mode !== "ALL_SELECTABLE") {
+            regExpSources.push(intruderRegExpSource);
+        }
+
+        const mainRegExp = new RegExp(regExpSources.join('|'));
+
         if (mode === "ALL_SELECTABLE") {
-            return group.split(" ").map(function (element) {
-                element.trim();
-                return element;
-            }).filter(function (element) {
-                return element != "";
-            });
+            let currentWord = "";
+            let match = mainRegExp.exec(group);
+            while (match !== null) {
+                const before = group.substring(0, match.index);
+                const matchedString = match[0];
+            
+                currentWord += before;
+            
+                if (matchedString === " ") {
+                    if (currentWord.length > 0) {
+                        splitGroup.push(currentWord);
+                        currentWord = "";
+                    }
+                } else {
+                    currentWord += matchedString;
+                }
+
+                group = group.substring(match.index + matchedString.length);
+                match = mainRegExp.exec(group);
+            }
+        
+            currentWord += group;
+            if (currentWord.length > 0) {
+                splitGroup.push(currentWord);
+            }
         } else {
-            const patterns = presenter.getPatterns();
-            const splitGroup = [];
-
-            const spaceRegExpSource = / /.source;
-            const selectableRegExpSource = patterns.color + "[^\\s]*";
-            const intruderRegExpSource = patterns.intruder + "[^\\s]*";
-            const mainRegExp = new RegExp([selectableRegExpSource, spaceRegExpSource, intruderRegExpSource].join('|'));
-
             let match = mainRegExp.exec(group);
             while (match !== null) {
                 const before = group.substring(0, match.index);
@@ -1012,11 +1070,13 @@ function AddonText_Coloring_create() {
 
                 match = mainRegExp.exec(group);
             }
+
             if (group.trim().length > 0) {
                 splitGroup.push(group.trim());
             }
-            return splitGroup;
         }
+
+        return splitGroup;
     };
 
     presenter.parseWords = function (text, mode) {
@@ -1592,6 +1652,9 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
+        if (presenter.configuration.isError) {
+            return "";
+        }
         var activeColorID = presenter.configuration.activeColorID;
         if (!presenter.configuration.eraserMode && activeColorID === null) {
             activeColorID = presenter.stateMachine.previousActiveColorID;
