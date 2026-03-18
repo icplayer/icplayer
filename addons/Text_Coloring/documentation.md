@@ -5,10 +5,10 @@
 <p>You can work in one of two modes:</p>
 <ul>
     <li>'All selectable' (default), where all words are selectable.</li>
-    <li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable', however, a phrase may be longer than a single word.</li>
+    <li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable', however, a phrase may be longer than a single word*.</li>
 </ul>
 
-<p>The module also supports LaTeX formulas. A LaTeX expression is treated as a single "word" regardless of the selected mode. This is an exception for the 'All Selectable' mode, where the formula will not be split into smaller components.</p>
+<p>*The module also supports LaTeX formulas. A LaTeX expression is treated as a single "word" regardless of the selected mode. This is an exception for the 'All selectable' mode, where the formula will not be split into smaller components.</p>
 
 <h2>Properties</h2>
 
@@ -103,8 +103,6 @@
 <p>Each text element must be marked with the relevant keywords <i>\color{correct_color_id}{word}</i>.</p>
 
 <p>In the 'Mark phrases to select' mode, there is an additional relevant keyword <i>\intruder{phrase}</i>. With this keyword, it is possible to mark phrases that should not be colored. Coloring them is counted as an error.</p>
-
-<p>The module also supports LaTeX formulas. A LaTeX expression is treated as a single "word" regardless of the selected mode. This is an exception for the 'All Selectable' mode, where the formula will not be split into smaller components.</p>
 
 
 <h2>Supported commands</h2>

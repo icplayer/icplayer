@@ -841,11 +841,9 @@ function AddonText_Coloring_create() {
         const combinedPattern = "(?:" + colorPattern + "|" + intruderPattern + ")";
 
         // Check for patterns inside \( ... \)
-        // We use (?:(?!\\\\\\)).)* to match content that does not contain \)
         const mathJaxInlineRegExp = new RegExp("\\\\\\((?:(?!\\\\\\)).)*" + combinedPattern + ".*?\\\\\\)");
         
         // Check for patterns inside \[ ... \]
-        // We use (?:(?!\\\\\\]).)* to match content that does not contain \]
         const mathJaxBlockRegExp = new RegExp("\\\\\\[(?:(?!\\\\\\]).)*" + combinedPattern + ".*?\\\\\\]");
 
         return mathJaxInlineRegExp.test(text) || mathJaxBlockRegExp.test(text);
