@@ -422,13 +422,15 @@ function AddonText_Coloring_create() {
     presenter.ERROR_CODES = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "Color definitions in colors property have to be proper rgb hex e.g #FF0000 (red)",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "Color definitions in colors property must have id",
-        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id"
+        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id",
+        "TC_TEXT_INVALID_LATEX_USAGE": "LaTeX expression cannot contain color or intruder definition"
     };
 
     presenter.ERROR_CODES_KEYS = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "TC_COLORS_COLOR_MUST_HAVE_ID",
-        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "TC_TEXT_COLOR_DEFINITION_WRONG_ID"
+        "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "TC_TEXT_COLOR_DEFINITION_WRONG_ID",
+        "TC_TEXT_INVALID_LATEX_USAGE": "TC_TEXT_INVALID_LATEX_USAGE"
     };
 
     presenter.TOKENS_TYPES = {
@@ -665,15 +667,15 @@ function AddonText_Coloring_create() {
     presenter.getButtonsContainerHTML = function (css) {
         var colorsButtons = presenter.getColorsButtonsHTML(presenter.configuration.colors, css.colorsContainer);
         var eraserButtons = presenter.getEraserModeButtonHTML(css.eraserContainer);
-        return StringUtils.format("<div class='{0}'>{1} {2}</div>", css.buttonContainer, colorsButtons, eraserButtons);
+        return "<div class='" + css.buttonContainer + "'>" + colorsButtons + " " + eraserButtons + "</div>";
     };
 
     presenter.getColorsButtonsHTML = function (colorsDefinitions, containerCssClass) {
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
+        var result = "<div class='" + containerCssClass + "'>";
 
         var colorsLen = colorsDefinitions.length;
         for (var i = 0; i < colorsLen; i++) {
-            result = StringUtils.format("{0}{1}", result, presenter.getColorHTMLText(colorsDefinitions[i]));
+            result += presenter.getColorHTMLText(colorsDefinitions[i]);
         }
 
         result += "</div>";
@@ -682,34 +684,34 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getEraserModeButtonHTML = function (containerCssClass) {
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
-        result += StringUtils.format("<div class='{0}'>{1}</div>", presenter.defaults.css.eraserButton, presenter.configuration.eraserButtonText);
+        var result = "<div class='" + containerCssClass + "'>";
+        result += "<div class='" + presenter.defaults.css.eraserButton + "'>" + presenter.configuration.eraserButtonText + "</div>";
         result += "</div>";
 
         return result;
     };
 
     presenter.getColorHTMLText = function (colorDefinition) {
-        return StringUtils.format("<div class='{0}' data-{1}='{2}'>{3}</div>", presenter.defaults.css.colorButton, presenter.defaults.dataHolders.colorID, colorDefinition.id, colorDefinition.description);
+        return "<div class='" + presenter.defaults.css.colorButton + "' data-" + presenter.defaults.dataHolders.colorID + "='" + colorDefinition.id + "'>" + colorDefinition.description + "</div>";
     };
 
     presenter.getTextHTML = function (tokens, containerCssClass, mode) {
         var tokensLen = tokens.length;
-        var result = StringUtils.format("<div class='{0}'>", containerCssClass);
+        var result = "<div class='" + containerCssClass + "'>";
 
         for (var i = 0, wordIndex = 0; i < tokensLen; i++) {
             if (tokens[i].type == presenter.TOKENS_TYPES.NEW_LINE) {
-                result = StringUtils.format("{0}{1}", result, presenter.getNewLineHTML());
+                result += presenter.getNewLineHTML();
             } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE) {
-                result = StringUtils.format("{0}{1}", result, presenter.getSpaceHTML());
+                result += presenter.getSpaceHTML();
             } else if ([presenter.TOKENS_TYPES.SELECTABLE, presenter.TOKENS_TYPES.INTRUDER].includes(tokens[i].type)) {
-                result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                result += presenter.getWordHTML(tokens[i], wordIndex);
                 wordIndex++;
             } else {
                 if (mode == "ALL_SELECTABLE") {
-                    result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                    result += presenter.getWordHTML(tokens[i], wordIndex);
                 } else {
-                    result = StringUtils.format("{0}{1}", result, tokens[i].value);
+                    result += tokens[i].value;
                 }
                 wordIndex++;
             }
@@ -728,8 +730,7 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getWordHTML = function (token, index) {
-        return StringUtils.format("<span class='{0}' data-word-index='{1}' >{2}</span>",
-            presenter.defaults.css.selectableWord, index, token.value);
+        return "<span class='" + presenter.defaults.css.selectableWord + "' data-word-index='" + index + "' >" + token.value + "</span>";
     };
 
     presenter.upgradeModel = function(model) {
@@ -831,11 +832,32 @@ function AddonText_Coloring_create() {
         };
     };
 
+    presenter.checkIfColorOrIntruderInsideLatex = function (text) {
+        if (!text) return false;
+
+        const patterns = presenter.getPatterns();
+        const colorPattern = patterns.color;
+        const intruderPattern = patterns.intruder;
+        const combinedPattern = "(?:" + colorPattern + "|" + intruderPattern + ")";
+
+        // Check for patterns inside \( ... \)
+        const mathJaxInlineRegExp = new RegExp("\\\\\\((?:(?!\\\\\\)).)*" + combinedPattern + ".*?\\\\\\)");
+        
+        // Check for patterns inside \[ ... \]
+        const mathJaxBlockRegExp = new RegExp("\\\\\\[(?:(?!\\\\\\]).)*" + combinedPattern + ".*?\\\\\\]");
+
+        return mathJaxInlineRegExp.test(text) || mathJaxBlockRegExp.test(text);
+    };
+
     presenter.validateModel = function (model) {
         var validatedIsNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         var validatedColors = presenter.validateColors(model.colors);
         if (validatedColors.isError) {
             return validatedColors;
+        }
+
+        if (presenter.checkIfColorOrIntruderInsideLatex(model.text)) {
+            return ModelErrorUtils.getErrorObject(presenter.ERROR_CODES_KEYS.TC_TEXT_INVALID_LATEX_USAGE);
         }
 
         var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
@@ -961,22 +983,77 @@ function AddonText_Coloring_create() {
         return result;
     };
 
+    presenter.getPatterns = function() {
+        if (presenter._patterns) return presenter._patterns;
+
+        const maxDepth = 10;
+        const noBrackets = "[^{}]";
+        let balancedBrackets = "\\{" + noBrackets + "*\\}";
+        for (let i = 0; i < maxDepth; i++) {
+            balancedBrackets = "\\{(?:" + noBrackets + "|" + balancedBrackets + ")*\\}";
+        }
+        const nestedBracketsPattern = "(?:" + noBrackets + "|" + balancedBrackets + ")+";
+
+        const selectableRegExpSource = "\\\\color{(?<color>[^}]+)}{(?<colorValue>" + nestedBracketsPattern + ")}";
+        const intruderRegExpSource = "\\\\intruder{(?<intruderValue>" + nestedBracketsPattern + ")}";
+
+        presenter._patterns = {
+             color: selectableRegExpSource,
+             intruder: intruderRegExpSource,
+        };
+        return presenter._patterns;
+    };
+
     presenter.splitGroupToWords = function (group, mode) {
-        if (mode == "ALL_SELECTABLE") {
-            return group.split(" ").map(function (element) {
-                element.trim();
-                return element;
-            }).filter(function (element) {
-                return element != "";
-            });
+        const patterns = presenter.getPatterns();
+        const splitGroup = [];
+
+        const spaceRegExpSource = / /.source;
+        const selectableRegExpSource = patterns.color + "[^\\s]*";
+        const intruderRegExpSource = patterns.intruder + "[^\\s]*";
+        const mathJaxInlineRegExpSource = "\\\\\\(.*?\\\\\\)";
+        const mathJaxBlockRegExpSource = "\\\\\\[.*?\\\\\\]";
+
+        const regExpSources = [
+            selectableRegExpSource,
+            mathJaxInlineRegExpSource,
+            mathJaxBlockRegExpSource,
+            spaceRegExpSource
+        ];
+
+        if (mode !== "ALL_SELECTABLE") {
+            regExpSources.push(intruderRegExpSource);
+        }
+
+        const mainRegExp = new RegExp(regExpSources.join('|'));
+
+        if (mode === "ALL_SELECTABLE") {
+            let currentWord = "";
+            let match = mainRegExp.exec(group);
+            while (match !== null) {
+                const before = group.substring(0, match.index);
+                const matchedString = match[0];
+            
+                currentWord += before;
+            
+                if (matchedString === " ") {
+                    if (currentWord.length > 0) {
+                        splitGroup.push(currentWord);
+                        currentWord = "";
+                    }
+                } else {
+                    currentWord += matchedString;
+                }
+
+                group = group.substring(match.index + matchedString.length);
+                match = mainRegExp.exec(group);
+            }
+        
+            currentWord += group;
+            if (currentWord.length > 0) {
+                splitGroup.push(currentWord);
+            }
         } else {
-            const splitGroup = [];
-
-            const spaceRegExpSource = / /.source;
-            const selectableRegExpSource = /\\color{[^}]+}{[^}]+}[^\s]*/.source;
-            const intruderRegExpSource = /\\intruder{[^}]+}[^\s]*/.source;
-            const mainRegExp = new RegExp([selectableRegExpSource, spaceRegExpSource, intruderRegExpSource].join('|'));
-
             let match = mainRegExp.exec(group);
             while (match !== null) {
                 const before = group.substring(0, match.index);
@@ -991,20 +1068,22 @@ function AddonText_Coloring_create() {
 
                 match = mainRegExp.exec(group);
             }
+
             if (group.trim().length > 0) {
                 splitGroup.push(group.trim());
             }
-            return splitGroup;
         }
+
+        return splitGroup;
     };
 
     presenter.parseWords = function (text, mode) {
         const result = [];
-        const selectableRegExpSource = /\\color{(?<color>[^}]+)}{(?<colorValue>[^}]+)}/.source;
-        const intruderRegExpSource = /\\intruder{(?<intruderValue>[^}]+)}/.source;
-        const regExps = [selectableRegExpSource];
+        const patterns = presenter.getPatterns();
+
+        const regExps = [patterns.color];
         if (mode === "MARK_PHRASES") {
-            regExps.push(intruderRegExpSource);
+             regExps.push(patterns.intruder);
         }
 
         const selectablePart = {
@@ -1571,6 +1650,9 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
+        if (presenter.configuration.isError) {
+            return "";
+        }
         var activeColorID = presenter.configuration.activeColorID;
         if (!presenter.configuration.eraserMode && activeColorID === null) {
             activeColorID = presenter.stateMachine.previousActiveColorID;
