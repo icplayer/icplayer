@@ -29,9 +29,11 @@
      */
     AudioContextSingleton.close = function () {
         if (this.audioContext && this.audioContext.state !== "closed") {
-            this.audioContext.close();
+            var closePromise = this.audioContext.close();
             this.audioContext = undefined;
-        };
+            return closePromise;
+        }
+        return Promise.resolve();
     }
 
     window.AudioContextSingleton = AudioContextSingleton;

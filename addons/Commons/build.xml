@@ -2,7 +2,7 @@
 
 <project name="Commons" basedir=".">
     <property file="build.properties" />
-    <property name="commons.version" value="4.5.3" />
+    <property name="commons.version" value="4.6.0" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
 
@@ -28,6 +28,7 @@
             <arg line="--js src/tts-utils.js" />
             <arg line="--js src/internationalization.js" />
             <arg line="--js src/loadedPromise.js" />
+            <arg line="--js src/mathjax-utils.js" />
             <arg line="--js src/events.js" />
             <arg line="--js src/error-utils.js" />
             <arg line="--js src/controls-bar.js" />
@@ -62,6 +63,7 @@
  * - Internationalization
  * - Text Parser Proxy
  * - Loaded Promise
+ * - MathJax Utils
  * - Events Utils
  * - Model Error Utils
  * - Blockly Custom Scene Blocks
