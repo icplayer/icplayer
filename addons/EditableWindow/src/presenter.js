@@ -29,6 +29,13 @@ function AddonEditableWindow_create() {
         state: {
             isInitialized: false,
             content: null
+        },
+        mathJaxModel: {
+            isValid: false,
+            retryIntervalId: null,
+            renderingInProgress: false,
+            renderingTimeoutId: null,
+            currentRequestId: null
         }
     };
 
@@ -430,10 +437,13 @@ function AddonEditableWindow_create() {
 
         presenter.fillActiveTinyMce(presenter.configuration.model.textEditor, function (content) {
             setTextAreaInnerHTML(textareaId, content);
+            if (presenter.shouldSupportMathJax() && presenter.isVisible()) {
+                presenter.renderMathJax();
+            }
 
             presenter.configuration.iframeContent = content;
             $view.find(".addon-editable-reset-button").click(function () {
-                    presenter.reset();
+                presenter.reset();
             });
         });
     };
@@ -481,6 +491,8 @@ function AddonEditableWindow_create() {
     };
 
     presenter.createTinyMceAsync = function (areaId, height, width) {
+        presenter.configuration.mathJaxModel = getMathJaxConfigurationForTinyMCE();
+
         tinymce.init({
             selector: "#" + areaId,
             plugins: "textcolor link",
@@ -498,19 +510,232 @@ function AddonEditableWindow_create() {
             menubar: false,
             height: height,
             width: width,
+            readonly: !presenter.configuration.model.editingEnabled,
             setup: function (editor) {
                 if (!presenter.configuration.model.editingEnabled) {
                     editor.on('keydown keypress keyup', function (e) {
                         e.preventDefault();
                     });
                 }
-            },
-            readonly: !presenter.configuration.model.editingEnabled
+
+                editor.on('init', function () {
+                    if (presenter.shouldSupportMathJax()) {
+                        presenter.loadMathJaxIntoEditor(editor);
+                    }
+                });
+            }
         }).then(function (editors) {
             presenter.configuration.editor = editors[0];
             presenter.configuration.isTinyMceLoaded = true;
         });
     }
+
+    function getMathJaxConfigurationForTinyMCE() {
+        if (!presenter.configuration.playerController) {
+            return {
+                isValid: false,
+                retryIntervalId: null,
+                renderingInProgress: false,
+                renderingTimeoutId: null,
+                currentRequestId: null
+            }
+        }
+
+        const contextMetadata = presenter.configuration.playerController.getContextMetadata();
+        const isMathML = !!contextMetadata && contextMetadata.mathJaxRenderer === "MathML";
+        let mathJaxConfig = window.MathJaxUtils.detectMathJaxConfig(isMathML);
+        if (!mathJaxConfig) {
+            mathJaxConfig = window.MathJaxUtils.getDefaultMathJaxConfig(isMathML);
+        }
+
+        let mathJaxSource = window.MathJaxUtils.detectMathJaxSource();
+        if (!mathJaxSource) {
+            mathJaxSource = window.MathJaxUtils.getDefaultMathJaxSource();
+        }
+
+        return {
+            isValid: true,
+            source: mathJaxSource,
+            config: mathJaxConfig,
+            styles: window.MathJaxUtils.getDefaultMathJaxStyles(),
+            retryIntervalId: null,
+            renderingInProgress: false,
+            renderingTimeoutId: null,
+            currentRequestId: null
+        }
+    }
+
+    presenter.shouldSupportMathJax = function () {
+        return (isContentNotEditable() &&
+            presenter.configuration.mathJaxModel.isValid
+        );
+    }
+
+    function isContentNotEditable(){
+        return (!presenter.configuration.model.editingEnabled &&
+            presenter.configuration.model.isTextEditorContent);
+    }
+
+    presenter.loadMathJaxIntoEditor = function (editor) {
+        const doc = editor.getDoc();
+        const win = editor.getWin();
+
+        if (!doc || !win) {
+            console.error('EditableWindow: Cannot access editor document or window');
+            return;
+        }
+
+        const config = doc.createElement('script');
+        config.type = 'text/x-mathjax-config';
+        config.textContent = presenter.configuration.mathJaxModel.config;
+        doc.head.appendChild(config);
+
+        const styles = doc.createElement('style');
+        styles.type = 'text/css';
+        styles.textContent = presenter.configuration.mathJaxModel.styles;
+        doc.head.appendChild(styles);
+
+        const source = doc.createElement('script');
+        source.type = 'text/javascript';
+        source.src = presenter.configuration.mathJaxModel.source;
+        source.onerror = function () {
+            console.warn('EditableWindow: Failed to load MathJax from ' + presenter.configuration.mathJaxModel.source);
+        };
+        doc.head.appendChild(source);
+    };
+
+    presenter.invalidatePreviousRenderingAttempt = function () {
+        if (presenter.configuration.mathJaxModel.retryIntervalId !== null) {
+            clearInterval(presenter.configuration.mathJaxModel.retryIntervalId);
+            presenter.configuration.mathJaxModel.retryIntervalId = null;
+        }
+
+        if (presenter.configuration.mathJaxModel.renderingTimeoutId !== null) {
+            clearTimeout(presenter.configuration.mathJaxModel.renderingTimeoutId);
+            presenter.configuration.mathJaxModel.renderingTimeoutId = null;
+        }
+    };
+
+    presenter.getEditorContext = function () {
+        const editor = presenter.configuration.editor;
+        if (!editor) {
+            console.warn('EditableWindow.renderMathJax: editor not initialized yet');
+            return null;
+        }
+
+        const win = editor.getWin();
+        const body = editor.getBody();
+
+        if (!win || !body) {
+            console.warn('EditableWindow.renderMathJax: cannot access editor window or body');
+            return null;
+        }
+
+        return { win: win, body: body };
+    };
+
+    presenter.createMathJaxTypesetAttempt = function (requestId, editorContext) {
+        const win = editorContext.win;
+        const body = editorContext.body;
+
+        return function attemptTypeset() {
+            if (presenter.configuration.mathJaxModel.currentRequestId !== requestId) {
+                return false;
+            }
+
+            if (!win.MathJax || !win.MathJax.Hub) {
+                return false;
+            }
+
+            try {
+                presenter.configuration.mathJaxModel.renderingInProgress = true;
+                
+                win.MathJax.Hub.Queue(function () {
+                    presenter.executeTypesetIfRequestIsCurrent(requestId, win, body);
+                });
+
+                presenter.setRenderingTimeoutIfNeeded(requestId);
+            } catch (e) {
+                console.error('EditableWindow.renderMathJax: error during Queue call', e);
+                if (presenter.configuration.mathJaxModel.currentRequestId === requestId) {
+                    presenter.configuration.mathJaxModel.renderingInProgress = false;
+                }
+                return false;
+            }
+            return true;
+        };
+    };
+
+    presenter.executeTypesetIfRequestIsCurrent = function (requestId, win, body) {
+        if (presenter.configuration.mathJaxModel.currentRequestId !== requestId) {
+            return;
+        }
+
+        try {
+            win.MathJax.Hub.Typeset(body);
+        } catch (e) {
+            console.error('EditableWindow.renderMathJax: error during Typeset execution', e);
+        } finally {
+            if (presenter.configuration.mathJaxModel.currentRequestId === requestId) {
+                presenter.configuration.mathJaxModel.renderingInProgress = false;
+            }
+        }
+    };
+
+    presenter.setRenderingTimeoutIfNeeded = function (requestId) {
+        const RENDERING_TIMEOUT = 2000;
+        presenter.configuration.mathJaxModel.renderingTimeoutId = setTimeout(function () {
+            if (presenter.configuration.mathJaxModel.currentRequestId === requestId && presenter.configuration.mathJaxModel.renderingInProgress) {
+                presenter.configuration.mathJaxModel.renderingInProgress = false;
+            }
+            presenter.configuration.mathJaxModel.renderingTimeoutId = null;
+        }, RENDERING_TIMEOUT);
+    };
+
+    presenter.createRenderingIntervalWithWaitLogic = function (attemptTypeset, requestId) {
+        const MAX_WAIT_TIME = 10000;
+        const RETRY_INTERVAL = 50;
+        const startTime = Date.now();
+
+        const intervalId = setInterval(function () {
+            if (presenter.configuration.mathJaxModel.currentRequestId !== requestId) {
+                clearInterval(intervalId);
+                presenter.configuration.mathJaxModel.retryIntervalId = null;
+                return;
+            }
+
+            const elapsedTime = Date.now() - startTime;
+
+            if (attemptTypeset()) {
+                clearInterval(intervalId);
+                presenter.configuration.mathJaxModel.retryIntervalId = null;
+            } else if (elapsedTime >= MAX_WAIT_TIME) {
+                clearInterval(intervalId);
+                presenter.configuration.mathJaxModel.retryIntervalId = null;
+                if (presenter.configuration.mathJaxModel.currentRequestId === requestId) {
+                    presenter.configuration.mathJaxModel.renderingInProgress = false;
+                }
+                console.warn('EditableWindow.renderMathJax: MathJax did not load after ' + (MAX_WAIT_TIME / 1000) + 's for request ID:', requestId);
+            }
+        }, RETRY_INTERVAL);
+
+        presenter.configuration.mathJaxModel.retryIntervalId = intervalId;
+    };
+
+    presenter.renderMathJax = function () {
+        const requestId = Math.random();
+        presenter.configuration.mathJaxModel.currentRequestId = requestId;
+
+        presenter.invalidatePreviousRenderingAttempt();
+
+        const editorContext = presenter.getEditorContext();
+        if (!editorContext) {
+            return;
+        }
+
+        const attemptTypeset = presenter.createMathJaxTypesetAttempt(requestId, editorContext);
+        presenter.createRenderingIntervalWithWaitLogic(attemptTypeset, requestId);
+    };
 
     presenter.createPreview = function (view, model) {
         presenter.configuration.view = view;
@@ -538,20 +763,23 @@ function AddonEditableWindow_create() {
         presenter.configuration.contentLoadingLock = true;
         presenter.configuration.state = JSON.parse(state);
 
-        var isInitialized = presenter.configuration.state.isInitialized;
-        var content = presenter.configuration.state.content;
+        const isInitialized = presenter.configuration.state.isInitialized;
+        const content = presenter.configuration.state.content;
 
-        if (isInitialized) {
+        if (isInitialized && !isContentNotEditable()) {
             presenter.fillActiveTinyMce(content, presenter.fillTinyMce);
         }
         presenter.configuration.contentLoadingLock = false;
-    };
+    }
 
     presenter.getState = function () {
         var editor = presenter.configuration.editor;
         var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
         var isTinyMceFilled = presenter.configuration.isTinyMceFilled;
-        if (isTinyMceLoaded && isTinyMceFilled) {
+        if (isContentNotEditable()) {
+            presenter.configuration.state.content = null;
+            presenter.configuration.state.isInitialized = false;
+        } else if (isTinyMceLoaded && isTinyMceFilled) {
             presenter.configuration.state.content = editor.getContent({format: 'raw'});
         }
 
@@ -833,10 +1061,13 @@ function AddonEditableWindow_create() {
 
         presenter.getStyles();
 
-
         presenter.linkAnchors();
 
         presenter.configuration.isTinyMceFilled = true;
+
+        if (presenter.shouldSupportMathJax() && presenter.isVisible()) {
+            presenter.renderMathJax();
+        }
     };
 
     function setTextAreaInnerHTML(textareaId, content) {
@@ -962,6 +1193,10 @@ function AddonEditableWindow_create() {
             'value': 'move-editable-windows',
             'score': ''
         });
+
+        if (presenter.shouldSupportMathJax()) {
+            presenter.renderMathJax();
+        }
     };
 
     presenter.openPopup = function () {
@@ -1149,6 +1384,7 @@ function AddonEditableWindow_create() {
 
     presenter.onDestroy = function () {
         presenter.removeCallbacks();
+        presenter.cleanupMathJax();
 
         var timeouts = presenter.configuration.timeouts;
         for (var i = 0; i < timeouts.length; i++) {
@@ -1171,6 +1407,30 @@ function AddonEditableWindow_create() {
         presenter.configuration.container = null;
         presenter.configuration = null;
         presenter.jQueryElementsCache = null;
+    };
+
+    presenter.cleanupMathJax = function () {
+        if (!presenter.configuration ||
+            !presenter.configuration.mathJaxModel ||
+            !presenter.configuration.mathJaxModel.isValid
+        ) {
+            return;
+        }
+
+        const mathJaxModel = presenter.configuration.mathJaxModel;
+
+        if (mathJaxModel.retryIntervalId) {
+            clearInterval(mathJaxModel.retryIntervalId);
+            mathJaxModel.retryIntervalId = null;
+        }
+
+        if (mathJaxModel.renderingTimeoutId) {
+            clearTimeout(mathJaxModel.renderingTimeoutId);
+            mathJaxModel.renderingTimeoutId = null;
+        }
+
+        mathJaxModel.renderingInProgress = false;
+        mathJaxModel.currentRequestId = null;
     };
 
     presenter.removeCallbacks = function () {
