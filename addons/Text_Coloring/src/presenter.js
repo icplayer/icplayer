@@ -423,14 +423,18 @@ function AddonText_Coloring_create() {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "Color definitions in colors property have to be proper rgb hex e.g #FF0000 (red)",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "Color definitions in colors property must have id",
         "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "Text Coloring has to use defined color id",
-        "TC_TEXT_INVALID_LATEX_USAGE": "LaTeX expression cannot contain color or intruder definition"
+        "TC_TEXT_INVALID_LATEX_USAGE": "LaTeX expression cannot contain color or intruder definition",
+        "TC_TEXT_ALT_TEXT_COVERS_MULTIPLE_TOKENS": "In 'All selectable' mode, alt text cannot wrap more than one word or LaTeX expression",
+        "TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER": "Alt text cannot wrap a \\color{} or \\intruder{} definition. Use \\color{id}{\\alt{...}} or \\intruder{\\alt{...}} instead"
     };
 
     presenter.ERROR_CODES_KEYS = {
         "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX": "TC_COLORS_COLOR_DEFINITION_HAVE_TO_BE_RGB_HEX",
         "TC_COLORS_COLOR_MUST_HAVE_ID": "TC_COLORS_COLOR_MUST_HAVE_ID",
         "TC_TEXT_COLOR_DEFINITION_WRONG_ID": "TC_TEXT_COLOR_DEFINITION_WRONG_ID",
-        "TC_TEXT_INVALID_LATEX_USAGE": "TC_TEXT_INVALID_LATEX_USAGE"
+        "TC_TEXT_INVALID_LATEX_USAGE": "TC_TEXT_INVALID_LATEX_USAGE",
+        "TC_TEXT_ALT_TEXT_COVERS_MULTIPLE_TOKENS": "TC_TEXT_ALT_TEXT_COVERS_MULTIPLE_TOKENS",
+        "TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER": "TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER"
     };
 
     presenter.TOKENS_TYPES = {
@@ -459,6 +463,7 @@ function AddonText_Coloring_create() {
     presenter.$colorButtons = null;
     presenter.$eraserButton = null;
     presenter.$wordTokens = null;
+    presenter.textParser = null;
 
     presenter.configuration = {
         ID: "id",
@@ -481,12 +486,20 @@ function AddonText_Coloring_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
-        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-        for (var i = 0; i < events.length; i++) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+        const events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (let i = 0; i < events.length; i++) {
             presenter.eventBus.addEventListener(events[i], this);
         }
     };
 
+    presenter.setPreviewTextParser = function (getTextParser) {
+        presenter.textParser = new TextParserProxy(getTextParser());
+    };
+
+    presenter.setPrintableController = function(controller) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
 
     presenter.run = function (view, model) {
         presenter.runLogic(view, model, false);
@@ -562,12 +575,28 @@ function AddonText_Coloring_create() {
         presenter.$colorButtons = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.colorButton));
         presenter.$eraserButton = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.eraserButton));
 
+        presenter.applyAltTextsToTokens();
+
         if (!presenter.configuration.showSetEraserButtonMode) {
             presenter.hideEraserButtonMode();
         }
 
         if (presenter.configuration.hideColorsButtons) {
             presenter.hideColorsButtons();
+        }
+    };
+
+    presenter.applyAltTextsToTokens = function AddonText_Coloring_applyAltTextsToTokens () {
+        if (!presenter.textParser) {
+            return;
+        }
+        const originalHtml = presenter.$view.html();
+        const parsedHtml = presenter.textParser.parseAltTexts(originalHtml);
+        if (parsedHtml !== originalHtml) {
+            presenter.$view.html(parsedHtml);
+            presenter.$wordTokens = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.selectableWord));
+            presenter.$colorButtons = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.colorButton));
+            presenter.$eraserButton = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.eraserButton));
         }
     };
 
@@ -849,6 +878,87 @@ function AddonText_Coloring_create() {
         return mathJaxInlineRegExp.test(text) || mathJaxBlockRegExp.test(text);
     };
 
+    function extractAltTextVisibleParts (text) {
+        if (!text) return [];
+        const visibleParts = [];
+        let i = 0;
+        while (i < text.length) {
+            const altStart = text.indexOf("\\alt{", i);
+            if (altStart === -1) break;
+
+            // Find the matching closing brace, counting nested braces
+            let depth = 0;
+            let j = altStart + 5; // position after '\alt{'
+            let visiblePart = "";
+            let foundSeparator = false;
+
+            while (j < text.length) {
+                const ch = text[j];
+                if (ch === '{') {
+                    depth++;
+                    visiblePart += ch;
+                } else if (ch === '}') {
+                    if (depth === 0) {
+                        // closing brace of \alt{...}
+                        break;
+                    }
+                    depth--;
+                    visiblePart += ch;
+                } else if (ch === '|' && depth === 0) {
+                    // separator between visible part and alt text
+                    foundSeparator = true;
+                    break;
+                } else {
+                    visiblePart += ch;
+                }
+                j++;
+            }
+
+            if (foundSeparator) {
+                visibleParts.push(visiblePart);
+            }
+
+            i = altStart + 5;
+        }
+        return visibleParts;
+    }
+
+    presenter.validateAltTextDoesNotWrapColorOrIntruder = function AddonText_Coloring_validateAltTextDoesNotWrapColorOrIntruder (text) {
+        const visibleParts = extractAltTextVisibleParts(text);
+        const patterns = presenter.getPatterns();
+        const colorOrIntruderRegExp = new RegExp(patterns.color + "|" + patterns.intruder);
+
+        for (let i = 0; i < visibleParts.length; i++) {
+            if (colorOrIntruderRegExp.test(visibleParts[i])) {
+                return ModelErrorUtils.getErrorObject(presenter.ERROR_CODES_KEYS.TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER);
+            }
+        }
+
+        return { isValid: true, isError: false };
+    };
+
+    presenter.validateAltTextsInText = function AddonText_Coloring_validateAltTextsInText (text, mode) {
+        if (mode !== "ALL_SELECTABLE") {
+            return { isValid: true, isError: false };
+        }
+
+        const visibleParts = extractAltTextVisibleParts(text);
+
+        for (let k = 0; k < visibleParts.length; k++) {
+            const visiblePart = visibleParts[k];
+            // Remove inline and block LaTeX expressions from visible part before checking for spaces
+            const visibleWithoutLatex = visiblePart
+                .replace(/\\\(.*?\\\)/gs, '')
+                .replace(/\\\[.*?\\\]/gs, '');
+
+            if (visibleWithoutLatex.trim().includes(' ')) {
+                return ModelErrorUtils.getErrorObject(presenter.ERROR_CODES_KEYS.TC_TEXT_ALT_TEXT_COVERS_MULTIPLE_TOKENS);
+            }
+        }
+
+        return { isValid: true, isError: false };
+    };
+
     presenter.validateModel = function (model) {
         var validatedIsNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity']);
         var validatedColors = presenter.validateColors(model.colors);
@@ -861,6 +971,16 @@ function AddonText_Coloring_create() {
         }
 
         var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
+
+        var validatedAltTextStructure = presenter.validateAltTextDoesNotWrapColorOrIntruder(model.text);
+        if (validatedAltTextStructure.isError) {
+            return validatedAltTextStructure;
+        }
+
+        var validatedAltTexts = presenter.validateAltTextsInText(model.text, mode);
+        if (validatedAltTexts.isError) {
+            return validatedAltTexts;
+        }
 
         var parsedText = presenter.parseText(model.text, mode);
         var validatedText = presenter.validateUsingOnlyDefinedColors(parsedText, validatedColors.value);
@@ -996,10 +1116,12 @@ function AddonText_Coloring_create() {
 
         const selectableRegExpSource = "\\\\color{(?<color>[^}]+)}{(?<colorValue>" + nestedBracketsPattern + ")}";
         const intruderRegExpSource = "\\\\intruder{(?<intruderValue>" + nestedBracketsPattern + ")}";
+        const altTextRegExpSource = "\\\\alt\\{(?:" + noBrackets + "|" + balancedBrackets + ")*\\}(?:\\[[a-zA-Z0-9_\\- ]*?\\])*";
 
         presenter._patterns = {
              color: selectableRegExpSource,
              intruder: intruderRegExpSource,
+             altText: altTextRegExpSource,
         };
         return presenter._patterns;
     };
@@ -1018,6 +1140,7 @@ function AddonText_Coloring_create() {
             selectableRegExpSource,
             mathJaxInlineRegExpSource,
             mathJaxBlockRegExpSource,
+            patterns.altText,
             spaceRegExpSource
         ];
 
@@ -1794,6 +1917,10 @@ function AddonText_Coloring_create() {
             }
         });
 
+        if (presenter.textParser) {
+            printableHTML = presenter.textParser.parseAltTexts(printableHTML);
+        }
+
         return presenter.createHTML(showAnswers || userAnswer, printableHTML, presenter.configuration);
     }
 
@@ -1998,18 +2125,30 @@ function AddonText_Coloring_create() {
         let text = "";
 
         presenter.configuration.filteredTokens.forEach((token) => {
-            let tokenContent = $("<p>" + token.value + "<\p>")[0].textContent;
-            text += tokenContent + " ";
             const tokenElement = presenter.getWordTokenByIndex(token.index);
-            if (!tokenElement.length) {
-                return;
-            }
-            const ttsColoring = presenter.getWordTTSAttributes(tokenElement);
+            const $altEl = tokenElement.length ? tokenElement.find('[aria-label]').first() : $();
 
-            if (ttsColoring) {
-                tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
-                text = " ";
-                tts.push(TTSUtils.getTextVoiceObject(ttsColoring));
+            if ($altEl.length) {
+                const altLabel = $altEl.attr('aria-label');
+                const altLang = $altEl.attr('lang') || presenter.configuration.langTag;
+                if (text.trim()) {
+                    tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
+                    text = " ";
+                }
+                const ttsColoring = (tokenElement.length ? presenter.getWordTTSAttributes(tokenElement) : "") || "";
+                tts.push(TTSUtils.getTextVoiceObject(altLabel + ttsColoring, altLang));
+            } else {
+                let tokenContent = $("<p>" + token.value + "<\/p>")[0].textContent;
+                text += tokenContent + " ";
+                if (!tokenElement.length) {
+                    return;
+                }
+                const ttsColoring = presenter.getWordTTSAttributes(tokenElement);
+                if (ttsColoring) {
+                    tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
+                    text = " ";
+                    tts.push(TTSUtils.getTextVoiceObject(ttsColoring));
+                }
             }
         });
 
@@ -2019,7 +2158,17 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getTTSForWord = function AddonText_Coloring_getTTSForWord (element, word) {
-        const tts = [TTSUtils.getTextVoiceObject(word, presenter.configuration.langTag)];
+        const $altEl = element.find('[aria-label]').first();
+        let textContent, langTag;
+        if ($altEl.length) {
+            textContent = $altEl.attr('aria-label');
+            langTag = $altEl.attr('lang') || presenter.configuration.langTag;
+        } else {
+            textContent = word;
+            langTag = presenter.configuration.langTag;
+        }
+
+        const tts = [TTSUtils.getTextVoiceObject(textContent, langTag)];
 
         let wordAttributes = presenter.getWordTTSAttributes(element);
         if (wordAttributes) {

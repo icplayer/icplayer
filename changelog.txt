@@ -1,3 +1,4 @@
+2026-05-07 Added support for Alternative Texts in the Text Coloring
 2026-04-13 Added support for MathJax in EditableWindow
 2026-03-18 Fixed problem with nested LaTeX syntax in Text Coloring
 2026-03-16 Fixed Table checking correct dropdown answer as incorrect if it includes alt text

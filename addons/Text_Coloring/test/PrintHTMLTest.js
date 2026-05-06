@@ -378,3 +378,51 @@ TestCase("[Text_Coloring] get printable HTML - ALL_SELECTABLE mode", {
         assertTrue("Test for lightBlue failed", printableHTML.includes('<span style="border-bottom: 1px solid">lightBlue</span>'));
     }
 });
+
+TestCase("[Text_Coloring] get printable HTML - Alt Text handling", {
+    setUp: function () {
+        this.presenter = AddonText_Coloring_create();
+        this.presenter.printableState = {};
+        this.presenter.textParser = {
+            parseAltTexts: sinon.stub()
+        };
+        this.presenter.textParser.parseAltTexts.returnsArg(0);
+
+        this.stubs = {
+            getPrintableMarkStub: sinon.stub(this.presenter, "getPrintableMark"),
+        };
+        this.stubs.getPrintableMarkStub.callsFake(function (isCorrectAnswer) {
+            return isCorrectAnswer ? 'A' : 'B';
+        });
+    },
+
+    tearDown: function () {
+        this.presenter.getPrintableMark.restore();
+    },
+
+    'test getPrintableHTML should call parseAltTexts on generated HTML in All selectable mode': function () {
+        const model = {
+            colors: [{color: '#f34444', description: 'red', id: 'red'}],
+            Mode: "All selectable",
+            text: "\\alt{word|alternative text}",
+            isNotActivity: "False"
+        };
+
+        this.presenter.getPrintableHTML(model, false);
+
+        assertTrue("parseAltTexts should have been called", this.presenter.textParser.parseAltTexts.called);
+    },
+
+    'test getPrintableHTML should call parseAltTexts on generated HTML in Mark phrases to select mode': function () {
+        const model = {
+            colors: [{color: '#f34444', description: 'red', id: 'red'}],
+            Mode: "Mark phrases to select",
+            text: "\\alt{word|alternative text}",
+            isNotActivity: "False"
+        };
+
+        this.presenter.getPrintableHTML(model, false);
+
+        assertTrue("parseAltTexts should have been called", this.presenter.textParser.parseAltTexts.called);
+    },
+});
