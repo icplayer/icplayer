@@ -897,9 +897,33 @@ TestCase("[Text_Coloring] Validate model - Alt Text wrapping color or intruder",
         assertEquals("TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER", result.errorCode);
     },
 
+    'test alt text wrapping intruder should return error 2': function () {
+        const model = {
+            text: "\\alt{\\intruder{\\(\\sqrt{1+\\frac{1}{2}}\\ is)}|math equation is}[lang en]",
+            colors: [], Mode: "Mark phrases to select", isNotActivity: "False"
+        };
+
+        const result = this.presenter.validateModel(model);
+
+        assertTrue(result.isError);
+        assertEquals("TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER", result.errorCode);
+    },
+
     'test alt text wrapping color in MARK_PHRASES mode should return error': function () {
         const model = {
             text: "\\alt{\\color{red}{phrase}|alternative}",
+            colors: [], Mode: "Mark phrases to select", isNotActivity: "False"
+        };
+
+        const result = this.presenter.validateModel(model);
+
+        assertTrue(result.isError);
+        assertEquals("TC_TEXT_ALT_TEXT_WRAPS_COLOR_OR_INTRUDER", result.errorCode);
+    },
+
+    'test alt text wrapping color in MARK_PHRASES mode should return error 2': function () {
+        const model = {
+            text: "\\alt{\\color{red}{\\(\\sqrt{1+\\frac{1}{2}}\\ is)}|math equation is}[lang en]",
             colors: [], Mode: "Mark phrases to select", isNotActivity: "False"
         };
 

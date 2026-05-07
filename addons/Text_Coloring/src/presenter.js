@@ -571,11 +571,12 @@ function AddonText_Coloring_create() {
 
     presenter.setView = function (view) {
         presenter.$view.html(StringUtils.format("<div class='text_coloring'>{0}</div>", view));
+
+        presenter.applyAltTextsToTokens();
+
         presenter.$wordTokens = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.selectableWord));
         presenter.$colorButtons = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.colorButton));
         presenter.$eraserButton = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.eraserButton));
-
-        presenter.applyAltTextsToTokens();
 
         if (!presenter.configuration.showSetEraserButtonMode) {
             presenter.hideEraserButtonMode();
@@ -594,9 +595,6 @@ function AddonText_Coloring_create() {
         const parsedHtml = presenter.textParser.parseAltTexts(originalHtml);
         if (parsedHtml !== originalHtml) {
             presenter.$view.html(parsedHtml);
-            presenter.$wordTokens = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.selectableWord));
-            presenter.$colorButtons = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.colorButton));
-            presenter.$eraserButton = presenter.$view.find(StringUtils.format(".{0}", presenter.defaults.css.eraserButton));
         }
     };
 
@@ -2120,23 +2118,67 @@ function AddonText_Coloring_create() {
         return `${text} ${selectedText}`;
     };
 
+    /**
+     * Traverses direct child nodes of a jQuery element in document order,
+     * collecting TTS voice objects. Text nodes between aria-label elements
+     * are preserved as plain text voice objects.
+     *
+     * @param {jQuery} $element - the element whose children to traverse
+     * @returns {Array} array of TTSUtils voice objects
+     */
+    presenter.buildTTSFromElement = function AddonText_Coloring_buildTTSFromElement ($element) {
+        const result = [];
+        let accumulatedText = "";
+
+        $element.contents().each(function () {
+            if (this.nodeType === 3) {
+                // Text node
+                accumulatedText += this.nodeValue;
+            } else {
+                const $child = $(this);
+                if ($child.attr('aria-label')) {
+                    if (accumulatedText.trim()) {
+                        result.push(TTSUtils.getTextVoiceObject(accumulatedText.trim(), presenter.configuration.langTag));
+                        accumulatedText = " ";
+                    }
+                    const altLabel = $child.attr('aria-label');
+                    const altLang = $child.attr('lang') || presenter.configuration.langTag;
+                    result.push(TTSUtils.getTextVoiceObject(altLabel, altLang));
+                } else {
+                    accumulatedText += $child.text();
+                }
+            }
+        });
+
+        if (accumulatedText.trim()) {
+            result.push(TTSUtils.getTextVoiceObject(accumulatedText.trim(), presenter.configuration.langTag));
+        }
+
+        return result;
+    };
+
     presenter.getTTSForContent = function AddonText_Coloring_getTTSForContent () {
         const tts = [TTSUtils.getTextVoiceObject(presenter.speechTexts.textContent)];
         let text = "";
 
         presenter.configuration.filteredTokens.forEach((token) => {
             const tokenElement = presenter.getWordTokenByIndex(token.index);
-            const $altEl = tokenElement.length ? tokenElement.find('[aria-label]').first() : $();
+            const hasAltEls = tokenElement.length && tokenElement.find('[aria-label]').length > 0;
 
-            if ($altEl.length) {
-                const altLabel = $altEl.attr('aria-label');
-                const altLang = $altEl.attr('lang') || presenter.configuration.langTag;
+            if (hasAltEls) {
                 if (text.trim()) {
                     tts.push(TTSUtils.getTextVoiceObject(text, presenter.configuration.langTag));
                     text = " ";
                 }
-                const ttsColoring = (tokenElement.length ? presenter.getWordTTSAttributes(tokenElement) : "") || "";
-                tts.push(TTSUtils.getTextVoiceObject(altLabel + ttsColoring, altLang));
+                const elementTTS = presenter.buildTTSFromElement(tokenElement);
+                const ttsColoring = presenter.getWordTTSAttributes(tokenElement) || "";
+                elementTTS.forEach((voiceObj, index) => {
+                    if (index === elementTTS.length - 1 && ttsColoring) {
+                        tts.push(TTSUtils.getTextVoiceObject(voiceObj.text + ttsColoring, voiceObj.lang));
+                    } else {
+                        tts.push(voiceObj);
+                    }
+                });
             } else {
                 let tokenContent = $("<p>" + token.value + "<\/p>")[0].textContent;
                 text += tokenContent + " ";
@@ -2158,19 +2200,12 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getTTSForWord = function AddonText_Coloring_getTTSForWord (element, word) {
-        const $altEl = element.find('[aria-label]').first();
-        let textContent, langTag;
-        if ($altEl.length) {
-            textContent = $altEl.attr('aria-label');
-            langTag = $altEl.attr('lang') || presenter.configuration.langTag;
-        } else {
-            textContent = word;
-            langTag = presenter.configuration.langTag;
-        }
+        const elementTTS = presenter.buildTTSFromElement(element);
+        const tts = elementTTS.length > 0
+            ? elementTTS
+            : [TTSUtils.getTextVoiceObject(word, presenter.configuration.langTag)];
 
-        const tts = [TTSUtils.getTextVoiceObject(textContent, langTag)];
-
-        let wordAttributes = presenter.getWordTTSAttributes(element);
+        const wordAttributes = presenter.getWordTTSAttributes(element);
         if (wordAttributes) {
             tts.push(TTSUtils.getTextVoiceObject(wordAttributes));
         }
