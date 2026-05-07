@@ -944,12 +944,12 @@ function AddonText_Coloring_create() {
 
         for (let k = 0; k < visibleParts.length; k++) {
             const visiblePart = visibleParts[k];
-            // Remove inline and block LaTeX expressions from visible part before checking for spaces
             const visibleWithoutLatex = visiblePart
                 .replace(/\\\(.*?\\\)/gs, '')
                 .replace(/\\\[.*?\\\]/gs, '');
 
-            if (visibleWithoutLatex.trim().includes(' ')) {
+            const hasMoreThenTwoWords = visibleWithoutLatex.trim().includes(' ');
+            if (hasMoreThenTwoWords) {
                 return ModelErrorUtils.getErrorObject(presenter.ERROR_CODES_KEYS.TC_TEXT_ALT_TEXT_COVERS_MULTIPLE_TOKENS);
             }
         }
@@ -2129,10 +2129,10 @@ function AddonText_Coloring_create() {
     presenter.buildTTSFromElement = function AddonText_Coloring_buildTTSFromElement ($element) {
         const result = [];
         let accumulatedText = "";
+        const textNodeType = 3;
 
         $element.contents().each(function () {
-            if (this.nodeType === 3) {
-                // Text node
+            if (this.nodeType === textNodeType) {
                 accumulatedText += this.nodeValue;
             } else {
                 const $child = $(this);
