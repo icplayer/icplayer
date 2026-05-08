@@ -5,10 +5,11 @@
 <p>You can work in one of two modes:</p>
 <ul>
     <li>'All selectable' (default), where all words are selectable.</li>
-    <li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable', however, a phrase may be longer than a single word*.</li>
+    <li>'Mark phrases to select', where only some phrases are selectable. Unlike in 'All selectable', however, a phrase may be longer than a single word.*</li>
 </ul>
 
-<p>*The module also supports LaTeX formulas. A LaTeX expression is treated as a single "word" regardless of the selected mode. This is an exception for the 'All selectable' mode, where the formula will not be split into smaller components.</p>
+<p>* <i>The module also supports LaTeX formulas. A LaTeX expression is treated as a single "word" regardless of the selected mode. This is an exception for the 'All selectable' mode, where the formula will not be split into smaller components.</i></p>
+
 
 <h2>Properties</h2>
 
@@ -104,6 +105,27 @@
 
 <p>In the 'Mark phrases to select' mode, there is an additional relevant keyword <i>\intruder{phrase}</i>. With this keyword, it is possible to mark phrases that should not be colored. Coloring them is counted as an error.</p>
 
+<h3>Alternative text</h3>
+
+<p>The module supports alternative text for accessibility purposes. The syntax is:</p>
+
+<p><i>\alt{visible text|alternative text}</i></p>
+
+<p>An optional language tag can be appended: <i>\alt{visible text|alternative text}[lang en]</i></p>
+
+<p>The alt text feature can be applied to:</p>
+<ul>
+    <li>A plain word, e.g. <i>\alt{H₂O|water}</i></li>
+    <li>A LaTeX expression, e.g. <i>\alt{\(H^+\)|hydrogen ion}</i></li>
+    <li>The content inside a <i>\color{}</i> phrase, e.g. <i>\color{red}{\alt{phrase|alternative}}</i></li>
+    <li>The content inside an <i>\intruder{}</i> phrase (in 'Mark phrases to select' mode only), e.g. <i>\intruder{\alt{phrase|alternative}}</i></li>
+</ul>
+
+<p><strong>Restrictions by mode:</strong></p>
+<ul>
+    <li>In the <strong>'All selectable'</strong> mode, the visible part of <i>\alt{}</i> must be exactly one word or one LaTeX expression. Wrapping more than one word is not allowed and will result in a validation error.</li>
+    <li>In the <strong>'Mark phrases to select'</strong> mode, the visible part of <i>\alt{}</i> may contain multiple words or a LaTeX expression, as the entire <i>\alt{}</i> construct is treated as a single token.</li>
+</ul>
 
 <h2>Supported commands</h2>
 
