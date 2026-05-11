@@ -94,7 +94,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void connectDOMNodeRemovedEvent(String id);
+		void connectDOMNodeRemovedEvent(String id, String scrollNamespace);
+		JavaScriptObject findScrollElements(boolean isCrossDomain);
+		void removeScrollHandlers(String scrollNamespace);
 		void sortGapsOrder();
 		boolean isWCAGon();
 		void setWorkMode();
@@ -142,6 +144,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private boolean isGradualShowAnswers = false;
 	private Date startTime = null;
 	private long timerBase = 0;
+	private String scrollNamespace = null;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -788,7 +791,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view = (IDisplay) display;
 			connectViewListener();
 			updateViewText();
-			setupScrollHandlers(this, view.getElement());
+			this.scrollNamespace = getPageStamp() + "_" + module.getId();
+			JavaScriptObject scrollElements = view.findScrollElements(isPlayerInCrossDomain());
+			setupScrollHandlers(scrollElements, view.getElement(), this, this.scrollNamespace);
 			if (isVisibleInViewport()) startTimer();
 		}
 
@@ -799,7 +804,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 
-		view.connectDOMNodeRemovedEvent(module.getId());
+		view.connectDOMNodeRemovedEvent(module.getId(), scrollNamespace);
 		addiOSClassWithTimeout(this);
 	}
 
@@ -2037,27 +2042,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
         return false;
 	}
 
-	private native JavaScriptObject findScrollElements(boolean isCrossDomain)/*-{
-		var $defaultScrollElement = isCrossDomain ? null : $wnd.$($wnd.parent.document);
-		var $mCourserScrollElement = isCrossDomain ? null : $defaultScrollElement.find('#lesson-view > div > div');
-		var $mAuthorMobileScrollElement = $wnd.$($wnd);
-		var $mCourserMobileScrollElement = $wnd.$("#content-view");
-		var $mLibroDesktopScrollElement = null;
-		var icplayerContent = $wnd.$("#_icplayerContent");
-		if (icplayerContent.length > 0) $mLibroDesktopScrollElement = $wnd.$(icplayerContent[0].shadowRoot.querySelector(".inner-scroll"));
-		return [
-			$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement,
-			$mCourserMobileScrollElement, $mLibroDesktopScrollElement
-		];
-	}-*/;
-
-	private native void setupScrollHandlers (TextPresenter x, Element e) /*-{
-	    var isCrossDomain = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isPlayerInCrossDomain()();
-		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements(Z)(isCrossDomain);
+	private native void setupScrollHandlers (JavaScriptObject scrollElements, Element e, TextPresenter x, String namespace) /*-{
+		var eventName = 'scroll.' + namespace;
 		try {
 			for (var i = 0; i < scrollElements.length; i++) {
 				if (scrollElements[i] && scrollElements[i].length) {
-					scrollElements[i].scroll(function(){
+					scrollElements[i].on(eventName, function(){
 						if ($wnd.$(e).parent().length == 0) return;
 						var visible = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isVisibleInViewport()();
 						if (visible) {
@@ -2082,6 +2072,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private void preDestroy(){
 		sendTimerEvent();
+		if (view != null && scrollNamespace != null) {
+			view.removeScrollHandlers(scrollNamespace);
+		}
 	}
 
 }

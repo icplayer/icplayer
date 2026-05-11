@@ -697,7 +697,36 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		}
 	}
 
-	public native void connectDOMNodeRemovedEvent (String id) /*-{
+	public native JavaScriptObject findScrollElements (boolean isCrossDomain) /*-{
+		var $defaultScrollElement = isCrossDomain ? null : $wnd.$($wnd.parent.document);
+		var $mCourserScrollElement = isCrossDomain ? null : $defaultScrollElement.find('#lesson-view > div > div');
+		var $mAuthorMobileScrollElement = $wnd.$($wnd);
+		var $mCourserMobileScrollElement = $wnd.$("#content-view");
+		var $mLibroDesktopScrollElement = null;
+		var icplayerContent = $wnd.$("#_icplayerContent");
+		if (icplayerContent.length > 0) $mLibroDesktopScrollElement = $wnd.$(icplayerContent[0].shadowRoot.querySelector(".inner-scroll"));
+		return [
+			$defaultScrollElement, $mCourserScrollElement, $mAuthorMobileScrollElement,
+			$mCourserMobileScrollElement, $mLibroDesktopScrollElement
+		];
+	}-*/;
+
+	public native void removeScrollHandlers (String scrollNamespace) /*-{
+		console.log("Execute removeScrollHandlers: " + scrollNamespace);
+		var isCrossDomain = $wnd.self !== $wnd.parent;
+		var scrollElements = this.@com.lorepo.icplayer.client.module.text.TextView::findScrollElements(Z)(isCrossDomain);
+		var eventName = 'scroll.' + scrollNamespace;
+		try {
+			for (var i = 0; i < scrollElements.length; i++) {
+				if (scrollElements[i] && scrollElements[i].length) {
+					scrollElements[i].off(eventName);
+				}
+			}
+		} catch (err) {}
+	}-*/;
+
+	public native void connectDOMNodeRemovedEvent (String id, String scrollNamespace) /*-{
+		var self = this;
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
 
@@ -708,6 +737,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (addonID != id || event.target !== addon) {
 				return;
 			}
+
+			self.@com.lorepo.icplayer.client.module.text.TextView::removeScrollHandlers(Ljava/lang/String;)(scrollNamespace);
 
 			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
 				mathJaxElement.Detach();
@@ -728,20 +759,20 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 		var mockedEvent = {target: addon};
 		var observer = new MutationObserver(function (records) {
-			records.forEach(function (record) {
-				if (record.removedNodes.length) {
-					var id = $wnd.$(record.removedNodes[0]).attr("id");
-					destroy(mockedEvent, id);
+			for (var i = 0; i < records.length; i++) {
+				var removedNodes = records[i].removedNodes;
+				for (var j = 0; j < removedNodes.length; j++) {
+					var removed = removedNodes[j];
+					if (removed === addon || (removed.contains && removed.contains(addon))) {
+						destroy(mockedEvent, id);
+						observer.disconnect();
+						return;
+					}
 				}
-
-				if (record.target.childNodes.length === 0) {
-					observer.disconnect();
-				}
-			});
+			}
 		});
 
-		var config = {childList: true};
-		observer.observe($wnd.$('.ic_page').get(0), config);
+		observer.observe($wnd.document.body, {childList: true, subtree: true});
 	}-*/;
 
 	@Override

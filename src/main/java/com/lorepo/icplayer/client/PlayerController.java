@@ -684,7 +684,7 @@ public class PlayerController implements IPlayerController {
 	@Override
 	public int getIframeScroll() {
 		// when true, iframeScroll set by parsing message
-		if (isIframeInCrossDomain) {
+		if (isIframeInCrossDomain && !$wnd.window.top) {
 			return this.iframeScroll;
 		}
 		return this.getScrollTop();
