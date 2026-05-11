@@ -2041,10 +2041,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
         return false;
 	}
 
+	private JavaScriptObject findScrollElements (boolean isCrossDomain) {
+        return view.findScrollElements(isCrossDomain);
+    }
+
 	private native void setupScrollHandlers (TextPresenter x, Element e, String namespace) /*-{
 		var eventName = 'scroll.' + namespace;
 		var isCrossDomain = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isPlayerInCrossDomain()();
-		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::view.findScrollElements(Z)(isCrossDomain);
+		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::findScrollElements(Z)(isCrossDomain);
 		try {
 			for (var i = 0; i < scrollElements.length; i++) {
 				if (scrollElements[i] && scrollElements[i].length) {
