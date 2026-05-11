@@ -168,7 +168,7 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void connectDOMNodeRemovedEvent(String id, String scrollNamespace) {
+	public void connectDOMNodeRemovedEvent(String id, String scrollNamespace, boolean isCrossDomain) {
 		// TODO Auto-generated method stub
 	}
 
@@ -178,7 +178,7 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void removeScrollHandlers(String scrollNamespace) {
+	public void removeScrollHandlers(String scrollNamespace, boolean isCrossDomain) {
 		// TODO Auto-generated method stub
 	}
 
