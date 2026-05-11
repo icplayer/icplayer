@@ -711,9 +711,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		];
 	}-*/;
 
-	public native void removeScrollHandlers (String scrollNamespace) /*-{
-		console.log("Execute removeScrollHandlers: " + scrollNamespace);
-		var isCrossDomain = $wnd.self !== $wnd.parent;
+	public native void removeScrollHandlers (String scrollNamespace, boolean isCrossDomain) /*-{
 		var scrollElements = this.@com.lorepo.icplayer.client.module.text.TextView::findScrollElements(Z)(isCrossDomain);
 		var eventName = 'scroll.' + scrollNamespace;
 		try {
@@ -725,7 +723,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		} catch (err) {}
 	}-*/;
 
-	public native void connectDOMNodeRemovedEvent (String id, String scrollNamespace) /*-{
+	public native void connectDOMNodeRemovedEvent (String id, String scrollNamespace, boolean isCrossDomain) /*-{
 		var self = this;
 		var $addon = $wnd.$(".ic_page [id='" + id + "']"),
 			addon = $addon[0];
@@ -738,7 +736,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				return;
 			}
 
-			self.@com.lorepo.icplayer.client.module.text.TextView::removeScrollHandlers(Ljava/lang/String;)(scrollNamespace);
+			self.@com.lorepo.icplayer.client.module.text.TextView::removeScrollHandlers(Ljava/lang/String;Z)(scrollNamespace, isCrossDomain);
 
 			$wnd.MathJax.Hub.getAllJax().forEach(function (mathJaxElement) {
 				mathJaxElement.Detach();

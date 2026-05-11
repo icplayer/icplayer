@@ -94,9 +94,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
-		void connectDOMNodeRemovedEvent(String id, String scrollNamespace);
+		void connectDOMNodeRemovedEvent(String id, String scrollNamespace, boolean isCrossDomain);
 		JavaScriptObject findScrollElements(boolean isCrossDomain);
-		void removeScrollHandlers(String scrollNamespace);
+		void removeScrollHandlers(String scrollNamespace, boolean isCrossDomain);
 		void sortGapsOrder();
 		boolean isWCAGon();
 		void setWorkMode();
@@ -804,7 +804,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 
-		view.connectDOMNodeRemovedEvent(module.getId(), scrollNamespace);
+		view.connectDOMNodeRemovedEvent(module.getId(), scrollNamespace, isPlayerInCrossDomain());
 		addiOSClassWithTimeout(this);
 	}
 
@@ -2073,7 +2073,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void preDestroy(){
 		sendTimerEvent();
 		if (view != null && scrollNamespace != null) {
-			view.removeScrollHandlers(scrollNamespace);
+			view.removeScrollHandlers(scrollNamespace, isPlayerInCrossDomain());
 		}
 	}
 
