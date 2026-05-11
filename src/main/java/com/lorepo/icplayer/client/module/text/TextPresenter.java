@@ -2050,6 +2050,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				if (scrollElements[i] && scrollElements[i].length) {
 					scrollElements[i].on(eventName, function(){
 						if ($wnd.$(e).parent().length == 0) return;
+						if (!isCrossDomain && !$wnd.window.top) {
+						    return;
+                        }
 						var visible = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isVisibleInViewport()();
 						if (visible) {
 							x.@com.lorepo.icplayer.client.module.text.TextPresenter::startTimer()();
