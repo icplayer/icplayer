@@ -684,13 +684,16 @@ public class PlayerController implements IPlayerController {
 	@Override
 	public int getIframeScroll() {
 		// when true, iframeScroll set by parsing message
-		if (isIframeInCrossDomain || !$wnd.window.top) {
+		if (isIframeInCrossDomain) {
 			return this.iframeScroll;
 		}
-		return this.getScrollTop();
+		return this.getScrollTop(this);
 	}
 	
-	private native int getScrollTop() /*-{
+	private native int getScrollTop(PlayerController x) /*-{
+		if (!$wnd.window.top) {
+		    return x.@com.lorepo.icplayer.client.PlayerController::iframeScroll;
+		}
 		var scrollTop = $wnd.window.top.pageYOffset;
 		if (scrollTop === 0) {
 			var contentView = $wnd.document.getElementById('content-view');
