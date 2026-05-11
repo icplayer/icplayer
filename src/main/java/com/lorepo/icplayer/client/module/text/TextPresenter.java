@@ -792,8 +792,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			connectViewListener();
 			updateViewText();
 			this.scrollNamespace = getPageStamp() + "_" + module.getId();
-			JavaScriptObject scrollElements = view.findScrollElements(isPlayerInCrossDomain());
-			setupScrollHandlers(scrollElements, view.getElement(), this, this.scrollNamespace);
+			setupScrollHandlers(this, view.getElement(), this.scrollNamespace);
 			if (isVisibleInViewport()) startTimer();
 		}
 
@@ -2042,8 +2041,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
         return false;
 	}
 
-	private native void setupScrollHandlers (JavaScriptObject scrollElements, Element e, TextPresenter x, String namespace) /*-{
+	private native void setupScrollHandlers (TextPresenter x, Element e, String namespace) /*-{
 		var eventName = 'scroll.' + namespace;
+		var isCrossDomain = x.@com.lorepo.icplayer.client.module.text.TextPresenter::isPlayerInCrossDomain()();
+		var scrollElements = x.@com.lorepo.icplayer.client.module.text.TextPresenter::view.findScrollElements(Z)(isCrossDomain);
 		try {
 			for (var i = 0; i < scrollElements.length; i++) {
 				if (scrollElements[i] && scrollElements[i].length) {
