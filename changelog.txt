@@ -1,3 +1,4 @@
+2026-05-11 Fixed scroll event handlers in Text module not being removed after lesson's page change
 2026-05-07 Added support for Alternative Texts in the Text Coloring
 2026-04-13 Added support for MathJax in EditableWindow
 2026-03-18 Fixed problem with nested LaTeX syntax in Text Coloring
