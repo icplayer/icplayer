@@ -1,3 +1,4 @@
+2026-05-20 Added support for old syntax in Plot when decimal separator is a comma
 2026-05-11 Fixed scroll event handlers in Text module not being removed after lesson's page change
 2026-05-07 Added support for Alternative Texts in the Text Coloring
 2026-04-13 Added support for MathJax in EditableWindow
