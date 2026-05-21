@@ -12,11 +12,11 @@
     position:absolute;
 }
 
-.pointslines .correct {
+.pointslines.correct {
     border: 3px solid green;
 }
 
-.pointslines .wrong {
+.pointslines.wrong {
     border: 3px solid red;
 }
 
