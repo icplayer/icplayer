@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.text.mockup;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.module.text.*;
@@ -167,7 +168,17 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
-	public void connectDOMNodeRemovedEvent(String id) {
+	public void connectDOMNodeRemovedEvent(String id, String scrollNamespace, boolean isCrossDomain) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public JavaScriptObject findScrollElements(boolean isCrossDomain) {
+		return null;
+	}
+
+	@Override
+	public void removeScrollHandlers(String scrollNamespace, boolean isCrossDomain) {
 		// TODO Auto-generated method stub
 	}
 

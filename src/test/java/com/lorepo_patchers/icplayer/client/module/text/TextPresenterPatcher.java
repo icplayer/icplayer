@@ -11,7 +11,7 @@ public class TextPresenterPatcher {
 	public static void addiOSClassWithTimeout(TextPresenter self, TextPresenter _this) {}
 
     @PatchMethod
-	public static void setupScrollHandlers (TextPresenter self, TextPresenter x, Element e) {}
+	public static void setupScrollHandlers (TextPresenter self, TextPresenter x, Element e, String namespace) {}
 
     @PatchMethod
 	public static boolean isVisibleInViewPort (TextPresenter self, Element e, int scrollTop) {return true;}
