@@ -111,16 +111,12 @@ function AddonAssessments_Navigation_Bar_create(){
         presenter.presentation = controller.getPresentation();
         var currentIndex = presenter.playerController.getCurrentPageIndex();
         var mappings = presenter.playerController.getPagesMapping();
-        mappings.forEach(function (value, index) {
-            if (value === currentIndex) {
-                presenter.currentPageIndex = index;
-            }
-        });
         var context = controller.getContextMetadata();
-         if (context != null) {
+        if (context != null) {
             if ("randomizeLesson" in context) {
                  presenter.randomizeLesson = context["randomizeLesson"];
             }
+
             if ("assessmentUser" in context) {
                if (context["assessmentUser"] == "teacher") {
                     presenter.assessmentUser = presenter.ASSESSMENT_USER_TYPES.TEACHER;
@@ -128,7 +124,14 @@ function AddonAssessments_Navigation_Bar_create(){
                     presenter.assessmentUser = presenter.ASSESSMENT_USER_TYPES.STUDENT;
                }
             }
-         }
+        }
+
+        mappings.forEach(function (value, index) {
+            if (value === currentIndex) {
+                presenter.currentPageIndex = index;
+            }
+        });
+
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
         presenter.addEventListeners();
@@ -216,15 +219,24 @@ function AddonAssessments_Navigation_Bar_create(){
 
     // Fisher-Yates algorithm
     // based on http://sedition.com/perl/javascript-fy.html
-    function shuffleArray (a) {
-        var i = a.length;
-        if ( i == 0 ) return [];
+    function shuffleArray (a, firstIndexElement) {
+        if ( a.length == 0 ) return [];
+        var pinnedItem = null;
 
+        if (typeof firstIndexElement === 'number' && firstIndexElement > -1 && firstIndexElement < a.length) {
+            pinnedItem = a.splice(firstIndexElement, 1)[0];
+        }
+
+        var i = a.length;
         while ( --i ) {
             var j = Math.floor( Math.random() * ( i + 1 ) );
             var tempi = a[i];
             a[i] = a[j];
             a[j] = tempi;
+        }
+
+        if (pinnedItem !== null) {
+            a.unshift(pinnedItem);
         }
 
         return a;
@@ -446,7 +458,10 @@ function AddonAssessments_Navigation_Bar_create(){
             keepDefaultOrder = true;
         }
 
-        var pagesToCreate = keepDefaultOrder ? pages : shuffleArray(pages);
+        const localCurrentIndex = presenter.currentPageIndex;
+        var firstElementIndex = pages.indexOf(localCurrentIndex);
+        var pagesCopy = pages.slice();
+        var pagesToCreate = keepDefaultOrder ? pagesCopy : shuffleArray(pagesCopy, firstElementIndex);
 
         return pagesToCreate.map(function (page, index) {
             if (page == -1) return null;
@@ -2060,7 +2075,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.getState = function(){
         if (presenter.sections.allPages == null
-        || presenter.sections.allPages.length ==0
+        || presenter.sections.allPages.length == 0
         || presenter.navigationManager.actualPages.length == 0) return "";
         var pages = presenter.sections.allPages.map(function (page) {
             return {
