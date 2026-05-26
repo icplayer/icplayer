@@ -2081,6 +2081,15 @@ function AddonPlot_create(){
         presenter.isVisible ? presenter.show() : presenter.hide();
     };
 
+    presenter.fixInvalidAxisValuesFormat = function(values) {
+        if (presenter.decimalSeparator === '.') return values; //don't fix if decimal point isn't a comma
+        if (values.indexOf('.') === -1 && values.indexOf(';') > -1) return values; //don't fix if format is correct
+        if ((values.match(/,/g) || []).length === 1) return values; //don't fix when it's unclear if format is correct
+        values = values.replaceAll(',',';');
+        values = values.replaceAll('.',',');
+        return values;
+    }
+
     presenter.initialize = function(view, model, isInteractive) {
         var v, p, el;
         this._model = model;
@@ -2118,6 +2127,8 @@ function AddonPlot_create(){
         plot.yAxisVisible = model['hide Y axis'] === undefined || model['hide Y axis'].toLowerCase() === 'false' || model['hide Y axis'] == '' ? true : false;
         plot.xAxisValuesPosition = model['X axis values position'];
         plot.yAxisValuesPosition = model['Y axis values position'];
+        model['Axis x values'] = presenter.fixInvalidAxisValuesFormat(model['Axis x values']);
+        model['Axis y values'] = presenter.fixInvalidAxisValuesFormat(model['Axis y values']);
         var xAxisValues = model['Axis x values'] === undefined || model['Axis x values'] == '' || this._hasIllegalCharacters(model['Axis x values'].toString()) ? false : model['Axis x values'].toString().split(this.getSeparatorByDecimalSeparator());
         var yAxisValues = model['Axis y values'] === undefined || model['Axis y values'] == '' || this._hasIllegalCharacters(model['Axis y values'].toString()) ? false : model['Axis y values'].toString().split(this.getSeparatorByDecimalSeparator());
         if(xAxisValues !== false && xAxisValues.length > 0) {

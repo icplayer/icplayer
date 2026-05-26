@@ -1,10 +1,10 @@
-.addon_PointsLines .pointslines {
+.pointslines {
     border: 3px solid #ccc;
     position:absolute;
     -ms-touch-action: none;
     touch-action: none;
 }
-.addon_PointsLines .disabled {
+.pointslines .disabled {
     height: 100%;
     width: 100%;
     background-color: gray;
@@ -12,21 +12,21 @@
     position:absolute;
 }
 
-.addon_PointsLines .correct {
+.pointslines.correct {
     border: 3px solid green;
 }
 
-.addon_PointsLines .wrong {
+.pointslines.wrong {
     border: 3px solid red;
 }
 
-.addon_PointsLines .point_container {
+.pointslines .point_container {
     position: absolute;
     min-height: 25px;
     min-width: 25px;
 }
 
-.addon_PointsLines .point {
+.pointslines .point {
     position: relative;
     height: 16px;
     width: 16px;
@@ -38,31 +38,31 @@
     margin-bottom: -5px;
 }
 
-.addon_PointsLines .selected {
+.pointslines .selected {
     background-color: blue;
 }
 
-.addon_PointsLines .line {
+.pointslines .line {
     position: absolute;
     height:3px;
     background-color: blue;
 }
 
-.addon_PointsLines .line-show-answer {
+.pointslines .line-show-answer {
     position: absolute;
     height:3px;
     background-color: gray;
 }
 
-.addon_PointsLines .noremovable {
+.pointslines .noremovable {
     background-color: black;
 }
 
-.addon_PointsLines .correctLine {
+.pointslines .correctLine {
     background-color: green;
 }
 
-.addon_PointsLines .wrongLine {
+.pointslines .wrongLine {
     background-color: red;
 }
 

@@ -106,4 +106,44 @@ TestCase("[Plot] Model upgrade", {
 
         assertEquals("-2", upgradedModel["Y axis values position"]);
     },
+
+    'test given axis values with a comma/semicolon syntax and a comma decimal separator when fixInvalidAxisValuesFormat is called, return identical result': function () {
+        this.presenter.decimalSeparator = ",";
+        const axisValues = "1,2; 3,4; 5,6; 7";
+        const expectedValues = axisValues;
+
+        const result = this.presenter.fixInvalidAxisValuesFormat(axisValues);
+
+        assertEquals(expectedValues, result);
+    },
+
+    'test given axis values with a dot/comma syntax and a comma decimal separator when fixInvalidAxisValuesFormat is called, return corrected result': function () {
+        this.presenter.decimalSeparator = ",";
+        const axisValues = "1.2, 3.4, 5.6, 7";
+        const expectedValues = "1,2; 3,4; 5,6; 7";
+
+        const result = this.presenter.fixInvalidAxisValuesFormat(axisValues);
+
+        assertEquals(expectedValues, result);
+    },
+
+    'test given axis values with a dot/comma syntax and a dot decimal separator when fixInvalidAxisValuesFormat is called, return identical result': function () {
+        this.presenter.decimalSeparator = ".";
+        const axisValues = "1.2, 3.4, 5.6, 7";
+        const expectedValues = axisValues;
+
+        const result = this.presenter.fixInvalidAxisValuesFormat(axisValues);
+
+        assertEquals(expectedValues, result);
+    },
+
+    'test given axis values with unclear syntax (could be either dot/comma or comma/semicolon) and a comma decimal separator when fixInvalidAxisValuesFormat is called, return identical result': function () {
+        this.presenter.decimalSeparator = ",";
+        const axisValues = "1,2";
+        const expectedValues = axisValues;
+
+        const result = this.presenter.fixInvalidAxisValuesFormat(axisValues);
+
+        assertEquals(expectedValues, result);
+    },
 });
