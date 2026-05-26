@@ -1,3 +1,4 @@
+2026-05-26 Fixed ic_selected_module sometimes being assigned when keyboard navigation is off
 2026-05-22 Fixed using a custom class removes default styles in Points and Lines
 2026-05-20 Added support for old syntax in Plot when decimal separator is a comma
 2026-05-19 Added randomize pages in custom tests
