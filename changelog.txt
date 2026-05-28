@@ -1,3 +1,4 @@
+2026-05-28 Added displaying first page from randomize pages array
 2026-05-22 Fixed using a custom class removes default styles in Points and Lines
 2026-05-20 Added support for old syntax in Plot when decimal separator is a comma
 2026-05-19 Added randomize pages in custom tests

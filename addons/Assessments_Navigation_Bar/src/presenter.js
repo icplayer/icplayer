@@ -502,7 +502,6 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.Sections = function (sections) {
-        console.log('Sections ', sections)
         this.sections = this.createSections(sections);
         this.allPages = this.getAllPagesInOrder(this.sections);
         this.attemptedPages = [];
@@ -675,6 +674,30 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.filterSectionsWithTooManyPages = function(sections) {
         var mapping = presenter.playerController.getPagesMapping();
+
+        var lowestRequestedIndex = -1;
+        var highestRequestedIndex = -1;
+
+        for (var i = 0; i < sections.length; i++) {
+            for (var j = 0; j < sections[i].pages.length; j++) {
+                var p = sections[i].pages[j];
+                if (lowestRequestedIndex === -1 || p < lowestRequestedIndex) {
+                    lowestRequestedIndex = p;
+                }
+                if (p > highestRequestedIndex) {
+                    highestRequestedIndex = p;
+                }
+            }
+        }
+
+        if (highestRequestedIndex >= mapping.length && lowestRequestedIndex > 0) {
+            var offset = lowestRequestedIndex;
+            for (var i = 0; i < sections.length; i++) {
+                for (var j = 0; j < sections[i].pages.length; j++) {
+                    sections[i].pages[j] -= offset; // Shift indices down
+                }
+            }
+        }
 
         if (presenter.assessmentUser == presenter.ASSESSMENT_USER_TYPES.TEACHER) {
             for (var i = 0; i < sections.length; i++) {
@@ -1305,7 +1328,15 @@ function AddonAssessments_Navigation_Bar_create(){
                 return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements - 1;
             }
         }
-        return leftSideIndex + buttonsWithoutNavigation - this.hellipsCount < numberOfElements;
+
+        var displayElements = leftSideIndex + buttonsWithoutNavigation - this.hellipsCount;
+
+        // 3 came from 2 elements of navigation (prev & next) and 1 is title page which is skipped in Custom Tests
+        if (displayElements + 3 === numberOfElements) {
+            return false;
+        }
+
+        return displayElements < numberOfElements;
     };
 
     presenter.addClickListener = function ($section, sectionClassName) {
