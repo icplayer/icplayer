@@ -75,6 +75,7 @@ function AddonAssessments_Navigation_Bar_create(){
     //this field is set based on the metadata. It overrides the defaultOrder property
     // If set to false it prevents state import
     presenter.randomizeLesson = null;
+    presenter.customTest = null;
 
     presenter.ASSESSMENT_USER_TYPES = {
         NONE: 0,
@@ -115,6 +116,10 @@ function AddonAssessments_Navigation_Bar_create(){
         if (context != null) {
             if ("randomizeLesson" in context) {
                  presenter.randomizeLesson = context["randomizeLesson"];
+            }
+
+            if ("customTest" in context) {
+                presenter.customTest = context["customTest"];
             }
 
             if ("assessmentUser" in context) {
@@ -220,7 +225,20 @@ function AddonAssessments_Navigation_Bar_create(){
     // Fisher-Yates algorithm
     // based on http://sedition.com/perl/javascript-fy.html
     function shuffleArray (a, firstIndexElement) {
-        if ( a.length == 0 ) return [];
+        var i = a.length;
+        if ( i == 0 ) return [];
+
+        if (!firstIndexElement) {
+            while ( --i ) {
+                var j = Math.floor( Math.random() * ( i + 1 ) );
+                var tempi = a[i];
+                a[i] = a[j];
+                a[j] = tempi;
+            }
+
+            return a;
+        }
+
         var pinnedItem = null;
 
         if (typeof firstIndexElement === 'number' && firstIndexElement > -1 && firstIndexElement < a.length) {
@@ -460,8 +478,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
         const localCurrentIndex = presenter.currentPageIndex;
         var firstElementIndex = pages.indexOf(localCurrentIndex);
-        var pagesCopy = pages.slice();
-        var pagesToCreate = keepDefaultOrder ? pagesCopy : shuffleArray(pagesCopy, firstElementIndex);
+        var pagesToCreate = keepDefaultOrder ? pages : presenter.customTest ? shuffleArray(pages, firstElementIndex) : shuffleArray(pages);
 
         return pagesToCreate.map(function (page, index) {
             if (page == -1) return null;
@@ -485,6 +502,7 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.Sections = function (sections) {
+        console.log('Sections ', sections)
         this.sections = this.createSections(sections);
         this.allPages = this.getAllPagesInOrder(this.sections);
         this.attemptedPages = [];
@@ -2077,6 +2095,11 @@ function AddonAssessments_Navigation_Bar_create(){
         if (presenter.sections.allPages == null
         || presenter.sections.allPages.length == 0
         || presenter.navigationManager.actualPages.length == 0) return "";
+
+        if (presenter.randomizeLesson && presenter.customTest) {
+            window[presenter.configuration.addonID] = false;
+        }
+
         var pages = presenter.sections.allPages.map(function (page) {
             return {
                 page: page.page,
@@ -2163,6 +2186,19 @@ function AddonAssessments_Navigation_Bar_create(){
                 presenter.markCurrentObject();
             }
         }
+
+        const setFirstPageFromArray = presenter.getFirstPageStatusFromWindow();
+
+        if (presenter.randomizeLesson && presenter.customTest && setFirstPageFromArray) {
+            presenter.changeToPage(presenter.sections.allPages[0].page);
+        }
+    };
+
+    presenter.getFirstPageStatusFromWindow = function() {
+        if (window.hasOwnProperty(presenter.configuration.addonID)) {
+            return window[presenter.configuration.addonID];
+        }
+        return true;
     };
 
     presenter.markCurrentObject = function () {
