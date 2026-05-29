@@ -242,6 +242,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			}
 		} else {
 			this.deselectCurrentModule();
+			this.savedEntry = null;
 		}
 	}
 
@@ -359,6 +360,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			this.deselectCurrentModule();
 			this.deselectAllModules();
 			this.actualSelectedModuleIndex = 0;
+			this.savedEntry = null;
 		}
 
 	}
