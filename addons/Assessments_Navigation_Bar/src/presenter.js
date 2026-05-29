@@ -2128,7 +2128,8 @@ function AddonAssessments_Navigation_Bar_create(){
         || presenter.navigationManager.actualPages.length == 0) return "";
 
         if (presenter.randomizeLesson && presenter.customTest) {
-            window[presenter.configuration.addonID] = false;
+            window.showFirstPage = window.showFirstPage || {};
+            window.showFirstPage[presenter.configuration.addonID] = false;
         }
 
         var pages = presenter.sections.allPages.map(function (page) {
@@ -2226,8 +2227,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.getFirstPageStatusFromWindow = function() {
-        if (window.hasOwnProperty(presenter.configuration.addonID)) {
-            return window[presenter.configuration.addonID];
+        if (window.hasOwnProperty('showFirstPage') && window.showFirstPage.hasOwnProperty(presenter.configuration.addonID)) {
+            return window.showFirstPage[presenter.configuration.addonID];
         }
         return true;
     };
