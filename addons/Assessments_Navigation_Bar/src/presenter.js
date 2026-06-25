@@ -1332,7 +1332,8 @@ function AddonAssessments_Navigation_Bar_create(){
         var displayElements = leftSideIndex + buttonsWithoutNavigation - this.hellipsCount;
 
         // 3 came from 2 elements of navigation (prev & next) and 1 is title page which is skipped in Custom Tests
-        if (displayElements + 3 === numberOfElements) {
+        var isCustomTestEnv = presenter.customTest || isTestGeneratorPreview();
+        if (isCustomTestEnv && (displayElements + 3 === numberOfElements)) {
             return false;
         }
 
