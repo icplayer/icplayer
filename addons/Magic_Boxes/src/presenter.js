@@ -174,7 +174,7 @@ function AddonMagic_Boxes_create() {
                 var selectableElement = $(document.createElement('div'));
                 selectableElement.addClass(presenter.CSS_CLASSES.ELEMENT);
                 var rawChar = presenter.configuration.gridElements[row][column];
-                var charToShow = isCharacterToCapitalize(rawChar) ? rawChar.toUpperCase() : rawChar;
+                var charToShow = isCharacterToCapitalize(rawChar) ? safeUpperCase(rawChar) : rawChar;
                 selectableElement.text(charToShow);
 
                 wrapperElement.append(selectableElement);
@@ -419,8 +419,8 @@ function AddonMagic_Boxes_create() {
             for (var i=0; i<presenter.configuration.answers.length; i++){
                 if(presenter.checkIfWordIsSelected(presenter.configuration.answers[i].toString())){
                     var word = presenter.configuration.answers[i].toString();
-                    for(var j=0; j < presenter.answerWords[word.toLowerCase()].column.length; j++){
-                        var index = presenter.answerWords[word.toLowerCase()].row[j] * presenter.configuration.columns + presenter.answerWords[word.toLowerCase()].column[j];
+                    for(var j=0; j < presenter.answerWords[safeLowerCase(word)].column.length; j++){
+                        var index = presenter.answerWords[safeLowerCase(word)].row[j] * presenter.configuration.columns + presenter.answerWords[safeLowerCase(word)].column[j];
                         var element = gridContainerWrapper.find(`.${presenter.CSS_CLASSES.ELEMENT}:eq(${index})`);
                         element.removeClass(presenter.CSS_CLASSES.WRONG_SELECTED);
                         element.addClass(presenter.CSS_CLASSES.CORRECT_SELECTED);
@@ -629,11 +629,11 @@ function AddonMagic_Boxes_create() {
 
     presenter.initializeCorrectAnswerLocations = function () {
         for(var i = 0; i< presenter.configuration.answers.length; i++){
-            presenter.answerWords[presenter.configuration.answers[i].toString().toLowerCase()] = {
+            presenter.answerWords[safeLowerCase(presenter.configuration.answers[i].toString())] = {
                 row : [],
                 column : []
             };
-            presenter.GSAcorrectAnswerLocations[presenter.configuration.answers[i].toString().toLowerCase()] = {
+            presenter.GSAcorrectAnswerLocations[safeLowerCase(presenter.configuration.answers[i].toString())] = {
                 row : [],
                 column : []
             };
@@ -761,7 +761,7 @@ function AddonMagic_Boxes_create() {
     };
 
     presenter.isWordInRow = function(grid, row, word) {
-        word = word.toLowerCase();
+        word = safeLowerCase(word);
         var positions = [];
 
         if (word.length > grid[row].length) {
@@ -775,7 +775,7 @@ function AddonMagic_Boxes_create() {
             var gridWord = "";
 
             for (var j = 0; j < word.length; j++) {
-                gridWord += grid[row][j + i].toLowerCase();
+                gridWord += safeLowerCase(grid[row][j + i]);
             }
 
             if (gridWord === word || reverseString(gridWord) === word) {
@@ -791,7 +791,7 @@ function AddonMagic_Boxes_create() {
 
     presenter.isWordInColumn = function(grid, column, word) {
         var positions = [];
-        word = word.toLowerCase();
+        word = safeLowerCase(word);
 
         if (word.length > grid.length) {
             return {
@@ -804,7 +804,7 @@ function AddonMagic_Boxes_create() {
             var gridWord = "";
 
             for (var j = 0; j < word.length; j++) {
-                gridWord += grid[j + i][column].toLowerCase();
+                gridWord += safeLowerCase(grid[j + i][column]);
             }
 
             if (gridWord === word || reverseString(gridWord) === word) {
@@ -827,7 +827,7 @@ function AddonMagic_Boxes_create() {
         var rows = grid.length;
         var columns = grid[0].length;
         var positions = [];
-        word = word.toLowerCase();
+        word = safeLowerCase(word);
 
         if (word.length > rows || word.length > columns) {
             return {
@@ -847,7 +847,7 @@ function AddonMagic_Boxes_create() {
 
                     for (var i = 0; i < word.length; i++) {
                         var columnIndex = direction === presenter.DIAGONALS.NORMAL ? column + i : column - i;
-                        gridWord += grid[row + i][columnIndex].toLowerCase();
+                        gridWord += safeLowerCase(grid[row + i][columnIndex]);
                     }
 
                     if (gridWord === word || reverseString(gridWord) === word) {
@@ -871,7 +871,7 @@ function AddonMagic_Boxes_create() {
         var l;
 
         for (var i = 0; i < answers.length; i++) {
-            var answer = answers[i].toString().toLowerCase();
+            var answer = safeLowerCase(answers[i].toString());
 
             goodSelections = presenter.findGoodHorizontalSelections(grid, answer, goodSelections);
             goodSelections = presenter.findGoodVerticalSelections(grid, answer, goodSelections);
@@ -1000,8 +1000,8 @@ function AddonMagic_Boxes_create() {
     };
 
     function fillCorrectAnswers(word) {
-        for (var i = 0; i<presenter.answerWords[word.toLowerCase()].column.length; i++ ){
-            correctAnswers[presenter.answerWords[word.toLowerCase()].row[i]][presenter.answerWords[word.toLowerCase()].column[i]] = true;
+        for (var i = 0; i<presenter.answerWords[safeLowerCase(word)].column.length; i++ ){
+            correctAnswers[presenter.answerWords[safeLowerCase(word)].row[i]][presenter.answerWords[safeLowerCase(word)].column[i]] = true;
         }
     }
 
@@ -1009,8 +1009,8 @@ function AddonMagic_Boxes_create() {
         var correct = 0;
         var incorrect= 0;
 
-        for(var i=0; i < presenter.answerWords[word.toLowerCase()].column.length; i++){
-            if(gridSelection[presenter.answerWords[word.toLowerCase()].row[i]][presenter.answerWords[word.toLowerCase()].column[i]]){
+        for(var i=0; i < presenter.answerWords[safeLowerCase(word)].column.length; i++){
+            if(gridSelection[presenter.answerWords[safeLowerCase(word)].row[i]][presenter.answerWords[safeLowerCase(word)].column[i]]){
                 correct++;
             }else{
                 incorrect++;
@@ -1197,6 +1197,9 @@ function AddonMagic_Boxes_create() {
             };
         }
 
+        // Auto-detect Turkish characters (İ, ı, Ğ, ğ, Ş, ş)
+        var isTurkish = /[İıĞğŞş]/.test(gridDefinition) || /[İıĞğŞş]/.test(answersDefinition);
+
         return {
             isError: false,
             columns: gridValidationResult.columns,
@@ -1206,7 +1209,8 @@ function AddonMagic_Boxes_create() {
             checkByWords: ModelValidationUtils.validateBoolean(model['CheckByWords']),
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            langTag: model['langAttribute']
+            langTag: model['langAttribute'],
+            isTurkish: isTurkish
         };
     };
 
@@ -1716,6 +1720,21 @@ function AddonMagic_Boxes_create() {
 
         return null;
     };
+
+    function safeUpperCase(text) {
+        if (presenter.configuration && presenter.configuration.isTurkish) {
+            return text.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase();
+        }
+        return text.toUpperCase();
+    }
+
+    function safeLowerCase(text) {
+        var lower = text;
+        if (presenter.configuration && presenter.configuration.isTurkish) {
+            lower = text.replace(/İ/g, 'i').replace(/I/g, 'ı');
+        }
+        return lower.toLowerCase().replace(/\u0307/g, '');
+    }
 
     return presenter;
 }
