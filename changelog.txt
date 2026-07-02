@@ -1,3 +1,4 @@
+2026-07-02 Added handling axis values separated by semicolon in Plot addon
 2026-06-25 Added handling "İ" in Magic Boxes
 2026-06-25 Fixed pagination error in ANB
 2026-05-29 Fixed ic_selected_module sometimes being assigned when keyboard navigation is off
