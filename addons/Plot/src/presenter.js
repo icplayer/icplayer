@@ -2087,6 +2087,10 @@ function AddonPlot_create(){
             // If they accidentally used semicolons for the list (e.g. "1.5; 2.5"), fix it.
             if (values.includes('.') && values.includes(';')) {
                 return values.replaceAll(';', ',');
+            } else if (values.includes(',') && values.includes(';')) {
+                return values
+                    .replaceAll(',', '.')   // convert decimal commas to dots
+                    .replaceAll(';', ',');  // convert list semicolons to commas
             }
             return values;
         }
