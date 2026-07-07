@@ -32,6 +32,10 @@ function AddonModelViewer3D_create() {
     };
 
     presenter.init = function (view, model, isPreview) {
+        if (!isPreview) {
+            presenter.injectModelViewerDependency();
+        }
+
         presenter.view = view;
         presenter.$view = $(view);
 
@@ -636,7 +640,19 @@ function AddonModelViewer3D_create() {
 
     presenter.isSelectable = function(isWCAGOn) {
         return isWCAGOn;
-	}
+	};
+
+    presenter.injectModelViewerDependency = function () {
+        if (document.querySelector('script[src="/file/serve/5059308589809664"]')) {
+            return;
+        }
+
+        var script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/file/serve/5059308589809664';
+
+        document.head.appendChild(script);
+    };
 
     return presenter;
 }
