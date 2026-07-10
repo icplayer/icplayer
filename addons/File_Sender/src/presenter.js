@@ -444,57 +444,110 @@ function AddonFile_Sender_create() {
         } else {
             presenter.sendFile(targetId);
         }
-    }
+    };
 
-    //targetID is optional,
     presenter.sendFile = function(targetID) {
         if (!presenter.contextLoaded) return;
 
         presenter.fetchSessionJWTToken().then(result => result.json()).then(json => {
             presenter.getFile().then(file => {
-                if (file == null) {
+                if (file == null || presenter.fileEndpointUrl.length == 0) {
                     return;
                 }
-                if (presenter.fileEndpointUrl.length == 0) {
-                    return;
-                }
-                var formData = new FormData();
-                formData.append('file', file, file.name);
+
+                let gcsConfig;
                 fetch(presenter.fileEndpointUrl, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': 'JWT ' + json.token,
-                    },
+                    headers: { 'Authorization': 'JWT ' + json.token },
                     credentials: credentialsConfig
-                }).then(result => result.json()).then(
-                    success => fetch(success["upload_url"], {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'JWT ' + json.token
-                        },
-                        body: formData,
-                        credentials: credentialsConfig
-                    })
-               ).then(result => result.json()).then(
-                    success => {
-                        if (success.uploaded_file_id === undefined) {
-                            throw success;
+                })
+                .then(result => result.json())
+                .then(success => {
+                    if (!success.policy || !success.policy.url) {
+                        throw new Error("Missing policy configuration to upload.");
+                    }
+
+                    gcsConfig = success;
+
+                    var formData = new FormData();
+                    var fields = success.policy.fields;
+                    for (var key in fields) {
+                        if (fields.hasOwnProperty(key)) {
+                            formData.append(key, fields[key]);
                         }
+                    }
+                    formData.append('file', file, file.name);
+
+                    return fetch(success.policy.url, {
+                        method: 'POST',
+                        body: formData
+                    });
+                })
+                .then(gcsResponse => {
+                    if (!gcsResponse.ok) {
+                        throw new Error(`Error GCS upload: ${gcsResponse.status}`);
+                    }
+
+                    let localFileId = gcsConfig.policy ? gcsConfig.policy.id : null;
+
+                    if (gcsConfig.policy && gcsConfig.policy.success_action_redirect) {
+                        let confirmUrl = gcsConfig.policy.success_action_redirect;
+
+                        let finalKey = gcsConfig.policy.fields.key.replace('${filename}', file.name);
+
+                        let metadataObj = {
+                            filename: file.name,
+                            content_type: file.type || 'application/octet-stream'
+                        };
+
+                        let metadataEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(metadataObj))));
+
+                        confirmUrl += confirmUrl.includes('?') ? '&' : '?';
+                        confirmUrl += `key=${encodeURIComponent(finalKey)}&metadata=${metadataEncoded}`;
+
+                        return fetch(confirmUrl, {
+                            method: 'GET',
+                            headers: { 'Authorization': 'JWT ' + json.token },
+                            credentials: credentialsConfig
+                        })
+                        .then(res => {
+                            if (res.ok) return res.json();
+                            return { uploaded_file_id: localFileId, delay: true };
+                        })
+                        .catch(err => {
+                            return { uploaded_file_id: localFileId, delay: true };
+                        });
+                    } else {
+                        return { uploaded_file_id: localFileId, delay: true };
+                    }
+                })
+                .then(success => {
+                    if (!success.uploaded_file_id) {
+                        throw new Error("Missing  file ID.");
+                    }
+
+                    const finalizeSend = () => {
                         presenter.setSentFile(file.name, success.uploaded_file_id);
                         presenter.showSentFile();
                         if (targetID !== undefined) {
                             presenter.fireSendFileEvent(success.uploaded_file_id, targetID);
                             presenter.hideSendButton();
                         }
+                    };
+
+                    if (success.delay) {
+                        setTimeout(finalizeSend, 1500);
+                    } else {
+                        finalizeSend();
                     }
-                ).catch((err) => {
-                        console.log(err);
-                        presenter.showErrorDialog("Error occurred while uploading");
-                    }
-                );
+                })
+                .catch((err) => {
+                    console.error("Error occurred while uploading: ", err);
+                    presenter.showErrorDialog("Error occurred while uploading");
+                });
             });
         });
-    }
+    };
 
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid || !presenter.contextLoaded) return;
