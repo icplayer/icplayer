@@ -146,4 +146,14 @@ TestCase("[Plot] Model upgrade", {
 
         assertEquals(expectedValues, result);
     },
+
+    'test given axis values with dot and semicolon separator with dot in decimalSeparator when fixInvalidAxisValuesFormat is called, return values separated by comma': function () {
+        this.presenter.decimalSeparator = ".";
+        const axisValues = "1.2;3.4;5.6;7";
+        const expectedValues = "1.2,3.4,5.6,7";
+
+        const result = this.presenter.fixInvalidAxisValuesFormat(axisValues);
+
+        assertEquals(expectedValues, result);
+    },
 });
