@@ -1,3 +1,4 @@
+2026-07-07 Fixed loading models in Model Viewer 3D
 2026-07-06 Added handling send file to GCS in FileSender
 2026-07-02 Added handling axis values separated by semicolon in Plot addon
 2026-06-25 Added handling "İ" in Magic Boxes

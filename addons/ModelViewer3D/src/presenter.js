@@ -636,7 +636,7 @@ function AddonModelViewer3D_create() {
 
     presenter.isSelectable = function(isWCAGOn) {
         return isWCAGOn;
-	}
+	};
 
     return presenter;
 }

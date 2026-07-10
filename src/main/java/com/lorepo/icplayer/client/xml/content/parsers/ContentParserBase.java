@@ -163,7 +163,15 @@ public abstract class ContentParserBase implements IContentParser {
 			Element node = (Element)assetsNodes.item(i);
 			String href = StringUtils.unescapeXML(node.getAttribute("href"));
 			String type = StringUtils.unescapeXML(node.getAttribute("type"));
-			IAsset asset = factory.createAsset(type, href);
+			String fileName = StringUtils.unescapeXML(node.getAttribute("fileName"));
+			IAsset asset = null;
+
+			if (fileName != null && fileName.contains("model-viewer") && !type.equals("module-script")) {
+			    asset = factory.createAsset("module-script", href);
+			} else {
+			    asset = factory.createAsset(type, href);
+			}
+
 			if(asset != null){
 				addAsset(asset, assets);
 				asset.setTitle(StringUtils.unescapeXML(node.getAttribute("title")));
