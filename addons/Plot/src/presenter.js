@@ -2082,13 +2082,34 @@ function AddonPlot_create(){
     };
 
     presenter.fixInvalidAxisValuesFormat = function(values) {
-        if (presenter.decimalSeparator === '.') return values; //don't fix if decimal point isn't a comma
-        if (values.indexOf('.') === -1 && values.indexOf(';') > -1) return values; //don't fix if format is correct
-        if ((values.match(/,/g) || []).length === 1) return values; //don't fix when it's unclear if format is correct
-        values = values.replaceAll(',',';');
-        values = values.replaceAll('.',',');
-        return values;
-    }
+        // English Format Expected: Decimal is '.', List is ','
+        if (presenter.decimalSeparator === '.') {
+            // If they accidentally used semicolons for the list (e.g. "1.5; 2.5"), fix it.
+            if (values.includes('.') && values.includes(';')) {
+                return values.replaceAll(';', ',');
+            } else if (values.includes(',') && values.includes(';')) {
+                return values
+                    .replaceAll(',', '.')   // convert decimal commas to dots
+                    .replaceAll(';', ',');  // convert list semicolons to commas
+            }
+            return values;
+        }
+
+        // European Format Expected: Decimal is ',', List is ';'
+        // If format is already correct (uses ';' and has no '.'), leave it alone
+        if (!values.includes('.') && values.includes(';')) {
+            return values;
+        }
+
+        // If it's ambiguous (exactly one comma, e.g., "1,5"), leave it alone
+        if ((values.match(/,/g) || []).length === 1) {
+            return values;
+        }
+
+        // Fallback: Convert English to European (e.g. "1.5, 2.5" -> "1,5; 2,5")
+        // Note: This also correctly handles "1.5; 2.5" -> "1,5; 2,5"
+        return values.replaceAll(',', ';').replaceAll('.', ',');
+        };
 
     presenter.initialize = function(view, model, isInteractive) {
         var v, p, el;
