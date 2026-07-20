@@ -53,7 +53,7 @@
                 var assetID = idMatch[1];
                 var newURL = getAbsoluteResourcesURL(playerController, baseURL, assetID, useFileServeFormat);
                 newURL = playerController.getRequestsConfig().signURL(newURL);
-                newCssData = newCssData.replace(foundURL, newURL);
+                newCssData = newCssData.replaceAll(foundURL, newURL);
             }
         }
         return newCssData;
