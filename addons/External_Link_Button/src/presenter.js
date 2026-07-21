@@ -103,11 +103,7 @@ function AddonExternal_Link_Button_create() {
     };
 
     presenter.fixLocalResourceURI = function () {
-        var currentPageIndex = presenter.playerController.getCurrentPageIndex(),
-            currentPage = presenter.playerController.getPresentation().getPage(currentPageIndex),
-            pageBaseURL = currentPage.getBaseURL();
-
-        presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
+        presenter.configuration.URI = URLUtils.getBaseURL(presenter.playerController) + presenter.configuration.URI;
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {

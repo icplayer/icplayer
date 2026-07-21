@@ -18,28 +18,17 @@
      @return {Promise} Promise with parsed text
     */
     URLUtils.parseCSSFile = function URLUtils_parseCSSFile(playerController, fileURL) {
-        var newBaseURL;
-        var useFileServeFormat = fileURL.includes("/file/serve/");
-
-        return fetch(fileURL, {method: "GET"})
+        return window.fetch(fileURL, {method: "GET"})
             .then(function(response){
-                newBaseURL = getAssetsBaseURLFromCustomCSSFile(response.url, useFileServeFormat);
                 return response.text();
             })
-            .then(function(oldCSSText){
-                return parseCustomCSSFileText(playerController, newBaseURL, oldCSSText, useFileServeFormat);
+            .then(function(text){
+                return URLUtils.parseCSSFileText(playerController, text);
             });
     };
 
-    function getAssetsBaseURLFromCustomCSSFile(absoluteCustomCSSFileURL, useFileServeFormat) {
-        if (useFileServeFormat) {
-            return window.location.origin + "/file/serve/";
-        }
-        var startIndex = absoluteCustomCSSFileURL.search("\/resources\/");
-        return absoluteCustomCSSFileURL.substring(0, startIndex) + "/resources/";
-    }
-
-    function parseCustomCSSFileText(playerController, baseURL, cssData, useFileServeFormat) {
+    URLUtils.parseCSSFileText = function URLUtils_parseCSSFileText (playerController, cssData) {
+        var baseURL = this.getBaseURL(playerController);
         var newCssData = cssData;
         var urlRegex = new RegExp('url\\([\'\"]?([^\'\"\)]+)[\'\"]?\\)', 'g');
 
@@ -51,29 +40,29 @@
             var idMatch = idRegex.exec(foundURL);
             if (idMatch) {
                 var assetID = idMatch[1];
-                var newURL = getAbsoluteResourcesURL(playerController, baseURL, assetID, useFileServeFormat);
-                newURL = playerController.getRequestsConfig().signURL(newURL);
-                newCssData = newCssData.replaceAll(foundURL, newURL);
+                var newURL = getAbsoluteResourcesURL(playerController, baseURL, assetID);
+                if (!!newURL) {
+                    newURL = playerController.getRequestsConfig().signURL(newURL);
+                    newCssData = newCssData.replaceAll(foundURL, newURL);
+                }
             }
         }
         return newCssData;
     }
 
-    function getAbsoluteResourcesURL(playerController, baseURL, assetID, useFileServeFormat) {
-        if (useFileServeFormat) {
-            return baseURL + assetID;
-        }
+    function getAbsoluteResourcesURL(playerController, baseURL, assetID) {
         var assets = playerController.getAssets().getAssetsAsJS();
-        for (var i = 0; i < assets.length; i++) {
-            var asset = assets[i];
-            var assetURL = asset.href;
-            var positionIndex = assetURL.search(assetID);
-            if (positionIndex !== -1) {
-                var assetIDWithExtension = assetURL.substring(positionIndex);
-                return baseURL + assetIDWithExtension;
-            }
+        var asset = assets.find(function (asset) {
+            var assetParts = asset.href.split('/');
+            return assetParts[assetParts.length - 1].includes(assetID);
+        });
+        if (!asset) {
+            return;
         }
-        return baseURL + assetID;
+        if (asset.href.startsWith('/file/serve/')) {
+            return asset.href;
+        }
+        return baseURL + asset.href;
     }
 
     /**
@@ -110,6 +99,30 @@
     function isURLValidForProxyRequest(urlToImage) {
         return urlToImage.indexOf("/file/serve/") > -1;
     }
+
+    /**
+     Get base URL of content.
+
+     At first get `contentBaseURL` form ContextMetadata.
+     If `contentBaseURL` not exist in ContextMetadata then return base URL calculated on page's URL.
+
+     @method getBaseURL
+
+     @param {object} playerController player controller
+     @return {string | undefined} baseURL or undefined when playerController was not provided
+    */
+    URLUtils.getBaseURL = function (playerController) {
+        if (!playerController) {
+            return;
+        }
+        var contextMetadata = playerController.getContextMetadata();
+        var contentBaseURL = !!contextMetadata ? contextMetadata['contentBaseURL'] : null;
+        if (!!contentBaseURL) {
+            return contentBaseURL;
+        }
+        var pageIndex = playerController.getCurrentPageIndex();
+        return playerController.getPresentation().getPage(pageIndex).getBaseURL();
+    };
 
     window.URLUtils = URLUtils;
 })(window);
