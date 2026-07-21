@@ -1,4 +1,5 @@
-TEST_BASE_URL = 'https://test.com/file/serve/content/lessons/pages/';
+TEST_ORIGIN = 'https://test.com';
+TEST_BASE_URL = TEST_ORIGIN + '/file/serve/content/lessons/pages/';
 TEST_RESOURCES_URL = TEST_BASE_URL + '../resources/';
 
 CSS_TEXT_WITH_FILE_SERVE_SYNTAX = `
@@ -19,6 +20,31 @@ CSS_TEXT_WITH_FILE_SERVE_SYNTAX = `
     src:
         url("/file/serve/2628306698240") format("woff"),
         url("/file/serve/9126390317056") format("woff2");
+}
+
+body {
+    font-family: "Avenir";
+}
+`;
+
+CSS_TEXT_EXPECTD_FILE_SERVE_SYNTAX = `
+@font-face {
+    font-family: "Avenir";
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("${TEST_ORIGIN}/file/serve/5340707192832") format("woff"),
+        url("${TEST_ORIGIN}/file/serve/6451119054848") format("woff2");
+}
+
+@font-face {
+    font-family: "Avenir";
+    font-style: italic;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("${TEST_ORIGIN}/file/serve/2628306698240") format("woff"),
+        url("${TEST_ORIGIN}/file/serve/9126390317056") format("woff2");
 }
 
 body {
@@ -57,7 +83,7 @@ TEST_2_CSS_TEXT = `
     font-weight: normal;
     text-rendering: optimizeLegibility;
     src:
-        url("https://test2.com/file/serve/content/lessons/res/2628306698240") format("woff"),
+        url("https://test2.com/file/serve/content/lessons/resources/2628306698240") format("woff"),
         url("/file/serve/6451119054848") format("woff2");
 }
 
@@ -91,7 +117,7 @@ TEST_2_EXPECTED_CSS_TEXT = `
     font-weight: normal;
     text-rendering: optimizeLegibility;
     src:
-        url("https://test2.com/file/serve/content/lessons/res/2628306698240") format("woff"),
+        url("https://test2.com/file/serve/content/lessons/resources/2628306698240") format("woff"),
         url("${TEST_RESOURCES_URL}6451119054848.woff2") format("woff2");
 }
 
@@ -176,7 +202,7 @@ TEST_4_EXPECTED_CSS_TEXT = `
     font-weight: normal;
     text-rendering: optimizeLegibility;
     src:
-        url("${TEST_RESOURCES_URL}5340707192832.woff") format("woff"),
+        url("${TEST_ORIGIN}/file/serve/5340707192832") format("woff"),
         url("${TEST_RESOURCES_URL}6451119054848.woff2") format("woff2");
 }
 
@@ -186,7 +212,57 @@ TEST_4_EXPECTED_CSS_TEXT = `
     font-weight: normal;
     text-rendering: optimizeLegibility;
     src:
-        url("/file/serve/2628306698240") format("woff"),
+        url("${TEST_ORIGIN}/file/serve/2628306698240") format("woff"),
+        url("${TEST_RESOURCES_URL}9126390317056.woff2") format("woff2");
+}
+
+body {
+    font-family: "Avenir";
+}
+`;
+
+TEST_5_CSS_TEXT = `
+@font-face {
+    font-family: "Avenir";
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("https://test2.com/file/serve/5340707192832") format("woff"),
+        url("/file/serve/6451119054848") format("woff2");
+}
+
+@font-face {
+    font-family: "Avenir";
+    font-style: italic;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("https://test2.com/file/serve/2628306698240") format("woff"),
+        url("/file/serve/9126390317056") format("woff2");
+}
+
+body {
+    font-family: "Avenir";
+}
+`;
+
+TEST_5_EXPECTED_CSS_TEXT = `
+@font-face {
+    font-family: "Avenir";
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("https://test2.com/file/serve/5340707192832") format("woff"),
+        url("${TEST_RESOURCES_URL}6451119054848.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Avenir";
+    font-style: italic;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+    src:
+        url("https://test2.com/file/serve/2628306698240") format("woff"),
         url("${TEST_RESOURCES_URL}9126390317056.woff2") format("woff2");
 }
 

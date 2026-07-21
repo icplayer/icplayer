@@ -50,8 +50,8 @@
             var idMatch = idRegex.exec(foundURL);
             if (idMatch) {
                 var assetID = idMatch[1];
-                var newURL = getAbsoluteResourcesURL(playerController, baseURL, assetID);
-                if (!!newURL) {
+                var newURL = getAbsoluteResourcesURL(playerController, baseURL, foundURL, assetID);
+                if (newURL !== foundURL) {
                     newURL = playerController.getRequestsConfig().signURL(newURL);
                     newCssData = newCssData.replaceAll(foundURL, newURL);
                 }
@@ -60,19 +60,23 @@
         return newCssData;
     }
 
-    function getAbsoluteResourcesURL(playerController, baseURL, assetID) {
+    function getAbsoluteResourcesURL(playerController, baseURL, foundURL, assetID) {
+        var fileServeAssetSyntax = new RegExp('^\\/file\\/serve\\/[\\d]+', 'g');
+
+        var asset = findAsset(playerController, assetID);
+        var urlToCheck = !!asset ? asset.href : foundURL;
+        if (fileServeAssetSyntax.test(urlToCheck)) {
+            return URLUtils.getOrigin() + urlToCheck;
+        }
+        return !!asset ? baseURL + asset.href : foundURL;
+    }
+
+    function findAsset(playerController, assetID) {
         var assets = playerController.getAssets().getAssetsAsJS();
-        var asset = assets.find(function (asset) {
+        return assets.find(function (asset) {
             var assetParts = asset.href.split('/');
             return assetParts[assetParts.length - 1].includes(assetID);
         });
-        if (!asset) {
-            return;
-        }
-        if (asset.href.startsWith('/file/serve/')) {
-            return asset.href;
-        }
-        return baseURL + asset.href;
     }
 
     /**
@@ -126,13 +130,23 @@
             return;
         }
         var contextMetadata = playerController.getContextMetadata();
-        var contentBaseURL = !!contextMetadata ? contextMetadata['contentBaseURL'] : null;
+        var contentBaseURL = !!contextMetadata ? contextMetadata["contentBaseURL"] : undefined;
         if (!!contentBaseURL) {
             return contentBaseURL;
         }
         var pageIndex = playerController.getCurrentPageIndex();
         return playerController.getPresentation().getPage(pageIndex).getBaseURL();
     };
+
+    /**
+     Get window.location.origin.
+     @method getOrigin
+
+     @return {String} window.location.origin
+    */
+    URLUtils.getOrigin = function URLUtils_getOrigin () {
+        return window.location.origin;
+    }
 
     window.URLUtils = URLUtils;
 })(window);

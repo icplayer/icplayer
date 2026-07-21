@@ -2,10 +2,13 @@ TestCase("[Commons - URL Utils] parseCSSFileText method", {
 
     setUp: function () {
         this.getBaseURLStub = sinon.stub(window.URLUtils, 'getBaseURL');
+        this.originStub = sinon.stub(window.URLUtils, 'getOrigin');
+        this.originStub.returns(TEST_ORIGIN);
     },
 
     tearDown: function () {
         this.getBaseURLStub.restore();
+        this.originStub.restore();
     },
 
     prepareGetBaseURLStub: function (baseURL) {
@@ -33,12 +36,12 @@ TestCase("[Commons - URL Utils] parseCSSFileText method", {
                             return prefix + id + suffix;
                         }
                         var assets = [
-                            {fileName: 'avenir_normal.woff', type: '', href: createHrefForAsset('5340707192832', '.woff')},
                             {fileName: 'avenir_normal.woff2', type: '', href: createHrefForAsset('6451119054848', '.woff2')},
                             {fileName: 'avenir_italic.woff2', type: '', href: createHrefForAsset('9126390317056', '.woff2')},
                             {fileName: 'paragraph.css', type: 'text/css', href: createHrefForAsset('0709304590336', '.css')}
                         ];
                         if (withAllAssets) {
+                            assets.push({fileName: 'avenir_normal.woff', type: '', href: createHrefForAsset('5340707192832', '.woff')});
                             assets.push({fileName: 'avenir_italic.woff', type: '', href: createHrefForAsset('2628306698240', '.woff')});
                         }
                         return assets;
@@ -54,7 +57,7 @@ TestCase("[Commons - URL Utils] parseCSSFileText method", {
 
         var parsedText = URLUtils.parseCSSFileText(playerController, CSS_TEXT_WITH_FILE_SERVE_SYNTAX);
 
-        assertEquals(CSS_TEXT_WITH_FILE_SERVE_SYNTAX, parsedText);
+        assertEquals(CSS_TEXT_EXPECTD_FILE_SERVE_SYNTAX, parsedText);
     },
 
     'test given /file/serve/ syntax assets and /file/serve/ content base when executing method then returns same content': function () {
@@ -63,7 +66,7 @@ TestCase("[Commons - URL Utils] parseCSSFileText method", {
 
         var parsedText = URLUtils.parseCSSFileText(playerController, CSS_TEXT_WITH_FILE_SERVE_SYNTAX);
 
-        assertEquals(CSS_TEXT_WITH_FILE_SERVE_SYNTAX, parsedText);
+        assertEquals(CSS_TEXT_EXPECTD_FILE_SERVE_SYNTAX, parsedText);
     },
 
     'test given ../resources/ syntax assets and content base with /file/serve/ when executing method then returns parsed content using content base': function () {
@@ -93,12 +96,21 @@ TestCase("[Commons - URL Utils] parseCSSFileText method", {
         assertEquals(TEST_3_EXPECTED_CSS_TEXT, parsedText);
     },
 
-    'test given CSS with /file/serve/ link that is not in assets when executing method then returns parsed content and same link that was not in assets': function () {
+    'test given CSS with /file/serve/ links that are not in assets when executing method then returns parsed content': function () {
         this.prepareGetBaseURLStub(TEST_BASE_URL);
         var playerController = this.createPlayerController(false, undefined, false);
 
         var parsedText = URLUtils.parseCSSFileText(playerController, CSS_TEXT_WITH_FILE_SERVE_SYNTAX);
 
         assertEquals(TEST_4_EXPECTED_CSS_TEXT, parsedText);
+    },
+
+    'test given CSS with /file/serve/ links that are not in assets and from another origin when executing method then returns parsed content': function () {
+        this.prepareGetBaseURLStub(TEST_BASE_URL);
+        var playerController = this.createPlayerController(false, undefined, false);
+
+        var parsedText = URLUtils.parseCSSFileText(playerController, TEST_5_CSS_TEXT);
+
+        assertEquals(TEST_5_EXPECTED_CSS_TEXT, parsedText);
     },
 });
