@@ -10,7 +10,8 @@
     var URLUtils = {};
 
     /**
-     Parse CSS File from given URL and create objectURL with updated links
+     Parse CSS file from the provided URL, replacing links containing the syntax /file/serve/ so that the resulting
+     links use href from the assets set.
      @method parseCSSFile
 
      @param {object} playerController player controller
@@ -27,6 +28,15 @@
             });
     };
 
+    /**
+     Parse CSS content, replacing links containing the syntax /file/serve/ so that the resulting links use href
+     from the assets set.
+     @method parseCSSFileText
+
+     @param {object} playerController player controller
+     @param {String} cssData content of CSS file
+     @return {String} Parsed text
+    */
     URLUtils.parseCSSFileText = function URLUtils_parseCSSFileText (playerController, cssData) {
         var baseURL = this.getBaseURL(playerController);
         var newCssData = cssData;
