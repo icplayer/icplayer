@@ -10,7 +10,8 @@
     var URLUtils = {};
 
     /**
-     Parse CSS File from given URL and create objectURL with updated links
+     Parse CSS file from the provided URL, replacing links containing the syntax /file/serve/ so that the resulting
+     links use href from the assets set.
      @method parseCSSFile
 
      @param {object} playerController player controller
@@ -18,28 +19,26 @@
      @return {Promise} Promise with parsed text
     */
     URLUtils.parseCSSFile = function URLUtils_parseCSSFile(playerController, fileURL) {
-        var newBaseURL;
-        var useFileServeFormat = fileURL.includes("/file/serve/");
-
-        return fetch(fileURL, {method: "GET"})
+        return window.fetch(fileURL, {method: "GET"})
             .then(function(response){
-                newBaseURL = getAssetsBaseURLFromCustomCSSFile(response.url, useFileServeFormat);
                 return response.text();
             })
-            .then(function(oldCSSText){
-                return parseCustomCSSFileText(playerController, newBaseURL, oldCSSText, useFileServeFormat);
+            .then(function(text){
+                return URLUtils.parseCSSFileText(playerController, text);
             });
     };
 
-    function getAssetsBaseURLFromCustomCSSFile(absoluteCustomCSSFileURL, useFileServeFormat) {
-        if (useFileServeFormat) {
-            return window.location.origin + "/file/serve/";
-        }
-        var startIndex = absoluteCustomCSSFileURL.search("\/resources\/");
-        return absoluteCustomCSSFileURL.substring(0, startIndex) + "/resources/";
-    }
+    /**
+     Parse CSS content, replacing links containing the syntax /file/serve/ so that the resulting links use href
+     from the assets set.
+     @method parseCSSFileText
 
-    function parseCustomCSSFileText(playerController, baseURL, cssData, useFileServeFormat) {
+     @param {object} playerController player controller
+     @param {String} cssData content of CSS file
+     @return {String} Parsed text
+    */
+    URLUtils.parseCSSFileText = function URLUtils_parseCSSFileText (playerController, cssData) {
+        var baseURL = this.getBaseURL(playerController);
         var newCssData = cssData;
         var urlRegex = new RegExp('url\\([\'\"]?([^\'\"\)]+)[\'\"]?\\)', 'g');
 
@@ -51,29 +50,33 @@
             var idMatch = idRegex.exec(foundURL);
             if (idMatch) {
                 var assetID = idMatch[1];
-                var newURL = getAbsoluteResourcesURL(playerController, baseURL, assetID, useFileServeFormat);
-                newURL = playerController.getRequestsConfig().signURL(newURL);
-                newCssData = newCssData.replaceAll(foundURL, newURL);
+                var newURL = getAbsoluteResourcesURL(playerController, baseURL, foundURL, assetID);
+                if (newURL !== foundURL) {
+                    newURL = playerController.getRequestsConfig().signURL(newURL);
+                    newCssData = newCssData.replaceAll(foundURL, newURL);
+                }
             }
         }
         return newCssData;
     }
 
-    function getAbsoluteResourcesURL(playerController, baseURL, assetID, useFileServeFormat) {
-        if (useFileServeFormat) {
-            return baseURL + assetID;
+    function getAbsoluteResourcesURL(playerController, baseURL, foundURL, assetID) {
+        var fileServeAssetSyntax = new RegExp('^\\/file\\/serve\\/[\\d]+', 'g');
+
+        var asset = findAsset(playerController, assetID);
+        var urlToCheck = !!asset ? asset.href : foundURL;
+        if (fileServeAssetSyntax.test(urlToCheck)) {
+            return URLUtils.getOrigin() + urlToCheck;
         }
+        return !!asset ? baseURL + asset.href : foundURL;
+    }
+
+    function findAsset(playerController, assetID) {
         var assets = playerController.getAssets().getAssetsAsJS();
-        for (var i = 0; i < assets.length; i++) {
-            var asset = assets[i];
-            var assetURL = asset.href;
-            var positionIndex = assetURL.search(assetID);
-            if (positionIndex !== -1) {
-                var assetIDWithExtension = assetURL.substring(positionIndex);
-                return baseURL + assetIDWithExtension;
-            }
-        }
-        return baseURL + assetID;
+        return assets.find(function (asset) {
+            var assetParts = asset.href.split('/');
+            return assetParts[assetParts.length - 1].includes(assetID);
+        });
     }
 
     /**
@@ -109,6 +112,40 @@
      */
     function isURLValidForProxyRequest(urlToImage) {
         return urlToImage.indexOf("/file/serve/") > -1;
+    }
+
+    /**
+     Get base URL of content.
+
+     At first get `contentBaseURL` form ContextMetadata.
+     If `contentBaseURL` not exist in ContextMetadata then return base URL calculated on page's URL.
+
+     @method getBaseURL
+
+     @param {object} playerController player controller
+     @return {string | undefined} baseURL or undefined when playerController was not provided
+    */
+    URLUtils.getBaseURL = function (playerController) {
+        if (!playerController) {
+            return;
+        }
+        var contextMetadata = playerController.getContextMetadata();
+        var contentBaseURL = !!contextMetadata ? contextMetadata["contentBaseURL"] : undefined;
+        if (!!contentBaseURL) {
+            return contentBaseURL;
+        }
+        var pageIndex = playerController.getCurrentPageIndex();
+        return playerController.getPresentation().getPage(pageIndex).getBaseURL();
+    };
+
+    /**
+     Get window.location.origin.
+     @method getOrigin
+
+     @return {String} window.location.origin
+    */
+    URLUtils.getOrigin = function URLUtils_getOrigin () {
+        return window.location.origin;
     }
 
     window.URLUtils = URLUtils;

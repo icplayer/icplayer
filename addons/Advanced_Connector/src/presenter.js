@@ -210,7 +210,7 @@ function AddonAdvanced_Connector_create() {
     };
 
     function parseLinks(code) {
-        let baseURL = getBaseURL();
+        const baseURL = URLUtils.getBaseURL(presenter.playerController);
         if (!baseURL) {
             return code;
         }
@@ -242,19 +242,6 @@ function AddonAdvanced_Connector_create() {
         parsedCode += code.substring(previousEndIndex, code.length);
 
         return parsedCode;
-    }
-
-    function getBaseURL() {
-        if (!presenter.playerController) {
-            return null;
-        }
-        const contextMetadata = presenter.playerController.getContextMetadata();
-        const contentBaseURL = !!contextMetadata ? contextMetadata['contentBaseURL'] : null;
-        if (!!contentBaseURL) {
-            return contentBaseURL;
-        }
-        const pageIndex = presenter.playerController.getCurrentPageIndex();
-        return presenter.playerController.getPresentation().getPage(pageIndex).getBaseURL();
     }
 
     function extractLines(script, start, end) {
