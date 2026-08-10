@@ -1,3 +1,4 @@
+2026-08-10 Added handling punctuation and capitalization checking in Editable Gaps
 2026-07-21 Fixed bug that prevents fonts from loading for paragraph-type addons
 2026-07-17 Fixed bug causing looping in URLUtils.parseCSSFile
 2026-07-07 Fixed loading models in Model Viewer 3D
