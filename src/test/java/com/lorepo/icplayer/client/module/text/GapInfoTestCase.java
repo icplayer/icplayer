@@ -123,4 +123,58 @@ public class GapInfoTestCase {
 
         assertFalse(isValueCheckable);
     }
+
+    @Test
+    public void givenCaseInsensitiveGapAndNoCapitalisationCheckingOverrideWhenIsCorrectThenIgnoresCase() {
+        GapInfo gap = new GapInfo("someId", 0, false, false, 100, false);
+        gap.addAnswer("Paris");
+
+        assertTrue(gap.isCorrect("paris"));
+    }
+
+    @Test
+    public void givenCaseInsensitiveGapAndCapitalisationCheckingTrueWhenIsCorrectThenEnforcesCase() {
+        GapInfo gap = new GapInfo("someId", 0, false, false, 100, false);
+        gap.addAnswer("Paris");
+        gap.setCapitalisationChecking(true);
+
+        assertFalse(gap.isCorrect("paris"));
+        assertTrue(gap.isCorrect("Paris"));
+    }
+
+    @Test
+    public void givenCaseSensitiveGapAndCapitalisationCheckingFalseWhenIsCorrectThenOverridesToIgnoreCase() {
+        GapInfo gap = new GapInfo("someId", 0, true, false, 100, false);
+        gap.addAnswer("Paris");
+        gap.setCapitalisationChecking(false);
+
+        assertTrue(gap.isCorrect("paris"));
+    }
+
+    @Test
+    public void givenIgnorePunctuationGapAndNoPunctuationCheckingOverrideWhenIsCorrectThenIgnoresPunctuation() {
+        GapInfo gap = new GapInfo("someId", 0, false, true, 100, false);
+        gap.addAnswer("Paris!");
+
+        assertTrue(gap.isCorrect("paris"));
+    }
+
+    @Test
+    public void givenIgnorePunctuationGapAndPunctuationCheckingTrueWhenIsCorrectThenEnforcesPunctuation() {
+        GapInfo gap = new GapInfo("someId", 0, false, true, 100, false);
+        gap.addAnswer("Paris!");
+        gap.setPunctuationChecking(true);
+
+        assertFalse(gap.isCorrect("paris"));
+        assertTrue(gap.isCorrect("paris!"));
+    }
+
+    @Test
+    public void givenKeepPunctuationGapAndPunctuationCheckingFalseWhenIsCorrectThenOverridesToIgnorePunctuation() {
+        GapInfo gap = new GapInfo("someId", 0, false, false, 100, false);
+        gap.addAnswer("Paris!");
+        gap.setPunctuationChecking(false);
+
+        assertTrue(gap.isCorrect("paris"));
+    }
 }

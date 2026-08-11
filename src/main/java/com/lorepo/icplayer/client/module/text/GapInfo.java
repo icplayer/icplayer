@@ -11,7 +11,6 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
 	private String id;
 	private List<String> answers = new ArrayList<String>();
-	private List<String> checkAnswers = new ArrayList<String>();
 	private int	value;
 	private int maxLength;
 	private boolean isCaseSensitive = false;
@@ -20,6 +19,9 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	private String langTag = null;
 	private boolean isNumericOnly = false;
 	private boolean wasReset = false;
+	// null means "not provided by host" -> fall back to isCaseSensitive/isIgnorePunctuation
+	private Boolean capitalisationChecking = null;
+	private Boolean punctuationChecking = null;
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
@@ -47,8 +49,14 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		// this is needed for showing visible text when show answer is called on gap
 		answer = AlternativeTextService.unescapeAltText(answer, matchAllVisbileText);
 		answers.add(answer);
-		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
-		checkAnswers.add(isCaseSensitive ? answer : answer.toLowerCase());
+	}
+
+	public void setCapitalisationChecking(Boolean capitalisationChecking) {
+		this.capitalisationChecking = capitalisationChecking;
+	}
+
+	public void setPunctuationChecking(Boolean punctuationChecking) {
+		this.punctuationChecking = punctuationChecking;
 	}
 
 	public static boolean isLetter(char c) {
@@ -92,9 +100,13 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
 	public boolean isCorrect(String text) {
 		boolean correct = false;
-		text = getCleanedText(text);
-		for (String answer : checkAnswers) {
-			String parsedAnswer = getCorrectAnswer(AlternativeTextService.getVisibleText(answer));
+		boolean effectiveCaseSensitive = capitalisationChecking != null ? capitalisationChecking : isCaseSensitive;
+		boolean effectiveIgnorePunctuation = punctuationChecking != null ? !punctuationChecking : isIgnorePunctuation;
+
+		text = getCleanedText(text, effectiveCaseSensitive, effectiveIgnorePunctuation);
+		for (String answer : answers) {
+			String checkAnswer = getCheckAnswer(answer, effectiveCaseSensitive, effectiveIgnorePunctuation);
+			String parsedAnswer = getCorrectAnswer(AlternativeTextService.getVisibleText(checkAnswer));
 			String parsedUserAnswer = getParsedUserAnswer(text);
 			if (parsedAnswer.compareTo(parsedUserAnswer) == 0) {
 				correct = true;
@@ -103,6 +115,13 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		}
 
 		return correct;
+	}
+
+	private String getCheckAnswer(String answer, boolean effectiveCaseSensitive, boolean effectiveIgnorePunctuation) {
+		if (effectiveIgnorePunctuation) {
+			answer = removePunctuation(answer);
+		}
+		return effectiveCaseSensitive ? answer : answer.toLowerCase();
 	}
 
 	private String getCorrectAnswer(String answer) {
@@ -208,17 +227,17 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return isNumericOnly;
 	}
 
-    private String getCleanedText(String text) {
-        text = cleanStringAccordingToSettings(text);
+    private String getCleanedText(String text, boolean effectiveCaseSensitive, boolean effectiveIgnorePunctuation) {
+        text = cleanStringAccordingToSettings(text, effectiveCaseSensitive, effectiveIgnorePunctuation);
         text = TextParser.parseAnswer(text);
 		return AlternativeTextService.getVisibleText(text);
     }
 
-	private String cleanStringAccordingToSettings(String text) {
-	    if (!isCaseSensitive) {
+	private String cleanStringAccordingToSettings(String text, boolean effectiveCaseSensitive, boolean effectiveIgnorePunctuation) {
+	    if (!effectiveCaseSensitive) {
 			text = text.toLowerCase();
 		}
-		if (isIgnorePunctuation) {
+		if (effectiveIgnorePunctuation) {
 			text = removePunctuation(text);
 		}
 		return text;

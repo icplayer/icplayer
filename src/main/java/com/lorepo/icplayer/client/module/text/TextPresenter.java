@@ -406,6 +406,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			hideAnswers();
 		}
 
+		applyContextMetadataGapCheckingSettings();
+
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 				view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
@@ -574,6 +576,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return currentErrorCount;
 		}
 
+		applyContextMetadataGapCheckingSettings();
+
 		String enteredValue;
 		int errorCount = 0;
 
@@ -715,6 +719,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentScore;
 		}
+
+		applyContextMetadataGapCheckingSettings();
 
 		for (GroupGapsListItem groupGapsItem: module.getGroupGaps()) {
 			if (groupGapsItem.getErrorCode() != null) {
@@ -1987,6 +1993,44 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return true;
 		}
 		return gap.isValueCheckable(module.ignoreDefaultPlaceholderWhenCheck(), gw.hasGapBeenAccessed());
+	}
+
+	private void applyContextMetadataGapCheckingSettings() {
+		if (playerServices == null || !"Editable".equals(module.getGapType())) {
+			return;
+		}
+
+		JavaScriptObject contextMetadata = playerServices.getContextMetadata();
+		if (contextMetadata == null) {
+			return;
+		}
+
+		Boolean capitalisationChecking = getBooleanFromContextMetadata(contextMetadata, "capitalisationChecking");
+		Boolean punctuationChecking = getBooleanFromContextMetadata(contextMetadata, "punctuationChecking");
+
+		if (capitalisationChecking == null && punctuationChecking == null) {
+			return;
+		}
+
+		for (GapInfo gap : module.getGapInfos()) {
+			gap.setCapitalisationChecking(capitalisationChecking);
+			gap.setPunctuationChecking(punctuationChecking);
+		}
+	}
+
+	/**
+	 * Context metadata sends "on" / "off" / "default" for these keys.
+	 * "default" (or any other/missing value) means "not provided" -> fall back to the content's own setting.
+	 */
+	private Boolean getBooleanFromContextMetadata(JavaScriptObject contextMetadata, String key) {
+		String value = JavaScriptUtils.getArrayItemByKey(contextMetadata, key);
+		if ("on".equalsIgnoreCase(value)) {
+			return Boolean.TRUE;
+		}
+		if ("off".equalsIgnoreCase(value)) {
+			return Boolean.FALSE;
+		}
+		return null;
 	}
 
 	private void addiOSClass() {
