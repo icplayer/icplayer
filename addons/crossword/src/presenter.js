@@ -1231,10 +1231,14 @@ function Addoncrossword_create(){
             return autoNavigationPropertyResponse;
         }
 
+        // Auto-detect Turkish characters (İ, ı, Ğ, ğ, Ş, ş)
+        var isTurkish = /[İıĞğŞş]/.test(model['Crossword']);
+
         return {
             isError: false,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
             langTag: model["langAttribute"],
+            isTurkish: isTurkish
         };
     };
 
@@ -1251,6 +1255,18 @@ function Addoncrossword_create(){
                 presenter.ERROR_MESSAGES.NOT_SUPPORTED_SELECTED_AUTO_NAVIGATION_MODE
             );
         }
+    }
+
+    function isTurkishMode() {
+        if (presenter.configuration && presenter.configuration.isTurkish) {
+            return true;
+        }
+
+        if (presenter.printableConfiguration && presenter.printableConfiguration.isTurkish) {
+            return true;
+        }
+
+        return false;
     }
 
     presenter.isAutoNavigationInOffMode = function () {
@@ -2747,8 +2763,20 @@ function Addoncrossword_create(){
     }
 
     function capitalize(value) {
+        // Fallback for undefined/null safety
+        if (typeof value !== 'string') return value;
+
         // standard toUpperCase uses 'SS' as capital 'ß', which causes errors
         if (value === 'ß') return 'ß';
+
+        // Handle Turkish I correctly if detected
+        if (isTurkishMode()) {
+            return value
+                .replace(/i/g, 'İ')
+                .replace(/ı/g, 'I')
+                .toUpperCase();
+        }
+
         return value.toUpperCase();
     }
 
