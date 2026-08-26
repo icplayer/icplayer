@@ -121,7 +121,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		if (effectiveIgnorePunctuation) {
 			answer = removePunctuation(answer);
 		}
-		return effectiveCaseSensitive ? answer : answer.toLowerCase();
+		return effectiveCaseSensitive ? answer : getSafeLowerCase(answer);
 	}
 
 	private String getCorrectAnswer(String answer) {
@@ -140,10 +140,24 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return userAnswer.trim();
 	}
 
+	private String getSafeLowerCase(String text) {
+        if (isTurkishLang(text)) {
+            return text.replace("I", "ı").replace("İ", "i");
+        }
+
+        return text.toLowerCase();
+    }
+
 	private boolean isMathFormula(String value) {
 		String pattern = ".*[a-zA-Z0-9\\s]+<[a-zA-Z0-9\\s]+.*";
 
 		return value.matches(pattern);
+	}
+
+	private boolean isTurkishLang(String value) {
+	    String pattern = ".*[ığüşöçİĞÜŞÖÇ]+.*";
+
+	    return value.matches(pattern);
 	}
 
     public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
@@ -235,7 +249,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
 	private String cleanStringAccordingToSettings(String text, boolean effectiveCaseSensitive, boolean effectiveIgnorePunctuation) {
 	    if (!effectiveCaseSensitive) {
-			text = text.toLowerCase();
+			text = getSafeLowerCase(text);
 		}
 		if (effectiveIgnorePunctuation) {
 			text = removePunctuation(text);
