@@ -22,6 +22,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	// null means "not provided by host" -> fall back to isCaseSensitive/isIgnorePunctuation
 	private Boolean capitalisationChecking = null;
 	private Boolean punctuationChecking = null;
+	private Boolean isTurkishLang = null;
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
@@ -103,7 +104,21 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		boolean effectiveCaseSensitive = capitalisationChecking != null ? capitalisationChecking : isCaseSensitive;
 		boolean effectiveIgnorePunctuation = punctuationChecking != null ? !punctuationChecking : isIgnorePunctuation;
 
-		text = getCleanedText(text, effectiveCaseSensitive, effectiveIgnorePunctuation);
+        if (this.isTurkishLang == null) {
+           this.isTurkishLang = false;
+           for (String answer : answers) {
+               if (isTurkishLang(answer, "")) {
+                   this.isTurkishLang = true;
+                   break;
+               }
+           }
+       }
+
+       if (!this.isTurkishLang && isTurkishLang("", text)) {
+           this.isTurkishLang = true;
+       }
+
+       text = getCleanedText(text, effectiveCaseSensitive, effectiveIgnorePunctuation);
 		for (String answer : answers) {
 			String checkAnswer = getCheckAnswer(answer, effectiveCaseSensitive, effectiveIgnorePunctuation);
 			String parsedAnswer = getCorrectAnswer(AlternativeTextService.getVisibleText(checkAnswer));
@@ -141,11 +156,11 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	}
 
 	private String getSafeLowerCase(String text) {
-        if (isTurkishLang(text)) {
+        if (this.isTurkishLang) {
             return text.replace("I", "ı").replace("İ", "i");
         }
 
-        return text.toLowerCase();
+        return text.toLowerCase().replace("\u0307", "");
     }
 
 	private boolean isMathFormula(String value) {
@@ -154,10 +169,11 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return value.matches(pattern);
 	}
 
-	private boolean isTurkishLang(String value) {
+	private boolean isTurkishLang(String answer, String userAnswer) {
 	    String pattern = ".*[ığüşöçİĞÜŞÖÇ]+.*";
 
-	    return value.matches(pattern);
+	    return (answer != null && answer.matches(pattern)) ||
+               (userAnswer != null && userAnswer.matches(pattern));
 	}
 
     public boolean isValueCheckable(boolean ignorePlaceholderWhenChecking, boolean hasGapBeenAccessed) {
