@@ -157,7 +157,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
 	private String getSafeLowerCase(String text) {
         if (this.isTurkishLang) {
-            return text.replace("I", "ı").replace("İ", "i");
+            text = text.replace("I", "ı").replace("İ", "i");
         }
 
         return text.toLowerCase().replace("\u0307", "");
