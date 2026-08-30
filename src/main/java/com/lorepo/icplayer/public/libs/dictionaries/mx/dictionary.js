@@ -1588,7 +1588,7 @@ var ice_dictionary_mx = {
 	"Text_Coloring_property_deselected": "Deselected",
 	"Text_Coloring_property_TextContent": "Text content",
 	"Text_Coloring_property_correct": "Correct",
-	"Text_Coloring_property_Incorrect": "Incorrect",
+	"Text_Coloring_property_Incorrect": "Wrong",
 	"Text_Coloring_property_lang_attribute": "Lang attribute",
 	"Text_Coloring_property_is_not_activity": "Is Not Activity",
 	"Text_Selection_info": "Permite seleccionar partes específicas del texto. Funciona en dos modos: 1. 'Marcar frases para seleccionar', donde se pueden definir las respuestas correctas y incorrectas, 2. 'Todo seleccionable', donde todas las palabras están listas para seleccionar pero hay que encontrar las orrectas.",

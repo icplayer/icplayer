@@ -1576,7 +1576,7 @@ var ice_dictionary_bl = {
 	"Text_Coloring_property_deselected": "Deselected",
 	"Text_Coloring_property_TextContent": "Text content",
 	"Text_Coloring_property_correct": "Correct",
-	"Text_Coloring_property_Incorrect": "Incorrect",
+	"Text_Coloring_property_Incorrect": "Wrong",
 	"Text_Coloring_property_lang_attribute": "Lang attribute",
 	"Text_Coloring_property_is_not_activity": "Is Not Activity",
 	"Text_Selection_info": "Позволява да се маркират определени части текст. Работи в два режима – 'Маркиране на определени изрази', където може да въведете верни и грешни отговори и 'Маркиране на всички', където всичко изрази могат да се маркират, а вие трябва да отбележите само верните отговори.",
