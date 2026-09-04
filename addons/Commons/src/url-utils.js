@@ -92,7 +92,8 @@
         var urlToImage = url;
         if (isURLValidForCrossOriginRequest(playerController, urlToImage)) {
             imageElement.setAttribute("crossorigin", "anonymous");
-        } else if (isURLValidForProxyRequest(urlToImage)) {
+        }
+        if (isURLValidForProxyRequest(urlToImage)) {
             var separator = (urlToImage.indexOf("?") === -1) ? "?" : "&";
             urlToImage += separator + "no_gcs=True";
         }

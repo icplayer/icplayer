@@ -1,3 +1,4 @@
+2026-09-04 Fixed Shape Tracing throwing CORS errors in remote lessons on mLibro
 2026-08-26 Added handling "İ" in editable gaps
 2026-08-12 Added handling "İ" in Crossword
 2026-08-10 Added handling punctuation and capitalization checking in Editable Gaps
