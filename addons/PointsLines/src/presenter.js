@@ -1047,6 +1047,7 @@ function AddonPointsLines_create() {
     };
 
     presenter.setState = function(state) {
+        if (JSON.parse(state).currentLines === undefined) return;
         presenter.currentLines = JSON.parse(state).currentLines;
         presenter.disabled = JSON.parse(state).disabled;
         presenter.pointsConnected = JSON.parse(state).single;
