@@ -57,7 +57,7 @@ The list starts with the common properties. Learn more about them by visiting th
             <br>
             <b>It is required that the files listed in the file in “Custom CSS” property are added as assets to the lesson.</b>
             <br>
-            <em>In case this property was selected first and then a CSS file was added to the “Custom CSS” property, the list of assets will be updated automatically. Functionality does not yet work with <a href="/doc/page/Updating-assets" target="_blank" rel="noopener noreferrer">Update assets »</a></em>
+            <em>In case this property was selected first and then a CSS file was added to the “Custom CSS” property, the list of assets will be updated automatically.</em>
         </td>
     </tr>
     <tr>
