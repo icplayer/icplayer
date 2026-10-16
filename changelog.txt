@@ -1,3 +1,4 @@
+2026-10-16 Updated jquery, jquery-ui, dompurify and tinymce
 2026-09-30 Added protection against DOMException while parsing empty XML
 2026-09-09 Updated documentations of Paragraph and Paragraph eKeyboard
 2026-09-08 Fixed Points Lines addon throwing errors when one of the layouts is too small

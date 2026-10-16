@@ -2878,8 +2878,10 @@ function AddonIWB_Toolbar_create() {
 
     presenter.Note.prototype.destroy = function () {
         if(this.$note) {
-            var $note = this.$note.draggable("destroy");
-            $note.off();
+            if (this.$note.draggable("instance") != null) {
+                var $note = this.$note.draggable("destroy");
+                $note.off();
+            }
             this.$note.off();
             this.$header.off();
             this.$date.off();
@@ -3417,7 +3419,9 @@ function AddonIWB_Toolbar_create() {
         //stopwatch
         if (presenter._stopwatch !== null) {
             presenter._stopwatch.stopwatch.off();
-            presenter._stopwatch.stopwatch.draggable('destroy');
+            if (presenter._stopwatch.stopwatch.draggable('instance') != null) {
+                presenter._stopwatch.stopwatch.draggable('destroy');
+            }
             presenter._stopwatch.closeButton.off();
             $(presenter._stopwatch.start).off();
             $(presenter._stopwatch.stop).off();
@@ -3444,7 +3448,9 @@ function AddonIWB_Toolbar_create() {
             }
 
             presenter._clockwatch.clock.off();
-            presenter._clockwatch.clock.draggable('destroy');
+            if (presenter._clockwatch.clock.draggable('instance') != null) {
+                presenter._clockwatch.clock.draggable('destroy');
+            }
             presenter._clockwatch.closeButton.off();
 
             presenter._clockwatchTimer = null;
@@ -3592,7 +3598,9 @@ function AddonIWB_Toolbar_create() {
         presenter.$removeConfirmationBox.off();
         presenter.$removeConfirmationBoxClock.off();
         presenter.$removeConfirmationBoxStopwatch.off();
-        presenter.$panel.draggable("destroy");
+        if (presenter.$panel.draggable("instance") != null) {
+            presenter.$panel.draggable("destroy");
+        }
         presenter.$view.off();
         presenter.$defaultThicknessButton.off();
         presenter.$buttonsExceptOpen.off();

@@ -611,7 +611,7 @@
         this.setViewValue.call(this, "");
         this.sendItemReturnedEvent();
         this.sendItemDraggedEvent();
-        ui.helper.zIndex(100);
+        ui.helper.css('z-index',100);
         this.$view.removeClass('gapFilled');
     };
 
@@ -656,7 +656,9 @@
      * @method destroyDraggableProperty
      */
     DraggableDroppableObject.prototype.destroyDraggableProperty = function () {
-        this.$view.draggable("destroy");
+        if (this.$view.draggable("instance") != null) {
+            this.$view.draggable("destroy");
+        }
     };
 
     /**

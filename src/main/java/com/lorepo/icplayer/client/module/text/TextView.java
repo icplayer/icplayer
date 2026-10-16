@@ -745,9 +745,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 			$droppableElements = $addon.find(".ui-droppable");
 			$draggableElements = $addon.find(".ui-draggable");
-
-			$droppableElements.droppable("destroy");
-			$draggableElements.draggable("destroy");
+            if ($droppableElements.droppable("instance") != null) {
+			    $droppableElements.droppable("destroy");
+			}
+			if ($draggableElements.draggable("instance") != null) {
+			    $draggableElements.draggable("destroy");
+			}
 
 			$droppableElements = null;
 			$draggableElements = null;

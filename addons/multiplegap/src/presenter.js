@@ -967,12 +967,12 @@ function Addonmultiplegap_create(){
                     event.preventDefault();
                     return;
                 }
-                ui.helper.zIndex(100);
+                ui.helper.css('z-index',100);
 
             },
             stop : function(event, ui) {
                 placeholder.removeClass('dragging');
-                ui.helper.zIndex(0);
+                ui.helper.css('z-index',0);
                 ui.helper.remove();
                 presenter.itemStopped(placeholder);
                 ui.helper.remove();
