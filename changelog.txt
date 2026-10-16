@@ -1,3 +1,4 @@
+2026-10-16 Updated jquery, jquery-ui, dompurify and tinymce
 2026-08-26 Added handling "İ" in editable gaps
 2026-08-12 Added handling "İ" in Crossword
 2026-08-10 Added handling punctuation and capitalization checking in Editable Gaps
