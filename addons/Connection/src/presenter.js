@@ -1156,7 +1156,7 @@ function AddonConnection_create() {
                         }
                         $item.removeClass(presenter.CSS_CLASSES.SELECTED);
                         selectedItem = null;
-                        ui.helper.zIndex(100);
+                        ui.helper.css('z-index',100);
                         clickLogic(this);
                         if (presenter.configuration.removeDraggedElement) {
                             ui.helper.find('.icon').hide();
@@ -1179,7 +1179,7 @@ function AddonConnection_create() {
                         presenter.drawTempLine(presenter.mouseSX / scale.scaleX, presenter.mouseSY / scale.scaleY);
                     },
                     stop: function (event, ui) {
-                        ui.helper.zIndex(0);
+                        ui.helper.css('z-index',0);
                         if (presenter.configuration.removeDraggedElement) {
                             ui.helper.find('.icon').show();
                         } else {

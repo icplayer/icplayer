@@ -328,8 +328,10 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard.prototype.destroy = function scoreboardDestroy () {
         if(this.$scoreboard) {
-            var $scoreboard = this.$scoreboard.draggable("destroy");
-            $scoreboard.off();
+            if (this.$scoreboard.draggable("instance") != null) {
+                var $scoreboard = this.$scoreboard.draggable("destroy");
+                $scoreboard.off();
+            }
             this.$scoreboard.off();
             this.$scoreboardBody.off();
             this.$scoreboardHeader.off();
@@ -538,8 +540,10 @@ function AddonScoreboard_create() {
     presenter.Team.prototype.destroy = function teamDestroy () {
         if(this.$team) {
             presenter.removeTeam(this.teamId);
-            var $team = this.$team.draggable("destroy");
-            $team.off();
+            if (this.$team.draggable("instance") != null) {
+                var $team = this.$team.draggable("destroy");
+                $team.off();
+            }
             this.$team.off();
             this.$teamHeader.off();
             this.$teamBody.off();

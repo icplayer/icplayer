@@ -238,7 +238,7 @@
                 <file name="${build.temp.folder}/kinetic-v5.1.0.min.js"/>
                 <file name="${build.temp.folder}/player-utils.js"/>
                 <file name="${build.temp.folder}/polyfills/startswith.js"/>
-                <file name="${build.temp.folder}/purify.js"/>
+                <file name="${build.temp.folder}/purify.min.js"/>
                 <file name="${build.temp.folder}/scorm.js"/>
                 <file name="${build.temp.folder}/scorm_1_2.js"/>
                 <file name="${build.temp.folder}/sonic.js"/>
