@@ -177,7 +177,8 @@ public class AddonDescriptorFactory {
 
 	private void addDescriptor(String id, String category) {
 		String moduleBaseURL = GWT.getModuleBaseURL().replaceFirst("^(http://|https://)", "//");
-		String url = moduleBaseURL + "addons/" + id + ".xml";
+		String proxyPrefix = moduleBaseURL.contains("/proxy/get") ? "" : "/proxy/get?url=";
+		String url = proxyPrefix + moduleBaseURL + "addons/" + id + ".xml";
 		String name = DictionaryWrapper.get(id + "_name");
 
 		AddonEntry entry = new AddonEntry(id, name, url, category);
