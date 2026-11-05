@@ -5,6 +5,9 @@ TestCase("[Video] Commands", {
         this.presenter.configuration.files[0] = {
 
         };
+        this.presenter.configuration.originalFiles = [
+            {}
+        ];
 
         this.presenter.jumpTo = sinon.spy();
     },

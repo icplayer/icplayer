@@ -71,6 +71,18 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue('Seek command should be executed', this.presenter.seek.called);
     },
 
+    'test given visible caption when stop was called then caption should be hidden': function() {
+        sinon.stub(this.presenter.videoObject, 'pause');
+        var captionElement = document.createElement('div');
+        $(captionElement).css('visibility', 'visible').attr('visibility', 'visible');
+        this.presenter.captions = [{start: 0, end: 10, element: captionElement}];
+
+        this.presenter.stop();
+
+        assertEquals('hidden', $(captionElement).css('visibility'));
+        assertEquals('hidden', $(captionElement).attr('visibility'));
+    },
+
     'test given playing video when pause was called should pause playing': function() {
         this.presenter.play();
         sinon.stub(this.presenter.videoObject, 'pause');
