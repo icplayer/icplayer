@@ -157,5 +157,34 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.callTasksFromDeferredQueue();
 
         assertEquals(10, this.presenter.videoObject.currentTime);
+    },
+
+    'test given paused video when seek was called then should update captions for new time': function () {
+        this.presenter.seek.restore();
+        var showCaptionsStub = sinon.stub(this.presenter, 'showCaptions');
+        this.presenter.videoObject = {
+            paused: true,
+            currentTime: 0,
+            duration: 100
+        };
+
+        this.presenter.seek(10);
+
+        assertTrue(showCaptionsStub.calledOnce);
+        assertTrue(showCaptionsStub.calledWith(10));
+    },
+
+    'test given playing video when seek was called then should not update captions': function () {
+        this.presenter.seek.restore();
+        var showCaptionsStub = sinon.stub(this.presenter, 'showCaptions');
+        this.presenter.videoObject = {
+            paused: false,
+            currentTime: 0,
+            duration: 100
+        };
+
+        this.presenter.seek(10);
+
+        assertFalse(showCaptionsStub.called);
     }
 });

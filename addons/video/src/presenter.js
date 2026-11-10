@@ -2158,6 +2158,9 @@ function Addonvideo_create() {
         if (seconds > presenter.videoObject.duration) {
             presenter.posterPlayButton.removeClass('video-poster-pause');
         }
+        if (!presenter.areSubtitlesHidden && presenter.videoObject.paused) {
+            presenter.showCaptions(seconds);
+        }
     });
 
     presenter.seekFromPercent = function (percent) {
