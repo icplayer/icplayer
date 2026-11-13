@@ -71,6 +71,18 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue('Seek command should be executed', this.presenter.seek.called);
     },
 
+    'test given visible caption when stop was called then caption should be hidden': function() {
+        sinon.stub(this.presenter.videoObject, 'pause');
+        var captionElement = document.createElement('div');
+        $(captionElement).css('visibility', 'visible').attr('visibility', 'visible');
+        this.presenter.captions = [{start: 0, end: 10, element: captionElement}];
+
+        this.presenter.stop();
+
+        assertEquals('hidden', $(captionElement).css('visibility'));
+        assertEquals('hidden', $(captionElement).attr('visibility'));
+    },
+
     'test given playing video when pause was called should pause playing': function() {
         this.presenter.play();
         sinon.stub(this.presenter.videoObject, 'pause');
@@ -145,5 +157,34 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.callTasksFromDeferredQueue();
 
         assertEquals(10, this.presenter.videoObject.currentTime);
+    },
+
+    'test given paused video when seek was called then should update captions for new time': function () {
+        this.presenter.seek.restore();
+        var showCaptionsStub = sinon.stub(this.presenter, 'showCaptions');
+        this.presenter.videoObject = {
+            paused: true,
+            currentTime: 0,
+            duration: 100
+        };
+
+        this.presenter.seek(10);
+
+        assertTrue(showCaptionsStub.calledOnce);
+        assertTrue(showCaptionsStub.calledWith(10));
+    },
+
+    'test given playing video when seek was called then should not update captions': function () {
+        this.presenter.seek.restore();
+        var showCaptionsStub = sinon.stub(this.presenter, 'showCaptions');
+        this.presenter.videoObject = {
+            paused: false,
+            currentTime: 0,
+            duration: 100
+        };
+
+        this.presenter.seek(10);
+
+        assertFalse(showCaptionsStub.called);
     }
 });

@@ -101,6 +101,8 @@ TestCase("[Video] Model validation", {
             }
         };
 
+        expected.originalFiles = JSON.parse(JSON.stringify(expected.files));
+
         var expectedSpeechTexts = {
             audioDescriptionEnabled: "Audio description enabled2",
             audioDescriptionDisabled: "Audio description disabled2"
