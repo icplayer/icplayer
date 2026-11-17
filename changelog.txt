@@ -1,4 +1,4 @@
-2026-11-16 Skipped installing optional dependencies
+2026-11-17 Updated fsevents to 1.2.13 in addons build dependencies
 2026-11-10 Fixed subtitles in Video staying visible after stop and not updating when seeking while paused
 2026-09-30 Added protection against DOMException while parsing empty XML
 2026-09-09 Updated documentations of Paragraph and Paragraph eKeyboard

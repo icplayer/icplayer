@@ -3,7 +3,7 @@ from sys import platform
 
 
 def build_linux():
-    p = subprocess.Popen(["npm install --no-optional"], shell=True)
+    p = subprocess.Popen(["npm install"], shell=True)
     p.wait()
 
     p = subprocess.Popen(["./node_modules/.bin/webpack"], shell=True)
@@ -11,7 +11,7 @@ def build_linux():
 
 
 def build_windows():
-    p = subprocess.Popen(["npm", "install", "--no-optional"], shell=True)
+    p = subprocess.Popen(["npm", "install"], shell=True)
     p.wait()
 
     p = subprocess.Popen(["node_modules\\.bin\\webpack.cmd"], shell=True)

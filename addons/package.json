@@ -27,5 +27,8 @@
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
     "babel-preset-env": "^1.6.1",
     "webpack": "^3.11.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "^1.2.13"
   }
 }
