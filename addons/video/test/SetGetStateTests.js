@@ -60,6 +60,9 @@ SetGetStateTests.prototype.testSetState = function() {
     this.presenter.configuration.files = [
         {}
     ];
+    this.presenter.configuration.originalFiles = [
+        {}
+    ];
     // Given
     var stateString = '{"files":"deprecated","videoURLS":{"0":{"url":{"subtitles":"0|2|100|200|red|This is a sample text\\n2.5|4|10|10|green|Another line of text","oggFormat":"https://www.w3schools.com/html/mov_bbb.mp4","mp4Format":"https://www.w3schools.com/html/mov_bbb.mp4","webMFormat":"https://www.w3schools.com/html/mov_bbb.mp4","poster":"","id":"some id","altText":"ALT :)","loop":true},"index":0}},"currentTime":0.521326,"isCurrentlyVisible":true,"isPaused":true,"currentMovie":0,"areSubtitlesHidden":false}';
 

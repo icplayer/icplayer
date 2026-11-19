@@ -1419,6 +1419,14 @@ function Addonvideo_create() {
         }
     };
 
+    function hideAllCaptions() {
+        for (let i = 0; i < presenter.captions.length; i++) {
+            const caption = presenter.captions[i];
+            $(caption.element).css('visibility', 'hidden');
+            $(caption.element).attr('visibility', 'hidden');
+        }
+    }
+
     function getAudioDescriptionEnabled() {
         if (presenter.isAudioDescriptionEnabled != null) {
             return presenter.isAudioDescriptionEnabled;
@@ -1463,11 +1471,7 @@ function Addonvideo_create() {
         presenter.prevTime = time;
 
         if (isSpeaking) {
-            for (var i = 0; i < presenter.captions.length; i++) {
-                var caption = presenter.captions[i];
-                $(caption.element).css('visibility', 'hidden');
-                $(caption.element).attr('visibility', 'hidden');
-            }
+            hideAllCaptions();
         }
         return isSpeaking;
     };
@@ -1522,6 +1526,7 @@ function Addonvideo_create() {
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.showWaterMark();
+            hideAllCaptions();
             presenter.prevTime = -0.001;
             if (document.exitFullscreen && document.fullscreenElement) {
                 document.exitFullscreen();
@@ -1611,12 +1616,13 @@ function Addonvideo_create() {
 
         var eventType = presenter.isHLS() ? 'loadedmetadata' : 'canplay';
         $(presenter.videoObject).on(eventType, function onVideoCanPlay() {
+            $(this).off(eventType, onVideoCanPlay);
+
             if (presenter.videoObject.currentTime < currentTime) {
                 presenter.currentTime = currentTime;
                 presenter.videoObject.currentTime = currentTime;
                 presenter.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
-                $(this).off('canplay');
             }
 
             if (state.areSubtitlesHidden != undefined) {
@@ -1624,6 +1630,9 @@ function Addonvideo_create() {
                     presenter.hideSubtitles();
                 } else {
                     presenter.showSubtitles();
+                    if (presenter.videoObject.currentTime > 0) {
+                        presenter.showCaptions(presenter.videoObject.currentTime);
+                    }
                 }
             }
         });
@@ -1858,13 +1867,20 @@ function Addonvideo_create() {
 
         $(captionElement).css('visibility', 'hidden');
         $(captionElement).attr('visibility', 'hidden');
+        if (!isAudioDescription && presenter.areSubtitlesHidden) {
+            $(captionElement).hide();
+        }
         presenter.$captionsContainer.append(captionElement);
 
         return captionElement;
     }
 
     presenter.convertLinesToCaptions = function (lines) {
+        for (var j = 0; j < presenter.captions.length; j++) {
+            $(presenter.captions[j].element).remove();
+        }
         presenter.captions = [];
+        presenter.captionDivs = [];
 
         for (var i = 0; i < lines.length; i++) {
             var parts = lines[i].split('|');
@@ -1903,6 +1919,10 @@ function Addonvideo_create() {
             $.when(subtitlesLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onSubtitlesLoaded(data) {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
+                // captions were recreated hidden - restore the ones for the current time (e.g. after setState)
+                if (!presenter.areSubtitlesHidden && presenter.videoObject && presenter.videoObject.currentTime > 0) {
+                    presenter.showCaptions(presenter.videoObject.currentTime);
+                }
             });
         }
     };
@@ -2138,6 +2158,9 @@ function Addonvideo_create() {
         if (seconds > presenter.videoObject.duration) {
             presenter.posterPlayButton.removeClass('video-poster-pause');
         }
+        if (!presenter.areSubtitlesHidden && presenter.videoObject.paused) {
+            presenter.showCaptions(seconds);
+        }
     });
 
     presenter.seekFromPercent = function (percent) {
@@ -2250,16 +2273,17 @@ function Addonvideo_create() {
     });
 
     presenter.stop = deferredSyncQueue.decorate(function () {
-            presenter.showPlayButton();
-            presenter.seek(0);
-            presenter.prevTime = -0.001;
-            presenter.videoObject.pause();
-            presenter.usedStop = true;
-            if(presenter.descriptions.length > 0){
-                setAudioDescriptionDisabled();
-            }
-            presenter.removeClassFromView('playing');
-            presenter.posterPlayButton.removeClass('video-poster-pause');
+        presenter.showPlayButton();
+        presenter.seek(0);
+        presenter.prevTime = -0.001;
+        presenter.videoObject.pause();
+        presenter.usedStop = true;
+        if (presenter.descriptions.length > 0){
+            setAudioDescriptionDisabled();
+        }
+        presenter.removeClassFromView('playing');
+        presenter.posterPlayButton.removeClass('video-poster-pause');
+        hideAllCaptions();
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
