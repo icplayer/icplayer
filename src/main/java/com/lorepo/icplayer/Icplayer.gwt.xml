@@ -37,4 +37,8 @@
     <source path="client"/>
 
     <set-property name="user.agent" value="safari,ie9,gecko1_8, opera"/>
+
+    <!-- Replaces the default "std" primary linker, see RefererPreservingIFrameLinker -->
+    <define-linker name="refererPreservingStd" class="com.lorepo.icplayer.linker.RefererPreservingIFrameLinker"/>
+    <add-linker name="refererPreservingStd"/>
 </module>
