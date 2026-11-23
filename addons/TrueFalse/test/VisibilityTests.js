@@ -72,13 +72,16 @@ TestCase('[TrueFalse] Visibility tests', {
 
     'test when not in preview mode and addon is visible, setVisibility should not be called': function () {
         this.stubs.validateModelStub.returns(getValidModel("True"));
+        this.presenter.setEventBus(this.stubs.getEventBusStub());
         this.presenter.run(this.view, {});
+
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
         this.stubs.validateModelStub.returns(getValidModel("False"));
+        this.presenter.setEventBus(this.stubs.getEventBusStub());
 
         this.presenter.run(this.view, {});
 
