@@ -72,6 +72,10 @@ The list starts with the common properties, learn more about them by visiting th
         <td>Speech texts</td>
         <td>List of speech texts: Selected, Deselected, Disabled. This text will be read by the Text to Speech module after the user performs a certain action. The list also includes the "Do not read the Speech texts" checkbox.</td>
     </tr>
+    <tr>
+        <td>Render SVG as HTML</td>
+        <td>This option allows to represent the loaded SVG files as an HTML tag.</td>
+    </tr>
 </table>
 
 ## Supported commands
